@@ -2,8 +2,9 @@ import axios from 'axios';
 import useAuthStore from '../store/useAuthStore.js';
 
 // Create an Axios instance pointing to the proxy defined in vite.config.js
+// Or to the production URL if deployed
 const api = axios.create({
-    baseURL: '/api',
+    baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api',
     headers: {
         'Content-Type': 'application/json',
     },

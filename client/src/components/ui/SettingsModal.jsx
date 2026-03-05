@@ -11,6 +11,23 @@ const SettingsModal = ({ isOpen, onClose }) => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteWord, setDeleteWord] = useState('');
+    const [apiStatus, setApiStatus] = useState('checking');
+
+    useEffect(() => {
+        if (isOpen) {
+            checkApiStatus();
+        }
+    }, [isOpen]);
+
+    const checkApiStatus = async () => {
+        setApiStatus('checking');
+        try {
+            await api.get('/status');
+            setApiStatus('online');
+        } catch (error) {
+            setApiStatus('offline');
+        }
+    };
 
     useEffect(() => {
         if (user?.settings) {
@@ -138,6 +155,36 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                         <option value="USD">USD ($)</option>
                                         <option value="PHP">PHP (₱)</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            {/* System Area */}
+                            <div className="space-y-4">
+                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">System</h4>
+
+                                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+                                    <div className="flex items-center gap-3">
+                                        <span className="material-symbols-outlined text-slate-400">dns</span>
+                                        <span className="text-sm font-bold dark:text-slate-200">API Status</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {apiStatus === 'checking' && <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Checking...</span>}
+                                        {apiStatus === 'online' && (
+                                            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                                <span className="text-[10px] font-black uppercase tracking-wider">Online</span>
+                                            </div>
+                                        )}
+                                        {apiStatus === 'offline' && (
+                                            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-500">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
+                                                <span className="text-[10px] font-black uppercase tracking-wider">Offline</span>
+                                            </div>
+                                        )}
+                                        <button onClick={checkApiStatus} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors flex items-center justify-center cursor-pointer" title="Refresh Status">
+                                            <span className="material-symbols-outlined text-[16px] text-slate-400">refresh</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
