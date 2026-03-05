@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+
+@theme {
+  --font-display: "Manrope", sans-serif;
+
+  --color-primary: #135bec;
+  --color-background-light: #f6f6f8;
+  --color-background-dark: #0d1117;
+
+  --color-habit-health: #10b981;
+  --color-habit-mindset: #8b5cf6;
+  --color-habit-focus: #f59e0b;
+  --color-habit-social: #ec4899;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f6f6f8;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --border: #e2e8f0;
+}
+
+.dark {
+  --background: #0d1117;
+  --foreground: #f8fafc;
+  --card: #192233;
+  --border: #1e293b;
+}
+
+html,
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #334155;
+    border-radius: 20px;
+  }
+
+  html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #475569;
+  }
+
+  .heatmap-cell {
+    @apply w-3 h-3 rounded-sm transition-all duration-200;
+  }
+
+  .mood-heat-cell {
+    @apply w-3 h-3 rounded-sm transition-colors duration-200;
+  }
+
+  .glow-active {
+    box-shadow: 0 0 20px -5px rgba(19, 91, 236, 0.3);
+  }
+}
+
+@theme {
+  --animate-shimmer: shimmer 2s infinite;
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
