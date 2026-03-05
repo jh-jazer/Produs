@@ -7,6 +7,7 @@ import {
     getTransactions,
     addTransaction,
     deleteTransaction,
+    updateTransaction,
     getBudgets,
     updateBudget,
     getDebts,

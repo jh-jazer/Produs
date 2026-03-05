@@ -124,10 +124,9 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                         <span className="text-sm font-bold dark:text-slate-200">Currency</span>
                                     </div>
                                     <select
-                                        value={localSettings.currency || 'USD'}
+                                        value={user?.currency || 'USD'}
                                         onChange={async (e) => {
                                             const val = e.target.value;
-                                            setLocalSettings({ ...localSettings, currency: val });
                                             try {
                                                 await updateSettings({ currency: val });
                                             } catch (err) {

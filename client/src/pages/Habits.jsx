@@ -80,12 +80,12 @@ function Habits() {
     };
 
     return (
-        <div className="w-full max-w-[1200px] flex flex-col gap-4">
+        <div className="w-full max-w-[1200px] flex flex-col gap-6">
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
 
                 {/* Left Column: Header, Streaks & Overview */}
-                <div className="lg:col-span-4 flex flex-col gap-4">
+                <div className="lg:col-span-4 flex flex-col gap-6">
                     <div className="flex flex-col gap-1 pb-2">
                         <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">Build Better Habits</h1>
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Tracking {totalActive} active habits • {successRate}% success rate this week</p>
@@ -95,7 +95,7 @@ function Habits() {
                 </div>
 
                 {/* Right Column: Habit Tracker & Consistency */}
-                <div className="lg:col-span-8 flex flex-col gap-4">
+                <div className="lg:col-span-8 flex flex-col gap-6">
 
 
                     {/* Habit Tracker Component */}
