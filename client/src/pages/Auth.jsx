@@ -127,7 +127,7 @@ function Auth() {
                             <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">Welcome back</h1>
                             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-6">Sign in to your account</p>
 
-                            <button onClick={() => window.location.href = 'http://localhost:5000/api/auth/google'} type="button" className="w-full py-2 mb-4 bg-white dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group">
+                            <button onClick={() => window.location.href = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/auth/google` : '/api/auth/google'} type="button" className="w-full py-2 mb-4 bg-white dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group">
                                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-4 h-4 group-hover:scale-110 transition-transform" />
                                 Google
                             </button>
@@ -196,7 +196,7 @@ function Auth() {
                             <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">Get started</h1>
                             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-6">Create your free account</p>
 
-                            <button onClick={() => window.location.href = 'http://localhost:5000/api/auth/google'} type="button" className="w-full py-2 mb-4 bg-white dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group">
+                            <button onClick={() => window.location.href = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/auth/google` : '/api/auth/google'} type="button" className="w-full py-2 mb-4 bg-white dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group">
                                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-4 h-4 group-hover:scale-110 transition-transform" />
                                 Google
                             </button>

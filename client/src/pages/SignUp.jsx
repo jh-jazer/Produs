@@ -35,7 +35,9 @@ function SignUp() {
     };
 
     const handleGoogleSignIn = () => {
-        window.location.href = 'http://localhost:5000/api/auth/google';
+        window.location.href = import.meta.env.VITE_API_URL
+            ? `${import.meta.env.VITE_API_URL}/api/auth/google`
+            : '/api/auth/google';
     };
 
     return (
