@@ -20,7 +20,7 @@ function SignIn() {
         try {
             const { data } = await api.post('/auth/login', { email, password });
             setCredentials(data);
-            navigate('/');
+            navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to sign in. Please try again.');
         } finally {

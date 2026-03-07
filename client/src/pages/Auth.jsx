@@ -48,7 +48,7 @@ function Auth() {
                 password: formData.password,
             });
             setCredentials(data);
-            navigate('/');
+            navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed. Please try again.');
         } finally {

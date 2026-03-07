@@ -25,7 +25,7 @@ const Onboarding = () => {
         try {
             const { data } = await api.put('/auth/onboarding', { timezone, currency });
             setCredentials({ ...user, ...data });
-            navigate('/');
+            navigate('/dashboard');
         } catch (error) {
             console.error('Failed to complete onboarding:', error);
         } finally {

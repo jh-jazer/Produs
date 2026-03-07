@@ -33,7 +33,7 @@ const ProfileModal = ({ isOpen, onClose, user }) => {
                                 <div className="size-24 rounded-3xl bg-white dark:bg-[#192233] p-1 shadow-xl">
                                     <div className="size-full rounded-[20px] bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden ring-1 ring-slate-200 dark:ring-slate-700">
                                         {user?.avatar ? (
-                                            <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                                            <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                         ) : (
                                             <span className="text-4xl font-black text-slate-400">
                                                 {user?.name?.charAt(0).toUpperCase()}

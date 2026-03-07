@@ -26,7 +26,7 @@ function SignUp() {
                 password
             });
             setCredentials(data);
-            navigate('/');
+            navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to create account. Please try again.');
         } finally {

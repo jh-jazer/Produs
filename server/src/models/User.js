@@ -40,6 +40,14 @@ const userSchema = new mongoose.Schema({
         notificationsEnabled: {
             type: Boolean,
             default: false
+        },
+        wishlist: {
+            type: Array,
+            default: []
+        },
+        mood: {
+            type: String,
+            default: "neutral"
         }
     },
     currency: {

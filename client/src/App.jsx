@@ -10,6 +10,8 @@ import Journal from './pages/Journal';
 import Auth from './pages/Auth';
 import AuthCallback from './pages/AuthCallback';
 import Onboarding from './pages/Onboarding';
+import Landing from './pages/Landing';
+import Profile from './pages/Profile';
 import useAuthStore from './store/useAuthStore';
 
 // Simple wrapper to protect routes
@@ -23,21 +25,28 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function AnimatedRoutes() {
-  const location = useLocation();
+  const user = useAuthStore((state) => state.user);
   const transitionKey = location.pathname.startsWith('/auth') ? 'auth' : 'app';
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={transitionKey}>
+        {/* Public Landing Page */}
+        <Route path="/" element={
+          user && user.onboardingCompleted ? <Navigate to="/dashboard" replace /> : <Landing />
+        } />
+
         <Route path="/auth" element={<Auth />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
+
         {/* Protected Dashboard Routes */}
-        <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route path="/dashboard" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<Overview />} />
           <Route path="habits" element={<Habits />} />
           <Route path="planner" element={<Planner />} />
           <Route path="finance" element={<Finance />} />
           <Route path="journal" element={<Journal />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
         <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
       </Routes>

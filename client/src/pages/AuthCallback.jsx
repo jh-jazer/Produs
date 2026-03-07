@@ -28,7 +28,7 @@ function AuthCallback() {
                     if (!data.onboardingCompleted) {
                         navigate('/onboarding');
                     } else {
-                        navigate('/');
+                        navigate('/dashboard');
                     }
                 } catch (error) {
                     console.error('Failed to fetch user profile:', error);
