@@ -104,14 +104,14 @@ function Auth() {
             }}></div>
 
             {/* Modal Container */}
-            <div className="relative z-10 w-full max-w-[760px] h-[520px] bg-white dark:bg-[#192233] rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.4)] overflow-hidden">
+            <div className="relative z-10 w-full max-w-[760px] h-[600px] md:h-[520px] bg-white dark:bg-[#192233] rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.4)] overflow-hidden">
 
                 {/* Forms Container */}
                 <div className="relative w-full h-full flex">
 
                     {/* ====== Sign In Form (Always on left side) ====== */}
                     <div
-                        className="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center px-6 py-8 sm:px-10 sm:py-10 transition-opacity duration-700 ease-in-out z-10 bg-white dark:bg-[#192233]"
+                        className="absolute top-0 left-0 w-full md:w-1/2 h-full flex items-center justify-center px-6 py-8 sm:px-10 sm:py-10 transition-opacity duration-700 ease-in-out z-10 bg-white dark:bg-[#192233]"
                         style={{
                             opacity: isSignUp ? 0 : 1,
                             pointerEvents: isSignUp ? 'none' : 'auto',
@@ -180,7 +180,7 @@ function Auth() {
 
                     {/* ====== Sign Up Form (Always on right side) ====== */}
                     <div
-                        className="absolute top-0 left-1/2 w-1/2 h-full flex items-center justify-center px-6 py-8 sm:px-10 sm:py-10 transition-opacity duration-700 ease-in-out"
+                        className="absolute top-0 left-0 md:left-1/2 w-full md:w-1/2 h-full flex items-center justify-center px-6 py-8 sm:px-10 sm:py-10 transition-opacity duration-700 ease-in-out z-10 md:z-0 bg-white dark:bg-[#192233] md:bg-transparent"
                         style={{
                             opacity: isSignUp ? 1 : 0,
                             pointerEvents: isSignUp ? 'auto' : 'none',

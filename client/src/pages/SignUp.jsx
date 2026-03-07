@@ -58,7 +58,7 @@ function SignUp() {
 
             {/* Modal Card */}
             <div className="relative z-10 w-full max-w-[520px] bg-white dark:bg-[#192233] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-white/10 dark:border-slate-800 backdrop-blur-sm overflow-hidden">
-                <div className="px-8 py-10 sm:px-12 sm:py-12">
+                <div className="px-6 py-8 sm:px-12 sm:py-12">
 
                     {/* Logo */}
                     <div className="flex items-center justify-center gap-2.5 mb-8">
@@ -96,7 +96,7 @@ function SignUp() {
 
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="flex flex-col gap-1.5 group">
                                 <label className="text-xs font-bold text-slate-500 dark:text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors">First Name</label>
                                 <div className="relative">
