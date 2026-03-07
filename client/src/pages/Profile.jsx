@@ -120,13 +120,58 @@ function Profile() {
         setIsLinking(true);
         setLinkMessage("");
         try {
-            const res = await api.post('/auth/partner/link', { email: partnerEmail });
-            setLinkMessage(res.data.message || "Linked successfully!");
-            setCredentials({ ...user, partner: res.data.partner });
+            const res = await api.post('/auth/partner/request', { email: partnerEmail });
+            setLinkMessage(res.data.message || "Request sent!");
+            setCredentials({ ...user, outgoingPartnerRequest: res.data.outgoingRequest });
             setPartnerEmail("");
             setTimeout(() => setLinkMessage(""), 3000);
         } catch (error) {
-            setLinkMessage(error.response?.data?.message || "Failed to link partner");
+            setLinkMessage(error.response?.data?.message || "Failed to send request");
+        } finally {
+            setIsLinking(false);
+        }
+    };
+
+    const handleAcceptRequest = async () => {
+        setIsLinking(true);
+        setLinkMessage("");
+        try {
+            const res = await api.post('/auth/partner/accept');
+            setLinkMessage(res.data.message || "Linked successfully!");
+            setCredentials({ ...user, partner: res.data.partner, incomingPartnerRequest: null });
+            setTimeout(() => setLinkMessage(""), 3000);
+        } catch (error) {
+            setLinkMessage(error.response?.data?.message || "Failed to accept request");
+        } finally {
+            setIsLinking(false);
+        }
+    };
+
+    const handleRejectRequest = async () => {
+        setIsLinking(true);
+        setLinkMessage("");
+        try {
+            await api.post('/auth/partner/reject');
+            setLinkMessage("Request rejected");
+            setCredentials({ ...user, incomingPartnerRequest: null });
+            setTimeout(() => setLinkMessage(""), 3000);
+        } catch (error) {
+            setLinkMessage(error.response?.data?.message || "Failed to reject request");
+        } finally {
+            setIsLinking(false);
+        }
+    };
+
+    const handleCancelRequest = async () => {
+        setIsLinking(true);
+        setLinkMessage("");
+        try {
+            await api.post('/auth/partner/cancel');
+            setLinkMessage("Request canceled");
+            setCredentials({ ...user, outgoingPartnerRequest: null });
+            setTimeout(() => setLinkMessage(""), 3000);
+        } catch (error) {
+            setLinkMessage(error.response?.data?.message || "Failed to cancel request");
         } finally {
             setIsLinking(false);
         }
@@ -136,7 +181,7 @@ function Profile() {
         setIsLinking(true);
         setLinkMessage("");
         try {
-            const res = await api.post('/auth/partner/unlink');
+            await api.post('/auth/partner/unlink');
             setLinkMessage("Unlinked successfully!");
             setCredentials({ ...user, partner: null });
             setTimeout(() => setLinkMessage(""), 3000);
@@ -563,7 +608,7 @@ function Profile() {
                                     </div>
                                 </div>
                                 {linkMessage && (
-                                    <p className={`text-xs font-bold ${linkMessage.includes('Failed') ? 'text-rose-500' : 'text-emerald-500'}`}>{linkMessage}</p>
+                                    <p className={`text-xs font-bold ${linkMessage.includes('Failed') || linkMessage.includes('rejected') || linkMessage.includes('canceled') ? 'text-rose-500' : 'text-emerald-500'}`}>{linkMessage}</p>
                                 )}
                                 <button
                                     onClick={handleUnlinkPartner}
@@ -574,10 +619,67 @@ function Profile() {
                                     {isLinking ? 'Unlinking...' : 'Unlink Partner'}
                                 </button>
                             </div>
+                        ) : user?.incomingPartnerRequest ? (
+                            <div className="space-y-4">
+                                <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="size-10 rounded-full bg-primary/20 flex items-center justify-center text-lg font-black text-primary uppercase">
+                                            {user.incomingPartnerRequest.name?.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-black text-slate-900 dark:text-white text-wrap pr-1">{user.incomingPartnerRequest.name} wants to link!</p>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Incoming Request</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2 pt-1">
+                                        <button
+                                            onClick={handleAcceptRequest}
+                                            disabled={isLinking}
+                                            className="flex-1 py-2 bg-primary text-white rounded-xl font-black text-xs hover:opacity-90 transition-opacity disabled:opacity-50"
+                                        >
+                                            {isLinking ? '...' : 'Accept'}
+                                        </button>
+                                        <button
+                                            onClick={handleRejectRequest}
+                                            disabled={isLinking}
+                                            className="flex-1 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-black text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+                                        >
+                                            Reject
+                                        </button>
+                                    </div>
+                                </div>
+                                {linkMessage && (
+                                    <p className={`text-xs font-bold ${linkMessage.includes('Failed') || linkMessage.includes('rejected') ? 'text-rose-500' : 'text-emerald-500'}`}>{linkMessage}</p>
+                                )}
+                            </div>
+                        ) : user?.outgoingPartnerRequest ? (
+                            <div className="space-y-4">
+                                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-lg font-black text-slate-400 uppercase">
+                                            {user.outgoingPartnerRequest.name?.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-black text-slate-900 dark:text-white text-wrap pr-1">Request sent to {user.outgoingPartnerRequest.name}</p>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Waiting for approval...</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={handleCancelRequest}
+                                        disabled={isLinking}
+                                        className="w-full py-2 bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl font-black text-xs transition-all disabled:opacity-50"
+                                    >
+                                        Cancel Request
+                                    </button>
+                                </div>
+                                {linkMessage && (
+                                    <p className={`text-xs font-bold ${linkMessage.includes('Failed') || linkMessage.includes('canceled') ? 'text-rose-500' : 'text-emerald-500'}`}>{linkMessage}</p>
+                                )}
+                            </div>
                         ) : (
                             <div className="space-y-4">
                                 <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                                    Enter your partner's email address to link accounts. They'll need to link back for it to be active.
+                                    Enter your partner's email address to link accounts. They'll need to accept your request before it becomes active.
                                 </p>
                                 <form onSubmit={handleLinkPartner} className="space-y-3">
                                     <div className="relative">
@@ -598,8 +700,8 @@ function Profile() {
                                         disabled={isLinking || !partnerEmail.trim()}
                                         className="w-full py-3 bg-primary text-white rounded-2xl font-black text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 disabled:opacity-40 flex items-center justify-center gap-2"
                                     >
-                                        <span className="material-symbols-outlined text-[18px]">link</span>
-                                        {isLinking ? 'Linking...' : 'Send Link Request'}
+                                        <span className="material-symbols-outlined text-[18px]">send</span>
+                                        {isLinking ? 'Sending...' : 'Send Link Request'}
                                     </button>
                                 </form>
                             </div>

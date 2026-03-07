@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import { registerUser, loginUser, getMe, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, linkPartner, unlinkPartner, searchUsers } from '../controllers/authController.js';
+import { registerUser, loginUser, getMe, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, sendPartnerRequest, acceptPartnerRequest, rejectPartnerRequest, cancelPartnerRequest, unlinkPartner, searchUsers } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -13,7 +13,10 @@ router.put('/onboarding', protect, completeOnboarding);
 router.put('/settings', protect, updateSettings);
 router.delete('/me', protect, deleteUser);
 router.get('/profile/:username', getPublicProfile);
-router.post('/partner/link', protect, linkPartner);
+router.post('/partner/request', protect, sendPartnerRequest);
+router.post('/partner/accept', protect, acceptPartnerRequest);
+router.post('/partner/reject', protect, rejectPartnerRequest);
+router.post('/partner/cancel', protect, cancelPartnerRequest);
 router.post('/partner/unlink', protect, unlinkPartner);
 
 // @route   GET /api/auth/google

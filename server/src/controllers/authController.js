@@ -99,7 +99,10 @@ export const loginUser = async (req, res) => {
 // @access  Private
 export const getMe = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).populate('partner', 'name username email avatar');
+        const user = await User.findById(req.user.id)
+            .populate('partner', 'name username email avatar')
+            .populate('outgoingPartnerRequest', 'name username email avatar')
+            .populate('incomingPartnerRequest', 'name username email avatar');
         if (user) {
             res.json({
                 _id: user.id,
@@ -114,6 +117,8 @@ export const getMe = async (req, res) => {
                 currency: user.currency,
                 settings: user.settings,
                 partner: user.partner,
+                outgoingPartnerRequest: user.outgoingPartnerRequest,
+                incomingPartnerRequest: user.incomingPartnerRequest,
             });
         } else {
             res.status(404).json({ message: 'User not found' });
@@ -299,21 +304,24 @@ export const deleteUser = async (req, res) => {
 // @desc    Find a user by email to link as partner
 // @route   POST /api/auth/partner/link
 // @access  Private
-export const linkPartner = async (req, res) => {
+// @desc    Send a partner link request
+// @route   POST /api/auth/partner/request
+// @access  Private
+export const sendPartnerRequest = async (req, res) => {
     try {
         const { email } = req.body;
 
         if (!email) {
-            return res.status(400).json({ message: 'Email is required to link a partner' });
+            return res.status(400).json({ message: 'Email is required to request a partner link' });
         }
 
         if (email.toLowerCase() === req.user.email.toLowerCase()) {
             return res.status(400).json({ message: 'You cannot link yourself as a partner' });
         }
 
-        const partnerToLink = await User.findOne({ email });
+        const partnerToRequest = await User.findOne({ email });
 
-        if (!partnerToLink) {
+        if (!partnerToRequest) {
             return res.status(404).json({ message: 'No user found with that email' });
         }
 
@@ -323,20 +331,118 @@ export const linkPartner = async (req, res) => {
             return res.status(400).json({ message: 'You already have a linked partner' });
         }
 
-        if (partnerToLink.partner) {
+        if (currentUser.outgoingPartnerRequest) {
+            return res.status(400).json({ message: 'You already have a pending outgoing request' });
+        }
+
+        if (partnerToRequest.partner) {
             return res.status(400).json({ message: 'This user already has a linked partner' });
         }
 
-        // Mutual link
-        currentUser.partner = partnerToLink._id;
-        partnerToLink.partner = currentUser._id;
+        // Set request fields
+        currentUser.outgoingPartnerRequest = partnerToRequest._id;
+        partnerToRequest.incomingPartnerRequest = currentUser._id;
 
         await currentUser.save();
-        await partnerToLink.save();
+        await partnerToRequest.save();
+
+        const updatedUser = await User.findById(req.user.id).populate('outgoingPartnerRequest', 'name username email avatar');
+
+        res.json({ message: 'Partner request sent successfully', outgoingRequest: updatedUser.outgoingPartnerRequest });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Accept a partner link request
+// @route   POST /api/auth/partner/accept
+// @access  Private
+export const acceptPartnerRequest = async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.user.id);
+
+        if (!currentUser.incomingPartnerRequest) {
+            return res.status(400).json({ message: 'No incoming partner request found' });
+        }
+
+        const requester = await User.findById(currentUser.incomingPartnerRequest);
+
+        if (!requester) {
+            currentUser.incomingPartnerRequest = null;
+            await currentUser.save();
+            return res.status(404).json({ message: 'Requester not found' });
+        }
+
+        // Establish mutual link and clear requests
+        currentUser.partner = requester._id;
+        currentUser.incomingPartnerRequest = null;
+
+        requester.partner = currentUser._id;
+        requester.outgoingPartnerRequest = null;
+
+        await currentUser.save();
+        await requester.save();
 
         const updatedUser = await User.findById(req.user.id).populate('partner', 'name username email avatar');
 
-        res.json({ message: 'Partner linked successfully', partner: updatedUser.partner });
+        res.json({ message: 'Partner link accepted', partner: updatedUser.partner });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Reject a partner link request
+// @route   POST /api/auth/partner/reject
+// @access  Private
+export const rejectPartnerRequest = async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.user.id);
+
+        if (!currentUser.incomingPartnerRequest) {
+            return res.status(400).json({ message: 'No incoming partner request found' });
+        }
+
+        const requester = await User.findById(currentUser.incomingPartnerRequest);
+
+        if (requester) {
+            requester.outgoingPartnerRequest = null;
+            await requester.save();
+        }
+
+        currentUser.incomingPartnerRequest = null;
+        await currentUser.save();
+
+        res.json({ message: 'Partner request rejected' });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Cancel an outgoing partner link request
+// @route   POST /api/auth/partner/cancel
+// @access  Private
+export const cancelPartnerRequest = async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.user.id);
+
+        if (!currentUser.outgoingPartnerRequest) {
+            return res.status(400).json({ message: 'No outgoing partner request found' });
+        }
+
+        const recipient = await User.findById(currentUser.outgoingPartnerRequest);
+
+        if (recipient) {
+            recipient.incomingPartnerRequest = null;
+            await recipient.save();
+        }
+
+        currentUser.outgoingPartnerRequest = null;
+        await currentUser.save();
+
+        res.json({ message: 'Partner request canceled' });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
