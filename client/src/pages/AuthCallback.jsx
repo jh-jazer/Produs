@@ -24,12 +24,8 @@ function AuthCallback() {
                     // The backend /auth/me returns _id, name, email, avatar. We need to append the token.
                     setCredentials({ ...data, token });
 
-                    // Redirect to home/overview or onboarding
-                    if (!data.onboardingCompleted) {
-                        navigate('/onboarding');
-                    } else {
-                        navigate('/dashboard');
-                    }
+                    // Redirect to home/overview. Layout component will handle OnboardingModal
+                    navigate('/dashboard');
                 } catch (error) {
                     console.error('Failed to fetch user profile:', error);
                     navigate('/auth?error=invalid_token');

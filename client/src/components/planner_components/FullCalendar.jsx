@@ -4,7 +4,7 @@ import api from '../../services/api';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
-const FullCalendar = ({ onDateSelect, selectedDate }) => {
+const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly = false }) => {
     const [viewDate, setViewDate] = useState(new Date());
     const [addModal, setAddModal] = useState(null); // { startDate: Date, endDate: Date }
     const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -22,7 +22,7 @@ const FullCalendar = ({ onDateSelect, selectedDate }) => {
         { name: 'Slate', value: '#64748b' }
     ];
 
-    const { data: tasks, mutate } = useSWR(`/planner/tasks?year=${viewDate.getFullYear()}&month=${viewDate.getMonth() + 1}`, fetcher);
+    const { data: tasks, mutate } = useSWR(`/planner/tasks?year=${viewDate.getFullYear()}&month=${viewDate.getMonth() + 1}${viewMode === 'partner' ? '&view=partner' : ''}`, fetcher);
 
     const months = [
         "January", "February", "March", "April", "May", "June",
@@ -43,6 +43,7 @@ const FullCalendar = ({ onDateSelect, selectedDate }) => {
     const prevMonth = () => setViewDate(new Date(year, month - 1, 1));
 
     const handleMouseDown = (day) => {
+        if (isReadOnly) return;
         const clickedDate = new Date(year, month, day);
         setSelection({ start: clickedDate, current: clickedDate });
         setIsDragging(true);
@@ -262,12 +263,14 @@ const FullCalendar = ({ onDateSelect, selectedDate }) => {
                                     <div key={t._id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 group">
                                         <div className="size-2 rounded-full shrink-0" style={{ backgroundColor: t.color || (t.type === 'event' ? '#a855f7' : '#3b82f6') }}></div>
                                         <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex-1 truncate">{t.title}</span>
-                                        <button
-                                            onClick={() => deleteTask(t._id)}
-                                            className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-red-500/10 text-red-500 transition-all"
-                                        >
-                                            <span className="material-symbols-outlined text-sm">delete</span>
-                                        </button>
+                                        {!isReadOnly && (
+                                            <button
+                                                onClick={() => deleteTask(t._id)}
+                                                className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-red-500/10 text-red-500 transition-all"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">delete</span>
+                                            </button>
+                                        )}
                                     </div>
                                 ))
                             ) : (
@@ -281,54 +284,56 @@ const FullCalendar = ({ onDateSelect, selectedDate }) => {
                         <div className="h-px bg-slate-100 dark:bg-slate-700 w-full my-1"></div>
 
                         {/* Quick Add Form Section */}
-                        <div className="space-y-4 pt-2">
-                            <h5 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Add New Activity</h5>
-                            <div className="space-y-4">
-                                <input
-                                    type="text"
-                                    value={newTaskTitle}
-                                    onChange={(e) => setNewTaskTitle(e.target.value)}
-                                    placeholder="What's the plan?"
-                                    className="w-full px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-                                    autoFocus
-                                />
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => setNewTaskType('task')}
-                                        className={`flex-1 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${newTaskType === 'task' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-slate-100/50 dark:bg-slate-800/50 text-slate-500'}`}
-                                    >
-                                        Task
-                                    </button>
-                                    <button
-                                        onClick={() => setNewTaskType('event')}
-                                        className={`flex-1 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${newTaskType === 'event' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-slate-100/50 dark:bg-slate-800/50 text-slate-500'}`}
-                                    >
-                                        Event
-                                    </button>
-                                </div>
-
-                                <div className="flex justify-between items-center py-1">
+                        {!isReadOnly && (
+                            <div className="space-y-4 pt-2">
+                                <h5 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Add New Activity</h5>
+                                <div className="space-y-4">
+                                    <input
+                                        type="text"
+                                        value={newTaskTitle}
+                                        onChange={(e) => setNewTaskTitle(e.target.value)}
+                                        placeholder="What's the plan?"
+                                        className="w-full px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                        autoFocus
+                                    />
                                     <div className="flex gap-2">
-                                        {colors.map(c => (
-                                            <button
-                                                key={c.value}
-                                                onClick={() => setNewTaskColor(c.value)}
-                                                className={`size-5 rounded-full transition-all ${newTaskColor === c.value ? 'ring-2 ring-slate-400 ring-offset-2 dark:ring-offset-slate-900 scale-110' : 'hover:scale-110 opacity-70'}`}
-                                                style={{ backgroundColor: c.value }}
-                                                title={c.name}
-                                            />
-                                        ))}
+                                        <button
+                                            onClick={() => setNewTaskType('task')}
+                                            className={`flex-1 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${newTaskType === 'task' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-slate-100/50 dark:bg-slate-800/50 text-slate-500'}`}
+                                        >
+                                            Task
+                                        </button>
+                                        <button
+                                            onClick={() => setNewTaskType('event')}
+                                            className={`flex-1 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${newTaskType === 'event' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-slate-100/50 dark:bg-slate-800/50 text-slate-500'}`}
+                                        >
+                                            Event
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={addTask}
-                                        disabled={!newTaskTitle.trim()}
-                                        className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest disabled:opacity-50 hover:scale-105 active:scale-95 transition-all"
-                                    >
-                                        Add
-                                    </button>
+
+                                    <div className="flex justify-between items-center py-1">
+                                        <div className="flex gap-2">
+                                            {colors.map(c => (
+                                                <button
+                                                    key={c.value}
+                                                    onClick={() => setNewTaskColor(c.value)}
+                                                    className={`size-5 rounded-full transition-all ${newTaskColor === c.value ? 'ring-2 ring-slate-400 ring-offset-2 dark:ring-offset-slate-900 scale-110' : 'hover:scale-110 opacity-70'}`}
+                                                    style={{ backgroundColor: c.value }}
+                                                    title={c.name}
+                                                />
+                                            ))}
+                                        </div>
+                                        <button
+                                            onClick={addTask}
+                                            disabled={!newTaskTitle.trim()}
+                                            className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest disabled:opacity-50 hover:scale-105 active:scale-95 transition-all"
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             )}

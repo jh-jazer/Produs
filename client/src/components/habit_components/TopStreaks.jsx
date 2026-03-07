@@ -4,8 +4,10 @@ import api from '../../services/api';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
-const TopStreaks = () => {
-    const { data: habits, isLoading } = useSWR('/habits', fetcher);
+const TopStreaks = ({ habits }) => {
+    const { data: fetchedHabits, isLoading } = useSWR(habits ? null : '/habits', fetcher);
+
+    const activeHabits = habits || fetchedHabits || [];
 
     const colorVariants = {
         blue: 'text-blue-500 bg-blue-500/10 border-blue-200/50 dark:border-blue-800/50',
@@ -21,7 +23,7 @@ const TopStreaks = () => {
         teal: 'text-teal-500 bg-teal-500/10 border-teal-200/50 dark:border-teal-800/50',
     };
 
-    if (isLoading) {
+    if (isLoading && !habits) {
         return (
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex items-center justify-center h-[300px]">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -29,78 +31,113 @@ const TopStreaks = () => {
         );
     }
 
-    // Filter and sort habits with streaks
-    const streaks = (habits || [])
+    // Identify user and partner streaks
+    // Assuming the first habit's user is 'me' in partner view, or use a better heuristic
+    const myId = activeHabits.length > 0 ? activeHabits[0].user : null;
+
+    const myStreaks = activeHabits
+        .filter(h => h.streak > 0 && h.user === myId)
+        .sort((a, b) => b.streak - a.streak)
+        .slice(0, 3);
+
+    const partnerStreaks = activeHabits
+        .filter(h => h.streak > 0 && h.user !== myId)
+        .sort((a, b) => b.streak - a.streak)
+        .slice(0, 3);
+
+    const isPartnerView = partnerStreaks.length > 0;
+    const topStreaks = activeHabits
         .filter(h => h.streak > 0)
         .sort((a, b) => b.streak - a.streak)
         .slice(0, 5);
 
+    const StreakItem = ({ streak, index, isPartner = false }) => {
+        const target = streak.streak <= 7 ? 7 : streak.streak <= 14 ? 14 : streak.streak <= 30 ? 30 : streak.streak + 7;
+        const progress = Math.min((streak.streak / target) * 100, 100);
+
+        return (
+            <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                    <div className="relative shrink-0">
+                        <div className={`size-8 rounded-xl flex items-center justify-center border ${colorVariants[streak.color] || colorVariants.emerald}`}>
+                            <span className="material-symbols-outlined text-base">{streak.icon}</span>
+                        </div>
+                        <div className={`absolute -top-1 -right-1 ${isPartner ? 'bg-purple-500' : 'bg-slate-900 dark:bg-white'} text-[7px] text-white dark:text-slate-900 px-1 py-0.5 rounded-md font-black shadow-sm ring-1 ring-white dark:ring-[#192233]`}>
+                            #{index + 1}
+                        </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-end mb-1">
+                            <p className="text-[11px] font-bold text-slate-800 dark:text-slate-100 truncate">{streak.name}</p>
+                            <div className="flex items-center gap-0.5 text-amber-500">
+                                <span className="text-[10px] font-black">{streak.streak}</span>
+                                <span className="material-symbols-outlined text-[10px]">local_fire_department</span>
+                            </div>
+                        </div>
+                        <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1 overflow-hidden">
+                            <div
+                                className={`h-full rounded-full ${isPartner ? 'bg-purple-500' : 'bg-primary'}`}
+                                style={{ width: `${progress}%` }}
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm overflow-hidden relative group min-h-[300px]">
-            {/* Background Accent */}
             <div className="absolute -right-12 -bottom-12 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-500"></div>
 
             <div className="relative z-10 flex flex-col">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-none">Top Streaks</h3>
-                        <p className="text-[10px] uppercase font-bold text-slate-400 mt-1 tracking-widest">Consistency Leaders</p>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-none">
+                            {isPartnerView ? 'Top Streaks Sync' : 'Top Streaks'}
+                        </h3>
+                        <p className="text-[10px] uppercase font-bold text-slate-400 mt-1 tracking-widest">
+                            {isPartnerView ? 'Side-by-side Leaders' : 'Consistency Leaders'}
+                        </p>
                     </div>
                     <span className="material-symbols-outlined text-amber-500 text-xl">workspace_premium</span>
                 </div>
 
-                <div className="space-y-4">
-                    {streaks.length > 0 ? (
-                        streaks.map((streak, index) => {
-                            const target = streak.streak <= 7 ? 7 : streak.streak <= 14 ? 14 : streak.streak <= 30 ? 30 : streak.streak + 7;
-                            const progress = (streak.streak / target) * 100;
-
-                            return (
-                                <div key={streak._id} className="flex flex-col gap-2">
-                                    <div className="flex items-center gap-3">
-                                        <div className="relative shrink-0">
-                                            <div className={`size-9 rounded-xl flex items-center justify-center border ${colorVariants[streak.color] || colorVariants.emerald}`}>
-                                                <span className="material-symbols-outlined text-xl">{streak.icon}</span>
-                                            </div>
-                                            <div className="absolute -top-1.5 -right-1.5 bg-slate-900 dark:bg-white text-[8px] text-white dark:text-slate-900 px-1.5 py-0.5 rounded-md font-black shadow-sm ring-2 ring-white dark:ring-[#192233]">
-                                                #{index + 1}
-                                            </div>
-                                        </div>
-
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex justify-between items-end mb-1">
-                                                <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">{streak.name}</p>
-                                                <div className="flex items-center gap-0.5 text-amber-500">
-                                                    <span className="text-xs font-black">{streak.streak}</span>
-                                                    <span className="material-symbols-outlined text-xs">local_fire_department</span>
-                                                </div>
-                                            </div>
-
-                                            {/* Progress Bar */}
-                                            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                                                <div
-                                                    className={`h-full rounded-full ${index === 0 ? 'bg-primary' : 'bg-slate-400'}`}
-                                                    style={{ width: `${progress}%` }}
-                                                ></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })
+                <div className="space-y-6">
+                    {isPartnerView ? (
+                        <>
+                            <div className="space-y-3">
+                                <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> Me
+                                </h4>
+                                {myStreaks.length > 0 ? (
+                                    myStreaks.map((s, i) => <StreakItem key={s._id} streak={s} index={i} />)
+                                ) : (
+                                    <p className="text-[10px] text-slate-500 italic px-1">No streaks yet</p>
+                                )}
+                            </div>
+                            <div className="space-y-3">
+                                <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span> Partner
+                                </h4>
+                                {partnerStreaks.length > 0 ? (
+                                    partnerStreaks.map((s, i) => <StreakItem key={s._id} streak={s} index={i} isPartner={true} />)
+                                ) : (
+                                    <p className="text-[10px] text-slate-500 italic px-1">No streaks yet</p>
+                                )}
+                            </div>
+                        </>
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-6 text-center">
-                            <h4 className="text-[11px] font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tight">Ignite your first streak!</h4>
-                            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium max-w-[150px] leading-tight">
-                                Consistency is key! 🔥
-                            </p>
-                        </div>
+                        topStreaks.length > 0 ? (
+                            topStreaks.map((s, i) => <StreakItem key={s._id} streak={s} index={i} />)
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-6 text-center">
+                                <h4 className="text-[11px] font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tight">Ignite your first streak!</h4>
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium max-w-[150px] leading-tight">Consistency is key! 🔥</p>
+                            </div>
+                        )
                     )}
                 </div>
-
-                <button className="w-full mt-4 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all">
-                    View All
-                </button>
             </div>
         </div>
     );

@@ -23,6 +23,27 @@ const userSchema = new mongoose.Schema({
         sparse: true
     },
     avatar: {
+        type: Object,
+        default: {
+            skin: "#F3C5A5",
+            hair: "short",
+            hairColor: "#4A2C2A",
+            eyes: "default",
+            clothing: "hoodie",
+            clothingColor: "#3B82F6"
+        }
+    },
+    username: {
+        type: String,
+        unique: true,
+        sparse: true,
+        trim: true,
+    },
+    bio: {
+        type: String,
+        maxLength: 160
+    },
+    banner: {
         type: String
     },
     onboardingCompleted: {
@@ -48,12 +69,21 @@ const userSchema = new mongoose.Schema({
         mood: {
             type: String,
             default: "neutral"
+        },
+        isPublic: {
+            type: Boolean,
+            default: false
         }
     },
     currency: {
         type: String,
         enum: ['USD', 'PHP'],
         default: 'USD'
+    },
+    partner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
     }
 }, {
     timestamps: true

@@ -1,11 +1,27 @@
 import Habit from '../models/Habit.js';
+import User from '../models/User.js';
 
 // @desc    Get all habits for a user
 // @route   GET /api/habits
 // @access  Private
 export const getHabits = async (req, res) => {
     try {
-        const habits = await Habit.find({ user: req.user._id });
+        let targetUserId = req.user._id;
+
+        if (req.query.view === 'partner') {
+            const currentUser = await User.findById(req.user._id);
+            if (!currentUser || !currentUser.partner) {
+                return res.status(400).json({ message: 'No linked partner found' });
+            }
+
+            // Return habits for both self and partner
+            const habits = await Habit.find({
+                user: { $in: [req.user._id, currentUser.partner] }
+            });
+            return res.json(habits);
+        }
+
+        const habits = await Habit.find({ user: targetUserId });
         res.json(habits);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -16,8 +32,34 @@ export const getHabits = async (req, res) => {
 // @route   POST /api/habits
 // @access  Private
 export const createHabit = async (req, res) => {
-    const { name, icon, color, category } = req.body;
+    const { name, icon, color, category, isShared } = req.body;
     try {
+        if (isShared) {
+            const currentUser = await User.findById(req.user._id);
+            if (!currentUser.partner) {
+                return res.status(400).json({ message: 'Must link a partner to create shared habits' });
+            }
+
+            const sharedGroupId = `shared-${Date.now()}`;
+
+            // Create for both
+            const habitSelf = await Habit.create({
+                user: req.user._id,
+                name, icon, color, category,
+                isShared: true,
+                sharedGroupId
+            });
+
+            await Habit.create({
+                user: currentUser.partner,
+                name, icon, color, category,
+                isShared: true,
+                sharedGroupId
+            });
+
+            return res.status(201).json(habitSelf);
+        }
+
         const habit = await Habit.create({
             user: req.user._id,
             name,

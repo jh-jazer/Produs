@@ -73,7 +73,7 @@ function Auth() {
                 password: formData.password,
             });
             setCredentials(data);
-            navigate('/onboarding');
+            navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed. Please try again.');
         } finally {

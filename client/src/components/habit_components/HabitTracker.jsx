@@ -87,9 +87,14 @@ function HabitTracker({
     onFilterChange,
     filter: propFilter = 'All',
     habits: propHabits,
+    myHabits: propMyHabits,
+    partnerHabits: propPartnerHabits,
     checks: propChecks,
     mutateHabits: propMutate,
-    isDashboard = false
+    isDashboard = false,
+    isReadOnly = false,
+    isPartnerView = false,
+    partnerName = "Partner"
 }) {
     // If not passed from parent, fetch internally
     const { data: fetchedHabits, error, isLoading, mutate: swrMutate } = useSWR(propHabits ? null : '/habits', fetcher);
@@ -97,20 +102,79 @@ function HabitTracker({
     const habits = propHabits || fetchedHabits || [];
     const mutateHabits = propMutate || swrMutate;
 
-    // Derive checks dictionary if not provided by parent
-    const checks = React.useMemo(() => {
-        if (propChecks) return propChecks;
-        const checksDict = {};
+    // Group habits by sharedGroupId for partner view
+    const groupedHabits = React.useMemo(() => {
+        if (!isPartnerView) return habits;
+
+        const maps = new Map();
+        habits.forEach(h => {
+            if (h.isShared && h.sharedGroupId) {
+                if (!maps.has(h.sharedGroupId)) {
+                    maps.set(h.sharedGroupId, { id: h.sharedGroupId, name: h.name, icon: h.icon, color: h.color, myHabit: null, partnerHabit: null, isShared: true });
+                }
+                const group = maps.get(h.sharedGroupId);
+                if (h.user === propMyHabits?.[0]?.user || h.user === habits.find(hab => !hab.isShared)?.user) { // Fallback logic for user detection
+                    // Actually better to use propMyHabits if available
+                }
+                // Let's refine the grouping logic
+            }
+        });
+        return habits; // Fallback for now, will implement proper grouping in the render loop or memo
+    }, [habits, isPartnerView]);
+
+    // Better grouping logic directly for the UI
+    const displayHabits = React.useMemo(() => {
+        if (!isPartnerView) return habits;
+
+        const shared = {};
+        const standalone = [];
+
+        habits.forEach(h => {
+            if (h.isShared && h.sharedGroupId) {
+                if (!shared[h.sharedGroupId]) {
+                    shared[h.sharedGroupId] = { myHabit: null, partnerHabit: null };
+                }
+                if (h.user === (propMyHabits?.[0]?.user || "me")) { // Need a robust way to identify 'me'
+                    shared[h.sharedGroupId].myHabit = h;
+                } else {
+                    shared[h.sharedGroupId].partnerHabit = h;
+                }
+            } else {
+                standalone.push(h);
+            }
+        });
+
+        // Reconstruct: Shared ones first, then standalone
+        const result = [];
+        Object.keys(shared).forEach(gid => {
+            const h = shared[gid].myHabit || shared[gid].partnerHabit;
+            result.push({
+                ...h,
+                _id: gid, // Use groupId as temporary UI id
+                myPart: shared[gid].myHabit,
+                partnerPart: shared[gid].partnerHabit,
+                isGrouped: true
+            });
+        });
+
+        return [...result, ...standalone];
+    }, [habits, isPartnerView, propMyHabits]);
+
+    // Derive checks dictionary from the flat habit.checks array for easy O(1) lookups
+    // Note: In partner view, checks is already passed as { habitId: { completed: {}, user: id } }
+    const checksDict = React.useMemo(() => {
+        if (isPartnerView) return propChecks;
+        const dict = {};
         habits.forEach(habit => {
-            checksDict[habit._id] = {};
+            dict[habit._id] = { completed: {} };
             if (habit.checks && Array.isArray(habit.checks)) {
                 habit.checks.forEach(check => {
-                    checksDict[habit._id][check.date] = check.completed;
+                    dict[habit._id].completed[check.date] = check.completed;
                 });
             }
         });
-        return checksDict;
-    }, [habits, propChecks]);
+        return dict;
+    }, [habits, propChecks, isPartnerView]);
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     const getWeekOfMonth = (date) => {
@@ -128,8 +192,16 @@ function HabitTracker({
     const [editingHabit, setEditingHabit] = useState(null);
     const [newHabit, setNewHabit] = useState({ name: '', icon: 'local_drink', color: 'emerald' });
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startOfCurrentWeek = new Date(today);
+    startOfCurrentWeek.setDate(today.getDate() - today.getDay());
+    startOfCurrentWeek.setHours(0, 0, 0, 0);
+
     // Generate days to display based on view and activeDate
     const getDays = () => {
+        if (isDashboard) return [today];
         const days = [];
         // Show 7 days around the active date (3 before, 3 after)
         const start = new Date(activeDate);
@@ -143,15 +215,9 @@ function HabitTracker({
     };
 
     const daysToDisplay = getDays();
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const startOfCurrentWeek = new Date(today);
-    startOfCurrentWeek.setDate(today.getDate() - today.getDay());
-    startOfCurrentWeek.setHours(0, 0, 0, 0);
 
     const toggleCheck = async (habitId, date) => {
-        if (editMode) return;
+        if (editMode || isReadOnly) return;
 
         // Prevent checking future days
         const targetDate = new Date(date);
@@ -197,6 +263,7 @@ function HabitTracker({
             name: newHabit.name.trim(),
             icon: newHabit.icon,
             color: newHabit.color,
+            isShared: newHabit.isShared,
             category: SUGGESTIONS.find(s => s.habits.some(h => h.icon === newHabit.icon))?.category || 'Productivity',
         };
 
@@ -258,7 +325,7 @@ function HabitTracker({
 
     const isChecked = (habitId, date) => {
         const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        return checks[habitId]?.[dateStr] || false;
+        return checksDict[habitId]?.completed[dateStr] || false;
     };
 
     return (
@@ -269,7 +336,9 @@ function HabitTracker({
                 {/* Header */}
                 <div className="relative z-10 flex justify-between items-center mb-6">
                     <div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white shrink-0">Habit Tracker</h3>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white shrink-0">
+                            {isPartnerView ? `${partnerName} Sync` : 'Habit Tracker'}
+                        </h3>
                     </div>
                     <div className="flex items-center gap-2">
                         {/* Week Selector Integrated */}
@@ -293,50 +362,58 @@ function HabitTracker({
                             </div>
                         )}
 
+                        {!isReadOnly && !isDashboard && (
+                            <button
+                                onClick={() => setAddModalOpen(true)}
+                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 hover:text-primary transition-colors"
+                                title="Add Habit"
+                            >
+                                <span className="material-symbols-outlined text-xl">add_circle</span>
+                            </button>
+                        )}
 
-                        <button
-                            onClick={() => setAddModalOpen(true)}
-                            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 hover:text-primary transition-colors"
-                            title="Add Habit"
-                        >
-                            <span className="material-symbols-outlined text-xl">add_circle</span>
-                        </button>
-                        <button
-                            onClick={() => { setEditMode(!editMode); setEditingHabit(null); }}
-                            className={`p-2 rounded-lg transition-all duration-300 ${editMode ? 'text-primary bg-primary/10 ring-1 ring-primary/20 shadow-sm' : 'text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700/50'}`}
-                            title={editMode ? 'Stop Editing' : 'Edit Habits'}
-                        >
-                            <span className="material-symbols-outlined text-xl">edit</span>
-                        </button>
+                        {!isReadOnly && !isDashboard && (
+                            <button
+                                onClick={() => { setEditMode(!editMode); setEditingHabit(null); }}
+                                className={`p-2 rounded-lg transition-all duration-300 ${editMode ? 'text-primary bg-primary/10 ring-1 ring-primary/20 shadow-sm' : 'text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700/50'}`}
+                                title={editMode ? 'Stop Editing' : 'Edit Habits'}
+                            >
+                                <span className="material-symbols-outlined text-xl">edit</span>
+                            </button>
+                        )}
                     </div>
                 </div>
 
                 {/* Table */}
-                <div className="relative z-10 w-full overflow-x-auto overflow-y-auto custom-scrollbar flex-1 flex flex-col pr-2">
+                <div className="relative z-10 w-full overflow-y-auto custom-scrollbar flex-1 flex flex-col">
 
                     {/* Header Row */}
                     <div className="flex items-center gap-4 py-3 border-b border-slate-200 dark:border-slate-800">
-                        <div className="w-1/3 min-w-[150px] font-bold text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Habit</div>
-                        <div className="flex-1 flex justify-between items-center text-xs font-semibold text-slate-400 dark:text-slate-500">
-                            {daysToDisplay.map((date, i) => {
-                                const isToday = date.toDateString() === today.toDateString();
-                                return (
-                                    <span key={i} className={`w-8 text-center ${isToday ? 'text-primary font-black' : ''}`}>
-                                        {date.getDate()}
-                                    </span>
-                                );
-                            })}
+                        <div className={`${isDashboard ? 'flex-1 min-w-0' : 'w-1/3 min-w-[150px]'} font-bold text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider`}>Habit</div>
+                        <div className="flex-1 flex justify-end items-center text-xs font-semibold text-slate-400 dark:text-slate-500">
+                            {isDashboard ? (
+                                <span className="w-8 text-center font-black text-primary uppercase tracking-widest">✓</span>
+                            ) : (
+                                daysToDisplay.map((date, i) => {
+                                    const isToday = date.toDateString() === today.toDateString();
+                                    return (
+                                        <span key={i} className={`w-8 text-center ${isToday ? 'text-primary font-black' : ''}`}>
+                                            {date.getDate()}
+                                        </span>
+                                    );
+                                })
+                            )}
                         </div>
                         {editMode && <div className="w-16"></div>}
                     </div>
 
                     {/* Habit Rows */}
                     <div className={`flex flex-col overflow-y-auto pr-1 custom-scrollbar ${isDashboard ? 'max-h-[240px]' : 'max-h-[380px]'}`}>
-                        {habits
+                        {displayHabits
                             .filter(h => propFilter === 'All' || h.category === propFilter)
                             .sort((a, b) => {
-                                const checkedA = isChecked(a._id, today);
-                                const checkedB = isChecked(b._id, today);
+                                const checkedA = isChecked(a.myPart?._id || a._id, today);
+                                const checkedB = isChecked(b.myPart?._id || b._id, today);
                                 if (checkedA === checkedB) return 0;
                                 return checkedA ? 1 : -1;
                             })
@@ -348,7 +425,7 @@ function HabitTracker({
                                     <div key={habit._id} className={`flex items-center gap-4 py-3 border-b border-slate-100 dark:border-slate-800/50 ${editMode ? 'hover:bg-slate-50 dark:hover:bg-slate-800/30 rounded-lg transition-colors' : ''}`}>
 
                                         {/* Habit Name (or edit form) */}
-                                        <div className="w-1/3 min-w-[150px] flex items-center gap-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+                                        <div className={`${isDashboard ? 'flex-1 min-w-0' : 'w-1/3 min-w-[150px]'} flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 overflow-hidden`}>
                                             {isEditing ? (
                                                 <div className="flex items-center gap-2 w-full">
                                                     <select
@@ -369,11 +446,11 @@ function HabitTracker({
                                                 </div>
                                             ) : (
                                                 <>
-                                                    <span className={`material-symbols-outlined ${colors.text} text-lg`}>{habit.icon}</span>
-                                                    <div className="flex flex-col">
-                                                        <span>{habit.name}</span>
-                                                        <span className={`text-[10px] font-bold uppercase tracking-wide ${habit.streak > 0 ? colors.text : 'text-slate-400'}`}>
-                                                            {habit.streak > 0 ? `${habit.streak} day streak 🔥` : 'No streak'}
+                                                    <span className={`material-symbols-outlined ${colors.text} text-lg shrink-0`}>{habit.icon}</span>
+                                                    <div className="flex flex-col min-w-0">
+                                                        <span className="truncate">{habit.name}</span>
+                                                        <span className={`text-[10px] font-bold uppercase tracking-wide truncate ${habit.streak > 0 ? colors.text : 'text-slate-400'}`}>
+                                                            {habit.streak > 0 ? `${habit.streak}d streak 🔥` : 'No streak'}
                                                         </span>
                                                     </div>
                                                 </>
@@ -381,9 +458,14 @@ function HabitTracker({
                                         </div>
 
                                         {/* Day Checks */}
-                                        <div className="flex-1 flex justify-between items-center">
+                                        <div className={`flex-1 flex ${isDashboard ? 'justify-end' : 'justify-between'} items-center`}>
                                             {daysToDisplay.map((date, dayIdx) => {
-                                                const checked = isChecked(habit._id, date);
+                                                const dateStr = date.toISOString().split('T')[0];
+                                                const myChecked = habit.myPart ? checksDict[habit.myPart._id]?.completed[dateStr] : checksDict[habit._id]?.completed[dateStr];
+                                                const partnerChecked = habit.partnerPart ? checksDict[habit.partnerPart._id]?.completed[dateStr] : false;
+
+                                                const isGrouped = habit.isGrouped;
+
                                                 const targetDate = new Date(date);
                                                 targetDate.setHours(0, 0, 0, 0);
                                                 const isFuture = targetDate > today;
@@ -391,25 +473,47 @@ function HabitTracker({
                                                 const isLocked = isFuture || isPastWeek;
 
                                                 return (
-                                                    <button
-                                                        key={dayIdx}
-                                                        onClick={() => toggleCheck(habit._id, date)}
-                                                        disabled={editMode || isLocked}
-                                                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isFuture
-                                                            ? 'border border-dashed border-slate-200 dark:border-slate-700 opacity-30 shadow-none cursor-not-allowed'
-                                                            : isPastWeek
-                                                                ? checked
-                                                                    ? `${colors.bg} ${colors.text} opacity-60 cursor-default`
-                                                                    : 'border border-slate-100 dark:border-slate-800 opacity-40 cursor-default'
-                                                                : checked
-                                                                    ? `${colors.bg} ${colors.text} shadow-sm`
-                                                                    : 'border border-slate-200 dark:border-slate-700 hover:border-slate-400'
-                                                            } ${!editMode && !isLocked ? 'hover:scale-110 active:scale-95' : ''}`}
-                                                    >
-                                                        <span className={`material-symbols-outlined text-sm ${(!checked && !isFuture) || isPastWeek ? 'text-slate-300 dark:text-slate-600' : ''}`}>
-                                                            {isFuture ? 'lock' : 'check'}
-                                                        </span>
-                                                    </button>
+                                                    <div key={dayIdx} className="relative w-8 h-8 flex items-center justify-center">
+                                                        {isPartnerView && isGrouped ? (
+                                                            // SPLIT CHECK CIRCLE
+                                                            <div className="relative w-7 h-7 rounded-full border border-slate-200 dark:border-slate-700 overflow-hidden flex">
+                                                                {/* My Half (Left) */}
+                                                                <button
+                                                                    onClick={() => toggleCheck(habit.myPart?._id || habit._id, date)}
+                                                                    disabled={editMode || isLocked || isReadOnly}
+                                                                    className={`w-1/2 h-full transition-all ${myChecked ? colors.bg : 'bg-transparent'} flex items-center justify-end pr-0.5`}
+                                                                >
+                                                                    <div className={`w-1 h-1 rounded-full ${myChecked ? colors.text : 'bg-slate-300 dark:bg-slate-600'}`}></div>
+                                                                </button>
+                                                                {/* Partner Half (Right) */}
+                                                                <div
+                                                                    className={`w-1/2 h-full transition-all ${partnerChecked ? colors.bg : 'bg-transparent'} opacity-80 border-l border-slate-200 dark:border-slate-700 flex items-center justify-start pl-0.5`}
+                                                                >
+                                                                    <div className={`w-1 h-1 rounded-full ${partnerChecked ? colors.text : 'bg-slate-300 dark:bg-slate-600'}`}></div>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            // NORMAL CHECK CIRCLE
+                                                            <button
+                                                                onClick={() => toggleCheck(habit._id, date)}
+                                                                disabled={editMode || isLocked || isReadOnly || (isPartnerView && habit.user !== propMyHabits?.[0]?.user)}
+                                                                className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${isFuture
+                                                                    ? 'border border-dashed border-slate-200 dark:border-slate-700 opacity-30 shadow-none cursor-not-allowed'
+                                                                    : isPastWeek
+                                                                        ? myChecked
+                                                                            ? `${colors.bg} ${colors.text} opacity-60 cursor-default`
+                                                                            : 'border border-slate-100 dark:border-slate-800 opacity-40 cursor-default'
+                                                                        : myChecked
+                                                                            ? `${colors.bg} ${colors.text} shadow-sm`
+                                                                            : 'border border-slate-200 dark:border-slate-700 hover:border-slate-400'
+                                                                    } ${!editMode && !isLocked ? 'hover:scale-110 active:scale-95' : ''}`}
+                                                            >
+                                                                <span className={`material-symbols-outlined text-[10px] ${(!myChecked && !isFuture) || isPastWeek ? 'text-slate-300 dark:text-slate-600' : ''}`}>
+                                                                    {isFuture ? 'lock' : 'check'}
+                                                                </span>
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 );
                                             })}
                                         </div>

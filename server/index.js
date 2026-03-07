@@ -16,6 +16,7 @@ import authRoutes from './src/routes/authRoutes.js';
 import habitRoutes from './src/routes/habitRoutes.js';
 import plannerRoutes from './src/routes/plannerRoutes.js';
 import financeRoutes from './src/routes/financeRoutes.js';
+import feedRoutes from './src/routes/feedRoutes.js';
 
 // Connect to Database
 connectDB();
@@ -54,6 +55,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/habits', habitRoutes);
 app.use('/api/planner', plannerRoutes);
 app.use('/api/finance', financeRoutes);
+app.use('/api/feed', feedRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

@@ -4,10 +4,10 @@ import api from '../../services/api';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
-const Priority = ({ isCompact = false }) => {
+const Priority = ({ isCompact = false, viewMode = 'me', isReadOnly = false }) => {
     const today = new Date();
     const dateStr = today.toLocaleDateString('en-CA');
-    const { data: tasks, mutate } = useSWR(`/planner/tasks?date=${dateStr}`, fetcher);
+    const { data: tasks, mutate } = useSWR(`/planner/tasks?date=${dateStr}${viewMode === 'partner' ? '&view=partner' : ''}`, fetcher);
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
@@ -107,8 +107,8 @@ const Priority = ({ isCompact = false }) => {
                         {todoTasks.length > 0 ? todoTasks.map(task => (
                             <div
                                 key={task._id}
-                                onClick={() => toggleComplete(task)}
-                                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${task.completed
+                                onClick={() => !isReadOnly && toggleComplete(task)}
+                                className={`flex items-center gap-3 p-3 rounded-xl border ${!isReadOnly ? 'cursor-pointer hover:border-primary/30' : ''} transition-all ${task.completed
                                     ? 'bg-slate-50 dark:bg-slate-800/10 border-transparent opacity-50'
                                     : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 hover:border-primary/30 shadow-sm'
                                     }`}

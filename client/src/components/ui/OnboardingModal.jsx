@@ -31,6 +31,9 @@ const OnboardingModal = ({ isOpen }) => {
     const { mutate } = useSWRConfig();
     const [step, setStep] = useState(1);
     const [timezone, setTimezone] = useState('');
+    const [currency, setCurrency] = useState('USD');
+    const [username, setUsername] = useState('');
+    const [error, setError] = useState('');
     const [selectedHabits, setSelectedHabits] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -48,12 +51,15 @@ const OnboardingModal = ({ isOpen }) => {
 
     const handleFinish = async () => {
         setLoading(true);
+        setError('');
         try {
-            await completeOnboarding({ timezone, selectedHabits });
+            await completeOnboarding({ timezone, currency, username, selectedHabits });
             // Immediately refresh habits to avoid lag
             mutate('/habits');
         } catch (error) {
             console.error('Failed to complete onboarding:', error);
+            setError(error.response?.data?.message || 'Failed to complete onboarding.');
+            setStep(2); // Send them back to username step if it fails
         } finally {
             setLoading(false);
         }
@@ -123,9 +129,113 @@ const OnboardingModal = ({ isOpen }) => {
                                     Confirm & Continue
                                 </button>
                             </motion.div>
-                        ) : (
+                        ) : step === 2 ? (
                             <motion.div
                                 key="step2"
+                                variants={stepVariants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                className="space-y-8"
+                            >
+                                <div className="space-y-4">
+                                    <div className="size-16 bg-blue-500/10 rounded-2xl flex items-center justify-center ring-8 ring-blue-500/5">
+                                        <span className="material-symbols-outlined text-3xl text-blue-500 font-black">alternate_email</span>
+                                    </div>
+                                    <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                                        Choose a username
+                                    </h2>
+                                    <p className="text-slate-500 dark:text-slate-400 font-medium">
+                                        This is how you'll be known to your partners and on your public profile.
+                                    </p>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xl font-black text-slate-400">@</span>
+                                        <input
+                                            type="text"
+                                            value={username}
+                                            onChange={(e) => { setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')); setError(''); }}
+                                            placeholder="username"
+                                            className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium rounded-xl px-4 py-3 outline-none focus:border-primary transition-colors"
+                                            autoFocus
+                                        />
+                                    </div>
+                                    {error && <p className="text-xs font-bold text-red-500">{error}</p>}
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => setStep(1)}
+                                        className="px-6 py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-2xl font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all font-bold"
+                                    >
+                                        Back
+                                    </button>
+                                    <button
+                                        onClick={() => setStep(3)}
+                                        disabled={!username.trim() || username.length < 3}
+                                        className="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-sm hover:scale-[1.01] transition-all shadow-xl active:scale-[0.99] disabled:opacity-50 disabled:grayscale"
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ) : step === 3 ? (
+                            <motion.div
+                                key="step2"
+                                variants={stepVariants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                className="space-y-8"
+                            >
+                                <div className="space-y-4">
+                                    <div className="size-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center ring-8 ring-emerald-500/5">
+                                        <span className="material-symbols-outlined text-3xl text-emerald-500 font-black">payments</span>
+                                    </div>
+                                    <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                                        Set your currency
+                                    </h2>
+                                    <p className="text-slate-500 dark:text-slate-400 font-medium">
+                                        Choose how you'd like your financial data to be displayed in the finance dashboard.
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 w-full">
+                                    <button
+                                        onClick={() => { setCurrency('USD'); setStep(4); }}
+                                        className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${currency === 'USD' ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10 scale-105' : 'border-slate-100 dark:border-slate-800 hover:border-slate-200'}`}
+                                    >
+                                        <span className="text-4xl font-black text-slate-900 dark:text-white">$</span>
+                                        <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">US Dollar</span>
+                                    </button>
+                                    <button
+                                        onClick={() => { setCurrency('PHP'); setStep(4); }}
+                                        className={`p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 ${currency === 'PHP' ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10 scale-105' : 'border-slate-100 dark:border-slate-800 hover:border-slate-200'}`}
+                                    >
+                                        <span className="text-4xl font-black text-slate-900 dark:text-white">₱</span>
+                                        <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">PH Peso</span>
+                                    </button>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => setStep(2)}
+                                        className="px-6 py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-2xl font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all font-bold"
+                                    >
+                                        Back
+                                    </button>
+                                    <button
+                                        onClick={() => setStep(4)}
+                                        className="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-sm hover:scale-[1.01] transition-all shadow-xl active:scale-[0.99] disabled:opacity-50 disabled:grayscale"
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="step3"
                                 variants={stepVariants}
                                 initial="enter"
                                 animate="center"
@@ -177,7 +287,7 @@ const OnboardingModal = ({ isOpen }) => {
 
                                 <div className="flex gap-4">
                                     <button
-                                        onClick={() => setStep(1)}
+                                        onClick={() => setStep(3)}
                                         className="px-6 py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-2xl font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all font-bold"
                                     >
                                         Back

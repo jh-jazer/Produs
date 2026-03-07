@@ -1,10 +1,10 @@
 import useSWR from 'swr';
 import HabitTracker from '../components/habit_components/HabitTracker';
-import TopStreaks from '../components/habit_components/TopStreaks';
-import SmallCalendar from '../components/planner_components/SmallCalendar';
 import Priority from '../components/planner_components/Priority';
 import FinancialStats from '../components/finance_components/FinancialStats';
 import JournalSnippet from '../components/journal_components/JournalSnippet';
+import ActivityFeed from '../components/ActivityFeed';
+import UserSearch from '../components/ui/UserSearch';
 import useAuthStore from '../store/useAuthStore';
 
 function Overview() {
@@ -14,37 +14,38 @@ function Overview() {
 
     const { data: transactions = [] } = useSWR('/finance/transactions');
 
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+
     return (
         <div className="w-full max-w-[1200px] flex flex-col gap-6">
 
-            {/* Grid Layout - Fixed Height tied to screen */}
             <div className="flex flex-col md:flex-row gap-6 h-[calc(100vh-140px)] min-h-[520px] pt-4">
 
-                {/* Left Column */}
-                <div className="w-full md:w-2/3 flex flex-col gap-6 h-full">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-2">
-                        <div className="flex flex-col gap-1">
-                            <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">Good morning, {firstName}</h1>
-                            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Ready to crush your goals today?</p>
-                        </div>
+                {/* Left — 2/3 scrolling social feed */}
+                <div className="w-full md:flex-1 flex flex-col gap-5 overflow-y-auto custom-scrollbar pr-1 pb-6">
+                    {/* Greeting */}
+                    <div className="flex flex-col gap-0.5">
+                        <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">
+                            {greeting}, {firstName} 👋
+                        </h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                            Here's what your people are up to.
+                        </p>
                     </div>
-                    {/* Habit Tracker */}
-                    <div className="flex-1 flex flex-col min-h-0">
-                        <HabitTracker isDashboard={true} />
-                    </div>
+
+                    {/* User Search */}
+                    <UserSearch />
+
+                    {/* Activity Feed */}
+                    <ActivityFeed />
                 </div>
 
-                {/* Right Column */}
-                <div className="w-full md:w-1/3 flex flex-col gap-6 h-full">
-                    {/* Calendar & Priority Panel */}
-                    <div className="flex flex-col gap-4">
-                        <Priority isCompact={true} />
-                    </div>
-
-                    {/* Financial Stats */}
+                {/* Right — narrow productive panels pushed to the right */}
+                <div className="w-full md:w-64 shrink-0 min-w-0 flex flex-col gap-4 overflow-x-hidden overflow-y-auto custom-scrollbar pb-6 ml-auto">
+                    <HabitTracker isDashboard={true} />
+                    <Priority isCompact={true} />
                     <FinancialStats transactions={transactions} currencySymbol={currencySymbol} />
-
-                    {/* Journal snippet */}
                     <JournalSnippet />
                 </div>
 

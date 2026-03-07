@@ -5,6 +5,7 @@ import useAuthStore from '../store/useAuthStore';
 import ProfileModal from './ui/ProfileModal';
 import SettingsModal from './ui/SettingsModal';
 import OnboardingModal from './ui/OnboardingModal';
+import Avatar from './ui/Avatar';
 
 function Layout() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -171,25 +172,23 @@ function Layout() {
 
                         {/* Profile & Notifications */}
                         <div className="relative" ref={profileRef}>
-                            <button
-                                onClick={() => {
-                                    if (isNotificationsOpen) {
-                                        setIsNotificationsOpen(false);
-                                    } else {
-                                        setIsProfileOpen(!isProfileOpen);
-                                    }
-                                }}
-                                className="relative bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-primary/20 overflow-hidden bg-slate-200 flex items-center justify-center text-xl font-bold text-slate-500 hover:ring-primary/40 transition-all active:scale-95"
-                            >
-                                {user?.avatar ? (
-                                    <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                                ) : (
-                                    <span>{user?.name ? user.name.charAt(0).toUpperCase() : '?'}</span>
-                                )}
+                            <div className="relative inline-block">
+                                <button
+                                    onClick={() => {
+                                        if (isNotificationsOpen) {
+                                            setIsNotificationsOpen(false);
+                                        } else {
+                                            setIsProfileOpen(!isProfileOpen);
+                                        }
+                                    }}
+                                    className="relative bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-primary/20 overflow-hidden bg-slate-200 flex items-center justify-center text-xl font-bold text-slate-500 hover:ring-primary/40 transition-all active:scale-95"
+                                >
+                                    <Avatar config={user?.avatar} />
+                                </button>
                                 {unreadCount > 0 && (
-                                    <span className="absolute top-0 right-0 size-2.5 bg-rose-500 rounded-full ring-2 ring-white dark:ring-slate-900" />
+                                    <span className="absolute top-0 right-0 size-3 bg-rose-500 rounded-full border-2 border-background-light dark:border-background-dark pointer-events-none" />
                                 )}
-                            </button>
+                            </div>
 
                             <AnimatePresence>
                                 {isProfileOpen && (
@@ -202,9 +201,16 @@ function Layout() {
                                     >
                                         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1">
                                             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Account</p>
-                                            <p className="text-sm font-black truncate">{user?.name || 'User'}</p>
                                         </div>
 
+
+                                        <button
+                                            onClick={() => { navigate('/dashboard/profile'); setIsProfileOpen(false); }}
+                                            className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors"
+                                        >
+                                            <span className="material-symbols-outlined text-lg">dashboard</span>
+                                            Profile
+                                        </button>
                                         <button
                                             onClick={() => { setIsNotificationsOpen(true); setIsProfileOpen(false); }}
                                             className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-between transition-colors"
@@ -219,20 +225,7 @@ function Layout() {
                                                 </span>
                                             )}
                                         </button>
-                                        <button
-                                            onClick={() => { navigate('/dashboard/profile'); setIsProfileOpen(false); }}
-                                            className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">dashboard</span>
-                                            Dashboard Profile
-                                        </button>
-                                        <button
-                                            onClick={() => { setIsProfileModalOpen(true); setIsProfileOpen(false); }}
-                                            className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">person</span>
-                                            Account Details
-                                        </button>
+
                                         <button
                                             onClick={() => { setIsSettingsModalOpen(true); setIsProfileOpen(false); }}
                                             className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors"

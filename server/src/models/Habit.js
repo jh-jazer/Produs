@@ -33,7 +33,15 @@ const habitSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         }
-    }]
+    }],
+    sharedGroupId: {
+        type: String,
+        default: null
+    },
+    isShared: {
+        type: Boolean,
+        default: false
+    }
 }, {
     timestamps: true
 });

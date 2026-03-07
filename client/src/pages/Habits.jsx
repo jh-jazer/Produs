@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import api from '../services/api';
+import useAuthStore from '../store/useAuthStore';
 
 import HabitTracker from '../components/habit_components/HabitTracker';
 import ConsistencyGrid from '../components/habit_components/ConsistencyGrid';
@@ -15,23 +16,32 @@ const fetcher = url => api.get(url).then(res => res.data);
 const categories = ['All', 'Health', 'Mindset', 'Finance', 'Productivity', 'Creative'];
 
 function Habits() {
+    const { user } = useAuthStore();
+    const [viewMode, setViewMode] = useState('me'); // 'me' or 'partner'
     const [activeDate, setActiveDate] = useState(new Date()); // Default to current date
     const [currentFilter, setCurrentFilter] = useState('All');
 
     // Fetch habits using SWR
-    const { data: fetchedHabits, error, isLoading, mutate } = useSWR('/habits', fetcher);
+    const { data: fetchedHabits, error, isLoading, mutate } = useSWR(viewMode === 'partner' ? '/habits?view=partner' : '/habits', fetcher);
 
     // Provide default fallback while loading or if undefined
     const habits = fetchedHabits || [];
 
-    // Derive checks dictionary from the flat habit.checks array for easy O(1) lookups
+    // Separate habits into mine and partner's
+    const myHabits = React.useMemo(() => habits.filter(h => h.user === user?._id), [habits, user]);
+    const partnerHabits = React.useMemo(() => habits.filter(h => h.user !== user?._id), [habits, user]);
+
+    // Derive checks dictionary with user separation: { habitId: { date: completed } }
     const checks = React.useMemo(() => {
         const checksDict = {};
         habits.forEach(habit => {
-            checksDict[habit._id] = {};
+            checksDict[habit._id] = {
+                completed: {},
+                user: habit.user
+            };
             if (habit.checks && Array.isArray(habit.checks)) {
                 habit.checks.forEach(check => {
-                    checksDict[habit._id][check.date] = check.completed;
+                    checksDict[habit._id].completed[check.date] = check.completed;
                 });
             }
         });
@@ -87,10 +97,33 @@ function Habits() {
                 {/* Left Column: Header, Streaks & Overview */}
                 <div className="lg:col-span-4 flex flex-col gap-6">
                     <div className="flex flex-col gap-1 pb-2">
-                        <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">Build Better Habits</h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Tracking {totalActive} active habits • {successRate}% success rate this week</p>
+                        <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">{viewMode === 'partner' ? 'Partner Sync' : 'Build Better Habits'}</h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                            {viewMode === 'partner'
+                                ? `Syncing ${myHabits.length} of your habits with ${partnerHabits.length} of ${user?.partner?.name}'s`
+                                : `Tracking ${totalActive} active habits • ${successRate}% success rate this week`
+                            }
+                        </p>
                     </div>
-                    <TopStreaks />
+
+                    {user?.partner && (
+                        <div className="bg-slate-50 dark:bg-slate-800/50 p-1 rounded-xl flex">
+                            <button
+                                onClick={() => setViewMode('me')}
+                                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'me' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`}
+                            >
+                                My Habits
+                            </button>
+                            <button
+                                onClick={() => setViewMode('partner')}
+                                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'partner' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`}
+                            >
+                                Partner View
+                            </button>
+                        </div>
+                    )}
+
+                    <TopStreaks habits={habits} />
                     <CategoryOverview />
                 </div>
 
@@ -112,12 +145,21 @@ function Habits() {
                             currentFilter={currentFilter}
                             onFilterChange={setCurrentFilter}
                             habits={habits}
+                            myHabits={myHabits}
+                            partnerHabits={partnerHabits}
                             checks={checks}
                             mutateHabits={mutate}
+                            isPartnerView={viewMode === 'partner'}
+                            partnerName={user?.partner?.name}
                         />
                     )}
 
-                    <ConsistencyGrid checks={checks} />
+                    <ConsistencyGrid
+                        checks={checks}
+                        isPartnerView={viewMode === 'partner'}
+                        myUserId={user?._id}
+                        partnerUserId={user?.partner?._id}
+                    />
                     <HabitInsights />
                 </div>
             </div>

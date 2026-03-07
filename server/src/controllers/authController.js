@@ -99,21 +99,80 @@ export const loginUser = async (req, res) => {
 // @access  Private
 export const getMe = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.id).populate('partner', 'name username email avatar');
         if (user) {
             res.json({
                 _id: user.id,
                 name: user.name,
                 email: user.email,
                 avatar: user.avatar,
+                username: user.username,
+                bio: user.bio,
+                banner: user.banner,
                 onboardingCompleted: user.onboardingCompleted,
                 timezone: user.timezone,
                 currency: user.currency,
                 settings: user.settings,
+                partner: user.partner,
             });
         } else {
             res.status(404).json({ message: 'User not found' });
         }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Search public users by name or username
+// @route   GET /api/auth/search?q=query
+// @access  Private
+export const searchUsers = async (req, res) => {
+    try {
+        const query = req.query.q;
+        if (!query || query.length < 2) {
+            return res.json([]);
+        }
+
+        const users = await User.find({
+            $or: [
+                { name: { $regex: query, $options: 'i' } },
+                { username: { $regex: query, $options: 'i' } }
+            ],
+            'settings.isPublic': true,
+            _id: { $ne: req.user.id }
+        })
+            .select('name username avatar bio settings')
+            .limit(10);
+
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get public profile by username
+// @route   GET /api/auth/profile/:username
+// @access  Public
+export const getPublicProfile = async (req, res) => {
+    try {
+        const user = await User.findOne({ username: req.params.username });
+        if (!user || user.settings?.isPublic !== true) {
+            return res.status(404).json({ message: 'User not found or profile is private' });
+        }
+
+        // Fetch top habits
+        const habits = await Habit.find({ user: user._id });
+        const topHabits = habits.sort((a, b) => b.streak - a.streak).slice(0, 3);
+
+        res.json({
+            name: user.name,
+            username: user.username,
+            avatar: user.avatar,
+            banner: user.banner,
+            bio: user.bio,
+            joined: user.createdAt,
+            topHabits
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -142,6 +201,14 @@ export const completeOnboarding = async (req, res) => {
         const user = await User.findById(req.user.id);
 
         if (user) {
+            if (req.body.username) {
+                const existingUser = await User.findOne({ username: req.body.username });
+                if (existingUser && existingUser.id !== user.id) {
+                    return res.status(400).json({ message: 'Username is already taken' });
+                }
+                user.username = req.body.username;
+            }
+
             user.onboardingCompleted = true;
             user.timezone = req.body.timezone || user.timezone;
             user.currency = req.body.currency || user.currency;
@@ -184,9 +251,20 @@ export const updateSettings = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (user) {
-            // Update currency if provided at top level or in body
-            if (req.body.currency) {
-                user.currency = req.body.currency;
+            // Update top-level fields if provided
+            const topLevelFields = ['currency', 'username', 'bio', 'banner', 'avatar', 'name'];
+            topLevelFields.forEach(field => {
+                if (req.body[field] !== undefined) {
+                    user[field] = req.body[field];
+                }
+            });
+
+            // If updating username, ensure it's unique
+            if (req.body.username) {
+                const existingUser = await User.findOne({ username: req.body.username });
+                if (existingUser && existingUser.id !== user.id) {
+                    return res.status(400).json({ message: 'Username is already taken' });
+                }
             }
 
             user.settings = { ...user.settings, ...req.body };
@@ -213,6 +291,82 @@ export const deleteUser = async (req, res) => {
         } else {
             res.status(404).json({ message: 'User not found' });
         }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Find a user by email to link as partner
+// @route   POST /api/auth/partner/link
+// @access  Private
+export const linkPartner = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required to link a partner' });
+        }
+
+        if (email.toLowerCase() === req.user.email.toLowerCase()) {
+            return res.status(400).json({ message: 'You cannot link yourself as a partner' });
+        }
+
+        const partnerToLink = await User.findOne({ email });
+
+        if (!partnerToLink) {
+            return res.status(404).json({ message: 'No user found with that email' });
+        }
+
+        const currentUser = await User.findById(req.user.id);
+
+        if (currentUser.partner) {
+            return res.status(400).json({ message: 'You already have a linked partner' });
+        }
+
+        if (partnerToLink.partner) {
+            return res.status(400).json({ message: 'This user already has a linked partner' });
+        }
+
+        // Mutual link
+        currentUser.partner = partnerToLink._id;
+        partnerToLink.partner = currentUser._id;
+
+        await currentUser.save();
+        await partnerToLink.save();
+
+        const updatedUser = await User.findById(req.user.id).populate('partner', 'name username email avatar');
+
+        res.json({ message: 'Partner linked successfully', partner: updatedUser.partner });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Unlink current partner
+// @route   POST /api/auth/partner/unlink
+// @access  Private
+export const unlinkPartner = async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.user.id);
+
+        if (!currentUser.partner) {
+            return res.status(400).json({ message: 'You do not have a linked partner' });
+        }
+
+        const partnerUser = await User.findById(currentUser.partner);
+
+        // Remove links mutually
+        currentUser.partner = null;
+        if (partnerUser) {
+            partnerUser.partner = null;
+            await partnerUser.save();
+        }
+
+        await currentUser.save();
+
+        res.json({ message: 'Partner unlinked successfully' });
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -1,11 +1,22 @@
 import Task from '../models/Task.js';
 import Goal from '../models/Goal.js';
+import User from '../models/User.js';
 
 // Task Controllers
 export const getTasks = async (req, res) => {
     try {
+        let targetUserId = req.user._id;
+
+        if (req.query.view === 'partner') {
+            const currentUser = await User.findById(req.user._id);
+            if (!currentUser || !currentUser.partner) {
+                return res.status(400).json({ message: 'No linked partner found' });
+            }
+            targetUserId = currentUser.partner;
+        }
+
         const { date, year, month } = req.query;
-        const query = { user: req.user._id };
+        const query = { user: targetUserId };
 
         if (date) {
             // Find tasks where (date >= task.date AND (date <= task.endDate OR task.endDate is null))
@@ -80,8 +91,18 @@ export const deleteTask = async (req, res) => {
 // Goal Controllers
 export const getGoals = async (req, res) => {
     try {
+        let targetUserId = req.user._id;
+
+        if (req.query.view === 'partner') {
+            const currentUser = await User.findById(req.user._id);
+            if (!currentUser || !currentUser.partner) {
+                return res.status(400).json({ message: 'No linked partner found' });
+            }
+            targetUserId = currentUser.partner;
+        }
+
         const { period, year, month, week, day } = req.query;
-        const query = { user: req.user._id };
+        const query = { user: targetUserId };
         if (period) query.period = period;
         if (year) query.year = year;
         if (month !== undefined) query.month = month;

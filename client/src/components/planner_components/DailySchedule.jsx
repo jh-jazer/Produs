@@ -4,9 +4,9 @@ import api from '../../services/api';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
-const DailySchedule = ({ selectedDate }) => {
+const DailySchedule = ({ selectedDate, viewMode = 'me', isReadOnly = false }) => {
     const dateStr = selectedDate.toLocaleDateString('en-CA');
-    const { data: tasks, mutate } = useSWR(`/planner/tasks?date=${dateStr}`, fetcher);
+    const { data: tasks, mutate } = useSWR(`/planner/tasks?date=${dateStr}${viewMode === 'partner' ? '&view=partner' : ''}`, fetcher);
     const [isAdding, setIsAdding] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
     const [newTask, setNewTask] = useState({ title: '', startTime: '09:00', endTime: '10:00' });
@@ -89,17 +89,16 @@ const DailySchedule = ({ selectedDate }) => {
                     <h3 className="font-black text-slate-900 dark:text-white tracking-tight">Daily Schedule</h3>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Time blocking</p>
                 </div>
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => setIsAdding(!isAdding)}
-                        className={`p-2 rounded-xl transition-all ${isAdding ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-primary'}`}
-                    >
-                        <span className="material-symbols-outlined text-xl">{isAdding ? 'close' : 'add'}</span>
-                    </button>
-                    <button className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-primary transition-all">
-                        <span className="material-symbols-outlined text-xl">edit</span>
-                    </button>
-                </div>
+                {!isReadOnly && (
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setIsAdding(!isAdding)}
+                            className={`p-2 rounded-xl transition-all ${isAdding ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-primary'}`}
+                        >
+                            <span className="material-symbols-outlined text-xl">{isAdding ? 'close' : 'add'}</span>
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar relative font-inter bg-slate-50/30 dark:bg-transparent">
@@ -145,12 +144,14 @@ const DailySchedule = ({ selectedDate }) => {
                             <div key={idx} className="flex items-center gap-4 text-[10px] font-black text-slate-300 dark:text-slate-700 h-px relative group/line">
                                 <span className="w-12 whitespace-nowrap group-hover/line:text-primary transition-colors">{t.label}</span>
                                 <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800/50 group-hover/line:bg-primary/20 transition-all"></div>
-                                <button
-                                    onClick={() => { setNewTask({ ...newTask, startTime: t.val }); setIsAdding(true); }}
-                                    className="absolute left-16 opacity-0 group-hover/line:opacity-100 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full size-6 flex items-center justify-center text-primary shadow-sm hover:scale-110 transition-all z-20"
-                                >
-                                    <span className="material-symbols-outlined text-sm">add</span>
-                                </button>
+                                {!isReadOnly && (
+                                    <button
+                                        onClick={() => { setNewTask({ ...newTask, startTime: t.val }); setIsAdding(true); }}
+                                        className="absolute left-16 opacity-0 group-hover/line:opacity-100 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full size-6 flex items-center justify-center text-primary shadow-sm hover:scale-110 transition-all z-20"
+                                    >
+                                        <span className="material-symbols-outlined text-sm">add</span>
+                                    </button>
+                                )}
                             </div>
                         ))}
 
@@ -187,26 +188,28 @@ const DailySchedule = ({ selectedDate }) => {
                                         <p className="text-xs font-black text-slate-900 dark:text-white truncate">{task.title}</p>
                                         <p className="text-[10px] font-bold text-primary opacity-80">{task.startTime} - {task.endTime}</p>
                                     </div>
-                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                            onClick={() => moveTaskAtTime(task, `${String(Number(task.startTime.split(':')[0]) - 1).padStart(2, '0')}:${task.startTime.split(':')[1]}`)}
-                                            className="p-1 hover:bg-white/20 rounded text-slate-500 dark:text-slate-300"
-                                        >
-                                            <span className="material-symbols-outlined text-sm">expand_less</span>
-                                        </button>
-                                        <button
-                                            onClick={() => moveTaskAtTime(task, `${String(Number(task.startTime.split(':')[0]) + 1).padStart(2, '0')}:${task.startTime.split(':')[1]}`)}
-                                            className="p-1 hover:bg-white/20 rounded text-slate-500 dark:text-slate-300"
-                                        >
-                                            <span className="material-symbols-outlined text-sm">expand_more</span>
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteTask(task._id)}
-                                            className="p-1 hover:bg-red-500/20 rounded text-red-500"
-                                        >
-                                            <span className="material-symbols-outlined text-xs">delete</span>
-                                        </button>
-                                    </div>
+                                    {!isReadOnly && (
+                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                onClick={() => moveTaskAtTime(task, `${String(Number(task.startTime.split(':')[0]) - 1).padStart(2, '0')}:${task.startTime.split(':')[1]}`)}
+                                                className="p-1 hover:bg-white/20 rounded text-slate-500 dark:text-slate-300"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">expand_less</span>
+                                            </button>
+                                            <button
+                                                onClick={() => moveTaskAtTime(task, `${String(Number(task.startTime.split(':')[0]) + 1).padStart(2, '0')}:${task.startTime.split(':')[1]}`)}
+                                                className="p-1 hover:bg-white/20 rounded text-slate-500 dark:text-slate-300"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">expand_more</span>
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteTask(task._id)}
+                                                className="p-1 hover:bg-red-500/20 rounded text-red-500"
+                                            >
+                                                <span className="material-symbols-outlined text-xs">delete</span>
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );

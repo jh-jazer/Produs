@@ -4,13 +4,13 @@ import api from '../../services/api';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
-const GoalSetter = () => {
+const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
     const [view, setView] = useState('monthly'); // 'monthly', 'yearly'
     const now = new Date();
     const currentYear = now.getFullYear();
     const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
 
-    const { data: goals, mutate } = useSWR(`/planner/goals?year=${currentYear}`, fetcher);
+    const { data: goals, mutate } = useSWR(`/planner/goals?year=${currentYear}${viewMode === 'partner' ? '&view=partner' : ''}`, fetcher);
     const [newGoalTitle, setNewGoalTitle] = useState('');
 
     const months = [
@@ -112,22 +112,24 @@ const GoalSetter = () => {
                 </div>
             )}
 
-            <div className="flex gap-2">
-                <input
-                    type="text"
-                    value={newGoalTitle}
-                    onChange={(e) => setNewGoalTitle(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && addGoal()}
-                    placeholder={`Add a ${view} goal...`}
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-inner"
-                />
-                <button
-                    onClick={addGoal}
-                    className="p-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl hover:opacity-90 transition-all active:scale-95 shadow-lg flex items-center justify-center min-w-[44px]"
-                >
-                    <span className="material-symbols-outlined">add</span>
-                </button>
-            </div>
+            {!isReadOnly && (
+                <div className="flex gap-2">
+                    <input
+                        type="text"
+                        value={newGoalTitle}
+                        onChange={(e) => setNewGoalTitle(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && addGoal()}
+                        placeholder={`Add a ${view} goal...`}
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-inner"
+                    />
+                    <button
+                        onClick={addGoal}
+                        className="p-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl hover:opacity-90 transition-all active:scale-95 shadow-lg flex items-center justify-center min-w-[44px]"
+                    >
+                        <span className="material-symbols-outlined">add</span>
+                    </button>
+                </div>
+            )}
 
             {view === 'monthly' && filteredGoals.length > 0 && (
                 <div className="bg-slate-50 dark:bg-slate-800/30 p-3 rounded-lg border-l-4 border-primary">
@@ -149,7 +151,7 @@ const GoalSetter = () => {
                         <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">
                                 <button
-                                    onClick={() => toggleGoal(goal)}
+                                    onClick={() => !isReadOnly && toggleGoal(goal)}
                                     className={`size-6 rounded-full border-2 flex items-center justify-center transition-all ${goal.completed
                                         ? 'bg-emerald-500 border-emerald-500 text-white'
                                         : 'border-slate-300 dark:border-slate-600 hover:border-emerald-500'
@@ -162,12 +164,14 @@ const GoalSetter = () => {
                                     {goal.title}
                                 </span>
                             </div>
-                            <button
-                                onClick={() => deleteGoal(goal._id)}
-                                className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-all"
-                            >
-                                <span className="material-symbols-outlined text-sm">delete</span>
-                            </button>
+                            {!isReadOnly && (
+                                <button
+                                    onClick={() => deleteGoal(goal._id)}
+                                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-all"
+                                >
+                                    <span className="material-symbols-outlined text-sm">delete</span>
+                                </button>
+                            )}
                         </div>
 
                         <div className="space-y-2">

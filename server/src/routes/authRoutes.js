@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import { registerUser, loginUser, getMe, googleAuthCallback, completeOnboarding, updateSettings, deleteUser } from '../controllers/authController.js';
+import { registerUser, loginUser, getMe, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, linkPartner, unlinkPartner, searchUsers } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -8,9 +8,13 @@ const router = express.Router();
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/me', protect, getMe);
+router.get('/search', protect, searchUsers);
 router.put('/onboarding', protect, completeOnboarding);
 router.put('/settings', protect, updateSettings);
 router.delete('/me', protect, deleteUser);
+router.get('/profile/:username', getPublicProfile);
+router.post('/partner/link', protect, linkPartner);
+router.post('/partner/unlink', protect, unlinkPartner);
 
 // @route   GET /api/auth/google
 // @desc    Auth with Google

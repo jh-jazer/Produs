@@ -9,9 +9,9 @@ import Finance from './pages/Finance';
 import Journal from './pages/Journal';
 import Auth from './pages/Auth';
 import AuthCallback from './pages/AuthCallback';
-import Onboarding from './pages/Onboarding';
 import Landing from './pages/Landing';
 import Profile from './pages/Profile';
+import PublicProfile from './pages/PublicProfile';
 import useAuthStore from './store/useAuthStore';
 
 // Simple wrapper to protect routes
@@ -39,6 +39,9 @@ function AnimatedRoutes() {
         <Route path="/auth" element={<Auth />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
 
+        {/* Public Profile Route */}
+        <Route path="/u/:username" element={<PublicProfile />} />
+
         {/* Protected Dashboard Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<Overview />} />
@@ -48,7 +51,6 @@ function AnimatedRoutes() {
           <Route path="journal" element={<Journal />} />
           <Route path="profile" element={<Profile />} />
         </Route>
-        <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
       </Routes>
     </AnimatePresence>
   );
