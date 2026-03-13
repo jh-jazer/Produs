@@ -62,6 +62,15 @@ const SUGGESTIONS = [
             { name: 'Inbox Zero', icon: 'mail', color: 'blue' },
             { name: 'Plan Tomorrow', icon: 'event_note', color: 'indigo' },
         ]
+    },
+    {
+        category: 'Spiritual',
+        habits: [
+            { name: 'Daily Prayer', icon: 'auto_awesome', color: 'purple' },
+            { name: 'Gratitude Journal', icon: 'history_edu', color: 'violet' },
+            { name: 'Scripture Reading', icon: 'menu_book', color: 'indigo' },
+            { name: 'Acts of Kindness', icon: 'favorite', color: 'rose' },
+        ]
     }
 ];
 
@@ -95,13 +104,17 @@ function HabitTracker({
     isDashboard = false,
     isReadOnly = false,
     isPartnerView = false,
-    partnerName = "Partner"
+    partnerName = "Partner",
+    isLoading: propLoading,
+    error: propError
 }) {
     // If not passed from parent, fetch internally
-    const { data: fetchedHabits, error, isLoading, mutate: swrMutate } = useSWR(propHabits ? null : '/habits', fetcher);
+    const { data: fetchedHabits, error: fetchError, isLoading: fetchLoading, mutate: swrMutate } = useSWR(propHabits ? null : '/habits', fetcher);
 
     const habits = propHabits || fetchedHabits || [];
     const mutateHabits = propMutate || swrMutate;
+    const isLoading = propLoading !== undefined ? propLoading : fetchLoading;
+    const error = propError !== undefined ? propError : fetchError;
 
     // Group habits by sharedGroupId for partner view
     const groupedHabits = React.useMemo(() => {
@@ -628,34 +641,58 @@ function HabitTracker({
 
                     {/* Habit Rows */}
                     <div className={`flex flex-col overflow-y-auto pr-1 custom-scrollbar ${isDashboard ? 'max-h-[240px]' : 'max-h-[380px]'}`}>
-                        {/* Render Team/Shared Habits Section */}
-                        {teamHabits
-                            .filter(h => propFilter === 'All' || h.category === propFilter)
-                            .sort((a, b) => {
-                                const checkedA = isChecked(a.myPart?._id || a._id, today);
-                                const checkedB = isChecked(b.myPart?._id || b._id, today);
-                                if (checkedA === checkedB) return 0;
-                                return checkedA ? 1 : -1;
-                            })
-                            .map((habit) => renderHabitRow(habit))}
-
-                        {/* Divider for Team View */}
-                        {isPartnerView && teamHabits.length > 0 && partnerHabitsOnly.length > 0 && (
-                            <div className="py-2">
-                                <hr className="border-slate-100 dark:border-slate-800" />
-                                <div className="pt-2 pb-1 px-1">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{partnerName}'s Private Habits</span>
+                        {isLoading || error ? (
+                            // Skeleton Rows for Loading or Error state
+                            Array(5).fill(0).map((_, i) => (
+                                <div key={i} className="flex items-center gap-4 py-3 border-b border-slate-100 dark:border-slate-800/50 animate-pulse">
+                                    <div className={`${isDashboard ? 'flex-1' : 'w-1/3'} flex items-center gap-2`}>
+                                        <div className="w-6 h-6 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                                        <div className="flex-1">
+                                            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24 mb-1"></div>
+                                            <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded w-16"></div>
+                                        </div>
+                                    </div>
+                                    <div className={`flex-1 flex ${isDashboard ? 'justify-end' : 'justify-between'} items-center`}>
+                                        {daysToDisplay.map((_, j) => (
+                                            <div key={j} className="w-8 h-8 flex items-center justify-center">
+                                                <div className="w-7 h-7 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            ))
+                        ) : (
+                            <>
+                                {/* Render Team/Shared Habits Section */}
+                                {teamHabits
+                                    .filter(h => propFilter === 'All' || h.category === propFilter)
+                                    .sort((a, b) => {
+                                        const checkedA = isChecked(a.myPart?._id || a._id, today);
+                                        const checkedB = isChecked(b.myPart?._id || b._id, today);
+                                        if (checkedA === checkedB) return 0;
+                                        return checkedA ? 1 : -1;
+                                    })
+                                    .map((habit) => renderHabitRow(habit))}
 
-                        {/* Render Partner Only Habits Section */}
-                        {isPartnerView && partnerHabitsOnly
-                            .filter(h => propFilter === 'All' || h.category === propFilter)
-                            .map((habit) => renderHabitRow(habit))}
+                                {/* Divider for Team View */}
+                                {isPartnerView && teamHabits.length > 0 && partnerHabitsOnly.length > 0 && (
+                                    <div className="py-2">
+                                        <hr className="border-slate-100 dark:border-slate-800" />
+                                        <div className="pt-2 pb-1 px-1">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{partnerName}'s Private Habits</span>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Render Partner Only Habits Section */}
+                                {isPartnerView && partnerHabitsOnly
+                                    .filter(h => propFilter === 'All' || h.category === propFilter)
+                                    .map((habit) => renderHabitRow(habit))}
+                            </>
+                        )}
                     </div>
 
-                    {habits.length === 0 && (
+                    {!isLoading && !error && habits.length === 0 && (
                         <div className="flex flex-col items-center justify-center py-12 text-slate-400">
                             <span className="material-symbols-outlined text-4xl mb-2">playlist_add</span>
                             <p className="text-sm font-medium">No habits yet. Add one to get started!</p>
@@ -735,7 +772,7 @@ function HabitTracker({
                                     <div className="flex flex-col gap-1.5 mb-5">
                                         <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Category</label>
                                         <div className="grid grid-cols-3 gap-2">
-                                            {['Health', 'Mindset', 'Finance', 'Productivity', 'Creative'].map((cat) => (
+                                            {['Health', 'Mindset', 'Finance', 'Productivity', 'Creative', 'Spiritual'].map((cat) => (
                                                 <button
                                                     key={cat}
                                                     onClick={() => setNewHabit({ ...newHabit, category: cat })}

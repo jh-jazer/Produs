@@ -20,7 +20,7 @@ function Overview() {
     return (
         <div className="w-full max-w-[1200px] flex flex-col gap-6">
 
-            <div className="flex flex-col md:flex-row gap-6 pt-4">
+            <div className="flex flex-col md:flex-row gap-6 pt-4 items-start">
 
                 {/* Left — 2/3 scrolling social feed */}
                 <div className="w-full md:flex-1 flex flex-col gap-5 pr-1 pb-6">
@@ -42,7 +42,7 @@ function Overview() {
                 </div>
 
                 {/* Right — narrow productive panels pushed to the right */}
-                <div className="w-full md:w-64 shrink-0 min-w-0 flex flex-col gap-4 pb-6 ml-auto">
+                <div className="w-full md:w-80 shrink-0 min-w-0 flex flex-col gap-4 pb-6 ml-auto">
                     <HabitTracker isDashboard={true} />
                     <Priority isCompact={true} />
                     <FinancialStats transactions={transactions} currencySymbol={currencySymbol} />

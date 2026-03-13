@@ -86,6 +86,20 @@ export const updateBudget = async (req, res) => {
     }
 };
 
+export const deleteBudget = async (req, res) => {
+    try {
+        const budget = await Budget.findById(req.params.id);
+        if (budget && budget.user.toString() === req.user._id.toString()) {
+            await budget.deleteOne();
+            res.json({ message: 'Budget removed' });
+        } else {
+            res.status(404).json({ message: 'Budget not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // --- Debts ---
 export const getDebts = async (req, res) => {
     try {

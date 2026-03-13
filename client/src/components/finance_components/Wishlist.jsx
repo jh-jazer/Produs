@@ -3,8 +3,19 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
 
+const WISHLIST_CATEGORIES = [
+    { label: 'General', color: 'bg-slate-100 text-slate-600 dark:bg-slate-500/10' },
+    { label: 'Tech', color: 'bg-blue-100 text-blue-600 dark:bg-blue-500/10' },
+    { label: 'Home', color: 'bg-amber-100 text-amber-600 dark:bg-amber-500/10' },
+    { label: 'Fashion', color: 'bg-pink-100 text-pink-600 dark:bg-pink-500/10' },
+    { label: 'Hobby', color: 'bg-purple-100 text-purple-600 dark:bg-purple-500/10' },
+    { label: 'Fitness', color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10' },
+    { label: 'Wellness', color: 'bg-rose-100 text-rose-600 dark:bg-rose-500/10' },
+];
+
 const Wishlist = ({ items, currencySymbol, onAction }) => {
     const [isAdding, setIsAdding] = useState(false);
+    const [filterCategory, setFilterCategory] = useState('All');
     const [newItem, setNewItem] = useState({
         title: '',
         price: '',
@@ -48,8 +59,17 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
         }
     };
 
-    const totalCost = items?.reduce((sum, item) => sum + (item.purchased ? 0 : item.price), 0) || 0;
-    const purchasedValue = items?.reduce((sum, item) => sum + (item.purchased ? item.price : 0), 0) || 0;
+    const filteredItems = items?.filter(item => 
+        filterCategory === 'All' || item.category === filterCategory
+    ) || [];
+
+    const totalCost = filteredItems.reduce((sum, item) => sum + (item.purchased ? 0 : item.price), 0);
+    const purchasedValue = filteredItems.reduce((sum, item) => sum + (item.purchased ? item.price : 0), 0);
+
+    const getCategoryStyles = (categoryName) => {
+        const cat = WISHLIST_CATEGORIES.find(c => c.label === categoryName);
+        return cat?.color || 'bg-slate-100 text-slate-600 dark:bg-slate-500/10';
+    };
 
     return (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[350px]">
@@ -66,6 +86,29 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
                 </button>
             </div>
 
+            {/* Category Filter */}
+            <div className="flex flex-wrap gap-1.5 mb-6 pb-2 border-b border-slate-50 dark:border-slate-800/50">
+                <button
+                    onClick={() => setFilterCategory('All')}
+                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all ${filterCategory === 'All' 
+                        ? 'bg-primary text-white shadow-md shadow-primary/20' 
+                        : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                >
+                    All
+                </button>
+                {WISHLIST_CATEGORIES.map(cat => (
+                    <button
+                        key={cat.label}
+                        onClick={() => setFilterCategory(cat.label)}
+                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all ${filterCategory === cat.label 
+                            ? 'bg-primary text-white shadow-md shadow-primary/20' 
+                            : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                    >
+                        {cat.label}
+                    </button>
+                ))}
+            </div>
+
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                 <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
@@ -79,13 +122,13 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
             </div>
 
             <div className="space-y-2">
-                {!items?.length && (
+                {!filteredItems.length && (
                     <div className="text-center py-6 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-                        <p className="text-xs text-slate-500 font-medium">No items in your wishlist yet.</p>
+                        <p className="text-xs text-slate-500 font-medium">No items found in this category.</p>
                     </div>
                 )}
 
-                {items?.map((item) => (
+                {filteredItems.map((item) => (
                     <motion.div
                         layout
                         key={item._id}
@@ -114,6 +157,9 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
                                             'bg-slate-100 text-slate-600 dark:bg-slate-500/10'
                                         }`}>
                                         {item.priority}
+                                    </span>
+                                    <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${getCategoryStyles(item.category)}`}>
+                                        {item.category || 'General'}
                                     </span>
                                     <span className="text-xs font-black text-slate-900 dark:text-slate-200">{currencySymbol}{item.price.toLocaleString()}</span>
                                 </div>
@@ -187,6 +233,18 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
                                         <option value="High">High</option>
                                     </select>
                                 </div>
+                            </div>
+
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
+                                <select
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none"
+                                    value={newItem.category} onChange={e => setNewItem({ ...newItem, category: e.target.value })}
+                                >
+                                    {WISHLIST_CATEGORIES.map(cat => (
+                                        <option key={cat.label} value={cat.label}>{cat.label}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 

@@ -20,7 +20,7 @@ const habitSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        enum: ['Health', 'Mindset', 'Finance', 'Productivity', 'Creative'],
+        enum: ['Health', 'Mindset', 'Finance', 'Productivity', 'Creative', 'Spiritual'],
         required: true
     },
     streak: {

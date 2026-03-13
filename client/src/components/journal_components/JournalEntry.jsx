@@ -24,8 +24,7 @@ const JournalEntry = ({ onAction }) => {
     };
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm glow-active relative overflow-hidden">
-            <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm relative overflow-hidden">
 
             <div className="relative z-10 flex flex-col gap-6">
                 {/* Daily Prompt */}

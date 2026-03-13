@@ -10,6 +10,7 @@ import {
     updateTransaction,
     getBudgets,
     updateBudget,
+    deleteBudget,
     getDebts,
     addDebt,
     updateDebt,
@@ -33,6 +34,9 @@ router.route('/transactions/:id')
 router.route('/budgets')
     .get(protect, getBudgets)
     .put(protect, updateBudget);
+
+router.route('/budgets/:id')
+    .delete(protect, deleteBudget);
 
 router.route('/debts')
     .get(protect, getDebts)

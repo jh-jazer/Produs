@@ -30,6 +30,13 @@ const debtSchema = new mongoose.Schema({
     },
     dueDate: {
         type: String
+    },
+    isMonthly: {
+        type: Boolean,
+        default: false
+    },
+    monthsLeft: {
+        type: Number
     }
 }, {
     timestamps: true

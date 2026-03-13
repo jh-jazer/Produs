@@ -133,27 +133,21 @@ function Habits() {
 
 
                     {/* Habit Tracker Component */}
-                    {isLoading ? (
-                        <div className="flex justify-center py-20">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                        </div>
-                    ) : error ? (
-                        <div className="text-center py-20 text-red-500">Failed to load habits.</div>
-                    ) : (
-                        <HabitTracker
-                            activeDate={activeDate}
-                            onDateChange={changeWeek}
-                            currentFilter={currentFilter}
-                            onFilterChange={setCurrentFilter}
-                            habits={habits}
-                            myHabits={myHabits}
-                            partnerHabits={partnerHabits}
-                            checks={checks}
-                            mutateHabits={mutate}
-                            isPartnerView={viewMode === 'partner'}
-                            partnerName={user?.partner?.name}
-                        />
-                    )}
+                    <HabitTracker
+                        activeDate={activeDate}
+                        onDateChange={changeWeek}
+                        currentFilter={currentFilter}
+                        onFilterChange={setCurrentFilter}
+                        habits={habits}
+                        myHabits={myHabits}
+                        partnerHabits={partnerHabits}
+                        checks={checks}
+                        mutateHabits={mutate}
+                        isPartnerView={viewMode === 'partner'}
+                        partnerName={user?.partner?.name}
+                        isLoading={isLoading}
+                        error={error}
+                    />
 
                     <ConsistencyGrid
                         checks={checks}

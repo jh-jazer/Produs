@@ -2,9 +2,18 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import api from '../../services/api';
 
+const PRESET_CATEGORIES = [
+    'Food', 'Rent', 'Transport', 'Entertainment', 'Utilities', 
+    'Health', 'Shopping', 'Savings', 'Gifts', 'Subsciptions',
+    'Personal', 'Education', 'Travel', 'Insurance', 'Fitness',
+    'Home', 'Auto', 'Pets', 'Beauty', 'Other'
+];
+
 const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [editBudgets, setEditBudgets] = useState({});
+    const [editBudgets, setEditBudgets] = useState([]); // Array of { _id, category, limit }
+    const [newCategory, setNewCategory] = useState({ category: '', limit: '' });
+    const [deletedBudgetIds, setDeletedBudgetIds] = useState([]);
 
     // Calculate current spending per category for this month
     const now = new Date();
@@ -22,27 +31,43 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
             return acc;
         }, {});
 
-    const budgetList = budgets.length > 0 ? budgets : [
-        { category: 'Food', limit: 500 },
-        { category: 'Entertainment', limit: 300 },
-        { category: 'Transport', limit: 200 },
-        { category: 'Rent', limit: 1200 },
-        { category: 'Utilities', limit: 200 },
-        { category: 'Health', limit: 150 },
-    ];
+    const budgetList = budgets;
 
     const handleSave = async () => {
         try {
+            // 1. Delete marked budgets
             await Promise.all(
-                Object.entries(editBudgets).map(([category, limit]) =>
-                    api.post('/finance/budgets', { category, limit: parseFloat(limit) })
+                deletedBudgetIds.map(id => api.delete(`/finance/budgets/${id}`))
+            );
+
+            // 2. Update existing or create new budgets
+            await Promise.all(
+                editBudgets.map(b =>
+                    api.put('/finance/budgets', { category: b.category, limit: parseFloat(b.limit) })
                 )
             );
+
             setIsEditing(false);
+            setDeletedBudgetIds([]);
             onAction();
         } catch (error) {
             console.error('Failed to save budgets:', error);
         }
+    };
+
+    const addCategory = () => {
+        if (!newCategory.category || !newCategory.limit) return;
+        setEditBudgets([...editBudgets, { ...newCategory, limit: parseFloat(newCategory.limit) }]);
+        setNewCategory({ category: '', limit: '' });
+    };
+
+    const removeCategory = (index, id) => {
+        if (id) {
+            setDeletedBudgetIds([...deletedBudgetIds, id]);
+        }
+        const updated = [...editBudgets];
+        updated.splice(index, 1);
+        setEditBudgets(updated);
     };
 
     const totalBudget = budgetList.reduce((sum, b) => sum + b.limit, 0);
@@ -58,9 +83,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                 </div>
                 <button
                     onClick={() => {
-                        const initial = {};
-                        budgetList.forEach(b => initial[b.category] = b.limit);
-                        setEditBudgets(initial);
+                        setEditBudgets(budgetList.map(b => ({ ...b })));
                         setIsEditing(true);
                     }}
                     className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -69,38 +92,48 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                 </button>
             </div>
 
-            <div className="space-y-5 flex-1">
-                {budgetList.map(b => {
-                    const spent = spendingByCategory[b.category] || 0;
-                    const percent = Math.min(100, (spent / b.limit) * 100);
-                    const color = percent > 90 ? 'bg-red-500' : percent > 70 ? 'bg-orange-500' : 'bg-primary';
+            <div className="space-y-5 flex-1 flex flex-col">
+                {budgetList.length > 0 ? (
+                    <>
+                        {budgetList.map(b => {
+                            const spent = spendingByCategory[b.category] || 0;
+                            const percent = Math.min(100, (spent / b.limit) * 100);
+                            const color = percent > 90 ? 'bg-red-500' : percent > 70 ? 'bg-orange-500' : 'bg-primary';
 
-                    return (
-                        <div key={b.category}>
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{b.category}</span>
-                                <span className="text-xs font-black text-slate-900 dark:text-white">
-                                    {currencySymbol}{spent.toLocaleString()} / {currencySymbol}{b.limit.toLocaleString()}
-                                </span>
-                            </div>
-                            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                                <div
-                                    className={`${color} h-full rounded-full transition-all duration-700`}
-                                    style={{ width: `${percent}%` }}
-                                ></div>
+                            return (
+                                <div key={b.category}>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{b.category}</span>
+                                        <span className="text-xs font-black text-slate-900 dark:text-white">
+                                            {currencySymbol}{spent.toLocaleString()} / {currencySymbol}{b.limit.toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                        <div
+                                            className={`${color} h-full rounded-full transition-all duration-700`}
+                                            style={{ width: `${percent}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        <div className="mt-auto pt-6">
+                            <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
+                                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">Left to Spend</p>
+                                <p className="text-2xl font-black text-primary">
+                                    {currencySymbol}{remainingBudget.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </p>
                             </div>
                         </div>
-                    );
-                })}
-
-                <div className="mt-auto pt-6">
-                    <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
-                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">Left to Spend</p>
-                        <p className="text-2xl font-black text-primary">
-                            {currencySymbol}{remainingBudget.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                        </p>
+                    </>
+                ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+                        <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600 mb-3">account_balance_wallet</span>
+                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">No Budgets Set</p>
+                        <p className="text-[10px] text-slate-400 font-medium">Click the settings icon above to define your monthly spending caps.</p>
                     </div>
-                </div>
+                )}
             </div>
 
             {isEditing && createPortal(
@@ -109,36 +142,103 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                     <div className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6">
                         <div className="flex justify-between items-center">
                             <div>
-                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Budget Limits</h4>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Define your monthly caps</p>
+                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Budget Categories</h4>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Manage your monthly caps</p>
                             </div>
                             <button onClick={() => setIsEditing(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
-                            {budgetList.map(b => (
-                                <div key={b.category} className="flex items-center justify-between gap-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
-                                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{b.category}</span>
-                                    <div className="relative w-24">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">{currencySymbol}</span>
-                                        <input
-                                            type="number"
-                                            className="w-full bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-700 rounded-lg pl-6 pr-2 py-1.5 text-xs font-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
-                                            value={editBudgets[b.category] || ''}
-                                            onChange={(e) => setEditBudgets({ ...editBudgets, [b.category]: e.target.value })}
-                                        />
+                        {/* Category List */}
+                        <div className="grid grid-cols-1 gap-3 max-h-[30vh] overflow-y-auto pr-2 custom-scrollbar">
+                            {editBudgets.map((b, index) => (
+                                <div key={index} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 group">
+                                    <div className="flex-1 flex flex-col">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Category</span>
+                                        <span className="text-xs font-bold text-slate-900 dark:text-white">{b.category}</span>
                                     </div>
+                                    <div className="relative w-24">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Limit</span>
+                                        <div className="relative">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">{currencySymbol}</span>
+                                            <input
+                                                type="number"
+                                                className="w-full bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-700 rounded-lg pl-6 pr-2 py-1.5 text-xs font-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
+                                                value={b.limit || ''}
+                                                onChange={(e) => {
+                                                    const updated = [...editBudgets];
+                                                    updated[index].limit = e.target.value;
+                                                    setEditBudgets(updated);
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => removeCategory(index, b._id)}
+                                        className="mt-4 p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">delete</span>
+                                    </button>
                                 </div>
                             ))}
                         </div>
 
+                        {/* Add New Category */}
+                        <div className="p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 flex flex-col gap-4">
+                            <div className="flex flex-col gap-2">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Quick Picks</p>
+                                <div className="flex flex-wrap gap-1.5 max-h-[80px] overflow-y-auto pr-1 selection-none">
+                                    {PRESET_CATEGORIES.map(cat => (
+                                        <button
+                                            key={cat}
+                                            onClick={() => setNewCategory({ ...newCategory, category: cat })}
+                                            className={`text-[10px] font-bold px-2 py-1 rounded-md border transition-all ${
+                                                newCategory.category === cat 
+                                                ? 'bg-primary border-primary text-white' 
+                                                : 'bg-white dark:bg-[#192233] border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-primary/50 hover:text-primary'
+                                            }`}
+                                        >
+                                            {cat}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Custom Entry</p>
+                                <div className="flex gap-2">
+                                    <input
+                                        placeholder="Name (e.g. Subs)"
+                                        className="flex-1 bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
+                                        value={newCategory.category}
+                                        onChange={(e) => setNewCategory({ ...newCategory, category: e.target.value })}
+                                    />
+                                    <div className="relative w-24">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">{currencySymbol}</span>
+                                        <input
+                                            type="number"
+                                            placeholder="Limit"
+                                            className="w-full bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-700 rounded-lg pl-6 pr-2 py-2 text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
+                                            value={newCategory.limit}
+                                            onChange={(e) => setNewCategory({ ...newCategory, limit: e.target.value })}
+                                        />
+                                    </div>
+                                    <button 
+                                        onClick={addCategory}
+                                        className="p-2 bg-primary text-white rounded-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-lg shadow-primary/20"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">add</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <button
                             onClick={handleSave}
-                            className="w-full py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                            className="w-full py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-2"
                         >
-                            Save All Limits
+                            Save All Changes
                         </button>
                     </div>
                 </div>,

@@ -100,6 +100,7 @@ const RecentTransactions = ({ transactions, currencySymbol, onAction }) => {
                                     >
                                         <option value="expense">Expense</option>
                                         <option value="income">Income</option>
+                                        <option value="savings">Savings</option>
                                     </select>
                                 </div>
                             </div>
@@ -145,8 +146,16 @@ const RecentTransactions = ({ transactions, currencySymbol, onAction }) => {
                     transactions.slice(0, 5).map(tx => (
                         <div key={tx._id} className="group flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
                             <div className="flex items-center gap-4">
-                                <div className={`size-10 rounded-full flex items-center justify-center ${tx.type === 'income' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
-                                    <span className="material-symbols-outlined">{tx.type === 'income' ? 'payments' : 'shopping_bag'}</span>
+                                <div className={`size-10 rounded-full flex items-center justify-center ${
+                                    tx.type === 'income' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600' : 
+                                    tx.type === 'savings' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600' :
+                                    'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                }`}>
+                                    <span className="material-symbols-outlined">{
+                                        tx.type === 'income' ? 'payments' : 
+                                        tx.type === 'savings' ? 'savings' : 
+                                        'shopping_bag'
+                                    }</span>
                                 </div>
                                 <div>
                                     <p className="text-sm font-bold text-slate-900 dark:text-white">{tx.title}</p>
@@ -154,8 +163,12 @@ const RecentTransactions = ({ transactions, currencySymbol, onAction }) => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
-                                <p className={`text-sm font-black ${tx.type === 'income' ? 'text-emerald-500' : 'text-red-500'}`}>
-                                    {tx.type === 'income' ? '+' : '-'}{currencySymbol}{parseFloat(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                <p className={`text-sm font-black ${
+                                    tx.type === 'income' ? 'text-emerald-500' : 
+                                    tx.type === 'savings' ? 'text-purple-500' :
+                                    'text-red-500'
+                                }`}>
+                                    {tx.type === 'income' ? '+' : tx.type === 'savings' ? '★' : '-'}{currencySymbol}{parseFloat(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 </p>
                                 <button
                                     onClick={() => handleDelete(tx._id)}

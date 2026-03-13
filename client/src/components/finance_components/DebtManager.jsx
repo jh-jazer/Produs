@@ -7,7 +7,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
     const [showAdd, setShowAdd] = useState(false);
     const [showPayModal, setShowPayModal] = useState(null); // stores debt object
     const [payAmount, setPayAmount] = useState('');
-    const [newDebt, setNewDebt] = useState({ title: '', amount: '', total: '', type: 'loan' });
+    const [newDebt, setNewDebt] = useState({ title: '', amount: '', type: 'loan', dueDate: '', isMonthly: false, monthsLeft: '' });
 
     const handleAdd = async (e) => {
         e.preventDefault();
@@ -15,16 +15,15 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
             await api.post('/finance/debts', {
                 ...newDebt,
                 amount: parseFloat(newDebt.amount),
-                total: parseFloat(newDebt.total)
+                total: parseFloat(newDebt.amount) // Set total to amount for backward compatibility
             });
             onAction();
             setShowAdd(false);
-            setNewDebt({ title: '', amount: '', total: '', type: 'loan' });
+            setNewDebt({ title: '', amount: '', type: 'loan', dueDate: '', isMonthly: false, monthsLeft: '' });
         } catch (error) {
             console.error('Failed to add debt:', error);
         }
     };
-
     const handlePayment = async (e) => {
         e.preventDefault();
         if (!showPayModal) return;
@@ -52,7 +51,6 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
             console.error('Failed to delete debt:', error);
         }
     };
-
     return (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[300px] flex flex-col">
             <div className="flex items-center justify-between gap-2 mb-6">
@@ -68,7 +66,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                 </button>
             </div>
 
-            <div className="space-y-6 flex-1">
+            <div className="space-y-4 flex-1">
                 {debts.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-8 text-slate-400 h-full">
                         <span className="material-symbols-outlined text-3xl mb-1">check_circle</span>
@@ -76,36 +74,48 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                     </div>
                 ) : (
                     debts.map(debt => {
-                        const progress = (debt.amount / debt.total) * 100;
                         return (
-                            <div key={debt._id} className="group">
-                                <div className="flex justify-between items-center mb-2">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{debt.title}</span>
-                                        <button
-                                            onClick={() => handleDelete(debt._id)}
-                                            className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-rose-500 transition-all p-0.5"
-                                        >
-                                            <span className="material-symbols-outlined text-base">delete</span>
-                                        </button>
+                            <div key={debt._id} className="group p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20 hover:border-primary/20 transition-all">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{debt.title}</span>
+                                            <button
+                                                onClick={() => handleDelete(debt._id)}
+                                                className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-rose-500 transition-all p-0.5"
+                                            >
+                                                <span className="material-symbols-outlined text-base">delete</span>
+                                            </button>
+                                        </div>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            {debt.dueDate && (
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                                    <span className="material-symbols-outlined text-[10px]">calendar_today</span>
+                                                    Due: {new Date(debt.dueDate).toLocaleDateString('default', { month: 'short', day: 'numeric' })}
+                                                </span>
+                                            )}
+                                            {debt.isMonthly && (
+                                                <span className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 rounded">
+                                                    <span className="material-symbols-outlined text-[10px]">sync</span>
+                                                    Monthly {debt.monthsLeft ? `• ${debt.monthsLeft}mo left` : ''}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <span className="text-sm font-black text-slate-900 dark:text-white">
-                                        {currencySymbol}{debt.amount.toLocaleString()} <span className="text-[10px] text-slate-400 font-bold">/ {currencySymbol}{debt.total.toLocaleString()}</span>
-                                    </span>
+                                    <div className="flex flex-col items-end">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Need to Pay</p>
+                                        <span className="text-base font-black text-slate-900 dark:text-white">
+                                            {currencySymbol}{debt.amount.toLocaleString()}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mb-3 overflow-hidden">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${Math.min(100, progress)}%` }}
-                                        className={`h-full rounded-full transition-all duration-500 ${progress > 75 ? 'bg-red-500' : 'bg-primary'}`}
-                                    ></motion.div>
-                                </div>
+                                
                                 <button
                                     onClick={() => {
                                         setShowPayModal(debt);
                                         setPayAmount('');
                                     }}
-                                    className="w-full py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors dark:text-slate-300"
+                                    className="w-full mt-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors dark:text-slate-300 shadow-sm"
                                 >
                                     Make Payment
                                 </button>
@@ -145,7 +155,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Remaining</label>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Need to Pay</label>
                                     <div className="relative">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
                                         <input
@@ -156,16 +166,46 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Total Debt</label>
-                                    <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
-                                        <input
-                                            required type="number" placeholder="0.00"
-                                            className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                            value={newDebt.total} onChange={e => setNewDebt({ ...newDebt, total: e.target.value })}
-                                        />
-                                    </div>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Due Date (Optional)</label>
+                                    <input
+                                        type="date"
+                                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                        value={newDebt.dueDate} onChange={e => setNewDebt({ ...newDebt, dueDate: e.target.value })}
+                                    />
                                 </div>
+                            </div>
+
+                            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800/50 flex flex-col gap-4">
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <div className="relative flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            className="sr-only peer"
+                                            checked={newDebt.isMonthly}
+                                            onChange={e => setNewDebt({ ...newDebt, isMonthly: e.target.checked })}
+                                        />
+                                        <div className="w-10 h-6 bg-slate-200 dark:bg-slate-700 rounded-full peer peer-checked:bg-primary transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-4"></div>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Monthly Recurring?</p>
+                                        <p className="text-[10px] text-slate-400 font-medium">Auto-renew payment notification every month</p>
+                                    </div>
+                                </label>
+
+                                {newDebt.isMonthly && (
+                                    <motion.div 
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        className="flex flex-col gap-1.5"
+                                    >
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Months Remaining</label>
+                                        <input
+                                            type="number" placeholder="e.g. 12"
+                                            className="w-full bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                            value={newDebt.monthsLeft} onChange={e => setNewDebt({ ...newDebt, monthsLeft: e.target.value })}
+                                        />
+                                    </motion.div>
+                                )}
                             </div>
                         </div>
 
