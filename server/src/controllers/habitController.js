@@ -91,6 +91,44 @@ export const toggleCheck = async (req, res) => {
     }
 };
 
+// @desc    Update a habit
+// @route   PUT /api/habits/:id
+// @access  Private
+export const updateHabit = async (req, res) => {
+    const { name, icon, color, category } = req.body;
+    try {
+        const habit = await Habit.findById(req.params.id);
+        if (!habit) {
+            return res.status(404).json({ message: 'Habit not found' });
+        }
+
+        // Check if habit belongs to user
+        if (habit.user.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'User not authorized' });
+        }
+
+        if (habit.isShared && habit.sharedGroupId) {
+            // Update all habits in shared group
+            await Habit.updateMany(
+                { sharedGroupId: habit.sharedGroupId },
+                { $set: { name, icon, color, category } }
+            );
+            const updatedHabit = await Habit.findById(req.params.id);
+            return res.json(updatedHabit);
+        }
+
+        habit.name = name || habit.name;
+        habit.icon = icon || habit.icon;
+        habit.color = color || habit.color;
+        habit.category = category || habit.category;
+
+        const updatedHabit = await habit.save();
+        res.json(updatedHabit);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
 // @desc    Delete a habit
 // @route   DELETE /api/habits/:id
 // @access  Private
@@ -101,8 +139,15 @@ export const deleteHabit = async (req, res) => {
         if (habit) {
             // Check if habit belongs to user
             if (habit.user.toString() !== req.user._id.toString()) {
-                return res.status(401).json({ message: 'User not authorized' });
+                return res.status(403).json({ message: 'User not authorized' });
             }
+
+            if (habit.isShared && habit.sharedGroupId) {
+                // Delete both parts of shared habit
+                await Habit.deleteMany({ sharedGroupId: habit.sharedGroupId });
+                return res.json({ message: 'Shared habit removed' });
+            }
+
             await habit.deleteOne();
             res.json({ message: 'Habit removed' });
         } else {

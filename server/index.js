@@ -17,6 +17,8 @@ import habitRoutes from './src/routes/habitRoutes.js';
 import plannerRoutes from './src/routes/plannerRoutes.js';
 import financeRoutes from './src/routes/financeRoutes.js';
 import feedRoutes from './src/routes/feedRoutes.js';
+import challengesRoutes from './src/routes/challengesRoutes.js';
+import notificationRoutes from './src/routes/notificationRoutes.js';
 
 // Connect to Database
 connectDB();
@@ -56,6 +58,8 @@ app.use('/api/habits', habitRoutes);
 app.use('/api/planner', plannerRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/feed', feedRoutes);
+app.use('/api/challenges', challengesRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

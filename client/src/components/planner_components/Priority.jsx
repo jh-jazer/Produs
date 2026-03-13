@@ -4,7 +4,7 @@ import api from '../../services/api';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
-const Priority = ({ isCompact = false, viewMode = 'me', isReadOnly = false }) => {
+const Priority = ({ isCompact = false, viewMode = 'me', isReadOnly = false, onFlip }) => {
     const today = new Date();
     const dateStr = today.toLocaleDateString('en-CA');
     const { data: tasks, mutate } = useSWR(`/planner/tasks?date=${dateStr}${viewMode === 'partner' ? '&view=partner' : ''}`, fetcher);
@@ -43,7 +43,7 @@ const Priority = ({ isCompact = false, viewMode = 'me', isReadOnly = false }) =>
 
     return (
         <div className={`rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] shadow-sm flex flex-col transition-all min-h-[200px] ${isCompact ? 'p-4 gap-4' : 'p-6 gap-6'}`}>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                     <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
                         <span className="material-symbols-outlined text-primary">analytics</span>
@@ -53,16 +53,28 @@ const Priority = ({ isCompact = false, viewMode = 'me', isReadOnly = false }) =>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Focus for Today</p>
                     </div>
                 </div>
-                {!isCompact && (
-                    <div className="text-right">
-                        <p className="text-sm font-black text-slate-900 dark:text-white">
-                            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            {today.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                        </p>
-                    </div>
-                )}
+                <div className="flex flex-col items-end gap-2">
+                    {!isCompact && (
+                        <div className="text-right">
+                            <p className="text-sm font-black text-slate-900 dark:text-white">
+                                {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                {today.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                            </p>
+                        </div>
+                    )}
+                    {!isCompact && (
+                        <button 
+                            onClick={onFlip}
+                            className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-colors flex items-center gap-1.5 group"
+                            title="View Detailed Schedule"
+                        >
+                            <span className="text-[10px] font-black uppercase tracking-widest transition-opacity text-primary">Schedule</span>
+                            <span className="material-symbols-outlined text-xl">open_in_full</span>
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Active Now Section */}

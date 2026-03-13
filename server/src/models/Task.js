@@ -38,7 +38,7 @@ const taskSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['task', 'event'],
+        enum: ['task', 'event', 'note'],
         default: 'task'
     },
     order: {

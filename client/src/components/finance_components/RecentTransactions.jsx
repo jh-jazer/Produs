@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import api from '../../services/api';
 
 const RecentTransactions = ({ transactions, currencySymbol, onAction }) => {
@@ -10,7 +11,10 @@ const RecentTransactions = ({ transactions, currencySymbol, onAction }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await api.post('/finance/transactions', newTx);
+            await api.post('/finance/transactions', {
+                ...newTx,
+                amount: parseFloat(newTx.amount)
+            });
             onAction();
             setShowAdd(false);
             setNewTx({ title: '', amount: '', type: 'expense', category: 'General', date: new Date().toISOString().split('T')[0] });
@@ -37,11 +41,11 @@ const RecentTransactions = ({ transactions, currencySymbol, onAction }) => {
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Recent Transactions</h3>
                 <div className="flex items-center gap-1">
                     <button
-                        onClick={() => setShowAdd(!showAdd)}
-                        className={`p-2 rounded-lg transition-colors ${showAdd ? 'bg-primary text-white' : 'hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 hover:text-primary'}`}
+                        onClick={() => setShowAdd(true)}
+                        className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 hover:text-primary transition-colors"
                         title="Add Transaction"
                     >
-                        <span className="material-symbols-outlined text-xl">{showAdd ? 'close' : 'add_circle'}</span>
+                        <span className="material-symbols-outlined text-xl">add_circle</span>
                     </button>
                     <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 hover:text-primary transition-colors" title="View All">
                         <span className="material-symbols-outlined text-xl">visibility</span>
@@ -49,42 +53,86 @@ const RecentTransactions = ({ transactions, currencySymbol, onAction }) => {
                 </div>
             </div>
 
-            {showAdd && (
-                <form onSubmit={handleAdd} className="mb-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 animate-in slide-in-from-top-2 duration-300">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                        <input
-                            type="text" required placeholder="Title"
-                            className="bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white"
-                            value={newTx.title} onChange={e => setNewTx({ ...newTx, title: e.target.value })}
-                        />
-                        <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
-                            <input
-                                type="number" required step="0.01" placeholder="0.00"
-                                className="w-full bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-lg pl-8 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white"
-                                value={newTx.amount} onChange={e => setNewTx({ ...newTx, amount: e.target.value })}
-                            />
-                        </div>
-                        <select
-                            className="bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white"
-                            value={newTx.type} onChange={e => setNewTx({ ...newTx, type: e.target.value })}
-                        >
-                            <option value="expense">Expense</option>
-                            <option value="income">Income</option>
-                        </select>
-                        <input
-                            type="date" required
-                            className="bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white"
-                            value={newTx.date} onChange={e => setNewTx({ ...newTx, date: e.target.value })}
-                        />
-                    </div>
-                    <button
-                        type="submit" disabled={loading}
-                        className="w-full py-2 bg-primary text-white font-bold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            {showAdd && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowAdd(false)}></div>
+                    <form 
+                        onSubmit={handleAdd} 
+                        className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-5"
                     >
-                        {loading ? 'Adding...' : 'Save Transaction'}
-                    </button>
-                </form>
+                        <div className="flex justify-between items-center mb-1">
+                            <div>
+                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Add Transaction</h4>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Track your flow</p>
+                            </div>
+                            <button type="button" onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                                <span className="material-symbols-outlined text-xl">close</span>
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Title</label>
+                                <input
+                                    type="text" required placeholder="What was this for?"
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    value={newTx.title} onChange={e => setNewTx({ ...newTx, title: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Amount</label>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
+                                        <input
+                                            type="number" required step="0.01" placeholder="0.00"
+                                            className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                            value={newTx.amount} onChange={e => setNewTx({ ...newTx, amount: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Type</label>
+                                    <select
+                                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none"
+                                        value={newTx.type} onChange={e => setNewTx({ ...newTx, type: e.target.value })}
+                                    >
+                                        <option value="expense">Expense</option>
+                                        <option value="income">Income</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
+                                    <input
+                                        type="text" placeholder="General"
+                                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                        value={newTx.category} onChange={e => setNewTx({ ...newTx, category: e.target.value })}
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date</label>
+                                    <input
+                                        type="date" required
+                                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                        value={newTx.date} onChange={e => setNewTx({ ...newTx, date: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit" disabled={loading}
+                            className="w-full py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-2 disabled:opacity-50"
+                        >
+                            {loading ? 'Processing...' : 'Save Transaction'}
+                        </button>
+                    </form>
+                </div>,
+                document.body
             )}
 
             <div className="space-y-4">

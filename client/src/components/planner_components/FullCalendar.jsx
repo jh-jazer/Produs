@@ -8,8 +8,8 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
     const [viewDate, setViewDate] = useState(new Date());
     const [addModal, setAddModal] = useState(null); // { startDate: Date, endDate: Date }
     const [newTaskTitle, setNewTaskTitle] = useState('');
-    const [newTaskType, setNewTaskType] = useState('task'); // 'task' or 'event'
-    const [newTaskColor, setNewTaskColor] = useState('#3b82f6');
+    const [newTaskDescription, setNewTaskDescription] = useState('');
+    const [newTaskColor, setNewTaskColor] = useState('#a855f7'); // Default to purple for events
     const [selection, setSelection] = useState(null); // { start: Date, current: Date }
     const [isDragging, setIsDragging] = useState(false);
 
@@ -84,12 +84,14 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
 
             await api.post('/planner/tasks', {
                 title: newTaskTitle.trim(),
+                description: newTaskDescription.trim(),
                 date: startStr,
                 endDate: startStr === endStr ? null : endStr,
-                type: newTaskType,
+                type: 'event', // Force event type
                 color: newTaskColor
             });
             setNewTaskTitle('');
+            setNewTaskDescription('');
             setAddModal(null);
             mutate();
         } catch (error) {
@@ -109,6 +111,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
     const getTasksForDay = (day) => {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         return tasks?.filter(t => {
+            if (t.type !== 'event') return false; // Filter for events only
             if (t.date === dateStr) return true;
             if (t.endDate && dateStr >= t.date && dateStr <= t.endDate) return true;
             return false;
@@ -120,6 +123,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
         const startStr = start.toLocaleDateString('en-CA');
         const endStr = end.toLocaleDateString('en-CA');
         return tasks.filter(t => {
+            if (t.type !== 'event') return false; // Filter for events only
             const tStart = t.date;
             const tEnd = t.endDate || t.date;
             return (tStart <= endStr && tEnd >= startStr);
@@ -198,29 +202,12 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                 {d}
                             </span>
 
-                            <div className="mt-2 space-y-1">
-                                {dayTasks.slice(0, 3).map((t, idx) => {
-                                    const taskStart = new Date(t.date);
-                                    const taskEnd = t.endDate ? new Date(t.endDate) : null;
-                                    const isStart = taskStart.getDate() === d;
-                                    const isEnd = taskEnd && taskEnd.getDate() === d;
-                                    const bg = t.color || (t.type === 'event' ? '#a855f7' : '#3b82f6');
-                                    return (
-                                        <div
-                                            key={t._id}
-                                            className="h-1 rounded-full transition-all duration-500 relative flex items-center"
-                                            style={{
-                                                backgroundColor: bg,
-                                                borderLeft: isStart ? `4px solid ${bg}` : undefined,
-                                                borderRight: isEnd ? `4px solid ${bg}` : undefined,
-                                            }}
-                                            title={t.title}
-                                        />
-                                    );
-                                })}
-                                {dayTasks.length > 3 && (
-                                    <div className="text-[8px] font-black text-slate-400 text-center">+{dayTasks.length - 3}</div>
-                                )}
+                            <div className="mt-1 flex justify-center h-4">
+                                {dayTasks.some(t => t.type === 'note') ? (
+                                    <span className="material-symbols-outlined text-[10px] text-slate-400">description</span>
+                                ) : dayTasks.length > 0 ? (
+                                    <div className="size-1 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                                ) : null}
                             </div>
                         </div>
                     );
@@ -238,8 +225,8 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
 
             {/* Quick Add Modal */}
             {addModal && (
-                <div className="absolute inset-0 z-50 flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm rounded-2xl" onClick={() => setAddModal(null)}></div>
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setAddModal(null)}></div>
                     <div className="relative bg-white dark:bg-[#1e293b] w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-4 max-h-[90%] overflow-hidden">
                         <div className="flex justify-between items-start">
                             <div>
@@ -249,7 +236,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                         : `${addModal.startDate.getDate()} - ${addModal.endDate.getDate()} ${months[addModal.endDate.getMonth()]}`
                                     }
                                 </h4>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Day Focus & Planning</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Daily Notes & Observations</p>
                             </div>
                             <button onClick={() => setAddModal(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
@@ -261,8 +248,15 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                             {getTasksForRange(addModal.startDate, addModal.endDate).length > 0 ? (
                                 getTasksForRange(addModal.startDate, addModal.endDate).map(t => (
                                     <div key={t._id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 group">
-                                        <div className="size-2 rounded-full shrink-0" style={{ backgroundColor: t.color || (t.type === 'event' ? '#a855f7' : '#3b82f6') }}></div>
-                                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex-1 truncate">{t.title}</span>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <div className="size-2 rounded-full shrink-0" style={{ backgroundColor: t.color || '#a855f7' }}></div>
+                                                <span className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{t.title}</span>
+                                            </div>
+                                            {t.description && (
+                                                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 ml-4 leading-relaxed">{t.description}</p>
+                                            )}
+                                        </div>
                                         {!isReadOnly && (
                                             <button
                                                 onClick={() => deleteTask(t._id)}
@@ -274,10 +268,10 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                     </div>
                                 ))
                             ) : (
-                                <div className="py-8 text-center flex flex-col items-center gap-2 opacity-40">
-                                    <span className="material-symbols-outlined text-4xl">calendar_today</span>
-                                    <p className="text-xs font-bold italic text-slate-500">No activities planned yet</p>
-                                </div>
+                                    <div className="py-8 text-center flex flex-col items-center gap-2 opacity-40">
+                                        <span className="material-symbols-outlined text-4xl">event_available</span>
+                                        <p className="text-xs font-bold italic text-slate-500">No events for this day</p>
+                                    </div>
                             )}
                         </div>
 
@@ -286,30 +280,21 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                         {/* Quick Add Form Section */}
                         {!isReadOnly && (
                             <div className="space-y-4 pt-2">
-                                <h5 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Add New Activity</h5>
-                                <div className="space-y-4">
                                     <input
                                         type="text"
                                         value={newTaskTitle}
                                         onChange={(e) => setNewTaskTitle(e.target.value)}
-                                        placeholder="What's the plan?"
-                                        className="w-full px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                        placeholder="Event Title"
+                                        className="w-full px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none"
                                         autoFocus
                                     />
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => setNewTaskType('task')}
-                                            className={`flex-1 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${newTaskType === 'task' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-slate-100/50 dark:bg-slate-800/50 text-slate-500'}`}
-                                        >
-                                            Task
-                                        </button>
-                                        <button
-                                            onClick={() => setNewTaskType('event')}
-                                            className={`flex-1 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${newTaskType === 'event' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-slate-100/50 dark:bg-slate-800/50 text-slate-500'}`}
-                                        >
-                                            Event
-                                        </button>
-                                    </div>
+                                    <textarea
+                                        value={newTaskDescription}
+                                        onChange={(e) => setNewTaskDescription(e.target.value)}
+                                        placeholder="Add notes or event details..."
+                                        rows={3}
+                                        className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium focus:ring-2 focus:ring-primary/20 outline-none resize-none custom-scrollbar"
+                                    />
 
                                     <div className="flex justify-between items-center py-1">
                                         <div className="flex gap-2">
@@ -332,15 +317,16 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                         </button>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
             <div className="mt-6 flex flex-wrap gap-4 text-[10px] font-black uppercase tracking-widest text-slate-500 justify-center">
-                <div className="flex items-center gap-2"><div className="size-2 rounded-full bg-primary shadow-sm shadow-primary/40"></div>Tasks</div>
-                <div className="flex items-center gap-2"><div className="size-2 rounded-full bg-purple-500 shadow-sm shadow-purple-500/40"></div>Events</div>
+                <div className="flex items-center gap-2">
+                    <div className="size-2 rounded-full bg-purple-500"></div>
+                    Events & Notes
+                </div>
             </div>
         </div>
     );

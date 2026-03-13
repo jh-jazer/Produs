@@ -4,18 +4,20 @@ import DailySchedule from '../components/planner_components/DailySchedule';
 import FullCalendar from '../components/planner_components/FullCalendar';
 import GoalSetter from '../components/planner_components/GoalSetter';
 import useAuthStore from '../store/useAuthStore';
+import { motion } from 'framer-motion';
 
 function Planner() {
     const { user } = useAuthStore();
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [viewMode, setViewMode] = useState('me');
+    const [isFlipped, setIsFlipped] = useState(false);
 
     return (
         <div className="w-full max-w-[1200px] flex flex-col gap-6">
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
 
-                {/* Left Column: Header, Priority & Daily Schedule */}
+                {/* Left Column: Header, Priority & Daily Planner */}
                 <div className="lg:col-span-4 flex flex-col gap-6">
                     <div className="flex flex-col gap-1 pb-2">
                         <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">{viewMode === 'partner' ? `${user?.partner?.name}'s Planner` : "What's the Plan?"}</h1>
@@ -39,8 +41,44 @@ function Planner() {
                         </div>
                     )}
 
-                    <Priority selectedDate={selectedDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
-                    <DailySchedule selectedDate={selectedDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                    <div className="relative w-full" style={{ perspective: '2000px' }}>
+                        <motion.div
+                            animate={{ rotateY: isFlipped ? 180 : 0 }}
+                            transition={{ duration: 0.7, type: 'spring', stiffness: 100, damping: 20 }}
+                            style={{ transformStyle: 'preserve-3d', position: 'relative' }}
+                        >
+                            {/* Front Side: Priority */}
+                            <div style={{ 
+                                backfaceVisibility: 'hidden',
+                                position: isFlipped ? 'absolute' : 'relative',
+                                top: 0,
+                                left: 0,
+                                width: '100%'
+                            }}>
+                                <Priority 
+                                    viewMode={viewMode} 
+                                    isReadOnly={viewMode === 'partner'} 
+                                    onFlip={() => setIsFlipped(true)}
+                                />
+                            </div>
+
+                            {/* Back Side: Daily Planner */}
+                            <div style={{ 
+                                backfaceVisibility: 'hidden', 
+                                transform: 'rotateY(180deg)', 
+                                position: isFlipped ? 'relative' : 'absolute', 
+                                top: 0, 
+                                left: 0, 
+                                width: '100%'
+                            }}>
+                                <DailySchedule 
+                                    viewMode={viewMode} 
+                                    isReadOnly={viewMode === 'partner'} 
+                                    onFlip={() => setIsFlipped(false)}
+                                />
+                            </div>
+                        </motion.div>
+                    </div>
                 </div>
 
                 {/* Right Column: Calendar & Goal Setter */}

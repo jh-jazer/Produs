@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import useSWR from 'swr';
-import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
+import { motion } from 'framer-motion';
 import api from '../../services/api';
-
-const fetcher = url => api.get(url).then(res => res.data);
 
 const Wishlist = ({ items, currencySymbol, onAction }) => {
     const [isAdding, setIsAdding] = useState(false);
@@ -18,7 +16,10 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
     const handleAdd = async (e) => {
         e.preventDefault();
         try {
-            await api.post('/finance/wishlist', newItem);
+            await api.post('/finance/wishlist', {
+                ...newItem,
+                price: parseFloat(newItem.price)
+            });
             onAction();
             setNewItem({ title: '', price: '', priority: 'Medium', category: 'General', link: '' });
             setIsAdding(false);
@@ -50,7 +51,6 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
     const totalCost = items?.reduce((sum, item) => sum + (item.purchased ? 0 : item.price), 0) || 0;
     const purchasedValue = items?.reduce((sum, item) => sum + (item.purchased ? item.price : 0), 0) || 0;
 
-
     return (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[350px]">
             <div className="flex justify-between items-center mb-6">
@@ -59,10 +59,10 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">Wishlist</h3>
                 </div>
                 <button
-                    onClick={() => setIsAdding(!isAdding)}
+                    onClick={() => setIsAdding(true)}
                     className="size-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all"
                 >
-                    <span className="material-symbols-outlined text-lg">{isAdding ? 'close' : 'add'}</span>
+                    <span className="material-symbols-outlined text-lg">add</span>
                 </button>
             </div>
 
@@ -78,51 +78,8 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
                 </div>
             </div>
 
-            <AnimatePresence>
-                {isAdding && (
-                    <motion.form
-                        initial={{ height: 0, opacity: 0, marginBottom: 0 }}
-                        animate={{ height: 'auto', opacity: 1, marginBottom: 24 }}
-                        exit={{ height: 0, opacity: 0, marginBottom: 0 }}
-                        onSubmit={handleAdd}
-                        className="space-y-3 overflow-hidden"
-                    >
-                        <div className="grid grid-cols-2 gap-2">
-                            <input
-                                type="text"
-                                placeholder="What do you want to buy?"
-                                required
-                                className="col-span-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none text-slate-900 dark:text-white"
-                                value={newItem.title}
-                                onChange={e => setNewItem({ ...newItem, title: e.target.value })}
-                            />
-                            <input
-                                type="number"
-                                placeholder="Price"
-                                required
-                                className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none text-slate-900 dark:text-white"
-                                value={newItem.price}
-                                onChange={e => setNewItem({ ...newItem, price: e.target.value })}
-                            />
-                            <select
-                                className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none text-slate-900 dark:text-white"
-                                value={newItem.priority}
-                                onChange={e => setNewItem({ ...newItem, priority: e.target.value })}
-                            >
-                                <option value="Low">Low Priority</option>
-                                <option value="Medium">Medium Priority</option>
-                                <option value="High">High Priority</option>
-                            </select>
-                        </div>
-                        <button type="submit" className="w-full py-2 bg-primary text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-primary/20">
-                            Add to Wishlist
-                        </button>
-                    </motion.form>
-                )}
-            </AnimatePresence>
-
             <div className="space-y-2">
-                {!items?.length && !isAdding && (
+                {!items?.length && (
                     <div className="text-center py-6 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
                         <p className="text-xs text-slate-500 font-medium">No items in your wishlist yet.</p>
                     </div>
@@ -178,6 +135,68 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
                     </motion.div>
                 ))}
             </div>
+
+            {/* Add Item Modal */}
+            {isAdding && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsAdding(false)}></div>
+                    <form 
+                        onSubmit={handleAdd} 
+                        className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
+                    >
+                        <div className="flex justify-between items-center mb-1">
+                            <div>
+                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">New Wishlist Item</h4>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">What are you dreaming of?</p>
+                            </div>
+                            <button type="button" onClick={() => setIsAdding(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                                <span className="material-symbols-outlined text-xl">close</span>
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Title</label>
+                                <input
+                                    required type="text" placeholder="e.g. Mechanical Keyboard"
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    value={newItem.title} onChange={e => setNewItem({ ...newItem, title: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Price</label>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
+                                        <input
+                                            required type="number" placeholder="0.00"
+                                            className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                            value={newItem.price} onChange={e => setNewItem({ ...newItem, price: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Priority</label>
+                                    <select
+                                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none"
+                                        value={newItem.priority} onChange={e => setNewItem({ ...newItem, priority: e.target.value })}
+                                    >
+                                        <option value="Low">Low</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="High">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" className="w-full py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-2">
+                            Add to Wishlist
+                        </button>
+                    </form>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };

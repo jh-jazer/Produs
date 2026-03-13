@@ -7,16 +7,18 @@ const fetcher = url => api.get(url).then(res => res.data);
 const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
     const [view, setView] = useState('monthly'); // 'monthly', 'yearly'
     const now = new Date();
-    const currentYear = now.getFullYear();
+    const [selectedYear, setSelectedYear] = useState(now.getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
 
-    const { data: goals, mutate } = useSWR(`/planner/goals?year=${currentYear}${viewMode === 'partner' ? '&view=partner' : ''}`, fetcher);
+    const { data: goals, mutate } = useSWR(`/planner/goals?year=${selectedYear}${viewMode === 'partner' ? '&view=partner' : ''}`, fetcher);
     const [newGoalTitle, setNewGoalTitle] = useState('');
 
     const months = [
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
     ];
+
+    const upcomingYears = Array.from({ length: 10 }, (_, i) => now.getFullYear() + i);
 
     const filteredGoals = goals?.filter(g => {
         if (view === 'yearly') return g.period === 'yearly';
@@ -29,7 +31,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
             const payload = {
                 title: newGoalTitle.trim(),
                 period: view,
-                year: Number(currentYear),
+                year: Number(selectedYear),
                 month: view === 'monthly' ? Number(selectedMonth) : undefined
             };
 
@@ -63,8 +65,8 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
     };
 
     const getViewTitle = () => {
-        if (view === 'yearly') return `${currentYear} Goals`;
-        return `${months[selectedMonth]} Goals`;
+        if (view === 'yearly') return `${selectedYear} Goals`;
+        return `${months[selectedMonth]} ${selectedYear}`;
     };
 
     const getViewDescription = () => {
@@ -75,9 +77,9 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
     return (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex flex-col gap-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{getViewTitle()}</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{getViewDescription()}</p>
+                <div className="flex flex-col">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">{getViewTitle()}</h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{getViewDescription()}</p>
                 </div>
                 <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                     {['monthly', 'yearly'].map((v) => (
@@ -95,7 +97,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                 </div>
             </div>
 
-            {view === 'monthly' && (
+            {view === 'monthly' ? (
                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
                     {months.map((m, idx) => (
                         <button
@@ -107,6 +109,21 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                                 }`}
                         >
                             {m.substring(0, 3)}
+                        </button>
+                    ))}
+                </div>
+            ) : (
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                    {upcomingYears.map((y) => (
+                        <button
+                            key={y}
+                            onClick={() => setSelectedYear(y)}
+                            className={`px-4 py-1.5 rounded-lg text-[10px] font-black transition-all whitespace-nowrap ${selectedYear === y
+                                ? 'bg-primary text-white shadow-md'
+                                : 'bg-slate-50 dark:bg-slate-800/50 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                }`}
+                        >
+                            {y}
                         </button>
                     ))}
                 </div>

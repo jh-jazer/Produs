@@ -73,6 +73,11 @@ const userSchema = new mongoose.Schema({
         isPublic: {
             type: Boolean,
             default: false
+        },
+        sleepMode: {
+            enabled: { type: Boolean, default: false },
+            start: { type: String, default: "22:00" },
+            end: { type: String, default: "07:00" }
         }
     },
     currency: {
@@ -94,6 +99,10 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         default: null
+    },
+    joinedChallenges: {
+        type: [Number],
+        default: []
     }
 }, {
     timestamps: true

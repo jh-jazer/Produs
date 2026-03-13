@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
 
 const DebtManager = ({ debts, currencySymbol, onAction }) => {
     const [showAdd, setShowAdd] = useState(false);
+    const [showPayModal, setShowPayModal] = useState(null); // stores debt object
+    const [payAmount, setPayAmount] = useState('');
     const [newDebt, setNewDebt] = useState({ title: '', amount: '', total: '', type: 'loan' });
 
     const handleAdd = async (e) => {
@@ -22,11 +25,19 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
         }
     };
 
-    const handlePayment = async (debtId, currentAmount) => {
+    const handlePayment = async (e) => {
+        e.preventDefault();
+        if (!showPayModal) return;
         try {
-            const payment = Math.min(currentAmount, 500);
-            await api.patch(`/finance/debts/${debtId}`, { amount: currentAmount - payment });
+            const payment = parseFloat(payAmount);
+            if (isNaN(payment) || payment <= 0) return;
+            
+            await api.patch(`/finance/debts/${showPayModal._id}`, { 
+                amount: Math.max(0, showPayModal.amount - payment) 
+            });
             onAction();
+            setShowPayModal(null);
+            setPayAmount('');
         } catch (error) {
             console.error('Failed to update debt:', error);
         }
@@ -50,37 +61,12 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">Debts to Pay</h3>
                 </div>
                 <button
-                    onClick={() => setShowAdd(!showAdd)}
-                    className={`p-1.5 rounded-lg transition-colors ${showAdd ? 'bg-primary text-white' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    onClick={() => setShowAdd(true)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
-                    <span className="material-symbols-outlined text-xl">{showAdd ? 'close' : 'add_circle'}</span>
+                    <span className="material-symbols-outlined text-xl">add_circle</span>
                 </button>
             </div>
-
-            {showAdd && (
-                <form onSubmit={handleAdd} className="mb-6 space-y-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 animate-in slide-in-from-top-2">
-                    <input
-                        required type="text" placeholder="Title (e.g. Bank Loan)"
-                        className="w-full bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-bold outline-none dark:text-white"
-                        value={newDebt.title} onChange={e => setNewDebt({ ...newDebt, title: e.target.value })}
-                    />
-                    <div className="grid grid-cols-2 gap-2">
-                        <input
-                            required type="number" placeholder="Remaining"
-                            className="bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-bold outline-none dark:text-white"
-                            value={newDebt.amount} onChange={e => setNewDebt({ ...newDebt, amount: e.target.value })}
-                        />
-                        <input
-                            required type="number" placeholder="Total"
-                            className="bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-bold outline-none dark:text-white"
-                            value={newDebt.total} onChange={e => setNewDebt({ ...newDebt, total: e.target.value })}
-                        />
-                    </div>
-                    <button type="submit" className="w-full py-2 bg-primary text-white font-bold rounded-lg text-xs hover:opacity-90 transition-opacity">
-                        Save Debt
-                    </button>
-                </form>
-            )}
 
             <div className="space-y-6 flex-1">
                 {debts.length === 0 ? (
@@ -115,7 +101,10 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                     ></motion.div>
                                 </div>
                                 <button
-                                    onClick={() => handlePayment(debt._id, debt.amount)}
+                                    onClick={() => {
+                                        setShowPayModal(debt);
+                                        setPayAmount('');
+                                    }}
                                     className="w-full py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors dark:text-slate-300"
                                 >
                                     Make Payment
@@ -125,6 +114,107 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                     })
                 )}
             </div>
+
+            {/* Add Debt Modal */}
+            {showAdd && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowAdd(false)}></div>
+                    <form 
+                        onSubmit={handleAdd} 
+                        className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
+                    >
+                        <div className="flex justify-between items-center mb-1">
+                            <div>
+                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Add Debt Record</h4>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Track what you owe</p>
+                            </div>
+                            <button type="button" onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                                <span className="material-symbols-outlined text-xl">close</span>
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Title</label>
+                                <input
+                                    required type="text" placeholder="e.g. Bank Loan"
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    value={newDebt.title} onChange={e => setNewDebt({ ...newDebt, title: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Remaining</label>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
+                                        <input
+                                            required type="number" placeholder="0.00"
+                                            className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                            value={newDebt.amount} onChange={e => setNewDebt({ ...newDebt, amount: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Total Debt</label>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
+                                        <input
+                                            required type="number" placeholder="0.00"
+                                            className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                            value={newDebt.total} onChange={e => setNewDebt({ ...newDebt, total: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" className="w-full py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-2">
+                            Save Debt
+                        </button>
+                    </form>
+                </div>,
+                document.body
+            )}
+
+            {/* Payment Modal */}
+            {showPayModal && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowPayModal(null)}></div>
+                    <form 
+                        onSubmit={handlePayment} 
+                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
+                    >
+                        <div className="flex justify-between items-center mb-1">
+                            <div>
+                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Make Payment</h4>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Reducing {showPayModal.title}</p>
+                            </div>
+                            <button type="button" onClick={() => setShowPayModal(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                                <span className="material-symbols-outlined text-xl">close</span>
+                            </button>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Amount to Pay</label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
+                                <input
+                                    autoFocus
+                                    required type="number" step="0.01" placeholder="0.00"
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    value={payAmount} onChange={e => setPayAmount(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <button type="submit" className="w-full py-3 bg-emerald-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all">
+                            Confirm Payment
+                        </button>
+                    </form>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };

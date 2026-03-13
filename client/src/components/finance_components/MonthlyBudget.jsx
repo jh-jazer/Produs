@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import api from '../../services/api';
 
 const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
@@ -57,16 +58,14 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                 </div>
                 <button
                     onClick={() => {
-                        if (!isEditing) {
-                            const initial = {};
-                            budgetList.forEach(b => initial[b.category] = b.limit);
-                            setEditBudgets(initial);
-                        }
-                        setIsEditing(!isEditing);
+                        const initial = {};
+                        budgetList.forEach(b => initial[b.category] = b.limit);
+                        setEditBudgets(initial);
+                        setIsEditing(true);
                     }}
-                    className={`p-1.5 rounded-lg transition-colors ${isEditing ? 'bg-primary text-white' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
-                    <span className="material-symbols-outlined text-xl">{isEditing ? 'close' : 'edit'}</span>
+                    <span className="material-symbols-outlined text-xl">settings</span>
                 </button>
             </div>
 
@@ -80,21 +79,9 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                         <div key={b.category}>
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{b.category}</span>
-                                {isEditing ? (
-                                    <div className="flex items-center gap-1">
-                                        <span className="text-[10px] text-slate-400 font-bold">{currencySymbol}</span>
-                                        <input
-                                            type="number"
-                                            className="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded px-1.5 py-0.5 text-xs font-black dark:text-white outline-none"
-                                            value={editBudgets[b.category] || ''}
-                                            onChange={(e) => setEditBudgets({ ...editBudgets, [b.category]: e.target.value })}
-                                        />
-                                    </div>
-                                ) : (
-                                    <span className="text-xs font-black text-slate-900 dark:text-white">
-                                        {currencySymbol}{spent.toLocaleString()} / {currencySymbol}{b.limit.toLocaleString()}
-                                    </span>
-                                )}
+                                <span className="text-xs font-black text-slate-900 dark:text-white">
+                                    {currencySymbol}{spent.toLocaleString()} / {currencySymbol}{b.limit.toLocaleString()}
+                                </span>
                             </div>
                             <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
                                 <div
@@ -106,15 +93,6 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                     );
                 })}
 
-                {isEditing && (
-                    <button
-                        onClick={handleSave}
-                        className="w-full py-2 bg-primary text-white font-bold rounded-lg text-xs mt-2"
-                    >
-                        Save All Limits
-                    </button>
-                )}
-
                 <div className="mt-auto pt-6">
                     <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
                         <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">Left to Spend</p>
@@ -124,6 +102,48 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                     </div>
                 </div>
             </div>
+
+            {isEditing && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsEditing(false)}></div>
+                    <div className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Budget Limits</h4>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Define your monthly caps</p>
+                            </div>
+                            <button onClick={() => setIsEditing(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                                <span className="material-symbols-outlined text-xl">close</span>
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
+                            {budgetList.map(b => (
+                                <div key={b.category} className="flex items-center justify-between gap-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
+                                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{b.category}</span>
+                                    <div className="relative w-24">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">{currencySymbol}</span>
+                                        <input
+                                            type="number"
+                                            className="w-full bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-700 rounded-lg pl-6 pr-2 py-1.5 text-xs font-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
+                                            value={editBudgets[b.category] || ''}
+                                            onChange={(e) => setEditBudgets({ ...editBudgets, [b.category]: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <button
+                            onClick={handleSave}
+                            className="w-full py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                        >
+                            Save All Limits
+                        </button>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };

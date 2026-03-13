@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import useSWR from 'swr';
+import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 import ProfileModal from './ui/ProfileModal';
 import SettingsModal from './ui/SettingsModal';
 import OnboardingModal from './ui/OnboardingModal';
 import Avatar from './ui/Avatar';
+
+
 
 function Layout() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -13,48 +17,89 @@ function Layout() {
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [notifications, setNotifications] = useState([
-        { id: 1, text: "Welcome aboard! 🚀 Explore your dashboard.", time: "Just now", read: false, icon: "celebration", color: "text-primary" },
-        { id: 2, text: "Streak alert! 🔥 3 habits completed today.", time: "2h ago", read: false, icon: "local_fire_department", color: "text-orange-500" },
-        { id: 3, text: "Achievement unlocked: Goal Setter 🎯", time: "5h ago", read: true, icon: "military_tech", color: "text-amber-500" }
-    ]);
-    const { user, logout } = useAuthStore();
+    
+    const { user, logout, setCredentials } = useAuthStore();
+
+    // Fetch Notifications from Backend
+    const { data: notifications = [], mutate: mutateNotifications } = useSWR(user ? '/notifications' : null, {
+        refreshInterval: 30000 // Refresh every 30s
+    });
+
     const navigate = useNavigate();
     const profileRef = useRef(null);
     const mobileMenuRef = useRef(null);
 
-    const unreadCount = notifications.filter(n => !n.read).length;
+    // Periodically refresh user data to catch new partner requests
+    const { data: updatedUserData } = useSWR('/auth/me', {
+        refreshInterval: 15000, // Refresh every 15 seconds
+        onSuccess: (data) => {
+            // Only update if something changed to avoid unnecessary re-renders
+            if (JSON.stringify(data.incomingPartnerRequest) !== JSON.stringify(user?.incomingPartnerRequest) ||
+                JSON.stringify(data.outgoingPartnerRequest) !== JSON.stringify(user?.outgoingPartnerRequest) ||
+                data.partner?._id !== user?.partner?._id) {
+                setCredentials(data);
+            }
+        }
+    });
+
+    // Merge system notifications with dynamic partner requests
+    const mergedNotifications = React.useMemo(() => {
+        const list = [...notifications].map(n => ({
+            ...n,
+            id: n._id,
+            time: new Date(n.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        }));
+        if (user?.incomingPartnerRequest) {
+            list.unshift({
+                id: 'partner-request',
+                text: `${user.incomingPartnerRequest.name} wants to link orbits! 🤝`,
+                time: "Request Pending",
+                read: false,
+                icon: "favorite",
+                color: "text-rose-500",
+                isPartnerRequest: true
+            });
+        }
+        return list;
+    }, [notifications, user?.incomingPartnerRequest]);
+
+    const unreadCount = mergedNotifications.filter(n => !n.read).length;
 
     const handleSignOut = () => {
         logout();
         navigate('/auth');
     };
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (profileRef.current && !profileRef.current.contains(event.target)) {
-                setIsProfileOpen(false);
-                setIsNotificationsOpen(false);
-            }
-            if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
-                setIsMobileMenuOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    // Sync Dark Mode class with user settings
-    useEffect(() => {
-        if (user?.settings?.darkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
+    const markAllAsRead = async () => {
+        try {
+            await api.patch('/notifications');
+            mutateNotifications();
+        } catch (error) {
+            console.error('Failed to mark all as read:', error);
         }
-    }, [user?.settings?.darkMode]);
+    };
 
-    const markAllAsRead = () => {
-        setNotifications(notifications.map(n => ({ ...n, read: true })));
+    const handleNotificationClick = async (n) => {
+        if (n.isPartnerRequest) {
+            navigate('/dashboard/profile');
+            setIsNotificationsOpen(false);
+            return;
+        }
+
+        if (!n.read) {
+            try {
+                await api.patch(`/notifications/${n.id}`);
+                mutateNotifications();
+            } catch (error) {
+                console.error('Failed to mark notification as read:', error);
+            }
+        }
+        
+        // Potential deep linking based on type
+        if (n.type === 'finance') navigate('/dashboard/finance');
+        if (n.type === 'habit') navigate('/dashboard/habits');
+        
+        setIsNotificationsOpen(false);
     };
 
     return (
@@ -63,7 +108,7 @@ function Layout() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col overflow-x-hidden"
+            className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col overflow-x-hidden custom-scrollbar"
         >
             <div className="layout-container flex h-full grow flex-col">
                 {/* Header */}
@@ -271,11 +316,12 @@ function Layout() {
                                             )}
                                         </div>
                                         <div className="max-h-[320px] overflow-y-auto custom-scrollbar">
-                                            {notifications.length > 0 ? (
+                                            {mergedNotifications.length > 0 ? (
                                                 <div className="p-2 space-y-1">
-                                                    {notifications.map((n) => (
+                                                    {mergedNotifications.map((n) => (
                                                         <button
                                                             key={n.id}
+                                                            onClick={() => handleNotificationClick(n)}
                                                             className={`w-full text-left p-3 rounded-2xl flex gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors relative group ${!n.read ? 'bg-slate-50/50 dark:bg-primary/5' : ''}`}
                                                         >
                                                             <div className={`size-10 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center ${n.color}`}>

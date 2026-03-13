@@ -307,13 +307,16 @@ function Profile() {
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => setIsPartnerModalOpen(true)}
-                                        className={`size-9 flex items-center justify-center rounded-lg border transition-colors ${user?.partner
+                                        className={`size-9 flex items-center justify-center rounded-lg border transition-colors relative ${user?.partner
                                             ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/20'
                                             : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-primary hover:border-primary/30'
                                             }`}
-                                        title={user?.partner ? `Linked with ${user.partner.name}` : 'Link a Partner'}
+                                        title={user?.partner ? `Linked with ${user.partner.name}` : user?.incomingPartnerRequest ? 'Incoming Partner Request!' : 'Link a Partner'}
                                     >
                                         <span className="material-symbols-outlined text-[18px]">{user?.partner ? 'favorite' : 'link'}</span>
+                                        {!user?.partner && user?.incomingPartnerRequest && (
+                                            <span className="absolute -top-1 -right-1 size-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-[#192233] animate-pulse" />
+                                        )}
                                     </button>
                                     <button
                                         onClick={() => setIsEditing(true)}

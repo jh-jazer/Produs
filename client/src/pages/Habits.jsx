@@ -7,11 +7,11 @@ import HabitTracker from '../components/habit_components/HabitTracker';
 import ConsistencyGrid from '../components/habit_components/ConsistencyGrid';
 
 import TopStreaks from '../components/habit_components/TopStreaks';
+import HabitChallenge from '../components/habit_components/HabitChallenge';
 import HabitInsights from '../components/habit_components/HabitInsights';
 import CategoryOverview from '../components/habit_components/CategoryOverview';
 
-// Data fetching function for SWR
-const fetcher = url => api.get(url).then(res => res.data);
+
 
 const categories = ['All', 'Health', 'Mindset', 'Finance', 'Productivity', 'Creative'];
 
@@ -22,7 +22,7 @@ function Habits() {
     const [currentFilter, setCurrentFilter] = useState('All');
 
     // Fetch habits using SWR
-    const { data: fetchedHabits, error, isLoading, mutate } = useSWR(viewMode === 'partner' ? '/habits?view=partner' : '/habits', fetcher);
+    const { data: fetchedHabits, error, isLoading, mutate } = useSWR(viewMode === 'partner' ? '/habits?view=partner' : '/habits');
 
     // Provide default fallback while loading or if undefined
     const habits = fetchedHabits || [];
@@ -97,7 +97,7 @@ function Habits() {
                 {/* Left Column: Header, Streaks & Overview */}
                 <div className="lg:col-span-4 flex flex-col gap-6">
                     <div className="flex flex-col gap-1 pb-2">
-                        <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">{viewMode === 'partner' ? 'Partner Sync' : 'Build Better Habits'}</h1>
+                        <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">{viewMode === 'partner' ? 'Team View' : 'Build Better Habits'}</h1>
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
                             {viewMode === 'partner'
                                 ? `Syncing ${myHabits.length} of your habits with ${partnerHabits.length} of ${user?.partner?.name}'s`
@@ -118,12 +118,13 @@ function Habits() {
                                 onClick={() => setViewMode('partner')}
                                 className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'partner' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`}
                             >
-                                Partner View
+                                Team Habit
                             </button>
                         </div>
                     )}
 
-                    <TopStreaks habits={habits} />
+                    <TopStreaks habits={habits} isTeamView={viewMode === 'partner'} />
+                    <HabitChallenge />
                     <CategoryOverview />
                 </div>
 
