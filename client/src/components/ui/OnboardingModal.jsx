@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSWRConfig } from 'swr';
 import useAuthStore from '../../store/useAuthStore';
+import api from '../../services/api';
 
 const SUGGESTIONS = [
     { name: 'Drink Water', icon: 'local_drink', color: 'emerald', category: 'Health' },
@@ -33,6 +34,8 @@ const OnboardingModal = ({ isOpen }) => {
     const [timezone, setTimezone] = useState('');
     const [currency, setCurrency] = useState('USD');
     const [username, setUsername] = useState('');
+    const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+    const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
     const [error, setError] = useState('');
     const [selectedHabits, setSelectedHabits] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -150,18 +153,29 @@ const OnboardingModal = ({ isOpen }) => {
                                     </p>
                                 </div>
                                 <div className="space-y-2">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 relative">
                                         <span className="text-xl font-black text-slate-400">@</span>
                                         <input
                                             type="text"
                                             value={username}
                                             onChange={(e) => { setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')); setError(''); }}
                                             placeholder="username"
-                                            className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium rounded-xl px-4 py-3 outline-none focus:border-primary transition-colors"
+                                            className={`w-full bg-slate-50 dark:bg-slate-900/50 border ${isUsernameAvailable === true ? 'border-emerald-500/50' : isUsernameAvailable === false ? 'border-rose-500/50' : 'border-slate-200 dark:border-slate-700'} text-slate-900 dark:text-white font-medium rounded-xl px-4 py-3 outline-none focus:border-primary transition-colors`}
                                             autoFocus
                                         />
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                            {isCheckingUsername ? (
+                                                <div className="size-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                            ) : isUsernameAvailable === true ? (
+                                                <span className="material-symbols-outlined text-emerald-500 text-lg">check_circle</span>
+                                            ) : isUsernameAvailable === false ? (
+                                                <span className="material-symbols-outlined text-rose-500 text-lg">cancel</span>
+                                            ) : null}
+                                        </div>
                                     </div>
-                                    {error && <p className="text-xs font-bold text-red-500">{error}</p>}
+                                    {isUsernameAvailable === true && <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest px-1">Username is available!</p>}
+                                    {isUsernameAvailable === false && <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest px-1">Username is already taken</p>}
+                                    {error && <p className="text-xs font-bold text-red-500 px-1">{error}</p>}
                                 </div>
 
                                 <div className="flex gap-4">
@@ -173,7 +187,7 @@ const OnboardingModal = ({ isOpen }) => {
                                     </button>
                                     <button
                                         onClick={() => setStep(3)}
-                                        disabled={!username.trim() || username.length < 3}
+                                        disabled={!username.trim() || username.length < 3 || isUsernameAvailable === false || isCheckingUsername}
                                         className="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-sm hover:scale-[1.01] transition-all shadow-xl active:scale-[0.99] disabled:opacity-50 disabled:grayscale"
                                     >
                                         Next

@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import { registerUser, loginUser, getMe, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, sendPartnerRequest, acceptPartnerRequest, rejectPartnerRequest, cancelPartnerRequest, unlinkPartner, searchUsers } from '../controllers/authController.js';
+import { registerUser, loginUser, getMe, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, sendPartnerRequest, acceptPartnerRequest, rejectPartnerRequest, cancelPartnerRequest, unlinkPartner, searchUsers, checkUsername } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -18,6 +18,7 @@ router.post('/partner/accept', protect, acceptPartnerRequest);
 router.post('/partner/reject', protect, rejectPartnerRequest);
 router.post('/partner/cancel', protect, cancelPartnerRequest);
 router.post('/partner/unlink', protect, unlinkPartner);
+router.get('/check-username', protect, checkUsername);
 
 // @route   GET /api/auth/google
 // @desc    Auth with Google

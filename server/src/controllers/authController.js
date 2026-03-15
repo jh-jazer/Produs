@@ -249,6 +249,28 @@ export const completeOnboarding = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// @desc    Check if username is available
+// @route   GET /api/auth/check-username?username=username
+// @access  Private
+export const checkUsername = async (req, res) => {
+    try {
+        const { username } = req.query;
+        if (!username) {
+            return res.status(400).json({ message: 'Username is required' });
+        }
+
+        const user = await User.findOne({ username: username.toLowerCase() });
+        if (user) {
+            return res.json({ available: false, message: 'Username is already taken' });
+        }
+
+        res.json({ available: true, message: 'Username is available' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Update user settings
 // @route   PUT /api/auth/settings
 // @access  Private
@@ -266,13 +288,25 @@ export const updateSettings = async (req, res) => {
 
             // If updating username, ensure it's unique
             if (req.body.username) {
-                const existingUser = await User.findOne({ username: req.body.username });
+                const normalizedUsername = req.body.username.toLowerCase();
+                const existingUser = await User.findOne({ username: normalizedUsername });
                 if (existingUser && existingUser.id !== user.id) {
                     return res.status(400).json({ message: 'Username is already taken' });
                 }
+                user.username = normalizedUsername;
             }
 
-            user.settings = { ...user.settings, ...req.body };
+            // Update settings - merge instead of overwrite to preserve sub-objects like sleepMode
+            if (req.body) {
+                Object.keys(req.body).forEach(key => {
+                    // Only update if not a top-level field (handled above)
+                    if (!topLevelFields.includes(key)) {
+                        user.settings[key] = req.body[key];
+                    }
+                });
+                user.markModified('settings');
+            }
+
             await user.save();
             res.json(user);
         }

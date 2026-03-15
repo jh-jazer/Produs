@@ -54,10 +54,6 @@ const userSchema = new mongoose.Schema({
         type: String
     },
     settings: {
-        darkMode: {
-            type: Boolean,
-            default: true
-        },
         notificationsEnabled: {
             type: Boolean,
             default: false
@@ -78,6 +74,14 @@ const userSchema = new mongoose.Schema({
             enabled: { type: Boolean, default: false },
             start: { type: String, default: "22:00" },
             end: { type: String, default: "07:00" }
+        },
+        darkMode: {
+            type: Boolean,
+            default: true
+        },
+        subscriptions: {
+            type: [String],
+            default: []
         }
     },
     currency: {

@@ -28,6 +28,8 @@ function Profile() {
     const [linkMessage, setLinkMessage] = useState("");
     const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
     const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
+    const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+    const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -58,6 +60,28 @@ function Profile() {
 
         fetchProfileData();
     }, []);
+
+    useEffect(() => {
+        const checkAvailability = async () => {
+            // Only check if username changed and is valid length
+            if (isEditing && username !== user?.username && username.length >= 3) {
+                setIsCheckingUsername(true);
+                try {
+                    const res = await api.get(`/auth/check-username?username=${username}`);
+                    setIsUsernameAvailable(res.data.available);
+                } catch (err) {
+                    console.error('Failed to check username:', err);
+                } finally {
+                    setIsCheckingUsername(false);
+                }
+            } else {
+                setIsUsernameAvailable(null);
+            }
+        };
+
+        const timeout = setTimeout(checkAvailability, 500);
+        return () => clearTimeout(timeout);
+    }, [username, isEditing, user?.username]);
 
     const handleAddWishlist = async (e) => {
         e.preventDefault();
@@ -211,7 +235,7 @@ function Profile() {
             className="w-full max-w-5xl mx-auto pb-12"
         >
             {/* Discord-style Header Card */}
-            <div className="bg-white dark:bg-[#192233] rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden mb-8 relative">
+        <div className="bg-white dark:bg-[#192233] rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden mb-8 relative">
 
                 {/* Banner Section */}
                 <div className="h-40 sm:h-56 w-full bg-slate-200 dark:bg-[#1e1f22] relative group">
@@ -254,19 +278,33 @@ function Profile() {
                         {/* Name/Username Area */}
                         <div className="text-center sm:text-left flex-1 pb-2 w-full pt-4 sm:pt-0">
                             {isEditing ? (
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xl font-black text-slate-400">@</span>
-                                        <input
-                                            type="text"
-                                            value={username}
-                                            onChange={(e) => setUsername(e.target.value)}
-                                            placeholder="username"
-                                            className="bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium rounded-lg px-3 py-1.5 outline-none focus:border-primary transition-colors w-full sm:max-w-[200px]"
-                                        />
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-2 relative">
+                                            <span className="text-xl font-black text-slate-400">@</span>
+                                            <input
+                                                type="text"
+                                                value={username}
+                                                onChange={(e) => {
+                                                    setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''));
+                                                    setSaveMessage("");
+                                                }}
+                                                placeholder="username"
+                                                className={`bg-slate-100 dark:bg-slate-800/50 border ${isUsernameAvailable === true ? 'border-emerald-500/50' : isUsernameAvailable === false ? 'border-rose-500/50' : 'border-slate-200 dark:border-slate-700'} text-slate-900 dark:text-white font-medium rounded-lg px-3 py-1.5 outline-none focus:border-primary transition-colors w-full sm:max-w-[200px] pr-8`}
+                                            />
+                                            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                                                {isCheckingUsername ? (
+                                                    <div className="size-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                                ) : isUsernameAvailable === true ? (
+                                                    <span className="material-symbols-outlined text-emerald-500 text-base">check_circle</span>
+                                                ) : isUsernameAvailable === false ? (
+                                                    <span className="material-symbols-outlined text-rose-500 text-base">cancel</span>
+                                                ) : null}
+                                            </div>
+                                        </div>
+                                        {isUsernameAvailable === true && <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest px-1">Available!</p>}
+                                        {isUsernameAvailable === false && <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest px-1">Taken</p>}
+                                        {saveMessage && <p className={`text-xs font-bold ${saveMessage.includes('Failed') ? 'text-red-500' : 'text-emerald-500'}`}>{saveMessage}</p>}
                                     </div>
-                                    {saveMessage && <p className={`text-xs font-bold ${saveMessage.includes('Failed') ? 'text-red-500' : 'text-emerald-500'}`}>{saveMessage}</p>}
-                                </div>
                             ) : (
                                 <>
                                     <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
@@ -297,7 +335,7 @@ function Profile() {
                                     </button>
                                     <button
                                         onClick={handleSaveProfile}
-                                        disabled={isSaving}
+                                        disabled={isSaving || isUsernameAvailable === false || isCheckingUsername}
                                         className="px-4 py-2 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 w-full sm:w-auto text-center"
                                     >
                                         {isSaving ? 'Saving...' : 'Save Changes'}
@@ -371,7 +409,7 @@ function Profile() {
 
                                 <div className="space-y-2">
                                     {currentTasks?.length > 0 ? currentTasks.map((task) => (
-                                        <div key={task._id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#2b2d31] border border-slate-200 dark:border-[#1e1f22]">
+                                        <div key={task._id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800">
                                             <div className={`size-2.5 rounded-full shrink-0 ${task.priority === 'high' ? 'bg-rose-500' : task.priority === 'medium' ? 'bg-amber-500' : 'bg-slate-400'}`} />
                                             <p className="text-sm font-bold text-slate-900 dark:text-white truncate flex-1">{task.title}</p>
                                             {task.priority && task.priority !== 'none' && (

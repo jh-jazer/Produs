@@ -3,6 +3,7 @@
 
 @theme {
   --font-display: "Manrope", sans-serif;
+  --font-ubuntu: "Ubuntu", sans-serif;
 
   --color-primary: #135bec;
   --color-background-light: #f6f6f8;
@@ -54,6 +55,19 @@ body {
 
   html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
     background-color: #475569;
+  }
+
+  /* Hover-only scrollbar thumb */
+  .hover-scrollbar::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+
+  .hover-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(51, 65, 85, 0.5);
+  }
+
+  html.dark .hover-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(71, 85, 105, 0.5);
   }
 
   .heatmap-cell {

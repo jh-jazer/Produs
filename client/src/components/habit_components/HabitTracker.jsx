@@ -278,8 +278,11 @@ function HabitTracker({
                         const isTooOld = targetDate < fourteenDaysAgo;
                         const isLocked = isFuture || isTooOld;
 
+                        // On mobile, only show 3 days (indices 2, 3, 4)
+                        const isHiddenOnMobile = dayIdx === 0 || dayIdx === 1 || dayIdx === 5 || dayIdx === 6;
+
                         return (
-                            <div key={dayIdx} className="relative w-8 h-8 flex items-center justify-center">
+                            <div key={dayIdx} className={`relative w-8 h-8 flex items-center justify-center ${isHiddenOnMobile ? 'hidden md:flex' : 'flex'}`}>
                                 {isPartnerView && isGrouped ? (
                                     // SPLIT CHECK CIRCLE
                                     <div className="relative w-7 h-7 rounded-full border border-slate-200 dark:border-slate-700 overflow-hidden flex">
@@ -558,28 +561,32 @@ function HabitTracker({
 
     return (
         <>
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex flex-col justify-between relative overflow-visible group flex-1 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ease-in-out min-h-[400px]">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex flex-col justify-between relative overflow-visible group flex-1 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ease-in-out min-h-[280px]">
                 <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-500"></div>
 
                 {/* Header */}
-                <div className="relative z-10 flex justify-between items-center mb-6">
-                    <div>
+                <div className="relative z-10 flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
+                    <div className="flex justify-between items-center flex-1">
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white shrink-0">
                             {isPartnerView ? `Team View` : 'Habit Tracker'}
                         </h3>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {/* Week Selector Integrated */}
+
+                        {/* Week Selector Integrated - Moved back to Row 1 */}
                         {!isDashboard && onDateChange && (
-                            <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl p-0.5 mr-2">
+                            <div className="flex items-center gap-1 md:bg-slate-50 md:dark:bg-slate-800/50 md:border md:border-slate-200 md:dark:border-slate-700/50 md:rounded-xl md:p-0.5 md:shadow-sm">
                                 <button
                                     onClick={() => onDateChange(-1)}
                                     className="p-1 px-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-primary transition-all"
                                 >
                                     <span className="material-symbols-outlined text-sm">chevron_left</span>
                                 </button>
-                                <div className="px-1 text-[10px] font-black text-slate-600 dark:text-slate-300 min-w-[100px] text-center uppercase tracking-wider">
-                                    {months[activeDate.getMonth()]} • {getWeekOfMonth(activeDate)}
+                                <div className="px-1 text-[10px] font-black text-slate-600 dark:text-slate-300 min-w-[60px] md:min-w-[100px] text-center uppercase tracking-wider">
+                                    <span className="md:hidden">
+                                        {String(activeDate.getMonth() + 1).padStart(2, '0')} - {getWeekOfMonth(activeDate)}
+                                    </span>
+                                    <span className="hidden md:inline">
+                                        {months[activeDate.getMonth()]} • {getWeekOfMonth(activeDate)}
+                                    </span>
                                 </div>
                                 <button
                                     onClick={() => onDateChange(1)}
@@ -589,35 +596,38 @@ function HabitTracker({
                                 </button>
                             </div>
                         )}
+                    </div>
 
-                        {!isReadOnly && !isDashboard && (
-                            <button
-                                onClick={() => {
-                                    setNewHabit({ name: '', icon: 'local_drink', color: 'emerald', isShared: isPartnerView, category: 'Productivity' });
-                                    setAddModalOpen(true);
-                                }}
-                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 hover:text-primary transition-colors flex items-center gap-1.5"
-                                title={isPartnerView ? 'Add Team Habit' : 'Add Habit'}
-                            >
-                                <span className="material-symbols-outlined text-xl">add_circle</span>
-                                {isPartnerView && <span className="text-[10px] font-black uppercase tracking-wider pr-1">Add Team Habit</span>}
-                            </button>
-                        )}
+                    <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center gap-1">
+                            {!isReadOnly && !isDashboard && (
+                                <button
+                                    onClick={() => {
+                                        setNewHabit({ name: '', icon: 'local_drink', color: 'emerald', isShared: isPartnerView, category: 'Productivity' });
+                                        setAddModalOpen(true);
+                                    }}
+                                    className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 hover:text-primary transition-colors flex items-center gap-1.5"
+                                    title={isPartnerView ? 'Add Team Habit' : 'Add Habit'}
+                                >
+                                    <span className="material-symbols-outlined text-xl">add_circle</span>
+                                </button>
+                            )}
 
-                        {!isReadOnly && !isDashboard && (
-                            <button
-                                onClick={() => { setEditMode(!editMode); setEditingHabit(null); }}
-                                className={`p-2 rounded-lg transition-all duration-300 ${editMode ? 'text-primary bg-primary/10 ring-1 ring-primary/20 shadow-sm' : 'text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700/50'}`}
-                                title={editMode ? 'Stop Editing' : 'Edit Habits'}
-                            >
-                                <span className="material-symbols-outlined text-xl">edit</span>
-                            </button>
-                        )}
+                            {!isReadOnly && !isDashboard && (
+                                <button
+                                    onClick={() => { setEditMode(!editMode); setEditingHabit(null); }}
+                                    className={`p-2 rounded-lg transition-all duration-300 ${editMode ? 'text-primary bg-primary/10 ring-1 ring-primary/20 shadow-sm' : 'text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700/50'}`}
+                                    title={editMode ? 'Stop Editing' : 'Edit Habits'}
+                                >
+                                    <span className="material-symbols-outlined text-xl">edit</span>
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
                 {/* Table */}
-                <div className="relative z-10 w-full overflow-y-auto custom-scrollbar flex-1 flex flex-col">
+                <div className="relative z-10 w-full overflow-y-auto custom-scrollbar hover-scrollbar flex-1 flex flex-col">
 
                     {/* Header Row */}
                     <div className="flex items-center gap-4 py-3 border-b border-slate-200 dark:border-slate-800">
@@ -626,21 +636,22 @@ function HabitTracker({
                             {isDashboard ? (
                                 <span className="w-8 text-center font-black text-primary uppercase tracking-widest">✓</span>
                             ) : (
-                                daysToDisplay.map((date, i) => {
-                                    const isToday = date.toDateString() === today.toDateString();
-                                    return (
-                                        <span key={i} className={`w-8 text-center ${isToday ? 'text-primary font-black' : ''}`}>
-                                            {date.getDate()}
-                                        </span>
-                                    );
-                                })
-                            )}
+                                    daysToDisplay.map((date, i) => {
+                                        const isToday = date.toDateString() === today.toDateString();
+                                        const isHiddenOnMobile = i === 0 || i === 1 || i === 5 || i === 6;
+                                        return (
+                                            <span key={i} className={`w-8 text-center ${isToday ? 'text-primary font-black' : ''} ${isHiddenOnMobile ? 'hidden md:inline' : 'inline'}`}>
+                                                {date.getDate()}
+                                            </span>
+                                        );
+                                    })
+                                )}
                         </div>
                         {editMode && <div className="w-16"></div>}
                     </div>
 
                     {/* Habit Rows */}
-                    <div className={`flex flex-col overflow-y-auto pr-1 custom-scrollbar ${isDashboard ? 'max-h-[240px]' : 'max-h-[380px]'}`}>
+                    <div className={`flex flex-col overflow-y-auto pr-1 custom-scrollbar hover-scrollbar ${isDashboard ? 'max-h-[240px]' : 'max-h-[500px]'}`}>
                         {isLoading || error ? (
                             // Skeleton Rows for Loading or Error state
                             Array(5).fill(0).map((_, i) => (

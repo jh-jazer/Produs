@@ -13,17 +13,24 @@ function Planner() {
     const [isFlipped, setIsFlipped] = useState(false);
 
     return (
-        <div className="w-full max-w-[1200px] flex flex-col gap-6">
+        <div className="w-full max-w-[1200px] flex flex-col gap-2 animate-in fade-in duration-700 pb-8">
+            
+            {/* Header - Always at top */}
+            <div className="flex flex-col gap-1 px-1 pt-8 pb-6 mb-6 border-b border-slate-100 dark:border-slate-800/50">
+                <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">
+                    {viewMode === 'partner' ? `${user?.partner?.name}'s Planner` : "What's the Plan?"}
+                </h1>
+                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                    Organize your schedule.
+                </p>
+            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                {/* Left Column: Header, Priority & Daily Planner */}
-                <div className="lg:col-span-4 flex flex-col gap-6">
-                    <div className="flex flex-col gap-1 pb-2">
-                        <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">{viewMode === 'partner' ? `${user?.partner?.name}'s Planner` : "What's the Plan?"}</h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Organize your schedule.</p>
-                    </div>
-
+                {/* Main Column (Interleaved for Mobile) */}
+                <div className="lg:col-span-4 flex flex-col gap-6 order-1">
+                    
+                    {/* Partner Toggle */}
                     {user?.partner && (
                         <div className="bg-slate-50 dark:bg-slate-800/50 p-1 rounded-xl flex">
                             <button
@@ -41,6 +48,12 @@ function Planner() {
                         </div>
                     )}
 
+                    {/* Mobile Only: Calendar at top of list */}
+                    <div className="lg:hidden">
+                        <FullCalendar onDateSelect={setSelectedDate} selectedDate={selectedDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                    </div>
+
+                    {/* Priority / Daily Schedule (Always here) */}
                     <div className="relative w-full" style={{ perspective: '2000px' }}>
                         <motion.div
                             animate={{ rotateY: isFlipped ? 180 : 0 }}
@@ -79,10 +92,15 @@ function Planner() {
                             </div>
                         </motion.div>
                     </div>
+
+                    {/* Mobile Only: Goal Setter above Consistency or bottom */}
+                    <div className="lg:hidden">
+                        <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                    </div>
                 </div>
 
-                {/* Right Column: Calendar & Goal Setter */}
-                <div className="lg:col-span-8 flex flex-col gap-6">
+                {/* Right Column (Desktop Only Sidebar for Calendar/Goals) */}
+                <div className="lg:col-span-8 hidden lg:flex flex-col gap-6 order-2">
                     <FullCalendar onDateSelect={setSelectedDate} selectedDate={selectedDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
                     <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
                 </div>

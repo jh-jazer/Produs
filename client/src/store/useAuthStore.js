@@ -20,6 +20,15 @@ const useAuthStore = create((set) => ({
         localStorage.setItem('userInfo', JSON.stringify(data));
     },
 
+    syncUser: (data) => {
+        set((state) => {
+            if (!state.user) return { user: data };
+            const updatedUser = { ...state.user, ...data, token: state.user.token };
+            localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+            return { user: updatedUser };
+        });
+    },
+
     logout: () => {
         set({ user: null });
         localStorage.removeItem('userInfo');
