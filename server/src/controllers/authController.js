@@ -217,20 +217,16 @@ export const completeOnboarding = async (req, res) => {
             user.onboardingCompleted = true;
             user.timezone = req.body.timezone || user.timezone;
             user.currency = req.body.currency || user.currency;
-            await user.save();
-
-            // Create initial habits if provided
-            const { selectedHabits } = req.body;
-            if (selectedHabits && Array.isArray(selectedHabits)) {
-                const habitsToCreate = selectedHabits.map(habit => ({
-                    user: user._id,
-                    name: habit.name,
-                    icon: habit.icon,
-                    color: habit.color,
-                    category: habit.category || 'Productivity'
-                }));
-                await Habit.insertMany(habitsToCreate);
+            
+            if (Array.isArray(req.body.subscriptions) && req.body.subscriptions.length > 0) {
+                user.settings.subscriptions = req.body.subscriptions;
+            } else if (req.body.subscription) {
+                // Legacy single-subscription fallback
+                user.settings.subscriptions = [req.body.subscription];
             }
+            user.markModified('settings');
+            
+            await user.save();
 
             res.json({
                 _id: user.id,
@@ -266,6 +262,28 @@ export const checkUsername = async (req, res) => {
         }
 
         res.json({ available: true, message: 'Username is available' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Update channel subscriptions only
+// @route   PUT /api/auth/subscriptions
+// @access  Private
+export const updateSubscriptions = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        if (!Array.isArray(req.body.subscriptions)) {
+            return res.status(400).json({ message: 'subscriptions must be an array' });
+        }
+
+        user.settings.subscriptions = req.body.subscriptions;
+        user.markModified('settings');
+        await user.save();
+
+        res.json({ subscriptions: user.settings.subscriptions });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -111,16 +111,19 @@ export const getDebts = async (req, res) => {
 };
 
 export const addDebt = async (req, res) => {
-    const { title, amount, total, type, interestRate, dueDate } = req.body;
+    const { title, amount, total, type, interestRate, dueDate, nature, isMonthly, monthsLeft } = req.body;
     try {
         const debt = await Debt.create({
             user: req.user._id,
             title,
             amount,
-            total,
+            total: total || amount,
             type,
             interestRate,
-            dueDate
+            dueDate,
+            nature: nature || 'debt',
+            isMonthly,
+            monthsLeft
         });
         res.status(201).json(debt);
     } catch (error) {

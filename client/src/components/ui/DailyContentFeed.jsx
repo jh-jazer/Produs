@@ -1,12 +1,44 @@
 import React, { useMemo, useState } from 'react';
-import { DAILY_CONTENT, SUBSCRIPTION_TOPICS } from '../../data/subscriptions';
+import feedData from '../../data/feed_mock_dataset_500_posts.json';
 import useAuthStore from '../../store/useAuthStore';
 import api from '../../services/api';
+import ChannelModal from './ChannelModal';
+
+const CHANNEL_ICONS = {
+    bible_verses: 'auto_stories',
+    stoicism: 'self_improvement',
+    philosophers: 'history_edu',
+    psychology: 'psychology',
+    science_trivia: 'biotech',
+    geography: 'public',
+    history_facts: 'account_balance',
+    astronomy: 'dark_mode',
+    biology: 'pest_control',
+    physics: 'bolt',
+    ai_facts: 'memory',
+    economics: 'payments',
+    mental_models: 'hub',
+    study_techniques: 'edit_note',
+    productivity: 'rocket_launch',
+    creativity: 'palette',
+    leadership: 'group',
+    startup_lessons: 'business_center',
+    famous_quotes: 'format_quote',
+    language_facts: 'language',
+    math_curiosities: 'calculate',
+    ancient_civilizations: 'fort',
+    brain_science: 'neurology',
+    human_behavior: 'face',
+    cultural_facts: 'diversity_3',
+    sedimentary_rocks: 'terrain'
+};
 
 const DailyContentFeed = () => {
     const user = useAuthStore(state => state.user);
     const subscriptions = user?.settings?.subscriptions || [];
-    
+
+    const [channelModalOpen, setChannelModalOpen] = useState(false);
+
     // State for inline journaling
     const [activeJournalId, setActiveJournalId] = useState(null);
     const [journalText, setJournalText] = useState('');
@@ -20,18 +52,20 @@ const DailyContentFeed = () => {
         const today = new Date();
         const seed = today.getFullYear() * 1000 + today.getMonth() * 100 + today.getDate();
         
-        return subscriptions.map(topicId => {
-            const contentList = DAILY_CONTENT[topicId];
-            if (!contentList || !contentList.length) return null;
+        return subscriptions.map(channelId => {
+            const channelPosts = feedData.posts.filter(p => p.channel_id === channelId);
+            if (!channelPosts || !channelPosts.length) return null;
             
-            const topic = SUBSCRIPTION_TOPICS.find(t => t.id === topicId);
-            const index = seed % contentList.length;
+            const channelInfo = feedData.channels.find(c => c.channel_id === channelId);
+            const index = seed % channelPosts.length;
+            const post = channelPosts[index];
             
             return {
-                topic: topic?.name || topicId,
-                icon: topic?.icon || 'auto_awesome',
-                content: contentList[index],
-                id: topicId
+                topic: channelInfo?.name || channelId,
+                icon: CHANNEL_ICONS[channelId] || 'auto_awesome',
+                content: post.content,
+                id: channelId,
+                length: post.length
             };
         }).filter(Boolean);
     }, [subscriptions]);
@@ -64,10 +98,42 @@ const DailyContentFeed = () => {
         }
     };
 
-    if (!dailyItems.length) return null;
-
     return (
+        <>
+        <ChannelModal isOpen={channelModalOpen} onClose={() => setChannelModalOpen(false)} />
         <div className="flex flex-col gap-4 mb-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-lg">bolt</span>
+                    <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Daily Dose</span>
+                </div>
+                <button
+                    onClick={() => setChannelModalOpen(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary text-[10px] font-black uppercase tracking-widest transition-colors"
+                >
+                    <span className="material-symbols-outlined text-base">tune</span>
+                    Manage Channels
+                </button>
+            </div>
+
+            {!dailyItems.length ? (
+                <div className="bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-3xl p-10 flex flex-col items-center gap-4 text-center">
+                    <div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-3xl text-primary">rss_feed</span>
+                    </div>
+                    <div>
+                        <p className="font-black text-slate-900 dark:text-white">No channels followed yet</p>
+                        <p className="text-xs text-slate-500 mt-1">Follow channels to see daily curated content in your feed.</p>
+                    </div>
+                    <button
+                        onClick={() => setChannelModalOpen(true)}
+                        className="px-6 py-2.5 bg-primary text-white rounded-xl font-black text-sm shadow-lg shadow-primary/20"
+                    >
+                        Browse Channels
+                    </button>
+                </div>
+            ) : (
             <div className="grid grid-cols-1 gap-4">
                 {dailyItems.map((item) => (
                     <div 
@@ -184,7 +250,9 @@ const DailyContentFeed = () => {
                     </div>
                 ))}
             </div>
+            )}
         </div>
+        </>
     );
 };
 

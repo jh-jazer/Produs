@@ -21,8 +21,13 @@ const debtSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['credit', 'loan', 'personal'],
-        default: 'credit'
+        enum: ['credit', 'loan', 'personal', 'salary', 'freelance', 'investment', 'other'],
+        default: 'personal'
+    },
+    nature: {
+        type: String,
+        enum: ['debt', 'income'],
+        default: 'debt'
     },
     interestRate: {
         type: Number,

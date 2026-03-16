@@ -21,17 +21,20 @@ function Journal() {
                 <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Capture your thoughts and track your journey.</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-                {/* Main Content: Editor & Mood Board - First on Mobile */}
-                <div className="lg:col-span-8 flex flex-col gap-6 order-1 lg:order-2">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* 1. JournalEntry - Top on both */}
+                <div className="lg:col-span-8 order-1">
                     <JournalEntry onAction={handleAction} />
-                    <YearlyMoodBoard entries={entries} />
                 </div>
 
-                {/* Sidebar: History - Second on Mobile */}
-                <div className="lg:col-span-4 flex flex-col gap-6 order-2 lg:order-1">
+                {/* 2. JournalHistory - Below Entry on mobile, Sidebar on desktop */}
+                <div className="lg:col-span-4 lg:row-span-2 order-2">
                     <JournalHistory entries={entries} onAction={handleAction} />
+                </div>
+
+                {/* 3. YearlyMoodBoard - Bottom on mobile, Main column on desktop */}
+                <div className="lg:col-span-8 order-3">
+                    <YearlyMoodBoard entries={entries} />
                 </div>
             </div>
         </div>

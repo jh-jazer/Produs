@@ -3,10 +3,8 @@ import HabitTracker from '../components/habit_components/HabitTracker';
 import Priority from '../components/planner_components/Priority';
 import FinancialStats from '../components/finance_components/FinancialStats';
 import JournalSnippet from '../components/journal_components/JournalSnippet';
-import ActivityFeed from '../components/ActivityFeed';
 import useAuthStore from '../store/useAuthStore';
-import ContentSubscription from '../components/ui/ContentSubscription';
-import DailyContentFeed from '../components/ui/DailyContentFeed';
+import MainFeed from '../components/MainFeed';
 
 function Overview() {
     const user = useAuthStore((state) => state.user);
@@ -38,27 +36,9 @@ function Overview() {
                 <JournalSnippet />
             </div>
 
-            {/* Right Column (8 units / Full Width on Mobile): Activity Feed */}
-            <div className="col-span-1 lg:col-span-8 flex flex-col gap-5 pb-24 lg:pl-6">
-                {/* Feed Header & Filters */}
-                <div className="flex items-center justify-between px-1 pt-8 pb-6 mb-2 border-b border-slate-100 dark:border-slate-800/50">
-                    <h3 className="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Your Daily Dose</h3>
-                    <div className="flex items-center gap-3">
-                        <button
-                            className="size-8 flex items-center justify-center text-slate-400 hover:text-primary transition-colors group"
-                            title="Filter Feed"
-                        >
-                            <span className="material-symbols-outlined text-xl">filter_list</span>
-                        </button>
-                        <ContentSubscription compact={true} />
-                    </div>
-                </div>
-
-                {/* Daily Dose Content */}
-                <DailyContentFeed />
-
-                {/* Activity Feed */}
-                <ActivityFeed />
+            {/* Right Column (8 units / Full Width on Mobile): Unified Feed */}
+            <div className="col-span-1 lg:col-span-8 flex flex-col gap-5 pb-24 lg:pt-8 lg:pl-6">
+                <MainFeed />
             </div>
 
         </div>

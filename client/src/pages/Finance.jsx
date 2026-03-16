@@ -30,7 +30,11 @@ const Finance = () => {
 
     // Calculate Summary Stats
     const totalSavings = savings.reduce((sum, s) => sum + s.amount, 0);
-    const totalDebt = debts.reduce((sum, d) => sum + d.amount, 0);
+    const actualDebts = debts.filter(d => d.nature === 'debt' || !d.nature); // !d.nature for backward compatibility
+    const upcomingIncome = debts.filter(d => d.nature === 'income');
+    
+    const totalDebt = actualDebts.reduce((sum, d) => sum + d.amount, 0);
+    const totalUpcomingIncome = upcomingIncome.reduce((sum, d) => sum + d.amount, 0);
 
     const netBalance = totalSavings - totalDebt;
 
@@ -43,49 +47,67 @@ const Finance = () => {
                 <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Overview of your financial health</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-                {/* Main Column (8 units): Activity & History - First on Mobile */}
-                <div className="lg:col-span-8 flex flex-col gap-6 order-1 lg:order-2">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                {/* 1. Overview (Top on both) */}
+                <div className="lg:col-span-8 order-1">
                     <FinancialOverview
                         transactions={transactions}
                         currencySymbol={currencySymbol}
                         netBalance={netBalance}
                         totalSavings={totalSavings}
                     />
-                    <SavingsPanel
-                        savings={savings}
-                        currencySymbol={currencySymbol}
-                        onAction={handleAction}
-                    />
-                    
-                    <Wishlist
-                        items={wishlist}
-                        currencySymbol={currencySymbol}
-                        onAction={handleAction}
-                    />
-                    
-                    <BalanceHistory />
                 </div>
 
-                {/* Sidebar Column (4 units): Transactions & Budgets - Second on Mobile */}
-                <div className="lg:col-span-4 flex flex-col gap-6 order-2 lg:order-1">
+                {/* 2. Transactions (Below overview on mobile, Sidebar on desktop) */}
+                <div className="lg:col-span-4 order-2">
                     <RecentTransactions
                         transactions={transactions}
                         currencySymbol={currencySymbol}
                         onAction={handleAction}
                     />
+                </div>
+
+                {/* 3. Savings (Below transactions on mobile, Main column on desktop) */}
+                <div className="lg:col-span-8 order-5 lg:order-3">
+                    <SavingsPanel
+                        savings={savings}
+                        currencySymbol={currencySymbol}
+                        onAction={handleAction}
+                    />
+                </div>
+
+                {/* 4. Budget (Below savings on mobile, Sidebar on desktop) */}
+                <div className="lg:col-span-4 order-3 lg:order-4">
                     <MonthlyBudget
                         budgets={budgets}
                         transactions={transactions}
                         currencySymbol={currencySymbol}
                         onAction={handleAction}
                     />
+                </div>
+
+                {/* 5. Wishlist (Below budget on mobile, Main column on desktop) */}
+                <div className="lg:col-span-8 order-6 lg:order-5">
+                    <Wishlist
+                        items={wishlist}
+                        currencySymbol={currencySymbol}
+                        onAction={handleAction}
+                    />
+                </div>
+
+                {/* 6. Debt / Cash Flow (Below wishlist on mobile, Sidebar on desktop) */}
+                <div className="lg:col-span-4 order-4 lg:order-6">
                     <DebtManager
                         debts={debts}
                         currencySymbol={currencySymbol}
                         onAction={handleAction}
                     />
+                </div>
+
+                {/* 7. Balance History (Absolute bottom on mobile, Main column on desktop) */}
+                <div className="lg:col-span-8 order-7">
+                    <BalanceHistory />
                 </div>
 
             </div>
