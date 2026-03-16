@@ -1,4 +1,5 @@
 import Journal from '../models/Journal.js';
+import { checkSystemHabit } from '../utils/habitUtils.js';
 
 export const createEntry = async (req, res) => {
     try {
@@ -12,6 +13,11 @@ export const createEntry = async (req, res) => {
             date: date || new Date()
         });
         await entry.save();
+        
+        // Auto-check the Journal habit
+        const entryDateStr = new Date(entry.date).toISOString().split('T')[0];
+        await checkSystemHabit(req.user._id, 'journal', entryDateStr);
+        
         res.status(201).json(entry);
     } catch (error) {
         res.status(400).json({ message: error.message });

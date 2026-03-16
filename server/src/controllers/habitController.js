@@ -109,15 +109,25 @@ export const updateHabit = async (req, res) => {
 
         if (habit.isShared && habit.sharedGroupId) {
             // Update all habits in shared group
+            // Prevent name change if it's a system habit
+            const updatePayload = { icon, color, category };
+            if (!habit.systemId) {
+                updatePayload.name = name;
+            }
+            
             await Habit.updateMany(
                 { sharedGroupId: habit.sharedGroupId },
-                { $set: { name, icon, color, category } }
+                { $set: updatePayload }
             );
             const updatedHabit = await Habit.findById(req.params.id);
             return res.json(updatedHabit);
         }
 
-        habit.name = name || habit.name;
+        // Prevent name change if it's a system habit
+        if (!habit.systemId) {
+            habit.name = name || habit.name;
+        }
+        
         habit.icon = icon || habit.icon;
         habit.color = color || habit.color;
         habit.category = category || habit.category;
@@ -140,6 +150,11 @@ export const deleteHabit = async (req, res) => {
             // Check if habit belongs to user
             if (habit.user.toString() !== req.user._id.toString()) {
                 return res.status(403).json({ message: 'User not authorized' });
+            }
+
+            // Prevent deletion of system habits
+            if (habit.systemId) {
+                return res.status(403).json({ message: 'System habits cannot be deleted' });
             }
 
             if (habit.isShared && habit.sharedGroupId) {

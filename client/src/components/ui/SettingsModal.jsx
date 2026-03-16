@@ -7,11 +7,19 @@ import api from '../../services/api';
 const SettingsModal = ({ isOpen, onClose }) => {
     const { user, updateSettings, deleteAccount } = useAuthStore();
     const navigate = useNavigate();
-    const [localSettings, setLocalSettings] = useState(user?.settings || { darkMode: true, notificationsEnabled: false });
+    const [localSettings, setLocalSettings] = useState(user?.settings || { darkMode: false, notificationsEnabled: false, theme: 'classic' });
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteWord, setDeleteWord] = useState('');
     const [apiStatus, setApiStatus] = useState('checking');
+
+    const themes = [
+        { id: 'classic', name: 'Classic Blue', color: '#135bec' },
+        { id: 'rose', name: 'Rose Petal', color: '#ec4899' },
+        { id: 'forest', name: 'Forest Zen', color: '#10b981' },
+        { id: 'amber', name: 'Sunset Amber', color: '#f59e0b' },
+        { id: 'midnight', name: 'Midnight', color: '#6366f1' },
+    ];
 
     useEffect(() => {
         if (isOpen) {
@@ -40,7 +48,6 @@ const SettingsModal = ({ isOpen, onClose }) => {
         const updatedLocal = { ...localSettings, [key]: newValue };
         setLocalSettings(updatedLocal);
 
-        // Apply theme immediately if darkMode changed
         if (key === 'darkMode') {
             if (newValue) {
                 document.documentElement.classList.add('dark');
@@ -52,9 +59,27 @@ const SettingsModal = ({ isOpen, onClose }) => {
         try {
             await updateSettings({ [key]: newValue });
         } catch (err) {
-            // Rollback local state on error
             setLocalSettings(localSettings);
             console.error('Failed to sync setting:', err);
+        }
+    };
+
+    const handleThemeChange = async (themeId) => {
+        const updatedLocal = { ...localSettings, theme: themeId };
+        setLocalSettings(updatedLocal);
+
+        // Apply theme color to --primary
+        const theme = themes.find(t => t.id === themeId);
+        if (theme) {
+            document.documentElement.style.setProperty('--primary', theme.color);
+            // Also store in data-theme attribute
+            document.documentElement.setAttribute('data-theme', themeId);
+        }
+
+        try {
+            await updateSettings({ theme: themeId });
+        } catch (err) {
+            console.error('Failed to sync theme:', err);
         }
     };
 
@@ -136,25 +161,50 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                 </div>
 
                                 <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
-                                    <div className="flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-primary">payments</span>
-                                        <span className="text-sm font-bold dark:text-slate-200">Currency</span>
-                                    </div>
-                                    <select
-                                        value={user?.currency || 'USD'}
-                                        onChange={async (e) => {
-                                            const val = e.target.value;
-                                            try {
-                                                await updateSettings({ currency: val });
-                                            } catch (err) {
-                                                console.error('Failed to sync currency:', err);
-                                            }
-                                        }}
-                                        className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-bold outline-none dark:text-white"
-                                    >
-                                        <option value="USD">USD ($)</option>
-                                        <option value="PHP">PHP (₱)</option>
-                                    </select>
+                                     <div className="flex items-center gap-3">
+                                         <span className="material-symbols-outlined text-primary">payments</span>
+                                         <span className="text-sm font-bold dark:text-slate-200">Currency</span>
+                                     </div>
+                                     <select
+                                         value={user?.currency || 'USD'}
+                                         onChange={async (e) => {
+                                             const val = e.target.value;
+                                             try {
+                                                 await updateSettings({ currency: val });
+                                             } catch (err) {
+                                                 console.error('Failed to sync currency:', err);
+                                             }
+                                         }}
+                                         className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-bold outline-none dark:text-white"
+                                     >
+                                         <option value="USD">USD ($)</option>
+                                         <option value="PHP">PHP (₱)</option>
+                                     </select>
+                                 </div>
+                            </div>
+
+                            {/* Theme Selection */}
+                            <div className="space-y-4">
+                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Theme</h4>
+                                <div className="grid grid-cols-5 gap-3">
+                                    {themes.map((t) => (
+                                        <button
+                                            key={t.id}
+                                            onClick={() => handleThemeChange(t.id)}
+                                            className={`group relative flex flex-col items-center gap-2 p-2 rounded-2xl border-2 transition-all ${localSettings.theme === t.id ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700'}`}
+                                            title={t.name}
+                                        >
+                                            <div 
+                                                className="size-8 rounded-full shadow-sm ring-2 ring-white dark:ring-slate-900 group-hover:scale-110 transition-transform" 
+                                                style={{ backgroundColor: t.color }}
+                                            />
+                                            {localSettings.theme === t.id && (
+                                                <motion.span layoutId="theme-check" className="absolute -top-1 -right-1 size-4 bg-primary text-white rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
+                                                    <span className="material-symbols-outlined text-[10px] font-black">check</span>
+                                                </motion.span>
+                                            )}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
 

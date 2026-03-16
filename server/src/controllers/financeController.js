@@ -3,6 +3,7 @@ import Transaction from '../models/Transaction.js';
 import Budget from '../models/Budget.js';
 import Debt from '../models/Debt.js';
 import Saving from '../models/Saving.js';
+import { checkSystemHabit } from '../utils/habitUtils.js';
 
 // --- Transactions ---
 export const getTransactions = async (req, res) => {
@@ -25,6 +26,11 @@ export const addTransaction = async (req, res) => {
             category,
             date
         });
+
+        // Auto-check the Finance habit
+        const txDateStr = new Date(transaction.date || Date.now()).toISOString().split('T')[0];
+        await checkSystemHabit(req.user._id, 'finance', txDateStr);
+
         res.status(201).json(transaction);
     } catch (error) {
         res.status(400).json({ message: error.message });

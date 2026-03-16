@@ -1,6 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../models/User.js';
+import { initializeSystemHabits } from '../utils/habitUtils.js';
 
 passport.use(
     new GoogleStrategy(
@@ -15,6 +16,7 @@ passport.use(
                 let user = await User.findOne({ googleId: profile.id });
 
                 if (user) {
+                    await initializeSystemHabits(user._id);
                     done(null, user);
                 } else {
                     // Check if user exists with the same email but registered via email/password
@@ -26,6 +28,7 @@ passport.use(
                             user.avatar = profile.photos[0].value;
                         }
                         await user.save();
+                        await initializeSystemHabits(user._id);
                         done(null, user);
                     } else {
                         // If not, create a new user
@@ -37,6 +40,7 @@ passport.use(
                         };
 
                         user = await User.create(newUser);
+                        await initializeSystemHabits(user._id);
                         done(null, user);
                     }
                 }

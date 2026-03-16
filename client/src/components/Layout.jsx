@@ -21,6 +21,31 @@ function Layout() {
     const { user, logout, syncUser } = useAuthStore();
 
     useEffect(() => {
+        // Apply Dark Mode from settings
+        if (user?.settings?.darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // Apply Theme from settings
+        if (user?.settings?.theme) {
+            const themes = [
+                { id: 'classic', color: '#135bec' },
+                { id: 'rose', color: '#ec4899' },
+                { id: 'forest', color: '#10b981' },
+                { id: 'amber', color: '#f59e0b' },
+                { id: 'midnight', color: '#6366f1' },
+            ];
+            const theme = themes.find(t => t.id === user.settings.theme);
+            if (theme) {
+                document.documentElement.style.setProperty('--primary', theme.color);
+                document.documentElement.setAttribute('data-theme', theme.id);
+            }
+        }
+    }, [user?.settings?.darkMode, user?.settings?.theme]);
+
+    useEffect(() => {
         const handleUserSelected = () => {
             setIsSearchModalOpen(false);
         };

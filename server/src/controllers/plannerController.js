@@ -2,6 +2,7 @@ import Task from '../models/Task.js';
 import Goal from '../models/Goal.js';
 import User from '../models/User.js';
 import Template from '../models/Template.js';
+import { checkSystemHabit } from '../utils/habitUtils.js';
 
 // Helper to check for overlaps
 const checkOverlap = async (userId, date, startTime, endTime, excludeTaskId = null) => {
@@ -98,6 +99,10 @@ export const createTask = async (req, res) => {
             user: req.user._id
         });
         await task.save();
+
+        // Auto-check Daily Planning habit
+        await checkSystemHabit(req.user._id, 'planner', task.date);
+
         res.status(201).json(task);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -225,6 +230,9 @@ export const applyTemplate = async (req, res) => {
         }));
 
         await Task.insertMany(newTasks);
+
+        // Auto-check Daily Planning habit
+        await checkSystemHabit(req.user._id, 'planner', date);
 
         res.json({ message: 'Template applied successfully', count: newTasks.length });
     } catch (error) {

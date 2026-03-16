@@ -5,7 +5,7 @@
   --font-display: "Manrope", sans-serif;
   --font-ubuntu: "Ubuntu", sans-serif;
 
-  --color-primary: #135bec;
+  --color-primary: var(--primary, #135bec);
   --color-background-light: #f6f6f8;
   --color-background-dark: #0d1117;
 
@@ -18,6 +18,7 @@
 @variant dark (&:where(.dark, .dark *));
 
 :root {
+  --primary: #135bec;
   --background: #f6f6f8;
   --foreground: #0f172a;
   --card: #ffffff;
@@ -35,7 +36,11 @@ html,
 body {
   background-color: var(--background);
   color: var(--foreground);
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+* {
+  transition: border-color 0.3s ease, background-color 0.3s ease-out;
 }
 
 @layer utilities {

@@ -77,7 +77,11 @@ const userSchema = new mongoose.Schema({
         },
         darkMode: {
             type: Boolean,
-            default: true
+            default: false
+        },
+        theme: {
+            type: String,
+            default: 'classic'
         },
         subscriptions: {
             type: [String],

@@ -237,7 +237,8 @@ function HabitTracker({
                                     type="text"
                                     value={editingHabit.name}
                                     onChange={(e) => setEditingHabit({ ...editingHabit, name: e.target.value })}
-                                    className="flex-1 min-w-0 px-2 py-1 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary dark:text-white"
+                                    disabled={!!editingHabit.systemId}
+                                    className={`flex-1 min-w-0 px-2 py-1 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary dark:text-white ${editingHabit.systemId ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 />
                             </div>
                             <div className="flex items-center gap-1.5 px-1 py-0.5">
@@ -394,7 +395,7 @@ function HabitTracker({
                                          <span className="material-symbols-outlined text-base">edit</span>
                                      </button>
                                  )}
-                                 {(!isPartnerView || habit.myPart) && (
+                                 {(!isPartnerView || habit.myPart) && !(habit.isGrouped ? habit.myPart?.systemId : habit.systemId) && (
                                      <button onClick={() => deleteHabit(habit.isGrouped ? habit.myPart._id : habit._id)} className="p-1 rounded-md hover:bg-red-500/10 text-slate-400 hover:text-red-500 transition-colors" title="Delete">
                                          <span className="material-symbols-outlined text-base">delete</span>
                                      </button>

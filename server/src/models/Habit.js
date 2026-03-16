@@ -41,6 +41,10 @@ const habitSchema = new mongoose.Schema({
     isShared: {
         type: Boolean,
         default: false
+    },
+    systemId: {
+        type: String,
+        default: null
     }
 }, {
     timestamps: true

@@ -14,6 +14,8 @@ const loginSchema = Joi.object({
     password: Joi.string().required(),
 });
 
+import { initializeSystemHabits } from '../utils/habitUtils.js';
+
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
@@ -40,6 +42,9 @@ export const registerUser = async (req, res) => {
         });
 
         if (user) {
+            // Initialize mandatory system habits
+            await initializeSystemHabits(user._id);
+
             res.status(201).json({
                 _id: user.id,
                 name: user.name,
