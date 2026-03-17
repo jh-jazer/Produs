@@ -103,6 +103,10 @@ body {
   .glow-active {
     box-shadow: 0 0 20px -5px rgba(19, 91, 236, 0.3);
   }
+
+  .perspective-2000 {
+    perspective: 2000px;
+  }
 }
 
 @theme {
