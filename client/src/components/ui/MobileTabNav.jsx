@@ -33,7 +33,7 @@ const MobileTabNav = ({ tabs, activeTab, setActiveTab }) => {
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: 100, opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-                    className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] lg:hidden"
+                    className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 lg:hidden"
                 >
                     <div className="flex items-center gap-1.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-2xl shadow-black/10">
                         {tabs.map((tab) => {
