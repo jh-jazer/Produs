@@ -98,7 +98,7 @@ function Habits() {
     };
 
     return (
-        <div className="w-full max-w-[1200px] flex flex-col gap-2 animate-in fade-in duration-700 pb-8">
+        <div className="w-full max-w-[1200px] flex flex-col gap-2 animate-in fade-in duration-700 pb-28 md:pb-8">
             
             {/* Header - Hidden on Mobile */}
             <div className="hidden md:flex flex-col gap-1 px-1 pt-8 pb-6 mb-6 border-b border-slate-100 dark:border-slate-800/50">

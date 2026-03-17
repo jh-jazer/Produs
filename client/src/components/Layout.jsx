@@ -218,6 +218,9 @@ function Layout() {
                                         className="absolute right-0 mt-3 w-48 bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50 overflow-hidden"
                                     >
                                         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1 font-bold text-xs text-slate-400 uppercase tracking-widest">Account</div>
+                                        <button onClick={() => { navigate('/dashboard/profile'); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors">
+                                            <span className="material-symbols-outlined text-lg">dashboard</span> Profile
+                                        </button>
                                         {user?.email === 'ernestodesabillejr@gmail.com' && (
                                             <button 
                                                 onClick={() => { navigate('/dashboard/admin'); setIsProfileOpen(false); }} 
@@ -226,9 +229,6 @@ function Layout() {
                                                 <span className="material-symbols-outlined text-lg">admin_panel_settings</span> Manage
                                             </button>
                                         )}
-                                        <button onClick={() => { navigate('/dashboard/profile'); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors">
-                                            <span className="material-symbols-outlined text-lg">dashboard</span> Profile
-                                        </button>
                                         <button onClick={() => { setIsNotificationsOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-between transition-colors">
                                             <div className="flex items-center gap-3"><span className="material-symbols-outlined text-lg">notifications</span> Notifications</div>
                                             {unreadCount > 0 && <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
@@ -239,7 +239,7 @@ function Layout() {
                                         <button onClick={() => { setIsBugModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-rose-500/80 hover:bg-rose-50 dark:hover:bg-rose-900/10 flex items-center gap-3 transition-colors">
                                             <span className="material-symbols-outlined text-lg">bug_report</span> Report Bug
                                         </button>
-                                        <div className="h-px bg-slate-100 dark:border-slate-800 my-1 mx-2"></div>
+                                        <div className="h-px bg-slate-200 dark:bg-slate-700 my-1.5 mx-0"></div>
                                         <button onClick={handleSignOut} className="w-full px-4 py-2.5 text-left text-sm font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 flex items-center gap-3 transition-colors">
                                             <span className="material-symbols-outlined text-lg">logout</span> Sign Out
                                         </button>
@@ -324,7 +324,7 @@ function Layout() {
 
                 {/* Main Content Area */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
-                    <main className="flex-1 flex justify-center pb-6 px-4 md:px-6 lg:px-10">
+                    <main className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10">
                         <Outlet />
                     </main>
                 </div>
