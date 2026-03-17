@@ -18,24 +18,46 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
     const [filterCategory, setFilterCategory] = useState('All');
     const [newItem, setNewItem] = useState({
         title: '',
-        price: '',
+        budgetPrice: '',
         priority: 'Medium',
         category: 'General',
-        link: ''
+        link: '',
+        imageUrl: ''
     });
+    const [buyingItem, setBuyingItem] = useState(null);
+    const [actualPrice, setActualPrice] = useState('');
 
     const handleAdd = async (e) => {
         e.preventDefault();
         try {
             await api.post('/finance/wishlist', {
                 ...newItem,
-                price: parseFloat(newItem.price)
+                budgetPrice: parseFloat(newItem.budgetPrice),
+                price: parseFloat(newItem.budgetPrice) // Keep price for backward compat if needed
             });
             onAction();
-            setNewItem({ title: '', price: '', priority: 'Medium', category: 'General', link: '' });
+            setNewItem({ title: '', budgetPrice: '', priority: 'Medium', category: 'General', link: '', imageUrl: '' });
             setIsAdding(false);
         } catch (err) {
             console.error('Error adding item:', err);
+        }
+    };
+
+    const handleBought = async (e) => {
+        e.preventDefault();
+        if (!buyingItem) return;
+        try {
+            const actual = parseFloat(actualPrice);
+            await api.patch(`/finance/wishlist/${buyingItem._id}`, {
+                purchased: true,
+                actualPrice: actual,
+                savings: (buyingItem.budgetPrice || buyingItem.price) - actual
+            });
+            onAction();
+            setBuyingItem(null);
+            setActualPrice('');
+        } catch (err) {
+            console.error('Error completing purchase:', err);
         }
     };
 
@@ -63,8 +85,9 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
         filterCategory === 'All' || item.category === filterCategory
     ) || [];
 
-    const totalCost = filteredItems.reduce((sum, item) => sum + (item.purchased ? 0 : item.price), 0);
-    const purchasedValue = filteredItems.reduce((sum, item) => sum + (item.purchased ? item.price : 0), 0);
+    const totalBudget = filteredItems.reduce((sum, item) => sum + (item.purchased ? 0 : (item.budgetPrice || item.price)), 0);
+    const totalSavings = filteredItems.reduce((sum, item) => sum + (item.purchased ? (item.savings || 0) : 0), 0);
+    const totalActualPaid = filteredItems.reduce((sum, item) => sum + (item.purchased ? (item.actualPrice || 0) : 0), 0);
 
     const getCategoryStyles = (categoryName) => {
         const cat = WISHLIST_CATEGORIES.find(c => c.label === categoryName);
@@ -110,14 +133,18 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
                 <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">To Save</p>
-                    <p className="text-lg font-black text-slate-900 dark:text-white">{currencySymbol}{totalCost.toLocaleString()}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Projected</p>
+                    <p className="text-lg font-black text-slate-900 dark:text-white">{currencySymbol}{totalBudget.toLocaleString()}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100/50 dark:border-emerald-900/20">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Purchased</p>
-                    <p className="text-lg font-black text-emerald-600">{currencySymbol}{purchasedValue.toLocaleString()}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Actual Paid</p>
+                    <p className="text-lg font-black text-emerald-600">{currencySymbol}{totalActualPaid.toLocaleString()}</p>
+                </div>
+                <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/20">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1">Total Saved</p>
+                    <p className="text-lg font-black text-blue-600">{currencySymbol}{totalSavings.toLocaleString()}</p>
                 </div>
             </div>
 
@@ -133,39 +160,72 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
                         layout
                         key={item._id}
                         className={`group flex items-center justify-between p-3 rounded-xl border transition-all ${item.purchased
-                            ? 'bg-slate-50 dark:bg-slate-800/30 border-slate-100 dark:border-slate-800/50 opacity-60'
+                            ? 'bg-slate-50 dark:bg-slate-800/30 border-slate-100 dark:border-slate-800/50 opacity-80'
                             : 'bg-white dark:bg-slate-800/40 border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600 shadow-sm'
                             }`}
                     >
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={() => togglePurchased(item)}
-                                className={`size-5 rounded-md flex items-center justify-center transition-all ${item.purchased
-                                    ? 'bg-emerald-500 text-white'
-                                    : 'border-2 border-slate-200 dark:border-slate-600 text-transparent hover:border-primary'
-                                    }`}
-                            >
-                                <span className="material-symbols-outlined text-[14px] font-black">check</span>
-                            </button>
-                            <div>
-                                <h4 className={`text-sm font-bold ${item.purchased ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'}`}>
+                        <div className="flex items-center gap-4 flex-1">
+                            {/* Item Image or Placeholder */}
+                            <div className="relative group/img">
+                                {item.imageUrl ? (
+                                    <div className="size-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm flex-shrink-0">
+                                        <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover transition-transform group-hover/img:scale-110" />
+                                    </div>
+                                ) : (
+                                    <div className="size-16 rounded-xl bg-slate-100 dark:bg-slate-800 border border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0">
+                                        <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 text-2xl">image</span>
+                                    </div>
+                                )}
+                                
+                                {item.purchased && (
+                                    <div className="absolute -top-1 -right-1 size-6 bg-emerald-500 rounded-full border-2 border-white dark:border-[#192233] flex items-center justify-center shadow-sm">
+                                        <span className="material-symbols-outlined text-white text-[12px] font-black">check</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                                <h4 className={`text-sm font-bold truncate ${item.purchased ? 'text-slate-400' : 'text-slate-900 dark:text-white'}`}>
                                     {item.title}
                                 </h4>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                    <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${item.priority === 'High' ? 'bg-red-100 text-red-600 dark:bg-red-500/10' :
-                                        item.priority === 'Medium' ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/10' :
-                                            'bg-slate-100 text-slate-600 dark:bg-slate-500/10'
-                                        }`}>
-                                        {item.priority}
-                                    </span>
+                                <div className="flex items-center gap-2 mt-1">
                                     <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${getCategoryStyles(item.category)}`}>
                                         {item.category || 'General'}
                                     </span>
-                                    <span className="text-xs font-black text-slate-900 dark:text-slate-200">{currencySymbol}{item.price.toLocaleString()}</span>
+                                    {!item.purchased ? (
+                                        <span className="text-xs font-black text-slate-900 dark:text-slate-200">
+                                            {currencySymbol}{(item.budgetPrice || item.price).toLocaleString()}
+                                        </span>
+                                    ) : (
+                                        <div className="flex items-center gap-2 overflow-hidden">
+                                            <span className="text-xs font-black text-slate-400 truncate">
+                                                Paid {currencySymbol}{item.actualPrice?.toLocaleString()}
+                                            </span>
+                                            {item.savings > 0 && (
+                                                <span className="text-[9px] font-black bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded flex-shrink-0">
+                                                    Saved {currencySymbol}{item.savings.toLocaleString()}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+
+                        <div className="flex items-center gap-2">
+                            {!item.purchased && (
+                                <button
+                                    onClick={() => {
+                                        setBuyingItem(item);
+                                        setActualPrice(item.budgetPrice || item.price);
+                                    }}
+                                    className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all flex items-center gap-1 shadow-md shadow-emerald-500/20"
+                                >
+                                    <span className="material-symbols-outlined text-sm">shopping_cart</span>
+                                    Bought
+                                </button>
+                            )}
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             {item.link && (
                                 <a href={item.link} target="_blank" rel="noopener noreferrer" className="size-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/10 transition-all">
                                     <span className="material-symbols-outlined text-lg">open_in_new</span>
@@ -178,7 +238,8 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
                                 <span className="material-symbols-outlined text-lg">delete</span>
                             </button>
                         </div>
-                    </motion.div>
+                    </div>
+                </motion.div>
                 ))}
             </div>
 
@@ -212,13 +273,13 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Price</label>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Budget Price</label>
                                     <div className="relative">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
                                         <input
                                             required type="number" placeholder="0.00"
                                             className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                            value={newItem.price} onChange={e => setNewItem({ ...newItem, price: e.target.value })}
+                                            value={newItem.budgetPrice} onChange={e => setNewItem({ ...newItem, budgetPrice: e.target.value })}
                                         />
                                     </div>
                                 </div>
@@ -233,6 +294,15 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
                                         <option value="High">High</option>
                                     </select>
                                 </div>
+                            </div>
+
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Image URL</label>
+                                <input
+                                    type="text" placeholder="https://image-link.com/..."
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    value={newItem.imageUrl} onChange={e => setNewItem({ ...newItem, imageUrl: e.target.value })}
+                                />
                             </div>
 
                             <div className="flex flex-col gap-1.5">
@@ -251,6 +321,44 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
                         <button type="submit" className="w-full py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-2">
                             Add to Wishlist
                         </button>
+                    </form>
+                </div>,
+                document.body
+            )}
+
+            {/* Bought Confirmation Modal */}
+            {buyingItem && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setBuyingItem(null)}></div>
+                    <form 
+                        onSubmit={handleBought} 
+                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
+                    >
+                        <div className="text-center">
+                            <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Complete Purchase</h4>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Confirming payment for {buyingItem.title}</p>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-center">Actual Price Paid</label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
+                                <input
+                                    autoFocus
+                                    required type="number" step="0.01"
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-3 text-lg focus:ring-2 focus:ring-primary outline-none dark:text-white font-black text-center"
+                                    value={actualPrice} onChange={e => setActualPrice(e.target.value)}
+                                />
+                            </div>
+                            <p className="text-[9px] text-slate-400 font-bold uppercase text-center mt-1">
+                                Budget was {currencySymbol}{(buyingItem.budgetPrice || buyingItem.price).toLocaleString()}
+                            </p>
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button type="button" onClick={() => setBuyingItem(null)} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl">Cancel</button>
+                            <button type="submit" className="flex-2 py-3 bg-emerald-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20">Confirm</button>
+                        </div>
                     </form>
                 </div>,
                 document.body

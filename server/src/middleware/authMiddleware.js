@@ -30,4 +30,12 @@ const protect = async (req, res, next) => {
     }
 };
 
-export { protect };
+const adminOnly = (req, res, next) => {
+    if (req.user && req.user.email === 'ernestodesabillejr@gmail.com') {
+        next();
+    } else {
+        res.status(403).json({ message: 'Forbidden: Admin access only' });
+    }
+};
+
+export { protect, adminOnly };

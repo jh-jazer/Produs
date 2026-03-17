@@ -641,7 +641,7 @@ function HabitTracker({
                                         const isToday = date.toDateString() === today.toDateString();
                                         const isHiddenOnMobile = i === 0 || i === 1 || i === 5 || i === 6;
                                         return (
-                                            <span key={i} className={`w-8 text-center ${isToday ? 'text-primary font-black' : ''} ${isHiddenOnMobile ? 'hidden md:inline' : 'inline'}`}>
+                                            <span key={i} className={`w-8 h-8 flex items-center justify-center text-center ${isToday ? 'text-primary font-black' : ''} ${isHiddenOnMobile ? 'hidden md:flex' : 'flex'}`}>
                                                 {date.getDate()}
                                             </span>
                                         );
@@ -679,10 +679,8 @@ function HabitTracker({
                                 {teamHabits
                                     .filter(h => propFilter === 'All' || h.category === propFilter)
                                     .sort((a, b) => {
-                                        const checkedA = isChecked(a.myPart?._id || a._id, today);
-                                        const checkedB = isChecked(b.myPart?._id || b._id, today);
-                                        if (checkedA === checkedB) return 0;
-                                        return checkedA ? 1 : -1;
+                                        // Sort by name if desired, or just removal of current sort
+                                        return 0; // Removing automatic sorting below checked habits
                                     })
                                     .map((habit) => renderHabitRow(habit))}
 

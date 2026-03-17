@@ -11,6 +11,7 @@ import Auth from './pages/Auth';
 import AuthCallback from './pages/AuthCallback';
 import Landing from './pages/Landing';
 import Profile from './pages/Profile';
+import Admin from './pages/Admin';
 import PublicProfile from './pages/PublicProfile';
 import useAuthStore from './store/useAuthStore';
 
@@ -19,6 +20,15 @@ const ProtectedRoute = ({ children }) => {
   const user = useAuthStore((state) => state.user);
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+
+  return children;
+};
+
+const AdminRoute = ({ children }) => {
+  const user = useAuthStore((state) => state.user);
+  if (!user || user.email !== 'ernestodesabillejr@gmail.com') {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -50,6 +60,7 @@ function AnimatedRoutes() {
           <Route path="finance" element={<Finance />} />
           <Route path="journal" element={<Journal />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="admin" element={<AdminRoute><Admin /></AdminRoute>} />
         </Route>
       </Routes>
     </AnimatePresence>

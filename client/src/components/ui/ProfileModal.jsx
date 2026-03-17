@@ -1,8 +1,11 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import Avatar from './Avatar';
 
 const ProfileModal = ({ isOpen, onClose, user }) => {
+    const navigate = useNavigate();
+    const isAdmin = user?.email === 'ernestodesabillejr@gmail.com';
     return (
         <AnimatePresence>
             {isOpen && (
@@ -61,11 +64,29 @@ const ProfileModal = ({ isOpen, onClose, user }) => {
                                     </div>
                                 </div>
 
-                                <button
-                                    className="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-sm hover:opacity-90 transition-opacity active:scale-[0.98] transform"
-                                >
-                                    Update Profile
-                                </button>
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => {
+                                            if (isAdmin) {
+                                                navigate('/dashboard/admin');
+                                                onClose();
+                                            }
+                                        }}
+                                        className={`flex-1 py-3 text-sm font-black rounded-2xl transition-all active:scale-[0.98] ${
+                                            isAdmin 
+                                            ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                                        }`}
+                                        disabled={!isAdmin}
+                                    >
+                                        Manage System
+                                    </button>
+                                    <button
+                                        className="flex-1 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-sm hover:opacity-90 transition-opacity active:scale-[0.98] transition-all"
+                                    >
+                                        Update Profile
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </motion.div>

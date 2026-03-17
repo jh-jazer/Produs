@@ -125,9 +125,9 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
                     </div>
                 </div>
             </div>
-
+                     {/* Desktop Day Labels (Mon, Wed, Fri) - Hidden on Mobile */}
             <div className="flex gap-2 min-w-0 overflow-hidden">
-                <div className="flex flex-col gap-1 pr-2 pt-6 shrink-0">
+                <div className="hidden md:flex flex-col gap-1 pr-2 pt-6 shrink-0">
                     <div className="h-2.5"></div>
                     <span className="text-[9px] font-bold text-slate-400 h-2.5 flex items-center uppercase">Mon</span>
                     <div className="h-2.5"></div>
@@ -137,20 +137,29 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
                     <div className="h-2.5"></div>
                 </div>
 
-                <div className="flex-1 overflow-x-auto custom-scrollbar pb-3">
-                    <div className="relative mb-2 h-4">
+                <div className="flex-1 overflow-x-auto md:overflow-x-auto custom-scrollbar pb-3">
+                    {/* Desktop Month Labels */}
+                    <div className="relative mb-2 h-4 hidden md:block">
                         {monthLabels.map((l, i) => (
                             <div 
                                 key={i} 
                                 className="absolute text-[10px] font-black text-slate-400 uppercase tracking-tighter"
-                                style={{ left: `${l.index * 14}px` }} // 10px width + 4px gap roughly
+                                style={{ left: `${l.index * 14}px` }}
                             >
                                 {l.month}
                             </div>
                         ))}
                     </div>
 
-                    <div className="grid grid-flow-col grid-rows-7 gap-1 w-max">
+                    {/* Mobile Day Labels (S M T W T F S) - Shown only on Mobile */}
+                    <div className="grid grid-cols-7 gap-1 mb-2 md:hidden">
+                        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+                            <div key={i} className="text-[9px] font-black text-slate-400 text-center uppercase">{day}</div>
+                        ))}
+                    </div>
+
+                    {/* Responsive Grid: cols-7 on mobile (vertical), flow-col on desktop (horizontal) */}
+                    <div className="grid grid-cols-7 md:grid-flow-col md:grid-rows-7 gap-1 w-full md:w-max">
                         {[...Array(totalCells)].map((_, i) => {
                             const { date, dateStr, isFuture, isWrongYear, myCount, partnerCount, colIndex } = getCellData(i);
 
@@ -187,39 +196,49 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
                                 }
                             }
 
-                            // Tooltip alignment logic to prevent clipping
-                            const rowIndex = i % 7; // 0=Sun, 1=Mon, 2=Tue...
+                            // Tooltip alignment logic
+                            const rowIndex = i % 7; 
                             
+                            // On mobile, tooltips are different because it's a vertical scroll
                             const xAlign = colIndex < 5 
                                 ? 'left-0' 
                                 : colIndex > 48 
                                     ? 'right-0' 
                                     : 'left-1/2 -translate-x-1/2';
                             
-                            // Flip tooltip below the cell for top two rows (Sun, Mon) to prevent top clipping
                             const yAlign = rowIndex < 2 
                                 ? 'top-full mt-2' 
                                 : 'bottom-full mb-2';
 
+                            // Check if this cell is the start of a month for the mobile view
+                            const isFirstOfMonth = !isWrongYear && date.getDate() === 1;
+
                             return (
-                                <div
-                                    key={i}
-                                    className={`w-2.5 h-2.5 rounded-sm border-[0.5px] ${cellClass} transition-all duration-300 relative group cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : (isFuture ? 'opacity-20 cursor-not-allowed' : '')}`}
-                                >
-                                    {!isWrongYear && (
-                                        <div className={`absolute ${yAlign} ${xAlign} px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap font-black shadow-xl border border-slate-700 dark:border-slate-200 ring-4 ring-black/5 dark:ring-white/5`}>
-                                            <div className="flex flex-col items-center gap-0.5">
-                                                <span>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                                                {!isWrongYear && !isFuture && (
-                                                    <span className={`${isPartnerView ? 'text-slate-500 font-bold' : 'text-primary font-bold'}`}>
-                                                        {statusText}
-                                                    </span>
-                                                )}
-                                                {isFuture && <span className="text-slate-400 italic">Future</span>}
-                                            </div>
+                                <React.Fragment key={i}>
+                                    {/* Month Marker for Mobile Portrait View */}
+                                    {isFirstOfMonth && (
+                                        <div className="col-span-7 py-2 mt-2 border-t border-slate-50 dark:border-slate-800/50 md:hidden">
+                                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">{date.toLocaleDateString('en-US', { month: 'long' })}</span>
                                         </div>
                                     )}
-                                </div>
+                                    <div
+                                        className={`w-full aspect-square md:w-2.5 md:h-2.5 rounded-sm border-[0.5px] ${cellClass} transition-all duration-300 relative group cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : (isFuture ? 'opacity-20 cursor-not-allowed' : '')}`}
+                                    >
+                                        {!isWrongYear && (
+                                            <div className={`absolute ${yAlign} ${xAlign} px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap font-black shadow-xl border border-slate-700 dark:border-slate-200 ring-4 ring-black/5 dark:ring-white/5`}>
+                                                <div className="flex flex-col items-center gap-0.5">
+                                                    <span>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                                    {!isWrongYear && !isFuture && (
+                                                        <span className={`${isPartnerView ? 'text-slate-500 font-bold' : 'text-primary font-bold'}`}>
+                                                            {statusText}
+                                                        </span>
+                                                    )}
+                                                    {isFuture && <span className="text-slate-400 italic">Future</span>}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </React.Fragment>
                             );
                         })}
                     </div>

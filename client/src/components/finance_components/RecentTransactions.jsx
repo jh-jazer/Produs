@@ -2,10 +2,17 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import api from '../../services/api';
 
-const RecentTransactions = ({ transactions, currencySymbol, onAction }) => {
+const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onAction }) => {
     const [showAdd, setShowAdd] = useState(false);
     const [loading, setLoading] = useState(false);
     const [newTx, setNewTx] = useState({ title: '', amount: '', type: 'expense', category: 'General', date: new Date().toISOString().split('T')[0] });
+
+    // Deduplicate and prepare categories from budgets
+    const budgetCategories = budgets.map(b => b.category);
+    const availableCategories = budgetCategories.length > 0 ? budgetCategories : ['General', 'Food', 'Transport', 'Utilities', 'Entertainment', 'Other'];
+    
+    // Ensure "General" or current category is included if not in budgets
+    if (!availableCategories.includes('General')) availableCategories.push('General');
 
     const handleAdd = async (e) => {
         e.preventDefault();
@@ -108,11 +115,14 @@ const RecentTransactions = ({ transactions, currencySymbol, onAction }) => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
-                                    <input
-                                        type="text" placeholder="General"
-                                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    <select
+                                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none"
                                         value={newTx.category} onChange={e => setNewTx({ ...newTx, category: e.target.value })}
-                                    />
+                                    >
+                                        {availableCategories.sort().map(cat => (
+                                            <option key={cat} value={cat}>{cat}</option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date</label>

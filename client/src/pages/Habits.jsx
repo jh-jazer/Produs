@@ -10,6 +10,7 @@ import TopStreaks from '../components/habit_components/TopStreaks';
 import HabitChallenge from '../components/habit_components/HabitChallenge';
 import HabitInsights from '../components/habit_components/HabitInsights';
 import CategoryOverview from '../components/habit_components/CategoryOverview';
+import MobileTabNav from '../components/ui/MobileTabNav';
 
 
 
@@ -20,6 +21,13 @@ function Habits() {
     const [viewMode, setViewMode] = useState('me'); // 'me' or 'partner'
     const [activeDate, setActiveDate] = useState(new Date()); // Default to current date
     const [currentFilter, setCurrentFilter] = useState('All');
+    const [activeTab, setActiveTab] = useState('tracker');
+
+    const tabs = [
+        { id: 'tracker', label: 'Tracker', icon: 'check_circle' },
+        { id: 'consistency', label: 'Consistency', icon: 'calendar_month' },
+        { id: 'challenges', label: 'Challenges', icon: 'emoji_events' },
+    ];
 
     // Fetch habits using SWR
     const { data: fetchedHabits, error, isLoading, mutate } = useSWR(viewMode === 'partner' ? '/habits?view=partner' : '/habits');
@@ -92,8 +100,8 @@ function Habits() {
     return (
         <div className="w-full max-w-[1200px] flex flex-col gap-2 animate-in fade-in duration-700 pb-8">
             
-            {/* Header - Always at top */}
-            <div className="flex flex-col gap-1 px-1 pt-8 pb-6 mb-6 border-b border-slate-100 dark:border-slate-800/50">
+            {/* Header - Hidden on Mobile */}
+            <div className="hidden md:flex flex-col gap-1 px-1 pt-8 pb-6 mb-6 border-b border-slate-100 dark:border-slate-800/50">
                 <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">
                     {viewMode === 'partner' ? 'Team View' : 'Build Better Habits'}
                 </h1>
@@ -105,13 +113,16 @@ function Habits() {
                 </p>
             </div>
 
+            {/* Mobile Navigation */}
+            <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                {/* Main Column (8 units): Habit Tracker & Consistency - First on Mobile */}
-                <div className="lg:col-span-8 flex flex-col gap-6 order-1 lg:order-2">
+                {/* Main Column (8 units): Habit Tracker & Consistency */}
+                <div className="lg:col-span-8 flex flex-col gap-6 order-1">
                     
                     {/* View Toggle - Mobile only (Top of Tracker) */}
-                    {user?.partner && (
+                    {user?.partner && activeTab === 'tracker' && (
                         <div className="lg:hidden bg-slate-50 dark:bg-slate-800/50 p-1 rounded-xl flex relative z-20">
                             <button
                                 onClick={() => setViewMode('me')}
@@ -129,38 +140,37 @@ function Habits() {
                     )}
 
                     {/* Habit Tracker Component */}
-                    <HabitTracker
-                        activeDate={activeDate}
-                        onDateChange={changeWeek}
-                        currentFilter={currentFilter}
-                        onFilterChange={setCurrentFilter}
-                        habits={habits}
-                        myHabits={myHabits}
-                        partnerHabits={partnerHabits}
-                        checks={checks}
-                        mutateHabits={mutate}
-                        isPartnerView={viewMode === 'partner'}
-                        partnerName={user?.partner?.name}
-                        isLoading={isLoading}
-                        error={error}
-                    />
-
-                    {/* Mobile Only: Streaks and Challenges interleaved */}
-                    <div className="lg:hidden flex flex-col gap-6">
-                        <TopStreaks habits={habits} isTeamView={viewMode === 'partner'} />
-                        <HabitChallenge />
+                    <div className={activeTab === 'tracker' ? 'block' : 'hidden lg:block'}>
+                        <HabitTracker
+                            activeDate={activeDate}
+                            onDateChange={changeWeek}
+                            currentFilter={currentFilter}
+                            onFilterChange={setCurrentFilter}
+                            habits={habits}
+                            myHabits={myHabits}
+                            partnerHabits={partnerHabits}
+                            checks={checks}
+                            mutateHabits={mutate}
+                            isPartnerView={viewMode === 'partner'}
+                            partnerName={user?.partner?.name}
+                            isLoading={isLoading}
+                            error={error}
+                        />
                     </div>
 
-                    <ConsistencyGrid
-                        checks={checks}
-                        isPartnerView={viewMode === 'partner'}
-                        myUserId={user?._id}
-                        partnerUserId={user?.partner?._id}
-                    />
+                    {/* Consistency Grid */}
+                    <div className={activeTab === 'consistency' ? 'block' : 'hidden lg:block'}>
+                        <ConsistencyGrid
+                            checks={checks}
+                            isPartnerView={viewMode === 'partner'}
+                            myUserId={user?._id}
+                            partnerUserId={user?.partner?._id}
+                        />
+                    </div>
                 </div>
 
-                {/* Secondary Column (4 units): Streaks & Challenges - Second on Mobile */}
-                <div className="lg:col-span-4 flex flex-col gap-6 order-2 lg:order-1">
+                {/* Secondary Column (4 units): Streaks & Challenges */}
+                <div className={`lg:col-span-4 flex flex-col gap-6 order-2 ${activeTab !== 'challenges' && 'hidden lg:flex'}`}>
                     {/* View Toggle - Desktop only */}
                     {user?.partner && (
                         <div className="hidden lg:flex bg-slate-50 dark:bg-slate-800/50 p-1 rounded-xl">
@@ -179,8 +189,7 @@ function Habits() {
                         </div>
                     )}
 
-                    {/* Desktop Only: Streaks and Challenges in sidebar */}
-                    <div className="hidden lg:flex flex-col gap-6">
+                    <div className="flex flex-col gap-6">
                         <TopStreaks habits={habits} isTeamView={viewMode === 'partner'} />
                         <HabitChallenge />
                     </div>

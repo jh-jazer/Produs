@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import api from '../services/api';
 import Avatar from '../components/ui/Avatar';
 import AvatarEditor from '../components/ui/AvatarEditor';
 
 function Profile() {
+    const navigate = useNavigate();
     const { user, updateSettings, setCredentials } = useAuthStore();
     const [topHabits, setTopHabits] = useState([]);
     const [currentTasks, setCurrentTasks] = useState([]);
@@ -356,6 +358,15 @@ function Profile() {
                                             <span className="absolute -top-1 -right-1 size-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-[#192233] animate-pulse" />
                                         )}
                                     </button>
+                                    {user?.email === 'ernestodesabillejr@gmail.com' && (
+                                        <button
+                                            onClick={() => navigate('/dashboard/admin')}
+                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm font-bold text-sm hover:bg-blue-700 transition-colors w-full sm:w-auto"
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                                            Manage System
+                                        </button>
+                                    )}
                                     <button
                                         onClick={() => setIsEditing(true)}
                                         className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-lg shadow-sm font-bold text-sm hover:opacity-90 transition-opacity w-full sm:w-auto"

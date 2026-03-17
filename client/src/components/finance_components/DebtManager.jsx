@@ -5,6 +5,7 @@ import api from '../../services/api';
 
 const DebtManager = ({ debts, currencySymbol, onAction }) => {
     const [showAdd, setShowAdd] = useState(false);
+    const [summaryView, setSummaryView] = useState('overall'); // 'overall' or specific month string
     const [showPayModal, setShowPayModal] = useState(null); // stores debt object
     const [payAmount, setPayAmount] = useState('');
     const [newDebt, setNewDebt] = useState({ 
@@ -91,6 +92,104 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                     <span className="material-symbols-outlined text-xl">add_circle</span>
                 </button>
             </div>
+            {/* Summary Totals */}
+            {debts.length > 0 && (() => {
+                // Calculate Monthly Statistics including Recurring items
+                const monthlyStats = debts.reduce((acc, debt) => {
+                    if (!debt.dueDate) return acc;
+                    const startDate = new Date(debt.dueDate);
+                    const iterations = debt.isMonthly ? (parseInt(debt.monthsLeft) || 1) : 1;
+
+                    for (let i = 0; i < iterations; i++) {
+                        const date = new Date(startDate);
+                        date.setMonth(startDate.getMonth() + i);
+                        const m = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+                        
+                        if (!acc[m]) acc[m] = { income: 0, debt: 0 };
+                        if (debt.nature === 'income') {
+                            acc[m].income += debt.amount;
+                        } else {
+                            acc[m].debt += debt.amount;
+                        }
+                    }
+                    return acc;
+                }, {});
+
+                const availableMonths = Object.keys(monthlyStats).sort((a, b) => {
+                    const dateA = new Date(a);
+                    const dateB = new Date(b);
+                    return dateA - dateB;
+                });
+
+                let displayIncome = 0;
+                let displayDebt = 0;
+
+                if (summaryView === 'overall') {
+                    // Overall total now includes all recurring installments
+                    debts.forEach(d => {
+                        const iterations = d.isMonthly ? (parseInt(d.monthsLeft) || 1) : 1;
+                        const totalAmount = d.amount * iterations;
+                        if (d.nature === 'income') {
+                            displayIncome += totalAmount;
+                        } else {
+                            displayDebt += totalAmount;
+                        }
+                    });
+                } else {
+                    const stats = monthlyStats[summaryView] || { income: 0, debt: 0 };
+                    displayIncome = stats.income;
+                    displayDebt = stats.debt;
+                }
+                const displayNet = displayIncome - displayDebt;
+
+                return (
+                <div className="mb-6 p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20 flex flex-col gap-3">
+                    <div className="flex items-center justify-between mb-1">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Report View</p>
+                        <select 
+                            value={summaryView}
+                            onChange={(e) => setSummaryView(e.target.value)}
+                            className="text-[10px] font-black uppercase bg-white dark:bg-slate-800 border-none rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary shadow-sm cursor-pointer dark:text-slate-300"
+                        >
+                            <option value="overall">Overall Total</option>
+                            {availableMonths.map(m => (
+                                <option key={m} value={m}>{m} Report</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        <span className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            Incoming
+                        </span>
+                        <span className="text-emerald-500">+{currencySymbol}{displayIncome.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        <span className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                            Outbound
+                        </span>
+                        <span className="text-rose-500">-{currencySymbol}{displayDebt.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center mt-1 bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-800/50 shadow-sm transition-all">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Net Flow</span>
+                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
+                                {summaryView === 'overall' ? 'Available Balance' : `${summaryView} Outlook`}
+                            </span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                            <span className={`text-lg font-black tracking-tight ${
+                                displayNet >= 0 ? 'text-emerald-500' : 'text-rose-500'
+                            }`}>
+                                {displayNet >= 0 ? '+' : '-'}{currencySymbol}{Math.abs(displayNet).toLocaleString()}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                );
+            })()}
 
             <div className="space-y-4 flex-1">
                 {sortedDebts.length === 0 ? (
@@ -128,23 +227,20 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                                     {isIncome ? 'Expected' : 'Due'}: {new Date(debt.dueDate).toLocaleDateString('default', { month: 'short', day: 'numeric' })}
                                                 </span>
                                             )}
-                                            {debt.isMonthly && (
-                                                <span className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1 px-1.5 py-0.5 rounded transition-colors ${
-                                                    isIncome ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'
-                                                }`}>
-                                                    <span className="material-symbols-outlined text-[10px]">sync</span>
-                                                    Monthly {debt.monthsLeft ? `• ${debt.monthsLeft} left` : ''}
-                                                </span>
-                                            )}
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end">
                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
                                             {isIncome ? 'Incoming' : 'Outbound'}
                                         </p>
-                                        <span className={`text-base font-black ${isIncome ? 'text-emerald-500' : 'text-slate-900 dark:text-white'}`}>
-                                            {isIncome ? '+' : ''}{currencySymbol}{debt.amount.toLocaleString()}
+                                        <span className={`text-base font-black ${isIncome ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                            {isIncome ? '+' : '-'}{currencySymbol}{debt.amount.toLocaleString()}
                                         </span>
+                                        {debt.isMonthly && (
+                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">
+                                                Monthly • {debt.monthsLeft || '0'} left
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                                 
@@ -164,6 +260,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                     })
                 )}
             </div>
+
 
             {/* Add Record Modal */}
             {showAdd && createPortal(

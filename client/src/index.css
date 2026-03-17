@@ -2,17 +2,27 @@
 
 
 @theme {
-  --font-display: "Manrope", sans-serif;
+  --font-display: "Inter", "Manrope", sans-serif;
   --font-ubuntu: "Ubuntu", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 
-  --color-primary: var(--primary, #135bec);
+  --color-primary: #0066FF;
+  --color-deep-space: #000000;
+  --color-obsidian: #121212;
+  --color-electric-blue: #0066FF;
+  --color-titanium-white: #FFFFFF;
+  --color-muted-slate: #888888;
+  --color-signal-orange: #FF4D00;
+  --color-neon-emerald: #00FF88;
+  --color-dark-amethyst: #A855F7;
+
   --color-background-light: #f6f6f8;
-  --color-background-dark: #0d1117;
+  --color-background-dark: #000000;
 
-  --color-habit-health: #10b981;
-  --color-habit-mindset: #8b5cf6;
-  --color-habit-focus: #f59e0b;
-  --color-habit-social: #ec4899;
+  --color-habit-health: #00FF88;
+  --color-habit-mindset: #A855F7;
+  --color-habit-focus: #0066FF;
+  --color-habit-social: #FF4D00;
 }
 
 @variant dark (&:where(.dark, .dark *));
@@ -81,6 +91,13 @@ body {
 
   .mood-heat-cell {
     @apply w-3 h-3 rounded-sm transition-colors duration-200;
+  }
+
+  .bg-grid {
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   }
 
   .glow-active {

@@ -5,18 +5,26 @@ import FullCalendar from '../components/planner_components/FullCalendar';
 import GoalSetter from '../components/planner_components/GoalSetter';
 import useAuthStore from '../store/useAuthStore';
 import { motion } from 'framer-motion';
+import MobileTabNav from '../components/ui/MobileTabNav';
 
 function Planner() {
     const { user } = useAuthStore();
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [viewMode, setViewMode] = useState('me');
     const [isFlipped, setIsFlipped] = useState(false);
+    const [activeTab, setActiveTab] = useState('schedule');
+
+    const tabs = [
+        { id: 'schedule', label: 'Schedule', icon: 'event_note' },
+        { id: 'calendar', label: 'Calendar', icon: 'calendar_month' },
+        { id: 'goals', label: 'Goals', icon: 'flag' },
+    ];
 
     return (
         <div className="w-full max-w-[1200px] flex flex-col gap-2 animate-in fade-in duration-700 pb-8">
             
-            {/* Header - Always at top */}
-            <div className="flex flex-col gap-1 px-1 pt-8 pb-6 mb-6 border-b border-slate-100 dark:border-slate-800/50">
+            {/* Header - Hidden on Mobile */}
+            <div className="hidden md:flex flex-col gap-1 px-1 pt-8 pb-6 mb-6 border-b border-slate-100 dark:border-slate-800/50">
                 <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">
                     {viewMode === 'partner' ? `${user?.partner?.name}'s Planner` : "What's the Plan?"}
                 </h1>
@@ -25,10 +33,13 @@ function Planner() {
                 </p>
             </div>
 
+            {/* Mobile Navigation */}
+            <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                {/* Main Column (Interleaved for Mobile) */}
-                <div className="lg:col-span-4 flex flex-col gap-6 order-1">
+                {/* Main Column */}
+                <div className={`lg:col-span-4 flex flex-col gap-6 order-1 ${activeTab !== 'schedule' && activeTab !== 'calendar' && activeTab !== 'goals' && 'hidden lg:flex'}`}>
                     
                     {/* Partner Toggle */}
                     {user?.partner && (
@@ -48,13 +59,13 @@ function Planner() {
                         </div>
                     )}
 
-                    {/* Mobile Only: Calendar at top of list */}
-                    <div className="lg:hidden">
+                    {/* Mobile Only: Calendar */}
+                    <div className={activeTab === 'calendar' ? 'block' : 'hidden lg:hidden'}>
                         <FullCalendar onDateSelect={setSelectedDate} selectedDate={selectedDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
                     </div>
 
-                    {/* Priority / Daily Schedule (Always here) */}
-                    <div className="relative w-full" style={{ perspective: '2000px' }}>
+                    {/* Priority / Daily Schedule (Schedule Tab) */}
+                    <div className={`relative w-full ${activeTab === 'schedule' ? 'block' : 'hidden lg:block'}`} style={{ perspective: '2000px' }}>
                         <motion.div
                             animate={{ rotateY: isFlipped ? 180 : 0 }}
                             transition={{ duration: 0.7, type: 'spring', stiffness: 100, damping: 20 }}
@@ -93,8 +104,8 @@ function Planner() {
                         </motion.div>
                     </div>
 
-                    {/* Mobile Only: Goal Setter above Consistency or bottom */}
-                    <div className="lg:hidden">
+                    {/* Mobile Only: Goal Setter */}
+                    <div className={activeTab === 'goals' ? 'block' : 'hidden'}>
                         <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
                     </div>
                 </div>

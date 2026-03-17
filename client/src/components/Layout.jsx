@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import api from '../services/api';
@@ -9,6 +9,7 @@ import SettingsModal from './ui/SettingsModal';
 import OnboardingModal from './ui/OnboardingModal';
 import Avatar from './ui/Avatar';
 import UserSearch from './ui/UserSearch';
+import BugReportModal from './ui/BugReportModal';
 
 function Layout() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -17,6 +18,7 @@ function Layout() {
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+    const [isBugModalOpen, setIsBugModalOpen] = useState(false);
 
     const { user, logout, syncUser } = useAuthStore();
 
@@ -58,7 +60,19 @@ function Layout() {
     });
 
     const navigate = useNavigate();
+    const location = useLocation();
     const profileRef = useRef(null);
+
+    const getPageTitle = () => {
+        const path = location.pathname;
+        if (path === '/dashboard') return 'Overview';
+        if (path.includes('/habits')) return 'Habits';
+        if (path.includes('/planner')) return 'Planner';
+        if (path.includes('/finance')) return 'Finance';
+        if (path.includes('/journal')) return 'Journal';
+        if (path.includes('/admin')) return 'Admin';
+        return 'Produs';
+    };
 
     useSWR('/auth/me', {
         refreshInterval: 15000,
@@ -148,7 +162,9 @@ function Layout() {
                         </button>
 
                         <div className="flex items-center gap-4">
-                            <span className="sm:hidden font-ubuntu text-xl font-bold tracking-tight text-slate-900 dark:text-white">Produs</span>
+                            <span className="sm:hidden font-ubuntu text-xl font-black tracking-tight text-slate-900 dark:text-white transition-all">
+                                {getPageTitle()}
+                            </span>
                             <div className="hidden sm:flex items-center gap-3">
                                 <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-sm ring-1 ring-slate-900/10">
                                     <img src="/produs-logo.png" alt="Produs Logo" className="w-full h-full object-cover" />
@@ -202,6 +218,14 @@ function Layout() {
                                         className="absolute right-0 mt-3 w-48 bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50 overflow-hidden"
                                     >
                                         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1 font-bold text-xs text-slate-400 uppercase tracking-widest">Account</div>
+                                        {user?.email === 'ernestodesabillejr@gmail.com' && (
+                                            <button 
+                                                onClick={() => { navigate('/dashboard/admin'); setIsProfileOpen(false); }} 
+                                                className="w-full px-4 py-2.5 text-left text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-3 transition-colors"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">admin_panel_settings</span> Manage
+                                            </button>
+                                        )}
                                         <button onClick={() => { navigate('/dashboard/profile'); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors">
                                             <span className="material-symbols-outlined text-lg">dashboard</span> Profile
                                         </button>
@@ -211,6 +235,9 @@ function Layout() {
                                         </button>
                                         <button onClick={() => { setIsSettingsModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors">
                                             <span className="material-symbols-outlined text-lg">settings</span> Settings
+                                        </button>
+                                        <button onClick={() => { setIsBugModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-rose-500/80 hover:bg-rose-50 dark:hover:bg-rose-900/10 flex items-center gap-3 transition-colors">
+                                            <span className="material-symbols-outlined text-lg">bug_report</span> Report Bug
                                         </button>
                                         <div className="h-px bg-slate-100 dark:border-slate-800 my-1 mx-2"></div>
                                         <button onClick={handleSignOut} className="w-full px-4 py-2.5 text-left text-sm font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 flex items-center gap-3 transition-colors">
@@ -318,6 +345,7 @@ function Layout() {
 
                 <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} user={user} />
                 <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} />
+                <BugReportModal isOpen={isBugModalOpen} onClose={() => setIsBugModalOpen(false)} />
                 <OnboardingModal isOpen={!!user && !user.onboardingCompleted} />
             </div>
         </motion.div>

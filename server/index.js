@@ -20,6 +20,8 @@ import feedRoutes from './src/routes/feedRoutes.js';
 import challengesRoutes from './src/routes/challengesRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
 import journalRoutes from './src/routes/journalRoutes.js';
+import adminRoutes from './src/routes/adminRoutes.js';
+import bugRoutes from './src/routes/bugRoutes.js';
 
 // Connect to Database
 connectDB();
@@ -62,6 +64,8 @@ app.use('/api/feed', feedRoutes);
 app.use('/api/challenges', challengesRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/journal', journalRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/bugs', bugRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

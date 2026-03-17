@@ -133,7 +133,7 @@ function HabitTracker() {
                         <div className="w-1/3 min-w-[150px] font-bold text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Habit</div>
                         <div className="flex-1 flex justify-between items-center text-xs font-semibold text-slate-400 dark:text-slate-500">
                             {[24, 25, 26, 27, 28, 29, 30].map((d, i) => (
-                                <span key={d} className={`w-8 text-center ${i === 1 ? 'text-primary' : ''}`}>{d}</span>
+                                <span key={d} className={`w-8 h-8 flex items-center justify-center text-center ${i === 1 ? 'text-primary' : ''}`}>{d}</span>
                             ))}
                         </div>
                         {editMode && <div className="w-16"></div>}
