@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
@@ -9,7 +9,8 @@ import {
   ArrowRight,
   ShieldCheck,
   Cpu,
-  Globe
+  Globe,
+  Download
 } from "lucide-react";
 
 const fadeInUp = {
@@ -27,6 +28,27 @@ const stagger = {
 };
 
 export default function Landing() {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-deep-space text-titanium-white font-display overflow-x-hidden">
       {/* Background Grid */}
@@ -52,6 +74,14 @@ export default function Landing() {
           </div>
 
           <div className="flex items-center gap-4">
+            {deferredPrompt && (
+              <button 
+                onClick={handleInstallClick} 
+                className="hidden sm:flex items-center gap-2 text-sm font-semibold text-titanium-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors backdrop-blur-sm border border-white/10"
+              >
+                <Download size={16} /> Install App
+              </button>
+            )}
             <Link to="/auth" className="text-sm font-semibold hover:text-electric-blue transition-colors">
               Sign In
             </Link>
@@ -86,9 +116,15 @@ export default function Landing() {
             <Link to="/auth" className="px-10 py-4 bg-electric-blue text-white rounded-full font-bold flex items-center justify-center gap-2 transition-all shadow-[0_0_30px_rgba(0,102,255,0.4)] hover:bg-[#0052cc] hover:-translate-y-1">
               Begin Selection <ArrowRight size={18} />
             </Link>
-            <button className="px-10 py-4 border border-white/10 hover:border-white/30 text-titanium-white rounded-full font-bold transition-all backdrop-blur-sm">
-              Watch System Overview
-            </button>
+            {deferredPrompt ? (
+              <button onClick={handleInstallClick} className="px-10 py-4 flex items-center justify-center gap-2 border border-white/10 hover:border-white/30 text-titanium-white rounded-full font-bold transition-all backdrop-blur-sm">
+                <Download size={18} /> Install Web App
+              </button>
+            ) : (
+              <button className="px-10 py-4 border border-white/10 hover:border-white/30 text-titanium-white rounded-full font-bold transition-all backdrop-blur-sm">
+                Watch System Overview
+              </button>
+            )}
           </motion.div>
 
           {/* Hero Image Container */}
