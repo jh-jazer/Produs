@@ -10,14 +10,17 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['produs-logo.png'],
+      includeAssets: ['produs-logo.png', 'favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'Produs',
+        name: 'Produs Productivity',
         short_name: 'Produs',
-        description: 'Produs - The Minimalist Productivity Tool',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
+        description: 'The minimalist, high-contrast productivity tool for focused work.',
+        theme_color: '#0f172a',
+        background_color: '#0f172a',
         display: 'standalone',
+        orientation: 'portrait',
+        scope: '/',
+        start_url: '/',
         icons: [
           {
             src: 'produs-logo.png',
@@ -34,6 +37,19 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
+          }
+        ],
+        categories: ['productivity', 'utilities'],
+        shortcuts: [
+          {
+            name: 'Habits',
+            url: '/dashboard/habits',
+            icons: [{ src: 'produs-logo.png', sizes: '192x192' }]
+          },
+          {
+            name: 'Planner',
+            url: '/dashboard/planner',
+            icons: [{ src: 'produs-logo.png', sizes: '192x192' }]
           }
         ]
       }
