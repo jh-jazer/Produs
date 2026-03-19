@@ -265,6 +265,23 @@ export const cancelConnectionRequest = async (req, res) => {
     }
 };
 
+// @desc    Disconnect from a user
+// @route   POST /api/auth/connection/disconnect/:id
+// @access  Private
+export const disconnectConnection = async (req, res) => {
+    try {
+        const targetUserId = req.params.id;
+        const requesterId = req.user.id;
+
+        await User.findByIdAndUpdate(requesterId, { $pull: { connections: targetUserId }});
+        await User.findByIdAndUpdate(targetUserId, { $pull: { connections: requesterId }});
+
+        res.json({ message: "Disconnected successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Search public users by name or username
 // @route   GET /api/auth/search?q=query
 // @access  Private

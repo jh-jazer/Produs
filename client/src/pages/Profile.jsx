@@ -798,6 +798,19 @@ function Profile() {
                                                     <button onClick={() => { setProfileModalUser(u.username); setIsConnectionsModalOpen(false); }} className="size-9 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all active:scale-95" title="View Profile">
                                                         <span className="material-symbols-outlined text-[18px]">person</span>
                                                     </button>
+                                                    {user?.partner?._id !== u._id && (
+                                                        <button
+                                                            onClick={() => {
+                                                                if(window.confirm(`Disconnect from ${u.name}?`)) {
+                                                                    handleConnectionAction('disconnect', u._id);
+                                                                }
+                                                            }}
+                                                            className="size-9 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-rose-500 transition-all active:scale-95"
+                                                            title="Disconnect"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[18px]">link_off</span>
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
                                         )) : (
