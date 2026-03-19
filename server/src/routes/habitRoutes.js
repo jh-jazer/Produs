@@ -1,8 +1,10 @@
 import express from 'express';
-import { getHabits, createHabit, toggleCheck, deleteHabit, updateHabit } from '../controllers/habitController.js';
+import { getHabits, createHabit, toggleCheck, deleteHabit, updateHabit, reorderHabits } from '../controllers/habitController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+router.put('/reorder', protect, reorderHabits);
 
 router.route('/')
     .get(protect, getHabits)

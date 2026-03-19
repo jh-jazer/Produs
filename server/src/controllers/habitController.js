@@ -15,13 +15,14 @@ export const getHabits = async (req, res) => {
             }
 
             // Return habits for both self and partner
+            // Return habits for both self and partner
             const habits = await Habit.find({
                 user: { $in: [req.user._id, currentUser.partner] }
-            });
+            }).sort({ order: 1, createdAt: 1 });
             return res.json(habits);
         }
 
-        const habits = await Habit.find({ user: targetUserId });
+        const habits = await Habit.find({ user: targetUserId }).sort({ order: 1, createdAt: 1 });
         res.json(habits);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -168,6 +169,34 @@ export const deleteHabit = async (req, res) => {
         } else {
             res.status(404).json({ message: 'Habit not found' });
         }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Reorder habits manually using drag and drop
+// @route   PUT /api/habits/reorder
+// @access  Private
+export const reorderHabits = async (req, res) => {
+    try {
+        const { habitIds } = req.body;
+        
+        if (!Array.isArray(habitIds)) {
+            return res.status(400).json({ message: 'Invalid data format' });
+        }
+
+        const bulkOps = habitIds.map((id, index) => ({
+            updateOne: {
+                filter: { _id: id, user: req.user._id },
+                update: { $set: { order: index } }
+            }
+        }));
+
+        if (bulkOps.length > 0) {
+            await Habit.bulkWrite(bulkOps);
+        }
+
+        res.json({ message: 'Habits reordered successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

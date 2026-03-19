@@ -4,7 +4,7 @@ import api from '../../services/api';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
-const TopStreaks = ({ habits, isTeamView = false }) => {
+const TopStreaks = ({ habits, isSharedView = false }) => {
     const { data: fetchedHabits, isLoading } = useSWR(habits ? null : '/habits', fetcher);
 
     const activeHabits = habits || fetchedHabits || [];
@@ -44,24 +44,24 @@ const TopStreaks = ({ habits, isTeamView = false }) => {
         .sort((a, b) => b.streak - a.streak)
         .slice(0, 3);
 
-    // Identify team streaks (shared habits)
-    const teamStreaks = activeHabits
+    // Identify shared streaks (previously team)
+    const sharedStreaks = activeHabits
         .filter(h => h.isShared && h.streak > 0)
         .sort((a, b) => b.streak - a.streak);
         
-    // Unique shared habits for team streaks (backend returns parts)
-    const uniqueTeamStreaks = [];
+    // Unique shared habits for user streaks
+    const uniqueSharedStreaks = [];
     const seenGids = new Set();
-    teamStreaks.forEach(s => {
+    sharedStreaks.forEach(s => {
         if (s.sharedGroupId && !seenGids.has(s.sharedGroupId)) {
-            uniqueTeamStreaks.push(s);
+            uniqueSharedStreaks.push(s);
             seenGids.add(s.sharedGroupId);
         } else if (!s.sharedGroupId) {
-            uniqueTeamStreaks.push(s);
+            uniqueSharedStreaks.push(s);
         }
     });
 
-    const StreakItem = ({ streak, index, isPartner = false, isTeam = false }) => {
+    const StreakItem = ({ streak, index, isPartner = false, isShared = false }) => {
         const target = streak.streak <= 7 ? 7 : streak.streak <= 14 ? 14 : streak.streak <= 30 ? 30 : streak.streak + 7;
         const progress = Math.min((streak.streak / target) * 100, 100);
 
@@ -72,8 +72,8 @@ const TopStreaks = ({ habits, isTeamView = false }) => {
                         <div className={`size-8 rounded-xl flex items-center justify-center border ${colorVariants[streak.color] || colorVariants.emerald}`}>
                             <span className="material-symbols-outlined text-base">{streak.icon}</span>
                         </div>
-                        <div className={`absolute -top-1 -right-1 ${isTeam ? 'bg-emerald-500' : isPartner ? 'bg-purple-500' : 'bg-slate-900 dark:bg-white'} text-[7px] text-white dark:text-slate-900 px-1 py-0.5 rounded-md font-black shadow-sm ring-1 ring-white dark:ring-[#192233]`}>
-                            {isTeam ? 'TEAM' : `#${index + 1}`}
+                        <div className={`absolute -top-1 -right-1 ${isShared ? 'bg-emerald-500' : isPartner ? 'bg-purple-500' : 'bg-slate-900 dark:bg-white'} text-[7px] text-white dark:text-slate-900 px-1 py-0.5 rounded-md font-black shadow-sm ring-1 ring-white dark:ring-[#192233]`}>
+                            {isShared ? 'SHARED' : `#${index + 1}`}
                         </div>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -86,7 +86,7 @@ const TopStreaks = ({ habits, isTeamView = false }) => {
                         </div>
                         <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1 overflow-hidden">
                             <div
-                                className={`h-full rounded-full ${isTeam ? 'bg-emerald-500' : isPartner ? 'bg-purple-500' : 'bg-primary'}`}
+                                className={`h-full rounded-full ${isShared ? 'bg-emerald-500' : isPartner ? 'bg-purple-500' : 'bg-primary'}`}
                                 style={{ width: `${progress}%` }}
                             ></div>
                         </div>
@@ -104,23 +104,23 @@ const TopStreaks = ({ habits, isTeamView = false }) => {
                 <div className="flex justify-between items-center mb-6">
                     <div>
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-none">
-                            {isTeamView ? 'Team Top Streaks' : 'Top Streaks'}
+                            {isSharedView ? 'Shared Top Streaks' : 'Top Streaks'}
                         </h3>
                         <p className="text-[10px] uppercase font-bold text-slate-400 mt-1 tracking-widest">
-                            {isTeamView ? 'Team Habits Only' : 'Consistency Leaders'}
+                            {isSharedView ? 'Shared Habits Only' : 'Consistency Leaders'}
                         </p>
                     </div>
                     <span className="material-symbols-outlined text-amber-500 text-xl">workspace_premium</span>
                 </div>
 
                 <div className="space-y-6">
-                    {isTeamView ? (
+                    {isSharedView ? (
                         <div className="space-y-3">
-                            {uniqueTeamStreaks.length > 0 ? (
-                                uniqueTeamStreaks.slice(0, 5).map((s, i) => <StreakItem key={s._id} streak={s} index={i} isTeam={true} />)
+                            {uniqueSharedStreaks.length > 0 ? (
+                                uniqueSharedStreaks.slice(0, 5).map((s, i) => <StreakItem key={s._id} streak={s} index={i} isShared={true} />)
                             ) : (
                                 <div className="flex flex-col items-center justify-center py-6 text-center">
-                                    <h4 className="text-[11px] font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tight">No team streaks yet!</h4>
+                                    <h4 className="text-[11px] font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tight">No shared streaks yet!</h4>
                                     <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium max-w-[150px] leading-tight">Start a shared habit together! 🔥</p>
                                 </div>
                             )}
@@ -132,7 +132,7 @@ const TopStreaks = ({ habits, isTeamView = false }) => {
                                 .sort((a, b) => b.streak - a.streak)
                                 .slice(0, 5)
                                 .map((s, i) => (
-                                    <StreakItem key={s._id} streak={s} index={i} isTeam={s.isShared} />
+                                    <StreakItem key={s._id} streak={s} index={i} isShared={s.isShared} />
                                 ))}
                             {activeHabits.filter(h => h.streak > 0).length === 0 && (
                                 <div className="flex flex-col items-center justify-center py-6 text-center">

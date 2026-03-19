@@ -2,6 +2,9 @@ import User from '../models/User.js';
 import Habit from '../models/Habit.js';
 import generateToken from '../utils/generateToken.js';
 import Joi from 'joi';
+import mongoose from 'mongoose';
+import Task from '../models/Task.js';
+import Wishlist from '../models/Wishlist.js';
 
 const registerSchema = Joi.object({
     name: Joi.string().min(2).max(50).required(),
@@ -108,6 +111,7 @@ export const getMe = async (req, res) => {
             .populate('partner', 'name username email avatar')
             .populate('outgoingPartnerRequest', 'name username email avatar')
             .populate('incomingPartnerRequest', 'name username email avatar');
+        
         if (user) {
             res.json({
                 _id: user.id,
@@ -124,10 +128,138 @@ export const getMe = async (req, res) => {
                 partner: user.partner,
                 outgoingPartnerRequest: user.outgoingPartnerRequest,
                 incomingPartnerRequest: user.incomingPartnerRequest,
+                connections: user.connections || [],
+                outgoingConnectionRequests: user.outgoingConnectionRequests || [],
+                incomingConnectionRequests: user.incomingConnectionRequests || []
             });
         } else {
             res.status(404).json({ message: 'User not found' });
         }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get all connections and requests for the user
+// @route   GET /api/auth/connections
+// @access  Private
+export const getConnections = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id)
+            .populate('connections', 'name username avatar bio settings')
+            .populate('incomingConnectionRequests', 'name username avatar bio settings')
+            .populate('outgoingConnectionRequests', 'name username avatar bio settings');
+        
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        res.json({
+            connections: user.connections || [],
+            incoming: user.incomingConnectionRequests || [],
+            outgoing: user.outgoingConnectionRequests || []
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Send a connection request to a user
+// @route   POST /api/auth/connection/request/:id
+// @access  Private
+export const sendConnectionRequest = async (req, res) => {
+    try {
+        const targetUserId = req.params.id;
+        const senderId = req.user.id;
+
+        if (targetUserId === senderId) {
+            return res.status(400).json({ message: "Cannot connect with yourself" });
+        }
+
+        const targetUser = await User.findById(targetUserId);
+        const sender = await User.findById(senderId);
+
+        if (!targetUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Check if already connected
+        if (sender.connections.includes(targetUserId)) {
+            return res.status(400).json({ message: "Already connected" });
+        }
+
+        // Check if request already exists
+        if (sender.outgoingConnectionRequests.includes(targetUserId)) {
+            return res.status(400).json({ message: "Request already sent" });
+        }
+
+        // Add to request arrays
+        await User.findByIdAndUpdate(senderId, { $addToSet: { outgoingConnectionRequests: targetUserId }});
+        await User.findByIdAndUpdate(targetUserId, { $addToSet: { incomingConnectionRequests: senderId }});
+
+        res.json({ message: "Connection request sent!" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Accept a connection request
+// @route   POST /api/auth/connection/accept/:id
+// @access  Private
+export const acceptConnectionRequest = async (req, res) => {
+    try {
+        const requesterId = req.params.id;
+        const accepterId = req.user.id;
+
+        const accepter = await User.findById(accepterId);
+        if (!accepter.incomingConnectionRequests.includes(requesterId)) {
+            return res.status(400).json({ message: "No request found from this user" });
+        }
+
+        // Move from requests to connections for both users
+        await User.findByIdAndUpdate(accepterId, {
+            $pull: { incomingConnectionRequests: requesterId },
+            $addToSet: { connections: requesterId }
+        });
+
+        await User.findByIdAndUpdate(requesterId, {
+            $pull: { outgoingConnectionRequests: accepterId },
+            $addToSet: { connections: accepterId }
+        });
+
+        res.json({ message: "Connection accepted!" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Reject a connection request
+// @route   POST /api/auth/connection/reject/:id
+// @access  Private
+export const rejectConnectionRequest = async (req, res) => {
+    try {
+        const requesterId = req.params.id;
+        const rejecterId = req.user.id;
+
+        await User.findByIdAndUpdate(rejecterId, { $pull: { incomingConnectionRequests: requesterId }});
+        await User.findByIdAndUpdate(requesterId, { $pull: { outgoingConnectionRequests: rejecterId }});
+
+        res.json({ message: "Connection rejected" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Cancel an outgoing connection request
+// @route   POST /api/auth/connection/cancel/:id
+// @access  Private
+export const cancelConnectionRequest = async (req, res) => {
+    try {
+        const targetUserId = req.params.id;
+        const senderId = req.user.id;
+
+        await User.findByIdAndUpdate(senderId, { $pull: { outgoingConnectionRequests: targetUserId }});
+        await User.findByIdAndUpdate(targetUserId, { $pull: { incomingConnectionRequests: senderId }});
+
+        res.json({ message: "Request canceled" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -143,14 +275,23 @@ export const searchUsers = async (req, res) => {
             return res.json([]);
         }
 
-        const users = await User.find({
+        const isIdSearch = mongoose.isValidObjectId(query);
+        
+        // Match by Name, Username OR ID
+        // Simplified query: Find any user that matches query string OR exact ID, excluding the searcher
+        const searchQuery = {
+            _id: { $ne: req.user.id },
             $or: [
                 { name: { $regex: query, $options: 'i' } },
                 { username: { $regex: query, $options: 'i' } }
-            ],
-            'settings.isPublic': true,
-            _id: { $ne: req.user.id }
-        })
+            ]
+        };
+
+        if (isIdSearch) {
+            searchQuery.$or.push({ _id: query });
+        }
+
+        const users = await User.find(searchQuery)
             .select('name username avatar bio settings')
             .limit(10);
 
@@ -160,28 +301,79 @@ export const searchUsers = async (req, res) => {
     }
 };
 
-// @desc    Get public profile by username
-// @route   GET /api/auth/profile/:username
+// @desc    Get public profile by username or id
+// @route   GET /api/auth/profile/:identifier
 // @access  Public
 export const getPublicProfile = async (req, res) => {
     try {
-        const user = await User.findOne({ username: req.params.username });
-        if (!user || user.settings?.isPublic !== true) {
-            return res.status(404).json({ message: 'User not found or profile is private' });
+        const param = req.params.username;
+        const query = mongoose.isValidObjectId(param)
+            ? { $or: [{ username: param }, { _id: param }] }
+            : { username: param };
+
+        const user = await User.findOne(query);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
         // Fetch top habits
         const habits = await Habit.find({ user: user._id });
         const topHabits = habits.sort((a, b) => b.streak - a.streak).slice(0, 3);
 
+        // Check Relationship (Optional Protect)
+        const isPartner = req.user && (user.partner?.toString() === req.user._id.toString() || req.user.partner?.toString() === user._id.toString());
+        
+        // Full Details for Partner
+        let partnerData = {};
+        if (isPartner) {
+            // All Habits
+            const allHabits = habits; // We already fetched all
+            
+            // Today's Tasks
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const tasks = await Task.find({
+                user: user._id,
+                date: { $gte: today, $lt: tomorrow }
+            }).sort({ priority: -1, order: 1 });
+            
+            // Wishlist
+            const wishlist = await Wishlist.find({ user: user._id }).sort({ createdAt: -1 });
+            
+            partnerData = {
+                allHabits,
+                tasks,
+                wishlist,
+                isShared: true
+            };
+        }
+
+        // Fetch System Streaks
+        const systemHabits = await Habit.find({ user: user._id, systemId: { $in: ['journal', 'finance', 'planner'] } });
+        const systemStreaks = {
+            journal: systemHabits.find(h => h.systemId === 'journal')?.streak || 0,
+            finance: systemHabits.find(h => h.systemId === 'finance')?.streak || 0,
+            planner: systemHabits.find(h => h.systemId === 'planner')?.streak || 0
+        };
+
+        // Achievements (Joined Challenges)
+        const achievementCount = user.joinedChallenges?.length || 0;
+
         res.json({
+            _id: user._id,
             name: user.name,
             username: user.username,
             avatar: user.avatar,
             banner: user.banner,
             bio: user.bio,
             joined: user.createdAt,
-            topHabits
+            topHabits,
+            systemStreaks,
+            achievementCount,
+            ...partnerData
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -437,6 +629,20 @@ export const acceptPartnerRequest = async (req, res) => {
 
         requester.partner = currentUser._id;
         requester.outgoingPartnerRequest = null;
+
+        // Auto-connect: If they are partners, they are definitely connected
+        if (!currentUser.connections.includes(requester._id)) {
+            currentUser.connections.push(requester._id);
+        }
+        if (!requester.connections.includes(currentUser._id)) {
+            requester.connections.push(currentUser._id);
+        }
+
+        // Clean up connection requests if they exist
+        currentUser.outgoingConnectionRequests = currentUser.outgoingConnectionRequests.filter(id => id.toString() !== requester._id.toString());
+        currentUser.incomingConnectionRequests = currentUser.incomingConnectionRequests.filter(id => id.toString() !== requester._id.toString());
+        requester.outgoingConnectionRequests = requester.outgoingConnectionRequests.filter(id => id.toString() !== currentUser._id.toString());
+        requester.incomingConnectionRequests = requester.incomingConnectionRequests.filter(id => id.toString() !== currentUser._id.toString());
 
         await currentUser.save();
         await requester.save();

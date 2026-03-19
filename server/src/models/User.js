@@ -68,7 +68,7 @@ const userSchema = new mongoose.Schema({
         },
         isPublic: {
             type: Boolean,
-            default: false
+            default: true
         },
         sleepMode: {
             enabled: { type: Boolean, default: false },
@@ -111,7 +111,19 @@ const userSchema = new mongoose.Schema({
     joinedChallenges: {
         type: [Number],
         default: []
-    }
+    },
+    connections: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    outgoingConnectionRequests: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    incomingConnectionRequests: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 }, {
     timestamps: true
 });

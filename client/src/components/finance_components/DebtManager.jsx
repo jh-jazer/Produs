@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 const DebtManager = ({ debts, currencySymbol, onAction }) => {
     const [showAdd, setShowAdd] = useState(false);
@@ -60,8 +61,9 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
         }
     };
 
+    const [confirmDelete, setConfirmDelete] = useState(null);
+
     const handleDelete = async (id) => {
-        if (!window.confirm('Remove this record?')) return;
         try {
             await api.delete(`/finance/debts/${id}`);
             onAction();
@@ -76,7 +78,16 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
     });
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[300px] flex flex-col">
+        <>
+            <ConfirmDialog
+                isOpen={!!confirmDelete}
+                title="Remove Record"
+                message="Are you sure you want to remove this cash flow record?"
+                confirmLabel="Remove"
+                onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
+                onCancel={() => setConfirmDelete(null)}
+            />
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[300px] flex flex-col">
             <div className="flex items-center justify-between gap-2 mb-6">
                 <div className="flex flex-col">
                     <div className="flex items-center gap-2">
@@ -214,7 +225,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                             </span>
                                             <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{debt.title}</span>
                                             <button
-                                                onClick={() => handleDelete(debt._id)}
+                                                onClick={() => setConfirmDelete(debt._id)}
                                                 className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-rose-500 transition-all p-0.5"
                                             >
                                                 <span className="material-symbols-outlined text-base">delete</span>
@@ -449,7 +460,8 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                 </div>,
                 document.body
             )}
-        </div>
+            </div>
+        </>
     );
 };
 

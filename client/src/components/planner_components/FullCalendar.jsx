@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import useSWR from 'swr';
 import api from '../../services/api';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
@@ -12,6 +13,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
     const [newTaskColor, setNewTaskColor] = useState('#a855f7'); // Default to purple for events
     const [selection, setSelection] = useState(null); // { start: Date, current: Date }
     const [isDragging, setIsDragging] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(null);
 
     const colors = [
         { name: 'Blue', value: '#3b82f6' },
@@ -131,7 +133,16 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
     };
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex flex-col font-inter relative min-h-[500px]">
+        <>
+            <ConfirmDialog
+                isOpen={!!confirmDelete}
+                title="Delete Event"
+                message="Are you sure you want to delete this calendar event?"
+                confirmLabel="Delete"
+                onConfirm={() => { deleteTask(confirmDelete); setConfirmDelete(null); }}
+                onCancel={() => setConfirmDelete(null)}
+            />
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex flex-col font-inter relative min-h-[500px]">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-4">
                     <h2 className="text-lg font-bold text-slate-900 dark:text-white shrink-0">{months[month]} {year}</h2>
@@ -259,7 +270,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                         </div>
                                         {!isReadOnly && (
                                             <button
-                                                onClick={() => deleteTask(t._id)}
+                                                onClick={() => setConfirmDelete(t._id)}
                                                 className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-red-500/10 text-red-500 transition-all"
                                             >
                                                 <span className="material-symbols-outlined text-sm">delete</span>
@@ -328,7 +339,8 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                     Events & Notes
                 </div>
             </div>
-        </div>
+            </div>
+        </>
     );
 };
 

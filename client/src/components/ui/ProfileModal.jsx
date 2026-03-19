@@ -1,99 +1,231 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { motion } from 'framer-motion';
+import api from '../../services/api';
+import useAuthStore from '../../store/useAuthStore';
 import Avatar from './Avatar';
 
-const ProfileModal = ({ isOpen, onClose, user }) => {
-    const navigate = useNavigate();
-    const isAdmin = user?.email === 'ernestodesabillejr@gmail.com';
-    return (
-        <AnimatePresence>
-            {isOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-                    />
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative z-10 w-full max-w-md bg-white dark:bg-[#192233] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
-                    >
-                        <div className="relative h-32 bg-gradient-to-r from-primary/20 to-primary/5 dark:from-primary/10 dark:to-transparent">
-                            <button
-                                onClick={onClose}
-                                className="absolute top-4 right-4 size-8 flex items-center justify-center rounded-full bg-white/80 dark:bg-slate-800/80 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
-                            >
-                                <span className="material-symbols-outlined text-xl">close</span>
-                            </button>
-                        </div>
+function ProfileModal({ username, onClose }) {
+    const [profile, setProfile] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isConnecting, setIsConnecting] = useState(false);
+    const [error, setError] = useState(null);
+    const currentUser = useAuthStore((state) => state.user);
+    const setCredentials = useAuthStore((state) => state.setCredentials);
 
-                        <div className="px-8 pb-8">
-                            <div className="relative -mt-12 mb-6">
-                                <div className="size-24 rounded-3xl bg-white dark:bg-[#192233] p-1 shadow-xl">
-                                    <div className="size-full rounded-[20px] bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden ring-1 ring-slate-200 dark:ring-slate-700">
-                                        <Avatar config={user?.avatar} />
-                                    </div>
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                // If username is null/undefined don't fetch
+                if (!username) return;
+                
+                setIsLoading(true);
+                setError(null);
+                const res = await api.get(`/auth/profile/${username}`);
+                setProfile(res.data);
+            } catch (err) {
+                setError(err.response?.data?.message || "Profile not found or is private.");
+            } finally {
+                // Remove the redundant setIsLoading(true) and just end the loading state after a small delay for visual polish
+                setTimeout(() => setIsLoading(false), 200);
+            }
+        };
+
+        fetchProfile();
+    }, [username]);
+
+    const isConnected = currentUser?.connections?.includes(profile?._id);
+    const isSent = currentUser?.outgoingConnectionRequests?.includes(profile?._id);
+    const isIncoming = currentUser?.incomingConnectionRequests?.includes(profile?._id);
+
+    const handleConnectionAction = async (action) => {
+        if (!currentUser || isConnecting) return;
+        try {
+            setIsConnecting(true);
+            const endpoint = `/auth/connection/${action}/${profile._id}`;
+            await api.post(endpoint);
+            
+            // Refetch current user to update state
+            const userRes = await api.get('/auth/me');
+            setCredentials(userRes.data);
+        } catch (err) {
+            console.error(`Failed ${action}`, err);
+        } finally {
+            setIsConnecting(false);
+        }
+    };
+
+    return createPortal(
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-6">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-slate-900/40 dark:bg-black/80 backdrop-blur-md"
+                onClick={onClose}
+            />
+            
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-[500px] bg-white dark:bg-[#2b2d31] rounded-[28px] shadow-2xl overflow-hidden border border-slate-200 dark:border-[#1e1f22] flex flex-col max-h-[85vh]"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Banner Section */}
+                <div className="h-40 w-full bg-slate-200 dark:bg-[#1e1f22] relative shrink-0">
+                    {profile?.banner ? (
+                        <img src={profile.banner} alt="Banner" className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/30 to-purple-500/30"></div>
+                    )}
+                    
+                    <button 
+                        onClick={onClose}
+                        className="absolute top-4 right-4 size-8 flex items-center justify-center rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-md transition-all z-20"
+                    >
+                        <span className="material-symbols-outlined text-lg">close</span>
+                    </button>
+
+                    {/* Avatar - Moved here to prevent clipping */}
+                    {!isLoading && profile && (
+                        <div className="absolute -bottom-12 left-6 size-24 rounded-full border-[6px] border-white dark:border-[#2b2d31] bg-white dark:bg-[#1e1f22] z-10 overflow-hidden shadow-md flex items-center justify-center">
+                            <Avatar config={profile.avatar} />
+                            <div className="absolute bottom-1 right-1 size-5 bg-emerald-500 border-[3px] border-white dark:border-[#2b2d31] rounded-full"></div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-6 pt-14 relative">
+                    {isLoading ? (
+                        <div className="py-20 flex flex-col items-center justify-center">
+                            <div className="size-8 rounded-full border-4 border-primary border-t-transparent animate-spin mb-4" />
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading identity...</p>
+                        </div>
+                    ) : error ? (
+                         <div className="py-20 text-center">
+                            <span className="material-symbols-outlined text-4xl text-slate-300 mb-4">lock</span>
+                            <p className="text-sm font-medium text-slate-500">{error}</p>
+                         </div>
+                    ) : profile ? (
+                        <>
+                            {/* Identity Area */}
+                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                                <div className="min-w-0">
+                                    <h2 className="text-xl font-black text-slate-900 dark:text-white truncate">{profile.name}</h2>
+                                    <p className="text-sm font-bold text-slate-500 dark:text-[#b5bac1]">@{profile.username}</p>
                                 </div>
-                                <button className="absolute bottom-0 left-16 size-8 bg-primary text-white rounded-xl shadow-lg flex items-center justify-center border-2 border-white dark:border-[#192233] hover:scale-110 transition-transform">
-                                    <span className="material-symbols-outlined text-lg">edit</span>
-                                </button>
+                                
+                                {/* Quick Actions */}
+                                <div className="shrink-0 flex gap-2">
+                                    {profile.isShared ? (
+                                        <div className="px-3 py-1.5 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest rounded-lg border border-emerald-500/10 flex items-center gap-1.5">
+                                            <span className="material-symbols-outlined text-xs">favorite</span>
+                                            Partner
+                                        </div>
+                                    ) : isConnected ? (
+                                        <div className="px-3 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-lg border border-primary/10 flex items-center gap-1.5">
+                                            <span className="material-symbols-outlined text-xs">verified</span>
+                                            Connected
+                                        </div>
+                                    ) : currentUser?._id !== profile._id && (
+                                        <>
+                                            {isSent ? (
+                                                <button onClick={() => handleConnectionAction('cancel')} disabled={isConnecting} className="px-3 py-1.5 bg-slate-100 dark:bg-[#1e1f22] text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-lg hover:text-rose-500 transition-colors">Pending...</button>
+                                            ) : isIncoming ? (
+                                                <button onClick={() => handleConnectionAction('accept')} disabled={isConnecting} className="px-3 py-1.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:opacity-90 transition-opacity animate-pulse">Accept</button>
+                                            ) : (
+                                                <button onClick={() => handleConnectionAction('request')} disabled={isConnecting} className="px-3 py-1.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:opacity-90 transition-all flex items-center gap-1.5">
+                                                    <span className="material-symbols-outlined text-sm">person_add</span>
+                                                    Connect
+                                                </button>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="space-y-6">
-                                <div>
-                                    <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{user?.name}</h2>
-                                    <p className="text-slate-500 dark:text-slate-400 font-medium">Personal Account</p>
+                            {/* Core Streaks Area */}
+                            <div className="mt-6 grid grid-cols-3 gap-2.5">
+                                <div className="p-2.5 bg-violet-500/5 dark:bg-violet-500/10 rounded-2xl border border-violet-500/10 flex flex-col items-center text-center">
+                                    <span className="material-symbols-outlined text-[20px] text-violet-500 mb-1">menu_book</span>
+                                    <p className="text-sm font-black text-slate-900 dark:text-white leading-none">{profile.systemStreaks?.journal || 0}</p>
+                                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Journal</p>
                                 </div>
+                                <div className="p-2.5 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-2xl border border-emerald-500/10 flex flex-col items-center text-center">
+                                    <span className="material-symbols-outlined text-[20px] text-emerald-500 mb-1">payments</span>
+                                    <p className="text-sm font-black text-slate-900 dark:text-white leading-none">{profile.systemStreaks?.finance || 0}</p>
+                                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Finance</p>
+                                </div>
+                                <div className="p-2.5 bg-amber-500/5 dark:bg-amber-500/10 rounded-2xl border border-amber-500/10 flex flex-col items-center text-center">
+                                    <span className="material-symbols-outlined text-[20px] text-amber-500 mb-1">event_note</span>
+                                    <p className="text-sm font-black text-slate-900 dark:text-white leading-none">{profile.systemStreaks?.planner || 0}</p>
+                                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Planner</p>
+                                </div>
+                            </div>
 
-                                <div className="grid grid-cols-1 gap-4">
-                                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
-                                        <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-1">Email Address</p>
-                                        <p className="text-sm font-bold dark:text-slate-200">{user?.email}</p>
+                            {/* Bio Snippet */}
+                            <div className="mt-4 bg-slate-50 dark:bg-[#111214] rounded-2xl p-4 border border-slate-100 dark:border-transparent">
+                                <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">About Them</h3>
+                                <p className="text-sm text-slate-700 dark:text-[#dbdee1] leading-relaxed font-medium">
+                                    {profile.bio || "Just another human on their focused journey."}
+                                </p>
+                                
+                                <div className="mt-4 grid grid-cols-3 gap-3 pb-1 border-t border-slate-200 dark:border-slate-800 pt-3 opacity-60">
+                                    <div className="text-center">
+                                        <p className="text-[12px] font-black text-slate-900 dark:text-white">{profile.topHabits?.length || 0}</p>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Habits</p>
                                     </div>
-                                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
-                                        <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-1">Membership</p>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm font-bold dark:text-slate-200">Free Tier</span>
-                                            <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase">Standard</span>
+                                    <div className="text-center">
+                                        <p className="text-[12px] font-black text-slate-900 dark:text-white">{profile.achievementCount || 0}</p>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Awards</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-[12px] font-black text-slate-900 dark:text-white">{new Date(profile.joined).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</p>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Joined</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Shared Sections (Partner Only) */}
+                            {profile.isShared && (
+                                <div className="mt-4 space-y-4">
+                                    {/* Shared Progress Row */}
+                                    <div className="flex gap-4 p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 items-center">
+                                        <div className="size-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-600 shrink-0">
+                                            <span className="material-symbols-outlined">favorite</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest leading-none">Shared Relationship</p>
+                                            <p className="text-[10px] text-emerald-500 font-bold mt-1">Full access to habits and planner</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Shared Habits Grid */}
+                                    <div className="bg-slate-100 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-200 dark:border-slate-800/50">
+                                         <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
+                                            <span className="material-symbols-outlined text-xs">grid_view</span> Habits
+                                        </h3>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {profile.allHabits?.slice(0, 4).map(habit => (
+                                                <div key={habit._id} className="p-2 bg-white dark:bg-[#2b2d31] rounded-xl border border-slate-200/50 dark:border-slate-800/50 flex items-center gap-2">
+                                                    <div className={`size-8 rounded-lg bg-${habit.color}-500/10 text-${habit.color}-500 flex items-center justify-center shrink-0`}>
+                                                        <span className="material-symbols-outlined text-base">{habit.icon}</span>
+                                                    </div>
+                                                    <p className="text-[10px] font-black text-slate-900 dark:text-white truncate">{habit.name}</p>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="flex gap-4">
-                                    <button
-                                        onClick={() => {
-                                            if (isAdmin) {
-                                                navigate('/dashboard/admin');
-                                                onClose();
-                                            }
-                                        }}
-                                        className={`flex-1 py-3 text-sm font-black rounded-2xl transition-all active:scale-[0.98] ${
-                                            isAdmin 
-                                            ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                                        }`}
-                                        disabled={!isAdmin}
-                                    >
-                                        Manage System
-                                    </button>
-                                    <button
-                                        className="flex-1 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-sm hover:opacity-90 transition-opacity active:scale-[0.98] transition-all"
-                                    >
-                                        Update Profile
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
+                            )}
+                        </>
+                    ) : null}
                 </div>
-            )}
-        </AnimatePresence>
+            </motion.div>
+        </div>,
+        document.body
     );
-};
+}
 
 export default ProfileModal;

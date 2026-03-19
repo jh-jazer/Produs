@@ -27,6 +27,10 @@ const habitSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    order: {
+        type: Number,
+        default: 0 // Default order position
+    },
     checks: [{
         date: String, // YYYY-MM-DD
         completed: {

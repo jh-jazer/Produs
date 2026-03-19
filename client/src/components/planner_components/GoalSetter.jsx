@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import useSWR from 'swr';
 import api from '../../services/api';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
@@ -71,6 +72,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
     const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
     const [selectedWeekIdx, setSelectedWeekIdx] = useState(0);   // index into weeksInMonth
     const [newGoalTitle, setNewGoalTitle] = useState('');
+    const [confirmDelete, setConfirmDelete] = useState(null);
 
     const upcomingYears = Array.from({ length: 10 }, (_, i) => now.getFullYear() + i);
     const weeksInMonth = useMemo(
@@ -223,7 +225,16 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
     const progress = filteredGoals.length ? Math.round((completedCount / filteredGoals.length) * 100) : 0;
 
     return (
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] shadow-sm flex flex-col gap-5 overflow-hidden">
+        <>
+            <ConfirmDialog
+                isOpen={!!confirmDelete}
+                title="Delete Goal"
+                message="Are you sure you want to delete this goal?"
+                confirmLabel="Delete"
+                onConfirm={() => { deleteGoal(confirmDelete); setConfirmDelete(null); }}
+                onCancel={() => setConfirmDelete(null)}
+            />
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] shadow-sm flex flex-col gap-5 overflow-hidden">
 
             {/* Header */}
             <div className="px-6 pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -354,7 +365,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                             {/* Delete */}
                             {!isReadOnly && (
                                 <button
-                                    onClick={() => deleteGoal(goal._id)}
+                                onClick={() => setConfirmDelete(goal._id)}
                                     className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-rose-500 transition-all"
                                 >
                                     <span className="material-symbols-outlined text-sm">delete</span>
@@ -364,7 +375,8 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                     ))
                 )}
             </div>
-        </div>
+            </div>
+        </>
     );
 };
 

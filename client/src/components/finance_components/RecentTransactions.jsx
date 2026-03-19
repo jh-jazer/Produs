@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import api from '../../services/api';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onAction }) => {
     const [showAdd, setShowAdd] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(null);
     const [newTx, setNewTx] = useState({ title: '', amount: '', type: 'expense', category: 'General', date: new Date().toISOString().split('T')[0] });
 
     // Deduplicate and prepare categories from budgets
@@ -37,7 +39,6 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Delete this transaction?')) return;
         try {
             await api.delete(`/finance/transactions/${id}`);
             onAction();
@@ -47,7 +48,16 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
     };
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[350px]">
+        <>
+            <ConfirmDialog
+                isOpen={!!confirmDelete}
+                title="Delete Transaction"
+                message="Are you sure you want to delete this transaction?"
+                confirmLabel="Delete"
+                onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
+                onCancel={() => setConfirmDelete(null)}
+            />
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[350px]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Recent Transactions</h3>
                 <div className="flex items-center gap-1">
@@ -185,7 +195,7 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
                                     {tx.type === 'income' ? '+' : tx.type === 'savings' ? '★' : '-'}{currencySymbol}{parseFloat(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 </p>
                                 <button
-                                    onClick={() => handleDelete(tx._id)}
+                                    onClick={() => setConfirmDelete(tx._id)}
                                     className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-500/10 text-slate-300 hover:text-rose-500 transition-all"
                                 >
                                     <span className="material-symbols-outlined text-lg">delete</span>
@@ -195,7 +205,8 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
                     ))
                 )}
             </div>
-        </div>
+            </div>
+        </>
     );
 };
 

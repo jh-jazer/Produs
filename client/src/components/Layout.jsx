@@ -50,6 +50,7 @@ function Layout() {
     useEffect(() => {
         const handleUserSelected = () => {
             setIsSearchModalOpen(false);
+            setIsMobileMenuOpen(false); // also close side menu after selecting a user
         };
         window.addEventListener('user-selected', handleUserSelected);
         return () => window.removeEventListener('user-selected', handleUserSelected);
@@ -94,12 +95,12 @@ function Layout() {
         if (user?.incomingPartnerRequest) {
             list.unshift({
                 id: 'partner-request',
-                text: `${user.incomingPartnerRequest.name} wants to link orbits! 🤝`,
+                text: `${user.incomingPartnerRequest.name} wants to share orbits! 🤝`,
                 time: "Request Pending",
                 read: false,
                 icon: "favorite",
                 color: "text-rose-500",
-                isPartnerRequest: true
+                isShareRequest: true
             });
         }
         return list;
@@ -122,7 +123,7 @@ function Layout() {
     };
 
     const handleNotificationClick = async (n) => {
-        if (n.isPartnerRequest) {
+        if (n.isShareRequest) {
             navigate('/dashboard/profile');
             setIsNotificationsOpen(false);
             return;
@@ -204,7 +205,7 @@ function Layout() {
                         {user?.partner && (
                             <button
                                 onClick={() => setViewMode(viewMode === 'me' ? 'partner' : 'me')}
-                                title={`Switch to ${viewMode === 'me' ? user.partner.name : 'My'} view`}
+                                title={`Switch to ${viewMode === 'me' ? 'Shared' : 'My'} view`}
                                 className={`sm:hidden relative size-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${viewMode === 'partner' ? 'bg-primary/10 text-primary' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary'}`}
                             >
                                 {/* Two-person couple icon (Material Symbols 'group') */}
@@ -316,6 +317,22 @@ function Layout() {
                                         <span className="material-symbols-outlined text-xl">close</span>
                                     </button>
                                 </div>
+
+                                {/* Search — inline inside the side menu on mobile */}
+                                <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+                                    <button 
+                                        onClick={() => { 
+                                            // Close the mobile menu and open the search modal
+                                            setIsMobileMenuOpen(false);
+                                            setIsSearchModalOpen(true); 
+                                        }}
+                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 flex items-center gap-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all active:scale-95 group"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">search</span>
+                                        <span className="text-sm font-bold">Search Users</span>
+                                    </button>
+                                </div>
+
                                 <nav className="flex flex-col gap-1 p-4 flex-1">
                                     {['Overview', 'Habits', 'Planner', 'Finance', 'Journal'].map((name) => (
                                         <NavLink key={name} to={name === 'Overview' ? '/dashboard' : `/dashboard/${name.toLowerCase()}`} end={name === 'Overview'} onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 transition-colors ${isActive ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
@@ -350,13 +367,18 @@ function Layout() {
                                 <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
                                     <button onClick={() => setIsSearchModalOpen(false)} className="size-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-800 dark:hover:text-slate-300 transition-colors"><span className="material-symbols-outlined text-[20px]">close</span></button>
                                 </div>
-                                <UserSearch />
+                                <UserSearch onSelect={() => setIsSearchModalOpen(false)} />
                             </motion.div>
                         </div>
                     )}
                 </AnimatePresence>
 
-                <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} user={user} />
+                {isProfileModalOpen && (
+                    <ProfileModal 
+                        username={user?.username} 
+                        onClose={() => setIsProfileModalOpen(false)} 
+                    />
+                )}
                 <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} />
                 <BugReportModal isOpen={isBugModalOpen} onClose={() => setIsBugModalOpen(false)} />
                 <OnboardingModal isOpen={!!user && !user.onboardingCompleted} />

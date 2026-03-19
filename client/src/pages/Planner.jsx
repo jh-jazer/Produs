@@ -54,7 +54,7 @@ function Planner() {
                                 onClick={() => setViewMode('partner')}
                                 className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'partner' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                             >
-                                Team Planner
+                                Shared Planner
                             </button>
                         </div>
                     )}

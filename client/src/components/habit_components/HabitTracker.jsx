@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import useSWR from 'swr';
 import api from '../../services/api';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 // ... (keep ICON_OPTIONS, SUGGESTIONS, COLOR_MAP, etc unchanged)
 const ICON_OPTIONS = [
@@ -138,7 +139,14 @@ function HabitTracker({
 
     // Better grouping logic directly for the UI
     const { teamHabits, partnerHabitsOnly } = React.useMemo(() => {
-        if (!isPartnerView) return { teamHabits: habits, partnerHabitsOnly: [] };
+        if (!isPartnerView) {
+            const sortedHabits = [...habits].sort((a, b) => {
+                if (a.systemId && !b.systemId) return -1;
+                if (!a.systemId && b.systemId) return 1;
+                return 0;
+            });
+            return { teamHabits: sortedHabits, partnerHabitsOnly: [] };
+        }
 
         const shared = {};
         const standalonePartner = [];
@@ -168,6 +176,21 @@ function HabitTracker({
                 partnerPart: shared[gid].partnerHabit,
                 isGrouped: true
             });
+        });
+
+        // Ensure system habits are pinned to the top
+        team.sort((a, b) => {
+            const aSys = a.myPart?.systemId || a.systemId || a.partnerPart?.systemId;
+            const bSys = b.myPart?.systemId || b.systemId || b.partnerPart?.systemId;
+            if (aSys && !bSys) return -1;
+            if (!aSys && bSys) return 1;
+            return 0;
+        });
+
+        standalonePartner.sort((a, b) => {
+            if (a.systemId && !b.systemId) return -1;
+            if (!a.systemId && b.systemId) return 1;
+            return 0;
         });
 
         return { teamHabits: team, partnerHabitsOnly: standalonePartner };
@@ -205,6 +228,25 @@ function HabitTracker({
     const [editingHabit, setEditingHabit] = useState(null);
     const [newHabit, setNewHabit] = useState({ name: '', icon: 'local_drink', color: 'emerald', isShared: false, category: 'Productivity' });
 
+    // Local state for dragging the sorted teamHabits array physically
+    const [localTeamHabits, setLocalTeamHabits] = useState([]);
+    const [confirmDelete, setConfirmDelete] = useState(null); // stores habit id to delete
+    useEffect(() => {
+        setLocalTeamHabits(teamHabits);
+    }, [teamHabits]);
+
+    const saveOrder = async (newOrderList) => {
+        if (isReadOnly || isPartnerView) return;
+        const habitIds = newOrderList.map(h => h._id);
+        setLocalTeamHabits(newOrderList); // Optimistic UI immediate lock
+        try {
+            await api.put('/habits/reorder', { habitIds });
+            if (mutateHabits) mutateHabits(); // revalidate without cache freeze
+        } catch (error) {
+            console.error("Failed to save habit order", error);
+        }
+    };
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -215,9 +257,14 @@ function HabitTracker({
     const renderHabitRow = (habit) => {
         const colors = COLOR_MAP[habit.color] || COLOR_MAP.emerald;
         const isEditing = editingHabit?._id === (habit.isGrouped ? habit.myPart?._id : habit._id);
+        const isSystemHabit = !!(habit.myPart ? habit.myPart.systemId : habit.systemId);
 
         return (
-            <div key={habit._id} className={`flex items-center gap-4 py-3 border-b border-slate-100 dark:border-slate-800/50 ${editMode ? 'hover:bg-slate-50 dark:hover:bg-slate-800/30 rounded-lg transition-colors' : ''}`}>
+            <div key={habit._id} className={`flex items-center gap-4 py-3 ${isSystemHabit ? 'bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-xl my-1.5 px-3 shadow-sm' : 'border-b border-slate-100 dark:border-slate-800/50'} ${editMode ? 'hover:bg-slate-50 dark:hover:bg-slate-800/30 rounded-lg transition-colors cursor-grab active:cursor-grabbing pl-2' : ''}`}>
+                
+                {editMode && !isPartnerView && (
+                    <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 cursor-grab active:cursor-grabbing hover:text-primary transition-colors pr-1">drag_indicator</span>
+                )}
 
                 {/* Habit Name (or edit form) */}
                 <div className={`${isDashboard ? 'flex-1 min-w-0' : 'w-1/3 min-w-[150px]'} flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 overflow-visible`}>
@@ -267,7 +314,7 @@ function HabitTracker({
                 {/* Day Checks */}
                 <div className={`flex-1 flex ${isDashboard ? 'justify-end' : 'justify-between'} items-center`}>
                     {daysToDisplay.map((date, dayIdx) => {
-                        const dateStr = date.toISOString().split('T')[0];
+                        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
                         const myChecked = habit.myPart ? checksDict[habit.myPart._id]?.completed[dateStr] : checksDict[habit._id]?.completed[dateStr];
                         const partnerChecked = habit.partnerPart ? checksDict[habit.partnerPart._id]?.completed[dateStr] : false;
 
@@ -290,8 +337,9 @@ function HabitTracker({
                                         {/* My Half (Left) */}
                                         <button
                                             onClick={() => toggleCheck(habit.myPart?._id || habit._id, date)}
-                                            disabled={editMode || isLocked || isReadOnly}
-                                            className="relative w-1/2 h-full flex items-center justify-end pr-0.5 z-10"
+                                            disabled={editMode || isLocked || isReadOnly || isSystemHabit}
+                                            title={isSystemHabit ? "Completed automatically by doing the task" : ""}
+                                            className={`relative w-1/2 h-full flex items-center justify-end pr-0.5 z-10 ${isSystemHabit ? 'cursor-default' : ''}`}
                                         >
                                             <AnimatePresence>
                                                 {myChecked && (
@@ -328,7 +376,8 @@ function HabitTracker({
                                     // NORMAL CHECK CIRCLE
                                     <button
                                         onClick={() => toggleCheck(habit._id, date)}
-                                        disabled={editMode || isLocked || isReadOnly || (isPartnerView && habit.user !== propMyHabits?.[0]?.user)}
+                                        disabled={editMode || isLocked || isReadOnly || (isPartnerView && habit.user !== propMyHabits?.[0]?.user) || isSystemHabit}
+                                        title={isSystemHabit ? "Completed automatically by doing the task" : ""}
                                         className={`relative w-7 h-7 rounded-full flex items-center justify-center transition-all overflow-hidden ${isFuture
                                             ? 'border border-dashed border-slate-200 dark:border-slate-700 opacity-30 shadow-none cursor-not-allowed'
                                             : isTooOld
@@ -338,7 +387,7 @@ function HabitTracker({
                                                 : myChecked
                                                     ? `${colors.text} shadow-sm`
                                                     : 'border border-slate-200 dark:border-slate-700 hover:border-slate-400'
-                                            } ${!editMode && !isLocked ? 'hover:scale-110 active:scale-95' : ''}`}
+                                            } ${!editMode && !isLocked && !isSystemHabit ? 'hover:scale-110 active:scale-95' : (isSystemHabit ? 'cursor-default opacity-80' : '')}`}
                                     >
                                         <AnimatePresence>
                                             {myChecked && (
@@ -396,7 +445,7 @@ function HabitTracker({
                                      </button>
                                  )}
                                  {(!isPartnerView || habit.myPart) && !(habit.isGrouped ? habit.myPart?.systemId : habit.systemId) && (
-                                     <button onClick={() => deleteHabit(habit.isGrouped ? habit.myPart._id : habit._id)} className="p-1 rounded-md hover:bg-red-500/10 text-slate-400 hover:text-red-500 transition-colors" title="Delete">
+                                     <button onClick={() => setConfirmDelete(habit.isGrouped ? habit.myPart._id : habit._id)} className="p-1 rounded-md hover:bg-red-500/10 text-slate-400 hover:text-red-500 transition-colors" title="Delete">
                                          <span className="material-symbols-outlined text-base">delete</span>
                                      </button>
                                  )}
@@ -436,24 +485,25 @@ function HabitTracker({
 
         const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-        // Optimistic update
+        // Optimistic update wrapper
+        const optimisticHabits = habits.map(h => {
+            if (h._id === habitId) {
+                const checksList = h.checks || [];
+                const checkIndex = checksList.findIndex(c => c.date === dateStr);
+                const newChecks = [...checksList];
+                if (checkIndex > -1) {
+                    newChecks[checkIndex] = { ...newChecks[checkIndex], completed: !newChecks[checkIndex].completed };
+                } else {
+                    newChecks.push({ date: dateStr, completed: true });
+                }
+                return { ...h, checks: newChecks };
+            }
+            return h;
+        });
+
         if (mutateHabits) {
-            mutateHabits(current => {
-                if (!current) return current;
-                return current.map(h => {
-                    if (h._id === habitId) {
-                        const checkIndex = h.checks.findIndex(c => c.date === dateStr);
-                        const newChecks = [...h.checks];
-                        if (checkIndex > -1) {
-                            newChecks[checkIndex].completed = !newChecks[checkIndex].completed;
-                        } else {
-                            newChecks.push({ date: dateStr, completed: true });
-                        }
-                        return { ...h, checks: newChecks };
-                    }
-                    return h;
-                });
-            }, false);
+            // Support both old bool signature and new SWR v2 options wrapper context
+            mutateHabits(optimisticHabits, { optimisticData: optimisticHabits, revalidate: false, rollbackOnError: true });
         }
 
         try {
@@ -562,11 +612,19 @@ function HabitTracker({
 
     return (
         <>
+            <ConfirmDialog
+                isOpen={!!confirmDelete}
+                title="Delete Habit"
+                message="Are you sure you want to delete this habit? All its history will be lost."
+                confirmLabel="Delete"
+                onConfirm={() => { deleteHabit(confirmDelete); setConfirmDelete(null); }}
+                onCancel={() => setConfirmDelete(null)}
+            />
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex flex-col justify-between relative overflow-hidden group flex-1 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ease-in-out min-h-[280px]">
                 <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-500 pointer-events-none"></div>
 
                 {/* Header */}
-                <div className="relative z-10 flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
+                <div className="relative z-10 flex flex-row justify-between items-center gap-3 mb-6">
                     <div className="flex justify-between items-center flex-1">
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white shrink-0">
                             {isPartnerView ? `Team View` : 'Habit Tracker'}
@@ -574,7 +632,7 @@ function HabitTracker({
 
                         {/* Week Selector Integrated - Moved back to Row 1 */}
                         {!isDashboard && onDateChange && (
-                            <div className="hidden md:flex items-center gap-1 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl p-0.5 shadow-sm">
+                            <div className="hidden md:flex items-center gap-1 p-0.5">
                                 <button
                                     onClick={() => onDateChange(-1)}
                                     className="p-1 px-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-primary transition-all"
@@ -673,13 +731,23 @@ function HabitTracker({
                         ) : (
                             <>
                                 {/* Render Team/Shared Habits Section */}
-                                {teamHabits
-                                    .filter(h => propFilter === 'All' || h.category === propFilter)
-                                    .sort((a, b) => {
-                                        // Sort by name if desired, or just removal of current sort
-                                        return 0; // Removing automatic sorting below checked habits
-                                    })
-                                    .map((habit) => renderHabitRow(habit))}
+                                {editMode && !isPartnerView ? (
+                                    <Reorder.Group axis="y" values={localTeamHabits} onReorder={setLocalTeamHabits} className="flex flex-col">
+                                        {localTeamHabits
+                                            .filter(h => propFilter === 'All' || h.category === propFilter)
+                                            .map((habit) => (
+                                                <Reorder.Item key={habit._id} value={habit} onDragEnd={() => saveOrder(localTeamHabits)}>
+                                                    {renderHabitRow(habit)}
+                                                </Reorder.Item>
+                                            ))}
+                                    </Reorder.Group>
+                                ) : (
+                                    <>
+                                        {teamHabits
+                                            .filter(h => propFilter === 'All' || h.category === propFilter)
+                                            .map((habit) => renderHabitRow(habit))}
+                                    </>
+                                )}
 
                                 {/* Divider for Team View */}
                                 {isPartnerView && teamHabits.length > 0 && partnerHabitsOnly.length > 0 && (

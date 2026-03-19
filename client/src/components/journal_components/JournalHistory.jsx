@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import api from '../../services/api';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 const parseMarkdown = (text) => {
     if (!text) return { __html: '' };
@@ -29,8 +30,9 @@ const parseMarkdown = (text) => {
 };
 
 const JournalHistory = ({ entries = [], onAction }) => {
+    const [confirmDelete, setConfirmDelete] = useState(null);
+
     const handleDelete = async (id) => {
-        if (!window.confirm('Delete this journal entry?')) return;
         try {
             await api.delete(`/journal/${id}`);
             if (onAction) onAction();
@@ -40,7 +42,16 @@ const JournalHistory = ({ entries = [], onAction }) => {
     };
 
     return (
-        <div className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex flex-col min-h-[500px]">
+        <>
+            <ConfirmDialog
+                isOpen={!!confirmDelete}
+                title="Delete Journal Entry"
+                message="Are you sure you want to delete this journal entry? This cannot be undone."
+                confirmLabel="Delete"
+                onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
+                onCancel={() => setConfirmDelete(null)}
+            />
+            <div className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex flex-col min-h-[500px]">
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Journal History</h3>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-700">
@@ -73,7 +84,7 @@ const JournalHistory = ({ entries = [], onAction }) => {
                                     </div>
                                 </div>
                                 <button 
-                                    onClick={() => handleDelete(entry._id)}
+                                    onClick={() => setConfirmDelete(entry._id)}
                                     className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 text-slate-300 hover:text-rose-500 transition-all"
                                 >
                                     <span className="material-symbols-outlined text-lg">delete</span>
@@ -88,6 +99,7 @@ const JournalHistory = ({ entries = [], onAction }) => {
                 )}
             </div>
         </div>
+        </>
     );
 };
 

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import useSWR from 'swr';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
@@ -22,6 +23,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
     const [editingTask, setEditingTask] = useState(null);
     const [newTask, setNewTask] = useState({ title: '', startTime: '09:00', endTime: '10:00' });
     const [snapKey, setSnapKey] = useState(0);
+    const [confirmDelete, setConfirmDelete] = useState(null);
     
     const { data: user, mutate: mutateUser } = useSWR('/auth/me', fetcher);
     const sleepEnabled = true; // Forced enabled
@@ -224,7 +226,16 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
     const visibleTimes = times.filter(t => !isDuringSleep(t.hour));
 
     return (
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] flex flex-col shadow-xl transition-all hover:shadow-2xl">
+        <>
+            <ConfirmDialog
+                isOpen={!!confirmDelete}
+                title="Delete Task"
+                message="Are you sure you want to delete this scheduled task?"
+                confirmLabel="Delete"
+                onConfirm={() => { handleDeleteTask(confirmDelete); setConfirmDelete(null); }}
+                onCancel={() => setConfirmDelete(null)}
+            />
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] flex flex-col shadow-xl transition-all hover:shadow-2xl">
             <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-start bg-white/80 dark:bg-[#192233]/80 backdrop-blur-md z-30 sticky top-0">
                 <div className="flex items-center gap-3 mt-0.5">
                     <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -620,7 +631,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                 {!isReadOnly && (
                                     <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); handleDeleteTask(task._id); }}
+                                        onClick={(e) => { e.stopPropagation(); setConfirmDelete(task._id); }}
                                             className="p-1 hover:bg-red-500/20 rounded text-red-500 flex items-center justify-center transition-colors"
                                         >
                                             <span className="material-symbols-outlined text-xs">close</span>
@@ -639,7 +650,8 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                     })}
                 </div>
             </div>
-        </div>
+            </div>
+        </>
     );
 };
 

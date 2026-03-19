@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import api from '../services/api';
 import Avatar from '../components/ui/Avatar';
 import AvatarEditor from '../components/ui/AvatarEditor';
+import ProfileModal from '../components/ui/ProfileModal';
 
 function Profile() {
     const navigate = useNavigate();
-    const { user, updateSettings, setCredentials } = useAuthStore();
-    const [topHabits, setTopHabits] = useState([]);
+    const { user, updateSettings, setCredentials, viewMode, setViewMode } = useAuthStore();
+    const [coreHabits, setCoreHabits] = useState([]);
+    const [allHabits, setAllHabits] = useState([]);
     const [currentTasks, setCurrentTasks] = useState([]);
     const [wishlistInput, setWishlistInput] = useState("");
-    const [wishlist, setWishlist] = useState(user?.settings?.wishlist || []);
+    const [wishlist, setWishlist] = useState([]);
     const [mood, setMood] = useState(user?.settings?.mood || "neutral");
 
     // Profile settings state
@@ -20,10 +22,53 @@ function Profile() {
     const [bio, setBio] = useState(user?.bio || "");
     const [avatar, setAvatar] = useState(user?.avatar || "");
     const [banner, setBanner] = useState(user?.banner || "");
-    const [isPublic, setIsPublic] = useState(user?.settings?.isPublic || false);
     const [isSaving, setIsSaving] = useState(false);
     const [saveMessage, setSaveMessage] = useState("");
+
+    const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
+    const [connectionsData, setConnectionsData] = useState({ connections: [], incoming: [], outgoing: [] });
+    const [isFetchingConnections, setIsFetchingConnections] = useState(false);
+    const [activeConnectionsTab, setActiveConnectionsTab] = useState('connections');
     const [isEditing, setIsEditing] = useState(false);
+    const [profileModalUser, setProfileModalUser] = useState(null);
+
+    const syncUser = async () => {
+        try {
+            const res = await api.get('/auth/me');
+            setCredentials(res.data);
+        } catch (err) {
+            console.error("Failed to sync user state", err);
+        }
+    };
+
+    useEffect(() => {
+        const fetchConnections = async () => {
+            if (!isConnectionsModalOpen) return;
+            try {
+                setIsFetchingConnections(true);
+                const res = await api.get('/auth/connections');
+                setConnectionsData(res.data);
+            } catch (err) {
+                console.error("Failed to fetch connections", err);
+            } finally {
+                setIsFetchingConnections(false);
+            }
+        };
+        fetchConnections();
+    }, [isConnectionsModalOpen]);
+
+    const handleConnectionAction = async (action, userId) => {
+        try {
+            await api.post(`/auth/connection/${action}/${userId}`);
+            // Refresh data
+            const res = await api.get('/auth/connections');
+            setConnectionsData(res.data);
+            // Also sync the global user store to update badges
+            syncUser();
+        } catch (err) {
+            console.error(`Failed to ${action} connection`, err);
+        }
+    };
 
     const [partnerEmail, setPartnerEmail] = useState("");
     const [isLinking, setIsLinking] = useState(false);
@@ -32,16 +77,22 @@ function Profile() {
     const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
+    const [showId, setShowId] = useState(false);
+    const [isCopied, setIsCopied] = useState(false);
 
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                // Fetch habits to calculate top streaks
+                setIsLoading(true);
+                // Fetch habits to identify core system habits and total counts
                 const habitsRes = await api.get('/habits');
-                const sortedHabits = habitsRes.data.sort((a, b) => b.streak - a.streak).slice(0, 3);
-                setTopHabits(sortedHabits);
+                setAllHabits(habitsRes.data);
+                
+                const systemIds = ['journal', 'finance', 'planner'];
+                const systemHabits = systemIds.map(id => habitsRes.data.find(h => h.systemId === id)).filter(Boolean);
+                setCoreHabits(systemHabits);
 
                 // Fetch tasks for today's focus
                 const today = new Date().toISOString().split('T')[0];
@@ -52,6 +103,10 @@ function Profile() {
                     return (priorityScore[b.priority] || 0) - (priorityScore[a.priority] || 0);
                 }).slice(0, 3);
                 setCurrentTasks(sortedTasks);
+
+                // Fetch unified wishlist from finance
+                const wishlistRes = await api.get('/finance/wishlist');
+                setWishlist(wishlistRes.data || []);
 
             } catch (error) {
                 console.error("Error fetching profile data:", error);
@@ -89,27 +144,37 @@ function Profile() {
         e.preventDefault();
         if (!wishlistInput.trim()) return;
 
-        const newItem = { id: Date.now().toString(), text: wishlistInput, completed: false };
-        const newWishlist = [...wishlist, newItem];
-
-        setWishlist(newWishlist);
-        setWishlistInput("");
-
         try {
-            await updateSettings({ wishlist: newWishlist });
+            const res = await api.post('/finance/wishlist', {
+                title: wishlistInput,
+                budgetPrice: 0,
+                priority: 'Medium',
+                category: 'General'
+            });
+            // Handle both structure possibilities depending on server res wrapper
+            const newObj = res.data.data || res.data;
+            setWishlist([...wishlist, newObj]);
+            setWishlistInput("");
         } catch (error) {
             console.error("Failed to save wishlist", error);
         }
     };
 
     const toggleWishlist = async (id) => {
-        const newWishlist = wishlist.map(item =>
-            item.id === id ? { ...item, completed: !item.completed } : item
+        const item = wishlist.find(i => (i._id === id || i.id === id));
+        if (!item) return;
+        const isCompleted = item.purchased || item.completed;
+        const newWishlist = wishlist.map(i =>
+            (i._id === id || i.id === id) ? { ...i, purchased: !isCompleted, completed: !isCompleted } : i
         );
         setWishlist(newWishlist);
 
         try {
-            await updateSettings({ wishlist: newWishlist });
+            if (item._id) {
+                await api.patch(`/finance/wishlist/${item._id}`, { purchased: !isCompleted });
+            } else {
+                await updateSettings({ wishlist: newWishlist });
+            }
         } catch (error) {
             console.error("Failed to update wishlist", error);
         }
@@ -128,7 +193,7 @@ function Profile() {
         setIsSaving(true);
         setSaveMessage("");
         try {
-            await updateSettings({ username, bio, avatar, banner, isPublic });
+            await updateSettings({ username, bio, avatar, banner });
             setSaveMessage("Profile updated successfully!");
             setIsEditing(false);
             setTimeout(() => setSaveMessage(""), 3000);
@@ -262,27 +327,36 @@ function Profile() {
 
                 {/* Avatar and Welcome Row */}
                 <div className="px-6 sm:px-8 pb-8 relative">
-                    <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-6 mb-4">
-                        {/* Overlapping Avatar */}
-                        <div className="size-28 sm:size-32 rounded-full border-[6px] border-white dark:border-[#192233] bg-white dark:bg-[#1e1f22] mt-[-56px] sm:mt-[-64px] relative z-10 overflow-hidden shadow-sm shrink-0 group">
-                            <Avatar config={avatar} className="size-full" />
+                    <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-8 mt-[-40px] px-8 relative z-10">
+                        {/* Avatar Column */}
+                        <div className="relative group">
+                            <div className="size-32 rounded-full border-[6px] border-white dark:border-[#1e293b] bg-slate-100 dark:bg-slate-800 overflow-hidden shadow-xl ring-2 ring-primary/5">
+                                <Avatar config={avatar || user?.avatar} />
+                            </div>
                             {isEditing && (
                                 <button
                                     onClick={() => setIsAvatarEditorOpen(true)}
-                                    className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center group-hover:bg-black/40 transition-colors"
+                                    className="absolute inset-0 bg-black/60 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20"
                                 >
                                     <span className="material-symbols-outlined text-white text-2xl">edit</span>
-                                    <span className="text-white text-[10px] font-bold uppercase tracking-widest mt-1">Edit Avatar</span>
+                                    <span className="text-white text-[8px] font-black uppercase tracking-widest mt-1">Change</span>
                                 </button>
                             )}
                         </div>
 
-                        {/* Name/Username Area */}
-                        <div className="text-center sm:text-left flex-1 pb-2 w-full pt-4 sm:pt-0">
+                        {/* Info Column */}
+                        <div className="flex-1 text-center md:text-left space-y-1">
                             {isEditing ? (
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2 relative">
-                                            <span className="text-xl font-black text-slate-400">@</span>
+                                <div className="space-y-2 pb-2">
+                                    <input
+                                        type="text"
+                                        value={user?.name}
+                                        readOnly
+                                        className="bg-transparent text-3xl font-black text-slate-900 dark:text-white tracking-tight outline-none w-full border-b border-transparent focus:border-primary/30"
+                                    />
+                                    <div className="flex items-center gap-2 justify-center md:justify-start">
+                                        <span className="text-xl font-black text-slate-400">@</span>
+                                        <div className="relative flex-1 max-w-[200px]">
                                             <input
                                                 type="text"
                                                 value={username}
@@ -291,7 +365,7 @@ function Profile() {
                                                     setSaveMessage("");
                                                 }}
                                                 placeholder="username"
-                                                className={`bg-slate-100 dark:bg-slate-800/50 border ${isUsernameAvailable === true ? 'border-emerald-500/50' : isUsernameAvailable === false ? 'border-rose-500/50' : 'border-slate-200 dark:border-slate-700'} text-slate-900 dark:text-white font-medium rounded-lg px-3 py-1.5 outline-none focus:border-primary transition-colors w-full sm:max-w-[200px] pr-8`}
+                                                className={`w-full bg-slate-100 dark:bg-slate-800/50 border ${isUsernameAvailable === true ? 'border-emerald-500/50' : isUsernameAvailable === false ? 'border-rose-500/50' : 'border-slate-200 dark:border-slate-700'} text-slate-900 dark:text-white font-bold rounded-lg px-2 py-1 text-sm outline-none focus:border-primary transition-colors`}
                                             />
                                             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center">
                                                 {isCheckingUsername ? (
@@ -303,77 +377,73 @@ function Profile() {
                                                 ) : null}
                                             </div>
                                         </div>
-                                        {isUsernameAvailable === true && <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest px-1">Available!</p>}
-                                        {isUsernameAvailable === false && <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest px-1">Taken</p>}
-                                        {saveMessage && <p className={`text-xs font-bold ${saveMessage.includes('Failed') ? 'text-red-500' : 'text-emerald-500'}`}>{saveMessage}</p>}
                                     </div>
+                                </div>
                             ) : (
                                 <>
-                                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-                                        {user?.name || username || "Your Profile"}
-                                    </h1>
-                                    <p className="text-primary font-medium">@{username || "username"}</p>
+                                    <div className="flex items-center gap-2 justify-center md:justify-start">
+                                        <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{user?.name}</h1>
+                                        {user?.verified && (
+                                            <span className="material-symbols-outlined text-primary text-xl" title="Verified Member">verified</span>
+                                        )}
+                                    </div>
+                                    <p className="text-sm font-bold text-slate-500 dark:text-slate-400">@{user?.username}</p>
+                                    <p className="text-sm text-slate-600 dark:text-slate-300 max-w-md font-medium">
+                                        {user?.bio || "Just another focused human."}
+                                    </p>
                                 </>
                             )}
                         </div>
 
-                        {/* Public Link Share (View Mode only) */}
-                        {!isEditing && isPublic && username && (
-                            <a href={`/u/${username}`} target="_blank" rel="noopener noreferrer" className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg text-sm font-bold transition-colors">
-                                <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-                                View Public Link
-                            </a>
-                        )}
-
-                        {/* Action Buttons (Edit Mode / View Mode) */}
-                        <div className="flex items-center justify-center sm:justify-start gap-2 pt-2 sm:pt-0 sm:self-center w-full sm:w-auto">
+                        {/* Actions Column */}
+                        <div className="flex flex-col items-center md:items-end gap-3 pb-1">
                             {isEditing ? (
-                                <>
+                                <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => setIsEditing(false)}
-                                        className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-700 dark:text-slate-200 font-bold text-sm transition-colors w-full sm:w-auto text-center"
+                                        className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-slate-700 dark:text-slate-200 font-bold text-xs transition-colors"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         onClick={handleSaveProfile}
                                         disabled={isSaving || isUsernameAvailable === false || isCheckingUsername}
-                                        className="px-4 py-2 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 w-full sm:w-auto text-center"
+                                        className="px-4 py-2 bg-primary text-white rounded-xl font-bold text-xs hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50"
                                     >
-                                        {isSaving ? 'Saving...' : 'Save Changes'}
+                                        {isSaving ? '...' : 'Save'}
                                     </button>
-                                </>
+                                </div>
                             ) : (
                                 <div className="flex items-center gap-2">
                                     <button
-                                        onClick={() => setIsPartnerModalOpen(true)}
-                                        className={`size-9 flex items-center justify-center rounded-lg border transition-colors relative ${user?.partner
-                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/20'
-                                            : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-primary hover:border-primary/30'
-                                            }`}
-                                        title={user?.partner ? `Linked with ${user.partner.name}` : user?.incomingPartnerRequest ? 'Incoming Partner Request!' : 'Link a Partner'}
+                                        onClick={() => setIsConnectionsModalOpen(true)}
+                                        className="size-10 flex items-center justify-center rounded-xl border bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-primary hover:border-primary/30 transition-colors relative"
+                                        title="Network"
                                     >
-                                        <span className="material-symbols-outlined text-[18px]">{user?.partner ? 'favorite' : 'link'}</span>
-                                        {!user?.partner && user?.incomingPartnerRequest && (
-                                            <span className="absolute -top-1 -right-1 size-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-[#192233] animate-pulse" />
+                                        <span className="material-symbols-outlined text-[20px]">group</span>
+                                        {user?.incomingConnectionRequests?.length > 0 && (
+                                            <span className="absolute -top-1 -right-1 size-3 bg-rose-500 rounded-full border-2 border-white dark:border-[#192233] animate-pulse" />
                                         )}
                                     </button>
-                                    {user?.email === 'ernestodesabillejr@gmail.com' && (
+                                    <button
+                                        onClick={() => setIsPartnerModalOpen(true)}
+                                        className={`size-10 flex items-center justify-center rounded-xl border transition-colors relative ${user?.partner
+                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
+                                            : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 hover:text-primary'
+                                            }`}
+                                        title="Shared Account"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]">{user?.partner ? 'favorite' : 'link'}</span>
+                                    </button>
+                                    {viewMode !== 'partner' && (
                                         <button
-                                            onClick={() => navigate('/dashboard/admin')}
-                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm font-bold text-sm hover:bg-blue-700 transition-colors w-full sm:w-auto"
+                                            onClick={() => setIsEditing(true)}
+                                            className="px-4 py-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-xl font-bold text-xs hover:opacity-90 transition-opacity flex items-center gap-2 shadow-lg shadow-black/10 dark:shadow-white/5"
                                         >
-                                            <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
-                                            Manage System
+                                            <span className="material-symbols-outlined text-base">edit</span>
+                                            Edit
                                         </button>
                                     )}
-                                    <button
-                                        onClick={() => setIsEditing(true)}
-                                        className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-lg shadow-sm font-bold text-sm hover:opacity-90 transition-opacity w-full sm:w-auto"
-                                    >
-                                        <span className="material-symbols-outlined text-[18px]">edit</span>
-                                        Edit Profile
-                                    </button>
                                 </div>
                             )}
                         </div>
@@ -383,12 +453,26 @@ function Profile() {
                     <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                         {isEditing ? (
                             <div className="space-y-6">
+                                {/* Bio Edit */}
+                                <div>
+                                    <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-[14px]">description</span> About You
+                                    </label>
+                                    <textarea
+                                        value={bio}
+                                        onChange={(e) => setBio(e.target.value)}
+                                        placeholder="Add a short bio to let others know what you are focusing on..."
+                                        rows={3}
+                                        className="w-full bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 rounded-xl px-4 py-3 outline-none focus:border-primary transition-all resize-none"
+                                    />
+                                </div>
+
                                 {/* Avatar Customization Button */}
                                 <div>
-                                    <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">face</span> Avatar Customization</label>
+                                    <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">face</span> Character Customization</label>
                                     <button
                                         onClick={() => setIsAvatarEditorOpen(true)}
-                                        className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-700 dark:text-slate-300 rounded-xl px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+                                        className="w-full bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-700 dark:text-slate-300 rounded-xl px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
                                     >
                                         <span className="material-symbols-outlined text-lg">palette</span>
                                         Customize Character
@@ -396,18 +480,6 @@ function Profile() {
                                 </div>
 
 
-                                <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                                    <div>
-                                        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5"><span className="material-symbols-outlined text-[18px]">public</span> Public Profile</h3>
-                                        <p className="text-xs text-slate-500 mt-0.5 max-w-sm">Allow others to view your profile banner, avatar, bio, and top streaks via a shareable link.</p>
-                                    </div>
-                                    <button
-                                        onClick={() => setIsPublic(!isPublic)}
-                                        className={`w-12 h-6 rounded-full p-1 transition-colors shrink-0 ${isPublic ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'}`}
-                                    >
-                                        <div className={`w-4 h-4 rounded-full bg-white shadow-sm transform transition-transform ${isPublic ? 'translate-x-6' : 'translate-x-0'}`}></div>
-                                    </button>
-                                </div>
 
                                 {/* Partner Linking UI — removed from here, accessible via icon button */}
                             </div>
@@ -461,11 +533,11 @@ function Profile() {
                     </div>
                 </div>
 
-                {/* Top Streaks */}
+                {/* Core Streaks */}
                 <div className="bg-white dark:bg-[#192233] p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 lg:col-span-2">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4">Top 3 Habit Streaks 🔥</h3>
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4">Core System Streaks 🔥</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        {topHabits.length > 0 ? topHabits.map((habit) => (
+                        {coreHabits.length > 0 ? coreHabits.map((habit) => (
                             <div key={habit._id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 flex items-center gap-3">
                                 <div className={`size-10 rounded-xl bg-${habit.color}-500/20 text-${habit.color}-500 flex items-center justify-center shrink-0`}>
                                     <span className="material-symbols-outlined">{habit.icon}</span>
@@ -476,7 +548,7 @@ function Profile() {
                                 </div>
                             </div>
                         )) : (
-                            <p className="text-sm text-slate-500 col-span-3 text-center py-4">Complete habits to start standard streaks!</p>
+                            <p className="text-sm text-slate-500 col-span-3 text-center py-4">Core system habits missing!</p>
                         )}
                     </div>
                 </div>
@@ -492,7 +564,7 @@ function Profile() {
                                 label: 'First Habit',
                                 desc: 'Tracked your first habit',
                                 color: 'emerald',
-                                unlocked: topHabits.length > 0,
+                                unlocked: allHabits.length > 0,
                             },
                             {
                                 id: 'streak_7',
@@ -500,7 +572,7 @@ function Profile() {
                                 label: '7-Day Streak',
                                 desc: 'Kept a streak for 7+ days',
                                 color: 'orange',
-                                unlocked: topHabits.some(h => h.streak >= 7),
+                                unlocked: allHabits.some(h => h.streak >= 7),
                             },
                             {
                                 id: 'streak_30',
@@ -508,7 +580,7 @@ function Profile() {
                                 label: '30-Day Grind',
                                 desc: 'Achieved a 30-day streak',
                                 color: 'rose',
-                                unlocked: topHabits.some(h => h.streak >= 30),
+                                unlocked: allHabits.some(h => h.streak >= 30),
                             },
                             {
                                 id: 'wishlist',
@@ -516,7 +588,7 @@ function Profile() {
                                 label: 'Dream Chaser',
                                 desc: 'Completed a wishlist item',
                                 color: 'amber',
-                                unlocked: wishlist.some(i => i.completed),
+                                unlocked: wishlist.some(i => i.purchased || i.completed),
                             },
                             {
                                 id: 'planner',
@@ -532,7 +604,7 @@ function Profile() {
                                 label: 'Triple Threat',
                                 desc: 'Tracking 3+ habits at once',
                                 color: 'violet',
-                                unlocked: topHabits.length >= 3,
+                                unlocked: allHabits.length >= 3,
                             },
                             {
                                 id: 'profile',
@@ -546,7 +618,7 @@ function Profile() {
                                 id: 'partner',
                                 icon: 'favorite',
                                 label: 'Better Together',
-                                desc: 'Linked with a partner',
+                                desc: 'Enabled account sharing',
                                 color: 'pink',
                                 unlocked: !!user?.partner,
                             },
@@ -590,19 +662,39 @@ function Profile() {
                         />
                     </form>
 
-                    <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
-                        {wishlist.length > 0 ? wishlist.map(item => (
-                            <div key={item.id} className="flex items-center gap-3 group">
-                                <button
-                                    onClick={() => toggleWishlist(item.id)}
-                                    className={`size-5 rounded border flex items-center justify-center shrink-0 transition-colors ${item.completed ? 'bg-primary border-primary text-white' : 'border-slate-300 dark:border-slate-600'}`}
-                                >
-                                    {item.completed && <span className="material-symbols-outlined text-[14px]">check</span>}
-                                </button>
-                                <span className={`text-sm font-medium ${item.completed ? 'line-through text-slate-400' : ''}`}>{item.text}</span>
+                    <div className="grid grid-cols-2 gap-3 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
+                        {wishlist.length > 0 ? wishlist.map(item => {
+                            const isCompleted = item.purchased || item.completed;
+                            const itemId = item._id || item.id;
+                            return (
+                            <div key={itemId} onClick={() => toggleWishlist(itemId)} className={`relative flex flex-col rounded-2xl border p-3 cursor-pointer group transition-all ${isCompleted ? 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-60' : 'bg-white dark:bg-[#1e1f22] border-slate-100 dark:border-slate-800/80 hover:border-primary/50 shadow-sm'} overflow-hidden`}>
+                                
+                                {/* Optional Image or Placeholder */}
+                                {item.imageUrl ? (
+                                    <div className="w-full h-24 mb-3 rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden shrink-0">
+                                        <img src={item.imageUrl} alt={item.title} className={`w-full h-full object-cover transition-transform duration-500 ${isCompleted ? 'grayscale' : 'group-hover:scale-110'}`} />
+                                    </div>
+                                ) : (
+                                    <div className={`w-full h-24 mb-3 rounded-xl flex items-center justify-center shrink-0 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/30 ${isCompleted ? 'grayscale' : ''}`}>
+                                        <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">image</span>
+                                    </div>
+                                )}
+                                
+                                <h4 className={`text-sm tracking-tight font-bold truncate ${isCompleted ? 'line-through text-slate-400' : 'text-slate-800 dark:text-white'}`}>{item.title || item.text}</h4>
+                                <div className="flex justify-end items-center mt-2 pt-2 border-t border-slate-50 dark:border-slate-800/50">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); toggleWishlist(itemId); }}
+                                        className={`size-6 rounded-full border flex flex-col items-center justify-center shrink-0 transition-colors ${isCompleted ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-slate-600 text-transparent group-hover:border-emerald-500 group-hover:text-emerald-500'}`}
+                                    >
+                                        <span className="material-symbols-outlined text-[14px]">check</span>
+                                    </button>
+                                </div>
                             </div>
-                        )) : (
-                            <p className="text-xs text-slate-500 text-center pt-2">Nothing on your wishlist yet.</p>
+                        )}) : (
+                            <div className="col-span-2 flex flex-col items-center justify-center py-6 text-center">
+                                <span className="material-symbols-outlined text-3xl text-slate-300 dark:text-slate-600 mb-2">shopping_bag</span>
+                                <p className="text-xs font-medium text-slate-500">Nothing on your wishlist yet.</p>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -610,9 +702,175 @@ function Profile() {
             </div>
         </motion.div>
 
-        {/* Partner Link Modal */}
-        {
-            isPartnerModalOpen && (
+        {/* Connections Modal */}
+        <AnimatePresence>
+            {isConnectionsModalOpen && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
+                >
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsConnectionsModalOpen(false)}
+                        className="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm"
+                    />
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        className="relative w-full max-w-md bg-white dark:bg-[#192233] rounded-[32px] shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh]"
+                    >
+                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/20">
+                            <div>
+                                <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-primary">group</span>
+                                    Connections
+                                </h2>
+                                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">Manage your network</p>
+                            </div>
+                            <button
+                                onClick={() => setIsConnectionsModalOpen(false)}
+                                className="size-10 flex items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 transition-colors"
+                            >
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        {/* Tabs */}
+                        <div className="flex p-1.5 bg-slate-100 dark:bg-slate-900/50 m-4 rounded-2xl shrink-0">
+                            {[
+                                { id: 'connections', label: 'Network', icon: 'hub', count: connectionsData.connections.length },
+                                { id: 'incoming', label: 'Requests', icon: 'inbox', count: connectionsData.incoming.length },
+                                { id: 'outgoing', label: 'Pending', icon: 'outgoing_mail', count: connectionsData.outgoing.length }
+                            ].map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveConnectionsTab(tab.id)}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-[14px] text-xs font-black uppercase tracking-tighter transition-all relative ${
+                                        activeConnectionsTab === tab.id
+                                            ? 'bg-white dark:bg-slate-800 text-primary shadow-sm'
+                                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                                    }`}
+                                >
+                                    <span className="material-symbols-outlined text-[16px]">{tab.icon}</span>
+                                    {tab.label}
+                                    {tab.count > 0 && (
+                                        <span className={`size-4 flex items-center justify-center rounded-full text-[9px] font-black ${
+                                            activeConnectionsTab === tab.id ? 'bg-primary text-white' : 'bg-slate-300 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                                        }`}>
+                                            {tab.count}
+                                        </span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto px-4 pb-6 custom-scrollbar">
+                            {isFetchingConnections ? (
+                                <div className="py-20 flex flex-col items-center justify-center gap-4">
+                                    <div className="size-8 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading network...</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {activeConnectionsTab === 'connections' && (
+                                        connectionsData.connections.length > 0 ? connectionsData.connections.map(u => (
+                                             <div key={u._id} className={`p-3 border rounded-2xl flex items-center justify-between group ${user?.partner?._id === u._id ? 'bg-rose-50/50 border-rose-200 dark:bg-rose-500/5 dark:border-rose-500/20 shadow-sm' : 'bg-slate-50 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800'}`}>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="size-11 rounded-full bg-white dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center">
+                                                        <Avatar config={u.avatar} scale={0.8} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-sm font-black text-slate-900 dark:text-white leading-tight">{u.name}</p>
+                                                            {user?.partner?._id === u._id && (
+                                                                <span className="px-1.5 py-0.5 rounded-md bg-rose-500 text-white text-[8px] font-black uppercase tracking-widest leading-none shadow-sm">Shared</span>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">@{u.username}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button onClick={() => { setProfileModalUser(u.username); setIsConnectionsModalOpen(false); }} className="size-9 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary transition-all active:scale-95" title="View Profile">
+                                                        <span className="material-symbols-outlined text-[18px]">person</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )) : (
+                                            <div className="py-12 text-center opacity-40">
+                                                <span className="material-symbols-outlined text-4xl mb-2">person_off</span>
+                                                <p className="text-xs font-black uppercase tracking-widest">Network empty</p>
+                                            </div>
+                                        )
+                                    )}
+
+                                    {activeConnectionsTab === 'incoming' && (
+                                        connectionsData.incoming.length > 0 ? connectionsData.incoming.map(u => (
+                                            <div key={u._id} className="p-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between animate-in slide-in-from-right duration-300">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="size-11 rounded-full bg-white dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center">
+                                                        <Avatar config={u.avatar} scale={0.8} />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-black text-slate-900 dark:text-white leading-tight">{u.name}</p>
+                                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">@{u.username}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button onClick={() => handleConnectionAction('reject', u._id)} className="size-9 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-rose-500 transition-all active:scale-95" title="Reject">
+                                                        <span className="material-symbols-outlined text-[18px]">close</span>
+                                                    </button>
+                                                    <button onClick={() => handleConnectionAction('accept', u._id)} className="size-9 flex items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20 hover:scale-110 active:scale-90 transition-all" title="Accept">
+                                                        <span className="material-symbols-outlined text-[18px]">check</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )) : (
+                                            <div className="py-12 text-center opacity-40">
+                                                <span className="material-symbols-outlined text-4xl mb-2">inbox</span>
+                                                <p className="text-xs font-black uppercase tracking-widest">No pending requests</p>
+                                            </div>
+                                        )
+                                    )}
+
+                                    {activeConnectionsTab === 'outgoing' && (
+                                        connectionsData.outgoing.length > 0 ? connectionsData.outgoing.map(u => (
+                                            <div key={u._id} className="p-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="size-11 rounded-full bg-white dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center">
+                                                        <Avatar config={u.avatar} scale={0.8} />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-black text-slate-900 dark:text-white leading-tight">{u.name}</p>
+                                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">@{u.username}</p>
+                                                    </div>
+                                                </div>
+                                                <button onClick={() => handleConnectionAction('cancel', u._id)} className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-[10px] font-black uppercase text-slate-400 hover:text-rose-500 transition-colors" title="Cancel Request">
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        )) : (
+                                            <div className="py-12 text-center opacity-40">
+                                                <span className="material-symbols-outlined text-4xl mb-2">send</span>
+                                                <p className="text-xs font-black uppercase tracking-widest">No sent requests</p>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+
+        {/* Shared Account Modal */}
+        <AnimatePresence>
+            {isPartnerModalOpen && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -624,6 +882,7 @@ function Profile() {
                     <motion.div
                         initial={{ scale: 0.95, opacity: 0, y: 10 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.95, opacity: 0, y: 10 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                         onClick={(e) => e.stopPropagation()}
                         className="relative z-10 w-full max-w-md bg-white dark:bg-[#192233] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-8"
@@ -634,7 +893,7 @@ function Profile() {
                                     <span className="material-symbols-outlined text-primary text-xl">{user?.partner ? 'favorite' : 'link'}</span>
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-black text-slate-900 dark:text-white">Partner Link</h2>
+                                    <h2 className="text-lg font-black text-slate-900 dark:text-white">Shared Account</h2>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">View each other's Habits &amp; Planner</p>
                                 </div>
                             </div>
@@ -652,11 +911,20 @@ function Profile() {
                                     <div className="size-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-xl font-black text-emerald-600 shrink-0">
                                         {user.partner.name?.charAt(0).toUpperCase()}
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-black text-slate-900 dark:text-white">{user.partner.name}</p>
-                                        <p className="text-xs text-emerald-500 font-bold flex items-center gap-1">
-                                            <span className="material-symbols-outlined text-[14px]">check_circle</span> Linked
-                                        </p>
+                                    <div className="flex-1 min-w-0 flex items-center justify-between gap-3">
+                                        <div>
+                                            <p className="text-sm font-black text-slate-900 dark:text-white leading-tight">{user.partner.name}</p>
+                                            <p className="text-xs text-emerald-500 font-bold flex items-center gap-1">
+                                                <span className="material-symbols-outlined text-[14px]">check_circle</span> Shared
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => { setProfileModalUser(user.partner.username); setIsPartnerModalOpen(false); }}
+                                            className="size-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all active:scale-95"
+                                            title={`Visit ${user.partner.name}'s Profile`}
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">person</span>
+                                        </button>
                                     </div>
                                 </div>
                                 {linkMessage && (
@@ -668,7 +936,7 @@ function Profile() {
                                     className="w-full py-3 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 rounded-2xl font-black text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
                                     <span className="material-symbols-outlined text-[18px]">link_off</span>
-                                    {isLinking ? 'Unlinking...' : 'Unlink Partner'}
+                                    {isLinking ? 'Unlinking...' : 'Unlink Shared User'}
                                 </button>
                             </div>
                         ) : user?.incomingPartnerRequest ? (
@@ -679,7 +947,7 @@ function Profile() {
                                             {user.incomingPartnerRequest.name?.charAt(0)}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-black text-slate-900 dark:text-white text-wrap pr-1">{user.incomingPartnerRequest.name} wants to link!</p>
+                                            <p className="text-sm font-black text-slate-900 dark:text-white text-wrap pr-1">{user.incomingPartnerRequest.name} wants to share!</p>
                                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Incoming Request</p>
                                         </div>
                                     </div>
@@ -712,7 +980,7 @@ function Profile() {
                                             {user.outgoingPartnerRequest.name?.charAt(0)}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-black text-slate-900 dark:text-white text-wrap pr-1">Request sent to {user.outgoingPartnerRequest.name}</p>
+                                            <p className="text-sm font-black text-slate-900 dark:text-white text-wrap pr-1">Share request sent to {user.outgoingPartnerRequest.name}</p>
                                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Waiting for approval...</p>
                                         </div>
                                     </div>
@@ -731,7 +999,7 @@ function Profile() {
                         ) : (
                             <div className="space-y-4">
                                 <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                                    Enter your partner's email address to link accounts. They'll need to accept your request before it becomes active.
+                                    Enter an email address to share your progress and collaborate on habits.
                                 </p>
                                 <form onSubmit={handleLinkPartner} className="space-y-3">
                                     <div className="relative">
@@ -740,7 +1008,7 @@ function Profile() {
                                             type="email"
                                             value={partnerEmail}
                                             onChange={(e) => setPartnerEmail(e.target.value)}
-                                            placeholder="partner@email.com"
+                                            placeholder="user@email.com"
                                             className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-sm font-medium rounded-2xl outline-none focus:border-primary transition-colors"
                                         />
                                     </div>
@@ -753,15 +1021,15 @@ function Profile() {
                                         className="w-full py-3 bg-primary text-white rounded-2xl font-black text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 disabled:opacity-40 flex items-center justify-center gap-2"
                                     >
                                         <span className="material-symbols-outlined text-[18px]">send</span>
-                                        {isLinking ? 'Sending...' : 'Send Link Request'}
+                                        {isLinking ? 'Sending...' : 'Send Share Request'}
                                     </button>
                                 </form>
                             </div>
                         )}
                     </motion.div>
                 </motion.div>
-            )
-        }
+            )}
+        </AnimatePresence>
 
         {/* Avatar Editor Modal */}
         {isAvatarEditorOpen && (
@@ -774,6 +1042,15 @@ function Profile() {
                 }}
             />
         )}
+        {/* Profile Overlay Modal */}
+        <AnimatePresence>
+            {profileModalUser && (
+                <ProfileModal
+                    username={profileModalUser}
+                    onClose={() => setProfileModalUser(null)}
+                />
+            )}
+        </AnimatePresence>
     </>
     );
 }

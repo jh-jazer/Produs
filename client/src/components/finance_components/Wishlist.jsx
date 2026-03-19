@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 const WISHLIST_CATEGORIES = [
     { label: 'General', color: 'bg-slate-100 text-slate-600 dark:bg-slate-500/10' },
@@ -112,6 +113,8 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
         }
     };
 
+    const [confirmDelete, setConfirmDelete] = useState(null);
+
     const handleDelete = async (id) => {
         try {
             await api.delete(`/finance/wishlist/${id}`);
@@ -137,7 +140,16 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
     };
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[350px]">
+        <>
+            <ConfirmDialog
+                isOpen={!!confirmDelete}
+                title="Remove from Wishlist"
+                message="Are you sure you want to remove this item from your wishlist?"
+                confirmLabel="Remove"
+                onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
+                onCancel={() => setConfirmDelete(null)}
+            />
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[350px]">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">shopping_bag</span>
@@ -301,7 +313,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                                 </a>
                             )}
                             <button
-                                onClick={() => handleDelete(item._id)}
+                                onClick={() => setConfirmDelete(item._id)}
                                 className="size-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-all"
                             >
                                 <span className="material-symbols-outlined text-lg">delete</span>
@@ -432,7 +444,8 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                 </div>,
                 document.body
             )}
-        </div>
+            </div>
+        </>
     );
 };
 

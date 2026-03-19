@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import Avatar from './Avatar';
+import ProfileModal from './ProfileModal';
 
-const UserSearch = () => {
+const UserSearch = ({ onSelect }) => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [profileModalUser, setProfileModalUser] = useState(null);
     const searchRef = useRef(null);
     const navigate = useNavigate();
 
@@ -70,9 +73,10 @@ const UserSearch = () => {
                             <button
                                 key={user._id}
                                 onClick={() => {
-                                    navigate(`/u/${user.username}`);
+                                    setProfileModalUser(user.username);
                                     setShowResults(false);
                                     setQuery('');
+                                    if (onSelect) onSelect(user);
                                     // Let parent component know a selection was made if needed
                                     const event = new CustomEvent('user-selected', { detail: user });
                                     window.dispatchEvent(event);
@@ -94,6 +98,9 @@ const UserSearch = () => {
                                         {user.username.toLowerCase().includes(query.toLowerCase()) && (
                                             <span className="px-1.5 py-0.5 rounded-md bg-primary/10 text-[9px] font-black text-primary uppercase tracking-tighter">Username Match</span>
                                         )}
+                                        {user._id === query && (
+                                            <span className="px-1.5 py-0.5 rounded-md bg-blue-500/10 text-[9px] font-black text-blue-500 uppercase tracking-tighter">Exact ID Match</span>
+                                        )}
                                     </p>
                                 </div>
                                 <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 group-hover:text-primary group-hover:translate-x-1 transition-all">chevron_right</span>
@@ -110,6 +117,15 @@ const UserSearch = () => {
                     <p className="text-xs text-slate-500 mt-1">Try searching for a different name.</p>
                 </div>
             )}
+            {/* Profile Overlay Modal */}
+            <AnimatePresence>
+                {profileModalUser && (
+                    <ProfileModal
+                        username={profileModalUser}
+                        onClose={() => setProfileModalUser(null)}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };

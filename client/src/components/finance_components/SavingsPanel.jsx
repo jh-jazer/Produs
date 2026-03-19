@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
     const [showAdd, setShowAdd] = useState(false);
@@ -51,8 +52,9 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
         }
     };
 
+    const [confirmDelete, setConfirmDelete] = useState(null);
+
     const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to remove this savings goal?')) return;
         try {
             await api.delete(`/finance/savings/${id}`);
             onAction();
@@ -66,7 +68,16 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
     const overallProgress = totalTarget > 0 ? (totalSavings / totalTarget) * 100 : 0;
 
     return (
-        <div className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-8 shadow-sm overflow-hidden relative">
+        <>
+            <ConfirmDialog
+                isOpen={!!confirmDelete}
+                title="Remove Savings Goal"
+                message="Are you sure you want to remove this savings goal? This cannot be undone."
+                confirmLabel="Remove"
+                onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
+                onCancel={() => setConfirmDelete(null)}
+            />
+            <div className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-8 shadow-sm overflow-hidden relative">
             <div className="absolute -right-24 -top-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
 
             <div className="relative z-10">
@@ -110,7 +121,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{s.category}</p>
                                         </div>
                                         <button
-                                            onClick={() => handleDelete(s._id)}
+                                            onClick={() => setConfirmDelete(s._id)}
                                             className="text-slate-300 hover:text-rose-500 transition-colors"
                                         >
                                             <span className="material-symbols-outlined text-lg">delete</span>
@@ -264,7 +275,8 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                 </div>,
                 document.body
             )}
-        </div>
+            </div>
+        </>
     );
 };
 
