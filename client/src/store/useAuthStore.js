@@ -14,6 +14,9 @@ try {
 
 const useAuthStore = create((set) => ({
     user: storedUserInfo,
+    viewMode: 'me',
+
+    setViewMode: (mode) => set({ viewMode: mode }),
 
     setCredentials: (data) => {
         set({ user: data });

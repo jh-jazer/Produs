@@ -574,18 +574,15 @@ function HabitTracker({
 
                         {/* Week Selector Integrated - Moved back to Row 1 */}
                         {!isDashboard && onDateChange && (
-                            <div className="flex items-center gap-1 md:bg-slate-50 md:dark:bg-slate-800/50 md:border md:border-slate-200 md:dark:border-slate-700/50 md:rounded-xl md:p-0.5 md:shadow-sm">
+                            <div className="hidden md:flex items-center gap-1 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl p-0.5 shadow-sm">
                                 <button
                                     onClick={() => onDateChange(-1)}
                                     className="p-1 px-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-primary transition-all"
                                 >
                                     <span className="material-symbols-outlined text-sm">chevron_left</span>
                                 </button>
-                                <div className="px-1 text-[10px] font-black text-slate-600 dark:text-slate-300 min-w-[60px] md:min-w-[100px] text-center uppercase tracking-wider">
-                                    <span className="md:hidden">
-                                        {String(activeDate.getMonth() + 1).padStart(2, '0')} - {getWeekOfMonth(activeDate)}
-                                    </span>
-                                    <span className="hidden md:inline">
+                                <div className="px-1 text-[10px] font-black text-slate-600 dark:text-slate-300 min-w-[100px] text-center uppercase tracking-wider">
+                                    <span>
                                         {months[activeDate.getMonth()]} • {getWeekOfMonth(activeDate)}
                                     </span>
                                 </div>

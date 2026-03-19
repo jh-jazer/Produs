@@ -10,7 +10,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['produs-logo.png', 'favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['produs-logo.png'],
+      devOptions: {
+        enabled: true
+      },
       manifest: {
         name: 'Produs Productivity',
         short_name: 'Produs',

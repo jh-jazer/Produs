@@ -17,8 +17,7 @@ import MobileTabNav from '../components/ui/MobileTabNav';
 const categories = ['All', 'Health', 'Mindset', 'Finance', 'Productivity', 'Creative'];
 
 function Habits() {
-    const { user } = useAuthStore();
-    const [viewMode, setViewMode] = useState('me'); // 'me' or 'partner'
+    const { user, viewMode, setViewMode } = useAuthStore();
     const [activeDate, setActiveDate] = useState(new Date()); // Default to current date
     const [currentFilter, setCurrentFilter] = useState('All');
     const [activeTab, setActiveTab] = useState('tracker');
@@ -98,46 +97,18 @@ function Habits() {
     };
 
     return (
-        <div className="w-full max-w-[1200px] flex flex-col gap-2 animate-in fade-in duration-700 pb-28 md:pb-8">
+        <div className="w-full max-w-[1200px] lg:pt-12 flex flex-col gap-2 animate-in fade-in duration-700 pb-28 md:pb-8">
             
-            {/* Header - Hidden on Mobile */}
-            <div className="hidden md:flex flex-col gap-1 px-1 pt-8 pb-6 mb-6 border-b border-slate-100 dark:border-slate-800/50">
-                <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">
-                    {viewMode === 'partner' ? 'Team View' : 'Build Better Habits'}
-                </h1>
-                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                    {viewMode === 'partner'
-                        ? `Syncing ${myHabits.length} of your habits with ${partnerHabits.length} of ${user?.partner?.name}'s`
-                        : `Tracking ${totalActive} active habits • ${successRate}% success rate this week`
-                    }
-                </p>
-            </div>
 
             {/* Mobile Navigation */}
             <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6  ">
 
                 {/* Main Column (8 units): Habit Tracker & Consistency */}
-                <div className="lg:col-span-8 flex flex-col gap-6 order-1">
+                <div className="lg:col-span-8 flex flex-col gap-6 order-1 lg:order-2">
                     
-                    {/* View Toggle - Mobile only (Top of Tracker) */}
-                    {user?.partner && activeTab === 'tracker' && (
-                        <div className="lg:hidden bg-slate-50 dark:bg-slate-800/50 p-1 rounded-xl flex relative z-20">
-                            <button
-                                onClick={() => setViewMode('me')}
-                                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-colors ${viewMode === 'me' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`}
-                            >
-                                My Habits
-                            </button>
-                            <button
-                                onClick={() => setViewMode('partner')}
-                                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-colors ${viewMode === 'partner' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`}
-                            >
-                                Team Habit
-                            </button>
-                        </div>
-                    )}
+                    {/* View Toggle removed from Mobile (now handled by global header partner icon) */}
 
                     {/* Habit Tracker Component */}
                     <div className={activeTab === 'tracker' ? 'block' : 'hidden lg:block'}>
@@ -170,7 +141,18 @@ function Habits() {
                 </div>
 
                 {/* Secondary Column (4 units): Streaks & Challenges */}
-                <div className={`lg:col-span-4 flex flex-col gap-6 order-2 ${activeTab !== 'challenges' && 'hidden lg:flex'}`}>
+                <div className={`lg:col-span-4 flex flex-col gap-6 order-2 lg:order-1 ${activeTab !== 'challenges' && 'hidden lg:flex'}`}>
+                    
+                    {/* Header - Hidden on Mobile */}
+                    <div className="hidden md:flex flex-col gap-1">
+                        <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">
+                            Build Better Habits
+                        </h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                            Track your daily goals.
+                        </p>
+                    </div>
+
                     {/* View Toggle - Desktop only */}
                     {user?.partner && (
                         <div className="hidden lg:flex bg-slate-50 dark:bg-slate-800/50 p-1 rounded-xl">

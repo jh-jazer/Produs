@@ -3,10 +3,11 @@ import { createPortal } from 'react-dom';
 import api from '../../services/api';
 
 const PRESET_CATEGORIES = [
-    'Food', 'Rent', 'Transport', 'Entertainment', 'Utilities', 
-    'Health', 'Shopping', 'Savings', 'Gifts', 'Subsciptions',
-    'Personal', 'Education', 'Travel', 'Insurance', 'Fitness',
-    'Home', 'Auto', 'Pets', 'Beauty', 'Other'
+    'Food', 'Rent', 'Transport', 'Utilities', 'Health', 'Shopping',
+    'Savings', 'Subsciptions', 'Personal', 'Insurance', 'Beauty',
+    'General', 'Tech', 'Home', 'Fashion', 'Hobby', 'Fitness',
+    'Wellness', 'Education', 'Travel', 'Entertainment', 'Vehicles',
+    'Gifts', 'Pets', 'Other'
 ];
 
 const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {

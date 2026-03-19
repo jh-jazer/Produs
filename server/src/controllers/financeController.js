@@ -187,6 +187,11 @@ export const addWishlistItem = async (req, res) => {
             priority,
             link
         });
+
+        // Auto-check the Finance habit for adding to wishlist
+        const dateStr = new Date().toISOString().split('T')[0];
+        await checkSystemHabit(req.user._id, 'finance', dateStr);
+
         res.status(201).json(item);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -202,7 +207,7 @@ export const updateWishlistItem = async (req, res) => {
                 return res.status(401).json({ message: 'User not authorized' });
             }
 
-            const fieldsToUpdate = ['title', 'price', 'category', 'priority', 'link', 'purchased'];
+            const fieldsToUpdate = ['title', 'price', 'category', 'priority', 'link', 'purchased', 'actualPrice', 'savings'];
             fieldsToUpdate.forEach(field => {
                 if (req.body[field] !== undefined) {
                     item[field] = req.body[field];

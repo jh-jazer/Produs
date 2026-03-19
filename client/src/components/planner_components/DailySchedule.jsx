@@ -225,53 +225,57 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
 
     return (
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] flex flex-col shadow-xl transition-all hover:shadow-2xl">
-            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white/80 dark:bg-[#192233]/80 backdrop-blur-md z-30 sticky top-0">
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                    {!isReadOnly && (
-                        <button 
-                            onClick={() => setIsSettingsOpen(true)}
-                            className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-colors flex items-center justify-center"
-                            title="Sleep Settings"
-                        >
-                            <span className="material-symbols-outlined text-lg">bedtime</span>
-                        </button>
-                    )}
-                    <button 
-                        onClick={onFlip}
-                        className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-colors flex items-center justify-center"
-                        title="Back to Priority"
-                    >
-                        <span className="material-symbols-outlined text-xl">arrow_back</span>
-                    </button>
-                </div>
+            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-start bg-white/80 dark:bg-[#192233]/80 backdrop-blur-md z-30 sticky top-0">
+                <div className="flex items-center gap-3 mt-0.5">
+                    <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-primary">calendar_month</span>
+                    </div>
                     <div>
-                        <h3 className="font-black text-slate-900 dark:text-white tracking-tight">Daily Planner</h3>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Planner</h3>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Time blocking</p>
                     </div>
                 </div>
-                {!isReadOnly && (
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => {
-                                if (scheduleItems.length > 0) {
-                                    setTemplateStep('save');
-                                    setIsAdding(true);
-                                }
-                            }}
-                            className={`p-2 rounded-xl transition-all ${scheduleItems.length === 0 ? 'opacity-30 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-primary'}`}
-                            title="Save as Template"
-                        >
-                            <span className="material-symbols-outlined text-xl">save</span>
-                        </button>
-                        <button
-                            onClick={() => { setIsAdding(!isAdding); setTemplateStep('add'); }}
-                            className={`p-2 rounded-xl transition-all ${isAdding && templateStep === 'add' ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-primary'}`}
-                        >
-                            <span className="material-symbols-outlined text-xl">{isAdding && templateStep === 'add' ? 'close' : 'add'}</span>
-                        </button>
-                    </div>
-                )}
+                
+                <div className="flex flex-col items-end gap-2">
+                    {!isReadOnly && (
+                        <div className="flex items-center gap-0.5 sm:gap-2">
+                            <button 
+                                onClick={() => setIsSettingsOpen(true)}
+                                className="p-1 sm:p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center"
+                                title="Sleep Settings"
+                            >
+                                <span className="material-symbols-outlined text-[18px] sm:text-[20px]">bedtime</span>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (scheduleItems.length > 0) {
+                                        setTemplateStep('save');
+                                        setIsAdding(true);
+                                    }
+                                }}
+                                className={`p-1 sm:p-1.5 rounded-lg transition-colors flex items-center justify-center ${scheduleItems.length === 0 ? 'opacity-30 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                                title="Save as Template"
+                            >
+                                <span className="material-symbols-outlined text-[18px] sm:text-[20px]">save</span>
+                            </button>
+                            <button
+                                onClick={() => { setIsAdding(!isAdding); setTemplateStep('add'); }}
+                                className={`p-1 sm:p-1.5 rounded-lg transition-colors flex items-center justify-center ${isAdding && templateStep === 'add' ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                                title="Add Task"
+                            >
+                                <span className="material-symbols-outlined text-[18px] sm:text-[20px]">{isAdding && templateStep === 'add' ? 'close' : 'add'}</span>
+                            </button>
+                        </div>
+                    )}
+                    <button 
+                        onClick={onFlip}
+                        className="p-1 sm:p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-colors flex items-center gap-1.5 group"
+                        title="Back to Priority"
+                    >
+                        <span className="text-[10px] font-black uppercase tracking-widest transition-opacity text-primary">Priority</span>
+                        <span className="material-symbols-outlined text-[20px]">close_fullscreen</span>
+                    </button>
+                </div>
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar relative font-inter bg-slate-50/30 dark:bg-transparent">

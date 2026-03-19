@@ -11,11 +11,19 @@ const WISHLIST_CATEGORIES = [
     { label: 'Hobby', color: 'bg-purple-100 text-purple-600 dark:bg-purple-500/10' },
     { label: 'Fitness', color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10' },
     { label: 'Wellness', color: 'bg-rose-100 text-rose-600 dark:bg-rose-500/10' },
+    { label: 'Education', color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/10' },
+    { label: 'Travel', color: 'bg-sky-100 text-sky-600 dark:bg-sky-500/10' },
+    { label: 'Entertainment', color: 'bg-orange-100 text-orange-600 dark:bg-orange-500/10' },
+    { label: 'Vehicles', color: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-500/10' },
+    { label: 'Gifts', color: 'bg-fuchsia-100 text-fuchsia-600 dark:bg-fuchsia-500/10' },
+    { label: 'Pets', color: 'bg-teal-100 text-teal-600 dark:bg-teal-500/10' },
 ];
 
-const Wishlist = ({ items, currencySymbol, onAction }) => {
+const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
     const [isAdding, setIsAdding] = useState(false);
     const [filterCategory, setFilterCategory] = useState('All');
+    const [filterStatus, setFilterStatus] = useState('All');
+    const [filterPriority, setFilterPriority] = useState('All');
     const [newItem, setNewItem] = useState({
         title: '',
         budgetPrice: '',
@@ -26,6 +34,15 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
     });
     const [buyingItem, setBuyingItem] = useState(null);
     const [actualPrice, setActualPrice] = useState('');
+
+    // Deduplicate and prepare categories from budgets
+    const budgetCategories = budgets.map(b => b.category);
+    const availableCategories = budgetCategories.length > 0 ? budgetCategories : [
+        'General', 'Food', 'Transport', 'Utilities', 'Entertainment', 
+        'Tech', 'Home', 'Fashion', 'Hobby', 'Fitness', 'Wellness', 
+        'Education', 'Travel', 'Vehicles', 'Gifts', 'Pets', 'Other'
+    ];
+    if (!availableCategories.includes('General')) availableCategories.push('General');
 
     const handleAdd = async (e) => {
         e.preventDefault();
@@ -48,11 +65,34 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
         if (!buyingItem) return;
         try {
             const actual = parseFloat(actualPrice);
+            const savingsAmount = (buyingItem.budgetPrice || buyingItem.price) - actual;
+
             await api.patch(`/finance/wishlist/${buyingItem._id}`, {
                 purchased: true,
                 actualPrice: actual,
-                savings: (buyingItem.budgetPrice || buyingItem.price) - actual
+                savings: savingsAmount
             });
+            
+            // Auto create transaction for the expense
+            await api.post('/finance/transactions', {
+                title: buyingItem.title,
+                amount: actual,
+                type: 'expense',
+                category: buyingItem.category || 'General',
+                date: new Date().toISOString().split('T')[0]
+            });
+
+            // Auto create transaction for the savings if there are any
+            if (savingsAmount > 0) {
+                await api.post('/finance/transactions', {
+                    title: `Saved on: ${buyingItem.title}`,
+                    amount: savingsAmount,
+                    type: 'savings',
+                    category: 'Savings',
+                    date: new Date().toISOString().split('T')[0]
+                });
+            }
+
             onAction();
             setBuyingItem(null);
             setActualPrice('');
@@ -82,7 +122,9 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
     };
 
     const filteredItems = items?.filter(item => 
-        filterCategory === 'All' || item.category === filterCategory
+        (filterCategory === 'All' || item.category === filterCategory) &&
+        (filterStatus === 'All' || (filterStatus === 'Bought' ? item.purchased : !item.purchased)) &&
+        (filterPriority === 'All' || item.priority === filterPriority)
     ) || [];
 
     const totalBudget = filteredItems.reduce((sum, item) => sum + (item.purchased ? 0 : (item.budgetPrice || item.price)), 0);
@@ -109,27 +151,54 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
                 </button>
             </div>
 
-            {/* Category Filter */}
-            <div className="flex flex-wrap gap-1.5 mb-6 pb-2 border-b border-slate-50 dark:border-slate-800/50">
-                <button
-                    onClick={() => setFilterCategory('All')}
-                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all ${filterCategory === 'All' 
-                        ? 'bg-primary text-white shadow-md shadow-primary/20' 
-                        : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
-                >
-                    All
-                </button>
-                {WISHLIST_CATEGORIES.map(cat => (
-                    <button
-                        key={cat.label}
-                        onClick={() => setFilterCategory(cat.label)}
-                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all ${filterCategory === cat.label 
-                            ? 'bg-primary text-white shadow-md shadow-primary/20' 
-                            : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+            {/* Filters Navigation */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 pb-4 border-b border-slate-50 dark:border-slate-800/50">
+                {/* Category Filter */}
+                <div className="flex flex-col gap-1.5 focus-within:z-10 relative">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
+                    <select
+                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none cursor-pointer"
+                        value={filterCategory}
+                        onChange={(e) => setFilterCategory(e.target.value)}
                     >
-                        {cat.label}
-                    </button>
-                ))}
+                        <option value="All">All Categories</option>
+                        {WISHLIST_CATEGORIES.map(cat => (
+                            <option key={cat.label} value={cat.label}>{cat.label}</option>
+                        ))}
+                    </select>
+                    <span className="material-symbols-outlined absolute right-4 bottom-2.5 text-slate-400 pointer-events-none">expand_more</span>
+                </div>
+                
+                {/* Status Filter */}
+                <div className="flex flex-col gap-1.5 focus-within:z-10 relative">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Status</label>
+                    <select
+                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none cursor-pointer"
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                    >
+                        <option value="All">All Status</option>
+                        <option value="Unbought">Unbought</option>
+                        <option value="Bought">Bought</option>
+                    </select>
+                    <span className="material-symbols-outlined absolute right-4 bottom-2.5 text-slate-400 pointer-events-none">expand_more</span>
+                </div>
+
+                {/* Priority Filter */}
+                <div className="flex flex-col gap-1.5 focus-within:z-10 relative">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Priority</label>
+                    <select
+                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none cursor-pointer"
+                        value={filterPriority}
+                        onChange={(e) => setFilterPriority(e.target.value)}
+                    >
+                        <option value="All">All Priorities</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                    <span className="material-symbols-outlined absolute right-4 bottom-2.5 text-slate-400 pointer-events-none">expand_more</span>
+                </div>
             </div>
 
             {/* Stats */}
@@ -219,10 +288,10 @@ const Wishlist = ({ items, currencySymbol, onAction }) => {
                                         setBuyingItem(item);
                                         setActualPrice(item.budgetPrice || item.price);
                                     }}
-                                    className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all flex items-center gap-1 shadow-md shadow-emerald-500/20"
+                                    title="Mark as Bought"
+                                    className="size-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all"
                                 >
-                                    <span className="material-symbols-outlined text-sm">shopping_cart</span>
-                                    Bought
+                                    <span className="material-symbols-outlined text-lg">shopping_cart</span>
                                 </button>
                             )}
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

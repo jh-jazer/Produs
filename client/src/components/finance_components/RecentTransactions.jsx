@@ -9,7 +9,11 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
 
     // Deduplicate and prepare categories from budgets
     const budgetCategories = budgets.map(b => b.category);
-    const availableCategories = budgetCategories.length > 0 ? budgetCategories : ['General', 'Food', 'Transport', 'Utilities', 'Entertainment', 'Other'];
+    const availableCategories = budgetCategories.length > 0 ? budgetCategories : [
+        'General', 'Food', 'Transport', 'Utilities', 'Entertainment', 
+        'Tech', 'Home', 'Fashion', 'Hobby', 'Fitness', 'Wellness', 
+        'Education', 'Travel', 'Vehicles', 'Gifts', 'Pets', 'Other'
+    ];
     
     // Ensure "General" or current category is included if not in budgets
     if (!availableCategories.includes('General')) availableCategories.push('General');

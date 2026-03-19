@@ -32,6 +32,14 @@ const wishlistSchema = new mongoose.Schema({
     purchased: {
         type: Boolean,
         default: false
+    },
+    actualPrice: {
+        type: Number,
+        default: 0
+    },
+    savings: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true

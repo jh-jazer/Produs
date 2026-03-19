@@ -83,15 +83,15 @@ const YearlyMoodBoard = ({ entries = [] }) => {
     const years = [2024, 2025, 2026];
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm font-inter min-h-[220px]">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm font-inter flex flex-col h-[500px]">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 shrink-0">
                 <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-none tracking-tight">Yearly Mood Board</h3>
                     <p className="text-xs text-slate-500 mt-1">Consistency tracking of your emotional wellbeing</p>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <div className="relative">
+                    <div className="relative z-30">
                         <button
                             onClick={() => setIsYearOpen(!isYearOpen)}
                             className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 text-[10px] font-black rounded-lg border border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-100"
@@ -115,68 +115,72 @@ const YearlyMoodBoard = ({ entries = [] }) => {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-slate-800/30 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800/50">
+                    <div className="hidden sm:flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-slate-800/30 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800/50">
                         <span>Low</span>
                         <div className="flex gap-1">
-                            <div className="w-2.5 h-2.5 rounded-sm bg-rose-500/60"></div>
-                            <div className="w-2.5 h-2.5 rounded-sm bg-amber-500/60"></div>
-                            <div className="w-2.5 h-2.5 rounded-sm bg-slate-300 dark:bg-slate-600"></div>
-                            <div className="w-2.5 h-2.5 rounded-sm bg-emerald-500/60"></div>
-                            <div className="w-2.5 h-2.5 rounded-sm bg-primary"></div>
+                            <div className="w-2 h-2 rounded-sm bg-rose-500/60"></div>
+                            <div className="w-2 h-2 rounded-sm bg-amber-500/60"></div>
+                            <div className="w-2 h-2 rounded-sm bg-slate-300 dark:bg-slate-600"></div>
+                            <div className="w-2 h-2 rounded-sm bg-emerald-500/60"></div>
+                            <div className="w-2 h-2 rounded-sm bg-primary"></div>
                         </div>
                         <span>High</span>
                     </div>
                 </div>
             </div>
 
-            <div className="flex gap-2 min-w-0 overflow-hidden">
-                <div className="flex flex-col gap-1 pr-2 pt-6 shrink-0">
-                    <div className="h-2.5"></div>
-                    <span className="text-[9px] font-bold text-slate-400 h-2.5 flex items-center uppercase">Mon</span>
-                    <div className="h-2.5"></div>
-                    <span className="text-[9px] font-bold text-slate-400 h-2.5 flex items-center uppercase">Wed</span>
-                    <div className="h-2.5"></div>
-                    <span className="text-[9px] font-bold text-slate-400 h-2.5 flex items-center uppercase">Fri</span>
-                    <div className="h-2.5"></div>
+            <div className="flex-1 overflow-y-auto custom-scrollbar relative">
+                {/* Header for Days - Sticky to top */}
+                <div className="sticky top-0 z-20 bg-white/95 dark:bg-[#192233]/95 backdrop-blur pt-2 pb-2 pl-12 pr-2">
+                    <div className="grid grid-cols-7 gap-1 sm:gap-2">
+                        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
+                            <span key={idx} className="flex items-center justify-center text-[10px] font-bold text-slate-400 uppercase">{day}</span>
+                        ))}
+                    </div>
                 </div>
 
-                <div className="flex-1 overflow-x-auto custom-scrollbar pb-3">
-                    <div className="relative mb-2 h-4">
+                <div className="flex relative pl-2 pr-2">
+                    {/* Y-axis: Months */}
+                    <div className="w-10 shrink-0 relative border-r border-slate-100 dark:border-slate-800/50 mr-2">
                         {monthLabels.map((l, i) => (
                             <div 
                                 key={i} 
-                                className="absolute text-[10px] font-black text-slate-400 uppercase tracking-tighter"
-                                style={{ left: `${l.index * 14}px` }}
+                                className="absolute text-[10px] font-black text-slate-400 uppercase tracking-tighter text-right w-full pr-2"
+                                style={{ top: `${(l.index / totalWeeks) * 100}%`, marginTop: '4px' }}
                             >
                                 {l.month}
                             </div>
                         ))}
                     </div>
 
-                    <div className="grid grid-flow-col grid-rows-7 gap-1 w-max">
+                    {/* Cells */}
+                    <div className="grid grid-cols-7 gap-1 sm:gap-2 flex-1 pb-6 w-full h-max">
                         {[...Array(totalCells)].map((_, i) => {
-                            const { date, isFuture, isWrongYear, moodData, colIndex } = getCellData(i);
+                            const { date, isFuture, isWrongYear, moodData } = getCellData(i);
 
                             let cellClass = moodColors[0];
                             if (!isWrongYear && !isFuture && moodData) {
                                 cellClass = moodColors[moodData.level];
                             }
 
-                            const rowIndex = i % 7;
-                            const xAlign = colIndex < 5 ? 'left-0' : colIndex > 48 ? 'right-0' : 'left-1/2 -translate-x-1/2';
-                            const yAlign = rowIndex < 2 ? 'top-full mt-2' : 'bottom-full mb-2';
+                            const rowIndex = Math.floor(i / 7);
+                            const colIndex = i % 7;
+
+                            // Tooltip alignment
+                            const xAlign = colIndex < 3 ? 'left-0' : colIndex > 3 ? 'right-0' : 'left-1/2 -translate-x-1/2';
+                            const yAlign = rowIndex < 4 ? 'top-full mt-2' : 'bottom-full mb-2';
 
                             return (
                                 <div
                                     key={i}
-                                    className={`w-2.5 h-2.5 rounded-sm border-[0.5px] ${cellClass} transition-all duration-300 relative group cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : (isFuture ? 'opacity-20 cursor-not-allowed' : '')}`}
+                                    className={`w-full aspect-square sm:min-h-[24px] max-h-[36px] rounded-md border-[0.5px] ${cellClass} transition-all duration-300 relative group cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : (isFuture ? 'opacity-20 cursor-not-allowed' : '')}`}
                                 >
                                     {!isWrongYear && (
-                                        <div className={`absolute ${yAlign} ${xAlign} px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap font-black shadow-xl border border-slate-700 dark:border-slate-200 ring-4 ring-black/5 dark:ring-white/5`}>
+                                        <div className={`absolute ${yAlign} ${xAlign} px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-black shadow-xl border border-slate-700 dark:border-slate-200 ring-4 ring-black/5 dark:ring-white/5`}>
                                             <div className="flex flex-col items-center gap-0.5">
                                                 <span>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                                                {moodData && <span className="text-primary font-bold">Mood: {moodData.mood}</span>}
-                                                {isFuture && <span className="text-slate-400 italic">Future</span>}
+                                                {moodData ? <span className="text-primary font-bold">Mood: {moodData.mood}</span> : <span className="text-slate-400 italic">No entry</span>}
+                                                {isFuture && <span className="text-slate-500 italic">Future</span>}
                                             </div>
                                         </div>
                                     )}

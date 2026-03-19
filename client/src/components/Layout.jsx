@@ -20,7 +20,7 @@ function Layout() {
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [isBugModalOpen, setIsBugModalOpen] = useState(false);
 
-    const { user, logout, syncUser } = useAuthStore();
+    const { user, logout, syncUser, viewMode, setViewMode } = useAuthStore();
 
     useEffect(() => {
         // Apply Dark Mode from settings
@@ -165,12 +165,12 @@ function Layout() {
                             <span className="sm:hidden font-ubuntu text-xl font-black tracking-tight text-slate-900 dark:text-white transition-all">
                                 {getPageTitle()}
                             </span>
-                            <div className="hidden sm:flex items-center gap-3">
+                            <NavLink to="/" className="hidden sm:flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
                                 <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-sm ring-1 ring-slate-900/10">
                                     <img src="/produs-logo.png" alt="Produs Logo" className="w-full h-full object-cover" />
                                 </div>
                                 <h2 className="text-slate-900 dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">Produs</h2>
-                            </div>
+                            </NavLink>
                         </div>
                     </div>
 
@@ -194,11 +194,24 @@ function Layout() {
                     <div className="flex items-center gap-3 sm:gap-4">
                         <button
                             onClick={() => setIsSearchModalOpen(true)}
-                            className="relative size-10 flex items-center justify-center rounded-full text-slate-500 hover:text-primary transition-colors active:scale-95"
+                            className="hidden sm:flex relative size-10 items-center justify-center rounded-full text-slate-500 hover:text-primary transition-colors active:scale-95"
                             aria-label="Search users"
                         >
                             <span className="material-symbols-outlined text-[24px]">search</span>
                         </button>
+
+                        {/* Mobile Perspective Toggle */}
+                        {user?.partner && (
+                            <button
+                                onClick={() => setViewMode(viewMode === 'me' ? 'partner' : 'me')}
+                                title={`Switch to ${viewMode === 'me' ? user.partner.name : 'My'} view`}
+                                className={`sm:hidden relative size-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${viewMode === 'partner' ? 'bg-primary/10 text-primary' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary'}`}
+                            >
+                                {/* Two-person couple icon (Material Symbols 'group') */}
+                                <span className="material-symbols-outlined text-[24px]">group</span>
+                                {viewMode === 'partner' && <span className="absolute bottom-1 right-1 size-2.5 bg-green-500 border-[1.5px] border-white dark:border-[#192233] rounded-full" />}
+                            </button>
+                        )}
                         
                         <div className="relative" ref={profileRef}>
                             <button
@@ -293,12 +306,12 @@ function Layout() {
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)} />
                             <motion.div initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} className="fixed top-0 left-0 h-full w-72 z-[80] bg-white dark:bg-[#0f172a] border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-2xl md:hidden">
                                 <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
-                                    <div className="flex items-center gap-3">
+                                    <NavLink to="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
                                         <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-sm ring-1 ring-slate-900/10">
                                             <img src="/produs-logo.png" alt="Produs Logo" className="w-full h-full object-cover" />
                                         </div>
                                         <span className="text-slate-900 dark:text-white text-lg font-bold tracking-tight">Produs</span>
-                                    </div>
+                                    </NavLink>
                                     <button onClick={() => setIsMobileMenuOpen(false)} className="size-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                         <span className="material-symbols-outlined text-xl">close</span>
                                     </button>

@@ -1,6 +1,33 @@
 import React from 'react';
 import api from '../../services/api';
 
+const parseMarkdown = (text) => {
+    if (!text) return { __html: '' };
+
+    let html = text
+        // Checkboxes
+        .replace(/- \[[xX]\] (.*)/g, '<div class="flex items-start gap-2 my-1"><span class="material-symbols-outlined text-emerald-500 text-[16px] mt-0.5">check_box</span> <span>$1</span></div>')
+        .replace(/- \[ \] (.*)/g, '<div class="flex items-start gap-2 my-1"><span class="material-symbols-outlined text-slate-400 text-[16px] mt-0.5">check_box_outline_blank</span> <span>$1</span></div>')
+        // Unordered lists
+        .replace(/^- (?!\[)(.*)/gm, '<div class="flex items-start gap-2 my-1 text-slate-600 dark:text-slate-300"><span class="text-primary text-[10px] mt-1 mr-1">•</span> <span>$1</span></div>')
+        // Bold
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        // Italic
+        .replace(/_(.*?)_/g, '<em>$1</em>')
+        // Link
+        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-bold">$1</a>')
+        // Quote (account for HTML encoding)
+        .replace(/^&gt; (.*)/gm, '<blockquote class="border-l-[3px] border-primary/40 pl-3 my-2 italic text-slate-500 dark:text-slate-400 bg-primary/5 py-1 pr-2 rounded-r-md">$1</blockquote>')
+        // Line breaks
+        .replace(/\n/g, '<br />');
+
+    // Clean up empty breaks after blocks
+    html = html.replace(/<\/div><br \/>/g, '</div>');
+    html = html.replace(/<\/blockquote><br \/>/g, '</blockquote>');
+
+    return { __html: html };
+};
+
 const JournalHistory = ({ entries = [], onAction }) => {
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this journal entry?')) return;
@@ -52,9 +79,10 @@ const JournalHistory = ({ entries = [], onAction }) => {
                                     <span className="material-symbols-outlined text-lg">delete</span>
                                 </button>
                             </div>
-                            <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed font-medium">
-                                {entry.content}
-                            </p>
+                            <div 
+                                className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed font-medium"
+                                dangerouslySetInnerHTML={parseMarkdown(entry.content)}
+                            />
                         </div>
                     ))
                 )}

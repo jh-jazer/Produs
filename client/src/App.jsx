@@ -42,9 +42,7 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={transitionKey}>
         {/* Public Landing Page */}
-        <Route path="/" element={
-          user && user.onboardingCompleted ? <Navigate to="/dashboard" replace /> : <Landing />
-        } />
+        <Route path="/" element={<Landing />} />
 
         <Route path="/auth" element={<Auth />} />
         <Route path="/auth/callback" element={<AuthCallback />} />

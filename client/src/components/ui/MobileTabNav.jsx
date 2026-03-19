@@ -43,7 +43,14 @@ const MobileTabNav = ({ tabs, activeTab, setActiveTab }) => {
                                     key={tab.id}
                                     onClick={() => {
                                         setActiveTab(tab.id);
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        window.scrollTo(0, 0);
+                                        setTimeout(() => {
+                                            window.scrollTo(0, 0);
+                                            // Reset all nested scrollable panels (e.g. Schedule/Tracker histories)
+                                            document.querySelectorAll('.overflow-y-auto').forEach(el => {
+                                                el.scrollTop = 0;
+                                            });
+                                        }, 10);
                                     }}
                                     className={`relative flex items-center justify-center size-12 rounded-xl transition-all duration-300 ${
                                         activeTab === tab.id

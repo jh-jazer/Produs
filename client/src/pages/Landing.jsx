@@ -9,9 +9,9 @@ import {
   ArrowRight,
   ShieldCheck,
   Cpu,
-  Globe,
   Download
 } from "lucide-react";
+import useAuthStore from "../store/useAuthStore";
 
 const fadeInUp = {
   initial: { y: 20, opacity: 0, filter: "blur(10px)" },
@@ -28,6 +28,7 @@ const stagger = {
 };
 
 export default function Landing() {
+  const { user } = useAuthStore();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
 
   useEffect(() => {
@@ -82,10 +83,8 @@ export default function Landing() {
                 <Download size={16} /> Install App
               </button>
             )}
-            <Link to="/auth" className="text-sm font-semibold hover:text-electric-blue transition-colors">
-              Sign In
-            </Link>
-            <Link to="/auth" className="bg-electric-blue hover:bg-[#0052cc] text-white px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-[0_0_20px_rgba(0,102,255,0.3)] hover:scale-105 active:scale-95">
+
+            <Link to={user ? "/dashboard" : "/auth"} className="bg-electric-blue hover:bg-[#0052cc] text-white px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-[0_0_20px_rgba(0,102,255,0.3)] hover:scale-105 active:scale-95">
               Launch Console
             </Link>
           </div>
@@ -113,8 +112,8 @@ export default function Landing() {
           </motion.p>
 
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center gap-4 mb-20">
-            <Link to="/auth" className="px-10 py-4 bg-electric-blue text-white rounded-full font-bold flex items-center justify-center gap-2 transition-all shadow-[0_0_30px_rgba(0,102,255,0.4)] hover:bg-[#0052cc] hover:-translate-y-1">
-              Begin Selection <ArrowRight size={18} />
+            <Link to={user ? "/dashboard" : "/auth"} className="px-10 py-4 bg-electric-blue text-white rounded-full font-bold flex items-center justify-center gap-2 transition-all shadow-[0_0_30px_rgba(0,102,255,0.4)] hover:bg-[#0052cc] hover:-translate-y-1">
+              {user ? "Resume Session" : "Begin Selection"} <ArrowRight size={18} />
             </Link>
             {deferredPrompt ? (
               <button onClick={handleInstallClick} className="px-10 py-4 flex items-center justify-center gap-2 border border-white/10 hover:border-white/30 text-titanium-white rounded-full font-bold transition-all backdrop-blur-sm">
@@ -224,8 +223,8 @@ export default function Landing() {
           <h2 className="text-4xl md:text-6xl font-semibold mb-8 leading-tight">Ready to enter the <br /> cockpit?</h2>
           <p className="text-muted-slate mb-12 text-lg font-light">Join the elite few who treat their productivity as a high-performance system.</p>
           
-          <Link to="/auth" className="inline-flex items-center gap-2 px-12 py-5 bg-titanium-white text-deep-space rounded-full font-black hover:scale-105 active:scale-95 transition-all shadow-[0_10px_40px_rgba(255,255,255,0.2)]">
-            Initialize System <ArrowRight size={20} />
+          <Link to={user ? "/dashboard" : "/auth"} className="inline-flex items-center gap-2 px-12 py-5 bg-titanium-white text-deep-space rounded-full font-black hover:scale-105 active:scale-95 transition-all shadow-[0_10px_40px_rgba(255,255,255,0.2)]">
+            {user ? "Return to Console" : "Initialize System"} <ArrowRight size={20} />
           </Link>
         </motion.div>
       </section>
