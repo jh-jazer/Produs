@@ -29,8 +29,8 @@ function Journal() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
-                {/* Main Column (Left) */}
-                <div className={`lg:col-span-8 flex flex-col gap-6 ${activeTab !== 'new' && activeTab !== 'mood' ? 'hidden lg:flex' : ''}`}>
+                {/* Secondary Column (Left) */}
+                <div className={`lg:col-span-4 flex flex-col gap-6 ${activeTab !== 'history' ? 'hidden lg:flex' : ''}`}>
                     
                     {/* Header - Hidden on Mobile */}
                     <div className="hidden lg:flex flex-col gap-1 px-1">
@@ -38,6 +38,13 @@ function Journal() {
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Capture your thoughts and track your journey.</p>
                     </div>
 
+                    {/* 2. JournalHistory */}
+                    <JournalHistory entries={entries} onAction={handleAction} />
+                </div>
+
+                {/* Main Column (Right) */}
+                <div className={`lg:col-span-8 flex flex-col gap-6 ${activeTab !== 'new' && activeTab !== 'mood' ? 'hidden lg:flex' : ''}`}>
+                    
                     {/* 1. JournalEntry */}
                     <div className={activeTab === 'new' ? 'block' : 'hidden lg:block'}>
                         <JournalEntry onAction={handleAction} />
@@ -47,12 +54,6 @@ function Journal() {
                     <div className={activeTab === 'mood' ? 'block' : 'hidden lg:block'}>
                         <YearlyMoodBoard entries={entries} />
                     </div>
-                </div>
-
-                {/* Secondary Column (Right) */}
-                <div className={`lg:col-span-4 flex flex-col gap-6 ${activeTab !== 'history' ? 'hidden lg:flex' : ''}`}>
-                    {/* 2. JournalHistory */}
-                    <JournalHistory entries={entries} onAction={handleAction} />
                 </div>
             </div>
         </div>

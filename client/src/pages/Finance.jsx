@@ -58,8 +58,8 @@ const Finance = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
-                {/* Main Column (Left) */}
-                <div className={`lg:col-span-8 flex flex-col gap-6 ${activeTab !== 'summary' && activeTab !== 'savings' && activeTab !== 'wishlist' ? 'hidden lg:flex' : ''}`}>
+                {/* Secondary Column (Left) */}
+                <div className={`lg:col-span-4 flex flex-col gap-6 ${activeTab !== 'budget' && activeTab !== 'debts' ? 'hidden lg:flex' : ''}`}>
                     
                     {/* Header - Hidden on Mobile */}
                     <div className="hidden lg:flex flex-col gap-1 px-1">
@@ -67,6 +67,39 @@ const Finance = () => {
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Overview of your financial health</p>
                     </div>
 
+                    {/* 2. Transactions */}
+                    <div className={activeTab === 'budget' ? 'block' : 'hidden lg:block'}>
+                        <RecentTransactions
+                            transactions={transactions}
+                            budgets={budgets}
+                            currencySymbol={currencySymbol}
+                            onAction={handleAction}
+                        />
+                    </div>
+
+                    {/* 4. Budget */}
+                    <div className={activeTab === 'budget' ? 'block' : 'hidden lg:block'}>
+                        <MonthlyBudget
+                            budgets={budgets}
+                            transactions={transactions}
+                            currencySymbol={currencySymbol}
+                            onAction={handleAction}
+                        />
+                    </div>
+
+                    {/* 6. Debt / Cash Flow */}
+                    <div className={activeTab === 'debts' ? 'block' : 'hidden lg:block'}>
+                        <DebtManager
+                            debts={debts}
+                            currencySymbol={currencySymbol}
+                            onAction={handleAction}
+                        />
+                    </div>
+                </div>
+
+                {/* Main Column (Right) */}
+                <div className={`lg:col-span-8 flex flex-col gap-6 ${activeTab !== 'summary' && activeTab !== 'savings' && activeTab !== 'wishlist' ? 'hidden lg:flex' : ''}`}>
+                    
                     {/* 1. Overview */}
                     <div className={activeTab === 'summary' ? 'block' : 'hidden lg:block'}>
                         <FinancialOverview
@@ -101,39 +134,6 @@ const Finance = () => {
                     {/* 7. Balance History */}
                     <div className={activeTab === 'summary' ? 'block' : 'hidden lg:block'}>
                         <BalanceHistory />
-                    </div>
-                </div>
-
-                {/* Secondary Column (Right) */}
-                <div className={`lg:col-span-4 flex flex-col gap-6 ${activeTab !== 'budget' && activeTab !== 'debts' ? 'hidden lg:flex' : ''}`}>
-                    
-                    {/* 2. Transactions */}
-                    <div className={activeTab === 'budget' ? 'block' : 'hidden lg:block'}>
-                        <RecentTransactions
-                            transactions={transactions}
-                            budgets={budgets}
-                            currencySymbol={currencySymbol}
-                            onAction={handleAction}
-                        />
-                    </div>
-
-                    {/* 4. Budget */}
-                    <div className={activeTab === 'budget' ? 'block' : 'hidden lg:block'}>
-                        <MonthlyBudget
-                            budgets={budgets}
-                            transactions={transactions}
-                            currencySymbol={currencySymbol}
-                            onAction={handleAction}
-                        />
-                    </div>
-
-                    {/* 6. Debt / Cash Flow */}
-                    <div className={activeTab === 'debts' ? 'block' : 'hidden lg:block'}>
-                        <DebtManager
-                            debts={debts}
-                            currencySymbol={currencySymbol}
-                            onAction={handleAction}
-                        />
                     </div>
                 </div>
 
