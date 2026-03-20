@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import { registerUser, loginUser, getMe, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, sendPartnerRequest, acceptPartnerRequest, rejectPartnerRequest, cancelPartnerRequest, unlinkPartner, searchUsers, checkUsername, updateSubscriptions, sendConnectionRequest, acceptConnectionRequest, rejectConnectionRequest, cancelConnectionRequest, getConnections } from '../controllers/authController.js';
+import { registerUser, loginUser, getMe, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, sendPartnerRequest, acceptPartnerRequest, rejectPartnerRequest, cancelPartnerRequest, unlinkPartner, searchUsers, checkUsername, updateSubscriptions, sendConnectionRequest, acceptConnectionRequest, rejectConnectionRequest, cancelConnectionRequest, disconnectConnection, getConnections } from '../controllers/authController.js';
 import { protect, optionalProtect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -23,6 +23,7 @@ router.post('/connection/request/:id', protect, sendConnectionRequest);
 router.post('/connection/accept/:id', protect, acceptConnectionRequest);
 router.post('/connection/reject/:id', protect, rejectConnectionRequest);
 router.post('/connection/cancel/:id', protect, cancelConnectionRequest);
+router.post('/connection/disconnect/:id', protect, disconnectConnection);
 router.get('/check-username', protect, checkUsername);
 router.put('/subscriptions', protect, updateSubscriptions);
 

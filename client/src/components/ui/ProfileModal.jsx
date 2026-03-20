@@ -34,9 +34,9 @@ function ProfileModal({ username, onClose }) {
         fetchProfile();
     }, [username]);
 
-    const isConnected = currentUser?.connections?.includes(profile?._id);
-    const isSent = currentUser?.outgoingConnectionRequests?.includes(profile?._id);
-    const isIncoming = currentUser?.incomingConnectionRequests?.includes(profile?._id);
+    const isConnected = currentUser?.connections?.some(id => id === profile?._id || id?._id === profile?._id);
+    const isSent = currentUser?.outgoingConnectionRequests?.some(id => id === profile?._id || id?._id === profile?._id);
+    const isIncoming = currentUser?.incomingConnectionRequests?.some(id => id === profile?._id || id?._id === profile?._id);
 
     const handleConnectionAction = async (action) => {
         if (!currentUser || isConnecting) return;
@@ -124,9 +124,22 @@ function ProfileModal({ username, onClose }) {
                                             Partner
                                         </div>
                                     ) : isConnected ? (
-                                        <div className="px-3 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-lg border border-primary/10 flex items-center gap-1.5">
-                                            <span className="material-symbols-outlined text-xs">verified</span>
-                                            Connected
+                                        <div className="flex gap-2">
+                                            <div className="px-3 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-lg border border-primary/10 flex items-center gap-1.5">
+                                                <span className="material-symbols-outlined text-xs">verified</span>
+                                                Connected
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    if(window.confirm(`Disconnect from ${profile.name}?`)) {
+                                                        handleConnectionAction('disconnect');
+                                                    }
+                                                }}
+                                                disabled={isConnecting}
+                                                className="px-3 py-1.5 bg-slate-100 dark:bg-[#1e1f22] text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-lg hover:text-rose-500 transition-colors"
+                                            >
+                                                Disconnect
+                                            </button>
                                         </div>
                                     ) : currentUser?._id !== profile._id && (
                                         <>
