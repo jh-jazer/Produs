@@ -1,19 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, ChevronRight } from "lucide-react";
+import { 
+  ChevronRight, 
+  Activity, 
+  Zap, 
+  Orbit, 
+  Layers 
+} from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import useAuthStore from "../store/useAuthStore";
 import ScrollCanvas from "../components/landing/ScrollCanvas";
+import Lenis from "lenis";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const SCENES_FEATURES = [
-  { id: "flux", title: "UNIFIED FLUX", label: "01 // SYSTEM ANALYSIS", x: -10, y: 5 },
-  { id: "rituals", title: "PRECISION RITUALS", label: "02 // RITUAL MAP", x: 10, y: -5 },
-  { id: "capital", title: "WEALTH INDEX", label: "03 // CAPITAL FLOW", x: -5, y: -10 },
-  { id: "operations", title: "OPERATIONAL PLAN", label: "04 // STRATEGIC NODE", x: 5, y: 10 },
+  { id: "flux", title: "UNIFIED FLUX", label: "01 // SYSTEM ANALYSIS", icon: Activity },
+  { id: "rituals", title: "PRECISION RITUALS", label: "02 // RITUAL MAP", icon: Zap },
+  { id: "capital", title: "WEALTH INDEX", label: "03 // CAPITAL FLOW", icon: Orbit },
+  { id: "operations", title: "OPERATIONAL PLAN", label: "04 // STRATEGIC NODE", icon: Layers },
 ];
 
 export default function Landing() {
@@ -50,39 +58,40 @@ export default function Landing() {
         }
       });
 
-      // Scene 1: Awakening (Text Reveal - Starts AFTER the 30% flatline scrub)
-      tl.fromTo(".scene-awakening", 
-        { opacity: 0, y: 100, scale: 0.9 },
-        { opacity: 1, y: 0, scale: 1, duration: 1, ease: "expo.out" },
-        0.35
-      );
-      tl.to(".scene-awakening", {
-        opacity: 0,
-        y: -150,
-        scale: 1.05,
-        duration: 0.8,
-        ease: "expo.in"
-      }, 0.5);
+      // Scene 1: Initial Reveal (2% - 12%)
+      tl.to(".scene-awakening", { opacity: 1, duration: 10 }, 2);
 
-      // Scene 2: Tech Detail Nodes (0.55 - 0.9)
+      // Scene 1: Multi-Layer Awakening Exit (32% - 52%)
+      tl.to(".parallax-line-1", { y: -100, opacity: 0, duration: 20 }, 32);
+      tl.to(".parallax-line-2", { y: -180, opacity: 0, duration: 20 }, 35);
+      tl.to(".parallax-line-3", { y: -260, opacity: 0, duration: 20, scale: 1.1 }, 38);
+      tl.to(".scene-dimmer", { opacity: 0, duration: 20 }, 32);
+
+      // Scene 2: Tech Detail Nodes (HUD Fragments 55% - 95%)
       SCENES_FEATURES.forEach((feature, idx) => {
-          const start = 0.58 + (idx * 0.08); 
-          tl.fromTo(`.detail-${feature.id}`, 
-            { opacity: 0, scale: 0.9, y: 100 },
-            { opacity: 1, scale: 1, y: 0, duration: 0.8, ease: "expo.out" },
+          const start = 55 + (idx * 10); // Spread out for impact
+          const nodeClass = `.detail-${feature.id}`;
+          
+          tl.fromTo(nodeClass, 
+            { opacity: 0, scale: 0.8, y: 150 },
+            { opacity: 1, scale: 1, y: 0, duration: 8, ease: "power2.out" },
             start
           );
-          tl.to(`.detail-${feature.id}`, 
-            { opacity: 0, scale: 1.1, y: -100, duration: 0.8, ease: "expo.in" },
-            start + 0.06
+
+          tl.to(`${nodeClass} .hud-icon`, { y: -40, duration: 8 }, start + 2);
+          tl.to(`${nodeClass} .hud-title`, { y: -80, duration: 8 }, start + 3);
+          
+          tl.to(nodeClass, 
+            { opacity: 0, scale: 1.2, y: -150, duration: 6, ease: "power2.in" },
+            start + 8
           );
       });
 
-      // Scene 3: Nexus (0.95 - 1.0)
+      // Scene 3: Nexus (98% - 100%)
       tl.fromTo(".scene-nexus", 
-        { opacity: 0, y: 200, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 1.5, ease: "expo.out" },
-        0.95
+        { opacity: 0, y: 300, scale: 0.95 },
+        { opacity: 1, y: 0, scale: 1, duration: 10, ease: "power2.out" },
+        98
       );
 
     }, containerRef);
@@ -101,23 +110,48 @@ export default function Landing() {
   // Cinematic Progress Mapping
   // 0-30% scroll = Sequence 1 (Flatline)
   // 30-100% scroll = Sequence 2 (Awakened)
-  const mappedProgress = progress <= 0.3 
-    ? (progress / 0.3) * 0.5 
+  const mappedProgress = progress <= 0.3
+    ? (progress / 0.3) * 0.5
     : 0.5 + ((progress - 0.3) / 0.7) * 0.5;
 
+  useEffect(() => {
+    document.documentElement.classList.add("no-scrollbar");
+
+    const lenis = new Lenis({
+      duration: 1.5,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    lenis.on('scroll', ScrollTrigger.update);
+
+    const tickerRAF = (time) => {
+      lenis.raf(time * 1000);
+    };
+
+    gsap.ticker.add(tickerRAF);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      document.documentElement.classList.remove("no-scrollbar");
+      lenis.destroy();
+      gsap.ticker.remove(tickerRAF);
+    };
+  }, []);
+
   return (
-    <div ref={containerRef} className="relative bg-black text-white selection:bg-electric-blue/30 font-sans h-[2000vh]">
-      
+    <div ref={containerRef} className="relative bg-black text-white selection:bg-electric-blue/30 font-sans h-[600vh]">
+
       {/* Dynamic Cursor Background */}
-      <div 
+      <div
         className="fixed pointer-events-none z-[9999] size-[600px] rounded-full blur-[150px] opacity-[0.07] bg-electric-blue transition-all duration-300 transform -translate-x-1/2 -translate-y-1/2"
         style={{ top: mousePosition.y, left: mousePosition.x }}
       />
 
-      {/* LUXURY NAV BAR (Reveals after flatline) */}
-      <motion.nav 
+      {/* LUXURY NAV BAR */}
+      <motion.nav
         initial={{ y: 0, opacity: 0 }}
-        animate={{ y: (navVisible && progress > 0.3) ? 0 : -150, opacity: progress > 0.3 ? 1 : 0 }}
+        animate={{ y: navVisible ? 0 : -150, opacity: 1 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 w-full z-[100] px-12 py-10 flex justify-between items-center pointer-events-none"
       >
@@ -133,78 +167,85 @@ export default function Landing() {
         </div>
 
         <Link to={user ? "/dashboard" : "/auth"} className="pointer-events-auto group flex items-center gap-6">
-           <span className="font-thin text-[9px] uppercase tracking-[0.5em] text-white/40 group-hover:text-white transition-colors">Access Interface</span>
-           <div className="size-10 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white transition-all">
-             <ChevronRight size={14} className="text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all" />
-           </div>
+          <span className="font-thin text-[9px] uppercase tracking-[0.5em] text-white/40 group-hover:text-white transition-colors">Access Interface</span>
+          <div className="size-10 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white transition-all">
+            <ChevronRight size={14} className="text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all" />
+          </div>
         </Link>
       </motion.nav>
 
       {/* Pinned Background - The Cinematic Scrub */}
       <div className="pin-background w-full h-screen overflow-hidden">
-          <ScrollCanvas progress={mappedProgress} />
-          <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-90" />
-          <div className="absolute -left-[20%] top-1/3 size-[100vw] bg-electric-blue/5 blur-[250px] rounded-full" />
-          <div className="absolute -right-[20%] bottom-1/3 size-[80vw] bg-white/[0.02] blur-[200px] rounded-full" />
+        <ScrollCanvas progress={mappedProgress} />
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-90" />
+        <div className="absolute -left-[20%] top-1/3 size-[100vw] bg-electric-blue/5 blur-[250px] rounded-full" />
+        <div className="absolute -right-[20%] bottom-1/3 size-[80vw] bg-white/[0.02] blur-[200px] rounded-full" />
+        <div className="absolute inset-0 bg-black/60 opacity-100 scene-dimmer z-10" />
       </div>
 
       {/* Cinematic Scenes Content */}
       <div className="relative z-20 -mt-[100vh]">
-          
-          {/* SCENE 1: THE AWAKENING */}
-          <section className="h-screen flex items-center justify-center text-center px-6 scene-awakening pointer-events-none sticky top-0">
-              <div className="max-w-7xl">
-                  <span className="text-[9px] font-thin uppercase tracking-[1.5em] text-white/20 mb-20 block">
-                     Temporal Sync Active // Operational Fragment
-                  </span>
-                  <h1 className="text-4xl md:text-7xl font-thin tracking-[1em] uppercase mb-24 text-white/90 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                      What if <br />
-                      <span className="text-white/10 block mt-8">this is already your</span> <br />
-                      <span className="text-white">Second Chance?</span>
-                  </h1>
-                  <div className="flex flex-col items-center gap-12">
-                      <div className="w-px h-40 bg-gradient-to-b from-white/20 to-transparent" />
-                      <span className="text-[8px] font-thin uppercase tracking-[1em] text-white/10 animate-pulse">Initiate Calibration</span>
-                  </div>
-              </div>
-          </section>
 
-          {/* SCENE 2: DETAIL FRAGMENTS */}
-          <div className="h-[900vh] relative flex flex-col items-center justify-center">
-              {SCENES_FEATURES.map((feature) => (
-                  <div 
-                      key={feature.id} 
-                      className={`detail-${feature.id} fixed inset-0 flex items-center justify-center pointer-events-none opacity-0`}
-                  >
-                      <div className="text-center relative">
-                          <span className="text-[8px] font-thin text-white/20 block mb-10 uppercase tracking-[1.2em]">
-                              {feature.label}
-                          </span>
-                          <h2 className="text-3xl md:text-6xl font-thin text-white uppercase tracking-[1.2em] mb-12 drop-shadow-glow">
-                              {feature.title}
-                          </h2>
-                          <div className="w-12 h-px bg-white/10 mx-auto" />
-                      </div>
+        {/* SCENE 1: THE AWAKENING - Expert Parallax Structure */}
+        <section className="fixed inset-0 flex items-center justify-center text-center px-6 pt-20 scene-awakening pointer-events-none opacity-0 z-20 perspective-1000">
+          <div className="max-w-5xl">
+            <h1 className="text-4xl md:text-4xl font-thin uppercase mb-24 text-white/90 drop-shadow-glow">
+              <span className="parallax-line-1 block tracking-[1.5em] -mr-[1.5em]">What if</span>
+              <span className="parallax-line-2 text-white/30 block mt-8 tracking-[1.2em] -mr-[1.2em]">this is already your</span>
+              <span className="parallax-line-3 text-white block mt-4 tracking-[1.5em] -mr-[1.5em]">Second Chance?</span>
+            </h1>
+            <div className="flex flex-col items-center gap-12">
+              <div className="w-px h-40 bg-gradient-to-b from-white/20 to-transparent" />
+              <span className="text-[8px] font-thin uppercase tracking-[1em] text-white/20 animate-pulse">Initiate Calibration</span>
+            </div>
+          </div>
+        </section>
+
+          {/* SCENE 2: DETAIL FRAGMENTS - Multi-Layer Visuals */}
+          <div className="h-[400vh] relative flex flex-col items-center justify-center">
+            {SCENES_FEATURES.map((feature) => (
+              <div 
+                key={feature.id} 
+                className={`detail-${feature.id} fixed inset-0 flex items-center justify-center pointer-events-none opacity-0 z-30 perspective-1000`}
+              >
+                <div className="text-center relative p-12 bg-white/[0.01] border border-white/[0.03] rounded-3xl backdrop-blur-3xl overflow-hidden">
+                  <div className="hud-icon size-20 rounded-2xl bg-white/[0.04] border border-white/[0.1] flex items-center justify-center mx-auto mb-12 shadow-[0_0_50px_rgba(255,255,255,0.05)]">
+                    <feature.icon className="text-white/80" size={36} strokeWidth={1} />
                   </div>
-              ))}
+                  <div className="hud-title">
+                    <span className="text-[10px] font-thin text-white/30 block mb-6 uppercase tracking-[1.8em]">
+                      Fragment: {feature.label}
+                    </span>
+                    <h2 className="text-3xl md:text-5xl font-thin text-white uppercase tracking-[2em] mb-12 drop-shadow-glow ml-[2em]">
+                      {feature.title}
+                    </h2>
+                    <div className="w-32 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent mx-auto" />
+                  </div>
+                  
+                  {/* Subtle AR Decoration */}
+                  <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-white/10" />
+                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-white/10" />
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* SCENE 4: THE NEXUS */}
-          <section className="h-screen flex flex-col items-center justify-center text-center px-6 scene-nexus sticky bottom-0">
-              <span className="text-[9px] font-thin uppercase tracking-[1.5em] text-white/20 mb-20 block">
-                  Operational Nexus // Fragment Final
-              </span>
-              <h2 className="text-4xl md:text-8xl font-thin uppercase tracking-[0.8em] text-white leading-[1.5] mb-28">
-                  The Final <br /> 
-                  <span className="text-white/10">Frequency.</span>
-              </h2>
-              <Link to="/auth" className="group flex flex-col items-center gap-10">
-                  <div className="size-20 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white group-hover:scale-110 transition-all duration-700 bg-black">
-                      <ChevronRight size={24} className="text-white group-hover:translate-x-1 transition-all" />
-                  </div>
-                  <span className="text-[8px] font-thin uppercase tracking-[1.5em] text-white/40 group-hover:text-white transition-colors">Initialize System</span>
-              </Link>
-          </section>
+        {/* SCENE 3: THE NEXUS */}
+        <section className="h-screen flex flex-col items-center justify-center text-center px-6 scene-nexus sticky bottom-0">
+          <span className="text-[9px] font-thin uppercase tracking-[1.5em] text-white/20 mb-20 block">
+            Operational Nexus // Fragment Final
+          </span>
+          <h2 className="text-4xl md:text-6xl font-thin uppercase tracking-[0.8em] text-white leading-[1.5] mb-28">
+            The Final <br />
+            <span className="text-white/10">Frequency.</span>
+          </h2>
+          <Link to="/auth" className="group flex flex-col items-center gap-10">
+            <div className="size-20 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white group-hover:scale-110 transition-all duration-700 bg-black">
+              <ChevronRight size={24} className="text-white group-hover:translate-x-1 transition-all" />
+            </div>
+            <span className="text-[8px] font-thin uppercase tracking-[1.5em] text-white/40 group-hover:text-white transition-colors">Initialize System</span>
+          </Link>
+        </section>
 
       </div>
     </div>

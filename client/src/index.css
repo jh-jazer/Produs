@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Bebas+Neue&family=Comic+Neue:ital,wght@0,400;0,700;1,400;1,700&family=Kalam:wght@300;400;700&display=swap');
+@import "tailwindcss";
 
 @theme {
   --font-display: "Inter", "Manrope", sans-serif;
@@ -136,4 +136,13 @@ body {
       transform: translateY(0);
     }
   }
+}
+
+/* Hide scrollbar while middle-click/touch/scroll still works */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }

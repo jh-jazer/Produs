@@ -1,12 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-
-const getSequence = (path) => Object.values(
-  import.meta.glob("../../assets/sequence_1/*.jpg", { eager: true, query: '?url', import: 'default' })
-).sort((a, b) => {
-    const aNum = parseInt(a.match(/frame-(\d+)/)?.[1] || "0");
-    const bNum = parseInt(b.match(/frame-(\d+)/)?.[1] || "0");
-    return aNum - bNum;
-});
+import React, { useEffect, useRef } from "react";
+import { useAssetStore } from "../../store/useAssetStore";
 
 const SEQ_1 = Object.values(
   import.meta.glob("../../assets/sequence_1/*.jpg", { eager: true, query: '?url', import: 'default' })
@@ -16,60 +9,50 @@ const SEQ_1 = Object.values(
     return aNum - bNum;
 });
 
-const SEQ_2 = Object.values(
-  import.meta.glob("../../assets/sequence_2/*.jpg", { eager: true, query: '?url', import: 'default' })
-).sort((a, b) => {
-    const aNum = parseInt(a.match(/frame-(\d+)/)?.[1] || "0");
-    const bNum = parseInt(b.match(/frame-(\d+)/)?.[1] || "0");
-    return aNum - bNum;
-});
-
-const HERO_IMAGES = [...SEQ_1, ...SEQ_2];
+const HERO_IMAGES = SEQ_1;
 
 export default function ScrollCanvas({ progress, activeFrame }) {
   const canvasRef = useRef(null);
-  const [images, setImages] = useState([]);
-  const [loaded, setLoaded] = useState(false);
+  const { heroImages, isHeroLoaded, preloadHeroImages } = useAssetStore();
 
-  // Preload Images
+  // Preload Images into Global Cache
   useEffect(() => {
-    const loadedImages = [];
-    let loadedCount = 0;
-
-    HERO_IMAGES.forEach((src, i) => {
-      const img = new Image();
-      img.src = src;
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === HERO_IMAGES.length) {
-          setLoaded(true);
-        }
-      };
-      loadedImages[i] = img;
-    });
-    setImages(loadedImages);
-  }, []);
+    preloadHeroImages(HERO_IMAGES);
+  }, [preloadHeroImages]);
 
   // Draw current frame
   useEffect(() => {
-    if (!loaded || !canvasRef.current || images.length === 0) return;
+    if (!isHeroLoaded || !canvasRef.current || heroImages.length === 0) return;
 
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
     
-    // Calculate index: Use explicit activeFrame if provided, otherwise derive from progress
-    let index = 0;
+    // Calculate sequence rhythm: Forward -> Black Gap -> Reverse
+    const BLACK_GAP = 20; 
+    const seqLen = heroImages.length;
+    const totalFrames = seqLen * 2 + BLACK_GAP;
+    
+    // Determine frame index 
+    let frameIndex = 0;
     if (typeof activeFrame === 'number') {
-      index = Math.min(images.length - 1, Math.max(0, activeFrame));
+      frameIndex = Math.min(totalFrames - 1, Math.max(0, activeFrame));
     } else {
-      index = Math.min(images.length - 1, Math.max(0, Math.floor(progress * (images.length - 1))));
+      frameIndex = Math.min(totalFrames - 1, Math.max(0, Math.floor(progress * (totalFrames - 1))));
     }
     
-    const img = images[index];
+    // Select Image or Black State
+    let img = null;
+    if (frameIndex < seqLen) {
+      img = heroImages[frameIndex];
+    } else if (frameIndex >= seqLen + BLACK_GAP) {
+      // Reverse logic: totalFrames - 1 - frameIndex
+      // e.g. if total is 440, gap is 20, seq is 210.
+      // If index is 230 (start of reverse): 440 - 1 - 230 = 209 (correct, last frame)
+      img = heroImages[totalFrames - 1 - frameIndex];
+    }
 
     if (img) {
       context.clearRect(0, 0, canvas.width, canvas.height);
-      
       const canvasAspect = canvas.width / canvas.height;
       const imgAspect = img.width / img.height;
       let drawWidth, drawHeight, offsetX, offsetY;
@@ -85,10 +68,13 @@ export default function ScrollCanvas({ progress, activeFrame }) {
         offsetX = (canvas.width - drawWidth) / 2;
         offsetY = 0;
       }
-
       context.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+    } else {
+      // THE VOID: Pure black transition
+      context.fillStyle = "#000";
+      context.fillRect(0, 0, canvas.width, canvas.height);
     }
-  }, [progress, activeFrame, loaded, images]);
+  }, [progress, activeFrame, isHeroLoaded, heroImages]);
 
   // Handle Resize
   useEffect(() => {
@@ -110,7 +96,7 @@ export default function ScrollCanvas({ progress, activeFrame }) {
         className="w-full h-full object-cover"
         style={{ filter: "brightness(0.4) saturate(0.8)" }}
       />
-      {!loaded && (
+      {!isHeroLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-black z-50">
            <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
         </div>
