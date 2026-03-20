@@ -1,14 +1,32 @@
 import React, { useEffect, useRef, useState } from "react";
 
-const HERO_IMAGES = Object.values(
-  import.meta.glob("../../assets/hero_sequence/*.jpg", { eager: true, query: '?url', import: 'default' })
+const getSequence = (path) => Object.values(
+  import.meta.glob("../../assets/sequence_1/*.jpg", { eager: true, query: '?url', import: 'default' })
 ).sort((a, b) => {
     const aNum = parseInt(a.match(/frame-(\d+)/)?.[1] || "0");
     const bNum = parseInt(b.match(/frame-(\d+)/)?.[1] || "0");
     return aNum - bNum;
 });
 
-export default function ScrollCanvas({ progress }) {
+const SEQ_1 = Object.values(
+  import.meta.glob("../../assets/sequence_1/*.jpg", { eager: true, query: '?url', import: 'default' })
+).sort((a, b) => {
+    const aNum = parseInt(a.match(/frame-(\d+)/)?.[1] || "0");
+    const bNum = parseInt(b.match(/frame-(\d+)/)?.[1] || "0");
+    return aNum - bNum;
+});
+
+const SEQ_2 = Object.values(
+  import.meta.glob("../../assets/sequence_2/*.jpg", { eager: true, query: '?url', import: 'default' })
+).sort((a, b) => {
+    const aNum = parseInt(a.match(/frame-(\d+)/)?.[1] || "0");
+    const bNum = parseInt(b.match(/frame-(\d+)/)?.[1] || "0");
+    return aNum - bNum;
+});
+
+const HERO_IMAGES = [...SEQ_1, ...SEQ_2];
+
+export default function ScrollCanvas({ progress, activeFrame }) {
   const canvasRef = useRef(null);
   const [images, setImages] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -32,22 +50,26 @@ export default function ScrollCanvas({ progress }) {
     setImages(loadedImages);
   }, []);
 
-  // Draw current frame on progress change
+  // Draw current frame
   useEffect(() => {
     if (!loaded || !canvasRef.current || images.length === 0) return;
 
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
     
-    // Calculate index
-    const index = Math.min(images.length - 1, Math.max(0, Math.floor(progress * (images.length - 1))));
+    // Calculate index: Use explicit activeFrame if provided, otherwise derive from progress
+    let index = 0;
+    if (typeof activeFrame === 'number') {
+      index = Math.min(images.length - 1, Math.max(0, activeFrame));
+    } else {
+      index = Math.min(images.length - 1, Math.max(0, Math.floor(progress * (images.length - 1))));
+    }
+    
     const img = images[index];
 
     if (img) {
-      // Clear and draw
       context.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Cover logic (Object-fit: cover)
       const canvasAspect = canvas.width / canvas.height;
       const imgAspect = img.width / img.height;
       let drawWidth, drawHeight, offsetX, offsetY;
@@ -66,7 +88,7 @@ export default function ScrollCanvas({ progress }) {
 
       context.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
     }
-  }, [progress, loaded, images]);
+  }, [progress, activeFrame, loaded, images]);
 
   // Handle Resize
   useEffect(() => {
