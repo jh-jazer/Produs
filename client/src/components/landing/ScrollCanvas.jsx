@@ -28,7 +28,7 @@ export default function ScrollCanvas({ progress, activeFrame, isLightMode }) {
     const context = canvas.getContext("2d");
     
     // Calculate sequence rhythm: Forward -> Black Gap -> Reverse
-    const BLACK_GAP = 20; 
+    const BLACK_GAP = 0;
     const seqLen = heroImages.length;
     const totalFrames = seqLen * 2 + BLACK_GAP;
     
