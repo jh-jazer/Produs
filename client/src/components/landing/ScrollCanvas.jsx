@@ -71,7 +71,7 @@ export default function ScrollCanvas({ progress, activeFrame, isLightMode }) {
       context.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
     } else {
       // THE VOID: Theme-aware transition
-      context.fillStyle = isLightMode ? "#f8f8f8" : "#000";
+      context.fillStyle = "#000"; // Always use black, as the invert filter in light mode will turn it white-ish
       context.fillRect(0, 0, canvas.width, canvas.height);
     }
   }, [progress, activeFrame, isHeroLoaded, heroImages]);
