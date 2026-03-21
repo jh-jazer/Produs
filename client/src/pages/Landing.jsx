@@ -64,6 +64,12 @@ export default function Landing() {
   const containerRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [showSplash, setShowSplash] = useState(true);
+  const [isLightMode, setIsLightMode] = useState(false);
+
+  const toggleTheme = (e) => {
+    e.stopPropagation();
+    setIsLightMode(!isLightMode);
+  };
 
   // Splash Screen Logic
   useEffect(() => {
@@ -218,7 +224,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative bg-black text-white selection:bg-electric-blue/30 font-sans h-[1200vh]">
+    <div ref={containerRef} className={`relative transition-colors duration-1000 ${isLightMode ? 'bg-[#f8f8f8] text-black' : 'bg-black text-white'} selection:bg-electric-blue/30 font-sans h-[1200vh]`}>
 
       {/* Splash Screen Overlay */}
       <AnimatePresence>
@@ -227,7 +233,7 @@ export default function Landing() {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5, ease: "easeInOut" }}
-            className="fixed inset-0 z-[10000] bg-black flex flex-col items-center justify-center pointer-events-auto"
+            className={`fixed inset-0 z-[10000] ${isLightMode ? 'bg-[#f8f8f8]' : 'bg-black'} flex flex-col items-center justify-center pointer-events-auto transition-colors duration-1000`}
           >
             <div className="relative flex flex-col items-center">
               <motion.div 
@@ -237,8 +243,8 @@ export default function Landing() {
                 className="flex items-center justify-center relative mb-8"
               >
                 <div className="absolute inset-0 bg-electric-blue/20 blur-xl rounded-full size-24 transform translate-y-2"></div>
-                <div className="size-20 bg-white shadow-[0_0_40px_rgba(255,255,255,0.8)] transform rotate-45 relative z-10 flex items-center justify-center border border-white/40">
-                  <div className="size-10 bg-black shadow-[inset_0_0_20px_rgba(255,255,255,0.5)] transform -rotate-45" />
+                <div className={`size-20 ${isLightMode ? 'bg-black shadow-[0_0_40px_rgba(0,0,0,0.2)]' : 'bg-white shadow-[0_0_40px_rgba(255,255,255,0.8)]'} transform rotate-45 relative z-10 flex items-center justify-center border ${isLightMode ? 'border-black/40' : 'border-white/40'}`}>
+                  <div className={`size-10 ${isLightMode ? 'bg-white shadow-[inset_0_0_20px_rgba(0,0,0,0.1)]' : 'bg-black shadow-[inset_0_0_20px_rgba(255,255,255,0.5)]'} transform -rotate-45`} />
                 </div>
               </motion.div>
               
@@ -248,19 +254,19 @@ export default function Landing() {
                 transition={{ delay: 0.8, duration: 1 }}
                 className="flex flex-col items-center gap-4"
               >
-                <h1 className="text-xl md:text-2xl font-thin tracking-[0.8em] text-white uppercase ml-[0.8em]">Produs</h1>
-                <div className="w-32 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                <span className="text-[10px] font-thin uppercase tracking-[0.4em] text-white/40 animate-pulse">Initializing Interface</span>
+                <h1 className={`text-xl md:text-2xl font-semibold tracking-[0.8em] ${isLightMode ? 'text-black' : 'text-white'} uppercase ml-[0.8em]`}>Produs</h1>
+                <div className={`w-32 h-px bg-gradient-to-r ${isLightMode ? 'from-transparent via-black/60 to-transparent' : 'from-transparent via-white/60 to-transparent'}`}></div>
+                <span className={`text-[12px] font-semibold uppercase tracking-[0.4em] ${isLightMode ? 'text-black/70' : 'text-white/70'} animate-pulse`}>Connecting to Network</span>
               </motion.div>
             </div>
             
             <div className="absolute bottom-12 w-full flex justify-center">
-              <div className="w-48 h-[2px] bg-white/10 rounded-full overflow-hidden">
+              <div className={`w-48 h-[2px] ${isLightMode ? 'bg-black/10' : 'bg-white/10'} rounded-full overflow-hidden`}>
                 <motion.div 
                   initial={{ width: "0%" }}
                   animate={{ width: "100%" }}
                   transition={{ duration: 2, ease: "easeInOut" }}
-                  className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+                  className={`h-full ${isLightMode ? 'bg-black shadow-[0_0_10px_rgba(0,0,0,0.2)]' : 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]'}`}
                 />
               </div>
             </div>
@@ -270,7 +276,7 @@ export default function Landing() {
 
       {/* Dynamic Cursor Background */}
       <div
-        className="fixed pointer-events-none z-[9999] size-[600px] rounded-full blur-[150px] opacity-[0.07] bg-electric-blue transition-all duration-300 transform -translate-x-1/2 -translate-y-1/2"
+        className={`fixed pointer-events-none z-[9999] size-[600px] rounded-full blur-[150px] transition-all duration-300 transform -translate-x-1/2 -translate-y-1/2 ${isLightMode ? 'opacity-[0.1] bg-electric-blue' : 'opacity-[0.07] bg-electric-blue'}`}
         style={{ top: mousePosition.y, left: mousePosition.x }}
       />
 
@@ -280,50 +286,50 @@ export default function Landing() {
         transition={{ duration: 1, delay: 1, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-6 md:py-10 flex justify-between items-center pointer-events-none"
       >
-        <div className="flex items-center gap-3 md:gap-4 group cursor-pointer pointer-events-auto" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <div className="size-4 md:size-6 bg-white flex items-center justify-center transition-all group-hover:bg-electric-blue rotate-45 group-hover:rotate-0" />
-          <span className="font-thin text-[10px] md:text-xs uppercase tracking-[0.5em] md:tracking-[0.8em] text-white/50 group-hover:text-white transition-colors hidden sm:inline-block">Produs</span>
+        <div className="flex items-center gap-3 md:gap-4 group cursor-pointer pointer-events-auto" onClick={toggleTheme}>
+          <div className={`size-4 md:size-6 ${isLightMode ? 'bg-black' : 'bg-white'} flex items-center justify-center transition-all group-hover:bg-electric-blue rotate-45 group-hover:rotate-0`} />
+          <span className={`font-normal text-[11px] md:text-xs uppercase tracking-[0.5em] md:tracking-[0.8em] ${isLightMode ? 'text-black/80' : 'text-white/80'} group-hover:text-current transition-colors hidden sm:inline-block`}>Produs</span>
         </div>
 
-        <div className="hidden lg:flex gap-16 items-center text-[9px] uppercase font-thin tracking-[0.5em] text-white/30 pointer-events-auto">
-          <a href="#" className="hover:text-white transition-all hover:tracking-[0.8em]">Arch</a>
-          <a href="#" className="hover:text-white transition-all hover:tracking-[0.8em]">Sync</a>
-          <Link to="/auth" className="hover:text-white transition-all hover:tracking-[0.8em] border-l border-white/10 pl-16">Entry</Link>
+        <div className={`hidden lg:flex gap-16 items-center text-[10px] uppercase font-normal tracking-[0.5em] ${isLightMode ? 'text-black/70' : 'text-white/70'} pointer-events-auto`}>
+          <a href="#" className={`hover:text-current transition-all hover:tracking-[0.8em]`}>Arch</a>
+          <a href="#" className={`hover:text-current transition-all hover:tracking-[0.8em]`}>Sync</a>
+          <Link to="/auth" className={`hover:text-current transition-all hover:tracking-[0.8em] border-l ${isLightMode ? 'border-black/30' : 'border-white/30'} pl-16`}>Entry</Link>
         </div>
 
         <Link to={user ? "/dashboard" : "/auth"} className="pointer-events-auto group flex items-center gap-3 md:gap-6">
-          <span className="font-thin text-[8px] md:text-[9px] uppercase tracking-[0.2em] md:tracking-[0.5em] text-white/40 group-hover:text-white transition-colors text-right max-w-[100px] md:max-w-none">Access Interface</span>
-          <div className="size-8 md:size-10 shrink-0 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white transition-all">
-            <ChevronRight size={14} className="text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all" />
+          <span className={`font-normal text-[9px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.5em] ${isLightMode ? 'text-black/80' : 'text-white/80'} group-hover:text-current transition-colors text-right max-w-[100px] md:max-w-none`}>Access Interface</span>
+          <div className={`size-8 md:size-10 shrink-0 rounded-full border ${isLightMode ? 'border-black/30' : 'border-white/30'} flex items-center justify-center group-hover:border-current transition-all`}>
+            <ChevronRight size={14} className={`${isLightMode ? 'text-black/80' : 'text-white/80'} group-hover:text-current group-hover:translate-x-1 transition-all`} />
           </div>
         </Link>
       </motion.nav>
 
       {/* Pinned Background - The Cinematic Scrub */}
       <div className="pin-background w-full h-screen overflow-hidden relative">
-        <ScrollCanvas progress={mappedProgress} />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-90 pointer-events-none" />
-        <div className="absolute -left-[20%] top-1/3 size-[100vw] bg-electric-blue/5 blur-[250px] rounded-full pointer-events-none" />
-        <div className="absolute -right-[20%] bottom-1/3 size-[80vw] bg-white/[0.02] blur-[200px] rounded-full pointer-events-none" />
-        <div className="absolute inset-0 bg-black/60 opacity-100 scene-dimmer z-10 pointer-events-none" />
+        <ScrollCanvas progress={mappedProgress} isLightMode={isLightMode} />
+        <div className={`absolute inset-0 bg-gradient-to-b ${isLightMode ? 'from-white via-transparent to-white opacity-40' : 'from-black via-transparent to-black opacity-90'} pointer-events-none`} />
+        <div className={`absolute -left-[20%] top-1/3 size-[100vw] ${isLightMode ? 'bg-electric-blue/10' : 'bg-electric-blue/5'} blur-[250px] rounded-full pointer-events-none`} />
+        <div className={`absolute -right-[20%] bottom-1/3 size-[80vw] ${isLightMode ? 'bg-black/[0.02]' : 'bg-white/[0.02]'} blur-[200px] rounded-full pointer-events-none`} />
+        <div className={`absolute inset-0 ${isLightMode ? 'bg-white/60' : 'bg-black/60'} opacity-100 scene-dimmer z-10 pointer-events-none`} />
         
         {/* Section 2 solid background overlay that fades in */}
         <div 
-          className="absolute inset-0 bg-[#050505] z-10 pointer-events-none" 
+          className={`absolute inset-0 ${isLightMode ? 'bg-[#f8f8f8]' : 'bg-[#050505]'} z-10 pointer-events-none`} 
           style={{ opacity: section2BgOpacity }}
         />
       </div>
 
       {/* Cinematic Scenes Content */}
       <div className="relative z-20 -mt-[100vh]">
-        <Hero />
-        <Features features={SCENES_FEATURES} />
-        <Testimonials testimonials={TESTIMONIALS} />
-        <CTA user={user} />
+        <Hero isLightMode={isLightMode} />
+        <Features features={SCENES_FEATURES} isLightMode={isLightMode} />
+        <Testimonials testimonials={TESTIMONIALS} isLightMode={isLightMode} />
+        <CTA user={user} isLightMode={isLightMode} />
       </div>
 
       {/* Scroll Progress Indicator */}
-      <ScrollIndicator progress={progress} onNavigate={handleNavigate} />
+      <ScrollIndicator progress={progress} onNavigate={handleNavigate} isLightMode={isLightMode} />
     </div>
   );
 }

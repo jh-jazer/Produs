@@ -2,25 +2,25 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const SECTIONS = [
-  { id: 'hero', label: 'Awakening', progress: 0 },
-  { id: 'features', label: 'Fragments', progress: 0.30 },
-  { id: 'testimonials', label: 'Reports', progress: 0.90 },
-  { id: 'cta', label: 'Nexus', progress: 0.97 },
+  { id: 'hero', label: 'Intro', progress: 0 },
+  { id: 'features', label: 'Explore', progress: 0.30 },
+  { id: 'testimonials', label: 'Reviews', progress: 0.90 },
+  { id: 'cta', label: 'Join', progress: 0.97 },
 ];
 
-export default function ScrollIndicator({ progress, onNavigate }) {
+export default function ScrollIndicator({ progress, onNavigate, isLightMode }) {
   const percentage = Math.round(progress * 100);
 
   return (
-    <div className="fixed right-6 md:right-12 top-1/2 -translate-y-1/2 z-[100] flex flex-col items-center gap-6 mix-blend-difference pointer-events-none select-none">
+    <div className={`fixed right-6 md:right-12 top-1/2 -translate-y-1/2 z-[100] flex flex-col items-center gap-6 pointer-events-none select-none transition-colors duration-1000 ${isLightMode ? 'text-black' : 'text-white'}`}>
       {/* Percentage Text */}
       <div className="flex flex-col items-center gap-1">
-        <span className="text-[10px] font-mono tracking-widest text-white/40 uppercase">SYNC</span>
+        <span className={`text-[11px] font-mono font-black tracking-widest ${isLightMode ? 'text-black/80' : 'text-white/80'} uppercase`}>Sync</span>
         <div className="relative">
-          <span className="text-xl md:text-2xl font-mono text-white tracking-tighter w-12 text-center block">
+          <span className={`text-xl md:text-2xl font-mono font-bold ${isLightMode ? 'text-black' : 'text-white'} tracking-tighter w-12 text-center block`}>
             {percentage.toString().padStart(3, '0')}
           </span>
-          <div className="absolute -right-4 top-1/2 -translate-y-1/2 text-[10px] font-thin text-white/30 uppercase tracking-tighter">
+          <div className={`absolute -right-4 top-1/2 -translate-y-1/2 text-[12px] font-bold ${isLightMode ? 'text-black/50' : 'text-white/50'} uppercase tracking-tighter`}>
             %
           </div>
         </div>
@@ -28,9 +28,9 @@ export default function ScrollIndicator({ progress, onNavigate }) {
 
       {/* Vertical Progress Track & Section Dots */}
       <div className="relative flex flex-col items-center py-2 h-40 md:h-56">
-        <div className="relative w-[1px] h-full bg-white/10 overflow-hidden rounded-full">
+        <div className={`relative w-[1px] h-full ${isLightMode ? 'bg-black/10' : 'bg-white/10'} overflow-hidden rounded-full`}>
           <motion.div 
-            className="absolute top-0 left-0 w-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]"
+            className={`absolute top-0 left-0 w-full ${isLightMode ? 'bg-black shadow-[0_0_15px_rgba(0,0,0,0.2)]' : 'bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]'}`}
             initial={{ height: "0%" }}
             animate={{ height: `${progress * 100}%` }}
             transition={{ duration: 0.1, ease: "linear" }}
@@ -50,15 +50,15 @@ export default function ScrollIndicator({ progress, onNavigate }) {
               >
                 {/* Active Indicator Line */}
                 <motion.div 
-                  className={`w-4 h-[1px] bg-white transition-opacity ${isActive ? 'opacity-100' : 'opacity-0'}`}
+                  className={`w-4 h-[1px] ${isLightMode ? 'bg-black' : 'bg-white'} transition-opacity ${isActive ? 'opacity-100' : 'opacity-0'}`}
                 />
                 
                 {/* Visual Dot */}
-                <div className={`size-1.5 rounded-full border transition-all duration-300 ${isActive ? 'bg-white border-white scale-125 shadow-[0_0_10px_white]' : 'bg-transparent border-white/20 group-hover:border-white/60 group-hover:scale-110'}`} />
+                <div className={`size-1.5 rounded-full border transition-all duration-300 ${isActive ? (isLightMode ? 'bg-black border-black scale-125 shadow-[0_0_10px_rgba(0,0,0,0.2)]' : 'bg-white border-white scale-125 shadow-[0_0_10px_white]') : (isLightMode ? 'bg-transparent border-black/20 group-hover:border-black/60 group-hover:scale-110' : 'bg-transparent border-white/20 group-hover:border-white/60 group-hover:scale-110')}`} />
                 
                 {/* Label Overlay */}
                 <div className="absolute right-12 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  <span className="text-[8px] font-mono tracking-[0.3em] uppercase text-white/60">{section.label}</span>
+                  <span className={`text-[10px] font-mono font-bold tracking-[0.3em] uppercase ${isLightMode ? 'text-black/80' : 'text-white/80'}`}>{section.label}</span>
                 </div>
               </button>
             )
@@ -76,11 +76,11 @@ export default function ScrollIndicator({ progress, onNavigate }) {
       {/* Rotating Compass / HUD Element */}
       <motion.div 
         animate={{ rotate: progress * 360 }}
-        className="size-8 rounded-full border border-white/5 flex items-center justify-center relative"
+        className={`size-8 rounded-full border ${isLightMode ? 'border-black/10' : 'border-white/5'} flex items-center justify-center relative`}
       >
-        <div className="w-px h-full bg-white/20 absolute top-0 left-1/2 -translate-x-1/2" />
-        <div className="w-full h-px bg-white/20 absolute top-1/2 left-0 -translate-y-1/2" />
-        <div className="size-1 bg-white rounded-full shadow-[0_0_5px_rgba(255,255,255,0.8)]" />
+        <div className={`w-px h-full ${isLightMode ? 'bg-black/10' : 'bg-white/20'} absolute top-0 left-1/2 -translate-x-1/2`} />
+        <div className={`w-full h-px ${isLightMode ? 'bg-black/10' : 'bg-white/20'} absolute top-1/2 left-0 -translate-y-1/2`} />
+        <div className={`size-1 ${isLightMode ? 'bg-black shadow-[0_0_5px_rgba(0,0,0,0.3)]' : 'bg-white shadow-[0_0_5px_rgba(255,255,255,0.8)]'} rounded-full`} />
       </motion.div>
     </div>
   );
