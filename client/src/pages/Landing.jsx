@@ -263,7 +263,7 @@ export default function Landing() {
 
         {/* Section 2 solid background overlay that fades in */}
         <div
-          className="absolute inset-0 bg-[#050505] z-15 pointer-events-none"
+          className="absolute inset-0 bg-[#050505] z-10 pointer-events-none"
           style={{ opacity: section2BgOpacity }}
         />
       </div>
@@ -329,7 +329,7 @@ export default function Landing() {
                 {/* Visual Mockups Side */}
                 <div className={`w-full lg:w-1/2 relative flex items-center justify-center h-[30vh] lg:h-auto order-1 ${idx % 2 === 0 ? 'lg:order-2 lg:justify-end' : 'lg:order-1 lg:justify-start'}`}>
                   {/* Desktop Mockup */}
-                  <div className="relative w-full max-w-[400px] aspect-[16/10] bg-[#0a0a0a] rounded-t-xl rounded-b-md border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden transform rotate-y-[-5deg] rotate-x-[5deg]">
+                  <div className="relative w-full max-w-[400px] aspect-[16/10] bg-[#0a0a0a] rounded-t-xl rounded-b-md border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden [transform:rotateY(-5deg)_rotateX(5deg)]">
                     <div className="h-4 w-full bg-white/5 border-b border-white/10 flex items-center px-2 gap-1 shrink-0">
                       <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
                       <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
@@ -349,7 +349,7 @@ export default function Landing() {
                   </div>
 
                   {/* Mobile Mockup Overlay */}
-                  <div className="absolute -bottom-8 md:-bottom-12 -right-4 md:-right-8 lg:left-0 lg:-bottom-16 w-[120px] md:w-[150px] aspect-[9/19] bg-[#0a0a0a] rounded-[2rem] border-4 border-[#222] shadow-[0_20px_40px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden transform rotate-y-[10deg] rotate-z-[-5deg]">
+                  <div className="absolute -bottom-8 md:-bottom-12 -right-4 md:-right-8 lg:left-0 lg:-bottom-16 w-[120px] md:w-[150px] aspect-[9/19] bg-[#0a0a0a] rounded-[2rem] border-4 border-[#222] shadow-[0_20px_40px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden [transform:rotateY(10deg)_rotateZ(-5deg)]">
                     <div className="w-1/2 h-4 bg-[#222] mx-auto rounded-b-xl absolute top-0 left-1/2 -translate-x-1/2 z-10" />
                     <div className="flex-1 bg-gradient-to-b from-[#111] to-black pt-8 px-3 pb-3 flex flex-col gap-2 relative">
                        <div className="w-full h-12 bg-white/5 rounded-lg" />
