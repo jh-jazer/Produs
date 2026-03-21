@@ -112,6 +112,27 @@ body {
   .perspective-2000 {
     perspective: 2000px;
   }
+
+  .animate-scan-line {
+    animation: scan-line 4s linear infinite;
+  }
+
+  @keyframes scan-line {
+    0% {
+      top: -10%;
+      opacity: 0;
+    }
+    5% {
+      opacity: 1;
+    }
+    95% {
+      opacity: 1;
+    }
+    100% {
+      top: 110%;
+      opacity: 0;
+    }
+  }
 }
 
 @theme {
