@@ -61,11 +61,25 @@ export default function Landing() {
       // Scene 1: Initial Reveal (2% - 12%)
       tl.to(".scene-awakening", { opacity: 1, duration: 10 }, 2);
 
-      // Scene 1: Multi-Layer Awakening Exit (32% - 52%)
-      tl.to(".parallax-line-1", { y: -100, opacity: 0, duration: 20 }, 32);
-      tl.to(".parallax-line-2", { y: -180, opacity: 0, duration: 20 }, 35);
-      tl.to(".parallax-line-3", { y: -260, opacity: 0, duration: 20, scale: 1.1 }, 38);
+      // Scene 1: Multi-Layer Awakening Exit (12% - 22%)
+      tl.to(".parallax-line-1", { y: -100, opacity: 0, duration: 10 }, 12);
+      tl.to(".parallax-line-2", { y: -180, opacity: 0, duration: 10 }, 14);
+      tl.to(".parallax-line-3", { y: -260, opacity: 0, duration: 10, scale: 1.1 }, 16);
+
+      // Text: "will you let it pass" (18% - 24%)
+      tl.fromTo(".text-let-it-pass", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 4 }, 18);
+      tl.to(".text-let-it-pass", { opacity: 0, y: -50, duration: 4 }, 24);
+
+      // Text: "or take back control" (26% - 32%)
+      tl.fromTo(".text-take-control", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 4 }, 26);
+      tl.to(".text-take-control", { opacity: 0, y: -50, duration: 4 }, 32);
+
+      // Text: "Let me help you" (34% - 40%)  -- After reverse starts (reverse starts at 30% according to progress map)
+      tl.fromTo(".text-let-me-help", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 4 }, 34);
+      tl.to(".text-let-me-help", { opacity: 0, y: -50, duration: 4 }, 40);
+
       tl.to(".scene-dimmer", { opacity: 0, duration: 20 }, 32);
+      tl.to(".scene-awakening", { opacity: 0, duration: 5 }, 42);
 
       // Scene 2: Tech Detail Nodes (HUD Fragments 55% - 95%)
       SCENES_FEATURES.forEach((feature, idx) => {
@@ -188,13 +202,26 @@ export default function Landing() {
 
         {/* SCENE 1: THE AWAKENING - Expert Parallax Structure */}
         <section className="fixed inset-0 flex items-center justify-center text-center px-6 pt-20 scene-awakening pointer-events-none opacity-0 z-20 perspective-1000">
-          <div className="max-w-5xl">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-thin uppercase mb-24 text-white/90 drop-shadow-glow">
+          <div className="max-w-5xl relative flex items-center justify-center min-h-[50vh]">
+            <h1 className="absolute text-2xl sm:text-3xl md:text-4xl font-thin uppercase text-white/90 drop-shadow-glow">
               <span className="parallax-line-1 block tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">What if</span>
               <span className="parallax-line-2 text-white/30 block mt-8 tracking-[0.3em] md:tracking-[1.2em] -mr-[0.3em] md:-mr-[1.2em]">this is already your</span>
               <span className="parallax-line-3 text-white block mt-4 tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">Second Chance?</span>
             </h1>
-            <div className="flex flex-col items-center gap-12">
+
+            <div className="absolute text-2xl sm:text-3xl md:text-4xl font-thin uppercase text-white/90 drop-shadow-glow text-let-it-pass opacity-0">
+              <span className="block tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">will you let it pass</span>
+            </div>
+
+            <div className="absolute text-2xl sm:text-3xl md:text-4xl font-thin uppercase text-white/90 drop-shadow-glow text-take-control opacity-0">
+              <span className="block tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">or take back control</span>
+            </div>
+
+            <div className="absolute text-2xl sm:text-3xl md:text-4xl font-thin uppercase text-white/90 drop-shadow-glow text-let-me-help opacity-0">
+              <span className="block tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">Let me help you</span>
+            </div>
+
+            <div className="absolute bottom-[-150px] flex flex-col items-center gap-12">
               <div className="w-px h-40 bg-gradient-to-b from-white/20 to-transparent" />
               <span className="text-[8px] font-thin uppercase tracking-[0.5em] md:tracking-[1em] text-white/20 animate-pulse">Initiate Calibration</span>
             </div>
