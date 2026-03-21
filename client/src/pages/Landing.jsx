@@ -79,11 +79,11 @@ export default function Landing() {
       tl.to(".text-let-me-help", { opacity: 0, y: -50, duration: 4 }, 40);
 
       tl.to(".scene-dimmer", { opacity: 0, duration: 20 }, 32);
-      tl.to(".scene-awakening", { opacity: 0, duration: 5 }, 42);
+      tl.to(".scene-awakening", { opacity: 0, duration: 5 }, 45);
 
-      // Scene 2: Tech Detail Nodes (HUD Fragments 55% - 95%)
+      // Scene 2: Tech Detail Nodes (HUD Fragments 50% - 95%)
       SCENES_FEATURES.forEach((feature, idx) => {
-          const start = 55 + (idx * 10); // Spread out for impact
+          const start = 50 + (idx * 12); // Spread out for impact
           const nodeClass = `.detail-${feature.id}`;
           
           tl.fromTo(nodeClass, 
@@ -122,11 +122,11 @@ export default function Landing() {
   }, []);
 
   // Cinematic Progress Mapping
-  // 0-30% scroll = Sequence 1 (Flatline)
-  // 30-100% scroll = Sequence 2 (Awakened)
-  const mappedProgress = progress <= 0.3
-    ? (progress / 0.3) * 0.5
-    : 0.5 + ((progress - 0.3) / 0.7) * 0.5;
+  // 0-30% scroll = Sequence 1
+  const mappedProgress = Math.min(1, progress / 0.3);
+
+  // Section 2 Background Color Logic
+  const section2BgOpacity = progress > 0.45 ? Math.min(1, (progress - 0.45) / 0.1) : 0;
 
   useEffect(() => {
     document.documentElement.classList.add("no-scrollbar");
@@ -189,12 +189,18 @@ export default function Landing() {
       </motion.nav>
 
       {/* Pinned Background - The Cinematic Scrub */}
-      <div className="pin-background w-full h-screen overflow-hidden">
+      <div className="pin-background w-full h-screen overflow-hidden relative">
         <ScrollCanvas progress={mappedProgress} />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-90" />
-        <div className="absolute -left-[20%] top-1/3 size-[100vw] bg-electric-blue/5 blur-[250px] rounded-full" />
-        <div className="absolute -right-[20%] bottom-1/3 size-[80vw] bg-white/[0.02] blur-[200px] rounded-full" />
-        <div className="absolute inset-0 bg-black/60 opacity-100 scene-dimmer z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-90 pointer-events-none" />
+        <div className="absolute -left-[20%] top-1/3 size-[100vw] bg-electric-blue/5 blur-[250px] rounded-full pointer-events-none" />
+        <div className="absolute -right-[20%] bottom-1/3 size-[80vw] bg-white/[0.02] blur-[200px] rounded-full pointer-events-none" />
+        <div className="absolute inset-0 bg-black/60 opacity-100 scene-dimmer z-10 pointer-events-none" />
+
+        {/* Section 2 solid background overlay that fades in */}
+        <div
+          className="absolute inset-0 bg-[#050505] z-15 pointer-events-none"
+          style={{ opacity: section2BgOpacity }}
+        />
       </div>
 
       {/* Cinematic Scenes Content */}
@@ -230,29 +236,66 @@ export default function Landing() {
 
           {/* SCENE 2: DETAIL FRAGMENTS - Multi-Layer Visuals */}
           <div className="h-[400vh] relative flex flex-col items-center justify-center">
-            {SCENES_FEATURES.map((feature) => (
+            {SCENES_FEATURES.map((feature, idx) => (
               <div 
                 key={feature.id} 
-                className={`detail-${feature.id} fixed inset-0 flex items-center justify-center pointer-events-none opacity-0 z-30 perspective-1000`}
+                className={`detail-${feature.id} fixed inset-0 flex flex-col lg:flex-row items-center justify-center gap-8 md:gap-16 pointer-events-none opacity-0 z-30 perspective-1000 px-6 md:px-16 max-w-7xl mx-auto w-full`}
               >
-                <div className="text-center relative p-6 md:p-12 bg-white/[0.01] border border-white/[0.03] rounded-3xl backdrop-blur-3xl overflow-hidden w-full max-w-sm md:max-w-none mx-4 md:mx-0">
-                  <div className="hud-icon size-16 md:size-20 rounded-2xl bg-white/[0.04] border border-white/[0.1] flex items-center justify-center mx-auto mb-8 md:mb-12 shadow-[0_0_50px_rgba(255,255,255,0.05)]">
+                {/* Text / Info Side */}
+                <div className={`text-center relative p-6 md:p-12 bg-white/[0.01] border border-white/[0.03] rounded-3xl backdrop-blur-md overflow-hidden w-full lg:w-1/2 mx-4 md:mx-0 flex flex-col items-center order-2 ${idx % 2 === 0 ? 'lg:order-1 lg:text-left lg:items-start' : 'lg:order-2 lg:text-right lg:items-end'}`}>
+                  <div className={`hud-icon size-16 md:size-20 rounded-2xl bg-white/[0.04] border border-white/[0.1] flex items-center justify-center mb-8 md:mb-12 shadow-[0_0_50px_rgba(255,255,255,0.05)]`}>
                     <feature.icon className="text-white/80 w-6 h-6 md:w-9 md:h-9" strokeWidth={1} />
                   </div>
-                  <div className="hud-title">
+                  <div className={`hud-title w-full flex flex-col items-center ${idx % 2 === 0 ? 'lg:items-start' : 'lg:items-end'}`}>
                     <span className="text-[8px] md:text-[10px] font-thin text-white/30 block mb-4 md:mb-6 uppercase tracking-[0.5em] md:tracking-[1.8em]">
                       Fragment: {feature.label}
                     </span>
-                    <h2 className="text-xl sm:text-2xl md:text-5xl font-thin text-white uppercase tracking-[0.5em] md:tracking-[2em] mb-8 md:mb-12 drop-shadow-glow ml-[0.5em] md:ml-[2em]">
+                    <h2 className={`text-xl sm:text-2xl md:text-5xl font-thin text-white uppercase tracking-[0.5em] md:tracking-[1em] mb-8 md:mb-12 drop-shadow-glow ml-[0.5em] ${idx % 2 === 0 ? 'lg:ml-0' : 'lg:mr-[-1em] lg:ml-0'}`}>
                       {feature.title}
                     </h2>
-                    <div className="w-24 md:w-32 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent mx-auto" />
+                    <div className={`w-24 md:w-32 h-px bg-gradient-to-r ${idx % 2 === 0 ? 'from-transparent via-white/15 to-transparent lg:from-white/15 lg:via-white/5 lg:to-transparent' : 'from-transparent via-white/15 to-transparent lg:from-transparent lg:via-white/5 lg:to-white/15'}`} />
                   </div>
                   
                   {/* Subtle AR Decoration */}
                   <div className="absolute top-0 left-0 w-6 h-6 md:w-8 md:h-8 border-t border-l border-white/10" />
                   <div className="absolute bottom-0 right-0 w-6 h-6 md:w-8 md:h-8 border-b border-r border-white/10" />
                 </div>
+
+                {/* Visual Mockups Side */}
+                <div className={`w-full lg:w-1/2 relative flex items-center justify-center h-[30vh] lg:h-auto order-1 ${idx % 2 === 0 ? 'lg:order-2 lg:justify-end' : 'lg:order-1 lg:justify-start'}`}>
+                  {/* Desktop Mockup */}
+                  <div className="relative w-full max-w-[400px] aspect-[16/10] bg-[#0a0a0a] rounded-t-xl rounded-b-md border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden transform rotate-y-[-5deg] rotate-x-[5deg]">
+                    <div className="h-4 w-full bg-white/5 border-b border-white/10 flex items-center px-2 gap-1 shrink-0">
+                      <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                    </div>
+                    <div className="flex-1 bg-gradient-to-br from-[#111] to-black p-4 flex flex-col gap-2 relative overflow-hidden">
+                       <div className="w-full h-8 bg-white/5 rounded" />
+                       <div className="flex gap-2 w-full h-full">
+                         <div className="w-1/3 h-full bg-white/5 rounded" />
+                         <div className="w-2/3 h-full bg-white/5 rounded flex flex-col gap-2">
+                           <div className="w-full h-1/2 bg-white/5 rounded" />
+                           <div className="w-full h-1/2 bg-white/5 rounded" />
+                         </div>
+                       </div>
+                       <div className="absolute inset-0 bg-electric-blue/10 mix-blend-overlay" />
+                    </div>
+                  </div>
+
+                  {/* Mobile Mockup Overlay */}
+                  <div className="absolute -bottom-8 md:-bottom-12 -right-4 md:-right-8 lg:left-0 lg:-bottom-16 w-[120px] md:w-[150px] aspect-[9/19] bg-[#0a0a0a] rounded-[2rem] border-4 border-[#222] shadow-[0_20px_40px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden transform rotate-y-[10deg] rotate-z-[-5deg]">
+                    <div className="w-1/2 h-4 bg-[#222] mx-auto rounded-b-xl absolute top-0 left-1/2 -translate-x-1/2 z-10" />
+                    <div className="flex-1 bg-gradient-to-b from-[#111] to-black pt-8 px-3 pb-3 flex flex-col gap-2 relative">
+                       <div className="w-full h-12 bg-white/5 rounded-lg" />
+                       <div className="w-full h-12 bg-white/5 rounded-lg" />
+                       <div className="w-full h-12 bg-white/5 rounded-lg" />
+                       <div className="w-full flex-1 bg-white/5 rounded-lg" />
+                       <div className="absolute inset-0 bg-electric-blue/10 mix-blend-overlay" />
+                    </div>
+                  </div>
+                </div>
+
               </div>
             ))}
           </div>
