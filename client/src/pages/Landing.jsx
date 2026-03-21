@@ -61,10 +61,24 @@ export default function Landing() {
       // Scene 1: Initial Reveal (2% - 12%)
       tl.to(".scene-awakening", { opacity: 1, duration: 10 }, 2);
 
-      // Scene 1: Multi-Layer Awakening Exit (32% - 52%)
-      tl.to(".parallax-line-1", { y: -100, opacity: 0, duration: 20 }, 32);
-      tl.to(".parallax-line-2", { y: -180, opacity: 0, duration: 20 }, 35);
-      tl.to(".parallax-line-3", { y: -260, opacity: 0, duration: 20, scale: 1.1 }, 38);
+      // Before 30% mark: "will you let it pass"
+      tl.to(".parallax-line-4", { opacity: 1, duration: 10 }, 14);
+
+      // Scene 1: Multi-Layer Awakening Exit (before 30% sequence is fully done playing, they exit)
+      // They exit around 24-27% to clear screen for the reverse logic.
+      tl.to(".parallax-line-1", { y: -100, opacity: 0, duration: 10 }, 24);
+      tl.to(".parallax-line-2", { y: -180, opacity: 0, duration: 10 }, 25);
+      tl.to(".parallax-line-3", { y: -260, opacity: 0, duration: 10, scale: 1.1 }, 26);
+      tl.to(".parallax-line-4", { y: -340, opacity: 0, duration: 10 }, 27);
+
+      // After 30% mark (reverse sequence starts), "or take back control", "Let me help you"
+      tl.to(".parallax-line-5", { opacity: 1, duration: 10 }, 31);
+      tl.to(".parallax-line-6", { opacity: 1, duration: 10 }, 38);
+
+      // Exit the second group before Scene 2 starts at 55%
+      tl.to(".parallax-line-5", { y: -100, opacity: 0, duration: 10 }, 48);
+      tl.to(".parallax-line-6", { y: -180, opacity: 0, duration: 10 }, 48);
+
       tl.to(".scene-dimmer", { opacity: 0, duration: 20 }, 32);
 
       // Scene 2: Tech Detail Nodes (HUD Fragments 55% - 95%)
@@ -188,13 +202,21 @@ export default function Landing() {
 
         {/* SCENE 1: THE AWAKENING - Expert Parallax Structure */}
         <section className="fixed inset-0 flex items-center justify-center text-center px-6 pt-20 scene-awakening pointer-events-none opacity-0 z-20 perspective-1000">
-          <div className="max-w-5xl">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-thin uppercase mb-24 text-white/90 drop-shadow-glow">
+          <div className="max-w-5xl relative">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-thin uppercase mb-24 text-white/90 drop-shadow-glow relative">
               <span className="parallax-line-1 block tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">What if</span>
               <span className="parallax-line-2 text-white/30 block mt-8 tracking-[0.3em] md:tracking-[1.2em] -mr-[0.3em] md:-mr-[1.2em]">this is already your</span>
               <span className="parallax-line-3 text-white block mt-4 tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">Second Chance?</span>
+              <span className="parallax-line-4 text-white/60 block mt-8 tracking-[0.3em] md:tracking-[1.2em] -mr-[0.3em] md:-mr-[1.2em] opacity-0">will you let it pass</span>
             </h1>
-            <div className="flex flex-col items-center gap-12">
+
+            {/* SECOND GROUP FOR REVERSE SEQUENCE */}
+            <h1 className="absolute top-0 left-0 w-full text-2xl sm:text-3xl md:text-4xl font-thin uppercase mb-24 text-white/90 drop-shadow-glow pointer-events-none">
+              <span className="parallax-line-5 text-white/30 block mt-8 tracking-[0.3em] md:tracking-[1.2em] -mr-[0.3em] md:-mr-[1.2em] opacity-0">or take back control</span>
+              <span className="parallax-line-6 text-white block mt-4 tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em] opacity-0">Let me help you</span>
+            </h1>
+
+            <div className="flex flex-col items-center gap-12 mt-24">
               <div className="w-px h-40 bg-gradient-to-b from-white/20 to-transparent" />
               <span className="text-[8px] font-thin uppercase tracking-[0.5em] md:tracking-[1em] text-white/20 animate-pulse">Initiate Calibration</span>
             </div>
