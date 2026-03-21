@@ -28,6 +28,23 @@ export default function Landing() {
   const { user } = useAuthStore();
   const containerRef = useRef(null);
   const [progress, setProgress] = useState(0);
+  const [showSplash, setShowSplash] = useState(true);
+
+  // Splash Screen Logic
+  useEffect(() => {
+    // Disable scrolling while splash is active
+    if (showSplash) {
+      document.body.style.overflow = 'hidden';
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+        document.body.style.overflow = '';
+      }, 2500); // 2.5 second splash screen
+      return () => {
+        clearTimeout(timer);
+        document.body.style.overflow = '';
+      };
+    }
+  }, [showSplash]);
 
   // Navbar Visibility Logic
   const [navVisible, setNavVisible] = useState(true);
@@ -101,11 +118,11 @@ export default function Landing() {
           );
       });
 
-      // Scene 3: Nexus (98% - 100%)
+      // Scene 3: Nexus (95% - 100%)
       tl.fromTo(".scene-nexus", 
         { opacity: 0, y: 300, scale: 0.95 },
         { opacity: 1, y: 0, scale: 1, duration: 10, ease: "power2.out" },
-        98
+        92
       );
 
     }, containerRef);
@@ -154,7 +171,55 @@ export default function Landing() {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative bg-black text-white selection:bg-electric-blue/30 font-sans h-[600vh]">
+    <div ref={containerRef} className="relative bg-black text-white selection:bg-electric-blue/30 font-sans h-[800vh]">
+
+      {/* Splash Screen Overlay */}
+      <AnimatePresence>
+        {showSplash && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="fixed inset-0 z-[10000] bg-black flex flex-col items-center justify-center pointer-events-auto"
+          >
+            <div className="relative flex flex-col items-center">
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="flex items-center justify-center relative mb-8"
+              >
+                <div className="absolute inset-0 bg-electric-blue/20 blur-xl rounded-full size-24 transform translate-y-2"></div>
+                <div className="size-20 bg-white shadow-[0_0_40px_rgba(255,255,255,0.8)] transform rotate-45 relative z-10 flex items-center justify-center border border-white/40">
+                  <div className="size-10 bg-black shadow-[inset_0_0_20px_rgba(255,255,255,0.5)] transform -rotate-45" />
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8, duration: 1 }}
+                className="flex flex-col items-center gap-4"
+              >
+                <h1 className="text-xl md:text-2xl font-thin tracking-[0.8em] text-white uppercase ml-[0.8em]">Produs</h1>
+                <div className="w-32 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                <span className="text-[10px] font-thin uppercase tracking-[0.4em] text-white/40 animate-pulse">Initializing Interface</span>
+              </motion.div>
+            </div>
+
+            <div className="absolute bottom-12 w-full flex justify-center">
+              <div className="w-48 h-[2px] bg-white/10 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 2, ease: "easeInOut" }}
+                  className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Dynamic Cursor Background */}
       <div
@@ -301,20 +366,87 @@ export default function Landing() {
           </div>
 
         {/* SCENE 3: THE NEXUS */}
-        <section className="h-screen flex flex-col items-center justify-center text-center px-6 scene-nexus sticky bottom-0">
-          <span className="text-[8px] md:text-[9px] font-thin uppercase tracking-[0.5em] md:tracking-[1.5em] text-white/20 mb-12 md:mb-20 block">
-            Operational Nexus // Fragment Final
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-6xl font-thin uppercase tracking-[0.3em] md:tracking-[0.8em] text-white leading-[1.5] mb-20 md:mb-28">
-            The Final <br />
-            <span className="text-white/10">Frequency.</span>
-          </h2>
-          <Link to="/auth" className="group flex flex-col items-center gap-6 md:gap-10">
-            <div className="size-16 md:size-20 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white group-hover:scale-110 transition-all duration-700 bg-black">
-              <ChevronRight size={20} className="text-white group-hover:translate-x-1 transition-all md:w-6 md:h-6" />
+        <section className="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 pb-32 scene-nexus relative bg-[#020202]">
+
+          <div className="max-w-6xl w-full mx-auto flex flex-col items-center">
+
+            <div className="mb-24 w-full">
+              <span className="text-[8px] md:text-[9px] font-thin uppercase tracking-[0.5em] md:tracking-[1.5em] text-white/20 mb-8 block">
+                Field Reports // Calibration Data
+              </span>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 w-full">
+                {/* Testimonial 1 */}
+                <div className="bg-white/[0.02] border border-white/[0.05] p-8 rounded-2xl flex flex-col items-start text-left backdrop-blur-sm relative overflow-hidden group hover:border-white/[0.1] transition-colors duration-500">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-electric-blue/5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  <div className="flex gap-1 mb-6">
+                     {[...Array(5)].map((_, i) => (
+                       <div key={i} className="w-1 h-3 bg-white/20 rounded-full"></div>
+                     ))}
+                  </div>
+                  <p className="text-sm md:text-base font-light text-white/60 mb-8 leading-relaxed">
+                    "This isn't just another tracker. It feels like a terminal directly into my own potential. The UI forces me to focus on what matters, discarding the noise."
+                  </p>
+                  <div className="mt-auto">
+                    <span className="block text-xs font-medium text-white/90 tracking-widest uppercase mb-1">Subject_094</span>
+                    <span className="block text-[10px] text-white/30 tracking-widest uppercase">System Architect</span>
+                  </div>
+                </div>
+
+                {/* Testimonial 2 */}
+                <div className="bg-white/[0.02] border border-white/[0.05] p-8 rounded-2xl flex flex-col items-start text-left backdrop-blur-sm relative overflow-hidden group hover:border-white/[0.1] transition-colors duration-500 md:-translate-y-4">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  <div className="flex gap-1 mb-6">
+                     {[...Array(5)].map((_, i) => (
+                       <div key={i} className="w-1 h-3 bg-white/40 rounded-full"></div>
+                     ))}
+                  </div>
+                  <p className="text-sm md:text-base font-light text-white/60 mb-8 leading-relaxed">
+                    "A flawless interface. It syncs my habits, capital, and daily logs without friction. It truly is the second chance I needed to take back control of my routine."
+                  </p>
+                  <div className="mt-auto">
+                    <span className="block text-xs font-medium text-white/90 tracking-widest uppercase mb-1">Subject_112</span>
+                    <span className="block text-[10px] text-white/30 tracking-widest uppercase">Creative Director</span>
+                  </div>
+                </div>
+
+                {/* Testimonial 3 */}
+                <div className="bg-white/[0.02] border border-white/[0.05] p-8 rounded-2xl flex flex-col items-start text-left backdrop-blur-sm relative overflow-hidden group hover:border-white/[0.1] transition-colors duration-500">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-electric-blue/5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  <div className="flex gap-1 mb-6">
+                     {[...Array(5)].map((_, i) => (
+                       <div key={i} className="w-1 h-3 bg-white/20 rounded-full"></div>
+                     ))}
+                  </div>
+                  <p className="text-sm md:text-base font-light text-white/60 mb-8 leading-relaxed">
+                    "I was lost in endless productivity loops before. Produs acts as a central nexus. Dark, minimal, and unapologetically focused. It recalibrated my workflow."
+                  </p>
+                  <div className="mt-auto">
+                    <span className="block text-xs font-medium text-white/90 tracking-widest uppercase mb-1">Subject_043</span>
+                    <span className="block text-[10px] text-white/30 tracking-widest uppercase">Lead Engineer</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <span className="text-[8px] font-thin uppercase tracking-[0.5em] md:tracking-[1.5em] text-white/40 group-hover:text-white transition-colors">Initialize System</span>
-          </Link>
+
+            <div className="w-px h-32 bg-gradient-to-b from-transparent via-white/10 to-transparent mb-16"></div>
+
+            <span className="text-[8px] md:text-[9px] font-thin uppercase tracking-[0.5em] md:tracking-[1.5em] text-white/20 mb-8 md:mb-12 block">
+              Operational Nexus // Final Sequence
+            </span>
+            <h2 className="text-2xl sm:text-3xl md:text-6xl font-thin uppercase tracking-[0.3em] md:tracking-[0.8em] text-white leading-[1.5] mb-16 md:mb-24">
+              The Final <br />
+              <span className="text-white/10">Frequency.</span>
+            </h2>
+
+            <Link to="/auth" className="group flex flex-col items-center gap-6 md:gap-10">
+              <div className="size-16 md:size-20 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white group-hover:scale-110 transition-all duration-700 bg-black shadow-[0_0_30px_rgba(255,255,255,0.02)] group-hover:shadow-[0_0_50px_rgba(255,255,255,0.1)]">
+                <ChevronRight size={20} className="text-white group-hover:translate-x-1 transition-all md:w-6 md:h-6" />
+              </div>
+              <span className="text-[8px] font-thin uppercase tracking-[0.5em] md:tracking-[1.5em] text-white/40 group-hover:text-white transition-colors">Initialize System</span>
+            </Link>
+
+          </div>
         </section>
 
       </div>
