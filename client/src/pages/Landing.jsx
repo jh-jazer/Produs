@@ -153,11 +153,11 @@ export default function Landing() {
         initial={{ y: 0, opacity: 0 }}
         animate={{ y: navVisible ? 0 : -150, opacity: 1 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 left-0 w-full z-[100] px-12 py-10 flex justify-between items-center pointer-events-none"
+        className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-6 md:py-10 flex justify-between items-center pointer-events-none"
       >
-        <div className="flex items-center gap-4 group cursor-pointer pointer-events-auto" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <div className="size-6 bg-white flex items-center justify-center transition-all group-hover:bg-electric-blue rotate-45 group-hover:rotate-0" />
-          <span className="font-thin text-xs uppercase tracking-[0.8em] text-white/50 group-hover:text-white transition-colors">Produs</span>
+        <div className="flex items-center gap-3 md:gap-4 group cursor-pointer pointer-events-auto" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <div className="size-4 md:size-6 bg-white flex items-center justify-center transition-all group-hover:bg-electric-blue rotate-45 group-hover:rotate-0" />
+          <span className="font-thin text-[10px] md:text-xs uppercase tracking-[0.5em] md:tracking-[0.8em] text-white/50 group-hover:text-white transition-colors hidden sm:inline-block">Produs</span>
         </div>
 
         <div className="hidden lg:flex gap-16 items-center text-[9px] uppercase font-thin tracking-[0.5em] text-white/30 pointer-events-auto">
@@ -166,9 +166,9 @@ export default function Landing() {
           <Link to="/auth" className="hover:text-white transition-all hover:tracking-[0.8em] border-l border-white/10 pl-16">Entry</Link>
         </div>
 
-        <Link to={user ? "/dashboard" : "/auth"} className="pointer-events-auto group flex items-center gap-6">
-          <span className="font-thin text-[9px] uppercase tracking-[0.5em] text-white/40 group-hover:text-white transition-colors">Access Interface</span>
-          <div className="size-10 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white transition-all">
+        <Link to={user ? "/dashboard" : "/auth"} className="pointer-events-auto group flex items-center gap-3 md:gap-6">
+          <span className="font-thin text-[8px] md:text-[9px] uppercase tracking-[0.2em] md:tracking-[0.5em] text-white/40 group-hover:text-white transition-colors text-right max-w-[100px] md:max-w-none">Access Interface</span>
+          <div className="size-8 md:size-10 shrink-0 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white transition-all">
             <ChevronRight size={14} className="text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all" />
           </div>
         </Link>
@@ -189,14 +189,14 @@ export default function Landing() {
         {/* SCENE 1: THE AWAKENING - Expert Parallax Structure */}
         <section className="fixed inset-0 flex items-center justify-center text-center px-6 pt-20 scene-awakening pointer-events-none opacity-0 z-20 perspective-1000">
           <div className="max-w-5xl">
-            <h1 className="text-4xl md:text-4xl font-thin uppercase mb-24 text-white/90 drop-shadow-glow">
-              <span className="parallax-line-1 block tracking-[1.5em] -mr-[1.5em]">What if</span>
-              <span className="parallax-line-2 text-white/30 block mt-8 tracking-[1.2em] -mr-[1.2em]">this is already your</span>
-              <span className="parallax-line-3 text-white block mt-4 tracking-[1.5em] -mr-[1.5em]">Second Chance?</span>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-thin uppercase mb-24 text-white/90 drop-shadow-glow">
+              <span className="parallax-line-1 block tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">What if</span>
+              <span className="parallax-line-2 text-white/30 block mt-8 tracking-[0.3em] md:tracking-[1.2em] -mr-[0.3em] md:-mr-[1.2em]">this is already your</span>
+              <span className="parallax-line-3 text-white block mt-4 tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">Second Chance?</span>
             </h1>
             <div className="flex flex-col items-center gap-12">
               <div className="w-px h-40 bg-gradient-to-b from-white/20 to-transparent" />
-              <span className="text-[8px] font-thin uppercase tracking-[1em] text-white/20 animate-pulse">Initiate Calibration</span>
+              <span className="text-[8px] font-thin uppercase tracking-[0.5em] md:tracking-[1em] text-white/20 animate-pulse">Initiate Calibration</span>
             </div>
           </div>
         </section>
@@ -208,23 +208,23 @@ export default function Landing() {
                 key={feature.id} 
                 className={`detail-${feature.id} fixed inset-0 flex items-center justify-center pointer-events-none opacity-0 z-30 perspective-1000`}
               >
-                <div className="text-center relative p-12 bg-white/[0.01] border border-white/[0.03] rounded-3xl backdrop-blur-3xl overflow-hidden">
-                  <div className="hud-icon size-20 rounded-2xl bg-white/[0.04] border border-white/[0.1] flex items-center justify-center mx-auto mb-12 shadow-[0_0_50px_rgba(255,255,255,0.05)]">
-                    <feature.icon className="text-white/80" size={36} strokeWidth={1} />
+                <div className="text-center relative p-6 md:p-12 bg-white/[0.01] border border-white/[0.03] rounded-3xl backdrop-blur-3xl overflow-hidden w-full max-w-sm md:max-w-none mx-4 md:mx-0">
+                  <div className="hud-icon size-16 md:size-20 rounded-2xl bg-white/[0.04] border border-white/[0.1] flex items-center justify-center mx-auto mb-8 md:mb-12 shadow-[0_0_50px_rgba(255,255,255,0.05)]">
+                    <feature.icon className="text-white/80 w-6 h-6 md:w-9 md:h-9" strokeWidth={1} />
                   </div>
                   <div className="hud-title">
-                    <span className="text-[10px] font-thin text-white/30 block mb-6 uppercase tracking-[1.8em]">
+                    <span className="text-[8px] md:text-[10px] font-thin text-white/30 block mb-4 md:mb-6 uppercase tracking-[0.5em] md:tracking-[1.8em]">
                       Fragment: {feature.label}
                     </span>
-                    <h2 className="text-3xl md:text-5xl font-thin text-white uppercase tracking-[2em] mb-12 drop-shadow-glow ml-[2em]">
+                    <h2 className="text-xl sm:text-2xl md:text-5xl font-thin text-white uppercase tracking-[0.5em] md:tracking-[2em] mb-8 md:mb-12 drop-shadow-glow ml-[0.5em] md:ml-[2em]">
                       {feature.title}
                     </h2>
-                    <div className="w-32 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent mx-auto" />
+                    <div className="w-24 md:w-32 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent mx-auto" />
                   </div>
                   
                   {/* Subtle AR Decoration */}
-                  <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-white/10" />
-                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-white/10" />
+                  <div className="absolute top-0 left-0 w-6 h-6 md:w-8 md:h-8 border-t border-l border-white/10" />
+                  <div className="absolute bottom-0 right-0 w-6 h-6 md:w-8 md:h-8 border-b border-r border-white/10" />
                 </div>
               </div>
             ))}
@@ -232,18 +232,18 @@ export default function Landing() {
 
         {/* SCENE 3: THE NEXUS */}
         <section className="h-screen flex flex-col items-center justify-center text-center px-6 scene-nexus sticky bottom-0">
-          <span className="text-[9px] font-thin uppercase tracking-[1.5em] text-white/20 mb-20 block">
+          <span className="text-[8px] md:text-[9px] font-thin uppercase tracking-[0.5em] md:tracking-[1.5em] text-white/20 mb-12 md:mb-20 block">
             Operational Nexus // Fragment Final
           </span>
-          <h2 className="text-4xl md:text-6xl font-thin uppercase tracking-[0.8em] text-white leading-[1.5] mb-28">
+          <h2 className="text-2xl sm:text-3xl md:text-6xl font-thin uppercase tracking-[0.3em] md:tracking-[0.8em] text-white leading-[1.5] mb-20 md:mb-28">
             The Final <br />
             <span className="text-white/10">Frequency.</span>
           </h2>
-          <Link to="/auth" className="group flex flex-col items-center gap-10">
-            <div className="size-20 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white group-hover:scale-110 transition-all duration-700 bg-black">
-              <ChevronRight size={24} className="text-white group-hover:translate-x-1 transition-all" />
+          <Link to="/auth" className="group flex flex-col items-center gap-6 md:gap-10">
+            <div className="size-16 md:size-20 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white group-hover:scale-110 transition-all duration-700 bg-black">
+              <ChevronRight size={20} className="text-white group-hover:translate-x-1 transition-all md:w-6 md:h-6" />
             </div>
-            <span className="text-[8px] font-thin uppercase tracking-[1.5em] text-white/40 group-hover:text-white transition-colors">Initialize System</span>
+            <span className="text-[8px] font-thin uppercase tracking-[0.5em] md:tracking-[1.5em] text-white/40 group-hover:text-white transition-colors">Initialize System</span>
           </Link>
         </section>
 
