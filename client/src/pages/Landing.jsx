@@ -311,8 +311,6 @@ export default function Landing() {
         <div className={`absolute inset-0 bg-gradient-to-b ${isLightMode ? 'from-white via-transparent to-white opacity-40' : 'from-black via-transparent to-black opacity-90'} pointer-events-none`} />
         <div className={`absolute -left-[20%] top-1/3 size-[100vw] ${isLightMode ? 'bg-electric-blue/10' : 'bg-electric-blue/5'} blur-[250px] rounded-full pointer-events-none`} />
         <div className={`absolute -right-[20%] bottom-1/3 size-[80vw] ${isLightMode ? 'bg-black/[0.02]' : 'bg-white/[0.02]'} blur-[200px] rounded-full pointer-events-none`} />
-        <div className={`absolute inset-0 ${isLightMode ? 'bg-white/60' : 'bg-black/60'} opacity-100 scene-dimmer z-10 pointer-events-none`} />
-        
         {/* Section 2 solid background overlay that fades in */}
         <div 
           className={`absolute inset-0 ${isLightMode ? 'bg-[#f8f8f8]' : 'bg-[#050505]'} z-10 pointer-events-none`} 

@@ -10,7 +10,7 @@ export default function Testimonials({ testimonials, isLightMode }) {
             Global User Reviews // Testimonials
           </span>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 w-full perspective-2000">
+          <div className="flex overflow-x-auto snap-x snap-mandatory md:grid md:grid-cols-3 gap-6 md:gap-10 w-full perspective-2000 pb-8 no-scrollbar">
             {testimonials.map((testimonial, idx) => (
               <motion.div 
                 key={testimonial.id}
@@ -18,7 +18,7 @@ export default function Testimonials({ testimonials, isLightMode }) {
                 whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1, delay: idx * 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className={`group relative bg-[#080808] border border-white/10 hover:border-white/20 p-8 md:p-10 rounded-3xl flex flex-col items-start text-left backdrop-blur-xl overflow-hidden transition-all duration-700 hover:-translate-y-2 pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.5)]`}
+                className={`w-[85vw] shrink-0 snap-center md:w-auto md:shrink group relative bg-[#080808] border border-white/10 hover:border-white/20 p-8 md:p-10 rounded-3xl flex flex-col items-start text-left backdrop-blur-xl overflow-hidden transition-all duration-700 hover:-translate-y-2 pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.5)]`}
               >
                 {/* Abstract Data Header */}
                 <div className="w-full flex justify-between items-start mb-10">
