@@ -87,7 +87,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                 onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[300px] flex flex-col">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none min-h-[300px] flex flex-col">
             <div className="flex items-center justify-between gap-2 mb-6">
                 <div className="flex flex-col">
                     <div className="flex items-center gap-2">
@@ -98,7 +98,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                 </div>
                 <button
                     onClick={() => setShowAdd(true)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-[#000000] transition-colors"
                 >
                     <span className="material-symbols-outlined text-xl">add_circle</span>
                 </button>
@@ -154,13 +154,13 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                 const displayNet = displayIncome - displayDebt;
 
                 return (
-                <div className="mb-6 p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20 flex flex-col gap-3">
+                <div className="mb-6 p-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-[#121212]/20 flex flex-col gap-3">
                     <div className="flex items-center justify-between mb-1">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Report View</p>
                         <select 
                             value={summaryView}
                             onChange={(e) => setSummaryView(e.target.value)}
-                            className="text-[10px] font-black uppercase bg-white dark:bg-slate-800 border-none rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary shadow-sm cursor-pointer dark:text-slate-300"
+                            className="text-[10px] font-black uppercase bg-white dark:bg-[#000000] border-none rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary shadow-none cursor-pointer dark:text-slate-300"
                         >
                             <option value="overall">Overall Total</option>
                             {availableMonths.map(m => (
@@ -183,7 +183,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                         </span>
                         <span className="text-rose-500">-{currencySymbol}{displayDebt.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between items-center mt-1 bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-800/50 shadow-sm transition-all">
+                    <div className="flex justify-between items-center mt-1 bg-white dark:bg-[#000000] p-3 rounded-xl border border-slate-100 dark:border-white/10/50 shadow-none transition-all">
                         <div className="flex flex-col">
                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Net Flow</span>
                             <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
@@ -215,7 +215,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                             <div key={debt._id} className={`group p-4 rounded-xl border transition-all ${
                                 isIncome 
                                     ? 'bg-emerald-50/30 dark:bg-emerald-500/5 border-emerald-100 dark:border-emerald-800/30 hover:border-emerald-500/30' 
-                                    : 'bg-slate-50/50 dark:bg-slate-900/20 border-slate-100 dark:border-slate-800 hover:border-primary/20'
+                                    : 'bg-slate-50/50 dark:bg-[#121212]/20 border-slate-100 dark:border-white/10 hover:border-primary/20'
                             }`}>
                                 <div className="flex justify-between items-start">
                                     <div className="flex flex-col">
@@ -261,7 +261,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                             setShowPayModal(debt);
                                             setPayAmount('');
                                         }}
-                                        className="w-full mt-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors dark:text-slate-300 shadow-sm"
+                                        className="w-full mt-4 py-2 bg-white dark:bg-[#000000] border border-slate-200 dark:border-white/10 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-[#121212] transition-colors dark:text-slate-300 shadow-none"
                                     >
                                         Make Payment
                                     </button>
@@ -276,10 +276,10 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
             {/* Add Record Modal */}
             {showAdd && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowAdd(false)}></div>
+                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowAdd(false)}></div>
                     <form 
                         onSubmit={handleAdd} 
-                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
+                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
                     >
                         <div className="flex justify-between items-center mb-1">
                             <div>
@@ -292,13 +292,13 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                         </div>
 
                         {/* Nature Toggle */}
-                        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                        <div className="flex bg-slate-100 dark:bg-[#000000] p-1 rounded-xl">
                             <button
                                 type="button"
                                 onClick={() => setNewDebt({ ...newDebt, nature: 'debt', type: 'personal' })}
                                 className={`flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-black uppercase transition-all rounded-lg ${
                                     newDebt.nature === 'debt' 
-                                        ? 'bg-white dark:bg-slate-700 text-rose-500 shadow-sm' 
+                                        ? 'bg-white dark:bg-[#121212] text-rose-500 shadow-none'
                                         : 'text-slate-400 hover:text-slate-600'
                                 }`}
                             >
@@ -310,7 +310,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                 onClick={() => setNewDebt({ ...newDebt, nature: 'income', type: 'salary' })}
                                 className={`flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-black uppercase transition-all rounded-lg ${
                                     newDebt.nature === 'income' 
-                                        ? 'bg-white dark:bg-slate-700 text-emerald-500 shadow-sm' 
+                                        ? 'bg-white dark:bg-[#121212] text-emerald-500 shadow-none'
                                         : 'text-slate-400 hover:text-slate-600'
                                 }`}
                             >
@@ -324,7 +324,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Title</label>
                                 <input
                                     required type="text" placeholder={newDebt.nature === 'income' ? "e.g. Freelance Payout" : "e.g. Bill Payment"}
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                     value={newDebt.title} onChange={e => setNewDebt({ ...newDebt, title: e.target.value })}
                                 />
                             </div>
@@ -336,7 +336,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
                                         <input
                                             required type="number" placeholder="0.00"
-                                            className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                            className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                             value={newDebt.amount} onChange={e => setNewDebt({ ...newDebt, amount: e.target.value })}
                                         />
                                     </div>
@@ -345,7 +345,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date</label>
                                     <input
                                         type="date"
-                                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                        className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                         value={newDebt.dueDate} onChange={e => setNewDebt({ ...newDebt, dueDate: e.target.value })}
                                     />
                                 </div>
@@ -354,7 +354,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
                                 <select
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                     value={newDebt.type} onChange={e => setNewDebt({ ...newDebt, type: e.target.value })}
                                 >
                                     {newDebt.nature === 'debt' ? (
@@ -375,7 +375,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                 </select>
                             </div>
 
-                            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800/50 flex flex-col gap-4">
+                            <div className="bg-slate-50 dark:bg-[#000000]/50 p-4 rounded-xl border border-slate-100 dark:border-white/10/50 flex flex-col gap-4">
                                 <label className="flex items-center gap-3 cursor-pointer">
                                     <div className="relative flex items-center">
                                         <input
@@ -384,7 +384,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                             checked={newDebt.isMonthly}
                                             onChange={e => setNewDebt({ ...newDebt, isMonthly: e.target.checked })}
                                         />
-                                        <div className="w-10 h-6 bg-slate-200 dark:bg-slate-700 rounded-full peer peer-checked:bg-primary transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-4"></div>
+                                        <div className="w-10 h-6 bg-slate-200 dark:bg-[#121212] rounded-full peer peer-checked:bg-primary transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-4"></div>
                                     </div>
                                     <div>
                                         <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Is this recurring?</p>
@@ -401,7 +401,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Duration (Months)</label>
                                         <input
                                             type="number" placeholder="e.g. 12"
-                                            className="w-full bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                            className="w-full bg-white dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                             value={newDebt.monthsLeft} onChange={e => setNewDebt({ ...newDebt, monthsLeft: e.target.value })}
                                         />
                                     </motion.div>
@@ -425,10 +425,10 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
             {/* Payment Modal (Only for Debts) */}
             {showPayModal && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowPayModal(null)}></div>
+                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowPayModal(null)}></div>
                     <form 
                         onSubmit={handlePayment} 
-                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
+                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
                     >
                         <div className="flex justify-between items-center mb-1">
                             <div>
@@ -447,7 +447,7 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                 <input
                                     autoFocus
                                     required type="number" step="0.01" placeholder="0.00"
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                     value={payAmount} onChange={e => setPayAmount(e.target.value)}
                                 />
                             </div>

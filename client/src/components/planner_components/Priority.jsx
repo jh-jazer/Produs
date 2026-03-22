@@ -42,7 +42,7 @@ const Priority = ({ isCompact = false, viewMode = 'me', isReadOnly = false, onFl
     };
 
     return (
-        <div className={`rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] shadow-sm flex flex-col transition-all min-h-[200px] ${isCompact ? 'p-4 gap-4' : 'p-6 gap-6'}`}>
+        <div className={`rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] shadow-none flex flex-col transition-all min-h-[200px] ${isCompact ? 'p-4 gap-4' : 'p-6 gap-6'}`}>
             <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                     <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -67,7 +67,7 @@ const Priority = ({ isCompact = false, viewMode = 'me', isReadOnly = false, onFl
                     {!isCompact && (
                         <button 
                             onClick={onFlip}
-                            className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-colors flex items-center gap-1.5 group"
+                            className="p-1.5 rounded-lg bg-slate-50 dark:bg-[#000000] text-slate-400 hover:text-primary transition-colors flex items-center gap-1.5 group"
                             title="View Detailed Schedule"
                         >
                             <span className="text-[10px] font-black uppercase tracking-widest transition-opacity text-primary">Schedule</span>
@@ -95,7 +95,7 @@ const Priority = ({ isCompact = false, viewMode = 'me', isReadOnly = false, onFl
                         </div>
                     </div>
                 ) : (
-                    <div className={`${isCompact ? 'p-4' : 'p-5'} rounded-2xl border-2 border-dashed border-slate-100 dark:border-slate-800/50 flex flex-col items-center justify-center text-center gap-2`}>
+                    <div className={`${isCompact ? 'p-4' : 'p-5'} rounded-2xl border-2 border-dashed border-slate-100 dark:border-white/10/50 flex flex-col items-center justify-center text-center gap-2`}>
                         <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 text-3xl">coffee</span>
                         <p className="text-xs font-bold text-slate-400">No scheduled activity</p>
                     </div>
@@ -121,8 +121,8 @@ const Priority = ({ isCompact = false, viewMode = 'me', isReadOnly = false, onFl
                                 key={task._id}
                                 onClick={() => !isReadOnly && toggleComplete(task)}
                                 className={`flex items-center gap-3 p-3 rounded-xl border ${!isReadOnly ? 'cursor-pointer hover:border-primary/30' : ''} transition-all ${task.completed
-                                    ? 'bg-slate-50 dark:bg-slate-800/10 border-transparent opacity-50'
-                                    : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 hover:border-primary/30 shadow-sm'
+                                    ? 'bg-slate-50 dark:bg-[#000000]/10 border-transparent opacity-50'
+                                    : 'bg-slate-50 dark:bg-[#000000]/50 border-slate-100 dark:border-white/10 hover:border-primary/30 shadow-none'
                                     }`}
                             >
                                 <span className={`material-symbols-outlined text-sm ${task.completed ? 'text-green-500' : 'text-slate-400'}`}>

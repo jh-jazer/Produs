@@ -9,7 +9,7 @@ const HabitInsights = () => {
 
     if (isLoading) {
         return (
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex items-center justify-center h-[300px]">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex items-center justify-center h-[300px]">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
         );
@@ -71,7 +71,7 @@ const HabitInsights = () => {
     const bestCategory = balance.sort((a, b) => b.count - a.count)[0]?.label || 'General';
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm relative group overflow-hidden min-h-[400px]">
+        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none relative group overflow-hidden min-h-[400px]">
             {/* Background Gradient */}
             <div className="absolute -left-12 -top-12 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-all duration-500"></div>
 
@@ -102,7 +102,7 @@ const HabitInsights = () => {
                     <p className="text-xs font-bold leading-relaxed dark:text-slate-200">You are currently most focused on <span className="text-emerald-500 font-black">{bestCategory}</span> habits.</p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="pt-4 border-t border-slate-100 dark:border-white/10">
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] mb-4 flex items-center justify-between">
                         Weekly Performance
                         <span className="text-primary font-bold">{avgCompletionRate}% avg</span>
@@ -112,12 +112,12 @@ const HabitInsights = () => {
                             <div
                                 key={i}
                                 className={`flex-1 rounded-t-md transition-all duration-300 relative group/bar ${bar.active
-                                    ? 'bg-primary hover:bg-primary/90 shadow-sm shadow-primary/20'
-                                    : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                    ? 'bg-primary hover:bg-primary/90 shadow-none shadow-primary/20'
+                                    : 'bg-slate-100 dark:bg-[#000000] hover:bg-slate-200 dark:hover:bg-[#121212]'
                                     }`}
                                 style={{ height: bar.h }}
                             >
-                                <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[8px] px-1 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap font-bold">
+                                <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-[#121212] text-white text-[8px] px-1 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap font-bold">
                                     {bar.h}
                                 </div>
                             </div>
@@ -130,11 +130,11 @@ const HabitInsights = () => {
                 </div>
 
                 {/* Color Graphe - Habit Balance */}
-                <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
+                <div className="pt-6 border-t border-slate-100 dark:border-white/10">
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] mb-4">
                         Habit Balance by Category
                     </p>
-                    <div className="flex h-3 w-full rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+                    <div className="flex h-3 w-full rounded-full overflow-hidden bg-slate-100 dark:bg-[#000000]">
                         {balance.map((item, i) => (
                             <div
                                 key={i}

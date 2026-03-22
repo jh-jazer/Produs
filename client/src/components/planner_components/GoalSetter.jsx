@@ -169,8 +169,8 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                                 onClick={() => { setSelectedMonth(idx); setSelectedWeekIdx(0); }}
                                 className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all whitespace-nowrap ${
                                     selectedMonth === idx
-                                        ? 'bg-primary text-white shadow-md'
-                                        : 'bg-slate-50 dark:bg-slate-800/50 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                        ? 'bg-primary text-white shadow-none'
+                                        : 'bg-slate-50 dark:bg-[#000000]/50 text-slate-500 hover:bg-slate-100 dark:hover:bg-[#000000]'
                                 }`}
                             >
                                 {m.substring(0, 3)}
@@ -187,8 +187,8 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                                     onClick={() => setSelectedWeekIdx(idx)}
                                     className={`flex flex-col items-center px-3 py-2 rounded-xl text-[10px] font-black uppercase transition-all whitespace-nowrap border-2 ${
                                         safeWeekIdx === idx
-                                            ? 'border-primary bg-primary/5 text-primary shadow-sm'
-                                            : 'border-transparent bg-slate-50 dark:bg-slate-800/50 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                            ? 'border-primary bg-primary/5 text-primary shadow-none'
+                                            : 'border-transparent bg-slate-50 dark:bg-[#000000]/50 text-slate-500 hover:bg-slate-100 dark:hover:bg-[#000000]'
                                     }`}
                                 >
                                     <span>{w.label}</span>
@@ -210,8 +210,8 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                         onClick={() => setSelectedYear(y)}
                         className={`px-4 py-1.5 rounded-lg text-[10px] font-black transition-all whitespace-nowrap ${
                             selectedYear === y
-                                ? 'bg-primary text-white shadow-md'
-                                : 'bg-slate-50 dark:bg-slate-800/50 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                ? 'bg-primary text-white shadow-none'
+                                : 'bg-slate-50 dark:bg-[#000000]/50 text-slate-500 hover:bg-slate-100 dark:hover:bg-[#000000]'
                         }`}
                     >
                         {y}
@@ -234,7 +234,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                 onConfirm={() => { deleteGoal(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] shadow-sm flex flex-col gap-5 overflow-hidden">
+            <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] shadow-none flex flex-col gap-5 overflow-hidden">
 
             {/* Header */}
             <div className="px-6 pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -244,14 +244,14 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                 </div>
 
                 {/* Period tabs */}
-                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl shrink-0">
+                <div className="flex bg-slate-100 dark:bg-[#000000] p-1 rounded-xl shrink-0">
                     {PERIODS.map(p => (
                         <button
                             key={p.id}
                             onClick={() => setView(p.id)}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
                                 view === p.id
-                                    ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
+                                    ? 'bg-white dark:bg-[#121212] text-primary shadow-none'
                                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                             }`}
                         >
@@ -274,7 +274,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Progress</span>
                         <span className="text-[10px] font-black text-primary">{completedCount}/{filteredGoals.length} done · {progress}%</span>
                     </div>
-                    <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-slate-100 dark:bg-[#000000] rounded-full overflow-hidden">
                         <div
                             className="h-full bg-primary rounded-full transition-all duration-700"
                             style={{ width: `${progress}%` }}
@@ -293,12 +293,12 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                             onChange={e => setNewGoalTitle(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && addGoal()}
                             placeholder={`Add a ${view} must-do…`}
-                            className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-[#000000]/50 border border-slate-200 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                         />
                         <button
                             onClick={addGoal}
                             disabled={!newGoalTitle.trim()}
-                            className="p-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl hover:opacity-90 transition-all active:scale-95 shadow-md flex items-center justify-center min-w-[44px] disabled:opacity-30"
+                            className="p-2.5 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl hover:opacity-90 transition-all active:scale-95 shadow-none flex items-center justify-center min-w-[44px] disabled:opacity-30"
                         >
                             <span className="material-symbols-outlined">add</span>
                         </button>
@@ -309,7 +309,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
             {/* Goal list */}
             <div className="px-6 pb-6 flex flex-col gap-2">
                 {filteredGoals.length === 0 ? (
-                    <div className="text-center py-10 border-2 border-dashed border-slate-100 dark:border-slate-800/60 rounded-2xl flex flex-col items-center gap-2">
+                    <div className="text-center py-10 border-2 border-dashed border-slate-100 dark:border-white/10/60 rounded-2xl flex flex-col items-center gap-2">
                         <span className="material-symbols-outlined text-3xl text-slate-300 dark:text-slate-700">
                             { view === 'weekly' ? 'calendar_view_week' : view === 'monthly' ? 'calendar_month' : 'flag' }
                         </span>
@@ -326,8 +326,8 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                             key={goal._id}
                             className={`group flex items-center gap-3 px-4 py-3.5 rounded-2xl border transition-all ${
                                 goal.completed
-                                    ? 'bg-slate-50 dark:bg-slate-800/20 border-transparent opacity-50'
-                                    : 'bg-white dark:bg-slate-800/30 border-slate-200 dark:border-slate-700/50 hover:border-primary/30 hover:shadow-sm'
+                                    ? 'bg-slate-50 dark:bg-[#000000]/20 border-transparent opacity-50'
+                                    : 'bg-white dark:bg-[#000000]/30 border-slate-200 dark:border-white/10/50 hover:border-primary/30 hover:shadow-none'
                             }`}
                         >
                             {/* Check button */}

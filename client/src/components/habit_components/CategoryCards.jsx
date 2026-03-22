@@ -3,7 +3,7 @@ import React from 'react';
 const CategoryCards = () => {
     return (
         <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-5 shadow-sm min-h-[180px]">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-5 shadow-none min-h-[180px]">
                 <div className="flex items-center gap-2 mb-3">
                     <div className="p-2 rounded-lg bg-habit-health/10 text-habit-health">
                         <span className="material-symbols-outlined text-lg">favorite</span>
@@ -25,7 +25,7 @@ const CategoryCards = () => {
                 </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-5 shadow-sm min-h-[180px]">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-5 shadow-none min-h-[180px]">
                 <div className="flex items-center gap-2 mb-3">
                     <div className="p-2 rounded-lg bg-habit-mindset/10 text-habit-mindset">
                         <span className="material-symbols-outlined text-lg">psychology</span>

@@ -235,8 +235,8 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                 onConfirm={() => { handleDeleteTask(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] flex flex-col shadow-xl transition-all hover:shadow-2xl">
-            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-start bg-white/80 dark:bg-[#192233]/80 backdrop-blur-md z-30 sticky top-0">
+            <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] flex flex-col shadow-xl transition-all hover:shadow-2xl">
+            <div className="p-6 border-b border-slate-200 dark:border-white/10 flex justify-between items-start bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md z-30 sticky top-0">
                 <div className="flex items-center gap-3 mt-0.5">
                     <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                         <span className="material-symbols-outlined text-primary">calendar_month</span>
@@ -252,7 +252,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                         <div className="flex items-center gap-0.5 sm:gap-2">
                             <button 
                                 onClick={() => setIsSettingsOpen(true)}
-                                className="p-1 sm:p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center"
+                                className="p-1 sm:p-1.5 rounded-lg bg-slate-50 dark:bg-[#000000] text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-[#121212] transition-colors flex items-center justify-center"
                                 title="Sleep Settings"
                             >
                                 <span className="material-symbols-outlined text-[18px] sm:text-[20px]">bedtime</span>
@@ -264,14 +264,14 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                         setIsAdding(true);
                                     }
                                 }}
-                                className={`p-1 sm:p-1.5 rounded-lg transition-colors flex items-center justify-center ${scheduleItems.length === 0 ? 'opacity-30 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                                className={`p-1 sm:p-1.5 rounded-lg transition-colors flex items-center justify-center ${scheduleItems.length === 0 ? 'opacity-30 cursor-not-allowed' : 'bg-slate-50 dark:bg-[#000000] text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-[#121212]'}`}
                                 title="Save as Template"
                             >
                                 <span className="material-symbols-outlined text-[18px] sm:text-[20px]">save</span>
                             </button>
                             <button
                                 onClick={() => { setIsAdding(!isAdding); setTemplateStep('add'); }}
-                                className={`p-1 sm:p-1.5 rounded-lg transition-colors flex items-center justify-center ${isAdding && templateStep === 'add' ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                                className={`p-1 sm:p-1.5 rounded-lg transition-colors flex items-center justify-center ${isAdding && templateStep === 'add' ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-[#000000] text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-[#121212]'}`}
                                 title="Add Task"
                             >
                                 <span className="material-symbols-outlined text-[18px] sm:text-[20px]">{isAdding && templateStep === 'add' ? 'close' : 'add'}</span>
@@ -280,7 +280,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                     )}
                     <button 
                         onClick={onFlip}
-                        className="p-1 sm:p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-colors flex items-center gap-1.5 group"
+                        className="p-1 sm:p-1.5 rounded-lg bg-slate-50 dark:bg-[#000000] text-slate-400 hover:text-primary transition-colors flex items-center gap-1.5 group"
                         title="Back to Priority"
                     >
                         <span className="text-[10px] font-black uppercase tracking-widest transition-opacity text-primary">Priority</span>
@@ -292,8 +292,8 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
             <div className="flex-1 overflow-y-auto custom-scrollbar relative font-inter bg-slate-50/30 dark:bg-transparent">
                 {isSettingsOpen && createPortal(
                     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setIsSettingsOpen(false)}></div>
-                        <div className="relative bg-white dark:bg-[#1e293b] w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-5">
+                        <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md" onClick={() => setIsSettingsOpen(false)}></div>
+                        <div className="relative bg-white dark:bg-[#1e293b] w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-5">
                             <div className="flex justify-between items-center">
                                 <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Sleep Settings</h4>
                                 <button onClick={() => setIsSettingsOpen(false)} className="text-slate-400 hover:text-slate-600">
@@ -301,7 +301,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                 </button>
                             </div>
 
-                            <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border dark:border-slate-700 group">
+                            <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 dark:bg-[#000000]/50 border dark:border-white/10 group">
                                 <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                                     <span className="material-symbols-outlined">bedtime</span>
                                 </div>
@@ -318,7 +318,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                             type="time"
                                             value={tempSleepSettings.start}
                                             onChange={(e) => setTempSleepSettings({ ...tempSleepSettings, start: e.target.value })}
-                                            className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 text-sm font-bold text-center"
+                                            className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-[#000000] border dark:border-white/10 text-sm font-bold text-center"
                                         />
                                     </div>
                                     <div className="flex flex-col gap-1.5">
@@ -327,7 +327,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                             type="time"
                                             value={tempSleepSettings.end}
                                             onChange={(e) => setTempSleepSettings({ ...tempSleepSettings, end: e.target.value })}
-                                            className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 text-sm font-bold text-center"
+                                            className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-[#000000] border dark:border-white/10 text-sm font-bold text-center"
                                         />
                                     </div>
                                 </div>
@@ -343,8 +343,8 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                 )}
                 {isAdding && createPortal(
                     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setIsAdding(false)}></div>
-                        <div className="relative bg-white dark:bg-[#1e293b] w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-4">
+                        <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md" onClick={() => setIsAdding(false)}></div>
+                        <div className="relative bg-white dark:bg-[#1e293b] w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-4">
                             <div className="flex justify-between items-center mb-1">
                                 <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">
                                     {templateStep === 'add' ? 'Add Schedule Item' : 
@@ -363,7 +363,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                         value={newTask.title}
                                         onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                                         placeholder="What are you doing?"
-                                        className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                        className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-[#000000] border dark:border-white/10 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
                                         autoFocus
                                     />
                                     <div className="flex items-center gap-3">
@@ -373,7 +373,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                                 type="time"
                                                 value={newTask.startTime}
                                                 onChange={(e) => setNewTask({ ...newTask, startTime: e.target.value })}
-                                                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 text-sm"
+                                                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#000000] border dark:border-white/10 text-sm"
                                             />
                                         </div>
                                         <div className="mt-4 text-slate-400">
@@ -385,14 +385,14 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                                 type="time"
                                                 value={newTask.endTime}
                                                 onChange={(e) => setNewTask({ ...newTask, endTime: e.target.value })}
-                                                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 text-sm"
+                                                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#000000] border dark:border-white/10 text-sm"
                                             />
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-3 mt-2">
                                         <button
                                             onClick={() => setTemplateStep('picker')}
-                                            className="py-3 border border-slate-200 dark:border-slate-700 text-slate-500 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+                                            className="py-3 border border-slate-200 dark:border-white/10 text-slate-500 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-[#000000] transition-all flex items-center justify-center gap-2"
                                         >
                                             <span className="material-symbols-outlined text-sm">auto_fix_high</span>
                                             Template
@@ -416,9 +416,9 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                                 <button
                                                     key={tmpl.id}
                                                     onClick={() => { setSelectedTemplate(tmpl); setTemplateStep('warning'); }}
-                                                    className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
+                                                    className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100 dark:border-white/10 hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
                                                 >
-                                                    <div className="size-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
+                                                    <div className="size-8 rounded-lg bg-slate-100 dark:bg-[#000000] flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
                                                         <span className="material-symbols-outlined text-base">{tmpl.icon}</span>
                                                     </div>
                                                     <div className="flex-1">
@@ -437,7 +437,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                                     <button
                                                         key={tmpl._id}
                                                         onClick={() => { setSelectedTemplate(tmpl); setTemplateStep('warning'); }}
-                                                        className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
+                                                        className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100 dark:border-white/10 hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
                                                     >
                                                         <div className="size-8 rounded-lg bg-primary/5 dark:bg-primary/10 flex items-center justify-center text-primary transition-colors">
                                                             <span className="material-symbols-outlined text-base">
@@ -473,12 +473,12 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                                 value={templateName}
                                                 onChange={(e) => setTemplateName(e.target.value)}
                                                 placeholder="e.g., Heavy Focus Monday"
-                                                className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                                className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-[#000000] border dark:border-white/10 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
                                                 autoFocus
                                             />
                                         </div>
                                         
-                                        <label className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border dark:border-slate-700 cursor-pointer group">
+                                        <label className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#000000]/50 border dark:border-white/10 cursor-pointer group">
                                             <input
                                                 type="checkbox"
                                                 checked={shareTemplate}
@@ -523,7 +523,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                         </button>
                                         <button
                                             onClick={() => setTemplateStep('picker')}
-                                            className="w-full py-3 border border-slate-100 dark:border-slate-800 text-slate-400 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                                            className="w-full py-3 border border-slate-100 dark:border-white/10 text-slate-400 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-[#000000] transition-all"
                                         >
                                             Nevermind, Go Back
                                         </button>
@@ -541,11 +541,11 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                         {visibleTimes.map((t, idx) => (
                             <div key={idx} className="flex items-center gap-4 text-[10px] font-black text-slate-300 dark:text-slate-700 h-px relative group/line">
                                 <span className="w-12 whitespace-nowrap group-hover/line:text-primary transition-colors">{t.label}</span>
-                                <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800/50 group-hover/line:bg-primary/20 transition-all"></div>
+                                <div className="flex-1 h-px bg-slate-100 dark:bg-[#000000]/50 group-hover/line:bg-primary/20 transition-all"></div>
                                 {!isReadOnly && (
                                     <button
                                         onClick={() => { setNewTask({ ...newTask, startTime: t.val }); setIsAdding(true); }}
-                                        className="absolute left-16 opacity-0 group-hover/line:opacity-100 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full size-6 flex items-center justify-center text-primary shadow-sm hover:scale-110 transition-all z-20"
+                                        className="absolute left-16 opacity-0 group-hover/line:opacity-100 bg-white dark:bg-[#000000] border border-slate-200 dark:border-white/10 rounded-full size-6 flex items-center justify-center text-primary shadow-none hover:scale-110 transition-all z-20"
                                     >
                                         <span className="material-symbols-outlined text-sm">add</span>
                                     </button>

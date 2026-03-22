@@ -40,14 +40,14 @@ const COLOR_VARIANTS = {
     slate: {
         text: 'text-slate-500',
         bg: 'bg-slate-500/10',
-        border: 'border-slate-200/50 dark:border-slate-800/50',
+        border: 'border-slate-200/50 dark:border-white/10/50',
         bar: 'bg-slate-500'
     },
     white: {
         text: 'text-slate-900 dark:text-white',
-        bg: 'bg-white dark:bg-slate-800',
-        border: 'border-slate-200 dark:border-slate-700',
-        bar: 'bg-slate-900 dark:bg-white'
+        bg: 'bg-white dark:bg-[#000000]',
+        border: 'border-slate-200 dark:border-white/10',
+        bar: 'bg-[#121212] dark:bg-white'
     },
 };
 
@@ -67,14 +67,14 @@ const HabitChallenge = () => {
 
     if (isLoading) {
         return (
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[400px] flex items-center justify-center">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none min-h-[400px] flex items-center justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
         );
     }
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm overflow-hidden relative group min-h-[400px] flex flex-col">
+        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none overflow-hidden relative group min-h-[400px] flex flex-col">
             <div className="absolute -left-12 -bottom-12 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-500"></div>
 
             <div className="relative z-10 flex flex-col h-full">
@@ -118,7 +118,7 @@ const HabitChallenge = () => {
                                         </div>
                                         <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate">{challenge.description}</p>
                                         <div className="mt-1 flex items-center gap-1">
-                                            <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md ${challenge.category.includes('March') ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
+                                            <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md ${challenge.category.includes('March') ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-100 dark:bg-[#000000] text-slate-400'}`}>
                                                 {challenge.category}
                                             </span>
                                         </div>
@@ -127,8 +127,8 @@ const HabitChallenge = () => {
                                     <button 
                                         onClick={() => toggleJoin(challenge.id)}
                                         className={`shrink-0 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md transition-all ${isJoined 
-                                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-400' 
-                                            : 'bg-primary text-white shadow-sm shadow-primary/30 hover:scale-105 active:scale-95'}`}
+                                            ? 'bg-slate-100 dark:bg-[#000000] text-slate-400'
+                                            : 'bg-primary text-white shadow-none shadow-primary/30 hover:scale-105 active:scale-95'}`}
                                     >
                                         {isJoined ? 'Joined' : 'Join'}
                                     </button>
@@ -141,7 +141,7 @@ const HabitChallenge = () => {
                                         </div>
                                         <span className="text-[10px] font-black text-slate-600 dark:text-slate-300">{Math.round(progressPercent)}%</span>
                                     </div>
-                                    <div className="w-full bg-slate-100 dark:bg-slate-800/50 rounded-full h-1.5 overflow-hidden border border-slate-200/20 dark:border-slate-700/30">
+                                    <div className="w-full bg-slate-100 dark:bg-[#000000]/50 rounded-full h-1.5 overflow-hidden border border-slate-200/20 dark:border-white/10/30">
                                         <motion.div 
                                             initial={{ width: 0 }}
                                             animate={{ width: `${progressPercent}%` }}
@@ -161,7 +161,7 @@ const HabitChallenge = () => {
                     )}
                 </div>
 
-                <button className="mt-6 w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all flex items-center justify-center gap-2 group/btn">
+                <button className="mt-6 w-full py-2.5 rounded-xl border border-slate-200 dark:border-white/10 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all flex items-center justify-center gap-2 group/btn">
                     Browse All Challenges
                     <span className="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
                 </button>

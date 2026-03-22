@@ -61,14 +61,14 @@ const HealthCard = () => {
 
     if (isLoading) {
         return (
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex items-center justify-center h-[200px]">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex items-center justify-center h-[200px]">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-rose-500"></div>
             </div>
         );
     }
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm relative group overflow-hidden min-h-[320px]">
+        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none relative group overflow-hidden min-h-[320px]">
             <div className="absolute -right-8 -top-8 w-24 h-24 bg-rose-500/5 rounded-full blur-2xl group-hover:bg-rose-500/10 transition-all duration-500"></div>
 
             <div className="relative z-10">
@@ -103,12 +103,12 @@ const HealthCard = () => {
                     </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-white/10">
                     <div className="flex justify-between items-center mb-2">
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Daily Goal</span>
                         <span className="text-[10px] font-black dark:text-slate-300">{stats.completedToday} / {stats.totalHealth} Habits</span>
                     </div>
-                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                    <div className="w-full bg-slate-100 dark:bg-[#000000] h-1.5 rounded-full overflow-hidden">
                         <div
                             className="h-full bg-rose-500 rounded-full transition-all duration-700"
                             style={{ width: `${stats.progressPercent}%` }}

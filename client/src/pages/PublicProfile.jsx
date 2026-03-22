@@ -35,7 +35,7 @@ function PublicProfile() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+            <div className="min-h-screen bg-slate-50 dark:bg-[#121212] flex items-center justify-center">
                 <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
             </div>
         );
@@ -43,8 +43,8 @@ function PublicProfile() {
 
     if (error || !profile) {
         return (
-            <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
-                <div className="size-20 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
+            <div className="min-h-screen bg-slate-50 dark:bg-[#121212] flex flex-col items-center justify-center p-6 text-center">
+                <div className="size-20 bg-slate-200 dark:bg-[#000000] rounded-full flex items-center justify-center mb-6">
                     <span className="material-symbols-outlined text-4xl text-slate-400">lock</span>
                 </div>
                 <h1 className="text-2xl font-bold mb-2">Profile Not Available</h1>
@@ -127,7 +127,7 @@ function PublicProfile() {
             <div className="absolute top-4 left-4 z-20">
                 <button 
                     onClick={() => navigate(-1)} 
-                    className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 dark:bg-black/20 dark:hover:bg-black/40 backdrop-blur-md rounded-full shadow-sm font-medium text-sm text-slate-700 dark:text-slate-200 transition-colors border border-white/20 dark:border-white/10"
+                    className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 dark:bg-black/20 dark:hover:bg-black/40 backdrop-blur-md rounded-full shadow-none font-medium text-sm text-slate-700 dark:text-slate-200 transition-colors border border-white/20 dark:border-white/10"
                 >
                     <span className="material-symbols-outlined text-lg">arrow_back</span>
                     Back
@@ -135,7 +135,7 @@ function PublicProfile() {
             </div>
             {isOwnProfile ? (
                 <div className="absolute top-4 right-4 z-20">
-                    <Link to="/dashboard/profile" className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full shadow-sm font-medium text-sm hover:bg-primary/90 transition-colors">
+                    <Link to="/dashboard/profile" className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full shadow-none font-medium text-sm hover:bg-primary/90 transition-colors">
                         <span className="material-symbols-outlined text-lg">edit</span>
                         Edit Profile
                     </Link>
@@ -143,7 +143,7 @@ function PublicProfile() {
             ) : currentUser ? (
                 <div className="absolute top-4 right-4 z-20 flex gap-2">
                     {isConnected ? (
-                         <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-full shadow-sm font-medium text-sm">
+                         <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-full shadow-none font-medium text-sm">
                             <span className="material-symbols-outlined text-lg">how_to_reg</span>
                             Connected
                         </div>
@@ -151,7 +151,7 @@ function PublicProfile() {
                         <button 
                             onClick={handleCancelRequest}
                             disabled={isConnecting}
-                            className="flex items-center gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full shadow-sm font-medium text-sm hover:bg-rose-500 hover:text-white transition-all group"
+                            className="flex items-center gap-2 px-4 py-2 bg-slate-200 dark:bg-[#000000] text-slate-600 dark:text-slate-300 rounded-full shadow-none font-medium text-sm hover:bg-rose-500 hover:text-white transition-all group"
                         >
                             <span className="material-symbols-outlined text-lg group-hover:hidden">pending</span>
                             <span className="material-symbols-outlined text-lg hidden group-hover:inline">close</span>
@@ -162,7 +162,7 @@ function PublicProfile() {
                         <button 
                             onClick={handleAcceptConnection}
                             disabled={isConnecting}
-                            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full shadow-sm font-medium text-sm hover:bg-primary/90 transition-colors animate-pulse hover:animate-none"
+                            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full shadow-none font-medium text-sm hover:bg-primary/90 transition-colors animate-pulse hover:animate-none"
                         >
                             <span className="material-symbols-outlined text-lg">check_circle</span>
                             Accept Request
@@ -171,7 +171,7 @@ function PublicProfile() {
                         <button 
                             onClick={handleRequestConnection}
                             disabled={isConnecting}
-                            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full shadow-sm font-medium text-sm hover:bg-primary/90 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full shadow-none font-medium text-sm hover:bg-primary/90 transition-colors"
                         >
                             <span className="material-symbols-outlined text-lg">person_add</span>
                             {isConnecting ? 'Sending...' : 'Connect'}
@@ -208,7 +208,7 @@ function PublicProfile() {
 
                     {/* Avatar Header Row */}
                     <div className="flex justify-between items-end mb-4">
-                        <div className="size-[120px] rounded-full border-[8px] border-white dark:border-[#2b2d31] bg-white dark:bg-[#1e1f22] mt-[-60px] relative z-10 overflow-hidden shadow-sm shrink-0 flex items-center justify-center">
+                        <div className="size-[120px] rounded-full border-[8px] border-white dark:border-[#2b2d31] bg-white dark:bg-[#1e1f22] mt-[-60px] relative z-10 overflow-hidden shadow-none shrink-0 flex items-center justify-center">
                             <Avatar config={profile.avatar} />
 
                             {/* Online Status Indicator (Optional Discord touch) */}
@@ -272,7 +272,7 @@ function PublicProfile() {
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     {profile.allHabits?.map(habit => (
-                                        <div key={habit._id} className="p-2.5 bg-white dark:bg-[#2b2d31] rounded-xl border border-slate-100 dark:border-slate-800/50 flex items-center gap-3">
+                                        <div key={habit._id} className="p-2.5 bg-white dark:bg-[#2b2d31] rounded-xl border border-slate-100 dark:border-white/10/50 flex items-center gap-3">
                                             <div className={`size-9 rounded-lg bg-${habit.color}-500/10 text-${habit.color}-500 flex items-center justify-center shrink-0`}>
                                                 <span className="material-symbols-outlined text-xl">{habit.icon}</span>
                                             </div>
@@ -293,7 +293,7 @@ function PublicProfile() {
                                     </h3>
                                     <div className="space-y-2">
                                         {profile.tasks?.length > 0 ? profile.tasks.map(task => (
-                                            <div key={task._id} className="flex items-center gap-2.5 p-2 bg-white dark:bg-[#2b2d31] rounded-xl border border-slate-100 dark:border-slate-800/50">
+                                            <div key={task._id} className="flex items-center gap-2.5 p-2 bg-white dark:bg-[#2b2d31] rounded-xl border border-slate-100 dark:border-white/10/50">
                                                 <div className={`size-4 rounded-md border-2 shrink-0 ${task.completed ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300 dark:border-slate-600'} flex items-center justify-center`}>
                                                     {task.completed && <span className="material-symbols-outlined text-white text-[10px]">check</span>}
                                                 </div>
@@ -312,7 +312,7 @@ function PublicProfile() {
                                     </h3>
                                     <div className="grid grid-cols-1 gap-2">
                                         {profile.wishlist?.length > 0 ? profile.wishlist.slice(0, 3).map(item => (
-                                            <div key={item._id} className="p-2 bg-white dark:bg-[#2b2d31] rounded-xl border border-slate-100 dark:border-slate-800/50 flex flex-col gap-0.5">
+                                            <div key={item._id} className="p-2 bg-white dark:bg-[#2b2d31] rounded-xl border border-slate-100 dark:border-white/10/50 flex flex-col gap-0.5">
                                                 <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{item.title}</p>
                                                 <p className="text-[9px] text-rose-500 font-bold uppercase tracking-tight">{item.budgetPrice > 0 ? `$${item.budgetPrice}` : 'Wish item'}</p>
                                             </div>

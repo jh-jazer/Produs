@@ -30,7 +30,7 @@ function JournalSnippet() {
     const moods = ['😠', '🙁', '😐', '🙂', '😊'];
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-4 shadow-sm flex flex-col flex-1 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ease-in-out">
+        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-4 shadow-none flex flex-col flex-1 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ease-in-out">
             <div className="flex justify-between items-start mb-2">
                 <div>
                     <h3 className="text-base font-bold text-slate-900 dark:text-white">Mood Tracker</h3>
@@ -38,7 +38,7 @@ function JournalSnippet() {
                         {lastMood ? `Logged ${lastMood}!` : "How are you feeling?"}
                     </p>
                 </div>
-                <button className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors">
+                <button className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-[#000000] text-slate-500 dark:text-slate-400 transition-colors">
                     <span className="material-symbols-outlined text-base">more_horiz</span>
                 </button>
             </div>

@@ -110,7 +110,7 @@ const DailyContentFeed = () => {
                 </div>
                 <button
                     onClick={() => setChannelModalOpen(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary text-[10px] font-black uppercase tracking-widest transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#000000] text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary text-[10px] font-black uppercase tracking-widest transition-colors"
                 >
                     <span className="material-symbols-outlined text-base">tune</span>
                     Manage Channels
@@ -118,7 +118,7 @@ const DailyContentFeed = () => {
             </div>
 
             {!dailyItems.length ? (
-                <div className="bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-3xl p-10 flex flex-col items-center gap-4 text-center">
+                <div className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-3xl p-10 flex flex-col items-center gap-4 text-center">
                     <div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center">
                         <span className="material-symbols-outlined text-3xl text-primary">rss_feed</span>
                     </div>
@@ -138,7 +138,7 @@ const DailyContentFeed = () => {
                 {dailyItems.map((item) => (
                     <div 
                         key={item.id}
-                        className="bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-sm border-l-4 border-l-primary relative overflow-hidden group transition-all"
+                        className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-none border-l-4 border-l-primary relative overflow-hidden group transition-all"
                     >
                         <div className="relative z-10 flex flex-col gap-8">
                             {/* Row 1: Header (Icon + Channel + Date) */}
@@ -148,7 +148,7 @@ const DailyContentFeed = () => {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs font-black text-primary uppercase tracking-widest">{item.topic}</span>
-                                    <span className="size-1 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                                    <span className="size-1 bg-slate-200 dark:bg-[#121212] rounded-full" />
                                     <span className="text-[10px] font-bold text-slate-400 uppercase">Today</span>
                                 </div>
                             </div>
@@ -177,7 +177,7 @@ const DailyContentFeed = () => {
                                             ? 'text-primary' 
                                             : savedStatus[item.id]
                                                 ? 'text-emerald-500'
-                                                : 'text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                                                : 'text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-[#000000]/50'
                                         }`}
                                         title="Journal Reflection"
                                     >
@@ -199,7 +199,7 @@ const DailyContentFeed = () => {
                                                 alert('Copied to clipboard!');
                                             }
                                         }}
-                                        className="flex items-center justify-center size-9 rounded-full text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"
+                                        className="flex items-center justify-center size-9 rounded-full text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-[#000000]/50 transition-all"
                                         title="Share Inspiration"
                                     >
                                         <span className="material-symbols-outlined text-xl">share</span>
@@ -213,7 +213,7 @@ const DailyContentFeed = () => {
                                             value={journalText}
                                             onChange={(e) => setJournalText(e.target.value)}
                                             placeholder="What does this mean to you?"
-                                            className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl p-4 text-sm text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:ring-1 focus:ring-primary/20 outline-none resize-none h-24 font-medium"
+                                            className="w-full bg-slate-50 dark:bg-[#000000]/50 border-none rounded-2xl p-4 text-sm text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:ring-1 focus:ring-primary/20 outline-none resize-none h-24 font-medium"
                                             autoFocus
                                         />
                                         <div className="flex justify-end gap-2">

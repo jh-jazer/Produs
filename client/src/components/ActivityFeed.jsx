@@ -33,8 +33,8 @@ function FeedCard({ entry }) {
     };
 
     return (
-        <div className="bg-white dark:bg-[#192233] rounded-2xl border border-slate-200 dark:border-slate-800 p-4 flex gap-4 hover:shadow-md transition-shadow">
-            <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden">
+        <div className="bg-white dark:bg-[#121212] rounded-2xl border border-slate-200 dark:border-white/10 p-4 flex gap-4 hover:shadow-none transition-shadow">
+            <div className="size-10 rounded-full bg-slate-100 dark:bg-[#000000] flex items-center justify-center shrink-0 overflow-hidden">
                 <Avatar config={entry.user.avatar} />
             </div>
 
@@ -66,7 +66,7 @@ function FeedCard({ entry }) {
 
                 {/* Habit chip */}
                 <div className="mt-2">
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full ${colorMap[cfg.color] || 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}>
+                    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full ${colorMap[cfg.color] || 'text-slate-500 bg-slate-100 dark:bg-[#000000]'}`}>
                         <span className="material-symbols-outlined text-[12px]">{entry.data.habitIcon}</span>
                         {entry.data.habitName}
                     </span>
@@ -83,12 +83,12 @@ export default function ActivityFeed() {
         <div className="flex flex-col gap-3">
             {isLoading ? (
                 Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="bg-white dark:bg-[#192233] rounded-2xl border border-slate-200 dark:border-slate-800 p-4 h-20 animate-pulse" />
+                    <div key={i} className="bg-white dark:bg-[#121212] rounded-2xl border border-slate-200 dark:border-white/10 p-4 h-20 animate-pulse" />
                 ))
             ) : feed.length > 0 ? (
                 feed.map(entry => <FeedCard key={entry.id} entry={entry} />)
             ) : (
-                <div className="bg-white dark:bg-[#192233] rounded-2xl border border-slate-200 dark:border-slate-800 p-8 text-center">
+                <div className="bg-white dark:bg-[#121212] rounded-2xl border border-slate-200 dark:border-white/10 p-8 text-center">
                     <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600 mb-3 block">group</span>
                     <p className="text-sm font-bold text-slate-500 dark:text-slate-400">No activity yet</p>
                     <p className="text-xs text-slate-400 mt-1 font-medium">Link a partner or follow public users to see their progress here.</p>

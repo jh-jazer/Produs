@@ -21,13 +21,13 @@ function FinancialStats({ transactions = [], currencySymbol = '$' }) {
     const trend = currentMonthTotal >= 0 ? '+5.2%' : '-2.1%'; // Mock trend for now but dynamic based on sign
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex flex-col flex-1 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ease-in-out font-inter">
+        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex flex-col flex-1 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ease-in-out font-inter">
             <div className="flex justify-between items-start mb-4">
                 <div>
                     <h3 className="text-base font-bold text-slate-900 dark:text-white leading-none">Net Balance</h3>
                     <p className="text-slate-500 dark:text-slate-400 text-xs mt-1.5 font-medium uppercase tracking-wider">Current Liquidity</p>
                 </div>
-                <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors">
+                <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#000000] text-slate-500 dark:text-slate-400 transition-colors">
                     <span className="material-symbols-outlined text-xl">more_horiz</span>
                 </button>
             </div>
