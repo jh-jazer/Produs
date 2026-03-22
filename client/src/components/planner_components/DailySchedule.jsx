@@ -199,20 +199,9 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Time blocking</p>
                         </div>
                     </div>
+                    
                     <div className="flex flex-col items-end gap-2">
                         {!isReadOnly && (
-                            <div className="flex items-center gap-0.5 sm:gap-2">
-                                <button onClick={() => setIsSettingsOpen(true)} className="p-1 sm:p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-colors flex items-center justify-center" title="Sleep Settings"><span className="material-symbols-outlined text-[18px]">bedtime</span></button>
-                                <button onClick={() => { if (scheduleItems.length > 0) { setTemplateStep('save'); setIsAdding(true); }}} className={`p-1 sm:p-1.5 rounded-lg transition-colors flex items-center justify-center ${scheduleItems.length === 0 ? 'opacity-30 cursor-not-allowed' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary'}`} title="Save as Template"><span className="material-symbols-outlined text-[18px]">save</span></button>
-                                <button onClick={() => { setIsAdding(!isAdding); setTemplateStep('add'); }} className={`p-1 sm:p-1.5 rounded-lg transition-colors flex items-center justify-center ${isAdding && templateStep === 'add' ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary'}`} title="Add Task"><span className="material-symbols-outlined text-[18px]">{isAdding && templateStep === 'add' ? 'close' : 'add'}</span></button>
-                            </div>
-                        )}
-                        <button onClick={onFlip} className="p-1 sm:p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-colors flex items-center gap-1.5 group" title="Back to Priority"><span className="text-[10px] font-black uppercase tracking-widest text-primary">Priority</span><span className="material-symbols-outlined text-[20px]">close_fullscreen</span></button>
-                    </div>
-                </div>
-                
-                <div className="flex flex-col items-end gap-2">
-                    {!isReadOnly && (
                         <div className="flex items-center gap-0.5 sm:gap-2">
                             <button 
                                 onClick={() => setIsSettingsOpen(true)}
@@ -324,8 +313,8 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                 <div className="flex flex-col gap-4 mt-2">
                                     <input
                                         type="text"
-                                        value={newTask.title}
-                                        onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                                        value={newHabit.title}
+                                        onChange={(e) => setNewHabit({ ...newHabit, title: e.target.value })}
                                         placeholder="What are you doing?"
                                         className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-[#000000] border dark:border-white/10 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
                                         autoFocus
@@ -335,8 +324,8 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Start</p>
                                             <input
                                                 type="time"
-                                                value={newTask.startTime}
-                                                onChange={(e) => setNewTask({ ...newTask, startTime: e.target.value })}
+                                                value={newHabit.startTime}
+                                                onChange={(e) => setNewHabit({ ...newHabit, startTime: e.target.value })}
                                                 className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#000000] border dark:border-white/10 text-sm"
                                             />
                                         </div>
@@ -347,8 +336,8 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">End</p>
                                             <input
                                                 type="time"
-                                                value={newTask.endTime}
-                                                onChange={(e) => setNewTask({ ...newTask, endTime: e.target.value })}
+                                                value={newHabit.endTime}
+                                                onChange={(e) => setNewHabit({ ...newHabit, endTime: e.target.value })}
                                                 className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#000000] border dark:border-white/10 text-sm"
                                             />
                                         </div>
@@ -508,29 +497,15 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                 <div className="flex-1 h-px bg-slate-100 dark:bg-[#000000]/50 group-hover/line:bg-primary/20 transition-all"></div>
                                 {!isReadOnly && (
                                     <button
-                                        onClick={() => { setNewTask({ ...newTask, startTime: t.val }); setIsAdding(true); }}
+                                        onClick={() => { setNewHabit({ ...newHabit, startTime: t.val }); setIsAdding(true); }}
                                         className="absolute left-16 opacity-0 group-hover/line:opacity-100 bg-white dark:bg-[#000000] border border-slate-200 dark:border-white/10 rounded-full size-6 flex items-center justify-center text-primary shadow-none hover:scale-110 transition-all z-20"
                                     >
                                         <span className="material-symbols-outlined text-sm">add</span>
                                     </button>
                                 )}
                             </div>
-                        </div>, document.body
-                    )}
-
-                    <div ref={containerRef} className="relative p-6 pt-10">
-                        {/* Hour markers */}
-                        <div className="space-y-[59px] relative">
-                            {visibleTimes.map((t, idx) => (
-                                <div key={idx} className="flex items-center gap-4 text-[10px] font-black text-slate-300 dark:text-slate-700 h-px relative group/line">
-                                    <span className="w-12">{t.label}</span>
-                                    <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800/50"></div>
-                                    {!isReadOnly && (
-                                        <button onClick={() => { setNewHabit({ ...newHabit, startTime: t.val }); setIsAdding(true); }} className="absolute left-16 opacity-0 group-hover/line:opacity-100 bg-white dark:bg-slate-800 border rounded-full size-6 flex items-center justify-center text-primary shadow-sm hover:scale-110 transition-all z-20"><span className="material-symbols-outlined text-sm">add</span></button>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                        ))}
+                    </div>
 
                         {/* Task Blocks */}
                         {scheduleItems.map((task) => {

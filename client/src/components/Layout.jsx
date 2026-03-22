@@ -309,6 +309,8 @@ function Layout() {
                                 )}
                             </AnimatePresence>
                         </div>
+                            </>
+                        )}
                     </div>
                 </header>
 

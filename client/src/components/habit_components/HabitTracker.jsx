@@ -87,15 +87,18 @@ const COLOR_MAP = {
     rose: { bg: 'bg-rose-500/20', text: 'text-rose-500', solid: 'bg-rose-500' },
 };
 
+const EMPTY_ARRAY = [];
+const EMPTY_OBJECT = {};
+
 function HabitTracker({
     activeDate = new Date(),
     onDateChange,
     onFilterChange,
     currentFilter = 'All',
-    habits = [],
-    myHabits = [],
-    partnerHabits = [],
-    checks = {},
+    habits = EMPTY_ARRAY,
+    myHabits = EMPTY_ARRAY,
+    partnerHabits = EMPTY_ARRAY,
+    checks = EMPTY_OBJECT,
     isLoading = false,
     isDashboard = false,
     isReadOnly = false,
@@ -483,8 +486,8 @@ function HabitTracker({
 
                     {/* Habit Rows */}
                     <div className={`flex flex-col overflow-y-auto pr-1 custom-scrollbar hover-scrollbar ${isDashboard ? 'max-h-[240px]' : 'max-h-[500px]'}`}>
-                        {isLoading || error ? (
-                            // Skeleton Rows for Loading or Error state
+                        {isLoading ? (
+                            // Skeleton Rows for Loading state
                             Array(5).fill(0).map((_, i) => (
                                 <div key={i} className="flex items-center gap-4 py-3 border-b border-slate-100 dark:border-white/10/50 animate-pulse">
                                     <div className={`${isDashboard ? 'flex-1' : 'w-1/3'} flex items-center gap-2`}>
