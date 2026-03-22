@@ -37,10 +37,11 @@ export const syncFeature = async (req, res) => {
             if (feature === 'finance') legacyData = await Transaction.find({ user: userId }).lean();
             
             // Add existing items into the Y.Map using their specific ID patterns or _id
-            legacyData.forEach(item => {
+            const serializedData = JSON.parse(JSON.stringify(legacyData));
+            serializedData.forEach(item => {
                 const id = item._id.toString();
                 // Ensure IDs match the client expectation, client maps _id directly usually.
-                map.set(id, { ...item, _id: id });
+                map.set(id, { ...item, _id: id, userId: item.user || item.userId });
             });
         }
 
@@ -80,18 +81,28 @@ async function updateLegacyModels(feature, userId, doc) {
     if (feature === 'journal') {
         const entries = Object.values(data);
         for (const entry of entries) {
-            // Update or Create the Journal record
-            // We use the _id from the CRDT (which might contain 'local-') 
-            // but we should probably handle mapping carefully.
-            const query = entry._id.startsWith('local-') 
-                ? { content: entry.content, date: entry.date, user: userId }
-                : { _id: entry._id, user: userId };
-                
-            await Journal.findOneAndUpdate(
-                query,
-                { ...entry, user: userId },
-                { upsert: true, new: true }
-            );
+            try {
+                // Safeguard against corrupted dates
+                if (entry.date && typeof entry.date === 'object' && Object.keys(entry.date).length === 0) {
+                    console.error("🚨 CORRUPTED JOURNAL ENTRY DATE DETECTED! Skipping.", JSON.stringify(entry));
+                    continue;
+                }
+
+                // Update or Create the Journal record
+                // We use the _id from the CRDT (which might contain 'local-') 
+                // but we should probably handle mapping carefully.
+                const query = (entry._id && entry._id.startsWith('local-'))
+                    ? { content: entry.content, user: userId }
+                    : { _id: entry._id, user: userId };
+                    
+                await Journal.findOneAndUpdate(
+                    query,
+                    { ...entry, user: userId },
+                    { upsert: true, new: true }
+                );
+            } catch (err) {
+                console.error("🚨 Failed to update legacy model for journal entry:", entry._id, err.message);
+            }
         }
     }
     // TODO: Implement for other features (Habits, Planner, Finance)

@@ -83,8 +83,8 @@ class SyncService {
                     const items = Array.from(map.values());
                     const dbTable = feature === 'habits' ? db.habits :
                                     feature === 'journal' ? db.journal :
-                                    feature === 'planner' ? db.tasks :
-                                    feature === 'finance' ? db.transactions : null;
+                                    feature === 'planner' ? db.planner :
+                                    feature === 'finance' ? db.finance : null;
                     
                     if (dbTable) {
                         await db.transaction('rw', dbTable, async () => {
