@@ -77,6 +77,26 @@ class SyncService {
                 if (response.data && response.data.update) {
                     const serverUpdate = new Uint8Array(response.data.update);
                     Y.applyUpdate(doc, serverUpdate);
+                    
+                    // Hydrate local UI databases from the ultimate Yjs truth!
+                    const map = doc.getMap(feature);
+                    const items = Array.from(map.values());
+                    const dbTable = feature === 'habits' ? db.habits :
+                                    feature === 'journal' ? db.journal :
+                                    feature === 'planner' ? db.tasks :
+                                    feature === 'finance' ? db.transactions : null;
+                    
+                    if (dbTable) {
+                        await db.transaction('rw', dbTable, async () => {
+                            // Find deleted keys by checking what's in local DB but not in Yjs Map
+                            const localKeys = await dbTable.where('userId').equals(userId).primaryKeys();
+                            const yjsKeys = new Set(map.keys());
+                            const toDelete = localKeys.filter(k => !yjsKeys.has(k));
+                            
+                            if (toDelete.length > 0) await dbTable.bulkDelete(toDelete);
+                            if (items.length > 0) await dbTable.bulkPut(items);
+                        });
+                    }
                 }
             }
             console.log('Sync completed successfully');
@@ -84,6 +104,19 @@ class SyncService {
             console.error('Sync failed:', error);
         } finally {
             this.isSyncing = false;
+        }
+    }
+
+    /**
+     * Initialize docs and perform a sync down for all available features.
+     */
+    async syncAll(userId) {
+        const features = ['habits', 'journal', 'planner', 'finance'];
+        try {
+            await Promise.all(features.map(feature => this.getDoc(feature, userId)));
+            await this.performSync();
+        } catch (error) {
+            console.error("Failed to execute full sync:", error);
         }
     }
 

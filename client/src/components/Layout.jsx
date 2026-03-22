@@ -11,6 +11,7 @@ import Avatar from './ui/Avatar';
 import UserSearch from './ui/UserSearch';
 import BugReportModal from './ui/BugReportModal';
 import useConnectivityStore from '../store/useConnectivityStore';
+import SyncService from '../services/SyncService';
 
 
 function Layout() {
@@ -59,6 +60,13 @@ function Layout() {
         window.addEventListener('user-selected', handleUserSelected);
         return () => window.removeEventListener('user-selected', handleUserSelected);
     }, []);
+
+    // Perform initial data synchronization for offline-first architecture
+    useEffect(() => {
+        if (user?._id) {
+            SyncService.syncAll(user._id);
+        }
+    }, [user?._id]);
 
     const { data: notifications = [], mutate: mutateNotifications } = useSWR(user ? '/notifications' : null, {
         refreshInterval: 30000 

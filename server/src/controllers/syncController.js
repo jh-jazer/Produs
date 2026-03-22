@@ -25,6 +25,25 @@ export const syncFeature = async (req, res) => {
             Y.applyUpdate(doc, yjsState.state);
         }
 
+        // HYDRATION: Pull from existing MongoDB collections if the Yjs Map is completely empty!
+        // This ensures users migrating to the offline-first version don't lose their data
+        // even if an empty YjsState record was already generated for them.
+        const map = doc.getMap(feature);
+        if (map.size === 0) {
+            let legacyData = [];
+            if (feature === 'journal') legacyData = await Journal.find({ user: userId }).lean();
+            if (feature === 'habits') legacyData = await Habit.find({ user: userId }).lean();
+            if (feature === 'planner') legacyData = await Task.find({ user: userId }).lean();
+            if (feature === 'finance') legacyData = await Transaction.find({ user: userId }).lean();
+            
+            // Add existing items into the Y.Map using their specific ID patterns or _id
+            legacyData.forEach(item => {
+                const id = item._id.toString();
+                // Ensure IDs match the client expectation, client maps _id directly usually.
+                map.set(id, { ...item, _id: id });
+            });
+        }
+
         // 2. Apply incoming update
         const clientUpdate = new Uint8Array(update);
         Y.applyUpdate(doc, clientUpdate);
