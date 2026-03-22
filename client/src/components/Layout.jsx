@@ -10,6 +10,8 @@ import OnboardingModal from './ui/OnboardingModal';
 import Avatar from './ui/Avatar';
 import UserSearch from './ui/UserSearch';
 import BugReportModal from './ui/BugReportModal';
+import useConnectivityStore from '../store/useConnectivityStore';
+
 
 function Layout() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -21,6 +23,8 @@ function Layout() {
     const [isBugModalOpen, setIsBugModalOpen] = useState(false);
 
     const { user, logout, syncUser, viewMode, setViewMode } = useAuthStore();
+    const isOnline = useConnectivityStore(state => state.isOnline);
+
 
     useEffect(() => {
         // Apply Dark Mode from settings
@@ -193,26 +197,33 @@ function Layout() {
                     </nav>
 
                     <div className="flex items-center gap-3 sm:gap-4">
-                        <button
-                            onClick={() => setIsSearchModalOpen(true)}
-                            className="hidden sm:flex relative size-10 items-center justify-center rounded-full text-slate-500 hover:text-primary transition-colors active:scale-95"
-                            aria-label="Search users"
-                        >
-                            <span className="material-symbols-outlined text-[24px]">search</span>
-                        </button>
+                        {!isOnline ? (
+                            <div className="relative size-10 flex items-center justify-center rounded-full text-amber-500 bg-amber-500/10 border border-amber-500/20" title="Offline Mode">
+                                <span className="material-symbols-outlined text-[24px]">cloud_off</span>
+                            </div>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={() => setIsSearchModalOpen(true)}
+                                    className="hidden sm:flex relative size-10 items-center justify-center rounded-full text-slate-500 hover:text-primary transition-colors active:scale-95"
+                                    aria-label="Search users"
+                                >
+                                    <span className="material-symbols-outlined text-[24px]">search</span>
+                                </button>
 
-                        {/* Mobile Perspective Toggle */}
-                        {user?.partner && (
-                            <button
-                                onClick={() => setViewMode(viewMode === 'me' ? 'partner' : 'me')}
-                                title={`Switch to ${viewMode === 'me' ? 'Shared' : 'My'} view`}
-                                className={`sm:hidden relative size-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${viewMode === 'partner' ? 'bg-primary/10 text-primary' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary'}`}
-                            >
-                                {/* Two-person couple icon (Material Symbols 'group') */}
-                                <span className="material-symbols-outlined text-[24px]">group</span>
-                                {viewMode === 'partner' && <span className="absolute bottom-1 right-1 size-2.5 bg-green-500 border-[1.5px] border-white dark:border-[#192233] rounded-full" />}
-                            </button>
+                                {user?.partner && (
+                                    <button
+                                        onClick={() => setViewMode(viewMode === 'me' ? 'partner' : 'me')}
+                                        title={`Switch to ${viewMode === 'me' ? 'Shared' : 'My'} view`}
+                                        className={`sm:hidden relative size-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${viewMode === 'partner' ? 'bg-primary/10 text-primary' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary'}`}
+                                    >
+                                        <span className="material-symbols-outlined text-[24px]">group</span>
+                                        {viewMode === 'partner' && <span className="absolute bottom-1 right-1 size-2.5 bg-green-500 border-[1.5px] border-white dark:border-[#192233] rounded-full" />}
+                                    </button>
+                                )}
+                            </>
                         )}
+
                         
                         <div className="relative" ref={profileRef}>
                             <button
@@ -232,16 +243,20 @@ function Layout() {
                                         className="absolute right-0 mt-3 w-48 bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50 overflow-hidden"
                                     >
                                         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1 font-bold text-xs text-slate-400 uppercase tracking-widest">Account</div>
-                                        <button onClick={() => { navigate('/dashboard/profile'); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors">
-                                            <span className="material-symbols-outlined text-lg">dashboard</span> Profile
-                                        </button>
-                                        {user?.email === 'ernestodesabillejr@gmail.com' && (
-                                            <button 
-                                                onClick={() => { navigate('/dashboard/admin'); setIsProfileOpen(false); }} 
-                                                className="w-full px-4 py-2.5 text-left text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-3 transition-colors"
-                                            >
-                                                <span className="material-symbols-outlined text-lg">admin_panel_settings</span> Manage
-                                            </button>
+                                        {isOnline && (
+                                            <>
+                                                <button onClick={() => { navigate('/dashboard/profile'); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors">
+                                                    <span className="material-symbols-outlined text-lg">dashboard</span> Profile
+                                                </button>
+                                                {user?.email === 'ernestodesabillejr@gmail.com' && (
+                                                    <button 
+                                                        onClick={() => { navigate('/dashboard/admin'); setIsProfileOpen(false); }} 
+                                                        className="w-full px-4 py-2.5 text-left text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-3 transition-colors"
+                                                    >
+                                                        <span className="material-symbols-outlined text-lg">admin_panel_settings</span> Manage
+                                                    </button>
+                                                )}
+                                            </>
                                         )}
                                         <button onClick={() => { setIsNotificationsOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-between transition-colors">
                                             <div className="flex items-center gap-3"><span className="material-symbols-outlined text-lg">notifications</span> Notifications</div>
@@ -250,9 +265,12 @@ function Layout() {
                                         <button onClick={() => { setIsSettingsModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors">
                                             <span className="material-symbols-outlined text-lg">settings</span> Settings
                                         </button>
-                                        <button onClick={() => { setIsBugModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-rose-500/80 hover:bg-rose-50 dark:hover:bg-rose-900/10 flex items-center gap-3 transition-colors">
-                                            <span className="material-symbols-outlined text-lg">bug_report</span> Report Bug
-                                        </button>
+                                        {isOnline && (
+                                            <button onClick={() => { setIsBugModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-rose-500/80 hover:bg-rose-50 dark:hover:bg-rose-900/10 flex items-center gap-3 transition-colors">
+                                                <span className="material-symbols-outlined text-lg">bug_report</span> Report Bug
+                                            </button>
+                                        )}
+
                                         <div className="h-px bg-slate-200 dark:bg-slate-700 my-1.5 mx-0"></div>
                                         <button onClick={handleSignOut} className="w-full px-4 py-2.5 text-left text-sm font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 flex items-center gap-3 transition-colors">
                                             <span className="material-symbols-outlined text-lg">logout</span> Sign Out
@@ -318,20 +336,21 @@ function Layout() {
                                     </button>
                                 </div>
 
-                                {/* Search — inline inside the side menu on mobile */}
-                                <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-                                    <button 
-                                        onClick={() => { 
-                                            // Close the mobile menu and open the search modal
-                                            setIsMobileMenuOpen(false);
-                                            setIsSearchModalOpen(true); 
-                                        }}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 flex items-center gap-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all active:scale-95 group"
-                                    >
-                                        <span className="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">search</span>
-                                        <span className="text-sm font-bold">Search Users</span>
-                                    </button>
-                                </div>
+                                {isOnline && (
+                                    <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+                                        <button 
+                                            onClick={() => { 
+                                                // Close the mobile menu and open the search modal
+                                                setIsMobileMenuOpen(false);
+                                                setIsSearchModalOpen(true); 
+                                            }}
+                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 flex items-center gap-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all active:scale-95 group"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">search</span>
+                                            <span className="text-sm font-bold">Search Users</span>
+                                        </button>
+                                    </div>
+                                )}
 
                                 <nav className="flex flex-col gap-1 p-4 flex-1">
                                     {['Overview', 'Habits', 'Planner', 'Finance', 'Journal'].map((name) => (

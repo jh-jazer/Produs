@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import api from '../../services/api';
+import { useJournalLocal } from '../../hooks/useJournalLocal';
 
 const JOURNAL_PROMPTS = [
     "What is one small victory you achieved today, and how did it make you feel?",
@@ -25,6 +25,8 @@ const JournalEntry = ({ onAction }) => {
     const [showSizeMenu, setShowSizeMenu] = useState(false);
     const textareaRef = useRef(null);
 
+    const { addEntry } = useJournalLocal();
+
     const checkFormatting = () => {
         if (!textareaRef.current) return;
         setActiveFormats({
@@ -41,9 +43,10 @@ const JournalEntry = ({ onAction }) => {
 
     const handleSave = async () => {
         if (!content.trim()) return;
+        
         setLoading(true);
         try {
-            await api.post('/journal', { content, mood });
+            await addEntry(content, mood);
             setContent('');
             setMood('😊');
             if (onAction) onAction();
@@ -63,7 +66,7 @@ const JournalEntry = ({ onAction }) => {
     };
 
     const handleFormat = (e, command, value = null) => {
-        e.preventDefault(); // crucial to stop focus from jumping out of the editor
+        e.preventDefault();
         const editor = textareaRef.current;
         if (!editor) return;
 
@@ -94,8 +97,6 @@ const JournalEntry = ({ onAction }) => {
         await handleSave();
         if (textareaRef.current) textareaRef.current.innerHTML = '';
     };
-
-
 
     const getBtnClass = (cmd) => {
         return `p-1.5 rounded flex-shrink-0 transition-colors ${
@@ -128,7 +129,6 @@ const JournalEntry = ({ onAction }) => {
                     </div>
 
                     <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden flex flex-col bg-slate-50 dark:bg-[#1f293a] transition-shadow shadow-sm focus-within:shadow-md focus-within:border-slate-300 dark:focus-within:border-slate-600">
-                        {/* Prompt Banner inside input box */}
                         <div className="bg-primary/5 px-4 py-3 flex justify-between items-center group">
                             <p className="text-sm text-slate-700 dark:text-slate-300 italic font-medium">"{JOURNAL_PROMPTS[promptIndex]}"</p>
                             <button 
@@ -140,7 +140,6 @@ const JournalEntry = ({ onAction }) => {
                             </button>
                         </div>
 
-                        {/* Text Editor Canvas */}
                         <div 
                             ref={textareaRef}
                             className="w-full bg-white dark:bg-[#192233] border-none focus:ring-0 px-4 py-5 min-h-[220px] text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1 [&_blockquote]:border-l-[3px] [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:my-2 [&_blockquote]:bg-primary/5 [&_blockquote]:py-1 [&_blockquote]:rounded-r-md [&_a]:text-primary [&_a]:underline [&_h1]:text-2xl [&_h1]:font-black [&_h1]:my-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:my-2" 
@@ -155,11 +154,8 @@ const JournalEntry = ({ onAction }) => {
                             onMouseUp={checkFormatting}
                         />
 
-                        {/* Google Keep Style Bottom Toolbar */}
                         <div className="bg-white dark:bg-[#192233] p-1 px-3 border-t border-slate-100 dark:border-slate-800/50 flex items-start sm:items-center justify-between pb-2 relative">
-                            {/* Formatting Row */}
                             <div className="flex flex-wrap gap-0.5 items-center pr-2">
-                                {/* Font Size Selector */}
                                 <div className="relative flex-shrink-0">
                                     <button 
                                         onMouseDown={(e) => { e.preventDefault(); setShowSizeMenu(!showSizeMenu); }} 
@@ -212,7 +208,6 @@ const JournalEntry = ({ onAction }) => {
                                 <button onMouseDown={(e) => handleFormat(e, 'link')} title="Insert Link" type="button" className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-400 flex-shrink-0"><span className="material-symbols-outlined text-[20px]">link</span></button>
                             </div>
                             
-                            {/* Action Buttons */}
                             <div className="flex gap-2 flex-shrink-0">
                                 <button 
                                     onClick={handleClear}

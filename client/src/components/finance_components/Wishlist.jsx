@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import useConnectivityStore from '../../store/useConnectivityStore';
 
 const WISHLIST_CATEGORIES = [
     { label: 'General', color: 'bg-slate-100 text-slate-600 dark:bg-slate-500/10' },
@@ -21,10 +22,13 @@ const WISHLIST_CATEGORIES = [
 ];
 
 const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
+    const isOnline = useConnectivityStore(state => state.isOnline);
+    const addToQueue = useConnectivityStore(state => state.addToQueue);
     const [isAdding, setIsAdding] = useState(false);
     const [filterCategory, setFilterCategory] = useState('All');
     const [filterStatus, setFilterStatus] = useState('All');
     const [filterPriority, setFilterPriority] = useState('All');
+    const [loading, setLoading] = useState(false);
     const [newItem, setNewItem] = useState({
         title: '',
         budgetPrice: '',
@@ -36,91 +40,157 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
     const [buyingItem, setBuyingItem] = useState(null);
     const [actualPrice, setActualPrice] = useState('');
 
-    // Deduplicate and prepare categories from budgets
-    const budgetCategories = budgets.map(b => b.category);
-    const availableCategories = budgetCategories.length > 0 ? budgetCategories : [
-        'General', 'Food', 'Transport', 'Utilities', 'Entertainment', 
-        'Tech', 'Home', 'Fashion', 'Hobby', 'Fitness', 'Wellness', 
-        'Education', 'Travel', 'Vehicles', 'Gifts', 'Pets', 'Other'
-    ];
-    if (!availableCategories.includes('General')) availableCategories.push('General');
-
     const handleAdd = async (e) => {
         e.preventDefault();
-        try {
-            await api.post('/finance/wishlist', {
-                ...newItem,
-                budgetPrice: parseFloat(newItem.budgetPrice),
-                price: parseFloat(newItem.budgetPrice) // Keep price for backward compat if needed
+        const wishlistData = {
+            ...newItem,
+            budgetPrice: parseFloat(newItem.budgetPrice),
+            price: parseFloat(newItem.budgetPrice)
+        };
+
+        if (!isOnline) {
+            addToQueue({
+                id: `temp-wish-${Date.now()}`,
+                type: 'finance-wishlist',
+                method: 'POST',
+                url: '/finance/wishlist',
+                data: wishlistData
             });
-            onAction();
-            setNewItem({ title: '', budgetPrice: '', priority: 'Medium', category: 'General', link: '', imageUrl: '' });
             setIsAdding(false);
-        } catch (err) {
-            console.error('Error adding item:', err);
+            setNewItem({ title: '', budgetPrice: '', priority: 'Medium', category: 'General', link: '', imageUrl: '' });
+            if (onAction) onAction();
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await api.post('/finance/wishlist', wishlistData);
+            onAction();
+            setIsAdding(false);
+            setNewItem({ title: '', budgetPrice: '', priority: 'Medium', category: 'General', link: '', imageUrl: '' });
+        } catch (error) {
+            console.error('Failed to add to wishlist:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleBought = async (e) => {
         e.preventDefault();
         if (!buyingItem) return;
-        try {
-            const actual = parseFloat(actualPrice);
-            const savingsAmount = (buyingItem.budgetPrice || buyingItem.price) - actual;
 
-            await api.patch(`/finance/wishlist/${buyingItem._id}`, {
-                purchased: true,
-                actualPrice: actual,
-                savings: savingsAmount
-            });
-            
-            // Auto create transaction for the expense
-            await api.post('/finance/transactions', {
-                title: buyingItem.title,
-                amount: actual,
-                type: 'expense',
-                category: buyingItem.category || 'General',
-                date: new Date().toISOString().split('T')[0]
-            });
+        const actual = parseFloat(actualPrice);
+        const savingsAmount = (buyingItem.budgetPrice || buyingItem.price) - actual;
 
-            // Auto create transaction for the savings if there are any
-            if (savingsAmount > 0) {
-                await api.post('/finance/transactions', {
+        const mutations = [
+            {
+                id: buyingItem._id,
+                type: 'finance-wishlist',
+                method: 'PATCH',
+                url: `/finance/wishlist/${buyingItem._id}`,
+                data: {
+                    purchased: true,
+                    actualPrice: actual,
+                    savings: savingsAmount
+                }
+            },
+            {
+                id: `temp-tx-bought-${Date.now()}`,
+                type: 'finance-transaction',
+                method: 'POST',
+                url: '/finance/transactions',
+                data: {
+                    title: buyingItem.title,
+                    amount: actual,
+                    type: 'expense',
+                    category: buyingItem.category || 'General',
+                    date: new Date().toISOString().split('T')[0]
+                }
+            }
+        ];
+
+        if (savingsAmount > 0) {
+            mutations.push({
+                id: `temp-tx-savings-${Date.now()}`,
+                type: 'finance-transaction',
+                method: 'POST',
+                url: '/finance/transactions',
+                data: {
                     title: `Saved on: ${buyingItem.title}`,
                     amount: savingsAmount,
                     type: 'savings',
                     category: 'Savings',
                     date: new Date().toISOString().split('T')[0]
-                });
-            }
+                }
+            });
+        }
 
+        if (!isOnline) {
+            mutations.forEach(m => addToQueue(m));
+            setBuyingItem(null);
+            setActualPrice('');
+            if (onAction) onAction();
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await Promise.all(mutations.map(m => {
+                if (m.method === 'PATCH') return api.patch(m.url, m.data);
+                return api.post(m.url, m.data);
+            }));
             onAction();
             setBuyingItem(null);
             setActualPrice('');
-        } catch (err) {
-            console.error('Error completing purchase:', err);
+        } catch (error) {
+            console.error('Failed to process purchase:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
     const togglePurchased = async (item) => {
+        const updatedStatus = !item.purchased;
+
+        if (!isOnline) {
+            addToQueue({
+                id: item._id,
+                type: 'finance-wishlist',
+                method: 'PATCH',
+                url: `/finance/wishlist/${item._id}`,
+                data: { purchased: updatedStatus }
+            });
+            if (onAction) onAction();
+            return;
+        }
+
         try {
-            await api.patch(`/finance/wishlist/${item._id}`,
-                { purchased: !item.purchased }
-            );
+            await api.patch(`/finance/wishlist/${item._id}`, { purchased: updatedStatus });
             onAction();
-        } catch (err) {
-            console.error('Error toggling purchased:', err);
+        } catch (error) {
+            console.error('Failed to update wishlist item:', error);
         }
     };
 
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     const handleDelete = async (id) => {
+        if (!isOnline) {
+            addToQueue({
+                id,
+                type: 'finance-wishlist',
+                method: 'DELETE',
+                url: `/finance/wishlist/${id}`
+            });
+            if (onAction) onAction();
+            return;
+        }
+
         try {
             await api.delete(`/finance/wishlist/${id}`);
             onAction();
-        } catch (err) {
-            console.error('Error deleting item:', err);
+        } catch (error) {
+            console.error('Failed to delete wishlist item:', error);
         }
     };
 
@@ -165,7 +235,6 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
 
             {/* Filters Navigation */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 pb-4 border-b border-slate-50 dark:border-slate-800/50">
-                {/* Category Filter */}
                 <div className="flex flex-col gap-1.5 focus-within:z-10 relative">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
                     <select
@@ -181,7 +250,6 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                     <span className="material-symbols-outlined absolute right-4 bottom-2.5 text-slate-400 pointer-events-none">expand_more</span>
                 </div>
                 
-                {/* Status Filter */}
                 <div className="flex flex-col gap-1.5 focus-within:z-10 relative">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Status</label>
                     <select
@@ -196,7 +264,6 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                     <span className="material-symbols-outlined absolute right-4 bottom-2.5 text-slate-400 pointer-events-none">expand_more</span>
                 </div>
 
-                {/* Priority Filter */}
                 <div className="flex flex-col gap-1.5 focus-within:z-10 relative">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Priority</label>
                     <select
@@ -213,7 +280,6 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                 </div>
             </div>
 
-            {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
                 <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Projected</p>
@@ -232,7 +298,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
             <div className="space-y-2">
                 {!filteredItems.length && (
                     <div className="text-center py-6 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-                        <p className="text-xs text-slate-500 font-medium">No items found in this category.</p>
+                        <p className="text-xs text-slate-500 font-medium">No items found.</p>
                     </div>
                 )}
 
@@ -240,13 +306,15 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                     <motion.div
                         layout
                         key={item._id}
-                        className={`group flex items-center justify-between p-3 rounded-xl border transition-all ${item.purchased
-                            ? 'bg-slate-50 dark:bg-slate-800/30 border-slate-100 dark:border-slate-800/50 opacity-80'
-                            : 'bg-white dark:bg-slate-800/40 border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600 shadow-sm'
-                            }`}
+                        className={`group flex items-center justify-between p-3 rounded-xl border transition-all ${
+                            item.isPending 
+                                ? 'bg-amber-50/10 dark:bg-amber-500/5 border-amber-200/50 dark:border-amber-800/30' 
+                                : item.purchased
+                                    ? 'bg-slate-50 dark:bg-slate-800/30 border-slate-100 dark:border-slate-800/50 opacity-80'
+                                    : 'bg-white dark:bg-slate-800/40 border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600 shadow-sm'
+                        }`}
                     >
                         <div className="flex items-center gap-4 flex-1">
-                            {/* Item Image or Placeholder */}
                             <div className="relative group/img">
                                 {item.imageUrl ? (
                                     <div className="size-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm flex-shrink-0">
@@ -266,9 +334,14 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                             </div>
 
                             <div className="flex-1 min-w-0">
-                                <h4 className={`text-sm font-bold truncate ${item.purchased ? 'text-slate-400' : 'text-slate-900 dark:text-white'}`}>
-                                    {item.title}
-                                </h4>
+                                <div className="flex items-center gap-1.5">
+                                    <h4 className={`text-sm font-bold truncate ${item.purchased ? 'text-slate-400' : 'text-slate-900 dark:text-white'}`}>
+                                        {item.title}
+                                    </h4>
+                                    {item.isPending && (
+                                        <span className="flex-shrink-0 animate-spin material-symbols-outlined text-[12px] text-amber-500">sync</span>
+                                    )}
+                                </div>
                                 <div className="flex items-center gap-2 mt-1">
                                     <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${getCategoryStyles(item.category)}`}>
                                         {item.category || 'General'}
@@ -324,7 +397,6 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                 ))}
             </div>
 
-            {/* Add Item Modal */}
             {isAdding && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                     <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsAdding(false)}></div>
@@ -399,15 +471,14 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                             </div>
                         </div>
 
-                        <button type="submit" className="w-full py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-2">
-                            Add to Wishlist
+                        <button type="submit" disabled={loading} className="w-full py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-2 disabled:opacity-50">
+                            {loading ? 'Adding...' : 'Add to Wishlist'}
                         </button>
                     </form>
                 </div>,
                 document.body
             )}
 
-            {/* Bought Confirmation Modal */}
             {buyingItem && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                     <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setBuyingItem(null)}></div>
@@ -438,7 +509,9 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
 
                         <div className="flex gap-3">
                             <button type="button" onClick={() => setBuyingItem(null)} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl">Cancel</button>
-                            <button type="submit" className="flex-2 py-3 bg-emerald-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20">Confirm</button>
+                            <button type="submit" disabled={loading} className="flex-2 py-3 bg-emerald-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20 disabled:opacity-50">
+                                {loading ? 'Processing...' : 'Confirm'}
+                            </button>
                         </div>
                     </form>
                 </div>,

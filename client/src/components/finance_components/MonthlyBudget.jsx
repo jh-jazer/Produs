@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import api from '../../services/api';
+import useConnectivityStore from '../../store/useConnectivityStore';
 
 const PRESET_CATEGORIES = [
     'Food', 'Rent', 'Transport', 'Utilities', 'Health', 'Shopping',
@@ -11,6 +12,8 @@ const PRESET_CATEGORIES = [
 ];
 
 const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
+    const isOnline = useConnectivityStore(state => state.isOnline);
+    const addToQueue = useConnectivityStore(state => state.addToQueue);
     const [isEditing, setIsEditing] = useState(false);
     const [editBudgets, setEditBudgets] = useState([]); // Array of { _id, category, limit }
     const [newCategory, setNewCategory] = useState({ category: '', limit: '' });
@@ -35,6 +38,34 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
     const budgetList = budgets;
 
     const handleSave = async () => {
+        if (!isOnline) {
+            // 1. Queue deletions
+            deletedBudgetIds.forEach(id => {
+                addToQueue({
+                    id,
+                    type: 'finance-budget',
+                    method: 'DELETE',
+                    url: `/finance/budgets/${id}`
+                });
+            });
+
+            // 2. Queue updates/creations
+            editBudgets.forEach(b => {
+                addToQueue({
+                    id: b._id || `temp-budget-${Date.now()}-${b.category}`,
+                    type: 'finance-budget',
+                    method: 'PUT',
+                    url: '/finance/budgets',
+                    data: { category: b.category, limit: parseFloat(b.limit) }
+                });
+            });
+
+            setIsEditing(false);
+            setDeletedBudgetIds([]);
+            if (onAction) onAction();
+            return;
+        }
+
         try {
             // 1. Delete marked budgets
             await Promise.all(
@@ -104,14 +135,19 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                             return (
                                 <div key={b.category}>
                                     <div className="flex justify-between items-center mb-2">
-                                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{b.category}</span>
+                                        <div className="flex items-center gap-2 overflow-hidden">
+                                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">{b.category}</span>
+                                            {b.isPending && (
+                                                <span className="flex-shrink-0 animate-spin material-symbols-outlined text-[10px] text-amber-500">sync</span>
+                                            )}
+                                        </div>
                                         <span className="text-xs font-black text-slate-900 dark:text-white">
                                             {currencySymbol}{spent.toLocaleString()} / {currencySymbol}{b.limit.toLocaleString()}
                                         </span>
                                     </div>
                                     <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
                                         <div
-                                            className={`${color} h-full rounded-full transition-all duration-700`}
+                                            className={`${color} h-full rounded-full transition-all duration-700 ${b.isPending ? 'opacity-50 animate-pulse' : ''}`}
                                             style={{ width: `${percent}%` }}
                                         ></div>
                                     </div>

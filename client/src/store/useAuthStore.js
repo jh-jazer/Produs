@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import api from '../services/api';
+import { setAuthToken } from '../services/api';
+import db from '../db/db';
 
 // Try to load any existing token/user info from localStorage safely
 let storedUserInfo = null;
@@ -7,6 +8,7 @@ try {
     const item = localStorage.getItem('userInfo');
     if (item && item !== 'undefined') {
         storedUserInfo = JSON.parse(item);
+        if (storedUserInfo?.token) setAuthToken(storedUserInfo.token);
     }
 } catch (error) {
     console.error('Failed to parse userInfo from localStorage:', error);
@@ -20,6 +22,11 @@ const useAuthStore = create((set) => ({
 
     setCredentials: (data) => {
         set({ user: data });
+        if (data?.token) {
+            setAuthToken(data.token);
+            // Store in IndexedDB for Service Worker access
+            db.yjs_state.put({ id: 'auth:current', token: data.token });
+        }
         localStorage.setItem('userInfo', JSON.stringify(data));
     },
 

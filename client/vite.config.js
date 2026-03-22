@@ -9,10 +9,14 @@ export default defineConfig({
     react(), 
     tailwindcss(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       registerType: 'autoUpdate',
       includeAssets: ['produs-logo.png'],
       devOptions: {
-        enabled: true
+        enabled: true,
+        type: 'module'
       },
       manifest: {
         name: 'Produs Productivity',
@@ -55,6 +59,11 @@ export default defineConfig({
             icons: [{ src: 'produs-logo.png', sizes: '192x192' }]
           }
         ]
+      },
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // Exclude /api/ and /auth/ from navigation fallback to allow server-side redirects (like OAuth)
+        navigateFallbackDenylist: [/^\/api\//, /^\/auth\//]
       }
     })
   ],

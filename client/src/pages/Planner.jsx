@@ -4,6 +4,9 @@ import DailySchedule from '../components/planner_components/DailySchedule';
 import FullCalendar from '../components/planner_components/FullCalendar';
 import GoalSetter from '../components/planner_components/GoalSetter';
 import useAuthStore from '../store/useAuthStore';
+import useConnectivityStore from '../store/useConnectivityStore';
+import { useEffect } from 'react';
+
 import { motion } from 'framer-motion';
 import MobileTabNav from '../components/ui/MobileTabNav';
 
@@ -12,6 +15,15 @@ function Planner() {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [isFlipped, setIsFlipped] = useState(false);
     const [activeTab, setActiveTab] = useState('schedule');
+    const isOnline = useConnectivityStore(state => state.isOnline);
+
+    // Force 'me' view if offline
+    useEffect(() => {
+        if (!isOnline && viewMode === 'partner') {
+            setViewMode('me');
+        }
+    }, [isOnline, viewMode, setViewMode]);
+
 
     const tabs = [
         { id: 'schedule', label: 'Schedule', icon: 'event_note' },
@@ -33,17 +45,21 @@ function Planner() {
                     
                     {/* Header - Hidden on Mobile */}
                     <div className="hidden lg:flex flex-col gap-1 px-1">
-                        <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">
-                            What's the Plan?
-                        </h1>
+                        <div className="flex items-center justify-between">
+                            <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">
+                                What's the Plan?
+                            </h1>
+                        </div>
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
                             Organize your schedule.
                         </p>
                     </div>
 
+
                     {/* View Toggle */}
-                    {user?.partner && (
+                    {user?.partner && isOnline && (
                         <div className="bg-slate-50 dark:bg-slate-800/50 p-1 rounded-xl flex">
+
                             <button
                                 onClick={() => setViewMode('me')}
                                 className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'me' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}

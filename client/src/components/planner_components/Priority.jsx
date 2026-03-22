@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import useSWR from 'swr';
-import api from '../../services/api';
-
-const fetcher = url => api.get(url).then(res => res.data);
+import { usePlannerLocal } from '../../hooks/usePlannerLocal';
 
 const Priority = ({ isCompact = false, viewMode = 'me', isReadOnly = false, onFlip }) => {
     const today = new Date();
-    const dateStr = today.toLocaleDateString('en-CA');
-    const { data: tasks, mutate } = useSWR(`/planner/tasks?date=${dateStr}${viewMode === 'partner' ? '&view=partner' : ''}`, fetcher);
+    const { tasks, toggleComplete, isLoading } = usePlannerLocal(today);
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
@@ -32,13 +28,9 @@ const Priority = ({ isCompact = false, viewMode = 'me', isReadOnly = false, onFl
     const events = otherTasks.filter(t => t.type === 'event');
     const todoTasks = otherTasks.filter(t => t.type === 'task' || !t.type);
 
-    const toggleComplete = async (task) => {
-        try {
-            await api.patch(`/planner/tasks/${task._id}`, { completed: !task.completed });
-            mutate();
-        } catch (error) {
-            console.error('Failed to toggle task:', error);
-        }
+    const handleToggle = async (task) => {
+        if (isReadOnly) return;
+        await toggleComplete(task._id);
     };
 
     return (
@@ -119,7 +111,7 @@ const Priority = ({ isCompact = false, viewMode = 'me', isReadOnly = false, onFl
                         {todoTasks.length > 0 ? todoTasks.map(task => (
                             <div
                                 key={task._id}
-                                onClick={() => !isReadOnly && toggleComplete(task)}
+                                onClick={() => handleToggle(task)}
                                 className={`flex items-center gap-3 p-3 rounded-xl border ${!isReadOnly ? 'cursor-pointer hover:border-primary/30' : ''} transition-all ${task.completed
                                     ? 'bg-slate-50 dark:bg-slate-800/10 border-transparent opacity-50'
                                     : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 hover:border-primary/30 shadow-sm'

@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import useSWR from 'swr';
 import useAuthStore from '../store/useAuthStore';
+
+import useConnectivityStore from '../store/useConnectivityStore';
 import api from '../services/api';
+
 import Avatar from '../components/ui/Avatar';
 import AvatarEditor from '../components/ui/AvatarEditor';
 import ProfileModal from '../components/ui/ProfileModal';
@@ -10,12 +14,29 @@ import ProfileModal from '../components/ui/ProfileModal';
 function Profile() {
     const navigate = useNavigate();
     const { user, updateSettings, setCredentials, viewMode, setViewMode } = useAuthStore();
-    const [coreHabits, setCoreHabits] = useState([]);
-    const [allHabits, setAllHabits] = useState([]);
-    const [currentTasks, setCurrentTasks] = useState([]);
-    const [wishlistInput, setWishlistInput] = useState("");
-    const [wishlist, setWishlist] = useState([]);
-    const [mood, setMood] = useState(user?.settings?.mood || "neutral");
+    const isSyncing = useConnectivityStore(state => state.isSyncing);
+    const isOnline = useConnectivityStore(state => state.isOnline);
+
+    const today = new Date().toISOString().split('T')[0];
+
+    // SWR Data Fetching
+    const { data: allHabits = [], isLoading: isHabitsLoading } = useSWR('/habits');
+    const { data: currentTasksRaw = [], isLoading: isTasksLoading } = useSWR(`/planner/tasks?date=${today}`);
+    const { data: wishlist = [], isLoading: isWishlistLoading, mutate: mutateWishlist } = useSWR('/finance/wishlist');
+
+    const isLoading = isHabitsLoading || isTasksLoading || isWishlistLoading;
+
+    const coreHabits = React.useMemo(() => {
+        const systemIds = ['journal', 'finance', 'planner'];
+        return systemIds.map(id => allHabits.find(h => h.systemId === id)).filter(Boolean);
+    }, [allHabits]);
+
+    const currentTasks = React.useMemo(() => {
+        return [...currentTasksRaw].sort((a, b) => {
+            const priorityScore = { high: 3, medium: 2, low: 1, none: 0 };
+            return (priorityScore[b.priority] || 0) - (priorityScore[a.priority] || 0);
+        }).slice(0, 3);
+    }, [currentTasksRaw]);
 
     // Profile settings state
     const [username, setUsername] = useState(user?.username || "");
@@ -31,6 +52,19 @@ function Profile() {
     const [activeConnectionsTab, setActiveConnectionsTab] = useState('connections');
     const [isEditing, setIsEditing] = useState(false);
     const [profileModalUser, setProfileModalUser] = useState(null);
+
+    const [partnerEmail, setPartnerEmail] = useState("");
+    const [isLinking, setIsLinking] = useState(false);
+    const [linkMessage, setLinkMessage] = useState("");
+    const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
+    const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
+    const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+    const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
+    const [showId, setShowId] = useState(false);
+    const [isCopied, setIsCopied] = useState(false);
+    const [mood, setMood] = useState(user?.settings?.mood || "neutral");
+    const [wishlistInput, setWishlistInput] = useState("");
+
 
     const syncUser = async () => {
         try {
@@ -57,66 +91,6 @@ function Profile() {
         fetchConnections();
     }, [isConnectionsModalOpen]);
 
-    const handleConnectionAction = async (action, userId) => {
-        try {
-            await api.post(`/auth/connection/${action}/${userId}`);
-            // Refresh data
-            const res = await api.get('/auth/connections');
-            setConnectionsData(res.data);
-            // Also sync the global user store to update badges
-            syncUser();
-        } catch (err) {
-            console.error(`Failed to ${action} connection`, err);
-        }
-    };
-
-    const [partnerEmail, setPartnerEmail] = useState("");
-    const [isLinking, setIsLinking] = useState(false);
-    const [linkMessage, setLinkMessage] = useState("");
-    const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
-    const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
-    const [isCheckingUsername, setIsCheckingUsername] = useState(false);
-    const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
-    const [showId, setShowId] = useState(false);
-    const [isCopied, setIsCopied] = useState(false);
-
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchProfileData = async () => {
-            try {
-                setIsLoading(true);
-                // Fetch habits to identify core system habits and total counts
-                const habitsRes = await api.get('/habits');
-                setAllHabits(habitsRes.data);
-                
-                const systemIds = ['journal', 'finance', 'planner'];
-                const systemHabits = systemIds.map(id => habitsRes.data.find(h => h.systemId === id)).filter(Boolean);
-                setCoreHabits(systemHabits);
-
-                // Fetch tasks for today's focus
-                const today = new Date().toISOString().split('T')[0];
-                const plannerRes = await api.get(`/planner/tasks?date=${today}`);
-                // Simple sort by priority for focus
-                const sortedTasks = plannerRes.data.sort((a, b) => {
-                    const priorityScore = { high: 3, medium: 2, low: 1, none: 0 };
-                    return (priorityScore[b.priority] || 0) - (priorityScore[a.priority] || 0);
-                }).slice(0, 3);
-                setCurrentTasks(sortedTasks);
-
-                // Fetch unified wishlist from finance
-                const wishlistRes = await api.get('/finance/wishlist');
-                setWishlist(wishlistRes.data || []);
-
-            } catch (error) {
-                console.error("Error fetching profile data:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchProfileData();
-    }, []);
 
     useEffect(() => {
         const checkAvailability = async () => {
@@ -153,9 +127,10 @@ function Profile() {
             });
             // Handle both structure possibilities depending on server res wrapper
             const newObj = res.data.data || res.data;
-            setWishlist([...wishlist, newObj]);
+            mutateWishlist();
             setWishlistInput("");
         } catch (error) {
+
             console.error("Failed to save wishlist", error);
         }
     };
@@ -164,21 +139,15 @@ function Profile() {
         const item = wishlist.find(i => (i._id === id || i.id === id));
         if (!item) return;
         const isCompleted = item.purchased || item.completed;
-        const newWishlist = wishlist.map(i =>
-            (i._id === id || i.id === id) ? { ...i, purchased: !isCompleted, completed: !isCompleted } : i
-        );
-        setWishlist(newWishlist);
 
         try {
-            if (item._id) {
-                await api.patch(`/finance/wishlist/${item._id}`, { purchased: !isCompleted });
-            } else {
-                await updateSettings({ wishlist: newWishlist });
-            }
+            await api.patch(`/finance/wishlist/${item._id}`, { purchased: !isCompleted });
+            mutateWishlist();
         } catch (error) {
             console.error("Failed to update wishlist", error);
         }
     };
+
 
     const updateMood = async (newMood) => {
         setMood(newMood);
@@ -446,7 +415,24 @@ function Profile() {
                                     )}
                                 </div>
                             )}
+                            
+                            {/* Sync Status Badge */}
+                            <div className="mt-2 flex items-center justify-end">
+                                {isSyncing ? (
+                                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20 animate-pulse">
+                                        <div className="size-1.5 rounded-full bg-primary animate-ping" />
+                                        Syncing Progress...
+                                    </div>
+                                ) : isOnline ? (
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+                                        <span className="material-symbols-outlined text-[12px]">cloud_done</span>
+                                        All Synced
+                                    </div>
+                                ) : null}
+                            </div>
+
                         </div>
+
                     </div>
 
                     {/* Bio and Settings Area */}

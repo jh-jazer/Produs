@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import useSWR from 'swr';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import { useGoalsLocal } from '../../hooks/useGoalsLocal';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
@@ -84,26 +85,15 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
     const safeWeekIdx = Math.min(selectedWeekIdx, weeksInMonth.length - 1);
     const currentWeek = weeksInMonth[safeWeekIdx];
 
-    /* ── SWR key ── */
-    const swrKey = useMemo(() => {
-        const partner = viewMode === 'partner' ? '&view=partner' : '';
-        if (view === 'yearly') return `/planner/goals?year=${selectedYear}${partner}`;
-        if (view === 'monthly') return `/planner/goals?year=${selectedYear}&month=${selectedMonth}${partner}`;
-        // weekly: filter by isoWeek + year
-        return `/planner/goals?year=${selectedYear}&week=${currentWeek?.isoWeek}${partner}`;
-    }, [view, selectedYear, selectedMonth, currentWeek, viewMode]);
+    /* ── Local goals hook ── */
+    const filters = useMemo(() => ({
+        period: view,
+        year: selectedYear,
+        month: view === 'yearly' ? undefined : selectedMonth,
+        week: view === 'weekly' ? currentWeek?.isoWeek : undefined
+    }), [view, selectedYear, selectedMonth, currentWeek, view]);
 
-    const { data: goals, mutate } = useSWR(swrKey, fetcher);
-
-    /* ── filtered goals ── */
-    const filteredGoals = useMemo(() => {
-        if (!goals) return [];
-        return goals.filter(g => {
-            if (view === 'yearly')  return g.period === 'yearly'  && g.year === selectedYear;
-            if (view === 'monthly') return g.period === 'monthly' && g.year === selectedYear && g.month === selectedMonth;
-            return g.period === 'weekly' && g.year === selectedYear && g.week === currentWeek?.isoWeek;
-        });
-    }, [goals, view, selectedYear, selectedMonth, currentWeek]);
+    const { goals: filteredGoals, addGoal: addGoalLocal, toggleGoal: toggleGoalLocal, deleteGoal: deleteGoalLocal, isLoading } = useGoalsLocal(filters);
 
     /* ── CRUD ── */
     const addGoal = async () => {
@@ -116,31 +106,16 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
         if (view === 'monthly') payload.month = Number(selectedMonth);
         if (view === 'weekly')  { payload.month = Number(selectedMonth); payload.week = currentWeek?.isoWeek; }
 
-        try {
-            await api.post('/planner/goals', payload);
-            setNewGoalTitle('');
-            mutate();
-        } catch (err) {
-            console.error('Failed to add goal:', err.response?.data || err.message);
-        }
+        await addGoalLocal(payload);
+        setNewGoalTitle('');
     };
 
     const toggleGoal = async (goal) => {
-        try {
-            await api.patch(`/planner/goals/${goal._id}`, { completed: !goal.completed });
-            mutate();
-        } catch (err) {
-            console.error('Failed to toggle goal:', err);
-        }
+        await toggleGoalLocal(goal._id);
     };
 
     const deleteGoal = async (id) => {
-        try {
-            await api.delete(`/planner/goals/${id}`);
-            mutate();
-        } catch (err) {
-            console.error('Failed to delete goal:', err);
-        }
+        await deleteGoalLocal(id);
     };
 
     /* ── titles ── */

@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import useSWR from 'swr';
-import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
-
-const fetcher = url => api.get(url).then(res => res.data);
+import { usePlannerLocal } from '../../hooks/usePlannerLocal';
 
 const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly = false }) => {
     const [viewDate, setViewDate] = useState(new Date());
@@ -24,7 +21,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
         { name: 'Slate', value: '#64748b' }
     ];
 
-    const { data: tasks, mutate } = useSWR(`/planner/tasks?year=${viewDate.getFullYear()}&month=${viewDate.getMonth() + 1}${viewMode === 'partner' ? '&view=partner' : ''}`, fetcher);
+    const { tasks, addTask: addTaskLocal, deleteTask: deleteTaskLocal } = usePlannerLocal(null);
 
     const months = [
         "January", "February", "March", "April", "May", "June",
@@ -80,34 +77,24 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
 
     const addTask = async () => {
         if (!newTaskTitle.trim()) return;
-        try {
-            const startStr = addModal.startDate.toLocaleDateString('en-CA');
-            const endStr = addModal.endDate.toLocaleDateString('en-CA');
+        const startStr = addModal.startDate.toLocaleDateString('en-CA');
+        const endStr = addModal.endDate.toLocaleDateString('en-CA');
 
-            await api.post('/planner/tasks', {
-                title: newTaskTitle.trim(),
-                description: newTaskDescription.trim(),
-                date: startStr,
-                endDate: startStr === endStr ? null : endStr,
-                type: 'event', // Force event type
-                color: newTaskColor
-            });
-            setNewTaskTitle('');
-            setNewTaskDescription('');
-            setAddModal(null);
-            mutate();
-        } catch (error) {
-            console.error('Failed to add task from calendar:', error);
-        }
+        await addTaskLocal({
+            title: newTaskTitle.trim(),
+            description: newTaskDescription.trim(),
+            date: startStr,
+            endDate: startStr === endStr ? null : endStr,
+            type: 'event', // Force event type
+            color: newTaskColor
+        });
+        setNewTaskTitle('');
+        setNewTaskDescription('');
+        setAddModal(null);
     };
 
     const deleteTask = async (taskId) => {
-        try {
-            await api.delete(`/planner/tasks/${taskId}`);
-            mutate(); // Re-fetch tasks after deletion
-        } catch (error) {
-            console.error('Failed to delete task:', error);
-        }
+        await deleteTaskLocal(taskId);
     };
 
     const getTasksForDay = (day) => {

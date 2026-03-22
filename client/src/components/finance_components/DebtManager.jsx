@@ -3,8 +3,11 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import useConnectivityStore from '../../store/useConnectivityStore';
 
 const DebtManager = ({ debts, currencySymbol, onAction }) => {
+    const isOnline = useConnectivityStore(state => state.isOnline);
+    const addToQueue = useConnectivityStore(state => state.addToQueue);
     const [showAdd, setShowAdd] = useState(false);
     const [summaryView, setSummaryView] = useState('overall'); // 'overall' or specific month string
     const [showPayModal, setShowPayModal] = useState(null); // stores debt object
@@ -21,12 +24,36 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
 
     const handleAdd = async (e) => {
         e.preventDefault();
-        try {
-            await api.post('/finance/debts', {
-                ...newDebt,
-                amount: parseFloat(newDebt.amount),
-                total: parseFloat(newDebt.amount) 
+        const debtData = {
+            ...newDebt,
+            amount: parseFloat(newDebt.amount),
+            total: parseFloat(newDebt.amount) 
+        };
+
+        if (!isOnline) {
+            addToQueue({
+                id: `temp-debt-${Date.now()}`,
+                type: 'finance-debt',
+                method: 'POST',
+                url: '/finance/debts',
+                data: debtData
             });
+            setShowAdd(false);
+            setNewDebt({ 
+                title: '', 
+                amount: '', 
+                type: 'personal', 
+                nature: 'debt', 
+                dueDate: '', 
+                isMonthly: false, 
+                monthsLeft: '' 
+            });
+            if (onAction) onAction();
+            return;
+        }
+
+        try {
+            await api.post('/finance/debts', debtData);
             onAction();
             setShowAdd(false);
             setNewDebt({ 
@@ -46,12 +73,28 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
     const handlePayment = async (e) => {
         e.preventDefault();
         if (!showPayModal) return;
+        const payment = parseFloat(payAmount);
+        if (isNaN(payment) || payment <= 0) return;
+        
+        const updatedAmount = Math.max(0, showPayModal.amount - payment);
+
+        if (!isOnline) {
+            addToQueue({
+                id: showPayModal._id,
+                type: 'finance-debt',
+                method: 'PATCH',
+                url: `/finance/debts/${showPayModal._id}`,
+                data: { amount: updatedAmount }
+            });
+            setShowPayModal(null);
+            setPayAmount('');
+            if (onAction) onAction();
+            return;
+        }
+
         try {
-            const payment = parseFloat(payAmount);
-            if (isNaN(payment) || payment <= 0) return;
-            
             await api.patch(`/finance/debts/${showPayModal._id}`, { 
-                amount: Math.max(0, showPayModal.amount - payment) 
+                amount: updatedAmount 
             });
             onAction();
             setShowPayModal(null);
@@ -64,6 +107,17 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     const handleDelete = async (id) => {
+        if (!isOnline) {
+            addToQueue({
+                id,
+                type: 'finance-debt',
+                method: 'DELETE',
+                url: `/finance/debts/${id}`
+            });
+            if (onAction) onAction();
+            return;
+        }
+
         try {
             await api.delete(`/finance/debts/${id}`);
             onAction();
@@ -223,7 +277,15 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
                                             <span className={`material-symbols-outlined text-sm ${isIncome ? 'text-emerald-500' : 'text-slate-400'}`}>
                                                 {isIncome ? 'trending_up' : 'trending_down'}
                                             </span>
-                                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{debt.title}</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{debt.title}</span>
+                                                {debt.isPending && (
+                                                    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-tighter border border-amber-500/20">
+                                                        <span className="material-symbols-outlined text-[8px] animate-spin">sync</span>
+                                                        Pending
+                                                    </span>
+                                                )}
+                                            </div>
                                             <button
                                                 onClick={() => setConfirmDelete(debt._id)}
                                                 className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-rose-500 transition-all p-0.5"

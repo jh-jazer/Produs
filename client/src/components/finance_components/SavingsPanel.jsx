@@ -3,50 +3,90 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import useConnectivityStore from '../../store/useConnectivityStore';
 
 const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
+    const isOnline = useConnectivityStore(state => state.isOnline);
+    const addToQueue = useConnectivityStore(state => state.addToQueue);
     const [showAdd, setShowAdd] = useState(false);
-    const [showFundModal, setShowFundModal] = useState(null); // stores saving object
+    const [fundingGoal, setFundingGoal] = useState(null); // stores saving object
     const [fundAmount, setFundAmount] = useState('');
     const [loading, setLoading] = useState(false);
-    const [newSaving, setNewSaving] = useState({ title: '', amount: '', target: '', category: 'General' });
+    const [newGoal, setNewGoal] = useState({ title: '', target: '', initialAmount: '' });
 
     const handleAdd = async (e) => {
         e.preventDefault();
+        const goalData = {
+            ...newGoal,
+            target: parseFloat(newGoal.target),
+            initialAmount: parseFloat(newGoal.initialAmount) || 0,
+            amount: parseFloat(newGoal.initialAmount) || 0,
+            type: 'new'
+        };
+
+        if (!isOnline) {
+            addToQueue({
+                id: `temp-saving-${Date.now()}`,
+                type: 'finance-saving',
+                method: 'POST',
+                url: '/finance/savings',
+                data: goalData
+            });
+            setShowAdd(false);
+            setNewGoal({ title: '', target: '', initialAmount: '' });
+            if (onAction) onAction();
+            return;
+        }
+
         setLoading(true);
         try {
-            await api.post('/finance/savings', {
-                ...newSaving,
-                amount: parseFloat(newSaving.amount),
-                target: parseFloat(newSaving.target)
-            });
+            await api.post('/finance/savings', goalData);
             onAction();
             setShowAdd(false);
-            setNewSaving({ title: '', amount: '', target: '', category: 'General' });
+            setNewGoal({ title: '', target: '', initialAmount: '' });
         } catch (error) {
-            console.error('Failed to add saving:', error);
+            console.error('Failed to add goal:', error);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleUpdateAmount = async (e) => {
+    const handleFund = async (e) => {
         e.preventDefault();
-        if (!showFundModal) return;
+        if (!fundingGoal) return;
+        const amount = parseFloat(fundAmount);
+        if (isNaN(amount) || amount <= 0) return;
+
+        if (!isOnline) {
+            addToQueue({
+                id: `temp-fund-${Date.now()}`,
+                type: 'finance-saving',
+                method: 'POST',
+                url: '/finance/savings',
+                data: {
+                    goalId: fundingGoal._id,
+                    amount: amount,
+                    type: 'fund'
+                }
+            });
+            setFundingGoal(null);
+            setFundAmount('');
+            if (onAction) onAction();
+            return;
+        }
+
         setLoading(true);
         try {
-            const amountToAdd = parseFloat(fundAmount);
-            if (isNaN(amountToAdd) || amountToAdd <= 0) return;
-
-            await api.post('/finance/savings', { 
-                title: showFundModal.title, 
-                amount: showFundModal.amount + amountToAdd 
+            await api.post('/finance/savings', {
+                goalId: fundingGoal._id,
+                amount: amount,
+                type: 'fund'
             });
             onAction();
-            setShowFundModal(null);
+            setFundingGoal(null);
             setFundAmount('');
         } catch (error) {
-            console.error('Failed to update saving amount:', error);
+            console.error('Failed to fund goal:', error);
         } finally {
             setLoading(false);
         }
@@ -55,11 +95,22 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     const handleDelete = async (id) => {
+        if (!isOnline) {
+            addToQueue({
+                id,
+                type: 'finance-saving',
+                method: 'DELETE',
+                url: `/finance/savings/${id}`
+            });
+            if (onAction) onAction();
+            return;
+        }
+
         try {
             await api.delete(`/finance/savings/${id}`);
             onAction();
         } catch (error) {
-            console.error('Failed to delete saving:', error);
+            console.error('Failed to delete goal:', error);
         }
     };
 
@@ -114,10 +165,19 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                         savings.map(s => {
                             const progress = (s.amount / s.target) * 100;
                             return (
-                                <div key={s._id} className="p-6 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/10 hover:border-primary/20 transition-colors group">
+                                <div key={s._id} className={`p-6 rounded-2xl border transition-colors group ${
+                                    s.isPending 
+                                        ? 'bg-amber-50/10 dark:bg-amber-500/5 border-amber-200/50 dark:border-amber-800/30' 
+                                        : 'border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/10 hover:border-primary/20'
+                                }`}>
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <h4 className="font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors">{s.title}</h4>
+                                            <div className="flex items-center gap-1.5">
+                                                <h4 className="font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors">{s.title}</h4>
+                                                {s.isPending && (
+                                                    <span className="flex-shrink-0 animate-spin material-symbols-outlined text-[12px] text-amber-500">sync</span>
+                                                )}
+                                            </div>
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{s.category}</p>
                                         </div>
                                         <button
@@ -140,13 +200,13 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${Math.min(100, progress)}%` }}
-                                            className="h-full bg-primary rounded-full transition-all duration-700"
+                                            className={`h-full bg-primary rounded-full transition-all duration-700 ${s.isPending ? 'opacity-50 animate-pulse' : ''}`}
                                         />
                                     </div>
 
                                     <button
                                         onClick={() => {
-                                            setShowFundModal(s);
+                                            setFundingGoal(s);
                                             setFundAmount('');
                                         }}
                                         className="w-full py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-primary transition-all flex items-center justify-center gap-2"
@@ -199,7 +259,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                                 <input
                                     required type="text" placeholder="e.g. Dream House"
                                     className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                    value={newSaving.title} onChange={e => setNewSaving({ ...newSaving, title: e.target.value })}
+                                    value={newGoal.title} onChange={e => setNewGoal({ ...newGoal, title: e.target.value })}
                                 />
                             </div>
 
@@ -211,7 +271,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                                         <input
                                             required type="number" placeholder="0.00"
                                             className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                            value={newSaving.amount} onChange={e => setNewSaving({ ...newSaving, amount: e.target.value })}
+                                            value={newGoal.initialAmount} onChange={e => setNewGoal({ ...newGoal, initialAmount: e.target.value })}
                                         />
                                     </div>
                                 </div>
@@ -222,7 +282,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                                         <input
                                             required type="number" placeholder="0.00"
                                             className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                            value={newSaving.target} onChange={e => setNewSaving({ ...newSaving, target: e.target.value })}
+                                            value={newGoal.target} onChange={e => setNewGoal({ ...newGoal, target: e.target.value })}
                                         />
                                     </div>
                                 </div>
@@ -238,19 +298,19 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
             )}
 
             {/* Fund Modal */}
-            {showFundModal && createPortal(
+            {fundingGoal && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowFundModal(null)}></div>
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setFundingGoal(null)}></div>
                     <form 
-                        onSubmit={handleUpdateAmount} 
+                        onSubmit={handleFund} 
                         className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
                     >
                         <div className="flex justify-between items-center mb-1">
                             <div>
                                 <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Add Savings</h4>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Focus: {showFundModal.title}</p>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Focus: {fundingGoal.title}</p>
                             </div>
-                            <button type="button" onClick={() => setShowFundModal(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                            <button type="button" onClick={() => setFundingGoal(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
                         </div>

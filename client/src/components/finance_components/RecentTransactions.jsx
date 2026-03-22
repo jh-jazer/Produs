@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import useConnectivityStore from '../../store/useConnectivityStore';
 
 const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onAction }) => {
+    const isOnline = useConnectivityStore(state => state.isOnline);
+    const addToQueue = useConnectivityStore(state => state.addToQueue);
     const [showAdd, setShowAdd] = useState(false);
     const [loading, setLoading] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(null);
@@ -22,12 +25,28 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
 
     const handleAdd = async (e) => {
         e.preventDefault();
+        const txData = {
+            ...newTx,
+            amount: parseFloat(newTx.amount)
+        };
+
+        if (!isOnline) {
+            addToQueue({
+                id: `temp-${Date.now()}`,
+                type: 'finance-transaction',
+                method: 'POST',
+                url: '/finance/transactions',
+                data: txData
+            });
+            setShowAdd(false);
+            setNewTx({ title: '', amount: '', type: 'expense', category: 'General', date: new Date().toISOString().split('T')[0] });
+            if (onAction) onAction();
+            return;
+        }
+
         setLoading(true);
         try {
-            await api.post('/finance/transactions', {
-                ...newTx,
-                amount: parseFloat(newTx.amount)
-            });
+            await api.post('/finance/transactions', txData);
             onAction();
             setShowAdd(false);
             setNewTx({ title: '', amount: '', type: 'expense', category: 'General', date: new Date().toISOString().split('T')[0] });
@@ -39,6 +58,17 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
     };
 
     const handleDelete = async (id) => {
+        if (!isOnline) {
+            addToQueue({
+                id,
+                type: 'finance-transaction',
+                method: 'DELETE',
+                url: `/finance/transactions/${id}`
+            });
+            if (onAction) onAction();
+            return;
+        }
+
         try {
             await api.delete(`/finance/transactions/${id}`);
             onAction();
@@ -168,7 +198,7 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
                     </div>
                 ) : (
                     transactions.slice(0, 5).map(tx => (
-                        <div key={tx._id} className="group flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
+                        <div key={tx._id} className="group flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700 relative">
                             <div className="flex items-center gap-4">
                                 <div className={`size-10 rounded-full flex items-center justify-center ${
                                     tx.type === 'income' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600' : 
@@ -182,7 +212,15 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
                                     }</span>
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-slate-900 dark:text-white">{tx.title}</p>
+                                    <div className="flex items-center gap-1.5">
+                                        <p className="text-sm font-bold text-slate-900 dark:text-white">{tx.title}</p>
+                                        {tx.isPending && (
+                                            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-tighter border border-amber-500/20">
+                                                <span className="material-symbols-outlined text-[8px] animate-spin">sync</span>
+                                                Pending
+                                            </span>
+                                        )}
+                                    </div>
                                     <p className="text-xs text-slate-500">{new Date(tx.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} • {tx.category}</p>
                                 </div>
                             </div>
