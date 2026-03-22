@@ -107,7 +107,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
     const remainingBudget = Math.max(0, totalBudget - totalSpentThisMonth);
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[300px] flex flex-col">
+        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none min-h-[300px] flex flex-col">
             <div className="flex items-center justify-between gap-2 mb-6">
                 <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">pie_chart</span>
@@ -118,7 +118,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                         setEditBudgets(budgetList.map(b => ({ ...b })));
                         setIsEditing(true);
                     }}
-                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-[#000000] transition-colors"
                 >
                     <span className="material-symbols-outlined text-xl">settings</span>
                 </button>
@@ -145,7 +145,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                                             {currencySymbol}{spent.toLocaleString()} / {currencySymbol}{b.limit.toLocaleString()}
                                         </span>
                                     </div>
-                                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                    <div className="w-full bg-slate-100 dark:bg-[#000000] rounded-full h-1.5 overflow-hidden">
                                         <div
                                             className={`${color} h-full rounded-full transition-all duration-700 ${b.isPending ? 'opacity-50 animate-pulse' : ''}`}
                                             style={{ width: `${percent}%` }}
@@ -165,7 +165,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                         </div>
                     </>
                 ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-slate-50 dark:bg-[#000000]/50 rounded-2xl border border-dashed border-slate-200 dark:border-white/10">
                         <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600 mb-3">account_balance_wallet</span>
                         <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">No Budgets Set</p>
                         <p className="text-[10px] text-slate-400 font-medium">Click the settings icon above to define your monthly spending caps.</p>
@@ -175,8 +175,8 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
 
             {isEditing && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsEditing(false)}></div>
-                    <div className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6">
+                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsEditing(false)}></div>
+                    <div className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6">
                         <div className="flex justify-between items-center">
                             <div>
                                 <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Budget Categories</h4>
@@ -190,7 +190,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                         {/* Category List */}
                         <div className="grid grid-cols-1 gap-3 max-h-[30vh] overflow-y-auto pr-2 custom-scrollbar">
                             {editBudgets.map((b, index) => (
-                                <div key={index} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 group">
+                                <div key={index} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#000000]/50 border border-slate-100 dark:border-white/10 group">
                                     <div className="flex-1 flex flex-col">
                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Category</span>
                                         <span className="text-xs font-bold text-slate-900 dark:text-white">{b.category}</span>
@@ -201,7 +201,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">{currencySymbol}</span>
                                             <input
                                                 type="number"
-                                                className="w-full bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-700 rounded-lg pl-6 pr-2 py-1.5 text-xs font-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
+                                                className="w-full bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-lg pl-6 pr-2 py-1.5 text-xs font-black dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
                                                 value={b.limit || ''}
                                                 onChange={(e) => {
                                                     const updated = [...editBudgets];
@@ -222,7 +222,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                         </div>
 
                         {/* Add New Category */}
-                        <div className="p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 flex flex-col gap-4">
+                        <div className="p-4 rounded-xl border border-dashed border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#000000]/30 flex flex-col gap-4">
                             <div className="flex flex-col gap-2">
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Quick Picks</p>
                                 <div className="flex flex-wrap gap-1.5 max-h-[80px] overflow-y-auto pr-1 selection-none">
@@ -233,7 +233,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                                             className={`text-[10px] font-bold px-2 py-1 rounded-md border transition-all ${
                                                 newCategory.category === cat 
                                                 ? 'bg-primary border-primary text-white' 
-                                                : 'bg-white dark:bg-[#192233] border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-primary/50 hover:text-primary'
+                                                : 'bg-white dark:bg-[#121212] border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:border-primary/50 hover:text-primary'
                                             }`}
                                         >
                                             {cat}
@@ -247,7 +247,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                                 <div className="flex gap-2">
                                     <input
                                         placeholder="Name (e.g. Subs)"
-                                        className="flex-1 bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
+                                        className="flex-1 bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2 text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
                                         value={newCategory.category}
                                         onChange={(e) => setNewCategory({ ...newCategory, category: e.target.value })}
                                     />
@@ -256,7 +256,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
                                         <input
                                             type="number"
                                             placeholder="Limit"
-                                            className="w-full bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-700 rounded-lg pl-6 pr-2 py-2 text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
+                                            className="w-full bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-lg pl-6 pr-2 py-2 text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
                                             value={newCategory.limit}
                                             onChange={(e) => setNewCategory({ ...newCategory, limit: e.target.value })}
                                         />

@@ -219,7 +219,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                 onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[350px]">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none min-h-[350px]">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">shopping_bag</span>
@@ -227,18 +227,19 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                 </div>
                 <button
                     onClick={() => setIsAdding(true)}
-                    className="size-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all"
+                    className="size-8 rounded-lg bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all"
                 >
                     <span className="material-symbols-outlined text-lg">add</span>
                 </button>
             </div>
 
             {/* Filters Navigation */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 pb-4 border-b border-slate-50 dark:border-slate-800/50">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 pb-4 border-b border-slate-50 dark:border-white/10/50">
+                {/* Category Filter */}
                 <div className="flex flex-col gap-1.5 focus-within:z-10 relative">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
                     <select
-                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none cursor-pointer"
+                        className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none cursor-pointer"
                         value={filterCategory}
                         onChange={(e) => setFilterCategory(e.target.value)}
                     >
@@ -253,7 +254,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                 <div className="flex flex-col gap-1.5 focus-within:z-10 relative">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Status</label>
                     <select
-                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none cursor-pointer"
+                        className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none cursor-pointer"
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
                     >
@@ -267,7 +268,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                 <div className="flex flex-col gap-1.5 focus-within:z-10 relative">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Priority</label>
                     <select
-                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none cursor-pointer"
+                        className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none cursor-pointer"
                         value={filterPriority}
                         onChange={(e) => setFilterPriority(e.target.value)}
                     >
@@ -281,7 +282,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
+                <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#000000]/50 border border-slate-100 dark:border-white/10">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Projected</p>
                     <p className="text-lg font-black text-slate-900 dark:text-white">{currencySymbol}{totalBudget.toLocaleString()}</p>
                 </div>
@@ -297,8 +298,8 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
 
             <div className="space-y-2">
                 {!filteredItems.length && (
-                    <div className="text-center py-6 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-                        <p className="text-xs text-slate-500 font-medium">No items found.</p>
+                    <div className="text-center py-6 bg-slate-50/50 dark:bg-[#000000]/30 rounded-xl border border-dashed border-slate-200 dark:border-white/10">
+                        <p className="text-xs text-slate-500 font-medium">No items found in this category.</p>
                     </div>
                 )}
 
@@ -306,28 +307,25 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                     <motion.div
                         layout
                         key={item._id}
-                        className={`group flex items-center justify-between p-3 rounded-xl border transition-all ${
-                            item.isPending 
-                                ? 'bg-amber-50/10 dark:bg-amber-500/5 border-amber-200/50 dark:border-amber-800/30' 
-                                : item.purchased
-                                    ? 'bg-slate-50 dark:bg-slate-800/30 border-slate-100 dark:border-slate-800/50 opacity-80'
-                                    : 'bg-white dark:bg-slate-800/40 border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600 shadow-sm'
-                        }`}
+                        className={`group flex items-center justify-between p-3 rounded-xl border transition-all ${item.purchased
+                            ? 'bg-slate-50 dark:bg-[#000000]/30 border-slate-100 dark:border-white/10/50 opacity-80'
+                            : 'bg-white dark:bg-[#000000]/40 border-slate-100 dark:border-white/10/50 hover:border-slate-200 dark:hover:border-slate-600 shadow-none'
+                            }`}
                     >
                         <div className="flex items-center gap-4 flex-1">
                             <div className="relative group/img">
                                 {item.imageUrl ? (
-                                    <div className="size-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm flex-shrink-0">
+                                    <div className="size-16 rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-none flex-shrink-0">
                                         <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover transition-transform group-hover/img:scale-110" />
                                     </div>
                                 ) : (
-                                    <div className="size-16 rounded-xl bg-slate-100 dark:bg-slate-800 border border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0">
+                                    <div className="size-16 rounded-xl bg-slate-100 dark:bg-[#000000] border border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center flex-shrink-0">
                                         <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 text-2xl">image</span>
                                     </div>
                                 )}
                                 
                                 {item.purchased && (
-                                    <div className="absolute -top-1 -right-1 size-6 bg-emerald-500 rounded-full border-2 border-white dark:border-[#192233] flex items-center justify-center shadow-sm">
+                                    <div className="absolute -top-1 -right-1 size-6 bg-emerald-500 rounded-full border-2 border-white dark:border-[#192233] flex items-center justify-center shadow-none">
                                         <span className="material-symbols-outlined text-white text-[12px] font-black">check</span>
                                     </div>
                                 )}
@@ -399,10 +397,10 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
 
             {isAdding && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsAdding(false)}></div>
+                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsAdding(false)}></div>
                     <form 
                         onSubmit={handleAdd} 
-                        className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
+                        className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
                     >
                         <div className="flex justify-between items-center mb-1">
                             <div>
@@ -419,7 +417,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Title</label>
                                 <input
                                     required type="text" placeholder="e.g. Mechanical Keyboard"
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                     value={newItem.title} onChange={e => setNewItem({ ...newItem, title: e.target.value })}
                                 />
                             </div>
@@ -431,7 +429,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
                                         <input
                                             required type="number" placeholder="0.00"
-                                            className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                            className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                             value={newItem.budgetPrice} onChange={e => setNewItem({ ...newItem, budgetPrice: e.target.value })}
                                         />
                                     </div>
@@ -439,7 +437,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Priority</label>
                                     <select
-                                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none"
+                                        className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none"
                                         value={newItem.priority} onChange={e => setNewItem({ ...newItem, priority: e.target.value })}
                                     >
                                         <option value="Low">Low</option>
@@ -453,7 +451,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Image URL</label>
                                 <input
                                     type="text" placeholder="https://image-link.com/..."
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                     value={newItem.imageUrl} onChange={e => setNewItem({ ...newItem, imageUrl: e.target.value })}
                                 />
                             </div>
@@ -461,7 +459,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
                                 <select
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none"
+                                    className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none"
                                     value={newItem.category} onChange={e => setNewItem({ ...newItem, category: e.target.value })}
                                 >
                                     {WISHLIST_CATEGORIES.map(cat => (
@@ -481,10 +479,10 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
 
             {buyingItem && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setBuyingItem(null)}></div>
+                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setBuyingItem(null)}></div>
                     <form 
                         onSubmit={handleBought} 
-                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
+                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
                     >
                         <div className="text-center">
                             <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Complete Purchase</h4>
@@ -498,7 +496,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                                 <input
                                     autoFocus
                                     required type="number" step="0.01"
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-3 text-lg focus:ring-2 focus:ring-primary outline-none dark:text-white font-black text-center"
+                                    className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl pl-9 pr-4 py-3 text-lg focus:ring-2 focus:ring-primary outline-none dark:text-white font-black text-center"
                                     value={actualPrice} onChange={e => setActualPrice(e.target.value)}
                                 />
                             </div>
@@ -508,10 +506,8 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
                         </div>
 
                         <div className="flex gap-3">
-                            <button type="button" onClick={() => setBuyingItem(null)} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl">Cancel</button>
-                            <button type="submit" disabled={loading} className="flex-2 py-3 bg-emerald-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20 disabled:opacity-50">
-                                {loading ? 'Processing...' : 'Confirm'}
-                            </button>
+                            <button type="button" onClick={() => setBuyingItem(null)} className="flex-1 py-3 bg-slate-100 dark:bg-[#000000] text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl">Cancel</button>
+                            <button type="submit" className="flex-2 py-3 bg-emerald-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20">Confirm</button>
                         </div>
                     </form>
                 </div>,

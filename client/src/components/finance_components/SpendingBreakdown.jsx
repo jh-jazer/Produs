@@ -30,15 +30,15 @@ const SpendingBreakdown = ({ transactions, currencySymbol }) => {
     });
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[300px]">
+        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none min-h-[300px]">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Spending Breakdown</h3>
 
             <div className="relative flex items-center justify-center mb-6">
-                <div className="size-40 rounded-full border-[12px] border-slate-100 dark:border-slate-800 relative flex items-center justify-center">
+                <div className="size-40 rounded-full border-[12px] border-slate-100 dark:border-white/10 relative flex items-center justify-center">
                     {/* Visual indicator (simplified for now without complex SVG paths) */}
                     <div className="absolute inset-0 border-[12px] border-primary/20 rounded-full"></div>
 
-                    <div className="text-center z-10 bg-white/80 dark:bg-[#192233]/80 rounded-full size-24 flex flex-col justify-center backdrop-blur-sm">
+                    <div className="text-center z-10 bg-white/80 dark:bg-[#121212]/80 rounded-full size-24 flex flex-col justify-center backdrop-blur-sm">
                         <p className="text-xl md:text-2xl font-black text-slate-900 dark:text-white">
                             {currencySymbol}{totalSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                         </p>

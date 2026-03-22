@@ -35,7 +35,7 @@ function SignIn() {
     };
 
     return (
-        <div className="min-h-screen relative flex items-center justify-center p-4 bg-slate-900 overflow-hidden">
+        <div className="min-h-screen relative flex items-center justify-center p-4 bg-[#121212] overflow-hidden">
 
             {/* Background */}
             <div className="absolute inset-0">
@@ -51,7 +51,7 @@ function SignIn() {
             }}></div>
 
             {/* Modal Card */}
-            <div className="relative z-10 w-full max-w-[480px] bg-white dark:bg-[#192233] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-white/10 dark:border-slate-800 backdrop-blur-sm overflow-hidden">
+            <div className="relative z-10 w-full max-w-[480px] bg-white dark:bg-[#121212] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-white/10 dark:border-white/10 backdrop-blur-sm overflow-hidden">
                 <div className="px-6 py-8 sm:px-12 sm:py-12">
 
                     {/* Logo */}
@@ -76,16 +76,16 @@ function SignIn() {
                     )}
 
                     {/* Google Button First */}
-                    <button onClick={handleGoogleSignIn} type="button" className="w-full py-2.5 mb-5 bg-white dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-600 hover:shadow-sm transition-all flex items-center justify-center gap-2.5 group">
+                    <button onClick={handleGoogleSignIn} type="button" className="w-full py-2.5 mb-5 bg-white dark:bg-[#000000]/50 border-2 border-slate-100 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-[#000000] hover:border-slate-200 dark:hover:border-slate-600 hover:shadow-none transition-all flex items-center justify-center gap-2.5 group">
                         <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-4.5 h-4.5 group-hover:scale-110 transition-transform" />
                         Continue with Google
                     </button>
 
                     {/* Divider */}
                     <div className="relative flex items-center mb-5">
-                        <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                        <div className="flex-grow border-t border-slate-200 dark:border-white/10"></div>
                         <span className="flex-shrink-0 mx-4 text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider">or</span>
-                        <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                        <div className="flex-grow border-t border-slate-200 dark:border-white/10"></div>
                     </div>
 
                     {/* Form */}
@@ -100,7 +100,7 @@ function SignIn() {
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
                                     placeholder="alex@example.com"
-                                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20 focus:border-slate-900 dark:focus:border-white transition-all placeholder-slate-400/70"
+                                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#000000]/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20 focus:border-slate-900 dark:focus:border-white transition-all placeholder-slate-400/70"
                                 />
                             </div>
                         </div>
@@ -114,7 +114,7 @@ function SignIn() {
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
                                     placeholder="••••••••"
-                                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20 focus:border-slate-900 dark:focus:border-white transition-all placeholder-slate-400/70"
+                                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#000000]/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20 focus:border-slate-900 dark:focus:border-white transition-all placeholder-slate-400/70"
                                 />
                             </div>
                         </div>
@@ -122,7 +122,7 @@ function SignIn() {
                         <div className="flex items-center justify-between mt-1">
                             <label className="flex items-center gap-2 cursor-pointer group/check">
                                 <div className="relative flex items-center justify-center">
-                                    <input type="checkbox" className="peer appearance-none w-4 h-4 rounded border-2 border-slate-300 dark:border-slate-600 checked:bg-slate-900 dark:checked:bg-white checked:border-slate-900 dark:checked:border-white transition-colors cursor-pointer" />
+                                    <input type="checkbox" className="peer appearance-none w-4 h-4 rounded border-2 border-slate-300 dark:border-slate-600 checked:bg-[#121212] dark:checked:bg-white checked:border-slate-900 dark:checked:border-white transition-colors cursor-pointer" />
                                     <span className="material-symbols-outlined text-white dark:text-slate-900 text-[10px] absolute opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity font-bold">check</span>
                                 </div>
                                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 group-hover/check:text-slate-900 dark:group-hover/check:text-white transition-colors">Remember me</span>
@@ -133,7 +133,7 @@ function SignIn() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full text-center mt-2 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-black tracking-wide hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full text-center mt-2 py-2.5 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-black tracking-wide hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isLoading ? 'Signing in...' : 'Sign In'}
                         </button>
@@ -141,7 +141,7 @@ function SignIn() {
                 </div>
 
                 {/* Footer */}
-                <div className="px-8 sm:px-12 py-5 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 text-center">
+                <div className="px-8 sm:px-12 py-5 bg-slate-50 dark:bg-[#000000]/30 border-t border-slate-100 dark:border-white/10 text-center">
                     <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                         Don't have an account? <Link to="/signup" className="text-slate-900 dark:text-white font-black hover:underline hover:text-primary transition-colors ml-1">Sign up for free</Link>
                     </p>

@@ -58,7 +58,7 @@ const FinancialOverview = ({ transactions, currencySymbol, netBalance, totalSavi
     };
 
     return (
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex flex-col gap-6 relative">
+        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex flex-col gap-6 relative">
             <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-1">
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">Financial Overview</h3>
@@ -66,7 +66,7 @@ const FinancialOverview = ({ transactions, currencySymbol, netBalance, totalSavi
                 </div>
                 <button 
                     onClick={() => setShowSettings(!showSettings)}
-                    className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-[#000000] transition-colors"
                 >
                     <span className="material-symbols-outlined text-xl">settings</span>
                 </button>
@@ -74,7 +74,7 @@ const FinancialOverview = ({ transactions, currencySymbol, netBalance, totalSavi
 
             {/* Config Overlay */}
             {showSettings && (
-                <div className="absolute top-16 right-6 z-10 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute top-16 right-6 z-10 w-64 bg-white dark:bg-[#000000] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl p-4 animate-in fade-in slide-in-from-top-2 duration-200">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Balance Components</p>
                     <div className="space-y-3">
                         <label className="flex items-center justify-between cursor-pointer group">
@@ -86,7 +86,7 @@ const FinancialOverview = ({ transactions, currencySymbol, netBalance, totalSavi
                                     checked={includeSavings} 
                                     onChange={() => setIncludeSavings(!includeSavings)}
                                 />
-                                <div className="w-8 h-4 bg-slate-200 dark:bg-slate-700 rounded-full peer peer-checked:bg-primary transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+                                <div className="w-8 h-4 bg-slate-200 dark:bg-[#121212] rounded-full peer peer-checked:bg-primary transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
                             </div>
                         </label>
                         <label className="flex items-center justify-between cursor-pointer group">
@@ -98,7 +98,7 @@ const FinancialOverview = ({ transactions, currencySymbol, netBalance, totalSavi
                                     checked={includeUpcoming} 
                                     onChange={() => setIncludeUpcoming(!includeUpcoming)}
                                 />
-                                <div className="w-8 h-4 bg-slate-200 dark:bg-slate-700 rounded-full peer peer-checked:bg-emerald-500 transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+                                <div className="w-8 h-4 bg-slate-200 dark:bg-[#121212] rounded-full peer peer-checked:bg-emerald-500 transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
                             </div>
                         </label>
                     </div>
@@ -167,7 +167,7 @@ const FinancialOverview = ({ transactions, currencySymbol, netBalance, totalSavi
                                         {currencySymbol}{cat.amount.toLocaleString()}
                                     </span>
                                 </div>
-                                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                <div className="w-full bg-slate-100 dark:bg-[#000000] rounded-full h-1.5 overflow-hidden">
                                     <div 
                                         className={`h-full rounded-full ${getCategoryColor(i)} transition-all duration-700`}
                                         style={{ width: `${cat.percent}%` }}

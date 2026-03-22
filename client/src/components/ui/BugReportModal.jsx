@@ -41,13 +41,13 @@ const BugReportModal = ({ isOpen, onClose }) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                        className="absolute inset-0 bg-[#121212]/60 backdrop-blur-sm"
                     />
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative z-10 w-full max-w-lg bg-white dark:bg-[#192233] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-8"
+                        className="relative z-10 w-full max-w-lg bg-white dark:bg-[#121212] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 p-8"
                     >
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
@@ -61,7 +61,7 @@ const BugReportModal = ({ isOpen, onClose }) => {
                             </div>
                             <button
                                 onClick={onClose}
-                                className="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
+                                className="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-[#000000] text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
                             >
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
@@ -89,7 +89,7 @@ const BugReportModal = ({ isOpen, onClose }) => {
                                         value={title}
                                         onChange={(e) => setTitle(e.target.value)}
                                         placeholder="Briefly, what is wrong?"
-                                        className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 text-sm font-medium focus:border-primary transition-colors outline-none"
+                                        className="w-full bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3 text-sm font-medium focus:border-primary transition-colors outline-none"
                                     />
                                 </div>
 
@@ -101,7 +101,7 @@ const BugReportModal = ({ isOpen, onClose }) => {
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
                                         placeholder="What happened? How can we reproduce it?"
-                                        className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 text-sm font-medium focus:border-primary transition-colors outline-none resize-none"
+                                        className="w-full bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3 text-sm font-medium focus:border-primary transition-colors outline-none resize-none"
                                     />
                                 </div>
 
@@ -111,7 +111,7 @@ const BugReportModal = ({ isOpen, onClose }) => {
                                         <select
                                             value={severity}
                                             onChange={(e) => setSeverity(e.target.value)}
-                                            className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 text-sm font-bold focus:border-primary transition-colors outline-none appearance-none"
+                                            className="w-full bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3 text-sm font-bold focus:border-primary transition-colors outline-none appearance-none"
                                         >
                                             <option value="low">Low - Minor issue</option>
                                             <option value="medium">Medium - Important</option>
@@ -123,7 +123,7 @@ const BugReportModal = ({ isOpen, onClose }) => {
                                         <button
                                             disabled={isSubmitting}
                                             type="submit"
-                                            className="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-sm hover:opacity-90 transition-all shadow-xl active:scale-95 disabled:opacity-50"
+                                            className="w-full py-3 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-sm hover:opacity-90 transition-all shadow-xl active:scale-95 disabled:opacity-50"
                                         >
                                             {isSubmitting ? 'Reporting...' : 'Submit Report'}
                                         </button>

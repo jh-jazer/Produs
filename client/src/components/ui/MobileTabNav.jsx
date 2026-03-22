@@ -35,7 +35,7 @@ const MobileTabNav = ({ tabs, activeTab, setActiveTab }) => {
                     transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                     className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 lg:hidden"
                 >
-                    <div className="flex items-center gap-1.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-2xl shadow-black/10">
+                    <div className="flex items-center gap-1.5 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-200/50 dark:border-white/10/50 shadow-2xl shadow-black/10">
                         {tabs.map((tab) => {
                             const Icon = tab.icon;
                             return (
@@ -79,7 +79,7 @@ const MobileTabNav = ({ tabs, activeTab, setActiveTab }) => {
                                             <motion.span
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-xl pointer-events-none whitespace-nowrap"
+                                                className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#121212] text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-xl pointer-events-none whitespace-nowrap"
                                             >
                                                 {tab.label}
                                                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />

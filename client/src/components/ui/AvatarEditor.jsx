@@ -33,17 +33,17 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-[#121212]/60 backdrop-blur-sm"
                 onClick={onClose}
             />
             <motion.div
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                className="relative z-10 w-full max-w-2xl bg-white dark:bg-[#192233] rounded-[32px] shadow-2xl overflow-hidden flex flex-col md:flex-row h-[600px] md:h-auto"
+                className="relative z-10 w-full max-w-2xl bg-white dark:bg-[#121212] rounded-[32px] shadow-2xl overflow-hidden flex flex-col md:flex-row h-[600px] md:h-auto"
             >
                 {/* Left Side: Preview */}
-                <div className="md:w-5/12 bg-slate-50 dark:bg-slate-900 p-8 flex flex-col items-center justify-center border-r border-slate-100 dark:border-slate-800">
-                    <div className="size-48 md:size-64 rounded-[40px] bg-white dark:bg-slate-800 shadow-xl border-4 border-white dark:border-slate-700 overflow-hidden mb-6">
+                <div className="md:w-5/12 bg-slate-50 dark:bg-[#121212] p-8 flex flex-col items-center justify-center border-r border-slate-100 dark:border-white/10">
+                    <div className="size-48 md:size-64 rounded-[40px] bg-white dark:bg-[#000000] shadow-xl border-4 border-white dark:border-white/10 overflow-hidden mb-6">
                         <Avatar config={config} className="size-full" />
                     </div>
                     <h2 className="text-xl font-black text-slate-900 dark:text-white">Customize Avatar</h2>
@@ -51,16 +51,16 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                 </div>
 
                 {/* Right Side: Options */}
-                <div className="flex-1 flex flex-col h-full bg-white dark:bg-[#192233]">
+                <div className="flex-1 flex flex-col h-full bg-white dark:bg-[#121212]">
                     {/* Tabs */}
-                    <div className="flex border-b border-slate-100 dark:border-slate-800 p-2 gap-2 overflow-x-auto">
+                    <div className="flex border-b border-slate-100 dark:border-white/10 p-2 gap-2 overflow-x-auto">
                         {['body', 'hair', 'clothing'].map(tab => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
                                 className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab
                                         ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                                        : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                                        : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-[#000000]'
                                     }`}
                             >
                                 {tab}
@@ -93,7 +93,7 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                                                 onClick={() => updateConfig('eyes', eye)}
                                                 className={`px-4 py-2 rounded-xl border-2 text-sm font-bold capitalize transition-all ${config.eyes === eye
                                                         ? 'border-primary bg-primary/5 text-primary'
-                                                        : 'border-slate-100 dark:border-slate-800 text-slate-500'
+                                                        : 'border-slate-100 dark:border-white/10 text-slate-500'
                                                     }`}
                                             >
                                                 {eye}
@@ -115,7 +115,7 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                                                 onClick={() => updateConfig('hair', style)}
                                                 className={`px-4 py-2 rounded-xl border-2 text-sm font-bold capitalize transition-all ${config.hair === style
                                                         ? 'border-primary bg-primary/5 text-primary'
-                                                        : 'border-slate-100 dark:border-slate-800 text-slate-500'
+                                                        : 'border-slate-100 dark:border-white/10 text-slate-500'
                                                     }`}
                                             >
                                                 {style}
@@ -150,7 +150,7 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                                                 onClick={() => updateConfig('clothing', style)}
                                                 className={`px-4 py-2 rounded-xl border-2 text-sm font-bold capitalize transition-all ${config.clothing === style
                                                         ? 'border-primary bg-primary/5 text-primary'
-                                                        : 'border-slate-100 dark:border-slate-800 text-slate-500'
+                                                        : 'border-slate-100 dark:border-white/10 text-slate-500'
                                                     }`}
                                             >
                                                 {style}
@@ -176,10 +176,10 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                     </div>
 
                     {/* Footer */}
-                    <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex gap-3">
+                    <div className="p-6 border-t border-slate-100 dark:border-white/10 flex gap-3">
                         <button
                             onClick={onClose}
-                            className="flex-1 py-3 px-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                            className="flex-1 py-3 px-4 rounded-2xl bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-400 text-sm font-black hover:bg-slate-200 dark:hover:bg-[#121212] transition-colors"
                         >
                             Cancel
                         </button>

@@ -154,13 +154,13 @@ function Layout() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 h-screen flex flex-col overflow-hidden"
+            className="bg-background-light dark:bg-background-dark dark:bg-grid font-display text-slate-900 dark:text-slate-100 h-screen flex flex-col overflow-hidden"
         >
             <div className="layout-container flex h-full flex-col">
-                <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-6 lg:px-10 py-3">
+                <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-white/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-6 lg:px-10 py-3">
                     <div className="flex items-center gap-3 sm:gap-4">
                         <button
-                            className="md:hidden relative size-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors active:scale-95"
+                            className="md:hidden relative size-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-[#121212] border border-slate-100 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors active:scale-95"
                             onClick={() => setIsMobileMenuOpen(true)}
                         >
                             <span className="material-symbols-outlined text-[22px]">menu</span>
@@ -171,7 +171,7 @@ function Layout() {
                                 {getPageTitle()}
                             </span>
                             <NavLink to="/" className="hidden sm:flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                                <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-sm ring-1 ring-slate-900/10">
+                                <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-none ring-1 ring-slate-900/10">
                                     <img src="/produs-logo.png" alt="Produs Logo" className="w-full h-full object-cover" />
                                 </div>
                                 <h2 className="text-slate-900 dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">Produs</h2>
@@ -211,17 +211,17 @@ function Layout() {
                                     <span className="material-symbols-outlined text-[24px]">search</span>
                                 </button>
 
-                                {user?.partner && (
-                                    <button
-                                        onClick={() => setViewMode(viewMode === 'me' ? 'partner' : 'me')}
-                                        title={`Switch to ${viewMode === 'me' ? 'Shared' : 'My'} view`}
-                                        className={`sm:hidden relative size-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${viewMode === 'partner' ? 'bg-primary/10 text-primary' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary'}`}
-                                    >
-                                        <span className="material-symbols-outlined text-[24px]">group</span>
-                                        {viewMode === 'partner' && <span className="absolute bottom-1 right-1 size-2.5 bg-green-500 border-[1.5px] border-white dark:border-[#192233] rounded-full" />}
-                                    </button>
-                                )}
-                            </>
+                        {/* Mobile Perspective Toggle */}
+                        {user?.partner && (
+                            <button
+                                onClick={() => setViewMode(viewMode === 'me' ? 'partner' : 'me')}
+                                title={`Switch to ${viewMode === 'me' ? 'Shared' : 'My'} view`}
+                                className={`sm:hidden relative size-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${viewMode === 'partner' ? 'bg-primary/10 text-primary' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-[#000000] hover:text-primary'}`}
+                            >
+                                {/* Two-person couple icon (Material Symbols 'group') */}
+                                <span className="material-symbols-outlined text-[24px]">group</span>
+                                {viewMode === 'partner' && <span className="absolute bottom-1 right-1 size-2.5 bg-green-500 border-[1.5px] border-white dark:border-[#192233] rounded-full" />}
+                            </button>
                         )}
 
                         
@@ -240,38 +240,31 @@ function Layout() {
                                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        className="absolute right-0 mt-3 w-48 bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50 overflow-hidden"
+                                        className="absolute right-0 mt-3 w-48 bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 py-2 z-50 overflow-hidden"
                                     >
-                                        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1 font-bold text-xs text-slate-400 uppercase tracking-widest">Account</div>
-                                        {isOnline && (
-                                            <>
-                                                <button onClick={() => { navigate('/dashboard/profile'); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors">
-                                                    <span className="material-symbols-outlined text-lg">dashboard</span> Profile
-                                                </button>
-                                                {user?.email === 'ernestodesabillejr@gmail.com' && (
-                                                    <button 
-                                                        onClick={() => { navigate('/dashboard/admin'); setIsProfileOpen(false); }} 
-                                                        className="w-full px-4 py-2.5 text-left text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-3 transition-colors"
-                                                    >
-                                                        <span className="material-symbols-outlined text-lg">admin_panel_settings</span> Manage
-                                                    </button>
-                                                )}
-                                            </>
+                                        <div className="px-4 py-3 border-b border-slate-100 dark:border-white/10 mb-1 font-bold text-xs text-slate-400 uppercase tracking-widest">Account</div>
+                                        <button onClick={() => { navigate('/dashboard/profile'); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#000000] flex items-center gap-3 transition-colors">
+                                            <span className="material-symbols-outlined text-lg">dashboard</span> Profile
+                                        </button>
+                                        {user?.email === 'ernestodesabillejr@gmail.com' && (
+                                            <button 
+                                                onClick={() => { navigate('/dashboard/admin'); setIsProfileOpen(false); }} 
+                                                className="w-full px-4 py-2.5 text-left text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-3 transition-colors"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">admin_panel_settings</span> Manage
+                                            </button>
                                         )}
-                                        <button onClick={() => { setIsNotificationsOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-between transition-colors">
+                                        <button onClick={() => { setIsNotificationsOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#000000] flex items-center justify-between transition-colors">
                                             <div className="flex items-center gap-3"><span className="material-symbols-outlined text-lg">notifications</span> Notifications</div>
                                             {unreadCount > 0 && <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
                                         </button>
-                                        <button onClick={() => { setIsSettingsModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 transition-colors">
+                                        <button onClick={() => { setIsSettingsModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#000000] flex items-center gap-3 transition-colors">
                                             <span className="material-symbols-outlined text-lg">settings</span> Settings
                                         </button>
-                                        {isOnline && (
-                                            <button onClick={() => { setIsBugModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-rose-500/80 hover:bg-rose-50 dark:hover:bg-rose-900/10 flex items-center gap-3 transition-colors">
-                                                <span className="material-symbols-outlined text-lg">bug_report</span> Report Bug
-                                            </button>
-                                        )}
-
-                                        <div className="h-px bg-slate-200 dark:bg-slate-700 my-1.5 mx-0"></div>
+                                        <button onClick={() => { setIsBugModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-rose-500/80 hover:bg-rose-50 dark:hover:bg-rose-900/10 flex items-center gap-3 transition-colors">
+                                            <span className="material-symbols-outlined text-lg">bug_report</span> Report Bug
+                                        </button>
+                                        <div className="h-px bg-slate-200 dark:bg-[#121212] my-1.5 mx-0"></div>
                                         <button onClick={handleSignOut} className="w-full px-4 py-2.5 text-left text-sm font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 flex items-center gap-3 transition-colors">
                                             <span className="material-symbols-outlined text-lg">logout</span> Sign Out
                                         </button>
@@ -285,10 +278,10 @@ function Layout() {
                                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        className="absolute right-0 mt-3 w-80 bg-white dark:bg-[#192233] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 overflow-hidden z-[60]"
+                                        className="absolute right-0 mt-3 w-80 bg-white dark:bg-[#121212] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 p-2 overflow-hidden z-[60]"
                                     >
-                                        <div className="p-4 border-b border-slate-50 dark:border-slate-800 flex items-center gap-3">
-                                            <button onClick={() => { setIsNotificationsOpen(false); setIsProfileOpen(true); }} className="size-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors -ml-2">
+                                        <div className="p-4 border-b border-slate-50 dark:border-white/10 flex items-center gap-3">
+                                            <button onClick={() => { setIsNotificationsOpen(false); setIsProfileOpen(true); }} className="size-8 rounded-full hover:bg-slate-100 dark:hover:bg-[#000000] flex items-center justify-center transition-colors -ml-2">
                                                 <span className="material-symbols-outlined text-[20px]">arrow_back</span>
                                             </button>
                                             <h4 className="text-sm font-black dark:text-white flex-1">Notifications</h4>
@@ -298,8 +291,8 @@ function Layout() {
                                             {mergedNotifications.length > 0 ? (
                                                 <div className="p-2 space-y-1">
                                                     {mergedNotifications.map((n) => (
-                                                        <button key={n.id} onClick={() => handleNotificationClick(n)} className={`w-full text-left p-3 rounded-2xl flex gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors relative group ${!n.read ? 'bg-slate-50/50 dark:bg-primary/5' : ''}`}>
-                                                            <div className={`size-10 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center ${n.color}`}><span className="material-symbols-outlined text-xl">{n.icon}</span></div>
+                                                        <button key={n.id} onClick={() => handleNotificationClick(n)} className={`w-full text-left p-3 rounded-2xl flex gap-3 hover:bg-slate-50 dark:hover:bg-[#000000] transition-colors relative group ${!n.read ? 'bg-slate-50/50 dark:bg-primary/5' : ''}`}>
+                                                            <div className={`size-10 shrink-0 rounded-xl bg-slate-100 dark:bg-[#121212] flex items-center justify-center ${n.color}`}><span className="material-symbols-outlined text-xl">{n.icon}</span></div>
                                                             <div className="flex-1 min-w-0">
                                                                 <p className={`text-xs font-bold leading-snug mb-1 ${!n.read ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>{n.text}</p>
                                                                 <p className="text-[10px] text-slate-400 font-medium">{n.time}</p>
@@ -323,38 +316,37 @@ function Layout() {
                     {isMobileMenuOpen && (
                         <>
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)} />
-                            <motion.div initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} className="fixed top-0 left-0 h-full w-72 z-[80] bg-white dark:bg-[#0f172a] border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-2xl md:hidden">
-                                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+                            <motion.div initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} className="fixed top-0 left-0 h-full w-72 z-[80] bg-white dark:bg-[#0f172a] border-r border-slate-200 dark:border-white/10 flex flex-col shadow-2xl md:hidden">
+                                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-white/10">
                                     <NavLink to="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                                        <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-sm ring-1 ring-slate-900/10">
+                                        <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-none ring-1 ring-slate-900/10">
                                             <img src="/produs-logo.png" alt="Produs Logo" className="w-full h-full object-cover" />
                                         </div>
                                         <span className="text-slate-900 dark:text-white text-lg font-bold tracking-tight">Produs</span>
                                     </NavLink>
-                                    <button onClick={() => setIsMobileMenuOpen(false)} className="size-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                                    <button onClick={() => setIsMobileMenuOpen(false)} className="size-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#000000] transition-colors">
                                         <span className="material-symbols-outlined text-xl">close</span>
                                     </button>
                                 </div>
 
-                                {isOnline && (
-                                    <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-                                        <button 
-                                            onClick={() => { 
-                                                // Close the mobile menu and open the search modal
-                                                setIsMobileMenuOpen(false);
-                                                setIsSearchModalOpen(true); 
-                                            }}
-                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 flex items-center gap-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all active:scale-95 group"
-                                        >
-                                            <span className="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">search</span>
-                                            <span className="text-sm font-bold">Search Users</span>
-                                        </button>
-                                    </div>
-                                )}
+                                {/* Search — inline inside the side menu on mobile */}
+                                <div className="px-4 py-3 border-b border-slate-100 dark:border-white/10">
+                                    <button 
+                                        onClick={() => { 
+                                            // Close the mobile menu and open the search modal
+                                            setIsMobileMenuOpen(false);
+                                            setIsSearchModalOpen(true); 
+                                        }}
+                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-[#121212]/30 flex items-center gap-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all active:scale-95 group"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">search</span>
+                                        <span className="text-sm font-bold">Search Users</span>
+                                    </button>
+                                </div>
 
                                 <nav className="flex flex-col gap-1 p-4 flex-1">
                                     {['Overview', 'Habits', 'Planner', 'Finance', 'Journal'].map((name) => (
-                                        <NavLink key={name} to={name === 'Overview' ? '/dashboard' : `/dashboard/${name.toLowerCase()}`} end={name === 'Overview'} onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 transition-colors ${isActive ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                                        <NavLink key={name} to={name === 'Overview' ? '/dashboard' : `/dashboard/${name.toLowerCase()}`} end={name === 'Overview'} onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 transition-colors ${isActive ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#000000]'}`}>
                                             <span className="material-symbols-outlined text-xl">
                                                 {name === 'Overview' && 'dashboard'}
                                                 {name === 'Habits' && 'check_circle'}
@@ -365,7 +357,7 @@ function Layout() {
                                         </NavLink>
                                     ))}
                                 </nav>
-                                <div className="p-4 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-400 font-medium">Produs &copy; {new Date().getFullYear()}</div>
+                                <div className="p-4 border-t border-slate-100 dark:border-white/10 text-center text-xs text-slate-400 font-medium">Produs &copy; {new Date().getFullYear()}</div>
                             </motion.div>
                         </>
                     )}
@@ -381,10 +373,10 @@ function Layout() {
                 <AnimatePresence>
                     {isSearchModalOpen && (
                         <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vw] px-4">
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSearchModalOpen(false)} className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm" />
-                            <motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="relative w-full max-w-lg bg-white dark:bg-[#192233] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[80vh]">
-                                <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
-                                    <button onClick={() => setIsSearchModalOpen(false)} className="size-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-800 dark:hover:text-slate-300 transition-colors"><span className="material-symbols-outlined text-[20px]">close</span></button>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSearchModalOpen(false)} className="fixed inset-0 bg-[#121212]/40 dark:bg-black/60 backdrop-blur-sm" />
+                            <motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="relative w-full max-w-lg bg-white dark:bg-[#121212] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden flex flex-col max-h-[80vh]">
+                                <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-[#000000]/30">
+                                    <button onClick={() => setIsSearchModalOpen(false)} className="size-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:bg-[#000000] dark:hover:text-slate-300 transition-colors"><span className="material-symbols-outlined text-[20px]">close</span></button>
                                 </div>
                                 <UserSearch onSelect={() => setIsSearchModalOpen(false)} />
                             </motion.div>

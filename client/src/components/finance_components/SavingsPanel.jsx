@@ -128,7 +128,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                 onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-8 shadow-sm overflow-hidden relative">
+            <div className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-8 shadow-none overflow-hidden relative">
             <div className="absolute -right-24 -top-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
 
             <div className="relative z-10">
@@ -157,7 +157,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {savings.length === 0 ? (
-                        <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
+                        <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-100 dark:border-white/10 rounded-2xl">
                             <span className="material-symbols-outlined text-4xl mb-2">account_balance_wallet</span>
                             <p className="text-sm font-bold uppercase tracking-widest text-slate-300">No savings goals yet</p>
                         </div>
@@ -165,11 +165,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                         savings.map(s => {
                             const progress = (s.amount / s.target) * 100;
                             return (
-                                <div key={s._id} className={`p-6 rounded-2xl border transition-colors group ${
-                                    s.isPending 
-                                        ? 'bg-amber-50/10 dark:bg-amber-500/5 border-amber-200/50 dark:border-amber-800/30' 
-                                        : 'border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/10 hover:border-primary/20'
-                                }`}>
+                                <div key={s._id} className="p-6 rounded-2xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-[#121212]/10 hover:border-primary/20 transition-colors group">
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
                                             <div className="flex items-center gap-1.5">
@@ -196,7 +192,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                                         <span className="text-xs font-black text-primary">{Math.min(100, Math.round(progress))}%</span>
                                     </div>
 
-                                    <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden mb-6">
+                                    <div className="w-full bg-slate-200 dark:bg-[#000000] h-2 rounded-full overflow-hidden mb-6">
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${Math.min(100, progress)}%` }}
@@ -209,7 +205,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                                             setFundingGoal(s);
                                             setFundAmount('');
                                         }}
-                                        className="w-full py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-primary transition-all flex items-center justify-center gap-2"
+                                        className="w-full py-2.5 rounded-xl bg-white dark:bg-[#000000] border border-slate-200 dark:border-white/10 text-[10px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-primary transition-all flex items-center justify-center gap-2"
                                     >
                                         <span className="material-symbols-outlined text-sm">add</span>
                                         Add Funds
@@ -221,7 +217,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                 </div>
 
                 {savings.length > 0 && (
-                    <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <div className="mt-8 pt-6 border-t border-slate-100 dark:border-white/10 flex items-center justify-between">
                         <div className="flex items-center gap-6">
                             <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Overall Progress</p>
@@ -238,10 +234,10 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
             {/* Add Goal Modal */}
             {showAdd && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowAdd(false)}></div>
+                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowAdd(false)}></div>
                     <form 
                         onSubmit={handleAdd} 
-                        className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
+                        className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
                     >
                         <div className="flex justify-between items-center mb-1">
                             <div>
@@ -258,8 +254,8 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Title</label>
                                 <input
                                     required type="text" placeholder="e.g. Dream House"
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                    value={newGoal.title} onChange={e => setNewGoal({ ...newGoal, title: e.target.value })}
+                                    className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    value={newSaving.title} onChange={e => setNewSaving({ ...newSaving, title: e.target.value })}
                                 />
                             </div>
 
@@ -270,8 +266,8 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
                                         <input
                                             required type="number" placeholder="0.00"
-                                            className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                            value={newGoal.initialAmount} onChange={e => setNewGoal({ ...newGoal, initialAmount: e.target.value })}
+                                            className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                            value={newSaving.amount} onChange={e => setNewSaving({ ...newSaving, amount: e.target.value })}
                                         />
                                     </div>
                                 </div>
@@ -281,8 +277,8 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
                                         <input
                                             required type="number" placeholder="0.00"
-                                            className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                            value={newGoal.target} onChange={e => setNewGoal({ ...newGoal, target: e.target.value })}
+                                            className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                            value={newSaving.target} onChange={e => setNewSaving({ ...newSaving, target: e.target.value })}
                                         />
                                     </div>
                                 </div>
@@ -300,10 +296,10 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
             {/* Fund Modal */}
             {fundingGoal && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setFundingGoal(null)}></div>
+                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowFundModal(null)}></div>
                     <form 
-                        onSubmit={handleFund} 
-                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
+                        onSubmit={handleUpdateAmount} 
+                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
                     >
                         <div className="flex justify-between items-center mb-1">
                             <div>
@@ -322,7 +318,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
                                 <input
                                     autoFocus
                                     required type="number" step="0.01" placeholder="0.00"
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                     value={fundAmount} onChange={e => setFundAmount(e.target.value)}
                                 />
                             </div>

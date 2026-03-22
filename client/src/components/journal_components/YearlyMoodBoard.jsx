@@ -72,7 +72,7 @@ const YearlyMoodBoard = ({ entries = [] }) => {
     };
 
     const moodColors = [
-        'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700', // 0: None
+        'bg-slate-100 dark:bg-[#000000] border-slate-200 dark:border-white/10', // 0: None
         'bg-rose-500/60 border-rose-500/20',   // 1: Angry
         'bg-amber-500/60 border-amber-500/20',  // 2: Sad
         'bg-slate-300 dark:bg-slate-600 border-slate-400', // 3: Neutral
@@ -83,7 +83,7 @@ const YearlyMoodBoard = ({ entries = [] }) => {
     const years = [2024, 2025, 2026];
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm font-inter flex flex-col h-[500px] md:h-auto">
+        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none font-inter flex flex-col h-[500px] md:h-auto">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 shrink-0">
                 <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-none tracking-tight">Yearly Mood Board</h3>
@@ -94,19 +94,19 @@ const YearlyMoodBoard = ({ entries = [] }) => {
                     <div className="relative z-30">
                         <button
                             onClick={() => setIsYearOpen(!isYearOpen)}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 text-[10px] font-black rounded-lg border border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-100"
+                            className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-[#000000] text-[10px] font-black rounded-lg border border-slate-200 dark:border-white/10 transition-all hover:bg-slate-100"
                         >
                             <span>{selectedYear}</span>
                             <span className={`material-symbols-outlined text-xs transition-transform ${isYearOpen ? 'rotate-180' : ''}`}>expand_more</span>
                         </button>
                         
                         {isYearOpen && (
-                            <div className="absolute top-full right-0 mt-2 w-24 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-[60] overflow-hidden animate-in zoom-in-95 duration-200">
+                            <div className="absolute top-full right-0 mt-2 w-24 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl z-[60] overflow-hidden animate-in zoom-in-95 duration-200">
                                 {years.map(y => (
                                     <button
                                         key={y}
                                         onClick={() => { setSelectedYear(y); setIsYearOpen(false); }}
-                                        className={`w-full px-4 py-2 text-[10px] font-bold text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${selectedYear === y ? 'text-primary' : 'text-slate-500'}`}
+                                        className={`w-full px-4 py-2 text-[10px] font-bold text-left hover:bg-slate-50 dark:hover:bg-[#000000] transition-colors ${selectedYear === y ? 'text-primary' : 'text-slate-500'}`}
                                     >
                                         {y}
                                     </button>
@@ -115,7 +115,7 @@ const YearlyMoodBoard = ({ entries = [] }) => {
                         )}
                     </div>
 
-                    <div className="hidden sm:flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-slate-800/30 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800/50">
+                    <div className="hidden sm:flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-[#000000]/30 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-white/10/50">
                         <span>Low</span>
                         <div className="flex gap-1">
                             <div className="w-2 h-2 rounded-sm bg-rose-500/60"></div>
@@ -132,7 +132,7 @@ const YearlyMoodBoard = ({ entries = [] }) => {
             {/* ══ MOBILE: Portrait scrollable grid ══ */}
             <div className="flex-1 overflow-y-auto custom-scrollbar relative md:hidden">
                 {/* Sticky day-of-week header */}
-                <div className="sticky top-0 z-20 bg-white/95 dark:bg-[#192233]/95 backdrop-blur pt-2 pb-2 pl-12 pr-2">
+                <div className="sticky top-0 z-20 bg-white/95 dark:bg-[#121212]/95 backdrop-blur pt-2 pb-2 pl-12 pr-2">
                     <div className="grid grid-cols-7 gap-1 sm:gap-2">
                         {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
                             <span key={idx} className="flex items-center justify-center text-[10px] font-bold text-slate-400 uppercase">{day}</span>
@@ -142,7 +142,7 @@ const YearlyMoodBoard = ({ entries = [] }) => {
 
                 <div className="flex relative pl-2 pr-2">
                     {/* Y-axis: Months */}
-                    <div className="w-10 shrink-0 relative border-r border-slate-100 dark:border-slate-800/50 mr-2">
+                    <div className="w-10 shrink-0 relative border-r border-slate-100 dark:border-white/10/50 mr-2">
                         {monthLabels.map((l, i) => (
                             <div
                                 key={i}
@@ -170,7 +170,7 @@ const YearlyMoodBoard = ({ entries = [] }) => {
                                     className={`w-full aspect-square sm:min-h-[24px] max-h-[36px] rounded-md border-[0.5px] ${cellClass} transition-all duration-300 relative group cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : (isFuture ? 'opacity-20 cursor-not-allowed' : '')}`}
                                 >
                                     {!isWrongYear && (
-                                        <div className={`absolute ${yAlign} ${xAlign} px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-bold shadow-xl`}>
+                                        <div className={`absolute ${yAlign} ${xAlign} px-2 py-1 bg-[#121212] dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-bold shadow-xl`}>
                                             <div className="font-black">{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
                                             {moodData ? <div className="text-primary">{moodData.mood} Mood</div> : <div className="text-slate-400 italic">No entry</div>}
                                         </div>
@@ -221,7 +221,7 @@ const YearlyMoodBoard = ({ entries = [] }) => {
                                         className={`w-3 h-3 rounded-sm border-[0.5px] ${cellClass} transition-all duration-200 relative group cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : isFuture ? 'opacity-20 cursor-default' : 'hover:scale-125 hover:z-10'}`}
                                     >
                                         {!isWrongYear && (
-                                            <div className={`absolute bottom-full mb-2 ${tooltipLeft} px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-bold shadow-xl`}>
+                                            <div className={`absolute bottom-full mb-2 ${tooltipLeft} px-2 py-1 bg-[#121212] dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-bold shadow-xl`}>
                                                 <div className="font-black">{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
                                                 <div className="text-slate-400 dark:text-slate-500">
                                                     {isFuture ? 'Future' : moodData ? `${moodData.mood} Mood` : 'No entry'}

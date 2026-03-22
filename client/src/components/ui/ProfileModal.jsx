@@ -61,7 +61,7 @@ function ProfileModal({ username, onClose }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-slate-900/40 dark:bg-black/80 backdrop-blur-md"
+                className="fixed inset-0 bg-[#121212]/40 dark:bg-black/80 backdrop-blur-md"
                 onClick={onClose}
             />
             
@@ -89,7 +89,7 @@ function ProfileModal({ username, onClose }) {
 
                     {/* Avatar - Moved here to prevent clipping */}
                     {!isLoading && profile && (
-                        <div className="absolute -bottom-12 left-6 size-24 rounded-full border-[6px] border-white dark:border-[#2b2d31] bg-white dark:bg-[#1e1f22] z-10 overflow-hidden shadow-md flex items-center justify-center">
+                        <div className="absolute -bottom-12 left-6 size-24 rounded-full border-[6px] border-white dark:border-[#2b2d31] bg-white dark:bg-[#1e1f22] z-10 overflow-hidden shadow-none flex items-center justify-center">
                             <Avatar config={profile.avatar} />
                             <div className="absolute bottom-1 right-1 size-5 bg-emerald-500 border-[3px] border-white dark:border-[#2b2d31] rounded-full"></div>
                         </div>
@@ -184,7 +184,7 @@ function ProfileModal({ username, onClose }) {
                                     {profile.bio || "Just another human on their focused journey."}
                                 </p>
                                 
-                                <div className="mt-4 grid grid-cols-3 gap-3 pb-1 border-t border-slate-200 dark:border-slate-800 pt-3 opacity-60">
+                                <div className="mt-4 grid grid-cols-3 gap-3 pb-1 border-t border-slate-200 dark:border-white/10 pt-3 opacity-60">
                                     <div className="text-center">
                                         <p className="text-[12px] font-black text-slate-900 dark:text-white">{profile.topHabits?.length || 0}</p>
                                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Habits</p>
@@ -215,13 +215,13 @@ function ProfileModal({ username, onClose }) {
                                     </div>
 
                                     {/* Shared Habits Grid */}
-                                    <div className="bg-slate-100 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-200 dark:border-slate-800/50">
+                                    <div className="bg-slate-100 dark:bg-[#121212]/50 rounded-2xl p-4 border border-slate-200 dark:border-white/10/50">
                                          <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
                                             <span className="material-symbols-outlined text-xs">grid_view</span> Habits
                                         </h3>
                                         <div className="grid grid-cols-2 gap-2">
                                             {profile.allHabits?.slice(0, 4).map(habit => (
-                                                <div key={habit._id} className="p-2 bg-white dark:bg-[#2b2d31] rounded-xl border border-slate-200/50 dark:border-slate-800/50 flex items-center gap-2">
+                                                <div key={habit._id} className="p-2 bg-white dark:bg-[#2b2d31] rounded-xl border border-slate-200/50 dark:border-white/10/50 flex items-center gap-2">
                                                     <div className={`size-8 rounded-lg bg-${habit.color}-500/10 text-${habit.color}-500 flex items-center justify-center shrink-0`}>
                                                         <span className="material-symbols-outlined text-base">{habit.icon}</span>
                                                     </div>
