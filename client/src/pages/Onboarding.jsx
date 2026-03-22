@@ -173,11 +173,11 @@ export default function Onboarding() {
 
           {/* CARD */}
 
-          <div className="min-h-[380px] flex-1 bg-white dark:bg-[#192233] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center p-8 relative overflow-hidden">
+          <div className="min-h-[380px] flex-1 bg-white dark:bg-[#121212] rounded-2xl border border-slate-200 dark:border-white/10 shadow-none flex flex-col items-center justify-center p-8 relative overflow-hidden">
 
             {/* PROGRESS */}
 
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-100 dark:bg-slate-800">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-100 dark:bg-[#000000]">
 
               <motion.div
                 className="bg-primary h-full"
@@ -216,7 +216,7 @@ export default function Onboarding() {
                         )
                       }
                       placeholder="username"
-                      className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl pl-12 pr-14 py-4 font-bold outline-none"
+                      className="w-full bg-slate-50 dark:bg-[#121212] border-2 border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-14 py-4 font-bold outline-none"
                     />
 
                     <div className="absolute right-5">
@@ -260,7 +260,7 @@ export default function Onboarding() {
                   <button
                     disabled={usernameStatus !== "available"}
                     onClick={() => setStep(2)}
-                    className="w-full mt-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black disabled:opacity-40"
+                    className="w-full mt-6 py-3 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl font-black disabled:opacity-40"
                   >
                     Continue
                   </button>
@@ -280,7 +280,7 @@ export default function Onboarding() {
                 >
 
                   {/* Timezone Card */}
-                  <div className="w-full bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/60 dark:to-[#192233] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 relative overflow-hidden">
+                  <div className="w-full bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/60 dark:to-[#192233] rounded-2xl border border-slate-200 dark:border-white/10 p-5 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-28 h-28 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
                     <div className="flex items-center justify-between relative z-10">
                       <div className="flex items-center gap-4">
@@ -311,7 +311,7 @@ export default function Onboarding() {
                       className={`p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 relative overflow-hidden ${
                         currency === "USD"
                           ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
-                          : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 hover:border-slate-300"
+                          : "border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212]/50 hover:border-slate-300"
                       }`}
                     >
                       {currency === "USD" && <div className="absolute inset-0 bg-primary/5" />}
@@ -327,7 +327,7 @@ export default function Onboarding() {
                       className={`p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 relative overflow-hidden ${
                         currency === "PHP"
                           ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
-                          : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 hover:border-slate-300"
+                          : "border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212]/50 hover:border-slate-300"
                       }`}
                     >
                       {currency === "PHP" && <div className="absolute inset-0 bg-primary/5" />}
@@ -343,13 +343,13 @@ export default function Onboarding() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => setStep(1)}
-                      className="px-5 py-3 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-xl font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                      className="px-5 py-3 bg-slate-100 dark:bg-[#000000] text-slate-500 rounded-xl font-bold text-xs hover:bg-slate-200 dark:hover:bg-[#121212] transition-colors"
                     >
                       Back
                     </button>
                     <button
                       onClick={() => setStep(3)}
-                      className="flex-1 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-sm transition-all"
+                      className="flex-1 py-3 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-sm transition-all"
                     >
                       Continue
                     </button>
@@ -392,7 +392,7 @@ export default function Onboarding() {
                           className={`p-3 rounded-2xl border-2 flex items-center gap-3 ${
                             active
                               ? "border-primary bg-primary/5"
-                              : "border-slate-200 dark:border-slate-800"
+                              : "border-slate-200 dark:border-white/10"
                           }`}
                         >
 

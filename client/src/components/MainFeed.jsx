@@ -68,8 +68,8 @@ const ActivityCard = ({ entry }) => {
     };
 
     return (
-        <div className="bg-white dark:bg-[#192233] rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-6 flex gap-4 hover:shadow-md transition-shadow">
-            <div className="size-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden border-2 border-slate-50 dark:border-slate-800 shadow-sm">
+        <div className="bg-white dark:bg-[#121212] rounded-[2.5rem] border border-slate-200 dark:border-white/10 p-6 flex gap-4 hover:shadow-none transition-shadow">
+            <div className="size-12 rounded-full bg-slate-100 dark:bg-[#000000] flex items-center justify-center shrink-0 overflow-hidden border-2 border-slate-50 dark:border-white/10 shadow-none">
                 <Avatar config={entry.user.avatar} />
             </div>
 
@@ -99,7 +99,7 @@ const ActivityCard = ({ entry }) => {
                 </div>
 
                 <div className="mt-3">
-                    <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${colorMap[cfg.color] || 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}>
+                    <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${colorMap[cfg.color] || 'text-slate-500 bg-slate-100 dark:bg-[#000000]'}`}>
                         <span className="material-symbols-outlined text-[14px]">{entry.data.habitIcon}</span>
                         {entry.data.habitName}
                     </span>
@@ -111,7 +111,7 @@ const ActivityCard = ({ entry }) => {
 
 const DoseCard = ({ item, activeJournalId, setActiveJournalId, journalText, setJournalText, handleJournalSave, savedStatus, isSaving }) => {
     return (
-        <div className="bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-sm border-l-4 border-l-primary relative overflow-hidden group transition-all">
+        <div className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-none border-l-4 border-l-primary relative overflow-hidden group transition-all">
             <div className="relative z-10 flex flex-col gap-8">
                 {/* Header */}
                 <div className="flex items-center gap-3">
@@ -120,7 +120,7 @@ const DoseCard = ({ item, activeJournalId, setActiveJournalId, journalText, setJ
                     </div>
                     <div className="flex items-center gap-2">
                         <span className="text-xs font-black text-primary uppercase tracking-widest">{item.topic}</span>
-                        <span className="size-1 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                        <span className="size-1 bg-slate-200 dark:bg-[#121212] rounded-full" />
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Daily Dose</span>
                     </div>
                 </div>
@@ -149,7 +149,7 @@ const DoseCard = ({ item, activeJournalId, setActiveJournalId, journalText, setJ
                                 ? 'text-primary' 
                                 : savedStatus[item.id]
                                     ? 'text-emerald-500'
-                                    : 'text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                                    : 'text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-[#000000]/50'
                             }`}
                         >
                             <span className="material-symbols-outlined text-xl">
@@ -169,7 +169,7 @@ const DoseCard = ({ item, activeJournalId, setActiveJournalId, journalText, setJ
                                     navigator.clipboard.writeText(`"${item.content}" - via Produs`);
                                 }
                             }}
-                            className="flex items-center justify-center size-9 rounded-full text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"
+                            className="flex items-center justify-center size-9 rounded-full text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-[#000000]/50 transition-all"
                         >
                             <span className="material-symbols-outlined text-xl">share</span>
                         </button>
@@ -181,7 +181,7 @@ const DoseCard = ({ item, activeJournalId, setActiveJournalId, journalText, setJ
                                 value={journalText}
                                 onChange={(e) => setJournalText(e.target.value)}
                                 placeholder="What does this mean to you?"
-                                className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl p-4 text-sm text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:ring-1 focus:ring-primary/20 outline-none resize-none h-24 font-medium"
+                                className="w-full bg-slate-50 dark:bg-[#000000]/50 border-none rounded-2xl p-4 text-sm text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:ring-1 focus:ring-primary/20 outline-none resize-none h-24 font-medium"
                                 autoFocus
                             />
                             <div className="flex justify-end gap-2">
@@ -292,7 +292,7 @@ export default function MainFeed() {
         return (
             <div className="flex flex-col gap-4">
                 {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="bg-white dark:bg-[#192233] rounded-[2.5rem] p-8 h-40 animate-pulse border border-slate-100 dark:border-slate-800" />
+                    <div key={i} className="bg-white dark:bg-[#121212] rounded-[2.5rem] p-8 h-40 animate-pulse border border-slate-100 dark:border-white/10" />
                 ))}
             </div>
         );
@@ -310,7 +310,7 @@ export default function MainFeed() {
                 </div>
                 <button
                     onClick={() => setChannelModalOpen(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary text-[10px] font-black uppercase tracking-widest transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#000000] text-slate-500 hover:text-primary text-[10px] font-black uppercase tracking-widest transition-colors"
                 >
                     <span className="material-symbols-outlined text-base">tune</span>
                     Channels
@@ -320,8 +320,8 @@ export default function MainFeed() {
             {/* The Feed */}
             <div className="flex flex-col gap-4">
                 {interleavedFeed.length === 0 ? (
-                    <div className="bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-12 text-center flex flex-col items-center gap-4">
-                        <div className="size-16 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-300">
+                    <div className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-12 text-center flex flex-col items-center gap-4">
+                        <div className="size-16 rounded-2xl bg-slate-50 dark:bg-[#000000] flex items-center justify-center text-slate-300">
                             <span className="material-symbols-outlined text-4xl">all_inclusive</span>
                         </div>
                         <div className="max-w-xs">

@@ -2,7 +2,7 @@ import React from 'react';
 
 const BalanceHistory = () => {
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[400px]">
+        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none min-h-[400px]">
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">Balance History</h3>
@@ -39,7 +39,7 @@ const BalanceHistory = () => {
                     { month: 'Sep', inc: '70%', out: '35%' },
                     { month: 'Oct', inc: '85%', out: '48%', current: true },
                 ].map((col, idx) => (
-                    <div key={idx} className="flex-1 flex flex-col justify-end gap-2 group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-t-lg transition-colors pt-2">
+                    <div key={idx} className="flex-1 flex flex-col justify-end gap-2 group cursor-pointer hover:bg-slate-50 dark:hover:bg-[#000000]/50 rounded-t-lg transition-colors pt-2">
                         <div className="w-full relative px-1 sm:px-4" style={{ height: '100%' }}>
                             <div className="flex gap-1 h-full items-end justify-center w-full">
                                 <div className="bg-emerald-500/20 rounded-t-sm relative transition-all group-hover:bg-emerald-500/30 w-full max-w-8" style={{ height: col.inc }}>

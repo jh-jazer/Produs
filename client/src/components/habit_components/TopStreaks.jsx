@@ -25,7 +25,7 @@ const TopStreaks = ({ habits, isSharedView = false }) => {
 
     if (isLoading && !habits) {
         return (
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex items-center justify-center h-[300px]">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex items-center justify-center h-[300px]">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
         );
@@ -72,7 +72,7 @@ const TopStreaks = ({ habits, isSharedView = false }) => {
                         <div className={`size-8 rounded-xl flex items-center justify-center border ${colorVariants[streak.color] || colorVariants.emerald}`}>
                             <span className="material-symbols-outlined text-base">{streak.icon}</span>
                         </div>
-                        <div className={`absolute -top-1 -right-1 ${isShared ? 'bg-emerald-500' : isPartner ? 'bg-purple-500' : 'bg-slate-900 dark:bg-white'} text-[7px] text-white dark:text-slate-900 px-1 py-0.5 rounded-md font-black shadow-sm ring-1 ring-white dark:ring-[#192233]`}>
+                        <div className={`absolute -top-1 -right-1 ${isShared ? 'bg-emerald-500' : isPartner ? 'bg-purple-500' : 'bg-[#121212] dark:bg-white'} text-[7px] text-white dark:text-slate-900 px-1 py-0.5 rounded-md font-black shadow-none ring-1 ring-white dark:ring-[#192233]`}>
                             {isShared ? 'SHARED' : `#${index + 1}`}
                         </div>
                     </div>
@@ -84,7 +84,7 @@ const TopStreaks = ({ habits, isSharedView = false }) => {
                                 <span className="material-symbols-outlined text-[10px]">local_fire_department</span>
                             </div>
                         </div>
-                        <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1 overflow-hidden">
+                        <div className="w-full bg-slate-100 dark:bg-[#000000] rounded-full h-1 overflow-hidden">
                             <div
                                 className={`h-full rounded-full ${isShared ? 'bg-emerald-500' : isPartner ? 'bg-purple-500' : 'bg-primary'}`}
                                 style={{ width: `${progress}%` }}
@@ -97,7 +97,7 @@ const TopStreaks = ({ habits, isSharedView = false }) => {
     };
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm overflow-hidden relative group min-h-[300px]">
+        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none overflow-hidden relative group min-h-[300px]">
             <div className="absolute -right-12 -bottom-12 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-500"></div>
 
             <div className="relative z-10 flex flex-col">

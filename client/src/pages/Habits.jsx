@@ -155,16 +155,16 @@ function Habits() {
 
                     {/* View Toggle - Desktop only */}
                     {user?.partner && (
-                        <div className="hidden lg:flex bg-slate-50 dark:bg-slate-800/50 p-1 rounded-xl">
+                        <div className="hidden lg:flex bg-slate-50 dark:bg-[#000000]/50 p-1 rounded-xl">
                             <button
                                 onClick={() => setViewMode('me')}
-                                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'me' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`}
+                                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'me' ? 'bg-white dark:bg-[#121212] shadow-none text-slate-900 dark:text-white' : 'text-slate-500'}`}
                             >
                                 My Habits
                             </button>
                             <button
                                 onClick={() => setViewMode('partner')}
-                                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'partner' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`}
+                                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'partner' ? 'bg-white dark:bg-[#121212] shadow-none text-slate-900 dark:text-white' : 'text-slate-500'}`}
                             >
                                 Shared Habits
                             </button>

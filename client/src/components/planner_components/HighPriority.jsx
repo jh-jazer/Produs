@@ -2,7 +2,7 @@ import React from 'react';
 
 const HighPriority = () => {
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm">
+        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none">
             <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-orange-500">priority_high</span>

@@ -100,7 +100,7 @@ const ChannelModal = ({ isOpen, onClose }) => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={onClose}
-                    className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+                    className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md"
                 />
 
                 {/* Modal */}
@@ -109,10 +109,10 @@ const ChannelModal = ({ isOpen, onClose }) => {
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.95, opacity: 0, y: 16 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                    className="relative z-10 w-full max-w-2xl bg-white dark:bg-[#192233] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh]"
+                    className="relative z-10 w-full max-w-2xl bg-white dark:bg-[#121212] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden flex flex-col max-h-[90vh]"
                 >
                     {/* Header */}
-                    <div className="flex items-start justify-between p-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div className="flex items-start justify-between p-6 pb-4 border-b border-slate-100 dark:border-white/10">
                         <div>
                             <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
                                 Manage Channels
@@ -123,7 +123,7 @@ const ChannelModal = ({ isOpen, onClose }) => {
                         </div>
                         <button
                             onClick={onClose}
-                            className="size-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors ml-4 shrink-0"
+                            className="size-8 rounded-xl bg-slate-100 dark:bg-[#000000] flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors ml-4 shrink-0"
                         >
                             <span className="material-symbols-outlined text-lg">close</span>
                         </button>
@@ -137,7 +137,7 @@ const ChannelModal = ({ isOpen, onClose }) => {
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
                                 placeholder="Search channels…"
-                                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-sm font-medium outline-none focus:border-primary transition-colors"
+                                className="w-full bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm font-medium outline-none focus:border-primary transition-colors"
                             />
                             {search && (
                                 <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -179,14 +179,14 @@ const ChannelModal = ({ isOpen, onClose }) => {
                                             onClick={() => toggle(channel.channel_id)}
                                             className={`p-3 rounded-2xl border-2 flex items-center gap-3 transition-all text-left group ${
                                                 active
-                                                    ? 'border-primary bg-primary/5 shadow-sm shadow-primary/10'
-                                                    : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 hover:border-slate-300 dark:hover:border-slate-700'
+                                                    ? 'border-primary bg-primary/5 shadow-none shadow-primary/10'
+                                                    : 'border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#121212]/30 hover:border-slate-300 dark:hover:border-white/10'
                                             }`}
                                         >
                                             <div className={`size-9 rounded-xl flex items-center justify-center shrink-0 transition-all ${
                                                 active
                                                     ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                                                    : 'bg-white dark:bg-slate-800 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'
+                                                    : 'bg-white dark:bg-[#000000] text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'
                                             }`}>
                                                 <span className="material-symbols-outlined text-base">
                                                     {CHANNEL_ICONS[channel.channel_id] || 'auto_awesome'}
@@ -212,10 +212,10 @@ const ChannelModal = ({ isOpen, onClose }) => {
                     </div>
 
                     {/* Footer */}
-                    <div className="p-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex gap-3 items-center">
+                    <div className="p-6 pt-4 border-t border-slate-100 dark:border-white/10 flex gap-3 items-center">
                         <button
                             onClick={onClose}
-                            className="px-5 py-3 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-xl font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                            className="px-5 py-3 bg-slate-100 dark:bg-[#000000] text-slate-500 rounded-xl font-bold text-xs hover:bg-slate-200 dark:hover:bg-[#121212] transition-colors"
                         >
                             Cancel
                         </button>

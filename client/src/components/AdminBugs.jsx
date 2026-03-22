@@ -44,8 +44,8 @@ const AdminBugs = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden backdrop-blur-md shadow-sm">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+        <div className="bg-white dark:bg-[#121212]/30 border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden backdrop-blur-md shadow-none">
+            <div className="p-6 border-b border-slate-100 dark:border-white/10 flex justify-between items-center">
                 <div className="flex items-center gap-3">
                     <div className="size-10 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500">
                         <MessageSquare size={20} />
@@ -61,7 +61,7 @@ const AdminBugs = () => {
                 {bugs.length > 0 ? bugs.map((bug) => (
                     <div 
                         key={bug._id} 
-                        className={`border rounded-2xl transition-all ${expandedBug === bug._id ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 bg-white dark:bg-black/20'}`}
+                        className={`border rounded-2xl transition-all ${expandedBug === bug._id ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-white/10 hover:border-slate-200 dark:hover:border-white/10 bg-white dark:bg-black/20'}`}
                     >
                         <div 
                             className="p-4 flex items-start justify-between cursor-pointer"
@@ -93,7 +93,7 @@ const AdminBugs = () => {
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: 'auto', opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
-                                    className="overflow-hidden border-t border-slate-100 dark:border-slate-800"
+                                    className="overflow-hidden border-t border-slate-100 dark:border-white/10"
                                 >
                                     <div className="p-6 space-y-6">
                                         <div className="bg-slate-50 dark:bg-black/40 p-4 rounded-2xl text-sm font-medium text-slate-600 dark:text-slate-300 italic">
@@ -144,7 +144,7 @@ const AdminBugs = () => {
                                                     value={response}
                                                     onChange={(e) => setResponse(e.target.value)}
                                                     placeholder="Type your response to the user..."
-                                                    className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:border-primary transition-all"
+                                                    className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:border-primary transition-all"
                                                 />
                                                 <button 
                                                     disabled={isSubmitting || !response.trim()}
@@ -162,7 +162,7 @@ const AdminBugs = () => {
                     </div>
                 )) : (
                     <div className="py-20 text-center">
-                        <div className="size-16 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
+                        <div className="size-16 rounded-full bg-slate-50 dark:bg-[#000000] flex items-center justify-center mx-auto mb-4">
                             <span className="material-symbols-outlined text-slate-300 text-3xl">sentiment_very_satisfied</span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 font-bold italic">No bugs reported yet. The orbit is stable!</p>

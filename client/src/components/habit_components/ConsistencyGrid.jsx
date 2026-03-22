@@ -60,15 +60,15 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
     };
 
     const getCellClass = (myCount, partnerCount, isFuture, isWrongYear) => {
-        if (isWrongYear || isFuture) return 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700';
+        if (isWrongYear || isFuture) return 'bg-slate-100 dark:bg-[#000000] border-slate-200 dark:border-white/10';
         if (isPartnerView) {
-            if (myCount === 0 && partnerCount === 0) return 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700';
+            if (myCount === 0 && partnerCount === 0) return 'bg-slate-100 dark:bg-[#000000] border-slate-200 dark:border-white/10';
             if (myCount > partnerCount) return 'bg-blue-500 border-blue-400';
             if (partnerCount > myCount) return 'bg-purple-500 border-purple-400';
             return 'bg-yellow-400 border-yellow-300';
         } else {
             const themes = [
-                'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
+                'bg-slate-100 dark:bg-[#000000] border-slate-200 dark:border-white/10',
                 'bg-primary/20 border-primary/10',
                 'bg-primary/40 border-primary/20',
                 'bg-primary/60 border-primary/30',
@@ -93,7 +93,7 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
     };
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm font-inter flex flex-col h-[500px] md:h-auto">
+        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none font-inter flex flex-col h-[500px] md:h-auto">
 
             {/* ── Header ── */}
             <div className="flex flex-row justify-between items-center gap-4 mb-4 shrink-0">
@@ -113,14 +113,14 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
                         <div className="flex gap-0.5">
                             {isPartnerView ? (
                                 <>
-                                    <span className="w-2.5 h-2.5 rounded-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"></span>
+                                    <span className="w-2.5 h-2.5 rounded-sm bg-slate-100 dark:bg-[#000000] border border-slate-200 dark:border-white/10"></span>
                                     <span className="w-2.5 h-2.5 rounded-sm bg-yellow-400"></span>
                                     <span className="w-2.5 h-2.5 rounded-sm bg-blue-500"></span>
                                     <span className="w-2.5 h-2.5 rounded-sm bg-purple-500"></span>
                                 </>
                             ) : (
                                 <>
-                                    <span className="w-2.5 h-2.5 rounded-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"></span>
+                                    <span className="w-2.5 h-2.5 rounded-sm bg-slate-100 dark:bg-[#000000] border border-slate-200 dark:border-white/10"></span>
                                     <span className="w-2.5 h-2.5 rounded-sm bg-primary/20"></span>
                                     <span className="w-2.5 h-2.5 rounded-sm bg-primary/40"></span>
                                     <span className="w-2.5 h-2.5 rounded-sm bg-primary/70"></span>
@@ -135,18 +135,18 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
                     <div className="relative z-30">
                         <button
                             onClick={() => setIsYearOpen(!isYearOpen)}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 text-[10px] font-black rounded-lg border border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-100 dark:hover:bg-slate-700"
+                            className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-[#000000] text-[10px] font-black rounded-lg border border-slate-200 dark:border-white/10 transition-all hover:bg-slate-100 dark:hover:bg-[#121212]"
                         >
                             <span>{selectedYear}</span>
                             <span className={`material-symbols-outlined text-xs transition-transform ${isYearOpen ? 'rotate-180' : ''}`}>expand_more</span>
                         </button>
                         {isYearOpen && (
-                            <div className="absolute top-full right-0 mt-2 w-24 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-[60] overflow-hidden">
+                            <div className="absolute top-full right-0 mt-2 w-24 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl z-[60] overflow-hidden">
                                 {years.map(y => (
                                     <button
                                         key={y}
                                         onClick={() => { setSelectedYear(y); setIsYearOpen(false); }}
-                                        className={`w-full px-4 py-2 text-[10px] font-bold text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${selectedYear === y ? 'text-primary' : 'text-slate-500'}`}
+                                        className={`w-full px-4 py-2 text-[10px] font-bold text-left hover:bg-slate-50 dark:hover:bg-[#000000] transition-colors ${selectedYear === y ? 'text-primary' : 'text-slate-500'}`}
                                     >
                                         {y}
                                     </button>
@@ -160,7 +160,7 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
             {/* ══ MOBILE: Original portrait grid (weeks scroll vertically) ══ */}
             <div className="flex-1 overflow-y-auto md:hidden custom-scrollbar relative">
                 {/* Sticky day-of-week header */}
-                <div className="sticky top-0 z-20 bg-white/95 dark:bg-[#192233]/95 backdrop-blur pt-1 pb-2 pl-12 pr-2">
+                <div className="sticky top-0 z-20 bg-white/95 dark:bg-[#121212]/95 backdrop-blur pt-1 pb-2 pl-12 pr-2">
                     <div className="grid grid-cols-7 gap-1">
                         {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
                             <span key={idx} className="flex items-center justify-center text-[10px] font-bold text-slate-400 uppercase">{day}</span>
@@ -170,7 +170,7 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
 
                 <div className="flex relative pl-2 pr-2">
                     {/* Month labels (Y-axis) */}
-                    <div className="w-10 shrink-0 relative border-r border-slate-100 dark:border-slate-800/50 mr-2">
+                    <div className="w-10 shrink-0 relative border-r border-slate-100 dark:border-white/10/50 mr-2">
                         {monthLabels.map((l, i) => (
                             <div
                                 key={i}
@@ -199,7 +199,7 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
                                     className={`w-full aspect-square min-h-[20px] max-h-[36px] rounded-md border-[0.5px] ${cellClass} transition-all duration-200 relative group cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : isFuture ? 'opacity-20 cursor-not-allowed' : ''}`}
                                 >
                                     {!isWrongYear && (
-                                        <div className={`absolute ${yAlign} ${xAlign} px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-bold shadow-xl`}>
+                                        <div className={`absolute ${yAlign} ${xAlign} px-2 py-1 bg-[#121212] dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-bold shadow-xl`}>
                                             <div className="font-black">{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
                                             {!isFuture && <div className="text-slate-400 dark:text-slate-500">{statusText}</div>}
                                             {isFuture && <div className="text-slate-400 italic">Future</div>}
@@ -252,7 +252,7 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
                                         className={`w-3 h-3 rounded-sm border-[0.5px] ${cellClass} transition-all duration-200 relative group cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : isFuture ? 'opacity-20 cursor-default' : 'hover:scale-125 hover:z-10'}`}
                                     >
                                         {!isWrongYear && (
-                                            <div className={`absolute bottom-full mb-2 ${tooltipLeft} px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-bold shadow-xl`}>
+                                            <div className={`absolute bottom-full mb-2 ${tooltipLeft} px-2 py-1 bg-[#121212] dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-bold shadow-xl`}>
                                                 <div className="font-black">{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
                                                 <div className="text-slate-400 dark:text-slate-500">{statusText}</div>
                                             </div>

@@ -13,7 +13,7 @@ const ContentSubscription = ({ compact = false }) => {
             <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 group">
                 <span className="material-symbols-outlined text-[14px]">auto_stories</span>
                 <span className="hidden md:inline">Topics</span>
-                <div className="hidden md:block size-1 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                <div className="hidden md:block size-1 bg-slate-200 dark:bg-[#121212] rounded-full" />
                 <span className="text-primary font-bold">{subscriptions.length}</span>
             </div>
         );
@@ -23,7 +23,7 @@ const ContentSubscription = ({ compact = false }) => {
         <div className="w-full">
             <div className="flex flex-col gap-4">
                 <div 
-                    className="group relative overflow-hidden bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm border-b-4"
+                    className="group relative overflow-hidden bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-[2rem] p-6 shadow-none border-b-4"
                 >
                     <div className="flex items-center justify-between relative z-10">
                         <div className="flex items-center gap-5">
@@ -46,7 +46,7 @@ const ContentSubscription = ({ compact = false }) => {
                             {activeTopics.map(topic => (
                                 <span 
                                     key={topic.channel_id}
-                                    className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] font-bold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
+                                    className="px-3 py-1 bg-slate-100 dark:bg-[#000000] rounded-full text-[10px] font-bold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10"
                                 >
                                     {topic.name}
                                 </span>

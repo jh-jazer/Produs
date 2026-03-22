@@ -260,7 +260,7 @@ function HabitTracker({
         const isSystemHabit = !!(habit.myPart ? habit.myPart.systemId : habit.systemId);
 
         return (
-            <div key={habit._id} className={`flex items-center gap-4 py-3 ${isSystemHabit ? 'bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-xl my-1.5 px-3 shadow-sm' : 'border-b border-slate-100 dark:border-slate-800/50'} ${editMode ? 'hover:bg-slate-50 dark:hover:bg-slate-800/30 rounded-lg transition-colors cursor-grab active:cursor-grabbing pl-2' : ''}`}>
+            <div key={habit._id} className={`flex items-center gap-4 py-3 ${isSystemHabit ? 'bg-slate-50 dark:bg-[#000000]/40 border border-slate-200 dark:border-white/10/60 rounded-xl my-1.5 px-3 shadow-none' : 'border-b border-slate-100 dark:border-white/10/50'} ${editMode ? 'hover:bg-slate-50 dark:hover:bg-[#000000]/30 rounded-lg transition-colors cursor-grab active:cursor-grabbing pl-2' : ''}`}>
                 
                 {editMode && !isPartnerView && (
                     <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 cursor-grab active:cursor-grabbing hover:text-primary transition-colors pr-1">drag_indicator</span>
@@ -269,12 +269,12 @@ function HabitTracker({
                 {/* Habit Name (or edit form) */}
                 <div className={`${isDashboard ? 'flex-1 min-w-0' : 'w-1/3 min-w-[150px]'} flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 overflow-visible`}>
                     {isEditing ? (
-                        <div className="flex flex-col gap-2 w-full p-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-primary/20">
+                        <div className="flex flex-col gap-2 w-full p-1 bg-white dark:bg-[#000000] rounded-lg shadow-none border border-primary/20">
                             <div className="flex items-center gap-2">
                                 <select
                                     value={editingHabit.icon}
                                     onChange={(e) => setEditingHabit({ ...editingHabit, icon: e.target.value })}
-                                    className="w-10 h-8 text-[10px] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
+                                    className="w-10 h-8 text-[10px] bg-slate-50 dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
                                 >
                                     {ICON_OPTIONS.map(opt => (
                                         <option key={opt.icon} value={opt.icon}>{opt.label}</option>
@@ -285,7 +285,7 @@ function HabitTracker({
                                     value={editingHabit.name}
                                     onChange={(e) => setEditingHabit({ ...editingHabit, name: e.target.value })}
                                     disabled={!!editingHabit.systemId}
-                                    className={`flex-1 min-w-0 px-2 py-1 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary dark:text-white ${editingHabit.systemId ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`flex-1 min-w-0 px-2 py-1 text-xs bg-slate-50 dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary dark:text-white ${editingHabit.systemId ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 />
                             </div>
                             <div className="flex items-center gap-1.5 px-1 py-0.5">
@@ -333,7 +333,7 @@ function HabitTracker({
                             <div key={dayIdx} className={`relative w-8 h-8 flex items-center justify-center ${isHiddenOnMobile ? 'hidden md:flex' : 'flex'}`}>
                                 {isPartnerView && isGrouped ? (
                                     // SPLIT CHECK CIRCLE
-                                    <div className="relative w-7 h-7 rounded-full border border-slate-200 dark:border-slate-700 overflow-hidden flex">
+                                    <div className="relative w-7 h-7 rounded-full border border-slate-200 dark:border-white/10 overflow-hidden flex">
                                         {/* My Half (Left) */}
                                         <button
                                             onClick={() => toggleCheck(habit.myPart?._id || habit._id, date)}
@@ -356,7 +356,7 @@ function HabitTracker({
                                         </button>
                                         {/* Partner Half (Right) */}
                                         <div
-                                            className="relative w-1/2 h-full opacity-80 border-l border-slate-200 dark:border-slate-700 flex items-center justify-start pl-0.5 z-10"
+                                            className="relative w-1/2 h-full opacity-80 border-l border-slate-200 dark:border-white/10 flex items-center justify-start pl-0.5 z-10"
                                         >
                                             <AnimatePresence>
                                                 {partnerChecked && (
@@ -379,14 +379,14 @@ function HabitTracker({
                                         disabled={editMode || isLocked || isReadOnly || (isPartnerView && habit.user !== propMyHabits?.[0]?.user) || isSystemHabit}
                                         title={isSystemHabit ? "Completed automatically by doing the task" : ""}
                                         className={`relative w-7 h-7 rounded-full flex items-center justify-center transition-all overflow-hidden ${isFuture
-                                            ? 'border border-dashed border-slate-200 dark:border-slate-700 opacity-30 shadow-none cursor-not-allowed'
+                                            ? 'border border-dashed border-slate-200 dark:border-white/10 opacity-30 shadow-none cursor-not-allowed'
                                             : isTooOld
                                                 ? myChecked
                                                     ? `${colors.text} opacity-60 cursor-default`
-                                                    : 'border border-slate-100 dark:border-slate-800 opacity-40 cursor-default'
+                                                    : 'border border-slate-100 dark:border-white/10 opacity-40 cursor-default'
                                                 : myChecked
-                                                    ? `${colors.text} shadow-sm`
-                                                    : 'border border-slate-200 dark:border-slate-700 hover:border-slate-400'
+                                                    ? `${colors.text} shadow-none`
+                                                    : 'border border-slate-200 dark:border-white/10 hover:border-slate-400'
                                             } ${!editMode && !isLocked && !isSystemHabit ? 'hover:scale-110 active:scale-95' : (isSystemHabit ? 'cursor-default opacity-80' : '')}`}
                                     >
                                         <AnimatePresence>
@@ -433,14 +433,14 @@ function HabitTracker({
                                 <button onClick={saveEditHabit} className="p-1 rounded-md hover:bg-emerald-500/10 text-emerald-500 transition-colors" title="Save">
                                     <span className="material-symbols-outlined text-base">check</span>
                                 </button>
-                                <button onClick={cancelEditHabit} className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors" title="Cancel">
+                                <button onClick={cancelEditHabit} className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-[#000000] text-slate-400 transition-colors" title="Cancel">
                                     <span className="material-symbols-outlined text-base">close</span>
                                 </button>
                             </>
                         ) : (
                              <>
                                  {(!isPartnerView || habit.myPart) && (
-                                     <button onClick={() => startEditHabit(habit.isGrouped ? habit.myPart : habit)} className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-primary transition-colors" title="Edit">
+                                     <button onClick={() => startEditHabit(habit.isGrouped ? habit.myPart : habit)} className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-[#000000] text-slate-400 hover:text-primary transition-colors" title="Edit">
                                          <span className="material-symbols-outlined text-base">edit</span>
                                      </button>
                                  )}
@@ -620,7 +620,7 @@ function HabitTracker({
                 onConfirm={() => { deleteHabit(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex flex-col justify-between relative overflow-hidden group flex-1 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ease-in-out min-h-[280px]">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex flex-col justify-between relative overflow-hidden group flex-1 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ease-in-out min-h-[280px]">
                 <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-500 pointer-events-none"></div>
 
                 {/* Header */}
@@ -635,7 +635,7 @@ function HabitTracker({
                             <div className="hidden md:flex items-center gap-1 p-0.5">
                                 <button
                                     onClick={() => onDateChange(-1)}
-                                    className="p-1 px-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-primary transition-all"
+                                    className="p-1 px-1.5 hover:bg-white dark:hover:bg-[#121212] rounded-lg text-slate-400 hover:text-primary transition-all"
                                 >
                                     <span className="material-symbols-outlined text-sm">chevron_left</span>
                                 </button>
@@ -646,7 +646,7 @@ function HabitTracker({
                                 </div>
                                 <button
                                     onClick={() => onDateChange(1)}
-                                    className="p-1 px-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-primary transition-all"
+                                    className="p-1 px-1.5 hover:bg-white dark:hover:bg-[#121212] rounded-lg text-slate-400 hover:text-primary transition-all"
                                 >
                                     <span className="material-symbols-outlined text-sm">chevron_right</span>
                                 </button>
@@ -662,7 +662,7 @@ function HabitTracker({
                                         setNewHabit({ name: '', icon: 'local_drink', color: 'emerald', isShared: isPartnerView, category: 'Productivity' });
                                         setAddModalOpen(true);
                                     }}
-                                    className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 hover:text-primary transition-colors flex items-center gap-1.5"
+                                    className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#121212]/50 text-slate-500 hover:text-primary transition-colors flex items-center gap-1.5"
                                     title={isPartnerView ? 'Add Team Habit' : 'Add Habit'}
                                 >
                                     <span className="material-symbols-outlined text-xl">add_circle</span>
@@ -672,7 +672,7 @@ function HabitTracker({
                             {!isReadOnly && !isDashboard && (
                                 <button
                                     onClick={() => { setEditMode(!editMode); setEditingHabit(null); }}
-                                    className={`p-2 rounded-lg transition-all duration-300 ${editMode ? 'text-primary bg-primary/10 ring-1 ring-primary/20 shadow-sm' : 'text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700/50'}`}
+                                    className={`p-2 rounded-lg transition-all duration-300 ${editMode ? 'text-primary bg-primary/10 ring-1 ring-primary/20 shadow-none' : 'text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-[#121212]/50'}`}
                                     title={editMode ? 'Stop Editing' : 'Edit Habits'}
                                 >
                                     <span className="material-symbols-outlined text-xl">edit</span>
@@ -686,7 +686,7 @@ function HabitTracker({
                 <div className="relative z-10 w-full overflow-y-auto custom-scrollbar hover-scrollbar flex-1 flex flex-col">
 
                     {/* Header Row */}
-                    <div className="flex items-center gap-4 py-3 border-b border-slate-200 dark:border-slate-800">
+                    <div className="flex items-center gap-4 py-3 border-b border-slate-200 dark:border-white/10">
                         <div className={`${isDashboard ? 'flex-1 min-w-0' : 'w-1/3 min-w-[150px]'} font-bold text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider`}>Habit</div>
                         <div className={`flex-1 flex ${isDashboard ? 'justify-end' : 'justify-between'} items-center text-xs font-semibold text-slate-400 dark:text-slate-500`}>
                             {isDashboard ? (
@@ -711,18 +711,18 @@ function HabitTracker({
                         {isLoading || error ? (
                             // Skeleton Rows for Loading or Error state
                             Array(5).fill(0).map((_, i) => (
-                                <div key={i} className="flex items-center gap-4 py-3 border-b border-slate-100 dark:border-slate-800/50 animate-pulse">
+                                <div key={i} className="flex items-center gap-4 py-3 border-b border-slate-100 dark:border-white/10/50 animate-pulse">
                                     <div className={`${isDashboard ? 'flex-1' : 'w-1/3'} flex items-center gap-2`}>
-                                        <div className="w-6 h-6 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                                        <div className="w-6 h-6 bg-slate-200 dark:bg-[#121212] rounded-full"></div>
                                         <div className="flex-1">
-                                            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24 mb-1"></div>
-                                            <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded w-16"></div>
+                                            <div className="h-3 bg-slate-200 dark:bg-[#121212] rounded w-24 mb-1"></div>
+                                            <div className="h-2 bg-slate-100 dark:bg-[#000000] rounded w-16"></div>
                                         </div>
                                     </div>
                                     <div className={`flex-1 flex ${isDashboard ? 'justify-end' : 'justify-between'} items-center`}>
                                         {daysToDisplay.map((_, j) => (
                                             <div key={j} className="w-8 h-8 flex items-center justify-center">
-                                                <div className="w-7 h-7 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+                                                <div className="w-7 h-7 bg-slate-100 dark:bg-[#000000] rounded-full"></div>
                                             </div>
                                         ))}
                                     </div>
@@ -752,7 +752,7 @@ function HabitTracker({
                                 {/* Divider for Team View */}
                                 {isPartnerView && teamHabits.length > 0 && partnerHabitsOnly.length > 0 && (
                                     <div className="py-2">
-                                        <hr className="border-slate-100 dark:border-slate-800" />
+                                        <hr className="border-slate-100 dark:border-white/10" />
                                         <div className="pt-2 pb-1 px-1">
                                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{partnerName}'s Private Habits</span>
                                         </div>
@@ -783,7 +783,7 @@ function HabitTracker({
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setAddModalOpen(false); setModalStep('suggestions'); }}></div>
 
                     {/* Modal Card */}
-                    <div className={`relative z-10 w-full max-w-sm bg-white dark:bg-[#192233] rounded-2xl shadow-2xl border overflow-hidden transition-all ${isPartnerView ? 'border-primary/30 ring-1 ring-primary/10' : 'border-slate-200 dark:border-slate-800'}`}>
+                    <div className={`relative z-10 w-full max-w-sm bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border overflow-hidden transition-all ${isPartnerView ? 'border-primary/30 ring-1 ring-primary/10' : 'border-slate-200 dark:border-white/10'}`}>
                         <div className="p-5">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-base font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
@@ -792,7 +792,7 @@ function HabitTracker({
                                         ? (isPartnerView ? 'Add Team Habit' : 'Add New Habit') 
                                         : (isPartnerView ? 'Custom Team Habit' : 'Custom Habit')}
                                 </h3>
-                                <button onClick={() => { setAddModalOpen(false); setModalStep('suggestions'); }} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors">
+                                <button onClick={() => { setAddModalOpen(false); setModalStep('suggestions'); }} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-[#000000] text-slate-400 transition-colors">
                                     <span className="material-symbols-outlined text-xl">close</span>
                                 </button>
                             </div>
@@ -808,7 +808,7 @@ function HabitTracker({
                                                         <button
                                                             key={habit.name}
                                                             onClick={() => selectSuggestion(habit, cat.category)}
-                                                            className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/50 hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
+                                                            className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100 dark:border-white/10/50 hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
                                                         >
                                                             <span className={`material-symbols-outlined ${COLOR_MAP[habit.color].text} text-xl group-hover:scale-110 transition-transform`}>{habit.icon}</span>
                                                             <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{habit.name}</span>
@@ -822,7 +822,7 @@ function HabitTracker({
 
                                     <button
                                         onClick={() => setModalStep('custom')}
-                                        className="w-full py-2.5 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 text-slate-400 hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all flex items-center justify-center gap-2 group"
+                                        className="w-full py-2.5 rounded-xl border-2 border-dashed border-slate-200 dark:border-white/10 text-slate-400 hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all flex items-center justify-center gap-2 group"
                                     >
                                         <span className="material-symbols-outlined text-lg group-hover:rotate-90 transition-transform">add</span>
                                         <span className="text-xs font-black uppercase tracking-wider">Create Custom Habit</span>
@@ -838,7 +838,7 @@ function HabitTracker({
                                             placeholder="e.g. Drink 8 glasses of water"
                                             value={newHabit.name}
                                             onChange={(e) => setNewHabit({ ...newHabit, name: e.target.value })}
-                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder-slate-400/70"
+                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#000000]/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder-slate-400/70"
                                             autoFocus
                                         />
                                     </div>
@@ -853,7 +853,7 @@ function HabitTracker({
                                                     onClick={() => setNewHabit({ ...newHabit, category: cat })}
                                                     className={`px-2 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-wider transition-all ${newHabit.category === cat 
                                                         ? 'bg-primary/10 border-primary text-primary' 
-                                                        : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 text-slate-400 hover:border-slate-200'}`}
+                                                        : 'bg-slate-50 dark:bg-[#000000]/50 border-slate-100 dark:border-white/10 text-slate-400 hover:border-slate-200'}`}
                                                 >
                                                     {cat}
                                                 </button>
@@ -873,7 +873,7 @@ function HabitTracker({
                                                         onClick={() => setNewHabit({ ...newHabit, icon: opt.icon })}
                                                         className={`w-full aspect-square rounded-lg flex items-center justify-center transition-all ${isSelected
                                                             ? `${COLOR_MAP[newHabit.color].bg} ${COLOR_MAP[newHabit.color].text} ring-1 ring-primary`
-                                                            : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-105'
+                                                            : 'bg-slate-50 dark:bg-[#000000]/50 text-slate-400 hover:bg-slate-100 dark:hover:bg-[#000000] hover:scale-105'
                                                             }`}
                                                         title={opt.label}
                                                     >
@@ -903,8 +903,8 @@ function HabitTracker({
                                     </div>
 
                                     {/* Preview & Actions */}
-                                    <div className="flex items-center gap-3 p-2.5 mb-4 rounded-xl bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700">
-                                        <div className="relative shrink-0 flex items-center justify-center size-8 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-100 dark:border-slate-700">
+                                    <div className="flex items-center gap-3 p-2.5 mb-4 rounded-xl bg-slate-50 dark:bg-[#000000]/30 border border-slate-100 dark:border-white/10">
+                                        <div className="relative shrink-0 flex items-center justify-center size-8 bg-white dark:bg-[#000000] rounded-lg shadow-none border border-slate-100 dark:border-white/10">
                                             <span className={`material-symbols-outlined text-base ${COLOR_MAP[newHabit.color]?.text}`}>{newHabit.icon}</span>
                                             {newHabit.isShared && (
                                                 <div className="absolute -top-1 -right-1 bg-primary text-[5px] text-white px-0.5 rounded-full font-black ring-1 ring-white dark:ring-slate-900">TEAM</div>
@@ -921,14 +921,14 @@ function HabitTracker({
                                     <div className="flex gap-3 pt-2">
                                         <button
                                             onClick={() => setModalStep('suggestions')}
-                                            className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                            className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 text-sm font-bold hover:bg-slate-50 dark:hover:bg-[#000000] transition-colors"
                                         >
                                             Back
                                         </button>
                                         <button
                                             onClick={addHabit}
                                             disabled={!newHabit.name.trim()}
-                                            className="flex-1 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-black hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                            className="flex-1 py-2.5 rounded-xl bg-[#121212] dark:bg-white text-white dark:text-slate-900 text-sm font-black hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-none disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
                                         >
                                             Add Habit
                                         </button>

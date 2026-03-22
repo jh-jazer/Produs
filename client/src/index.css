@@ -40,10 +40,10 @@
 }
 
 .dark {
-  --background: #0d1117;
+  --background: #000000;
   --foreground: #f8fafc;
-  --card: #192233;
-  --border: #1e293b;
+  --card: #121212;
+  --border: #ffffff1a;
 }
 
 html,

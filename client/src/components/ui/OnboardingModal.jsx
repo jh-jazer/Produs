@@ -94,13 +94,13 @@ const OnboardingModal = ({ isOpen }) => {
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+                className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md"
             />
 
             <motion.div
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                className="relative z-10 w-full max-w-2xl bg-white dark:bg-[#192233] rounded-3xl md:rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[95vh] flex flex-col"
+                className="relative z-10 w-full max-w-2xl bg-white dark:bg-[#121212] rounded-3xl md:rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden max-h-[95vh] flex flex-col"
             >
                 <div className="p-4 md:p-12 overflow-y-auto custom-scrollbar flex-1">
                     <AnimatePresence mode="wait">
@@ -132,7 +132,7 @@ const OnboardingModal = ({ isOpen }) => {
                                             value={username}
                                             onChange={(e) => { setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')); setError(''); setIsUsernameAvailable(null); }}
                                             placeholder="username"
-                                            className={`w-full bg-slate-50/50 dark:bg-slate-900/30 border-2 ${isUsernameAvailable === true ? 'border-emerald-500 shadow-emerald-500/10' : isUsernameAvailable === false ? 'border-rose-500 shadow-rose-500/10' : 'border-slate-200 dark:border-slate-800 focus:border-primary focus:shadow-primary/10'} text-slate-900 dark:text-white font-bold rounded-2xl pl-10 pr-12 py-3.5 outline-none text-base transition-all`}
+                                            className={`w-full bg-slate-50/50 dark:bg-[#121212]/30 border-2 ${isUsernameAvailable === true ? 'border-emerald-500 shadow-emerald-500/10' : isUsernameAvailable === false ? 'border-rose-500 shadow-rose-500/10' : 'border-slate-200 dark:border-white/10 focus:border-primary focus:shadow-primary/10'} text-slate-900 dark:text-white font-bold rounded-2xl pl-10 pr-12 py-3.5 outline-none text-base transition-all`}
                                             autoFocus
                                         />
                                         <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center">
@@ -179,7 +179,7 @@ const OnboardingModal = ({ isOpen }) => {
                                                 setIsCheckingUsername(false);
                                             }
                                         }}
-                                        className="w-full py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-sm transition-all shadow-xl active:scale-[0.99]"
+                                        className="w-full py-3.5 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-sm transition-all shadow-xl active:scale-[0.99]"
                                     >
                                         Next
                                     </button>
@@ -207,7 +207,7 @@ const OnboardingModal = ({ isOpen }) => {
                                 </div>
 
                                 {/* Timezone Card */}
-                                <div className="w-full bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/80 dark:to-[#192233] p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden text-left">
+                                <div className="w-full bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/80 dark:to-[#192233] p-5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-none relative overflow-hidden text-left">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
                                     <div className="flex justify-between items-center relative z-10 w-full">
                                         <div className="flex items-center gap-4">
@@ -233,7 +233,7 @@ const OnboardingModal = ({ isOpen }) => {
                                 <div className="grid grid-cols-2 gap-3 w-full">
                                     <button
                                         onClick={() => setCurrency('USD')}
-                                        className={`p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 relative overflow-hidden ${currency === 'USD' ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 hover:border-slate-300'}`}
+                                        className={`p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 relative overflow-hidden ${currency === 'USD' ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10' : 'border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212]/50 hover:border-slate-300'}`}
                                     >
                                         {currency === 'USD' && <div className="absolute inset-0 bg-primary/5" />}
                                         <span className={`text-3xl font-black relative z-10 ${currency === 'USD' ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>$</span>
@@ -242,7 +242,7 @@ const OnboardingModal = ({ isOpen }) => {
                                     </button>
                                     <button
                                         onClick={() => setCurrency('PHP')}
-                                        className={`p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 relative overflow-hidden ${currency === 'PHP' ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 hover:border-slate-300'}`}
+                                        className={`p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 relative overflow-hidden ${currency === 'PHP' ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10' : 'border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212]/50 hover:border-slate-300'}`}
                                     >
                                         {currency === 'PHP' && <div className="absolute inset-0 bg-primary/5" />}
                                         <span className={`text-3xl font-black relative z-10 ${currency === 'PHP' ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>₱</span>
@@ -254,13 +254,13 @@ const OnboardingModal = ({ isOpen }) => {
                                 <div className="flex gap-3">
                                     <button
                                         onClick={() => setStep(1)}
-                                        className="px-5 py-3.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-xl font-black text-xs transition-all"
+                                        className="px-5 py-3.5 bg-slate-100 dark:bg-[#000000] text-slate-500 dark:text-slate-400 rounded-xl font-black text-xs transition-all"
                                     >
                                         Back
                                     </button>
                                     <button
                                         onClick={() => setStep(3)}
-                                        className="flex-1 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-sm transition-all shadow-xl active:scale-[0.99]"
+                                        className="flex-1 py-3 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-sm transition-all shadow-xl active:scale-[0.99]"
                                     >
                                         Continue
                                     </button>
@@ -297,13 +297,13 @@ const OnboardingModal = ({ isOpen }) => {
                                                 className={`p-3 rounded-2xl border-2 flex items-center gap-3 transition-all ${
                                                     selectedChannels.includes(channel.channel_id)
                                                         ? 'border-primary bg-primary/5'
-                                                        : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 hover:border-slate-200 dark:hover:border-slate-700'
+                                                        : 'border-slate-100 dark:border-white/10 bg-white dark:bg-[#121212]/50 hover:border-slate-200 dark:hover:border-white/10'
                                                 }`}
                                             >
                                                 <div className={`size-8 md:size-10 rounded-xl flex items-center justify-center shrink-0 ${
                                                     selectedChannels.includes(channel.channel_id)
                                                         ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                                                        : 'bg-slate-100 dark:bg-[#000000] text-slate-400'
                                                 }`}>
                                                     <span className="material-symbols-outlined text-base md:text-lg">
                                                         {CHANNEL_ICONS[channel.channel_id] || 'auto_awesome'}
@@ -327,7 +327,7 @@ const OnboardingModal = ({ isOpen }) => {
                                     <div className="flex gap-3 w-full">
                                         <button 
                                             onClick={() => setStep(2)} 
-                                            className="px-6 py-3.5 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-2xl font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                            className="px-6 py-3.5 bg-slate-100 dark:bg-[#000000] text-slate-500 rounded-2xl font-bold text-xs hover:bg-slate-200 dark:hover:bg-[#121212] transition-colors"
                                         >
                                             Back
                                         </button>

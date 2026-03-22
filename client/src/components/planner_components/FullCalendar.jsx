@@ -142,7 +142,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                 onConfirm={() => { deleteTask(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm flex flex-col font-inter relative min-h-[500px]">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex flex-col font-inter relative min-h-[500px]">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-4">
                     <h2 className="text-lg font-bold text-slate-900 dark:text-white shrink-0">{months[month]} {year}</h2>
@@ -150,20 +150,20 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                 <div className="flex gap-2">
                     <button
                         onClick={prevMonth}
-                        className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-all border border-slate-200 dark:border-slate-800"
+                        className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-[#000000] text-slate-500 transition-all border border-slate-200 dark:border-white/10"
                     >
                         <span className="material-symbols-outlined text-lg leading-none">chevron_left</span>
                     </button>
                     <button
                         onClick={nextMonth}
-                        className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-all border border-slate-200 dark:border-slate-800"
+                        className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-[#000000] text-slate-500 transition-all border border-slate-200 dark:border-white/10"
                     >
                         <span className="material-symbols-outlined text-lg leading-none">chevron_right</span>
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-7 border-b border-slate-100 dark:border-slate-800/50">
+            <div className="grid grid-cols-7 border-b border-slate-100 dark:border-white/10/50">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                     <div key={day} className="py-3 text-center text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest">{day}</div>
                 ))}
@@ -174,7 +174,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                 {[...Array(firstDayOfMonth)].map((_, i) => {
                     const d = daysInPrevMonth - firstDayOfMonth + i + 1;
                     return (
-                        <div key={`prev-${d}`} className="border-b border-r border-slate-50 dark:border-slate-800/20 p-2 text-slate-200 dark:text-slate-700 text-xs font-medium opacity-50">{d}</div>
+                        <div key={`prev-${d}`} className="border-b border-r border-slate-50 dark:border-white/10/20 p-2 text-slate-200 dark:text-slate-700 text-xs font-medium opacity-50">{d}</div>
                     );
                 })}
 
@@ -203,7 +203,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                             onMouseDown={() => handleMouseDown(d)}
                             onMouseEnter={() => handleMouseEnter(d)}
                             onMouseUp={handleMouseUp}
-                            className={`border-b ${isLastInCol ? '' : 'border-r'} border-slate-100 dark:border-slate-800/50 p-2 transition-all cursor-pointer group relative hover:opacity-90 ${isSelected || isInSelection ? 'ring-2 ring-inset ring-primary/40 z-10' : ''}`}
+                            className={`border-b ${isLastInCol ? '' : 'border-r'} border-slate-100 dark:border-white/10/50 p-2 transition-all cursor-pointer group relative hover:opacity-90 ${isSelected || isInSelection ? 'ring-2 ring-inset ring-primary/40 z-10' : ''}`}
                             style={{ backgroundColor: multiDayTask ? `${bgColor}20` : '' }}
                         >
                             <span className={`size-6 rounded-full flex items-center justify-center text-xs font-black transition-all ${isToday ? 'bg-primary text-white shadow-lg' : isSelected ? 'text-primary' : (multiDayTask ? 'text-slate-900 dark:text-white' : 'text-slate-900 dark:text-slate-300')
@@ -217,7 +217,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                 {dayTasks.some(t => t.type === 'note') ? (
                                     <span className="material-symbols-outlined text-[10px] text-slate-400">description</span>
                                 ) : dayTasks.length > 0 ? (
-                                    <div className="size-1 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                                    <div className="size-1 rounded-full bg-slate-300 dark:bg-[#121212]"></div>
                                 ) : null}
                             </div>
                         </div>
@@ -229,7 +229,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                     const d = i + 1;
                     const isLastInCol = (firstDayOfMonth + daysInMonth + i + 1) % 7 === 0;
                     return (
-                        <div key={`next-${d}`} className={`border-b ${isLastInCol ? '' : 'border-r'} border-slate-50 dark:border-slate-800/20 p-2 text-slate-200 dark:text-slate-700 text-xs font-medium opacity-50`}>{d}</div>
+                        <div key={`next-${d}`} className={`border-b ${isLastInCol ? '' : 'border-r'} border-slate-50 dark:border-white/10/20 p-2 text-slate-200 dark:text-slate-700 text-xs font-medium opacity-50`}>{d}</div>
                     );
                 })}
             </div>
@@ -237,8 +237,8 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
             {/* Quick Add Modal */}
             {addModal && (
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setAddModal(null)}></div>
-                    <div className="relative bg-white dark:bg-[#1e293b] w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-4 max-h-[90%] overflow-hidden">
+                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md" onClick={() => setAddModal(null)}></div>
+                    <div className="relative bg-white dark:bg-[#1e293b] w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-4 max-h-[90%] overflow-hidden">
                         <div className="flex justify-between items-start">
                             <div>
                                 <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">
@@ -258,7 +258,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                         <div className="space-y-2 overflow-y-auto pr-2 custom-scrollbar min-h-0 flex-1">
                             {getTasksForRange(addModal.startDate, addModal.endDate).length > 0 ? (
                                 getTasksForRange(addModal.startDate, addModal.endDate).map(t => (
-                                    <div key={t._id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 group">
+                                    <div key={t._id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#000000]/50 border border-slate-100 dark:border-white/10 group">
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
                                                 <div className="size-2 rounded-full shrink-0" style={{ backgroundColor: t.color || '#a855f7' }}></div>
@@ -286,7 +286,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                             )}
                         </div>
 
-                        <div className="h-px bg-slate-100 dark:bg-slate-700 w-full my-1"></div>
+                        <div className="h-px bg-slate-100 dark:bg-[#121212] w-full my-1"></div>
 
                         {/* Quick Add Form Section */}
                         {!isReadOnly && (
@@ -296,7 +296,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                         value={newTaskTitle}
                                         onChange={(e) => setNewTaskTitle(e.target.value)}
                                         placeholder="Event Title"
-                                        className="w-full px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none"
+                                        className="w-full px-4 py-2 rounded-xl bg-slate-50 dark:bg-[#000000] border border-slate-200 dark:border-white/10 text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none"
                                         autoFocus
                                     />
                                     <textarea
@@ -304,7 +304,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                         onChange={(e) => setNewTaskDescription(e.target.value)}
                                         placeholder="Add notes or event details..."
                                         rows={3}
-                                        className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium focus:ring-2 focus:ring-primary/20 outline-none resize-none custom-scrollbar"
+                                        className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#000000] border border-slate-200 dark:border-white/10 text-xs font-medium focus:ring-2 focus:ring-primary/20 outline-none resize-none custom-scrollbar"
                                     />
 
                                     <div className="flex justify-between items-center py-1">
@@ -322,7 +322,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                         <button
                                             onClick={addTask}
                                             disabled={!newTaskTitle.trim()}
-                                            className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest disabled:opacity-50 hover:scale-105 active:scale-95 transition-all"
+                                            className="px-6 py-2 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest disabled:opacity-50 hover:scale-105 active:scale-95 transition-all"
                                         >
                                             Add
                                         </button>

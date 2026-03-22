@@ -57,18 +57,18 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
                 onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#192233] p-6 shadow-sm min-h-[350px]">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none min-h-[350px]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Recent Transactions</h3>
                 <div className="flex items-center gap-1">
                     <button
                         onClick={() => setShowAdd(true)}
-                        className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 hover:text-primary transition-colors"
+                        className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#121212]/50 text-slate-500 hover:text-primary transition-colors"
                         title="Add Transaction"
                     >
                         <span className="material-symbols-outlined text-xl">add_circle</span>
                     </button>
-                    <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-500 hover:text-primary transition-colors" title="View All">
+                    <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#121212]/50 text-slate-500 hover:text-primary transition-colors" title="View All">
                         <span className="material-symbols-outlined text-xl">visibility</span>
                     </button>
                 </div>
@@ -76,10 +76,10 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
 
             {showAdd && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowAdd(false)}></div>
+                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowAdd(false)}></div>
                     <form 
                         onSubmit={handleAdd} 
-                        className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200 flex flex-col gap-5"
+                        className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-5"
                     >
                         <div className="flex justify-between items-center mb-1">
                             <div>
@@ -96,7 +96,7 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Title</label>
                                 <input
                                     type="text" required placeholder="What was this for?"
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                    className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                     value={newTx.title} onChange={e => setNewTx({ ...newTx, title: e.target.value })}
                                 />
                             </div>
@@ -108,7 +108,7 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">{currencySymbol}</span>
                                         <input
                                             type="number" required step="0.01" placeholder="0.00"
-                                            className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                            className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                             value={newTx.amount} onChange={e => setNewTx({ ...newTx, amount: e.target.value })}
                                         />
                                     </div>
@@ -116,7 +116,7 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Type</label>
                                     <select
-                                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none"
+                                        className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none"
                                         value={newTx.type} onChange={e => setNewTx({ ...newTx, type: e.target.value })}
                                     >
                                         <option value="expense">Expense</option>
@@ -130,7 +130,7 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
                                     <select
-                                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none"
+                                        className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none"
                                         value={newTx.category} onChange={e => setNewTx({ ...newTx, category: e.target.value })}
                                     >
                                         {availableCategories.sort().map(cat => (
@@ -142,7 +142,7 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date</label>
                                     <input
                                         type="date" required
-                                        className="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                        className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
                                         value={newTx.date} onChange={e => setNewTx({ ...newTx, date: e.target.value })}
                                     />
                                 </div>
@@ -168,12 +168,12 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
                     </div>
                 ) : (
                     transactions.slice(0, 5).map(tx => (
-                        <div key={tx._id} className="group flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
+                        <div key={tx._id} className="group flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-[#000000]/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-white/10">
                             <div className="flex items-center gap-4">
                                 <div className={`size-10 rounded-full flex items-center justify-center ${
                                     tx.type === 'income' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600' : 
                                     tx.type === 'savings' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600' :
-                                    'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                    'bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-400'
                                 }`}>
                                     <span className="material-symbols-outlined">{
                                         tx.type === 'income' ? 'payments' : 

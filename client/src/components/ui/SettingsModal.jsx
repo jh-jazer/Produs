@@ -105,19 +105,19 @@ const SettingsModal = ({ isOpen, onClose }) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+                        className="absolute inset-0 bg-[#121212]/40 backdrop-blur-sm"
                     />
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative z-10 w-full max-w-md bg-white dark:bg-[#192233] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+                        className="relative z-10 w-full max-w-md bg-white dark:bg-[#121212] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden"
                     >
-                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                        <div className="p-6 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
                             <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Settings</h3>
                             <button
                                 onClick={onClose}
-                                className="size-8 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors"
+                                className="size-8 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-[#000000] text-slate-400 transition-colors"
                             >
                                 <span className="material-symbols-outlined">close</span>
                             </button>
@@ -128,39 +128,39 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             <div className="space-y-4">
                                 <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">General</h4>
 
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-[#121212]/50 border border-slate-100 dark:border-white/10">
                                     <div className="flex items-center gap-3">
                                         <span className="material-symbols-outlined text-primary">dark_mode</span>
                                         <span className="text-sm font-bold dark:text-slate-200">Dark Mode</span>
                                     </div>
                                     <button
                                         onClick={() => handleToggle('darkMode')}
-                                        className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${localSettings.darkMode ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-700'}`}
+                                        className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${localSettings.darkMode ? 'bg-primary' : 'bg-slate-300 dark:bg-[#121212]'}`}
                                     >
                                         <motion.div
                                             animate={{ x: localSettings.darkMode ? 26 : 4 }}
-                                            className="absolute size-4 bg-white rounded-full shadow-sm"
+                                            className="absolute size-4 bg-white rounded-full shadow-none"
                                         />
                                     </button>
                                 </div>
 
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-[#121212]/50 border border-slate-100 dark:border-white/10">
                                     <div className="flex items-center gap-3">
                                         <span className="material-symbols-outlined text-primary">notifications</span>
                                         <span className="text-sm font-bold dark:text-slate-200">Push Notifications</span>
                                     </div>
                                     <button
                                         onClick={() => handleToggle('notificationsEnabled')}
-                                        className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${localSettings.notificationsEnabled ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-700'}`}
+                                        className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${localSettings.notificationsEnabled ? 'bg-primary' : 'bg-slate-300 dark:bg-[#121212]'}`}
                                     >
                                         <motion.div
                                             animate={{ x: localSettings.notificationsEnabled ? 26 : 4 }}
-                                            className="absolute size-4 bg-white rounded-full shadow-sm"
+                                            className="absolute size-4 bg-white rounded-full shadow-none"
                                         />
                                     </button>
                                 </div>
 
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-[#121212]/50 border border-slate-100 dark:border-white/10">
                                      <div className="flex items-center gap-3">
                                          <span className="material-symbols-outlined text-primary">payments</span>
                                          <span className="text-sm font-bold dark:text-slate-200">Currency</span>
@@ -175,7 +175,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                  console.error('Failed to sync currency:', err);
                                              }
                                          }}
-                                         className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-bold outline-none dark:text-white"
+                                         className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1 text-xs font-bold outline-none dark:text-white"
                                      >
                                          <option value="USD">USD ($)</option>
                                          <option value="PHP">PHP (₱)</option>
@@ -191,11 +191,11 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                         <button
                                             key={t.id}
                                             onClick={() => handleThemeChange(t.id)}
-                                            className={`group relative flex flex-col items-center gap-2 p-2 rounded-2xl border-2 transition-all ${localSettings.theme === t.id ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700'}`}
+                                            className={`group relative flex flex-col items-center gap-2 p-2 rounded-2xl border-2 transition-all ${localSettings.theme === t.id ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-white/10 hover:border-slate-200 dark:hover:border-white/10'}`}
                                             title={t.name}
                                         >
                                             <div 
-                                                className="size-8 rounded-full shadow-sm ring-2 ring-white dark:ring-slate-900 group-hover:scale-110 transition-transform" 
+                                                className="size-8 rounded-full shadow-none ring-2 ring-white dark:ring-slate-900 group-hover:scale-110 transition-transform"
                                                 style={{ backgroundColor: t.color }}
                                             />
                                             {localSettings.theme === t.id && (
@@ -212,7 +212,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             <div className="space-y-4">
                                 <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">System</h4>
 
-                                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+                                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-[#121212]/50">
                                     <div className="flex items-center gap-3">
                                         <span className="material-symbols-outlined text-slate-400">dns</span>
                                         <span className="text-sm font-bold dark:text-slate-200">API Status</span>
@@ -231,7 +231,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                 <span className="text-[10px] font-black uppercase tracking-wider">Offline</span>
                                             </div>
                                         )}
-                                        <button onClick={checkApiStatus} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors flex items-center justify-center cursor-pointer" title="Refresh Status">
+                                        <button onClick={checkApiStatus} className="p-1 hover:bg-slate-200 dark:hover:bg-[#121212] rounded-md transition-colors flex items-center justify-center cursor-pointer" title="Refresh Status">
                                             <span className="material-symbols-outlined text-[16px] text-slate-400">refresh</span>
                                         </button>
                                     </div>
@@ -242,7 +242,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             <div className="space-y-4">
                                 <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Security</h4>
 
-                                <button className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                <button className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-[#000000]/50 transition-colors">
                                     <div className="flex items-center gap-3">
                                         <span className="material-symbols-outlined text-slate-400">lock</span>
                                         <span className="text-sm font-bold dark:text-slate-200">Change Password</span>
@@ -272,7 +272,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             <div className="pt-4">
                                 <button
                                     onClick={onClose}
-                                    className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-sm hover:opacity-90 shadow-xl transition-all active:scale-[0.98]"
+                                    className="w-full py-4 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-sm hover:opacity-90 shadow-xl transition-all active:scale-[0.98]"
                                 >
                                     Done
                                 </button>
@@ -287,13 +287,13 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+                                className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-[#121212]/60 backdrop-blur-md"
                             >
                                 <motion.div
                                     initial={{ scale: 0.9, y: 20 }}
                                     animate={{ scale: 1, y: 0 }}
                                     exit={{ scale: 0.9, y: 20 }}
-                                    className="w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-3xl p-8 shadow-2xl border border-slate-200 dark:border-slate-800"
+                                    className="w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-3xl p-8 shadow-2xl border border-slate-200 dark:border-white/10"
                                 >
                                     <div className="size-16 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mb-6">
                                         <span className="material-symbols-outlined text-3xl">warning</span>
@@ -310,7 +310,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                             placeholder="delete"
                                             value={deleteWord}
                                             onChange={(e) => setDeleteWord(e.target.value)}
-                                            className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500/50 transition-all dark:text-white"
+                                            className="w-full bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500/50 transition-all dark:text-white"
                                         />
                                     </div>
 
@@ -327,7 +327,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                 setShowDeleteConfirm(false);
                                                 setDeleteWord('');
                                             }}
-                                            className="w-full py-3.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                            className="w-full py-3.5 bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-300 rounded-2xl font-black text-sm hover:bg-slate-200 dark:hover:bg-[#121212] transition-colors"
                                         >
                                             Cancel
                                         </button>
