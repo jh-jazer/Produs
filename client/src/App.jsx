@@ -35,6 +35,7 @@ const AdminRoute = ({ children }) => {
 };
 
 function AnimatedRoutes() {
+  const location = useLocation();
   const user = useAuthStore((state) => state.user);
   const transitionKey = location.pathname.startsWith('/auth') ? 'auth' : 'app';
 
