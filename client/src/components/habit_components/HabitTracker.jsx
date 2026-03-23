@@ -194,6 +194,11 @@ function HabitTracker({
         setModalStep('suggestions');
     };
 
+    const selectSuggestion = (habit, category) => {
+        setNewHabit({ ...habit, category, isShared: isPartnerView });
+        setModalStep('custom');
+    };
+
     const handleUpdateHabit = async () => {
         if (!editingHabit) return;
         await updateHabit(editingHabit._id, {
@@ -275,7 +280,9 @@ function HabitTracker({
                         
                         const targetDate = new Date(date);
                         targetDate.setHours(0, 0, 0, 0);
-                        const isLocked = targetDate > today || targetDate < fourteenDaysAgo;
+                        const isFuture = targetDate > today;
+                        const isTooOld = targetDate < fourteenDaysAgo;
+                        const isLocked = isFuture || isTooOld;
                         const isHiddenOnMobile = dayIdx === 0 || dayIdx === 1 || dayIdx === 5 || dayIdx === 6;
 
                         return (
@@ -512,7 +519,7 @@ function HabitTracker({
                                 {editMode && !isPartnerView ? (
                                     <Reorder.Group axis="y" values={localTeamHabits} onReorder={setLocalTeamHabits} className="flex flex-col">
                                         {localTeamHabits
-                                            .filter(h => propFilter === 'All' || h.category === propFilter)
+                                            .filter(h => currentFilter === 'All' || h.category === currentFilter)
                                             .map((habit) => (
                                                 <Reorder.Item key={habit._id} value={habit} onDragEnd={() => saveOrder(localTeamHabits)}>
                                                     {renderHabitRow(habit)}
@@ -522,7 +529,7 @@ function HabitTracker({
                                 ) : (
                                     <>
                                         {teamHabits
-                                            .filter(h => propFilter === 'All' || h.category === propFilter)
+                                            .filter(h => currentFilter === 'All' || h.category === currentFilter)
                                             .map((habit) => renderHabitRow(habit))}
                                     </>
                                 )}
@@ -539,7 +546,7 @@ function HabitTracker({
 
                                 {/* Render Partner Only Habits Section */}
                                 {isPartnerView && partnerHabitsOnly
-                                    .filter(h => propFilter === 'All' || h.category === propFilter)
+                                    .filter(h => currentFilter === 'All' || h.category === currentFilter)
                                     .map((habit) => renderHabitRow(habit))}
                             </>
                         )}
@@ -697,7 +704,7 @@ function HabitTracker({
                                             Back
                                         </button>
                                         <button
-                                            onClick={addHabit}
+                                            onClick={handleAddHabit}
                                             disabled={!newHabit.name.trim()}
                                             className="flex-1 py-2.5 rounded-xl bg-[#121212] dark:bg-white text-white dark:text-slate-900 text-sm font-black hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-none disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
                                         >
