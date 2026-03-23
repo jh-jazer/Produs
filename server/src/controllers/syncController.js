@@ -63,6 +63,20 @@ export const syncFeature = async (req, res) => {
             });
         }
 
+        // FORCE HYDRATE SYSTEM HABITS
+        // Some users might have initialized their CRDTs before system habits were properly seeded.
+        if (feature === 'habits') {
+            const systemHabits = await Habit.find({ user: userId, systemId: { $in: ['journal', 'finance', 'planner'] } }).lean();
+            const serializedSys = JSON.parse(JSON.stringify(systemHabits));
+            serializedSys.forEach(item => {
+                const id = item._id.toString();
+                // If the system habit somehow wasn't in the CRDT, force it in.
+                if (!map.has(id)) {
+                    map.set(id, { ...item, _id: id, userId: item.user || item.userId });
+                }
+            });
+        }
+
         // 2. Apply incoming update
         const clientUpdate = new Uint8Array(update);
         Y.applyUpdate(doc, clientUpdate);
@@ -89,6 +103,27 @@ export const syncFeature = async (req, res) => {
 };
 
 /**
+ * Clean up crdt payload before saving back to Mongoose.
+ * Strips out 'local-' string IDs and malformed BSON ObjectId objects in nested arrays.
+ */
+function cleanPayload(entry) {
+    const payload = { ...entry };
+    if (typeof payload._id === 'string' && payload._id.startsWith('local-')) {
+        delete payload._id;
+    }
+    if (payload.checks && Array.isArray(payload.checks)) {
+         payload.checks = payload.checks.map(c => {
+             const cleanCheck = { ...c };
+             if (cleanCheck._id && typeof cleanCheck._id === 'object') {
+                 delete cleanCheck._id;
+             }
+             return cleanCheck;
+         });
+    }
+    return payload;
+}
+
+/**
  * Helper to keep MongoDB documents in sync with the CRDT state.
  * This ensures that standard GET /api/journal still works and returns the latest data.
  */
@@ -113,8 +148,8 @@ async function updateLegacyModels(feature, userId, doc) {
                     
                 await Journal.findOneAndUpdate(
                     query,
-                    { ...entry, user: userId },
-                    { upsert: true, new: true }
+                    { ...cleanPayload(entry), user: userId },
+                    { upsert: true, returnDocument: 'after' }
                 );
             } catch (err) {
                 console.error("🚨 Failed to update legacy model for journal entry:", entry._id, err.message);
@@ -147,8 +182,8 @@ async function updateLegacyModels(feature, userId, doc) {
 
                 await Model.findOneAndUpdate(
                     query,
-                    { ...entry, user: userId },
-                    { upsert: true, new: true }
+                    { ...cleanPayload(entry), user: userId },
+                    { upsert: true, returnDocument: 'after' }
                 );
             } catch (err) {
                 console.error(`🚨 Failed to update legacy model for finance (${entry.type}) entry:`, entry._id, err.message);
@@ -166,8 +201,8 @@ async function updateLegacyModels(feature, userId, doc) {
                 
                 await Habit.findOneAndUpdate(
                     query,
-                    { ...entry, user: userId },
-                    { upsert: true, new: true }
+                    { ...cleanPayload(entry), user: userId },
+                    { upsert: true, returnDocument: 'after' }
                 );
             } catch (err) {
                 console.error("🚨 Failed to update legacy model for habit entry:", entry._id, err.message);
@@ -185,8 +220,8 @@ async function updateLegacyModels(feature, userId, doc) {
                 
                 await Task.findOneAndUpdate(
                     query,
-                    { ...entry, user: userId },
-                    { upsert: true, new: true }
+                    { ...cleanPayload(entry), user: userId },
+                    { upsert: true, returnDocument: 'after' }
                 );
             } catch (err) {
                 console.error("🚨 Failed to update legacy model for planner task entry:", entry._id, err.message);

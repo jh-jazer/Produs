@@ -199,7 +199,15 @@ function HabitTracker({
         setModalStep('custom');
     };
 
-    const handleUpdateHabit = async () => {
+    const startEditHabit = (habit) => {
+        setEditingHabit({ ...habit });
+    };
+
+    const cancelEditHabit = () => {
+        setEditingHabit(null);
+    };
+
+    const saveEditHabit = async () => {
         if (!editingHabit) return;
         await updateHabit(editingHabit._id, {
             name: editingHabit.name,
@@ -292,7 +300,7 @@ function HabitTracker({
                                     <div className="relative w-7 h-7 rounded-full border border-slate-200 dark:border-white/10 overflow-hidden flex">
                                         {/* My Half (Left) */}
                                         <button
-                                            onClick={() => toggleCheck(habit.myPart?._id || habit._id, date)}
+                                            onClick={() => handleToggle(habit.myPart?._id || habit._id, date)}
                                             disabled={editMode || isLocked || isReadOnly || isSystemHabit}
                                             title={isSystemHabit ? "Completed automatically by doing the task" : ""}
                                             className={`relative w-1/2 h-full flex items-center justify-end pr-0.5 z-10 ${isSystemHabit ? 'cursor-default' : ''}`}
@@ -331,7 +339,7 @@ function HabitTracker({
                                 ) : (
                                     // NORMAL CHECK CIRCLE
                                     <button
-                                        onClick={() => toggleCheck(habit._id, date)}
+                                        onClick={() => handleToggle(habit._id, date)}
                                         disabled={editMode || isLocked || isReadOnly || (isPartnerView && habit.user !== propMyHabits?.[0]?.user) || isSystemHabit}
                                         title={isSystemHabit ? "Completed automatically by doing the task" : ""}
                                         className={`relative w-7 h-7 rounded-full flex items-center justify-center transition-all overflow-hidden ${isFuture
@@ -481,7 +489,10 @@ function HabitTracker({
                 <div className="relative z-10 w-full overflow-y-auto custom-scrollbar hover-scrollbar flex-1 flex flex-col">
 
                     {/* Header Row */}
-                    <div className="flex items-center gap-4 py-3 border-b border-slate-200 dark:border-white/10">
+                    <div className="flex items-center gap-4 py-3 border-b border-slate-200 dark:border-white/10 px-2 lg:px-0">
+                        {editMode && !isPartnerView && (
+                            <div className="w-[24px] pr-1"></div>
+                        )}
                         <div className={`${isDashboard ? 'flex-1 min-w-0' : 'w-1/3 min-w-[150px]'} font-bold text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider`}>Habit</div>
                         <div className={`flex-1 flex ${isDashboard ? 'justify-end' : 'justify-between'} items-center text-xs font-semibold text-slate-400 dark:text-slate-500`}>
                             {daysToDisplay.map((date, i) => (
