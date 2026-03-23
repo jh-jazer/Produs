@@ -11,9 +11,7 @@ const PRESET_CATEGORIES = [
     'Gifts', 'Pets', 'Other'
 ];
 
-const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
-    const isOnline = useConnectivityStore(state => state.isOnline);
-    const addToQueue = useConnectivityStore(state => state.addToQueue);
+const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFinanceItem, updateFinanceItem, deleteFinanceItem }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editBudgets, setEditBudgets] = useState([]); // Array of { _id, category, limit }
     const [newCategory, setNewCategory] = useState({ category: '', limit: '' });
@@ -38,53 +36,25 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction }) => {
     const budgetList = budgets;
 
     const handleSave = async () => {
-        if (!isOnline) {
-            // 1. Queue deletions
-            deletedBudgetIds.forEach(id => {
-                addToQueue({
-                    id,
-                    type: 'finance-budget',
-                    method: 'DELETE',
-                    url: `/finance/budgets/${id}`
-                });
-            });
+        // 1. Delete marked budgets
+        await Promise.all(
+            deletedBudgetIds.map(id => deleteFinanceItem(id))
+        );
 
-            // 2. Queue updates/creations
-            editBudgets.forEach(b => {
-                addToQueue({
-                    id: b._id || `temp-budget-${Date.now()}-${b.category}`,
-                    type: 'finance-budget',
-                    method: 'PUT',
-                    url: '/finance/budgets',
-                    data: { category: b.category, limit: parseFloat(b.limit) }
-                });
-            });
+        // 2. Update existing or create new budgets
+        await Promise.all(
+            editBudgets.map(b => {
+                if (b._id) {
+                    return updateFinanceItem(b._id, 'budget', { category: b.category, limit: parseFloat(b.limit) });
+                } else {
+                    return addFinanceItem('budget', { category: b.category, limit: parseFloat(b.limit) });
+                }
+            })
+        );
 
-            setIsEditing(false);
-            setDeletedBudgetIds([]);
-            if (onAction) onAction();
-            return;
-        }
-
-        try {
-            // 1. Delete marked budgets
-            await Promise.all(
-                deletedBudgetIds.map(id => api.delete(`/finance/budgets/${id}`))
-            );
-
-            // 2. Update existing or create new budgets
-            await Promise.all(
-                editBudgets.map(b =>
-                    api.put('/finance/budgets', { category: b.category, limit: parseFloat(b.limit) })
-                )
-            );
-
-            setIsEditing(false);
-            setDeletedBudgetIds([]);
-            onAction();
-        } catch (error) {
-            console.error('Failed to save budgets:', error);
-        }
+        setIsEditing(false);
+        setDeletedBudgetIds([]);
+        if (onAction) onAction();
     };
 
     const addCategory = () => {

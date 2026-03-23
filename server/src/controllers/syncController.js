@@ -4,6 +4,10 @@ import Journal from '../models/Journal.js';
 import Habit from '../models/Habit.js';
 import Task from '../models/Task.js';
 import Transaction from '../models/Transaction.js';
+import Budget from '../models/Budget.js';
+import Debt from '../models/Debt.js';
+import Saving from '../models/Saving.js';
+import Wishlist from '../models/Wishlist.js';
 
 /**
  * Handle synchronization for a specific feature.
@@ -34,7 +38,21 @@ export const syncFeature = async (req, res) => {
             if (feature === 'journal') legacyData = await Journal.find({ user: userId }).lean();
             if (feature === 'habits') legacyData = await Habit.find({ user: userId }).lean();
             if (feature === 'planner') legacyData = await Task.find({ user: userId }).lean();
-            if (feature === 'finance') legacyData = await Transaction.find({ user: userId }).lean();
+            if (feature === 'finance') {
+                const txs = await Transaction.find({ user: userId }).lean();
+                const budgets = await Budget.find({ user: userId }).lean();
+                const debts = await Debt.find({ user: userId }).lean();
+                const saves = await Saving.find({ user: userId }).lean();
+                const wishes = await Wishlist.find({ user: userId }).lean();
+                
+                legacyData = [
+                    ...txs.map(t => ({...t, type: 'transaction'})),
+                    ...budgets.map(b => ({...b, type: 'budget'})),
+                    ...debts.map(d => ({...d, type: 'debt'})),
+                    ...saves.map(s => ({...s, type: 'saving'})),
+                    ...wishes.map(w => ({...w, type: 'wishlist'}))
+                ];
+            }
             
             // Add existing items into the Y.Map using their specific ID patterns or _id
             const serializedData = JSON.parse(JSON.stringify(legacyData));
@@ -89,8 +107,6 @@ async function updateLegacyModels(feature, userId, doc) {
                 }
 
                 // Update or Create the Journal record
-                // We use the _id from the CRDT (which might contain 'local-') 
-                // but we should probably handle mapping carefully.
                 const query = (entry._id && entry._id.startsWith('local-'))
                     ? { content: entry.content, user: userId }
                     : { _id: entry._id, user: userId };
@@ -105,5 +121,76 @@ async function updateLegacyModels(feature, userId, doc) {
             }
         }
     }
-    // TODO: Implement for other features (Habits, Planner, Finance)
+
+    if (feature === 'finance') {
+        const entries = Object.values(data);
+        for (const entry of entries) {
+            try {
+                const Model = entry.type === 'transaction' ? Transaction :
+                              entry.type === 'budget' ? Budget :
+                              entry.type === 'debt' ? Debt :
+                              entry.type === 'saving' ? Saving :
+                              entry.type === 'wishlist' ? Wishlist : null;
+
+                if (!Model) continue;
+
+                // Handle local IDs by upserting based on a combination of title/category and amounts.
+                // Otherwise use the exact mongo _id.
+                let query = { _id: entry._id, user: userId };
+                if (entry._id && entry._id.startsWith('local-')) {
+                     if (entry.type === 'transaction') query = { title: entry.title, amount: entry.amount, user: userId };
+                     if (entry.type === 'budget') query = { category: entry.category, limit: entry.limit, user: userId };
+                     if (entry.type === 'debt') query = { title: entry.title, amount: entry.amount, user: userId };
+                     if (entry.type === 'saving') query = { title: entry.title, amount: entry.amount, user: userId };
+                     if (entry.type === 'wishlist') query = { title: entry.title, price: entry.price, user: userId };
+                }
+
+                await Model.findOneAndUpdate(
+                    query,
+                    { ...entry, user: userId },
+                    { upsert: true, new: true }
+                );
+            } catch (err) {
+                console.error(`🚨 Failed to update legacy model for finance (${entry.type}) entry:`, entry._id, err.message);
+            }
+        }
+    }
+
+    if (feature === 'habits') {
+        const entries = Object.values(data);
+        for (const entry of entries) {
+            try {
+                const query = (entry._id && entry._id.startsWith('local-'))
+                    ? { name: entry.name, category: entry.category, user: userId }
+                    : { _id: entry._id, user: userId };
+                
+                await Habit.findOneAndUpdate(
+                    query,
+                    { ...entry, user: userId },
+                    { upsert: true, new: true }
+                );
+            } catch (err) {
+                console.error("🚨 Failed to update legacy model for habit entry:", entry._id, err.message);
+            }
+        }
+    }
+
+    if (feature === 'planner') {
+        const entries = Object.values(data);
+        for (const entry of entries) {
+            try {
+                const query = (entry._id && entry._id.startsWith('local-'))
+                    ? { title: entry.title, date: entry.date, type: entry.type, user: userId }
+                    : { _id: entry._id, user: userId };
+                
+                await Task.findOneAndUpdate(
+                    query,
+                    { ...entry, user: userId },
+                    { upsert: true, new: true }
+                );
+            } catch (err) {
+                console.error("🚨 Failed to update legacy model for planner task entry:", entry._id, err.message);
+            }
+        }
+    }
 }

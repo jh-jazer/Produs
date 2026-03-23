@@ -5,13 +5,10 @@ import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import useConnectivityStore from '../../store/useConnectivityStore';
 
-const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
-    const isOnline = useConnectivityStore(state => state.isOnline);
-    const addToQueue = useConnectivityStore(state => state.addToQueue);
+const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updateFinanceItem, deleteFinanceItem }) => {
     const [showAdd, setShowAdd] = useState(false);
     const [fundingGoal, setFundingGoal] = useState(null); // stores saving object
     const [fundAmount, setFundAmount] = useState('');
-    const [loading, setLoading] = useState(false);
     const [newGoal, setNewGoal] = useState({ title: '', target: '', initialAmount: '' });
 
     const handleAdd = async (e) => {
@@ -24,31 +21,10 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
             type: 'new'
         };
 
-        if (!isOnline) {
-            addToQueue({
-                id: `temp-saving-${Date.now()}`,
-                type: 'finance-saving',
-                method: 'POST',
-                url: '/finance/savings',
-                data: goalData
-            });
-            setShowAdd(false);
-            setNewGoal({ title: '', target: '', initialAmount: '' });
-            if (onAction) onAction();
-            return;
-        }
-
-        setLoading(true);
-        try {
-            await api.post('/finance/savings', goalData);
-            onAction();
-            setShowAdd(false);
-            setNewGoal({ title: '', target: '', initialAmount: '' });
-        } catch (error) {
-            console.error('Failed to add goal:', error);
-        } finally {
-            setLoading(false);
-        }
+        await addFinanceItem('saving', goalData);
+        if (onAction) onAction();
+        setShowAdd(false);
+        setNewGoal({ title: '', target: '', initialAmount: '' });
     };
 
     const handleFund = async (e) => {
@@ -57,61 +33,18 @@ const SavingsPanel = ({ savings, currencySymbol, onAction }) => {
         const amount = parseFloat(fundAmount);
         if (isNaN(amount) || amount <= 0) return;
 
-        if (!isOnline) {
-            addToQueue({
-                id: `temp-fund-${Date.now()}`,
-                type: 'finance-saving',
-                method: 'POST',
-                url: '/finance/savings',
-                data: {
-                    goalId: fundingGoal._id,
-                    amount: amount,
-                    type: 'fund'
-                }
-            });
-            setFundingGoal(null);
-            setFundAmount('');
-            if (onAction) onAction();
-            return;
-        }
-
-        setLoading(true);
-        try {
-            await api.post('/finance/savings', {
-                goalId: fundingGoal._id,
-                amount: amount,
-                type: 'fund'
-            });
-            onAction();
-            setFundingGoal(null);
-            setFundAmount('');
-        } catch (error) {
-            console.error('Failed to fund goal:', error);
-        } finally {
-            setLoading(false);
-        }
+        const newAmount = fundingGoal.amount + amount;
+        await updateFinanceItem(fundingGoal._id, 'saving', { amount: newAmount });
+        if (onAction) onAction();
+        setFundingGoal(null);
+        setFundAmount('');
     };
 
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     const handleDelete = async (id) => {
-        if (!isOnline) {
-            addToQueue({
-                id,
-                type: 'finance-saving',
-                method: 'DELETE',
-                url: `/finance/savings/${id}`
-            });
-            if (onAction) onAction();
-            return;
-        }
-
-        try {
-            await api.delete(`/finance/savings/${id}`);
-            onAction();
-        } catch (error) {
-            console.error('Failed to delete goal:', error);
-        }
+        await deleteFinanceItem(id);
+        if (onAction) onAction();
     };
 
     const totalSavings = savings.reduce((sum, s) => sum + s.amount, 0);

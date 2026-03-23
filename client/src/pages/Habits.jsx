@@ -18,7 +18,7 @@ function Habits() {
     const [activeTab, setActiveTab] = useState('tracker');
     const isOnline = useConnectivityStore(state => state.isOnline);
 
-    const { habits, isLoading, toggleCheck, addHabit, deleteHabit, reorderHabits } = useHabitsLocal();
+    const { habits, isLoading, toggleCheck, addHabit, deleteHabit, updateHabit, reorderHabits } = useHabitsLocal();
 
     useEffect(() => {
         if (!isOnline && viewMode === 'partner') {
@@ -73,6 +73,12 @@ function Habits() {
                             isPartnerView={viewMode === 'partner'}
                             partnerName={user?.partner?.name}
                             isLoading={isLoading}
+                            toggleCheck={toggleCheck}
+                            addHabit={addHabit}
+                            deleteHabit={deleteHabit}
+                            updateHabit={updateHabit}
+                            reorderHabits={reorderHabits}
+                            myUserId={user?._id}
                         />
                     </div>
 

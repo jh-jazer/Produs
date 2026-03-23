@@ -48,31 +48,10 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
             price: parseFloat(newItem.budgetPrice)
         };
 
-        if (!isOnline) {
-            addToQueue({
-                id: `temp-wish-${Date.now()}`,
-                type: 'finance-wishlist',
-                method: 'POST',
-                url: '/finance/wishlist',
-                data: wishlistData
-            });
-            setIsAdding(false);
-            setNewItem({ title: '', budgetPrice: '', priority: 'Medium', category: 'General', link: '', imageUrl: '' });
-            if (onAction) onAction();
-            return;
-        }
-
-        setLoading(true);
-        try {
-            await api.post('/finance/wishlist', wishlistData);
-            onAction();
-            setIsAdding(false);
-            setNewItem({ title: '', budgetPrice: '', priority: 'Medium', category: 'General', link: '', imageUrl: '' });
-        } catch (error) {
-            console.error('Failed to add to wishlist:', error);
-        } finally {
-            setLoading(false);
-        }
+        await addFinanceItem('wishlist', wishlistData);
+        if (onAction) onAction();
+        setIsAdding(false);
+        setNewItem({ title: '', budgetPrice: '', priority: 'Medium', category: 'General', link: '', imageUrl: '' });
     };
 
     const handleBought = async (e) => {
@@ -82,116 +61,48 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
         const actual = parseFloat(actualPrice);
         const savingsAmount = (buyingItem.budgetPrice || buyingItem.price) - actual;
 
-        const mutations = [
-            {
-                id: buyingItem._id,
-                type: 'finance-wishlist',
-                method: 'PATCH',
-                url: `/finance/wishlist/${buyingItem._id}`,
-                data: {
-                    purchased: true,
-                    actualPrice: actual,
-                    savings: savingsAmount
-                }
-            },
-            {
-                id: `temp-tx-bought-${Date.now()}`,
-                type: 'finance-transaction',
-                method: 'POST',
-                url: '/finance/transactions',
-                data: {
-                    title: buyingItem.title,
-                    amount: actual,
-                    type: 'expense',
-                    category: buyingItem.category || 'General',
-                    date: new Date().toISOString().split('T')[0]
-                }
-            }
-        ];
+        // 1. Mark wishlist item as purchased
+        await updateFinanceItem(buyingItem._id, 'wishlist', {
+            purchased: true,
+            actualPrice: actual,
+            savings: savingsAmount
+        });
 
+        // 2. Add as transaction
+        await addFinanceItem('transaction', {
+            title: buyingItem.title,
+            amount: actual,
+            type: 'expense',
+            category: buyingItem.category || 'General',
+            date: new Date().toISOString().split('T')[0]
+        });
+
+        // 3. Add savings transaction if saved money
         if (savingsAmount > 0) {
-            mutations.push({
-                id: `temp-tx-savings-${Date.now()}`,
-                type: 'finance-transaction',
-                method: 'POST',
-                url: '/finance/transactions',
-                data: {
-                    title: `Saved on: ${buyingItem.title}`,
-                    amount: savingsAmount,
-                    type: 'savings',
-                    category: 'Savings',
-                    date: new Date().toISOString().split('T')[0]
-                }
+            await addFinanceItem('transaction', {
+                title: `Saved on: ${buyingItem.title}`,
+                amount: savingsAmount,
+                type: 'savings',
+                category: 'Savings',
+                date: new Date().toISOString().split('T')[0]
             });
         }
 
-        if (!isOnline) {
-            mutations.forEach(m => addToQueue(m));
-            setBuyingItem(null);
-            setActualPrice('');
-            if (onAction) onAction();
-            return;
-        }
-
-        setLoading(true);
-        try {
-            await Promise.all(mutations.map(m => {
-                if (m.method === 'PATCH') return api.patch(m.url, m.data);
-                return api.post(m.url, m.data);
-            }));
-            onAction();
-            setBuyingItem(null);
-            setActualPrice('');
-        } catch (error) {
-            console.error('Failed to process purchase:', error);
-        } finally {
-            setLoading(false);
-        }
+        if (onAction) onAction();
+        setBuyingItem(null);
+        setActualPrice('');
     };
 
     const togglePurchased = async (item) => {
-        const updatedStatus = !item.purchased;
-
-        if (!isOnline) {
-            addToQueue({
-                id: item._id,
-                type: 'finance-wishlist',
-                method: 'PATCH',
-                url: `/finance/wishlist/${item._id}`,
-                data: { purchased: updatedStatus }
-            });
-            if (onAction) onAction();
-            return;
-        }
-
-        try {
-            await api.patch(`/finance/wishlist/${item._id}`, { purchased: updatedStatus });
-            onAction();
-        } catch (error) {
-            console.error('Failed to update wishlist item:', error);
-        }
+        await updateFinanceItem(item._id, 'wishlist', { purchased: !item.purchased });
+        if (onAction) onAction();
     };
 
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     const handleDelete = async (id) => {
-        if (!isOnline) {
-            addToQueue({
-                id,
-                type: 'finance-wishlist',
-                method: 'DELETE',
-                url: `/finance/wishlist/${id}`
-            });
-            if (onAction) onAction();
-            return;
-        }
-
-        try {
-            await api.delete(`/finance/wishlist/${id}`);
-            onAction();
-        } catch (error) {
-            console.error('Failed to delete wishlist item:', error);
-        }
+        await deleteFinanceItem(id);
+        if (onAction) onAction();
     };
 
     const filteredItems = items?.filter(item => 

@@ -4,11 +4,8 @@ import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import useConnectivityStore from '../../store/useConnectivityStore';
 
-const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onAction }) => {
-    const isOnline = useConnectivityStore(state => state.isOnline);
-    const addToQueue = useConnectivityStore(state => state.addToQueue);
+const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onAction, addFinanceItem, deleteFinanceItem }) => {
     const [showAdd, setShowAdd] = useState(false);
-    const [loading, setLoading] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(null);
     const [newTx, setNewTx] = useState({ title: '', amount: '', type: 'expense', category: 'General', date: new Date().toISOString().split('T')[0] });
 
@@ -30,51 +27,15 @@ const RecentTransactions = ({ transactions, budgets = [], currencySymbol, onActi
             amount: parseFloat(newTx.amount)
         };
 
-        if (!isOnline) {
-            addToQueue({
-                id: `temp-${Date.now()}`,
-                type: 'finance-transaction',
-                method: 'POST',
-                url: '/finance/transactions',
-                data: txData
-            });
-            setShowAdd(false);
-            setNewTx({ title: '', amount: '', type: 'expense', category: 'General', date: new Date().toISOString().split('T')[0] });
-            if (onAction) onAction();
-            return;
-        }
-
-        setLoading(true);
-        try {
-            await api.post('/finance/transactions', txData);
-            onAction();
-            setShowAdd(false);
-            setNewTx({ title: '', amount: '', type: 'expense', category: 'General', date: new Date().toISOString().split('T')[0] });
-        } catch (error) {
-            console.error('Failed to add transaction:', error);
-        } finally {
-            setLoading(false);
-        }
+        await addFinanceItem('transaction', txData);
+        if (onAction) onAction();
+        setShowAdd(false);
+        setNewTx({ title: '', amount: '', type: 'expense', category: 'General', date: new Date().toISOString().split('T')[0] });
     };
 
     const handleDelete = async (id) => {
-        if (!isOnline) {
-            addToQueue({
-                id,
-                type: 'finance-transaction',
-                method: 'DELETE',
-                url: `/finance/transactions/${id}`
-            });
-            if (onAction) onAction();
-            return;
-        }
-
-        try {
-            await api.delete(`/finance/transactions/${id}`);
-            onAction();
-        } catch (error) {
-            console.error('Failed to delete transaction:', error);
-        }
+        await deleteFinanceItem(id);
+        if (onAction) onAction();
     };
 
     return (

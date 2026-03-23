@@ -61,9 +61,7 @@ export default defineConfig({
         ]
       },
       injectManifest: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        // Exclude /api/ and /auth/ from navigation fallback to allow server-side redirects (like OAuth)
-        navigateFallbackDenylist: [/^\/api\//, /^\/auth\//]
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
       }
     })
   ],

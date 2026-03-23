@@ -5,9 +5,7 @@ import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import useConnectivityStore from '../../store/useConnectivityStore';
 
-const DebtManager = ({ debts, currencySymbol, onAction }) => {
-    const isOnline = useConnectivityStore(state => state.isOnline);
-    const addToQueue = useConnectivityStore(state => state.addToQueue);
+const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFinanceItem, deleteFinanceItem }) => {
     const [showAdd, setShowAdd] = useState(false);
     const [summaryView, setSummaryView] = useState('overall'); // 'overall' or specific month string
     const [showPayModal, setShowPayModal] = useState(null); // stores debt object
@@ -30,44 +28,18 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
             total: parseFloat(newDebt.amount) 
         };
 
-        if (!isOnline) {
-            addToQueue({
-                id: `temp-debt-${Date.now()}`,
-                type: 'finance-debt',
-                method: 'POST',
-                url: '/finance/debts',
-                data: debtData
-            });
-            setShowAdd(false);
-            setNewDebt({ 
-                title: '', 
-                amount: '', 
-                type: 'personal', 
-                nature: 'debt', 
-                dueDate: '', 
-                isMonthly: false, 
-                monthsLeft: '' 
-            });
-            if (onAction) onAction();
-            return;
-        }
-
-        try {
-            await api.post('/finance/debts', debtData);
-            onAction();
-            setShowAdd(false);
-            setNewDebt({ 
-                title: '', 
-                amount: '', 
-                type: 'personal', 
-                nature: 'debt', 
-                dueDate: '', 
-                isMonthly: false, 
-                monthsLeft: '' 
-            });
-        } catch (error) {
-            console.error('Failed to add record:', error);
-        }
+        await addFinanceItem('debt', debtData);
+        if (onAction) onAction();
+        setShowAdd(false);
+        setNewDebt({ 
+            title: '', 
+            amount: '', 
+            type: 'personal', 
+            nature: 'debt', 
+            dueDate: '', 
+            isMonthly: false, 
+            monthsLeft: '' 
+        });
     };
 
     const handlePayment = async (e) => {
@@ -78,52 +50,17 @@ const DebtManager = ({ debts, currencySymbol, onAction }) => {
         
         const updatedAmount = Math.max(0, showPayModal.amount - payment);
 
-        if (!isOnline) {
-            addToQueue({
-                id: showPayModal._id,
-                type: 'finance-debt',
-                method: 'PATCH',
-                url: `/finance/debts/${showPayModal._id}`,
-                data: { amount: updatedAmount }
-            });
-            setShowPayModal(null);
-            setPayAmount('');
-            if (onAction) onAction();
-            return;
-        }
-
-        try {
-            await api.patch(`/finance/debts/${showPayModal._id}`, { 
-                amount: updatedAmount 
-            });
-            onAction();
-            setShowPayModal(null);
-            setPayAmount('');
-        } catch (error) {
-            console.error('Failed to update record:', error);
-        }
+        await updateFinanceItem(showPayModal._id, 'debt', { amount: updatedAmount });
+        if (onAction) onAction();
+        setShowPayModal(null);
+        setPayAmount('');
     };
 
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     const handleDelete = async (id) => {
-        if (!isOnline) {
-            addToQueue({
-                id,
-                type: 'finance-debt',
-                method: 'DELETE',
-                url: `/finance/debts/${id}`
-            });
-            if (onAction) onAction();
-            return;
-        }
-
-        try {
-            await api.delete(`/finance/debts/${id}`);
-            onAction();
-        } catch (error) {
-            console.error('Failed to delete record:', error);
-        }
+        await deleteFinanceItem(id);
+        if (onAction) onAction();
     };
 
     const sortedDebts = [...debts].sort((a, b) => {
