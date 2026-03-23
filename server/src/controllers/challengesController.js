@@ -151,9 +151,9 @@ export const getChallenges = async (req, res) => {
                 id: 7,
                 name: "Digital Declutter",
                 description: "Delete 5 apps, organize folders, unsubscribe.",
-                progress: 0,
+                progress: user.challengeProgress?.get('7') || 0,
                 target: 1,
-                daysLeft: 18,
+                daysLeft: Math.max(0, 31 - new Date().getDate()),
                 color: "slate",
                 icon: "cleaning_services",
                 category: "March Special",
@@ -165,7 +165,7 @@ export const getChallenges = async (req, res) => {
                 description: "Deep Work session every weekday this month.",
                 progress: deepWorkTasks.filter(t => t.date.startsWith('2026-03')).length,
                 target: 22,
-                daysLeft: 18,
+                daysLeft: Math.max(0, 31 - new Date().getDate()),
                 color: "blue",
                 icon: "trending_up",
                 category: "March Special",
@@ -175,9 +175,9 @@ export const getChallenges = async (req, res) => {
                 id: 9,
                 name: "Flow State",
                 description: "Join Live Focus Room and work for 2 hours.",
-                progress: 0,
+                progress: user.challengeProgress?.get('9') || 0,
                 target: 2,
-                daysLeft: 18,
+                daysLeft: Math.max(0, 31 - new Date().getDate()),
                 color: "blue",
                 icon: "groups",
                 category: "March Special",
@@ -186,6 +186,30 @@ export const getChallenges = async (req, res) => {
         ];
 
         res.json(challenges);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const updateChallengeProgress = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { id } = req.params;
+        const { increment = 1 } = req.body;
+        const challengeId = id.toString();
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        if (!user.challengeProgress) {
+            user.challengeProgress = new Map();
+        }
+
+        const currentProgress = user.challengeProgress.get(challengeId) || 0;
+        user.challengeProgress.set(challengeId, currentProgress + increment);
+
+        await user.save();
+        res.json({ message: 'Progress updated', progress: user.challengeProgress.get(challengeId) });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

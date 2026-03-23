@@ -8,5 +8,6 @@ router.use(protect);
 
 router.get('/', challengesController.getChallenges);
 router.post('/:id/toggle', challengesController.toggleChallengeJoin);
+router.post('/:id/progress', challengesController.updateChallengeProgress);
 
 export default router;

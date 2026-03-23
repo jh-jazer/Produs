@@ -81,6 +81,17 @@ export const syncFeature = async (req, res) => {
         const clientUpdate = new Uint8Array(update);
         Y.applyUpdate(doc, clientUpdate);
 
+        // CLEAR PENDING: Once any update reaches the server, it is by definition 'no longer pending'.
+        // This ensures the client-side 'Pending' UI indicator correctly disappears.
+        const featureMap = doc.getMap(feature);
+        doc.transact(() => {
+            for (const [key, value] of featureMap.entries()) {
+                if (value && typeof value === 'object' && value.isPending === true) {
+                    featureMap.set(key, { ...value, isPending: false });
+                }
+            }
+        });
+
         // 3. Save new state
         const newState = Y.encodeStateAsUpdate(doc);
         if (yjsState) {
@@ -111,6 +122,7 @@ function cleanPayload(entry) {
     if (typeof payload._id === 'string' && payload._id.startsWith('local-')) {
         delete payload._id;
     }
+    delete payload.isPending; // Always remove isPending from Mongoose docs
     if (payload.checks && Array.isArray(payload.checks)) {
          payload.checks = payload.checks.map(c => {
              const cleanCheck = { ...c };

@@ -46,30 +46,30 @@ function Planner() {
                     {/* Header - Hidden on Mobile */}
                     <div className="hidden lg:flex flex-col gap-1 px-1">
                         <div className="flex items-center justify-between">
-                            <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">
-                                What's the Plan?
+                            <h1 className="text-black dark:text-white text-3xl font-semibold tracking-[-0.02em]">
+                                The Plan
                             </h1>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                            Organize your schedule.
+                        <p className="text-black/40 dark:text-white/40 text-[9px] font-semibold uppercase tracking-[0.4em] mt-1">
+                            Daily Trajectory
                         </p>
                     </div>
 
 
                     {/* View Toggle */}
                     {user?.partner && (
-                        <div className="bg-slate-50 dark:bg-[#000000]/50 p-1 rounded-xl flex">
+                        <div className="bg-black/[0.04] dark:bg-[#050505]/60 p-1 rounded-2xl flex border border-black/[0.05] dark:border-white/5">
                             <button
                                 onClick={() => setViewMode('me')}
-                                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'me' ? 'bg-white dark:bg-[#121212] shadow-none text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                                className={`flex-1 py-2 text-[9px] font-semibold uppercase tracking-[0.2em] rounded-xl transition-all ${viewMode === 'me' ? 'bg-white dark:bg-[#121212] shadow-lg text-black dark:text-white border border-black/[0.05] dark:border-white/10' : 'text-black/40 dark:text-white/40 hover:text-black/60 dark:hover:text-white/60'}`}
                             >
-                                My Planner
+                                Personal
                             </button>
                             <button
                                 onClick={() => setViewMode('partner')}
-                                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'partner' ? 'bg-white dark:bg-[#121212] shadow-none text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                                className={`flex-1 py-2 text-[9px] font-semibold uppercase tracking-[0.2em] rounded-xl transition-all ${viewMode === 'partner' ? 'bg-white dark:bg-[#121212] shadow-lg text-black dark:text-white border border-black/[0.05] dark:border-white/10' : 'text-black/40 dark:text-white/40 hover:text-black/60 dark:hover:text-white/60'}`}
                             >
-                                Shared Planner
+                                Shared
                             </button>
                         </div>
                     )}

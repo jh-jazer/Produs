@@ -35,7 +35,7 @@ const MobileTabNav = ({ tabs, activeTab, setActiveTab }) => {
                     transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                     className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 lg:hidden"
                 >
-                    <div className="flex items-center gap-1.5 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-200/50 dark:border-white/10/50 shadow-2xl shadow-black/10">
+                    <div className="flex items-center gap-1.5 bg-[#f8f8f8]/90 dark:bg-[#050505]/90 backdrop-blur-xl p-1.5 rounded-2xl border border-black/[0.08] dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
                         {tabs.map((tab) => {
                             const Icon = tab.icon;
                             return (
@@ -55,13 +55,13 @@ const MobileTabNav = ({ tabs, activeTab, setActiveTab }) => {
                                     className={`relative flex items-center justify-center size-12 rounded-xl transition-all duration-300 ${
                                         activeTab === tab.id
                                             ? 'text-white'
-                                            : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+                                            : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'
                                     }`}
                                 >
                                     {activeTab === tab.id && (
                                         <motion.div
                                             layoutId="active-tab-bg"
-                                            className="absolute inset-0 bg-primary rounded-xl shadow-lg shadow-primary/30"
+                                            className="absolute inset-0 bg-electric-blue rounded-xl shadow-lg shadow-electric-blue/30"
                                             transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                                         />
                                     )}
@@ -79,10 +79,10 @@ const MobileTabNav = ({ tabs, activeTab, setActiveTab }) => {
                                             <motion.span
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#121212] text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-xl pointer-events-none whitespace-nowrap"
+                                                className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#050505] dark:bg-[#121212] text-white text-[9px] font-semibold uppercase tracking-[0.3em] rounded-lg shadow-xl pointer-events-none whitespace-nowrap border border-white/10"
                                             >
                                                 {tab.label}
-                                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#050505] dark:border-t-[#121212]" />
                                             </motion.span>
                                         )}
                                     </AnimatePresence>

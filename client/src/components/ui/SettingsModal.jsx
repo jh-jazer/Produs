@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import SyncService from '../../services/SyncService';
 
 const SettingsModal = ({ isOpen, onClose }) => {
     const { user, updateSettings, deleteAccount } = useAuthStore();
@@ -12,6 +13,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteWord, setDeleteWord] = useState('');
     const [apiStatus, setApiStatus] = useState('checking');
+    const [syncInfo, setSyncInfo] = useState(() => SyncService.getSyncStatus());
 
     const themes = [
         { id: 'classic', name: 'Classic Blue', color: '#135bec' },
@@ -22,10 +24,21 @@ const SettingsModal = ({ isOpen, onClose }) => {
     ];
 
     useEffect(() => {
+        const unsub = SyncService.subscribe(setSyncInfo);
+        return unsub;
+    }, []);
+
+    useEffect(() => {
         if (isOpen) {
             checkApiStatus();
         }
     }, [isOpen]);
+
+    const handleForceSync = () => {
+        if (user?._id) {
+            SyncService.syncAll(user._id);
+        }
+    };
 
     const checkApiStatus = async () => {
         setApiStatus('checking');
@@ -111,59 +124,59 @@ const SettingsModal = ({ isOpen, onClose }) => {
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative z-10 w-full max-w-md bg-white dark:bg-[#121212] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden"
+                        className="relative z-10 w-full max-w-md bg-white dark:bg-[#121212] rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 overflow-hidden ar-corners"
                     >
-                        <div className="p-6 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
-                            <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Settings</h3>
+                        <div className="p-6 border-b border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02]">
+                            <h3 className="text-xl font-semibold text-black dark:text-white tracking-[-0.02em]">Settings</h3>
                             <button
                                 onClick={onClose}
-                                className="size-8 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-[#000000] text-slate-400 transition-colors"
+                                className="size-8 flex items-center justify-center rounded-xl hover:bg-black/[0.05] dark:hover:bg-white/[0.05] text-black/40 dark:text-white/40 transition-colors"
                             >
-                                <span className="material-symbols-outlined">close</span>
+                                <span className="material-symbols-outlined text-xl">close</span>
                             </button>
                         </div>
 
                         <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
                             {/* General */}
                             <div className="space-y-4">
-                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">General</h4>
+                                <h4 className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] px-1">General</h4>
 
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-[#121212]/50 border border-slate-100 dark:border-white/10">
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.03] dark:bg-[#000000]/40 border border-black/[0.05] dark:border-white/10">
                                     <div className="flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-primary">dark_mode</span>
-                                        <span className="text-sm font-bold dark:text-slate-200">Dark Mode</span>
+                                        <span className="material-symbols-outlined text-electric-blue">dark_mode</span>
+                                        <span className="text-xs font-semibold text-black/70 dark:text-white/70">Dark Mode</span>
                                     </div>
                                     <button
                                         onClick={() => handleToggle('darkMode')}
-                                        className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${localSettings.darkMode ? 'bg-primary' : 'bg-slate-300 dark:bg-[#121212]'}`}
+                                        className={`w-10 h-5 rounded-full transition-all relative flex items-center ${localSettings.darkMode ? 'bg-electric-blue' : 'bg-black/10 dark:bg-white/10'}`}
                                     >
                                         <motion.div
-                                            animate={{ x: localSettings.darkMode ? 26 : 4 }}
-                                            className="absolute size-4 bg-white rounded-full shadow-none"
+                                            animate={{ x: localSettings.darkMode ? 22 : 3 }}
+                                            className="absolute size-3.5 bg-white rounded-full shadow-sm"
                                         />
                                     </button>
                                 </div>
 
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-[#121212]/50 border border-slate-100 dark:border-white/10">
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.03] dark:bg-[#000000]/40 border border-black/[0.05] dark:border-white/10">
                                     <div className="flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-primary">notifications</span>
-                                        <span className="text-sm font-bold dark:text-slate-200">Push Notifications</span>
+                                        <span className="material-symbols-outlined text-electric-blue">notifications</span>
+                                        <span className="text-xs font-semibold text-black/70 dark:text-white/70">Push Notifications</span>
                                     </div>
                                     <button
                                         onClick={() => handleToggle('notificationsEnabled')}
-                                        className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${localSettings.notificationsEnabled ? 'bg-primary' : 'bg-slate-300 dark:bg-[#121212]'}`}
+                                        className={`w-10 h-5 rounded-full transition-all relative flex items-center ${localSettings.notificationsEnabled ? 'bg-electric-blue' : 'bg-black/10 dark:bg-white/10'}`}
                                     >
                                         <motion.div
-                                            animate={{ x: localSettings.notificationsEnabled ? 26 : 4 }}
-                                            className="absolute size-4 bg-white rounded-full shadow-none"
+                                            animate={{ x: localSettings.notificationsEnabled ? 22 : 3 }}
+                                            className="absolute size-3.5 bg-white rounded-full shadow-sm"
                                         />
                                     </button>
                                 </div>
 
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-[#121212]/50 border border-slate-100 dark:border-white/10">
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.03] dark:bg-[#000000]/40 border border-black/[0.05] dark:border-white/10">
                                      <div className="flex items-center gap-3">
-                                         <span className="material-symbols-outlined text-primary">payments</span>
-                                         <span className="text-sm font-bold dark:text-slate-200">Currency</span>
+                                         <span className="material-symbols-outlined text-electric-blue">payments</span>
+                                         <span className="text-xs font-semibold text-black/70 dark:text-white/70">Currency</span>
                                      </div>
                                      <select
                                          value={user?.currency || 'USD'}
@@ -175,7 +188,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                  console.error('Failed to sync currency:', err);
                                              }
                                          }}
-                                         className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1 text-xs font-bold outline-none dark:text-white"
+                                         className="bg-white dark:bg-[#121212] border border-black/[0.08] dark:border-white/10 rounded-xl px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider outline-none text-black/70 dark:text-white/70 focus:border-electric-blue transition-colors"
                                      >
                                          <option value="USD">USD ($)</option>
                                          <option value="PHP">PHP (₱)</option>
@@ -185,22 +198,22 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
                             {/* Theme Selection */}
                             <div className="space-y-4">
-                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Theme</h4>
+                                <h4 className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] px-1">Theme</h4>
                                 <div className="grid grid-cols-5 gap-3">
                                     {themes.map((t) => (
                                         <button
                                             key={t.id}
                                             onClick={() => handleThemeChange(t.id)}
-                                            className={`group relative flex flex-col items-center gap-2 p-2 rounded-2xl border-2 transition-all ${localSettings.theme === t.id ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-white/10 hover:border-slate-200 dark:hover:border-white/10'}`}
+                                            className={`group relative flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${localSettings.theme === t.id ? 'border-electric-blue bg-electric-blue/5' : 'border-black/[0.05] dark:border-white/5 hover:border-black/10 dark:hover:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}`}
                                             title={t.name}
                                         >
                                             <div 
-                                                className="size-8 rounded-full shadow-none ring-2 ring-white dark:ring-slate-900 group-hover:scale-110 transition-transform"
+                                                className="size-10 rounded-2xl shadow-none ring-2 ring-white dark:ring-[#121212] group-hover:scale-105 transition-transform"
                                                 style={{ backgroundColor: t.color }}
                                             />
                                             {localSettings.theme === t.id && (
-                                                <motion.span layoutId="theme-check" className="absolute -top-1 -right-1 size-4 bg-primary text-white rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
-                                                    <span className="material-symbols-outlined text-[10px] font-black">check</span>
+                                                <motion.span layoutId="theme-check" className="absolute -top-1.5 -right-1.5 size-5 bg-electric-blue text-white rounded-full flex items-center justify-center border-2 border-white dark:border-[#121212]">
+                                                    <span className="material-symbols-outlined text-[10px] font-bold">check</span>
                                                 </motion.span>
                                             )}
                                         </button>
@@ -210,69 +223,134 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
                             {/* System Area */}
                             <div className="space-y-4">
-                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">System</h4>
+                                <h4 className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] px-1">System</h4>
 
-                                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-[#121212]/50">
+                                <div className="flex items-center justify-between p-4 rounded-2xl border border-black/[0.05] dark:border-white/10 bg-black/[0.03] dark:bg-[#000000]/40">
                                     <div className="flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-slate-400">dns</span>
-                                        <span className="text-sm font-bold dark:text-slate-200">API Status</span>
+                                        <span className="material-symbols-outlined text-black/30 dark:text-white/30">dns</span>
+                                        <span className="text-xs font-semibold text-black/70 dark:text-white/70">API Status</span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        {apiStatus === 'checking' && <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Checking...</span>}
+                                        {apiStatus === 'checking' && <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-black/30 dark:text-white/30">Checking...</span>}
                                         {apiStatus === 'online' && (
-                                            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
+                                            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                                                <span className="text-[10px] font-black uppercase tracking-wider">Online</span>
+                                                <span className="text-[9px] font-semibold uppercase tracking-[0.2em]">Online</span>
                                             </div>
                                         )}
                                         {apiStatus === 'offline' && (
-                                            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-500">
+                                            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-                                                <span className="text-[10px] font-black uppercase tracking-wider">Offline</span>
+                                                <span className="text-[9px] font-semibold uppercase tracking-[0.2em]">Offline</span>
                                             </div>
                                         )}
-                                        <button onClick={checkApiStatus} className="p-1 hover:bg-slate-200 dark:hover:bg-[#121212] rounded-md transition-colors flex items-center justify-center cursor-pointer" title="Refresh Status">
-                                            <span className="material-symbols-outlined text-[16px] text-slate-400">refresh</span>
+                                        <button onClick={checkApiStatus} className="size-7 flex items-center justify-center hover:bg-black/[0.05] dark:hover:bg-white/[0.05] rounded-xl transition-colors cursor-pointer" title="Refresh Status">
+                                            <span className="material-symbols-outlined text-lg text-black/30 dark:text-white/30">refresh</span>
                                         </button>
                                     </div>
+                                </div>
+
+                                {/* Sync Status Row */}
+                                <div className="p-4 rounded-2xl border border-black/[0.05] dark:border-white/10 bg-black/[0.03] dark:bg-[#000000]/40 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <span className="material-symbols-outlined text-black/30 dark:text-white/30">sync</span>
+                                            <div>
+                                                <span className="text-xs font-semibold text-black/70 dark:text-white/70 block">Data Sync</span>
+                                                <span className="text-[9px] text-black/40 dark:text-white/40 uppercase tracking-wider font-semibold">
+                                                    {syncInfo.lastSyncedAt
+                                                        ? `Synced ${syncInfo.lastSyncedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                                                        : 'Pending Sync'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {syncInfo.syncStatus === 'syncing' && (
+                                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-electric-blue/10 border border-electric-blue/20 text-electric-blue">
+                                                    <motion.span
+                                                        animate={{ rotate: 360 }}
+                                                        transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                                                        className="material-symbols-outlined text-sm"
+                                                    >sync</motion.span>
+                                                    <span className="text-[9px] font-semibold uppercase tracking-[0.2em]">Syncing…</span>
+                                                </div>
+                                            )}
+                                            {syncInfo.syncStatus === 'success' && (
+                                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
+                                                    <span className="material-symbols-outlined text-sm">check_circle</span>
+                                                    <span className="text-[9px] font-semibold uppercase tracking-[0.2em]">Synced</span>
+                                                </div>
+                                            )}
+                                            {syncInfo.syncStatus === 'error' && (
+                                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500">
+                                                    <span className="material-symbols-outlined text-sm">error</span>
+                                                    <span className="text-[9px] font-semibold uppercase tracking-[0.2em]">Failed</span>
+                                                </div>
+                                            )}
+                                            {syncInfo.syncStatus === 'idle' && (
+                                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-black/[0.05] dark:bg-[#000000] border border-black/[0.08] dark:border-white/10 text-black/30 dark:text-white/30">
+                                                    <span className="material-symbols-outlined text-sm">cloud_done</span>
+                                                    <span className="text-[9px] font-semibold uppercase tracking-[0.2em]">Idle</span>
+                                                </div>
+                                            )}
+                                            <button
+                                                onClick={handleForceSync}
+                                                disabled={syncInfo.isSyncing}
+                                                title="Force Sync Now"
+                                                className="size-7 flex items-center justify-center hover:bg-black/[0.05] dark:hover:bg-white/[0.05] rounded-xl transition-colors cursor-pointer disabled:opacity-40"
+                                            >
+                                                <span className="material-symbols-outlined text-lg text-black/30 dark:text-white/30">refresh</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {syncInfo.isSyncing && (
+                                        <div className="w-full h-1 bg-black/[0.08] dark:bg-[#000000] rounded-full overflow-hidden">
+                                            <motion.div
+                                                className="h-full bg-electric-blue rounded-full"
+                                                animate={{ x: ['-100%', '200%'] }}
+                                                transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+                                                style={{ width: '50%' }}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Security */}
                             <div className="space-y-4">
-                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Security</h4>
+                                <h4 className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] px-1">Security</h4>
 
-                                <button className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-[#000000]/50 transition-colors">
+                                <button className="w-full flex items-center justify-between p-4 rounded-2xl border border-black/[0.05] dark:border-white/10 hover:bg-black/[0.03] dark:hover:bg-[#000000]/50 transition-colors">
                                     <div className="flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-slate-400">lock</span>
-                                        <span className="text-sm font-bold dark:text-slate-200">Change Password</span>
+                                        <span className="material-symbols-outlined text-black/30 dark:text-white/30">lock</span>
+                                        <span className="text-xs font-semibold text-black/70 dark:text-white/70">Change Password</span>
                                     </div>
-                                    <span className="material-symbols-outlined text-slate-300">chevron_right</span>
+                                    <span className="material-symbols-outlined text-black/20 dark:text-white/20">chevron_right</span>
                                 </button>
                             </div>
 
                             {/* Danger Zone */}
                             <div className="space-y-4 pt-4">
-                                <h4 className="text-xs font-black text-rose-500 uppercase tracking-widest">Danger Zone</h4>
+                                <h4 className="text-[9px] font-semibold text-signal-orange uppercase tracking-[0.4em] px-1">Danger Zone</h4>
                                 <button
                                     onClick={() => setShowDeleteConfirm(true)}
-                                    className="w-full flex items-center justify-between p-4 rounded-2xl border border-rose-100 dark:border-rose-900/30 bg-rose-50/50 dark:bg-rose-500/5 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors group"
+                                    className="w-full flex items-center justify-between p-4 rounded-2xl border border-signal-orange/20 bg-signal-orange/5 hover:bg-signal-orange/10 transition-colors group"
                                 >
-                                    <div className="flex items-center gap-3 text-rose-500">
+                                    <div className="flex items-center gap-3 text-signal-orange">
                                         <span className="material-symbols-outlined">delete_forever</span>
-                                        <span className="text-sm font-bold">Delete My Account</span>
+                                        <span className="text-xs font-semibold">Delete My Account</span>
                                     </div>
-                                    <span className="material-symbols-outlined text-rose-300 group-hover:text-rose-500 transition-colors">chevron_right</span>
+                                    <span className="material-symbols-outlined text-signal-orange/40 group-hover:text-signal-orange transition-colors">chevron_right</span>
                                 </button>
-                                <p className="text-[10px] text-slate-400 px-2 leading-relaxed">
+                                <p className="text-[10px] text-black/40 dark:text-white/40 px-2 leading-relaxed font-medium">
                                     Once you delete your account, there is no going back. All your habits, journals, and data will be permanently removed.
                                 </p>
                             </div>
 
-                            <div className="pt-4">
+                            <div className="pt-4 pb-2">
                                 <button
                                     onClick={onClose}
-                                    className="w-full py-4 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-sm hover:opacity-90 shadow-xl transition-all active:scale-[0.98]"
+                                    className="w-full py-4 bg-black dark:bg-white text-white dark:text-black rounded-[24px] font-semibold text-xs uppercase tracking-[0.3em] hover:opacity-90 shadow-lg active:scale-[0.98] transition-all"
                                 >
                                     Done
                                 </button>
@@ -293,24 +371,24 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                     initial={{ scale: 0.9, y: 20 }}
                                     animate={{ scale: 1, y: 0 }}
                                     exit={{ scale: 0.9, y: 20 }}
-                                    className="w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-3xl p-8 shadow-2xl border border-slate-200 dark:border-white/10"
+                                    className="w-full max-w-sm bg-white dark:bg-[#121212] rounded-[32px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 ar-corners"
                                 >
-                                    <div className="size-16 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mb-6">
-                                        <span className="material-symbols-outlined text-3xl">warning</span>
+                                    <div className="size-16 rounded-[24px] bg-signal-orange/10 text-signal-orange flex items-center justify-center mb-6">
+                                        <span className="material-symbols-outlined text-3xl font-light">warning</span>
                                     </div>
-                                    <h4 className="text-xl font-black text-slate-900 dark:text-white mb-2">Are you absolutely sure?</h4>
-                                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-6 leading-relaxed">
+                                    <h4 className="text-xl font-semibold text-black dark:text-white mb-2 tracking-[-0.02em]">Are you absolutely sure?</h4>
+                                    <p className="text-black/50 dark:text-white/40 text-xs font-semibold mb-6 leading-relaxed">
                                         This action is permanent and cannot be undone. All your data will be wiped from our servers immediately.
                                     </p>
 
                                     <div className="mb-6">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Type "delete" to confirm</p>
+                                        <p className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] mb-2 px-1">Type "delete" to confirm</p>
                                         <input
                                             type="text"
                                             placeholder="delete"
                                             value={deleteWord}
                                             onChange={(e) => setDeleteWord(e.target.value)}
-                                            className="w-full bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500/50 transition-all dark:text-white"
+                                            className="w-full bg-black/[0.03] dark:bg-[#000000]/40 border border-black/[0.08] dark:border-white/10 rounded-[20px] px-5 py-4 text-xs font-semibold outline-none focus:border-signal-orange transition-all text-black dark:text-white placeholder:text-black/20 dark:placeholder:text-white/20"
                                         />
                                     </div>
 
@@ -318,16 +396,16 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                         <button
                                             onClick={handleDeleteAccount}
                                             disabled={isDeleting || deleteWord !== 'delete'}
-                                            className="w-full py-3.5 bg-rose-500 text-white rounded-2xl font-black text-sm hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
+                                            className="w-full py-4 bg-signal-orange text-white rounded-[20px] font-semibold text-xs uppercase tracking-[0.3em] hover:opacity-90 transition-all disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed"
                                         >
-                                            {isDeleting ? 'Deleting...' : 'Yes, Delete My Account'}
+                                            {isDeleting ? 'Deleting...' : 'Confirm Deletion'}
                                         </button>
                                         <button
                                             onClick={() => {
                                                 setShowDeleteConfirm(false);
                                                 setDeleteWord('');
                                             }}
-                                            className="w-full py-3.5 bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-300 rounded-2xl font-black text-sm hover:bg-slate-200 dark:hover:bg-[#121212] transition-colors"
+                                            className="w-full py-4 bg-black/[0.05] dark:bg-white/[0.05] text-black/60 dark:text-white/60 rounded-[20px] font-semibold text-xs uppercase tracking-[0.3em] hover:bg-black/10 dark:hover:bg-white/10 transition-all"
                                         >
                                             Cancel
                                         </button>

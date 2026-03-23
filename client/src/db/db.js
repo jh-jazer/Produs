@@ -8,7 +8,7 @@ import Dexie from 'dexie';
  */
 export const db = new Dexie('ProdusDB');
 
-db.version(2).stores({
+db.version(4).stores({
     habits: '++id, _id, name, category, userId, isPending',
     journal: '++id, _id, title, date, userId, isPending',
     planner: '++id, _id, type, date, userId, isPending',

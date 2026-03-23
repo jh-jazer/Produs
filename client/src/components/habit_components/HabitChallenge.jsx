@@ -121,6 +121,20 @@ const HabitChallenge = () => {
                                             <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md ${challenge.category.includes('March') ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-100 dark:bg-[#000000] text-slate-400'}`}>
                                                 {challenge.category}
                                             </span>
+                                            {isJoined && !isCompleted && [7, 9].includes(challenge.id) && (
+                                                <button 
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        try {
+                                                            await api.post(`/challenges/${challenge.id}/progress`);
+                                                            mutate();
+                                                        } catch (err) { console.error(err); }
+                                                    }}
+                                                    className="text-[8px] font-black underline uppercase tracking-widest text-primary ml-2 hover:text-primary/70"
+                                                >
+                                                    {challenge.id === 7 ? "I did this" : "Log Session"}
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                     
@@ -137,7 +151,7 @@ const HabitChallenge = () => {
                                     <div className="flex justify-between items-center px-1">
                                         <div className="flex items-center gap-1">
                                             <span className={`text-[10px] font-black ${colorClass.text}`}>{challenge.progress}</span>
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">/ {challenge.target} {challenge.name.includes('Work') ? 'Hrs' : 'Days'}</span>
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">/ {challenge.target} {challenge.id === 8 ? 'Hrs' : 'Steps'}</span>
                                         </div>
                                         <span className="text-[10px] font-black text-slate-600 dark:text-slate-300">{Math.round(progressPercent)}%</span>
                                     </div>

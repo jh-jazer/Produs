@@ -1,7 +1,7 @@
 import React from 'react';
-import useSWR from 'swr';
 import useAuthStore from '../store/useAuthStore';
 import useConnectivityStore from '../store/useConnectivityStore';
+import { useFinanceLocal } from '../hooks/useFinanceLocal';
 
 import FinancialOverview from '../components/finance_components/FinancialOverview';
 import DebtManager from '../components/finance_components/DebtManager';
@@ -18,74 +18,32 @@ const Finance = () => {
     const currencySymbol = user?.currency === 'PHP' ? '₱' : '$';
 
 
-    // Data fetching
-    const { data: transactions = [], mutate: mutateTx } = useSWR('/finance/transactions');
-    const { data: budgets = [], mutate: mutateBudgets } = useSWR('/finance/budgets');
-    const { data: debts = [], mutate: mutateDebts } = useSWR('/finance/debts');
-    const { data: wishlist = [], mutate: mutateWishlist } = useSWR('/finance/wishlist');
-    const { data: savings = [], mutate: mutateSavings } = useSWR('/finance/savings');
+    const { 
+        transactions, 
+        budgets, 
+        debts, 
+        wishlist, 
+        savings, 
+        addFinanceItem, 
+        updateFinanceItem, 
+        deleteFinanceItem,
+        isLoading 
+    } = useFinanceLocal();
 
     // Mobile Navigation State
     const [activeTab, setActiveTab] = React.useState('summary');
 
-    const offlineQueue = useConnectivityStore(state => state.offlineQueue);
-
-    // Helper to augment data with offline additions and filter out offline deletions
-    const augmentData = (serverData, type) => {
-        const pendingAdditions = offlineQueue
-            .filter(item => item.type === type && (item.method === 'POST' || item.method === 'PUT'))
-            .map(item => ({
-                ...item.data,
-                _id: item.id,
-                isPending: true
-            }));
-
-        const pendingDeletions = new Set(
-            offlineQueue
-                .filter(item => item.type === type && item.method === 'DELETE')
-                .map(item => item.id)
-        );
-
-        // For PATCH updates (like debt payments), we might need more complex logic, 
-        // but for now, let's just handle additions and deletions as primary optimistic UI.
-        // Debt payments are special: we'll handle them in the child component if needed, 
-        // or here by applying the patch to the server data.
-        let augmented = [...serverData, ...pendingAdditions].filter(item => !pendingDeletions.has(item._id));
-
-        // Apply PATCH updates from queue
-        offlineQueue
-            .filter(item => item.type === type && item.method === 'PATCH')
-            .forEach(patch => {
-                const index = augmented.findIndex(i => i._id === patch.id);
-                if (index !== -1) {
-                    augmented[index] = { ...augmented[index], ...patch.data, isPending: true };
-                }
-            });
-
-        return augmented;
-    };
-
-    const augmentedTransactions = augmentData(transactions, 'finance-transaction');
-    const augmentedBudgets = augmentData(budgets, 'finance-budget');
-    const augmentedDebts = augmentData(debts, 'finance-debt');
-    const augmentedWishlist = augmentData(wishlist, 'finance-wishlist');
-    const augmentedSavings = augmentData(savings, 'finance-saving');
-
     const handleAction = () => {
-        mutateTx();
-        mutateBudgets();
-        mutateDebts();
-        mutateWishlist();
-        mutateSavings();
+        // useFinanceLocal uses useLiveQuery, so it auto-refreshes
     };
 
-    // Calculate Summary Stats using augmented data
-    const totalSavings = augmentedSavings.reduce((sum, s) => sum + s.amount, 0);
-    const actualDebts = augmentedDebts.filter(d => d.nature === 'debt' || !d.nature);
-    const upcomingIncome = augmentedDebts.filter(d => d.nature === 'income');
+    // Calculate Summary Stats using data from hook
+    const totalSavings = savings.reduce((sum, s) => sum + (s.amount || 0), 0);
+    const actualDebts = debts.filter(d => d.nature === 'debt' || !d.nature);
+    const upcomingIncome = debts.filter(d => d.nature === 'income');
     
-    const totalDebt = actualDebts.reduce((sum, d) => sum + d.amount, 0);
-    const totalUpcomingIncome = upcomingIncome.reduce((sum, d) => sum + d.amount, 0);
+    const totalDebt = actualDebts.reduce((sum, d) => sum + (d.amount || 0), 0);
+    const totalUpcomingIncome = upcomingIncome.reduce((sum, d) => sum + (d.amount || 0), 0);
 
     const netBalance = totalSavings - totalDebt;
 
@@ -111,38 +69,45 @@ const Finance = () => {
                     {/* Header - Hidden on Mobile */}
                     <div className="hidden lg:flex flex-col gap-1 px-1">
                         <div className="flex items-center gap-3">
-                            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Finance</h1>
+                            <h1 className="text-3xl font-semibold text-black dark:text-white tracking-[-0.02em]">Finance</h1>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Overview of your financial health</p>
+                        <p className="text-black/40 dark:text-white/40 text-xs font-semibold uppercase tracking-[0.2em] mt-1">Status Overview</p>
                     </div>
 
 
                     {/* 2. Transactions */}
                     <div className={activeTab === 'budget' ? 'block' : 'hidden lg:block'}>
                         <RecentTransactions
-                            transactions={augmentedTransactions}
-                            budgets={augmentedBudgets}
+                            transactions={transactions}
+                            budgets={budgets}
                             currencySymbol={currencySymbol}
                             onAction={handleAction}
+                            addFinanceItem={addFinanceItem}
+                            deleteFinanceItem={deleteFinanceItem}
                         />
                     </div>
 
                     {/* 4. Budget */}
                     <div className={activeTab === 'budget' ? 'block' : 'hidden lg:block'}>
                         <MonthlyBudget
-                            budgets={augmentedBudgets}
-                            transactions={augmentedTransactions}
+                            budgets={budgets}
+                            transactions={transactions}
                             currencySymbol={currencySymbol}
                             onAction={handleAction}
+                            addFinanceItem={addFinanceItem}
+                            deleteFinanceItem={deleteFinanceItem}
                         />
                     </div>
 
                     {/* 6. Debt / Cash Flow */}
                     <div className={activeTab === 'debts' ? 'block' : 'hidden lg:block'}>
                         <DebtManager
-                            debts={augmentedDebts}
+                            debts={debts}
                             currencySymbol={currencySymbol}
                             onAction={handleAction}
+                            addFinanceItem={addFinanceItem}
+                            updateFinanceItem={updateFinanceItem}
+                            deleteFinanceItem={deleteFinanceItem}
                         />
                     </div>
                 </div>
@@ -153,7 +118,7 @@ const Finance = () => {
                     {/* 1. Overview */}
                     <div className={activeTab === 'summary' ? 'block' : 'hidden lg:block'}>
                         <FinancialOverview
-                            transactions={augmentedTransactions}
+                            transactions={transactions}
                             currencySymbol={currencySymbol}
                             netBalance={netBalance}
                             totalSavings={totalSavings}
@@ -165,19 +130,23 @@ const Finance = () => {
                     {/* 3. Savings */}
                     <div className={activeTab === 'savings' ? 'block' : 'hidden lg:block'}>
                         <SavingsPanel
-                            savings={augmentedSavings}
+                            savings={savings}
                             currencySymbol={currencySymbol}
                             onAction={handleAction}
+                            addFinanceItem={addFinanceItem}
+                            deleteFinanceItem={deleteFinanceItem}
                         />
                     </div>
 
                     {/* 5. Wishlist */}
                     <div className={activeTab === 'wishlist' ? 'block' : 'hidden lg:block'}>
                         <Wishlist
-                            items={augmentedWishlist}
-                            budgets={augmentedBudgets}
+                            items={wishlist}
+                            budgets={budgets}
                             currencySymbol={currencySymbol}
                             onAction={handleAction}
+                            addFinanceItem={addFinanceItem}
+                            deleteFinanceItem={deleteFinanceItem}
                         />
                     </div>
 

@@ -40,7 +40,7 @@ const ConfirmDialog = ({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.92, y: 8 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="relative z-10 w-full max-w-sm bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden"
+                        className="relative z-10 w-full max-w-sm bg-white dark:bg-[#121212] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 overflow-hidden ar-corners"
                     >
                         {/* Top accent bar */}
                         <div className="h-1 w-full bg-gradient-to-r from-red-500 to-rose-400" />
@@ -52,10 +52,10 @@ const ConfirmDialog = ({
                             </div>
 
                             {/* Text */}
-                            <h3 className="text-base font-black text-slate-900 dark:text-white text-center tracking-tight mb-1">
+                            <h3 className="text-sm font-semibold text-black dark:text-white text-center tracking-[-0.02em] mb-1 uppercase">
                                 {title}
                             </h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-6 leading-relaxed">
+                            <p className="text-xs text-black/50 dark:text-white/50 text-center mb-6 leading-relaxed">
                                 {message}
                             </p>
 
@@ -63,13 +63,13 @@ const ConfirmDialog = ({
                             <div className="flex gap-3">
                                 <button
                                     onClick={onCancel}
-                                    className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-[#121212] transition-colors"
+                                    className="flex-1 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-[0.2em] bg-black/[0.04] dark:bg-[#000000] text-black/60 dark:text-white/60 hover:bg-black/[0.08] dark:hover:bg-[#121212] transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={onConfirm}
-                                    className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-red-500 hover:bg-red-600 text-white transition-colors shadow-none shadow-red-500/30"
+                                    className="flex-1 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-[0.2em] bg-signal-orange hover:bg-signal-orange/90 text-white transition-colors shadow-none"
                                 >
                                     {confirmLabel}
                                 </button>

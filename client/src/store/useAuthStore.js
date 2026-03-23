@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { setAuthToken } from '../services/api';
+import api, { setAuthToken } from '../services/api';
 import db from '../db/db';
 
 // Try to load any existing token/user info from localStorage safely

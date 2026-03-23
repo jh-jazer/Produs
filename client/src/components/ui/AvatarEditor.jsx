@@ -42,12 +42,12 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                 className="relative z-10 w-full max-w-2xl bg-white dark:bg-[#121212] rounded-[32px] shadow-2xl overflow-hidden flex flex-col md:flex-row h-[600px] md:h-auto"
             >
                 {/* Left Side: Preview */}
-                <div className="md:w-5/12 bg-slate-50 dark:bg-[#121212] p-8 flex flex-col items-center justify-center border-r border-slate-100 dark:border-white/10">
-                    <div className="size-48 md:size-64 rounded-[40px] bg-white dark:bg-[#000000] shadow-xl border-4 border-white dark:border-white/10 overflow-hidden mb-6">
+                <div className="md:w-5/12 bg-black/[0.02] dark:bg-[#050505] p-8 flex flex-col items-center justify-center border-r border-black/[0.05] dark:border-white/10">
+                    <div className="size-48 md:size-64 rounded-[40px] bg-white dark:bg-[#121212] shadow-xl border-4 border-white dark:border-white/10 overflow-hidden mb-6">
                         <Avatar config={config} className="size-full" />
                     </div>
-                    <h2 className="text-xl font-black text-slate-900 dark:text-white">Customize Avatar</h2>
-                    <p className="text-sm text-slate-500 font-medium text-center mt-2">Design your productive persona</p>
+                    <h2 className="text-xl font-semibold text-black dark:text-white tracking-[-0.02em]">Customize Avatar</h2>
+                    <p className="text-[10px] text-black/40 dark:text-white/40 font-semibold uppercase tracking-[0.2em] text-center mt-3">Design your persona</p>
                 </div>
 
                 {/* Right Side: Options */}
@@ -58,9 +58,9 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab
-                                        ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                                        : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-[#000000]'
+                                className={`px-4 py-2 rounded-xl text-[9px] font-semibold uppercase tracking-[0.3em] transition-all ${activeTab === tab
+                                        ? 'bg-electric-blue text-white shadow-lg shadow-electric-blue/20'
+                                        : 'text-black/30 dark:text-white/30 hover:bg-black/[0.04] dark:hover:bg-white/[0.04]'
                                     }`}
                             >
                                 {tab}
@@ -72,28 +72,28 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                         {activeTab === 'body' && (
                             <>
                                 <div>
-                                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-4 block">Skin Tone</label>
+                                    <label className="text-[9px] font-semibold uppercase tracking-[0.4em] text-black/40 dark:text-white/40 mb-4 block px-1">Skin Tone</label>
                                     <div className="flex flex-wrap gap-3">
                                         {OPTIONS.skin.map(color => (
                                             <button
                                                 key={color}
                                                 onClick={() => updateConfig('skin', color)}
-                                                className={`size-10 rounded-full border-2 transition-all ${config.skin === color ? 'border-primary ring-2 ring-primary/20 scale-110' : 'border-transparent'}`}
+                                                className={`size-10 rounded-full border-2 transition-all ${config.skin === color ? 'border-electric-blue ring-2 ring-electric-blue/20 scale-110' : 'border-transparent'}`}
                                                 style={{ backgroundColor: color }}
                                             />
                                         ))}
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-4 block">Eye Expression</label>
+                                    <label className="text-[9px] font-semibold uppercase tracking-[0.4em] text-black/40 dark:text-white/40 mb-4 block px-1">Eye Expression</label>
                                     <div className="flex flex-wrap gap-3">
                                         {OPTIONS.eyes.map(eye => (
                                             <button
                                                 key={eye}
                                                 onClick={() => updateConfig('eyes', eye)}
-                                                className={`px-4 py-2 rounded-xl border-2 text-sm font-bold capitalize transition-all ${config.eyes === eye
-                                                        ? 'border-primary bg-primary/5 text-primary'
-                                                        : 'border-slate-100 dark:border-white/10 text-slate-500'
+                                                className={`px-4 py-2 rounded-xl border-2 text-[10px] font-semibold uppercase tracking-[0.2em] transition-all ${config.eyes === eye
+                                                        ? 'border-electric-blue bg-electric-blue/5 text-electric-blue'
+                                                        : 'border-black/[0.05] dark:border-white/10 text-black/40 dark:text-white/40'
                                                     }`}
                                             >
                                                 {eye}
@@ -107,15 +107,15 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                         {activeTab === 'hair' && (
                             <>
                                 <div>
-                                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-4 block">Hair Style</label>
+                                    <label className="text-[9px] font-semibold uppercase tracking-[0.4em] text-black/40 dark:text-white/40 mb-4 block px-1">Hair Style</label>
                                     <div className="flex flex-wrap gap-3">
                                         {OPTIONS.hair.map(style => (
                                             <button
                                                 key={style}
                                                 onClick={() => updateConfig('hair', style)}
-                                                className={`px-4 py-2 rounded-xl border-2 text-sm font-bold capitalize transition-all ${config.hair === style
-                                                        ? 'border-primary bg-primary/5 text-primary'
-                                                        : 'border-slate-100 dark:border-white/10 text-slate-500'
+                                                className={`px-4 py-2 rounded-xl border-2 text-[10px] font-semibold uppercase tracking-[0.2em] transition-all ${config.hair === style
+                                                        ? 'border-electric-blue bg-electric-blue/5 text-electric-blue'
+                                                        : 'border-black/[0.05] dark:border-white/10 text-black/40 dark:text-white/40'
                                                     }`}
                                             >
                                                 {style}
@@ -124,13 +124,13 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-4 block">Hair Color</label>
+                                    <label className="text-[9px] font-semibold uppercase tracking-[0.4em] text-black/40 dark:text-white/40 mb-4 block px-1">Hair Color</label>
                                     <div className="flex flex-wrap gap-3">
                                         {OPTIONS.hairColor.map(color => (
                                             <button
                                                 key={color}
                                                 onClick={() => updateConfig('hairColor', color)}
-                                                className={`size-10 rounded-full border-2 transition-all ${config.hairColor === color ? 'border-primary ring-2 ring-primary/20 scale-110' : 'border-transparent'}`}
+                                                className={`size-10 rounded-full border-2 transition-all ${config.hairColor === color ? 'border-electric-blue ring-2 ring-electric-blue/20 scale-110' : 'border-transparent'}`}
                                                 style={{ backgroundColor: color }}
                                             />
                                         ))}
@@ -142,15 +142,15 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                         {activeTab === 'clothing' && (
                             <>
                                 <div>
-                                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-4 block">Clothing Style</label>
+                                    <label className="text-[9px] font-semibold uppercase tracking-[0.4em] text-black/40 dark:text-white/40 mb-4 block px-1">Clothing Style</label>
                                     <div className="flex flex-wrap gap-3">
                                         {OPTIONS.clothing.map(style => (
                                             <button
                                                 key={style}
                                                 onClick={() => updateConfig('clothing', style)}
-                                                className={`px-4 py-2 rounded-xl border-2 text-sm font-bold capitalize transition-all ${config.clothing === style
-                                                        ? 'border-primary bg-primary/5 text-primary'
-                                                        : 'border-slate-100 dark:border-white/10 text-slate-500'
+                                                className={`px-4 py-2 rounded-xl border-2 text-[10px] font-semibold uppercase tracking-[0.2em] transition-all ${config.clothing === style
+                                                        ? 'border-electric-blue bg-electric-blue/5 text-electric-blue'
+                                                        : 'border-black/[0.05] dark:border-white/10 text-black/40 dark:text-white/40'
                                                     }`}
                                             >
                                                 {style}
@@ -159,13 +159,13 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-4 block">Clothing Color</label>
+                                    <label className="text-[9px] font-semibold uppercase tracking-[0.4em] text-black/40 dark:text-white/40 mb-4 block px-1">Clothing Color</label>
                                     <div className="flex flex-wrap gap-3">
                                         {OPTIONS.clothingColor.map(color => (
                                             <button
                                                 key={color}
                                                 onClick={() => updateConfig('clothingColor', color)}
-                                                className={`size-10 rounded-full border-2 transition-all ${config.clothingColor === color ? 'border-primary ring-2 ring-primary/20 scale-110' : 'border-transparent'}`}
+                                                className={`size-10 rounded-full border-2 transition-all ${config.clothingColor === color ? 'border-electric-blue ring-2 ring-electric-blue/20 scale-110' : 'border-transparent'}`}
                                                 style={{ backgroundColor: color }}
                                             />
                                         ))}
@@ -179,13 +179,13 @@ function AvatarEditor({ initialConfig, onSave, onClose }) {
                     <div className="p-6 border-t border-slate-100 dark:border-white/10 flex gap-3">
                         <button
                             onClick={onClose}
-                            className="flex-1 py-3 px-4 rounded-2xl bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-400 text-sm font-black hover:bg-slate-200 dark:hover:bg-[#121212] transition-colors"
+                            className="flex-1 py-4 px-4 rounded-2xl bg-black/[0.05] dark:bg-white/[0.05] text-black/40 dark:text-white/40 text-[10px] font-semibold uppercase tracking-[0.3em] hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={() => onSave(config)}
-                            className="flex-1 py-3 px-4 rounded-2xl bg-primary text-white text-sm font-black shadow-lg shadow-primary/20 hover:opacity-90 transition-all"
+                            className="flex-1 py-4 px-4 rounded-2xl bg-electric-blue text-white text-[10px] font-semibold uppercase tracking-[0.3em] shadow-lg shadow-electric-blue/20 hover:opacity-90 active:scale-[0.98] transition-all"
                         >
                             Save Avatar
                         </button>

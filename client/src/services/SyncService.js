@@ -6,6 +6,23 @@ class SyncService {
     constructor() {
         this.docs = new Map(); // feature -> Y.Doc
         this.isSyncing = false;
+        this.lastSyncedAt = null;
+        this.syncStatus = 'idle'; // 'idle' | 'syncing' | 'success' | 'error'
+        this.listeners = new Set();
+    }
+
+    // Subscribe to status changes
+    subscribe(fn) {
+        this.listeners.add(fn);
+        return () => this.listeners.delete(fn);
+    }
+
+    _notify() {
+        this.listeners.forEach(fn => fn({
+            isSyncing: this.isSyncing,
+            lastSyncedAt: this.lastSyncedAt,
+            syncStatus: this.syncStatus
+        }));
     }
 
     /**
@@ -60,6 +77,8 @@ class SyncService {
     async performSync() {
         if (this.isSyncing) return;
         this.isSyncing = true;
+        this.syncStatus = 'syncing';
+        this._notify();
 
         try {
             // Iterate over all active docs and sync them
@@ -89,21 +108,38 @@ class SyncService {
                     if (dbTable) {
                         await db.transaction('rw', dbTable, async () => {
                             // Find deleted keys by checking what's in local DB but not in Yjs Map
-                            const localKeys = await dbTable.where('userId').equals(userId).primaryKeys();
+                            const localEntries = await dbTable.where('userId').equals(userId).toArray();
                             const yjsKeys = new Set(map.keys());
-                            const toDelete = localKeys.filter(k => !yjsKeys.has(k));
+                            
+                            // Delete local entries that are no longer in the Y.Map
+                            const toDelete = localEntries
+                                .filter(e => e._id && !yjsKeys.has(e._id))
+                                .map(e => e.id);
                             
                             if (toDelete.length > 0) await dbTable.bulkDelete(toDelete);
-                            if (items.length > 0) await dbTable.bulkPut(items);
+                            
+                            // Update or Insert entries from Y.Map into local DB
+                            // We MUST preserve/match the local 'id' so bulkPut updates 
+                            // the existing entry instead of creating a duplicate.
+                            const itemsToPut = Array.from(map.values()).map(item => {
+                                const localMatch = localEntries.find(e => e._id === item._id);
+                                return localMatch ? { ...item, id: localMatch.id } : item;
+                            });
+
+                            if (itemsToPut.length > 0) await dbTable.bulkPut(itemsToPut);
                         });
                     }
                 }
             }
+            this.lastSyncedAt = new Date();
+            this.syncStatus = 'success';
             console.log('Sync completed successfully');
         } catch (error) {
+            this.syncStatus = 'error';
             console.error('Sync failed:', error);
         } finally {
             this.isSyncing = false;
+            this._notify();
         }
     }
 
@@ -137,6 +173,15 @@ class SyncService {
 
         // The 'update' event listener in getDoc will handle persistence and sync registration
     }
+
+    getSyncStatus() {
+        return {
+            isSyncing: this.isSyncing,
+            lastSyncedAt: this.lastSyncedAt,
+            syncStatus: this.syncStatus
+        };
+    }
 }
 
 export default new SyncService();
+

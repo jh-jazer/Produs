@@ -95,27 +95,27 @@ function Habits() {
                 <div className={`lg:col-span-4 flex flex-col gap-6 order-2 lg:order-1 ${activeTab !== 'challenges' && 'hidden lg:flex'}`}>
                     <div className="hidden md:flex flex-col gap-1">
                         <div className="flex items-center justify-between">
-                            <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-black tracking-tight">
+                            <h1 className="text-black dark:text-white text-2xl md:text-3xl font-semibold tracking-[-0.02em]">
                                 Build Better Habits
                             </h1>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                        <p className="text-black/40 dark:text-white/40 text-[10px] font-semibold uppercase tracking-[0.3em]">
                             Track your daily goals.
                         </p>
                     </div>
 
                     {/* View Toggle - Desktop only */}
                     {user?.partner && isOnline && (
-                        <div className="hidden lg:flex bg-slate-50 dark:bg-[#000000]/50 p-1 rounded-xl">
+                        <div className="hidden lg:flex bg-black/[0.04] dark:bg-[#000000]/50 p-1 rounded-xl border border-black/[0.06] dark:border-white/10">
                             <button
                                 onClick={() => setViewMode('me')}
-                                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'me' ? 'bg-white dark:bg-[#121212] shadow-none text-slate-900 dark:text-white' : 'text-slate-500'}`}
+                                className={`flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] rounded-lg transition-all ${viewMode === 'me' ? 'bg-white dark:bg-[#121212] shadow-sm text-black dark:text-white' : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'}`}
                             >
                                 My Habits
                             </button>
                             <button
                                 onClick={() => setViewMode('partner')}
-                                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${viewMode === 'partner' ? 'bg-white dark:bg-[#121212] shadow-none text-slate-900 dark:text-white' : 'text-slate-500'}`}
+                                className={`flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] rounded-lg transition-all ${viewMode === 'partner' ? 'bg-white dark:bg-[#121212] shadow-sm text-black dark:text-white' : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'}`}
                             >
                                 Shared Habits
                             </button>

@@ -13,6 +13,65 @@ import BugReportModal from './ui/BugReportModal';
 import useConnectivityStore from '../store/useConnectivityStore';
 import SyncService from '../services/SyncService';
 
+// Compact header pill showing sync status + connectivity
+function SyncStatusPill({ isOnline, userId }) {
+    const [syncInfo, setSyncInfo] = React.useState(() => SyncService.getSyncStatus());
+
+    React.useEffect(() => {
+        const unsub = SyncService.subscribe(setSyncInfo);
+        return unsub;
+    }, []);
+
+    const handleForceSync = () => {
+        if (userId) SyncService.syncAll(userId);
+    };
+
+    const statusColor = !isOnline
+        ? 'text-signal-orange bg-signal-orange/10 border-signal-orange/20'
+        : syncInfo.syncStatus === 'error'
+            ? 'text-rose-500 bg-rose-500/10 border-rose-500/20'
+            : syncInfo.syncStatus === 'syncing'
+                ? 'text-electric-blue bg-electric-blue/10 border-electric-blue/20'
+                : 'text-black/50 dark:text-white/40 bg-black/[0.04] dark:bg-white/[0.04] border-black/[0.07] dark:border-white/10';
+
+    const statusIcon = !isOnline ? 'cloud_off'
+        : syncInfo.syncStatus === 'error' ? 'sync_problem'
+        : syncInfo.syncStatus === 'syncing' ? 'sync'
+        : 'cloud_done';
+
+    const title = !isOnline ? 'Offline — changes will sync when reconnected'
+        : syncInfo.syncStatus === 'syncing' ? 'Syncing…'
+        : syncInfo.syncStatus === 'error' ? 'Sync failed — click to retry'
+        : syncInfo.lastSyncedAt
+            ? `Synced at ${syncInfo.lastSyncedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+            : 'Click to sync';
+
+    return (
+        <button
+            onClick={handleForceSync}
+            title={title}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[9px] font-semibold uppercase tracking-[0.3em] transition-all hover:opacity-80 active:scale-95 ${statusColor}`}
+        >
+            <motion.span
+                animate={syncInfo.isSyncing ? { rotate: 360 } : { rotate: 0 }}
+                transition={syncInfo.isSyncing ? { repeat: Infinity, duration: 1, ease: 'linear' } : {}}
+                className="material-symbols-outlined text-[16px]"
+            >
+                {statusIcon}
+            </motion.span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.25em]">
+                {!isOnline ? 'Offline'
+                    : syncInfo.syncStatus === 'syncing' ? 'Syncing'
+                    : syncInfo.syncStatus === 'error' ? 'Error'
+                    : 'Synced'}
+            </span>
+            {/* Online dot */}
+            {isOnline && syncInfo.syncStatus !== 'syncing' && (
+                <span className={`size-1.5 rounded-full ${syncInfo.syncStatus === 'error' ? 'bg-rose-500' : 'bg-emerald-500'}`} />
+            )}
+        </button>
+    );
+}
 
 function Layout() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -162,32 +221,32 @@ function Layout() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="bg-background-light dark:bg-background-dark dark:bg-grid font-display text-slate-900 dark:text-slate-100 h-screen flex flex-col overflow-hidden"
+            className="bg-[#f8f8f8] dark:bg-[#000000] dark:bg-grid bg-grid-light font-display text-[#111111] dark:text-slate-100 h-screen flex flex-col overflow-hidden"
         >
             <div className="layout-container flex h-full flex-col">
-                <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-white/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-6 lg:px-10 py-3">
-                    <div className="flex items-center gap-3 sm:gap-4">
+                <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-black/[0.08] dark:border-white/[0.07] bg-[#f8f8f8]/90 dark:bg-[#050505]/90 backdrop-blur-md px-6 lg:px-10 py-3">
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1">
                         <button
-                            className="md:hidden relative size-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-[#121212] border border-slate-100 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors active:scale-95"
+                            className="md:hidden relative size-10 flex items-center justify-center rounded-xl bg-white dark:bg-[#121212] border border-black/[0.08] dark:border-white/10 text-black/50 dark:text-white/50 hover:text-electric-blue dark:hover:text-electric-blue transition-colors active:scale-95"
                             onClick={() => setIsMobileMenuOpen(true)}
                         >
                             <span className="material-symbols-outlined text-[22px]">menu</span>
                         </button>
 
                         <div className="flex items-center gap-4">
-                            <span className="sm:hidden font-ubuntu text-xl font-black tracking-tight text-slate-900 dark:text-white transition-all">
+                            <span className="sm:hidden font-ubuntu text-xl font-bold tracking-[-0.02em] text-black dark:text-white transition-all">
                                 {getPageTitle()}
                             </span>
                             <NavLink to="/" className="hidden sm:flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                                <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-none ring-1 ring-slate-900/10">
+                                <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-none ring-1 ring-black/10 dark:ring-white/10">
                                     <img src="/produs-logo.png" alt="Produs Logo" className="w-full h-full object-cover" />
                                 </div>
-                                <h2 className="text-slate-900 dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">Produs</h2>
+                                <h2 className="text-black dark:text-white text-[11px] font-semibold uppercase tracking-[0.5em] leading-tight">Produs</h2>
                             </NavLink>
                         </div>
                     </div>
 
-                    <nav className="hidden md:flex items-center gap-8">
+                    <nav className="hidden md:flex items-center gap-8 shrink-0">
                         {['Overview', 'Habits', 'Planner', 'Finance', 'Journal'].map((item) => (
                             <NavLink
                                 key={item}
@@ -195,8 +254,8 @@ function Layout() {
                                 end={item === 'Overview'}
                                 className={({ isActive }) =>
                                     isActive
-                                        ? "text-slate-900 dark:text-white border-b-2 border-primary pb-1 transition-colors text-sm font-bold"
-                                        : "text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium"
+                                        ? "text-black dark:text-white border-b border-black dark:border-white pb-1 transition-colors text-[11px] uppercase tracking-[0.3em] font-semibold"
+                                        : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors text-[11px] uppercase tracking-[0.3em] font-medium"
                                 }
                             >
                                 {item}
@@ -204,39 +263,28 @@ function Layout() {
                         ))}
                     </nav>
 
-                    <div className="flex items-center gap-3 sm:gap-4">
-                        {!isOnline ? (
-                            <div className="relative size-10 flex items-center justify-center rounded-full text-amber-500 bg-amber-500/10 border border-amber-500/20" title="Offline Mode">
-                                <span className="material-symbols-outlined text-[24px]">cloud_off</span>
-                            </div>
-                        ) : (
-                            <>
-                                <button
-                                    onClick={() => setIsSearchModalOpen(true)}
-                                    className="hidden sm:flex relative size-10 items-center justify-center rounded-full text-slate-500 hover:text-primary transition-colors active:scale-95"
-                                    aria-label="Search users"
-                                >
-                                    <span className="material-symbols-outlined text-[24px]">search</span>
-                                </button>
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1 justify-end">
+                        {/* Sync + Connectivity Status Pill */}
+                        <SyncStatusPill isOnline={isOnline} userId={user?._id} />
 
                         {/* Mobile Perspective Toggle */}
                         {user?.partner && (
                             <button
                                 onClick={() => setViewMode(viewMode === 'me' ? 'partner' : 'me')}
                                 title={`Switch to ${viewMode === 'me' ? 'Shared' : 'My'} view`}
-                                className={`sm:hidden relative size-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${viewMode === 'partner' ? 'bg-primary/10 text-primary' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-[#000000] hover:text-primary'}`}
+                                className={`sm:hidden relative size-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${viewMode === 'partner' ? 'bg-electric-blue/10 text-electric-blue' : 'text-black/50 dark:text-white/40 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-electric-blue dark:hover:text-electric-blue'}`}
                             >
                                 {/* Two-person couple icon (Material Symbols 'group') */}
                                 <span className="material-symbols-outlined text-[24px]">group</span>
-                                {viewMode === 'partner' && <span className="absolute bottom-1 right-1 size-2.5 bg-green-500 border-[1.5px] border-white dark:border-[#192233] rounded-full" />}
+                                {viewMode === 'partner' && <span className="absolute bottom-1 right-1 size-2.5 bg-signal-orange border-[1.5px] border-white dark:border-[#050505] rounded-full" />}
                             </button>
                         )}
 
                         
-                        <div className="relative" ref={profileRef}>
+                        <div className="relative shrink-0" ref={profileRef}>
                             <button
                                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                                className="relative bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-primary/20 overflow-hidden bg-slate-200 flex items-center justify-center text-xl font-bold text-slate-500 hover:ring-primary/40 transition-all active:scale-95"
+                                className="relative bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-electric-blue/20 overflow-hidden bg-black/10 dark:bg-white/10 flex items-center justify-center text-xl font-bold text-black/50 dark:text-white/50 hover:ring-electric-blue/40 transition-all active:scale-95"
                             >
                                 <Avatar config={user?.avatar} />
                                 {unreadCount > 0 && <span className="absolute top-0 right-0 size-3 bg-rose-500 rounded-full border-2 border-background-light dark:border-background-dark pointer-events-none" />}
@@ -248,32 +296,32 @@ function Layout() {
                                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        className="absolute right-0 mt-3 w-48 bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 py-2 z-50 overflow-hidden"
+                                        className="absolute right-0 mt-3 w-52 bg-white dark:bg-[#121212] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 py-2 z-50 overflow-hidden ar-corners"
                                     >
-                                        <div className="px-4 py-3 border-b border-slate-100 dark:border-white/10 mb-1 font-bold text-xs text-slate-400 uppercase tracking-widest">Account</div>
-                                        <button onClick={() => { navigate('/dashboard/profile'); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#000000] flex items-center gap-3 transition-colors">
+                                        <div className="px-4 py-3 border-b border-black/[0.06] dark:border-white/[0.06] mb-1 font-semibold text-[9px] text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">Account</div>
+                                        <button onClick={() => { navigate('/dashboard/profile'); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-xs font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 transition-colors">
                                             <span className="material-symbols-outlined text-lg">dashboard</span> Profile
                                         </button>
                                         {user?.email === 'ernestodesabillejr@gmail.com' && (
                                             <button 
                                                 onClick={() => { navigate('/dashboard/admin'); setIsProfileOpen(false); }} 
-                                                className="w-full px-4 py-2.5 text-left text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-3 transition-colors"
+                                                className="w-full px-4 py-2.5 text-left text-xs font-semibold text-electric-blue hover:bg-electric-blue/5 flex items-center gap-3 transition-colors"
                                             >
                                                 <span className="material-symbols-outlined text-lg">admin_panel_settings</span> Manage
                                             </button>
                                         )}
-                                        <button onClick={() => { setIsNotificationsOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#000000] flex items-center justify-between transition-colors">
+                                        <button onClick={() => { setIsNotificationsOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-xs font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center justify-between transition-colors">
                                             <div className="flex items-center gap-3"><span className="material-symbols-outlined text-lg">notifications</span> Notifications</div>
-                                            {unreadCount > 0 && <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
+                                            {unreadCount > 0 && <span className="bg-signal-orange text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
                                         </button>
-                                        <button onClick={() => { setIsSettingsModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#000000] flex items-center gap-3 transition-colors">
+                                        <button onClick={() => { setIsSettingsModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-xs font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 transition-colors">
                                             <span className="material-symbols-outlined text-lg">settings</span> Settings
                                         </button>
-                                        <button onClick={() => { setIsBugModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-sm font-bold text-rose-500/80 hover:bg-rose-50 dark:hover:bg-rose-900/10 flex items-center gap-3 transition-colors">
+                                        <button onClick={() => { setIsBugModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-xs font-semibold text-signal-orange/80 hover:bg-signal-orange/5 flex items-center gap-3 transition-colors">
                                             <span className="material-symbols-outlined text-lg">bug_report</span> Report Bug
                                         </button>
-                                        <div className="h-px bg-slate-200 dark:bg-[#121212] my-1.5 mx-0"></div>
-                                        <button onClick={handleSignOut} className="w-full px-4 py-2.5 text-left text-sm font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 flex items-center gap-3 transition-colors">
+                                        <div className="h-px bg-black/[0.06] dark:bg-white/[0.06] my-1.5"></div>
+                                        <button onClick={handleSignOut} className="w-full px-4 py-2.5 text-left text-xs font-semibold text-signal-orange hover:bg-signal-orange/5 flex items-center gap-3 transition-colors">
                                             <span className="material-symbols-outlined text-lg">logout</span> Sign Out
                                         </button>
                                     </motion.div>
@@ -286,77 +334,74 @@ function Layout() {
                                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        className="absolute right-0 mt-3 w-80 bg-white dark:bg-[#121212] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 p-2 overflow-hidden z-[60]"
+                                        className="absolute right-0 mt-3 w-80 bg-white dark:bg-[#121212] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 p-2 overflow-hidden z-[60] ar-corners"
                                     >
-                                        <div className="p-4 border-b border-slate-50 dark:border-white/10 flex items-center gap-3">
-                                            <button onClick={() => { setIsNotificationsOpen(false); setIsProfileOpen(true); }} className="size-8 rounded-full hover:bg-slate-100 dark:hover:bg-[#000000] flex items-center justify-center transition-colors -ml-2">
+                                        <div className="p-4 border-b border-black/[0.06] dark:border-white/[0.06] flex items-center gap-3">
+                                            <button onClick={() => { setIsNotificationsOpen(false); setIsProfileOpen(true); }} className="size-8 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center justify-center transition-colors -ml-2">
                                                 <span className="material-symbols-outlined text-[20px]">arrow_back</span>
                                             </button>
-                                            <h4 className="text-sm font-black dark:text-white flex-1">Notifications</h4>
-                                            {unreadCount > 0 && <button onClick={markAllAsRead} className="text-[10px] font-black text-primary hover:underline uppercase tracking-widest">Mark all as read</button>}
+                                            <h4 className="text-xs font-semibold uppercase tracking-[0.3em] dark:text-white flex-1">Notifications</h4>
+                                            {unreadCount > 0 && <button onClick={markAllAsRead} className="text-[9px] font-semibold text-electric-blue hover:underline uppercase tracking-[0.3em]">Mark all read</button>}
                                         </div>
                                         <div className="max-h-[320px] overflow-y-auto custom-scrollbar">
                                             {mergedNotifications.length > 0 ? (
                                                 <div className="p-2 space-y-1">
                                                     {mergedNotifications.map((n) => (
-                                                        <button key={n.id} onClick={() => handleNotificationClick(n)} className={`w-full text-left p-3 rounded-2xl flex gap-3 hover:bg-slate-50 dark:hover:bg-[#000000] transition-colors relative group ${!n.read ? 'bg-slate-50/50 dark:bg-primary/5' : ''}`}>
-                                                            <div className={`size-10 shrink-0 rounded-xl bg-slate-100 dark:bg-[#121212] flex items-center justify-center ${n.color}`}><span className="material-symbols-outlined text-xl">{n.icon}</span></div>
+                                                        <button key={n.id} onClick={() => handleNotificationClick(n)} className={`w-full text-left p-3 rounded-2xl flex gap-3 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors relative group ${!n.read ? 'bg-black/[0.03] dark:bg-electric-blue/5' : ''}`}>
+                                                            <div className={`size-10 shrink-0 rounded-xl bg-black/[0.04] dark:bg-[#000000] flex items-center justify-center ${n.color}`}><span className="material-symbols-outlined text-xl">{n.icon}</span></div>
                                                             <div className="flex-1 min-w-0">
-                                                                <p className={`text-xs font-bold leading-snug mb-1 ${!n.read ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>{n.text}</p>
-                                                                <p className="text-[10px] text-slate-400 font-medium">{n.time}</p>
+                                                                <p className={`text-xs font-semibold leading-snug mb-1 ${!n.read ? 'text-black dark:text-white' : 'text-black/50 dark:text-white/40'}`}>{n.text}</p>
+                                                                <p className="text-[10px] text-black/40 dark:text-white/30 font-medium">{n.time}</p>
                                                             </div>
-                                                            {!n.read && <div className="absolute right-3 top-1/2 -translate-y-1/2 size-1.5 bg-primary rounded-full" />}
+                                                            {!n.read && <div className="absolute right-3 top-1/2 -translate-y-1/2 size-1.5 bg-electric-blue rounded-full" />}
                                                         </button>
                                                     ))}
                                                 </div>
                                             ) : (
-                                                <div className="p-8 text-center text-xs text-slate-400 font-medium">All caught up!</div>
+                                                <div className="p-8 text-center text-[11px] text-black/40 dark:text-white/30 font-medium uppercase tracking-[0.3em]">All caught up</div>
                                             )}
                                         </div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
                         </div>
-                            </>
-                        )}
                     </div>
                 </header>
 
                 <AnimatePresence>
                     {isMobileMenuOpen && (
                         <>
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)} />
-                            <motion.div initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} className="fixed top-0 left-0 h-full w-72 z-[80] bg-white dark:bg-[#0f172a] border-r border-slate-200 dark:border-white/10 flex flex-col shadow-2xl md:hidden">
-                                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-white/10">
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)} />
+                            <motion.div initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} className="fixed top-0 left-0 h-full w-72 z-[80] bg-[#f8f8f8] dark:bg-[#050505] border-r border-black/[0.08] dark:border-white/10 flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.5)] md:hidden">
+                                <div className="flex items-center justify-between px-5 py-4 border-b border-black/[0.06] dark:border-white/[0.06]">
                                     <NavLink to="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                                        <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-none ring-1 ring-slate-900/10">
+                                        <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-none ring-1 ring-black/10 dark:ring-white/10">
                                             <img src="/produs-logo.png" alt="Produs Logo" className="w-full h-full object-cover" />
                                         </div>
-                                        <span className="text-slate-900 dark:text-white text-lg font-bold tracking-tight">Produs</span>
+                                        <span className="text-black dark:text-white text-[11px] font-semibold uppercase tracking-[0.5em]">Produs</span>
                                     </NavLink>
-                                    <button onClick={() => setIsMobileMenuOpen(false)} className="size-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#000000] transition-colors">
+                                    <button onClick={() => setIsMobileMenuOpen(false)} className="size-8 flex items-center justify-center rounded-lg text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors">
                                         <span className="material-symbols-outlined text-xl">close</span>
                                     </button>
                                 </div>
 
                                 {/* Search — inline inside the side menu on mobile */}
-                                <div className="px-4 py-3 border-b border-slate-100 dark:border-white/10">
+                                <div className="px-4 py-3 border-b border-black/[0.06] dark:border-white/[0.06]">
                                     <button 
                                         onClick={() => { 
-                                            // Close the mobile menu and open the search modal
                                             setIsMobileMenuOpen(false);
                                             setIsSearchModalOpen(true); 
                                         }}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-[#121212]/30 flex items-center gap-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all active:scale-95 group"
+                                        className="w-full px-4 py-2.5 rounded-xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-[#121212]/30 flex items-center gap-3 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-all active:scale-95 group"
                                     >
-                                        <span className="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">search</span>
-                                        <span className="text-sm font-bold">Search Users</span>
+                                        <span className="material-symbols-outlined text-[20px] group-hover:text-electric-blue transition-colors">search</span>
+                                        <span className="text-xs font-semibold uppercase tracking-[0.3em]">Search Users</span>
                                     </button>
                                 </div>
 
                                 <nav className="flex flex-col gap-1 p-4 flex-1">
                                     {['Overview', 'Habits', 'Planner', 'Finance', 'Journal'].map((name) => (
-                                        <NavLink key={name} to={name === 'Overview' ? '/dashboard' : `/dashboard/${name.toLowerCase()}`} end={name === 'Overview'} onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-3 transition-colors ${isActive ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#000000]'}`}>
+                                        <NavLink key={name} to={name === 'Overview' ? '/dashboard' : `/dashboard/${name.toLowerCase()}`} end={name === 'Overview'} onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `px-4 py-3 rounded-xl text-[11px] font-semibold uppercase tracking-[0.3em] flex items-center gap-3 transition-colors ${isActive ? 'bg-electric-blue/10 text-electric-blue' : 'text-black/60 dark:text-white/60 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-black dark:hover:text-white'}`}>
                                             <span className="material-symbols-outlined text-xl">
                                                 {name === 'Overview' && 'dashboard'}
                                                 {name === 'Habits' && 'check_circle'}
@@ -367,7 +412,7 @@ function Layout() {
                                         </NavLink>
                                     ))}
                                 </nav>
-                                <div className="p-4 border-t border-slate-100 dark:border-white/10 text-center text-xs text-slate-400 font-medium">Produs &copy; {new Date().getFullYear()}</div>
+                                <div className="p-4 border-t border-black/[0.06] dark:border-white/[0.06] text-center text-[9px] text-black/30 dark:text-white/20 font-medium uppercase tracking-[0.4em]">Produs &copy; {new Date().getFullYear()}</div>
                             </motion.div>
                         </>
                     )}
@@ -383,10 +428,10 @@ function Layout() {
                 <AnimatePresence>
                     {isSearchModalOpen && (
                         <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vw] px-4">
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSearchModalOpen(false)} className="fixed inset-0 bg-[#121212]/40 dark:bg-black/60 backdrop-blur-sm" />
-                            <motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="relative w-full max-w-lg bg-white dark:bg-[#121212] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden flex flex-col max-h-[80vh]">
-                                <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-[#000000]/30">
-                                    <button onClick={() => setIsSearchModalOpen(false)} className="size-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:bg-[#000000] dark:hover:text-slate-300 transition-colors"><span className="material-symbols-outlined text-[20px]">close</span></button>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSearchModalOpen(false)} className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+                            <motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="relative w-full max-w-lg bg-white dark:bg-[#121212] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 overflow-hidden flex flex-col max-h-[80vh] ar-corners">
+                                <div className="flex items-center justify-between p-4 border-b border-black/[0.06] dark:border-white/[0.06] bg-black/[0.02] dark:bg-white/[0.02]">
+                                    <button onClick={() => setIsSearchModalOpen(false)} className="size-8 flex items-center justify-center rounded-full text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/[0.06] dark:hover:bg-white/[0.06] transition-colors"><span className="material-symbols-outlined text-[20px]">close</span></button>
                                 </div>
                                 <UserSearch onSelect={() => setIsSearchModalOpen(false)} />
                             </motion.div>

@@ -112,6 +112,11 @@ const userSchema = new mongoose.Schema({
         type: [Number],
         default: []
     },
+    challengeProgress: {
+        type: Map,
+        of: Number,
+        default: {}
+    },
     connections: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

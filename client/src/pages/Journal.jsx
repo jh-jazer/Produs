@@ -31,9 +31,9 @@ function Journal() {
                     {/* Header - Hidden on Mobile */}
                     <div className="hidden lg:flex flex-col gap-1 px-1">
                         <div className="flex items-center gap-3 mb-6">
-                            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Journal</h1>
+                             <h1 className="text-3xl font-semibold text-black dark:text-white tracking-[-0.02em]">Journal</h1>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Capture your thoughts and track your journey.</p>
+                        <p className="text-black/40 dark:text-white/40 text-[10px] font-semibold uppercase tracking-[0.3em]">Capture your thoughts and track your journey.</p>
                     </div>
 
                     {/* 2. JournalHistory */}
@@ -54,7 +54,7 @@ function Journal() {
                 </div>
             </div>
             {isLoading && (
-                <div className="fixed bottom-4 right-4 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold animate-pulse">
+                <div className="fixed bottom-4 right-4 bg-electric-blue/10 text-electric-blue px-3 py-1 rounded-full text-[9px] font-semibold uppercase tracking-[0.2em] animate-pulse border border-electric-blue/20">
                     Loading Local Data...
                 </div>
             )}

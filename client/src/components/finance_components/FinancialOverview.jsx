@@ -1,189 +1,199 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 
-const FinancialOverview = ({ transactions, currencySymbol, netBalance, totalSavings, totalDebt, totalUpcomingIncome }) => {
-    const [includeSavings, setIncludeSavings] = useState(false);
-    const [includeUpcoming, setIncludeUpcoming] = useState(false);
-    const [showSettings, setShowSettings] = useState(false);
+const FinancialOverview = ({
+  transactions,
 
-    // Current month filter
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
+  currencySymbol,
 
-    const currentMonthTransactions = transactions.filter(t => {
-        const d = new Date(t.date);
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    });
+  totalSavings,
+  totalDebt,
+  totalUpcomingIncome,
+}) => {
+  const [includeSavings, setIncludeSavings] = useState(false);
+  const [includeUpcoming, setIncludeUpcoming] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-    const totalIncome = currentMonthTransactions
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  // Current month filter
+  const now = new Date();
 
-    const totalExpenses = currentMonthTransactions
-        .filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  // Update clock every second
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
 
-    // Entire history ledger balance
-    const ledgerBalance = transactions.reduce((sum, t) => {
-        const amt = parseFloat(t.amount) || 0;
-        return t.type === 'income' ? sum + amt : sum - amt;
-    }, 0);
+  const currentMonthTransactions = transactions.filter((t) => {
+    const d = new Date(t.date);
+    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+  });
 
-    // Calculate displayed balance
-    let displayedBalance = ledgerBalance;
-    if (includeSavings) displayedBalance += totalSavings;
-    if (includeUpcoming) {
-        displayedBalance += (totalUpcomingIncome - totalDebt);
-    }
+  const totalIncome = currentMonthTransactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
-    // Category breakdown for expenses
-    const categoryTotals = currentMonthTransactions
-        .filter(t => t.type === 'expense')
-        .reduce((acc, t) => {
-            acc[t.category] = (acc[t.category] || 0) + parseFloat(t.amount);
-            return acc;
-        }, {});
+  const totalExpenses = currentMonthTransactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
-    const categories = Object.entries(categoryTotals)
-        .map(([label, amount]) => ({
-            label,
-            amount,
-            percent: totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0
-        }))
-        .sort((a, b) => b.amount - a.amount);
+  // Entire history ledger balance
+  const ledgerBalance = transactions.reduce((sum, t) => {
+    const amt = parseFloat(t.amount) || 0;
+    return t.type === "income" ? sum + amt : sum - amt;
+  }, 0);
 
-    const getCategoryColor = (index) => {
-        const colors = ['bg-primary', 'bg-purple-500', 'bg-orange-500', 'bg-emerald-500', 'bg-blue-500', 'bg-pink-500'];
-        return colors[index % colors.length];
-    };
+  // Calculate displayed balance
+  let displayedBalance = ledgerBalance;
+  if (includeSavings) displayedBalance += totalSavings;
+  if (includeUpcoming) {
+    displayedBalance += totalUpcomingIncome - totalDebt;
+  }
 
-    return (
-        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex flex-col gap-6 relative">
-            <div className="flex items-center justify-between">
-                <div className="flex flex-col gap-1">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Financial Overview</h3>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Summary for {now.toLocaleString('default', { month: 'long' })}</p>
-                </div>
-                <button 
-                    onClick={() => setShowSettings(!showSettings)}
-                    className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-[#000000] transition-colors"
-                >
-                    <span className="material-symbols-outlined text-xl">settings</span>
-                </button>
-            </div>
+  // Category breakdown for expenses
+  const categoryTotals = currentMonthTransactions
+    .filter((t) => t.type === "expense")
+    .reduce((acc, t) => {
+      acc[t.category] = (acc[t.category] || 0) + parseFloat(t.amount);
+      return acc;
+    }, {});
 
-            {/* Config Overlay */}
-            {showSettings && (
-                <div className="absolute top-16 right-6 z-10 w-64 bg-white dark:bg-[#000000] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl p-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Balance Components</p>
-                    <div className="space-y-3">
-                        <label className="flex items-center justify-between cursor-pointer group">
-                            <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Include Savings</span>
-                            <div className="relative">
-                                <input 
-                                    type="checkbox" 
-                                    className="sr-only peer" 
-                                    checked={includeSavings} 
-                                    onChange={() => setIncludeSavings(!includeSavings)}
-                                />
-                                <div className="w-8 h-4 bg-slate-200 dark:bg-[#121212] rounded-full peer peer-checked:bg-primary transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
-                            </div>
-                        </label>
-                        <label className="flex items-center justify-between cursor-pointer group">
-                            <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Include Upcoming Cashflow</span>
-                            <div className="relative">
-                                <input 
-                                    type="checkbox" 
-                                    className="sr-only peer" 
-                                    checked={includeUpcoming} 
-                                    onChange={() => setIncludeUpcoming(!includeUpcoming)}
-                                />
-                                <div className="w-8 h-4 bg-slate-200 dark:bg-[#121212] rounded-full peer peer-checked:bg-emerald-500 transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-            )}
+  const categories = Object.entries(categoryTotals)
 
-            {/* Net Balance Large Display */}
-            <div className={`rounded-2xl p-6 text-center relative transition-all duration-300 ${
-                displayedBalance >= 0 
-                    ? 'bg-emerald-500/5 border border-emerald-500/10' 
-                    : 'bg-rose-500/5 border border-rose-500/10'
-            }`}>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                    {includeUpcoming ? 'Projected' : 'Current'} Balance
-                </p>
-                <p className={`text-4xl font-black tracking-tight ${
-                    displayedBalance >= 0 ? 'text-slate-900 dark:text-white' : 'text-rose-500'
-                }`}>
-                    {displayedBalance < 0 ? '-' : ''}{currencySymbol}{Math.abs(displayedBalance).toLocaleString()}
-                </p>
-                <div className="flex items-center justify-center gap-2 mt-2">
-                    {includeSavings && (
-                        <span className="text-[8px] font-black bg-primary/10 text-primary px-1.5 py-0.5 rounded uppercase">Savings Included</span>
-                    )}
-                    {includeUpcoming && (
-                        <span className="text-[8px] font-black bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded uppercase">Upcoming Included</span>
-                    )}
-                </div>
-            </div>
+    .map(([label, amount]) => ({
+      label,
 
-            {/* Income & Expense Breakdown */}
-            <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="material-symbols-outlined text-emerald-500 text-sm">trending_up</span>
-                        <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Income</p>
-                    </div>
-                    <p className="text-xl font-black text-slate-900 dark:text-white">
-                        {currencySymbol}{totalIncome.toLocaleString()}
-                    </p>
-                </div>
-                <div className="p-4 rounded-xl bg-rose-500/5 border border-rose-500/10">
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="material-symbols-outlined text-rose-500 text-sm">trending_down</span>
-                        <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Expenses</p>
-                    </div>
-                    <p className="text-xl font-black text-slate-900 dark:text-white">
-                        {currencySymbol}{totalExpenses.toLocaleString()}
-                    </p>
-                </div>
-            </div>
+      amount,
 
-            {/* Category Progress Bars */}
-            <div className="space-y-4">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Spending by Category</p>
-                {categories.length > 0 ? (
-                    <div className="space-y-4">
-                        {categories.slice(0, 5).map((cat, i) => (
-                            <div key={cat.label}>
-                                <div className="flex justify-between items-center mb-1.5">
-                                    <div className="flex items-center gap-2">
-                                        <div className={`w-2 h-2 rounded-full ${getCategoryColor(i)}`}></div>
-                                        <span className="text-xs font-bold text-slate-600 dark:text-slate-400">{cat.label}</span>
-                                    </div>
-                                    <span className="text-xs font-black text-slate-900 dark:text-white">
-                                        {currencySymbol}{cat.amount.toLocaleString()}
-                                    </span>
-                                </div>
-                                <div className="w-full bg-slate-100 dark:bg-[#000000] rounded-full h-1.5 overflow-hidden">
-                                    <div 
-                                        className={`h-full rounded-full ${getCategoryColor(i)} transition-all duration-700`}
-                                        style={{ width: `${cat.percent}%` }}
-                                    ></div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="py-4 text-center">
-                        <p className="text-xs font-bold text-slate-400">No expense categories tracked yet</p>
-                    </div>
-                )}
-            </div>
+      percent: totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0,
+    }))
+
+    .sort((a, b) => b.amount - a.amount);
+
+  return (
+    <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex flex-col gap-6 min-h-[400px] relative overflow-hidden group">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">Financial Insights</h3>
+          <p className="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-bold tracking-widest mt-1">
+            {now.toLocaleString("default", { month: "long", year: "numeric" }).toUpperCase()} Analysis
+          </p>
         </div>
-    );
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#000000] text-slate-500 dark:text-slate-400 transition-colors"
+          >
+            <span className="material-symbols-outlined text-xl">settings</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Config Overlay */}
+      {showSettings && (
+        <div className="absolute top-16 right-6 z-10 w-64 bg-white dark:bg-[#000000] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl p-4 animate-in fade-in slide-in-from-top-2 duration-200">
+           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Balance Components</p>
+           <div className="space-y-3">
+             <label className="flex items-center justify-between cursor-pointer group">
+               <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Include Savings</span>
+               <div className="relative">
+                 <input type="checkbox" className="sr-only peer" checked={includeSavings} onChange={() => setIncludeSavings(!includeSavings)} />
+                 <div className="w-8 h-4 bg-slate-200 dark:bg-[#121212] rounded-full peer peer-checked:bg-primary transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+               </div>
+             </label>
+             <label className="flex items-center justify-between cursor-pointer group">
+               <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Include Upcoming Cashflow</span>
+               <div className="relative">
+                 <input type="checkbox" className="sr-only peer" checked={includeUpcoming} onChange={() => setIncludeUpcoming(!includeUpcoming)} />
+                 <div className="w-8 h-4 bg-slate-200 dark:bg-[#121212] rounded-full peer peer-checked:bg-emerald-500 transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+               </div>
+             </label>
+           </div>
+        </div>
+      )}
+
+      {/* Net Balance Display */}
+      <div className="relative p-8 text-center rounded-2xl bg-slate-50 dark:bg-[#000000]/50 border border-slate-100 dark:border-white/5">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Total Net Balance</p>
+        <p className={`text-4xl font-black ${displayedBalance >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+          {currencySymbol}{Math.abs(displayedBalance).toLocaleString()}
+        </p>
+
+        <div className="flex items-center justify-center gap-3 mt-4">
+          {includeSavings && (
+            <span className="px-2 py-1 rounded-md text-[8px] font-black bg-primary/10 text-primary border border-primary/20 uppercase tracking-widest">
+              +Savings
+            </span>
+          )}
+          {includeUpcoming && (
+            <span className="px-2 py-1 rounded-md text-[8px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-widest">
+              +Upcoming
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Breakdown Grid */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 transition-colors hover:border-emerald-500/30">
+          <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Inflow</p>
+          <p className="text-2xl font-black text-emerald-500">{currencySymbol}{totalIncome.toLocaleString()}</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-rose-500/5 border border-rose-500/10 transition-colors hover:border-rose-500/30">
+          <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-1">Outflow</p>
+          <p className="text-2xl font-black text-rose-500">{currencySymbol}{totalExpenses.toLocaleString()}</p>
+        </div>
+      </div>
+
+      {/* Categories */}
+      <div className="space-y-4">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Expenditure Distribution</p>
+        {categories.length > 0 ? (
+          <div className="space-y-4">
+            {categories.slice(0, 5).map((cat, i) => {
+              const bgColors = ["bg-primary", "bg-emerald-500", "bg-amber-500", "bg-purple-500", "bg-rose-500"];
+              const bgColor = bgColors[i % bgColors.length];
+              return (
+                <div key={cat.label} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-tight">{cat.label}</span>
+                    <div className="text-right">
+                      <span className="text-[10px] font-black text-slate-900 dark:text-white">{currencySymbol}{cat.amount.toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-[#000000] rounded-full h-1.5 overflow-hidden">
+                    <div className={`h-full ${bgColor} transition-all duration-500`} style={{ width: `${cat.percent}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="py-8 text-center bg-slate-50 dark:bg-[#000000]/20 rounded-2xl border border-dashed border-slate-200 dark:border-white/10">
+            <span className="material-symbols-outlined text-slate-300 text-3xl mb-1">insights</span>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No data logged</p>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="mt-auto pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+        <div className="flex items-center gap-4">
+          <span>Snapshot</span>
+          <span className={displayedBalance >= 0 ? "text-emerald-500" : "text-rose-500"}>
+            {displayedBalance >= 0 ? "SURPLUS" : "DEFICIT"}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-emerald-500">Active</span>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default FinancialOverview;

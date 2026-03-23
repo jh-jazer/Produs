@@ -129,8 +129,13 @@ export const useHabitsLocal = () => {
         });
     };
 
+    const processedHabits = habits?.map(habit => ({
+        ...habit,
+        streak: calculateStreak(habit.checks || [])
+    })) || [];
+
     return {
-        habits: habits || [],
+        habits: processedHabits,
         addHabit,
         toggleCheck,
         updateHabit,
