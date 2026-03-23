@@ -13,7 +13,7 @@ import BugReportModal from './ui/BugReportModal';
 import useConnectivityStore from '../store/useConnectivityStore';
 import SyncService from '../services/SyncService';
 
-// Compact header pill showing sync status + connectivity
+// Compact header pill showing sync status + connectivity (Icon only)
 function SyncStatusPill({ isOnline, userId }) {
     const [syncInfo, setSyncInfo] = React.useState(() => SyncService.getSyncStatus());
 
@@ -36,45 +36,36 @@ function SyncStatusPill({ isOnline, userId }) {
 
     const statusIcon = !isOnline ? 'cloud_off'
         : syncInfo.syncStatus === 'error' ? 'sync_problem'
-        : syncInfo.syncStatus === 'syncing' ? 'sync'
-        : 'cloud_done';
+            : syncInfo.syncStatus === 'syncing' ? 'sync'
+                : 'cloud_done';
 
     const title = !isOnline ? 'Offline — changes will sync when reconnected'
         : syncInfo.syncStatus === 'syncing' ? 'Syncing…'
-        : syncInfo.syncStatus === 'error' ? 'Sync failed — click to retry'
-        : syncInfo.lastSyncedAt
-            ? `Synced at ${syncInfo.lastSyncedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-            : 'Click to sync';
+            : syncInfo.syncStatus === 'error' ? 'Sync failed — click to retry'
+                : syncInfo.lastSyncedAt
+                    ? `Synced at ${syncInfo.lastSyncedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                    : 'Click to sync';
 
     return (
         <button
             onClick={handleForceSync}
             title={title}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[9px] font-semibold uppercase tracking-[0.3em] transition-all hover:opacity-80 active:scale-95 ${statusColor}`}
+            className={`flex items-center justify-center size-8 rounded-lg border transition-all hover:opacity-80 active:scale-95 ${statusColor}`}
         >
             <motion.span
                 animate={syncInfo.isSyncing ? { rotate: 360 } : { rotate: 0 }}
                 transition={syncInfo.isSyncing ? { repeat: Infinity, duration: 1, ease: 'linear' } : {}}
-                className="material-symbols-outlined text-[16px]"
+                className="material-symbols-outlined text-[18px]"
             >
                 {statusIcon}
             </motion.span>
-            <span className="text-[10px] font-semibold uppercase tracking-[0.25em]">
-                {!isOnline ? 'Offline'
-                    : syncInfo.syncStatus === 'syncing' ? 'Syncing'
-                    : syncInfo.syncStatus === 'error' ? 'Error'
-                    : 'Synced'}
-            </span>
-            {/* Online dot */}
-            {isOnline && syncInfo.syncStatus !== 'syncing' && (
-                <span className={`size-1.5 rounded-full ${syncInfo.syncStatus === 'error' ? 'bg-rose-500' : 'bg-emerald-500'}`} />
-            )}
         </button>
     );
 }
 
 function Layout() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [isLogoDropdownOpen, setIsLogoDropdownOpen] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -85,6 +76,17 @@ function Layout() {
     const { user, logout, syncUser, viewMode, setViewMode } = useAuthStore();
     const isOnline = useConnectivityStore(state => state.isOnline);
 
+    const logoDropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (logoDropdownRef.current && !logoDropdownRef.current.contains(event.target)) {
+                setIsLogoDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     useEffect(() => {
         // Apply Dark Mode from settings
@@ -114,21 +116,22 @@ function Layout() {
     useEffect(() => {
         const handleUserSelected = () => {
             setIsSearchModalOpen(false);
-            setIsMobileMenuOpen(false); // also close side menu after selecting a user
+            setIsMobileMenuOpen(false);
         };
         window.addEventListener('user-selected', handleUserSelected);
         return () => window.removeEventListener('user-selected', handleUserSelected);
     }, []);
 
-    // Perform initial data synchronization for offline-first architecture
+    // Perform data synchronization for offline-first architecture
+    // Added: Automatic sync when connection is restored
     useEffect(() => {
-        if (user?._id) {
+        if (user?._id && isOnline) {
             SyncService.syncAll(user._id);
         }
-    }, [user?._id]);
+    }, [user?._id, isOnline]);
 
     const { data: notifications = [], mutate: mutateNotifications } = useSWR(user ? '/notifications' : null, {
-        refreshInterval: 30000 
+        refreshInterval: 30000
     });
 
     const navigate = useNavigate();
@@ -215,6 +218,14 @@ function Layout() {
         setIsNotificationsOpen(false);
     };
 
+    const navItems = [
+        { name: 'Overview', path: '/dashboard', icon: 'dashboard' },
+        { name: 'Habits', path: '/dashboard/habits', icon: 'check_circle' },
+        { name: 'Planner', path: '/dashboard/planner', icon: 'event' },
+        { name: 'Finance', path: '/dashboard/finance', icon: 'payments' },
+        { name: 'Journal', path: '/dashboard/journal', icon: 'book' },
+    ];
+
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -223,49 +234,73 @@ function Layout() {
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="bg-[#f8f8f8] dark:bg-[#000000] dark:bg-grid bg-grid-light font-display text-[#111111] dark:text-slate-100 h-screen flex flex-col overflow-hidden"
         >
-            <div className="layout-container flex h-full flex-col">
-                <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-black/[0.08] dark:border-white/[0.07] bg-[#f8f8f8]/90 dark:bg-[#050505]/90 backdrop-blur-md px-6 lg:px-10 py-3">
-                    <div className="flex items-center gap-3 sm:gap-4 flex-1">
-                        <button
-                            className="md:hidden relative size-10 flex items-center justify-center rounded-xl bg-white dark:bg-[#121212] border border-black/[0.08] dark:border-white/10 text-black/50 dark:text-white/50 hover:text-electric-blue dark:hover:text-electric-blue transition-colors active:scale-95"
-                            onClick={() => setIsMobileMenuOpen(true)}
-                        >
-                            <span className="material-symbols-outlined text-[22px]">menu</span>
-                        </button>
+            <div className="layout-container flex h-full flex-col relative">
+                {/* Cinematic Floating Nav */}
+                <motion.nav
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="sticky top-0 left-0 w-full z-[100] px-4 md:px-10 py-6 md:py-10 flex justify-between items-center bg-transparent"
+                >
+                    {/* Brand / Logo with Dropdown */}
+                    <div 
+                        ref={logoDropdownRef}
+                        className="relative flex items-center gap-3 md:gap-4 group cursor-pointer" 
+                        onClick={() => setIsLogoDropdownOpen(!isLogoDropdownOpen)}
+                    >
+                        <div className={`size-5 md:size-6 flex items-center justify-center bg-black dark:bg-white transition-all group-hover:bg-electric-blue ${isLogoDropdownOpen ? 'rotate-0' : 'rotate-45'}`} />
+                        <span className="font-bold text-[10px] md:text-[11px] uppercase tracking-[0.5em] md:tracking-[0.8em] text-black/80 dark:text-white/80 group-hover:text-black dark:group-hover:text-white transition-all hidden sm:inline-block">Produs</span>
 
-                        <div className="flex items-center gap-4">
-                            <span className="sm:hidden font-ubuntu text-xl font-bold tracking-[-0.02em] text-black dark:text-white transition-all">
-                                {getPageTitle()}
-                            </span>
-                            <NavLink to="/" className="hidden sm:flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                                <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-none ring-1 ring-black/10 dark:ring-white/10">
-                                    <img src="/produs-logo.png" alt="Produs Logo" className="w-full h-full object-cover" />
-                                </div>
-                                <h2 className="text-black dark:text-white text-[11px] font-semibold uppercase tracking-[0.5em] leading-tight">Produs</h2>
-                            </NavLink>
-                        </div>
+                        <AnimatePresence>
+                            {isLogoDropdownOpen && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.9, y: 10, rotateX: -20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
+                                    exit={{ opacity: 0, scale: 0.9, y: 10, rotateX: -20 }}
+                                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                                    className="absolute left-0 top-full mt-6 w-64 bg-white dark:bg-[#050505] border border-black/[0.08] dark:border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] z-[110] overflow-hidden ar-corners origin-top-left"
+                                >
+                                    <div className="py-4 flex flex-col">
+                                        <div className="px-6 py-2 mb-2 font-bold text-[9px] uppercase tracking-[0.5em] text-black/30 dark:text-white/20 border-b border-black/[0.05] dark:border-white/[0.05]">Navigation</div>
+                                        {navItems.map((item, idx) => (
+                                            <motion.button
+                                                key={item.name}
+                                                initial={{ x: -20, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: idx * 0.05 }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(item.path);
+                                                    setIsLogoDropdownOpen(false);
+                                                }}
+                                                className="w-full px-6 py-4 text-left flex items-center gap-4 group/item hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all"
+                                            >
+                                                <span className="material-symbols-outlined text-[18px] text-black/30 dark:text-white/20 group-hover/item:text-electric-blue transition-colors">{item.icon}</span>
+                                                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-black/50 dark:text-white/40 group-hover/item:text-black dark:group-hover:text-white group-hover/item:tracking-[0.6em] transition-all">{item.name}</span>
+                                            </motion.button>
+                                        ))}
+                                        <div className="mt-4 px-6 pt-4 border-t border-black/[0.05] dark:border-white/[0.05]">
+                                            <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-black/20 dark:text-white/10 flex items-center gap-2 italic">
+                                                <span className="size-1 rounded-full bg-electric-blue" /> Cinematic Motion
+                                            </p>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
 
-                    <nav className="hidden md:flex items-center gap-8 shrink-0">
-                        {['Overview', 'Habits', 'Planner', 'Finance', 'Journal'].map((item) => (
-                            <NavLink
-                                key={item}
-                                to={item === 'Overview' ? '/dashboard' : `/dashboard/${item.toLowerCase()}`}
-                                end={item === 'Overview'}
-                                className={({ isActive }) =>
-                                    isActive
-                                        ? "text-black dark:text-white border-b border-black dark:border-white pb-1 transition-colors text-[11px] uppercase tracking-[0.3em] font-semibold"
-                                        : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors text-[11px] uppercase tracking-[0.3em] font-medium"
-                                }
-                            >
-                                {item}
-                            </NavLink>
-                        ))}
-                    </nav>
-
-                    <div className="flex items-center gap-3 sm:gap-4 flex-1 justify-end">
+                    <div className="flex items-center gap-3 sm:gap-6 shrink-0">
                         {/* Sync + Connectivity Status Pill */}
                         <SyncStatusPill isOnline={isOnline} userId={user?._id} />
+                        
+                        {/* Mobile Menu Trigger */}
+                        <button
+                            className="lg:hidden relative size-8 flex items-center justify-center rounded-lg hover:bg-black/[0.04] dark:hover:bg-white/[0.04] text-black/40 dark:text-white/40 transition-colors"
+                            onClick={() => setIsMobileMenuOpen(true)}
+                        >
+                            <span className="material-symbols-outlined text-[20px]">menu</span>
+                        </button>
 
                         {/* Mobile Perspective Toggle */}
                         {user?.partner && (
@@ -274,12 +309,10 @@ function Layout() {
                                 title={`Switch to ${viewMode === 'me' ? 'Shared' : 'My'} view`}
                                 className={`sm:hidden relative size-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${viewMode === 'partner' ? 'bg-electric-blue/10 text-electric-blue' : 'text-black/50 dark:text-white/40 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-electric-blue dark:hover:text-electric-blue'}`}
                             >
-                                {/* Two-person couple icon (Material Symbols 'group') */}
                                 <span className="material-symbols-outlined text-[24px]">group</span>
                                 {viewMode === 'partner' && <span className="absolute bottom-1 right-1 size-2.5 bg-signal-orange border-[1.5px] border-white dark:border-[#050505] rounded-full" />}
                             </button>
                         )}
-
                         
                         <div className="relative shrink-0" ref={profileRef}>
                             <button
@@ -366,7 +399,7 @@ function Layout() {
                             </AnimatePresence>
                         </div>
                     </div>
-                </header>
+                </motion.nav>
 
                 <AnimatePresence>
                     {isMobileMenuOpen && (
@@ -385,12 +418,11 @@ function Layout() {
                                     </button>
                                 </div>
 
-                                {/* Search — inline inside the side menu on mobile */}
                                 <div className="px-4 py-3 border-b border-black/[0.06] dark:border-white/[0.06]">
-                                    <button 
-                                        onClick={() => { 
+                                    <button
+                                        onClick={() => {
                                             setIsMobileMenuOpen(false);
-                                            setIsSearchModalOpen(true); 
+                                            setIsSearchModalOpen(true);
                                         }}
                                         className="w-full px-4 py-2.5 rounded-xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-[#121212]/30 flex items-center gap-3 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-all active:scale-95 group"
                                     >
@@ -400,15 +432,15 @@ function Layout() {
                                 </div>
 
                                 <nav className="flex flex-col gap-1 p-4 flex-1">
-                                    {['Overview', 'Habits', 'Planner', 'Finance', 'Journal'].map((name) => (
-                                        <NavLink key={name} to={name === 'Overview' ? '/dashboard' : `/dashboard/${name.toLowerCase()}`} end={name === 'Overview'} onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `px-4 py-3 rounded-xl text-[11px] font-semibold uppercase tracking-[0.3em] flex items-center gap-3 transition-colors ${isActive ? 'bg-electric-blue/10 text-electric-blue' : 'text-black/60 dark:text-white/60 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-black dark:hover:text-white'}`}>
-                                            <span className="material-symbols-outlined text-xl">
-                                                {name === 'Overview' && 'dashboard'}
-                                                {name === 'Habits' && 'check_circle'}
-                                                {name === 'Planner' && 'event'}
-                                                {name === 'Finance' && 'payments'}
-                                                {name === 'Journal' && 'book'}
-                                            </span> {name}
+                                    {navItems.map((item) => (
+                                        <NavLink 
+                                            key={item.name} 
+                                            to={item.path} 
+                                            end={item.name === 'Overview'} 
+                                            onClick={() => setIsMobileMenuOpen(false)} 
+                                            className={({ isActive }) => `px-4 py-3 rounded-xl text-[11px] font-semibold uppercase tracking-[0.3em] flex items-center gap-3 transition-colors ${isActive ? 'bg-electric-blue/10 text-electric-blue' : 'text-black/60 dark:text-white/60 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-black dark:hover:text-white'}`}
+                                        >
+                                            <span className="material-symbols-outlined text-xl">{item.icon}</span> {item.name}
                                         </NavLink>
                                     ))}
                                 </nav>

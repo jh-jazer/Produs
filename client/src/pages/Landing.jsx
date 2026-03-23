@@ -24,6 +24,8 @@ import CTA from "../components/landing/CTA";
 import ScrollIndicator from "../components/landing/ScrollIndicator";
 import Lenis from "lenis";
 
+import { useAssetStore } from "../store/useAssetStore";
+
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const SCENES_FEATURES = [
@@ -61,31 +63,39 @@ const TESTIMONIALS = [
 
 export default function Landing() {
   const { user } = useAuthStore();
+  const { isHeroLoaded, heroLoadingProgress } = useAssetStore();
   const containerRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [showSplash, setShowSplash] = useState(true);
   const [isLightMode, setIsLightMode] = useState(false);
+  const [minDelayMet, setMinDelayMet] = useState(false);
 
   const toggleTheme = (e) => {
     e.stopPropagation();
     setIsLightMode(!isLightMode);
   };
 
-  // Splash Screen Logic
+  // Splash Screen Lifecycle
   useEffect(() => {
-    // Disable scrolling while splash is active
-    if (showSplash) {
+    // Minimum 2 second timer to ensure opening animations look good
+    const timer = setTimeout(() => {
+        setMinDelayMet(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    // Only dismiss splash when both the minimum delay and assets are fully loaded
+    if (minDelayMet && isHeroLoaded) {
+      const exitTimer = setTimeout(() => {
+          setShowSplash(false);
+          document.body.style.overflow = '';
+      }, 500); // Soft fade-out delay
+      return () => clearTimeout(exitTimer);
+    } else {
       document.body.style.overflow = 'hidden';
-      const timer = setTimeout(() => {
-        setShowSplash(false);
-        document.body.style.overflow = '';
-      }, 2500); // 2.5 second splash screen
-      return () => {
-        clearTimeout(timer);
-        document.body.style.overflow = '';
-      };
     }
-  }, [showSplash]);
+  }, [minDelayMet, isHeroLoaded]);
 
   // Navbar Visibility Logic (Always visible as requested)
   const [navVisible] = useState(true);
@@ -264,8 +274,8 @@ export default function Landing() {
               <div className={`w-48 h-[2px] ${isLightMode ? 'bg-black/10' : 'bg-white/10'} rounded-full overflow-hidden`}>
                 <motion.div 
                   initial={{ width: "0%" }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 2, ease: "easeInOut" }}
+                  animate={{ width: `${heroLoadingProgress}%` }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
                   className={`h-full ${isLightMode ? 'bg-black shadow-[0_0_10px_rgba(0,0,0,0.2)]' : 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]'}`}
                 />
               </div>

@@ -19,4 +19,9 @@ db.version(4).stores({
     sync_queue: '++id, collection, docId, action, timestamp'
 });
 
+// Gracefully handle database upgrades when multiple tabs are open
+db.on('versionchange', () => {
+    db.close();
+});
+
 export default db;
