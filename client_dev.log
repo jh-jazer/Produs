@@ -1,0 +1,705 @@
+
+> produs@0.0.0 dev
+> vite
+
+
+  VITE v7.3.1  ready in 574 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+(!) Failed to run dependency scan. Skipping dependency pre-bundling. Error:   Failed to scan for dependencies from entries:
+  /app/client/index.html
+
+  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUnexpected end of file before a closing "aside" tag[0m
+
+    src/components/Layout.jsx:446:0:
+[37m      446 │ [32m[37m
+          │ [32m^[37m
+          ╵ [32m</aside>[0m
+
+  The opening "aside" tag is here:
+
+    src/components/Layout.jsx:223:13:
+[37m      223 │             <[32maside[37m
+          ╵              [32m~~~~~[0m
+
+
+    at failureErrorWithLog (/app/client/node_modules/esbuild/lib/main.js:1748:15)
+    at /app/client/node_modules/esbuild/lib/main.js:1207:25
+    at runOnEndCallbacks (/app/client/node_modules/esbuild/lib/main.js:1588:45)
+    at buildResponseToResult (/app/client/node_modules/esbuild/lib/main.js:1205:7)
+    at /app/client/node_modules/esbuild/lib/main.js:1217:9
+    at new Promise (<anonymous>)
+    at requestCallbacks.on-end (/app/client/node_modules/esbuild/lib/main.js:1216:54)
+    at handleRequest (/app/client/node_modules/esbuild/lib/main.js:909:17)
+    at handleIncomingPacket (/app/client/node_modules/esbuild/lib/main.js:934:7)
+    at Socket.readFromStdout (/app/client/node_modules/esbuild/lib/main.js:862:7)
+11:03:02 PM [vite] (client) Pre-transform error: /app/client/src/components/Layout.jsx: Unterminated JSX contents. (441:14)
+
+  439 |                 />
+  440 |             )}
+> 441 |         </div>
+      |               ^
+  442 |     );
+  443 | }
+  444 |
+  Plugin: vite:react-babel
+  File: /app/client/src/components/Layout.jsx:441:14
+  439 |                  />
+  440 |              )}
+  441 |          </div>
+      |                ^
+  442 |      );
+  443 |  }
+11:03:02 PM [vite] (client) Pre-transform error: /app/client/src/components/Layout.jsx: Unterminated JSX contents. (441:14)
+
+  439 |                 />
+  440 |             )}
+> 441 |         </div>
+      |               ^
+  442 |     );
+  443 | }
+  444 |
+  Plugin: vite:react-babel
+  File: /app/client/src/components/Layout.jsx:441:14
+  439 |                  />
+  440 |              )}
+  441 |          </div>
+      |                ^
+  442 |      );
+  443 |  }
+11:03:05 PM [vite] (client) ✨ new dependencies optimized: react-dom/client, workbox-window, react-router-dom, framer-motion, swr, zustand, zustand/middleware, axios, lucide-react, gsap, gsap/ScrollTrigger, gsap/ScrollToPlugin, lenis, dexie, dexie-react-hooks, yjs
+11:03:05 PM [vite] (client) ✨ optimized dependencies changed. reloading
+11:03:24 PM [vite] (client) hmr update /src/index.css
+11:03:58 PM [vite] (client) hmr update /src/index.css
+11:04:13 PM [vite] (client) Pre-transform error: /app/client/src/components/Layout.jsx: Expected corresponding JSX closing tag for <motion.main>. (370:20)
+
+  368 |                                 className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                             >
+> 370 |                     </div>
+      |                     ^
+  371 |                 </div>
+  372 |             </aside>
+  373 |                                 <FrozenRoute context={{ setIsSearchModalOpen }} />
+  Plugin: vite:react-babel
+  File: /app/client/src/components/Layout.jsx:370:20
+  368 |                                  className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                              >
+  370 |                      </div>
+      |                      ^
+  371 |                  </div>
+  372 |              </aside>
+11:04:14 PM [vite] (client) Pre-transform error: /app/client/src/components/Layout.jsx: Expected corresponding JSX closing tag for <motion.main>. (370:20)
+
+  368 |                                 className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                             >
+> 370 |                     </div>
+      |                     ^
+  371 |                 </div>
+  372 |             </aside>
+  373 |                                 <FrozenRoute context={{ setIsSearchModalOpen }} />
+  Plugin: vite:react-babel
+  File: /app/client/src/components/Layout.jsx:370:20
+  368 |                                  className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                              >
+  370 |                      </div>
+      |                      ^
+  371 |                  </div>
+  372 |              </aside>
+11:04:56 PM [vite] Internal server error: /app/client/src/components/Layout.jsx: Expected corresponding JSX closing tag for <motion.main>. (370:20)
+
+  368 |                                 className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                             >
+> 370 |                     </div>
+      |                     ^
+  371 |                 </div>
+  372 |             </aside>
+  373 |                                 <FrozenRoute context={{ setIsSearchModalOpen }} />
+  Plugin: vite:react-babel
+  File: /app/client/src/components/Layout.jsx:370:20
+  368 |                                  className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                              >
+  370 |                      </div>
+      |                      ^
+  371 |                  </div>
+  372 |              </aside>
+      at constructor (/app/client/node_modules/@babel/parser/lib/index.js:365:19)
+      at JSXParserMixin.raise (/app/client/node_modules/@babel/parser/lib/index.js:6599:19)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4727:16)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElement (/app/client/node_modules/@babel/parser/lib/index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10800:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (/app/client/node_modules/@babel/parser/lib/index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/app/client/node_modules/@babel/parser/lib/index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/app/client/node_modules/@babel/parser/lib/index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (/app/client/node_modules/@babel/parser/lib/index.js:10784:23)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10780:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12421:16)
+      at JSXParserMixin.parseExpression (/app/client/node_modules/@babel/parser/lib/index.js:10780:17)
+      at JSXParserMixin.parseReturnStatement (/app/client/node_modules/@babel/parser/lib/index.js:13142:28)
+      at JSXParserMixin.parseStatementContent (/app/client/node_modules/@babel/parser/lib/index.js:12798:21)
+      at JSXParserMixin.parseStatementLike (/app/client/node_modules/@babel/parser/lib/index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (/app/client/node_modules/@babel/parser/lib/index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13309:10)
+      at JSXParserMixin.parseBlock (/app/client/node_modules/@babel/parser/lib/index.js:13297:10)
+      at JSXParserMixin.parseFunctionBody (/app/client/node_modules/@babel/parser/lib/index.js:12100:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (/app/client/node_modules/@babel/parser/lib/index.js:12086:10)
+      at /app/client/node_modules/@babel/parser/lib/index.js:13445:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/app/client/node_modules/@babel/parser/lib/index.js:12403:14)
+      at JSXParserMixin.parseFunction (/app/client/node_modules/@babel/parser/lib/index.js:13444:10)
+      at JSXParserMixin.parseFunctionStatement (/app/client/node_modules/@babel/parser/lib/index.js:13125:17)
+11:06:00 PM [vite] Internal server error: /app/client/src/components/Layout.jsx: Expected corresponding JSX closing tag for <motion.main>. (370:20)
+
+  368 |                                 className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                             >
+> 370 |                     </div>
+      |                     ^
+  371 |                 </div>
+  372 |             </aside>
+  373 |                                 <FrozenRoute context={{ setIsSearchModalOpen }} />
+  Plugin: vite:react-babel
+  File: /app/client/src/components/Layout.jsx:370:20
+  368 |                                  className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                              >
+  370 |                      </div>
+      |                      ^
+  371 |                  </div>
+  372 |              </aside>
+      at constructor (/app/client/node_modules/@babel/parser/lib/index.js:365:19)
+      at JSXParserMixin.raise (/app/client/node_modules/@babel/parser/lib/index.js:6599:19)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4727:16)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElement (/app/client/node_modules/@babel/parser/lib/index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10800:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (/app/client/node_modules/@babel/parser/lib/index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/app/client/node_modules/@babel/parser/lib/index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/app/client/node_modules/@babel/parser/lib/index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (/app/client/node_modules/@babel/parser/lib/index.js:10784:23)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10780:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12421:16)
+      at JSXParserMixin.parseExpression (/app/client/node_modules/@babel/parser/lib/index.js:10780:17)
+      at JSXParserMixin.parseReturnStatement (/app/client/node_modules/@babel/parser/lib/index.js:13142:28)
+      at JSXParserMixin.parseStatementContent (/app/client/node_modules/@babel/parser/lib/index.js:12798:21)
+      at JSXParserMixin.parseStatementLike (/app/client/node_modules/@babel/parser/lib/index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (/app/client/node_modules/@babel/parser/lib/index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13309:10)
+      at JSXParserMixin.parseBlock (/app/client/node_modules/@babel/parser/lib/index.js:13297:10)
+      at JSXParserMixin.parseFunctionBody (/app/client/node_modules/@babel/parser/lib/index.js:12100:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (/app/client/node_modules/@babel/parser/lib/index.js:12086:10)
+      at /app/client/node_modules/@babel/parser/lib/index.js:13445:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/app/client/node_modules/@babel/parser/lib/index.js:12403:14)
+      at JSXParserMixin.parseFunction (/app/client/node_modules/@babel/parser/lib/index.js:13444:10)
+      at JSXParserMixin.parseFunctionStatement (/app/client/node_modules/@babel/parser/lib/index.js:13125:17)
+11:06:16 PM [vite] Internal server error: /app/client/src/components/Layout.jsx: Expected corresponding JSX closing tag for <motion.main>. (370:20)
+
+  368 |                                 className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                             >
+> 370 |                     </div>
+      |                     ^
+  371 |                 </div>
+  372 |             </aside>
+  373 |                                 <FrozenRoute context={{ setIsSearchModalOpen }} />
+  Plugin: vite:react-babel
+  File: /app/client/src/components/Layout.jsx:370:20
+  368 |                                  className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                              >
+  370 |                      </div>
+      |                      ^
+  371 |                  </div>
+  372 |              </aside>
+      at constructor (/app/client/node_modules/@babel/parser/lib/index.js:365:19)
+      at JSXParserMixin.raise (/app/client/node_modules/@babel/parser/lib/index.js:6599:19)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4727:16)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElement (/app/client/node_modules/@babel/parser/lib/index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10800:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (/app/client/node_modules/@babel/parser/lib/index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/app/client/node_modules/@babel/parser/lib/index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/app/client/node_modules/@babel/parser/lib/index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (/app/client/node_modules/@babel/parser/lib/index.js:10784:23)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10780:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12421:16)
+      at JSXParserMixin.parseExpression (/app/client/node_modules/@babel/parser/lib/index.js:10780:17)
+      at JSXParserMixin.parseReturnStatement (/app/client/node_modules/@babel/parser/lib/index.js:13142:28)
+      at JSXParserMixin.parseStatementContent (/app/client/node_modules/@babel/parser/lib/index.js:12798:21)
+      at JSXParserMixin.parseStatementLike (/app/client/node_modules/@babel/parser/lib/index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (/app/client/node_modules/@babel/parser/lib/index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13309:10)
+      at JSXParserMixin.parseBlock (/app/client/node_modules/@babel/parser/lib/index.js:13297:10)
+      at JSXParserMixin.parseFunctionBody (/app/client/node_modules/@babel/parser/lib/index.js:12100:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (/app/client/node_modules/@babel/parser/lib/index.js:12086:10)
+      at /app/client/node_modules/@babel/parser/lib/index.js:13445:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/app/client/node_modules/@babel/parser/lib/index.js:12403:14)
+      at JSXParserMixin.parseFunction (/app/client/node_modules/@babel/parser/lib/index.js:13444:10)
+      at JSXParserMixin.parseFunctionStatement (/app/client/node_modules/@babel/parser/lib/index.js:13125:17)
+11:07:04 PM [vite] Internal server error: /app/client/src/components/Layout.jsx: Expected corresponding JSX closing tag for <motion.main>. (370:20)
+
+  368 |                                 className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                             >
+> 370 |                     </div>
+      |                     ^
+  371 |                 </div>
+  372 |             </aside>
+  373 |                                 <FrozenRoute context={{ setIsSearchModalOpen }} />
+  Plugin: vite:react-babel
+  File: /app/client/src/components/Layout.jsx:370:20
+  368 |                                  className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                              >
+  370 |                      </div>
+      |                      ^
+  371 |                  </div>
+  372 |              </aside>
+      at constructor (/app/client/node_modules/@babel/parser/lib/index.js:365:19)
+      at JSXParserMixin.raise (/app/client/node_modules/@babel/parser/lib/index.js:6599:19)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4727:16)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElement (/app/client/node_modules/@babel/parser/lib/index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10800:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (/app/client/node_modules/@babel/parser/lib/index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/app/client/node_modules/@babel/parser/lib/index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/app/client/node_modules/@babel/parser/lib/index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (/app/client/node_modules/@babel/parser/lib/index.js:10784:23)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10780:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12421:16)
+      at JSXParserMixin.parseExpression (/app/client/node_modules/@babel/parser/lib/index.js:10780:17)
+      at JSXParserMixin.parseReturnStatement (/app/client/node_modules/@babel/parser/lib/index.js:13142:28)
+      at JSXParserMixin.parseStatementContent (/app/client/node_modules/@babel/parser/lib/index.js:12798:21)
+      at JSXParserMixin.parseStatementLike (/app/client/node_modules/@babel/parser/lib/index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (/app/client/node_modules/@babel/parser/lib/index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13309:10)
+      at JSXParserMixin.parseBlock (/app/client/node_modules/@babel/parser/lib/index.js:13297:10)
+      at JSXParserMixin.parseFunctionBody (/app/client/node_modules/@babel/parser/lib/index.js:12100:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (/app/client/node_modules/@babel/parser/lib/index.js:12086:10)
+      at /app/client/node_modules/@babel/parser/lib/index.js:13445:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/app/client/node_modules/@babel/parser/lib/index.js:12403:14)
+      at JSXParserMixin.parseFunction (/app/client/node_modules/@babel/parser/lib/index.js:13444:10)
+      at JSXParserMixin.parseFunctionStatement (/app/client/node_modules/@babel/parser/lib/index.js:13125:17)
+11:07:52 PM [vite] Internal server error: /app/client/src/components/Layout.jsx: Expected corresponding JSX closing tag for <motion.main>. (370:20)
+
+  368 |                                 className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                             >
+> 370 |                     </div>
+      |                     ^
+  371 |                 </div>
+  372 |             </aside>
+  373 |                                 <FrozenRoute context={{ setIsSearchModalOpen }} />
+  Plugin: vite:react-babel
+  File: /app/client/src/components/Layout.jsx:370:20
+  368 |                                  className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                              >
+  370 |                      </div>
+      |                      ^
+  371 |                  </div>
+  372 |              </aside>
+      at constructor (/app/client/node_modules/@babel/parser/lib/index.js:365:19)
+      at JSXParserMixin.raise (/app/client/node_modules/@babel/parser/lib/index.js:6599:19)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4727:16)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElement (/app/client/node_modules/@babel/parser/lib/index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10800:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (/app/client/node_modules/@babel/parser/lib/index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/app/client/node_modules/@babel/parser/lib/index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/app/client/node_modules/@babel/parser/lib/index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (/app/client/node_modules/@babel/parser/lib/index.js:10784:23)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10780:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12421:16)
+      at JSXParserMixin.parseExpression (/app/client/node_modules/@babel/parser/lib/index.js:10780:17)
+      at JSXParserMixin.parseReturnStatement (/app/client/node_modules/@babel/parser/lib/index.js:13142:28)
+      at JSXParserMixin.parseStatementContent (/app/client/node_modules/@babel/parser/lib/index.js:12798:21)
+      at JSXParserMixin.parseStatementLike (/app/client/node_modules/@babel/parser/lib/index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (/app/client/node_modules/@babel/parser/lib/index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13309:10)
+      at JSXParserMixin.parseBlock (/app/client/node_modules/@babel/parser/lib/index.js:13297:10)
+      at JSXParserMixin.parseFunctionBody (/app/client/node_modules/@babel/parser/lib/index.js:12100:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (/app/client/node_modules/@babel/parser/lib/index.js:12086:10)
+      at /app/client/node_modules/@babel/parser/lib/index.js:13445:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/app/client/node_modules/@babel/parser/lib/index.js:12403:14)
+      at JSXParserMixin.parseFunction (/app/client/node_modules/@babel/parser/lib/index.js:13444:10)
+      at JSXParserMixin.parseFunctionStatement (/app/client/node_modules/@babel/parser/lib/index.js:13125:17)
+11:08:53 PM [vite] Internal server error: /app/client/src/components/Layout.jsx: Expected corresponding JSX closing tag for <motion.main>. (370:20)
+
+  368 |                                 className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                             >
+> 370 |                     </div>
+      |                     ^
+  371 |                 </div>
+  372 |             </aside>
+  373 |                                 <FrozenRoute context={{ setIsSearchModalOpen }} />
+  Plugin: vite:react-babel
+  File: /app/client/src/components/Layout.jsx:370:20
+  368 |                                  className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                              >
+  370 |                      </div>
+      |                      ^
+  371 |                  </div>
+  372 |              </aside>
+      at constructor (/app/client/node_modules/@babel/parser/lib/index.js:365:19)
+      at JSXParserMixin.raise (/app/client/node_modules/@babel/parser/lib/index.js:6599:19)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4727:16)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElement (/app/client/node_modules/@babel/parser/lib/index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10800:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (/app/client/node_modules/@babel/parser/lib/index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/app/client/node_modules/@babel/parser/lib/index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/app/client/node_modules/@babel/parser/lib/index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (/app/client/node_modules/@babel/parser/lib/index.js:10784:23)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10780:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12421:16)
+      at JSXParserMixin.parseExpression (/app/client/node_modules/@babel/parser/lib/index.js:10780:17)
+      at JSXParserMixin.parseReturnStatement (/app/client/node_modules/@babel/parser/lib/index.js:13142:28)
+      at JSXParserMixin.parseStatementContent (/app/client/node_modules/@babel/parser/lib/index.js:12798:21)
+      at JSXParserMixin.parseStatementLike (/app/client/node_modules/@babel/parser/lib/index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (/app/client/node_modules/@babel/parser/lib/index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13309:10)
+      at JSXParserMixin.parseBlock (/app/client/node_modules/@babel/parser/lib/index.js:13297:10)
+      at JSXParserMixin.parseFunctionBody (/app/client/node_modules/@babel/parser/lib/index.js:12100:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (/app/client/node_modules/@babel/parser/lib/index.js:12086:10)
+      at /app/client/node_modules/@babel/parser/lib/index.js:13445:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/app/client/node_modules/@babel/parser/lib/index.js:12403:14)
+      at JSXParserMixin.parseFunction (/app/client/node_modules/@babel/parser/lib/index.js:13444:10)
+      at JSXParserMixin.parseFunctionStatement (/app/client/node_modules/@babel/parser/lib/index.js:13125:17)
+11:09:09 PM [vite] Internal server error: /app/client/src/components/Layout.jsx: Expected corresponding JSX closing tag for <motion.main>. (370:20)
+
+  368 |                                 className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                             >
+> 370 |                     </div>
+      |                     ^
+  371 |                 </div>
+  372 |             </aside>
+  373 |                                 <FrozenRoute context={{ setIsSearchModalOpen }} />
+  Plugin: vite:react-babel
+  File: /app/client/src/components/Layout.jsx:370:20
+  368 |                                  className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                              >
+  370 |                      </div>
+      |                      ^
+  371 |                  </div>
+  372 |              </aside>
+      at constructor (/app/client/node_modules/@babel/parser/lib/index.js:365:19)
+      at JSXParserMixin.raise (/app/client/node_modules/@babel/parser/lib/index.js:6599:19)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4727:16)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElement (/app/client/node_modules/@babel/parser/lib/index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10800:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (/app/client/node_modules/@babel/parser/lib/index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/app/client/node_modules/@babel/parser/lib/index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/app/client/node_modules/@babel/parser/lib/index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (/app/client/node_modules/@babel/parser/lib/index.js:10784:23)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10780:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12421:16)
+      at JSXParserMixin.parseExpression (/app/client/node_modules/@babel/parser/lib/index.js:10780:17)
+      at JSXParserMixin.parseReturnStatement (/app/client/node_modules/@babel/parser/lib/index.js:13142:28)
+      at JSXParserMixin.parseStatementContent (/app/client/node_modules/@babel/parser/lib/index.js:12798:21)
+      at JSXParserMixin.parseStatementLike (/app/client/node_modules/@babel/parser/lib/index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (/app/client/node_modules/@babel/parser/lib/index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13309:10)
+      at JSXParserMixin.parseBlock (/app/client/node_modules/@babel/parser/lib/index.js:13297:10)
+      at JSXParserMixin.parseFunctionBody (/app/client/node_modules/@babel/parser/lib/index.js:12100:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (/app/client/node_modules/@babel/parser/lib/index.js:12086:10)
+      at /app/client/node_modules/@babel/parser/lib/index.js:13445:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/app/client/node_modules/@babel/parser/lib/index.js:12403:14)
+      at JSXParserMixin.parseFunction (/app/client/node_modules/@babel/parser/lib/index.js:13444:10)
+      at JSXParserMixin.parseFunctionStatement (/app/client/node_modules/@babel/parser/lib/index.js:13125:17)
+11:09:41 PM [vite] Internal server error: /app/client/src/components/Layout.jsx: Expected corresponding JSX closing tag for <motion.main>. (370:20)
+
+  368 |                                 className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                             >
+> 370 |                     </div>
+      |                     ^
+  371 |                 </div>
+  372 |             </aside>
+  373 |                                 <FrozenRoute context={{ setIsSearchModalOpen }} />
+  Plugin: vite:react-babel
+  File: /app/client/src/components/Layout.jsx:370:20
+  368 |                                  className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+  369 |                              >
+  370 |                      </div>
+      |                      ^
+  371 |                  </div>
+  372 |              </aside>
+      at constructor (/app/client/node_modules/@babel/parser/lib/index.js:365:19)
+      at JSXParserMixin.raise (/app/client/node_modules/@babel/parser/lib/index.js:6599:19)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4727:16)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElementAt (/app/client/node_modules/@babel/parser/lib/index.js:4698:32)
+      at JSXParserMixin.jsxParseElement (/app/client/node_modules/@babel/parser/lib/index.js:4749:17)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4759:19)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10800:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12426:12)
+      at JSXParserMixin.parseMaybeAssignAllowIn (/app/client/node_modules/@babel/parser/lib/index.js:10800:17)
+      at JSXParserMixin.parseMaybeAssignAllowInOrVoidPattern (/app/client/node_modules/@babel/parser/lib/index.js:12493:17)
+      at JSXParserMixin.parseParenAndDistinguishExpression (/app/client/node_modules/@babel/parser/lib/index.js:11675:28)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:11331:23)
+      at JSXParserMixin.parseExprAtom (/app/client/node_modules/@babel/parser/lib/index.js:4764:20)
+      at JSXParserMixin.parseExprSubscripts (/app/client/node_modules/@babel/parser/lib/index.js:11081:23)
+      at JSXParserMixin.parseUpdate (/app/client/node_modules/@babel/parser/lib/index.js:11066:21)
+      at JSXParserMixin.parseMaybeUnary (/app/client/node_modules/@babel/parser/lib/index.js:11046:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (/app/client/node_modules/@babel/parser/lib/index.js:10899:61)
+      at JSXParserMixin.parseExprOps (/app/client/node_modules/@babel/parser/lib/index.js:10904:23)
+      at JSXParserMixin.parseMaybeConditional (/app/client/node_modules/@babel/parser/lib/index.js:10881:23)
+      at JSXParserMixin.parseMaybeAssign (/app/client/node_modules/@babel/parser/lib/index.js:10831:21)
+      at JSXParserMixin.parseExpressionBase (/app/client/node_modules/@babel/parser/lib/index.js:10784:23)
+      at /app/client/node_modules/@babel/parser/lib/index.js:10780:39
+      at JSXParserMixin.allowInAnd (/app/client/node_modules/@babel/parser/lib/index.js:12421:16)
+      at JSXParserMixin.parseExpression (/app/client/node_modules/@babel/parser/lib/index.js:10780:17)
+      at JSXParserMixin.parseReturnStatement (/app/client/node_modules/@babel/parser/lib/index.js:13142:28)
+      at JSXParserMixin.parseStatementContent (/app/client/node_modules/@babel/parser/lib/index.js:12798:21)
+      at JSXParserMixin.parseStatementLike (/app/client/node_modules/@babel/parser/lib/index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (/app/client/node_modules/@babel/parser/lib/index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (/app/client/node_modules/@babel/parser/lib/index.js:13309:10)
+      at JSXParserMixin.parseBlock (/app/client/node_modules/@babel/parser/lib/index.js:13297:10)
+      at JSXParserMixin.parseFunctionBody (/app/client/node_modules/@babel/parser/lib/index.js:12100:24)
+      at JSXParserMixin.parseFunctionBodyAndFinish (/app/client/node_modules/@babel/parser/lib/index.js:12086:10)
+      at /app/client/node_modules/@babel/parser/lib/index.js:13445:12
+      at JSXParserMixin.withSmartMixTopicForbiddingContext (/app/client/node_modules/@babel/parser/lib/index.js:12403:14)
+      at JSXParserMixin.parseFunction (/app/client/node_modules/@babel/parser/lib/index.js:13444:10)
+      at JSXParserMixin.parseFunctionStatement (/app/client/node_modules/@babel/parser/lib/index.js:13125:17)
+11:10:46 PM [vite] (client) hmr update /src/index.css
+11:11:36 PM [vite] (client) hmr update /src/index.css
+11:11:55 PM [vite] (client) Pre-transform error: Failed to resolve import "./ui/UserMenuModal" from "src/components/Layout.jsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /app/client/src/components/Layout.jsx:14:26
+  14 |  import BugReportModal from "./ui/BugReportModal";
+  15 |  import NotificationModal from "./ui/NotificationModal";
+  16 |  import UserMenuModal from "./ui/UserMenuModal";
+     |                             ^
+  17 |  import useConnectivityStore from "../store/useConnectivityStore";
+  18 |  import SyncService from "../services/SyncService";
+11:11:55 PM [vite] (client) Pre-transform error: Failed to resolve import "./ui/UserMenuModal" from "src/components/Layout.jsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /app/client/src/components/Layout.jsx:14:26
+  14 |  import BugReportModal from "./ui/BugReportModal";
+  15 |  import NotificationModal from "./ui/NotificationModal";
+  16 |  import UserMenuModal from "./ui/UserMenuModal";
+     |                             ^
+  17 |  import useConnectivityStore from "../store/useConnectivityStore";
+  18 |  import SyncService from "../services/SyncService";
+11:12:05 PM [vite] Internal server error: Failed to resolve import "./ui/UserMenuModal" from "src/components/Layout.jsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /app/client/src/components/Layout.jsx:14:26
+  14 |  import BugReportModal from "./ui/BugReportModal";
+  15 |  import NotificationModal from "./ui/NotificationModal";
+  16 |  import UserMenuModal from "./ui/UserMenuModal";
+     |                             ^
+  17 |  import useConnectivityStore from "../store/useConnectivityStore";
+  18 |  import SyncService from "../services/SyncService";
+      at TransformPluginContext._formatLog (file:///app/client/node_modules/vite/dist/node/chunks/config.js:28999:43)
+      at TransformPluginContext.error (file:///app/client/node_modules/vite/dist/node/chunks/config.js:28996:14)
+      at normalizeUrl (file:///app/client/node_modules/vite/dist/node/chunks/config.js:27119:18)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async file:///app/client/node_modules/vite/dist/node/chunks/config.js:27177:32
+      at async Promise.all (index 14)
+      at async TransformPluginContext.transform (file:///app/client/node_modules/vite/dist/node/chunks/config.js:27145:4)
+      at async EnvironmentPluginContainer.transform (file:///app/client/node_modules/vite/dist/node/chunks/config.js:28797:14)
+      at async loadAndTransform (file:///app/client/node_modules/vite/dist/node/chunks/config.js:22670:26)
+      at async viteTransformMiddleware (file:///app/client/node_modules/vite/dist/node/chunks/config.js:24542:20)
+11:12:10 PM [vite] Internal server error: Failed to resolve import "./ui/UserMenuModal" from "src/components/Layout.jsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /app/client/src/components/Layout.jsx:14:26
+  14 |  import BugReportModal from "./ui/BugReportModal";
+  15 |  import NotificationModal from "./ui/NotificationModal";
+  16 |  import UserMenuModal from "./ui/UserMenuModal";
+     |                             ^
+  17 |  import useConnectivityStore from "../store/useConnectivityStore";
+  18 |  import SyncService from "../services/SyncService";
+      at TransformPluginContext._formatLog (file:///app/client/node_modules/vite/dist/node/chunks/config.js:28999:43)
+      at TransformPluginContext.error (file:///app/client/node_modules/vite/dist/node/chunks/config.js:28996:14)
+      at normalizeUrl (file:///app/client/node_modules/vite/dist/node/chunks/config.js:27119:18)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async file:///app/client/node_modules/vite/dist/node/chunks/config.js:27177:32
+      at async Promise.all (index 14)
+      at async TransformPluginContext.transform (file:///app/client/node_modules/vite/dist/node/chunks/config.js:27145:4)
+      at async EnvironmentPluginContainer.transform (file:///app/client/node_modules/vite/dist/node/chunks/config.js:28797:14)
+      at async loadAndTransform (file:///app/client/node_modules/vite/dist/node/chunks/config.js:22670:26)
+      at async viteTransformMiddleware (file:///app/client/node_modules/vite/dist/node/chunks/config.js:24542:20)
+11:12:41 PM [vite] (client) hmr update /src/App.jsx, /src/pages/Overview.jsx
+11:13:06 PM [vite] (client) ✨ new dependencies optimized: workbox-precaching
+11:13:06 PM [vite] (client) ✨ optimized dependencies changed. reloading
