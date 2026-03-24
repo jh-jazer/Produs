@@ -232,14 +232,14 @@ function Layout() {
                 {isMobileMenuOpen && (
                     <button
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="md:hidden absolute top-6 right-6 size-10 flex items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/[0.05] text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-all"
+                        className="md:hidden absolute top-3 right-6 size-10 flex items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/[0.05] text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-all z-10"
                     >
                         <span className="material-symbols-outlined text-2xl">close</span>
                     </button>
                 )}
-                <div className="pt-10 flex flex-col gap-8">
+                <div className="pt-0 md:pt-10 flex flex-col gap-0 md:gap-8">
                     <div
-                        className="flex items-center gap-4 group cursor-pointer relative pl-[28px]"
+                        className="h-16 flex items-center gap-4 group cursor-pointer relative px-6 md:px-0 md:pl-[28px]"
                         onClick={() => {
                             navigate('/dashboard');
                             setIsMobileMenuOpen(false);
@@ -248,7 +248,7 @@ function Layout() {
                         <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0 ${isMobileMenuOpen ? 'rotate-0' : ''}`} />
                         
                         {/* Connecting Spine to Nav Items */}
-                        <div className="absolute left-[39px] top-6 h-10 w-[2px] bg-slate-200 dark:bg-white/10" />
+                        <div className="absolute left-[35px] md:left-[39px] top-[48px] md:top-10 h-[24px] md:h-10 w-[2px] bg-slate-200 dark:bg-white/10 hidden md:block" />
 
                         <span className={`font-bold text-[11px] uppercase tracking-[0.8em] text-black dark:text-white transition-all duration-500 overflow-hidden whitespace-nowrap
                             ${(deferredPath === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0'}
@@ -258,7 +258,7 @@ function Layout() {
                     </div>
 
                     {/* 2. Sidebar Body: Dendritic Tree Navigation */}
-                    <div className="relative flex flex-col py-4">
+                    <div className="relative flex flex-col py-4 mt-2 md:mt-0">
                         {navItems.map((item, idx) => {
                             const isActive = item.path === '/dashboard' 
                                 ? location.pathname === '/dashboard' 
@@ -367,15 +367,15 @@ function Layout() {
                                         initial={{ opacity: 0, x: 10, scale: 0.95, y: 0 }}
                                         animate={{
                                             opacity: 1,
-                                            x: (typeof window !== "undefined" && window.innerWidth < 768) ? "-50%" : 0,
+                                            x: 0,
                                             scale: 1,
-                                            y: (typeof window !== "undefined" && window.innerWidth < 768) ? "-50%" : 0,
+                                            y: 0,
                                             left: (typeof window !== "undefined" && window.innerWidth < 768) ? "50%" : "100%",
                                             top: (typeof window !== "undefined" && window.innerWidth < 768) ? "50%" : "auto",
                                             bottom: (typeof window !== "undefined" && window.innerWidth < 768) ? "auto" : 0
                                         }}
                                         exit={{ opacity: 0, x: 10, scale: 0.95 }}
-                                        className="fixed md:absolute ml-0 md:ml-4 w-[90vw] md:w-56 bg-white dark:bg-[#121212] rounded-[32px] md:rounded-2xl shadow-2xl border border-black/10 dark:border-white/10 p-4 md:p-2 z-[200] flex flex-col gap-1"
+                                        className="fixed md:absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:top-auto md:left-full md:translate-x-0 md:translate-y-0 md:bottom-0 ml-0 md:ml-4 w-[90vw] md:w-56 bg-white dark:bg-[#121212] rounded-[32px] md:rounded-2xl shadow-2xl border border-black/10 dark:border-white/10 p-4 md:p-2 z-[200] flex flex-col gap-1"
                                     >
                                     <div className="p-3 border-b border-black/[0.06] dark:border-white/[0.06] mb-1 flex items-center justify-between">
                                         <div>
