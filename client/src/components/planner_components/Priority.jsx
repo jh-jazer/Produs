@@ -82,7 +82,7 @@ const Priority = ({
           {!isCompact && (
             <button
               onClick={onFlip}
-              className="p-1.5 rounded-lg bg-slate-50 dark:bg-[#000000] text-slate-400 hover:text-primary transition-colors flex items-center gap-1.5 group"
+              className="hidden lg:flex p-1.5 rounded-lg bg-slate-50 dark:bg-[#000000] text-slate-400 hover:text-primary transition-colors items-center gap-1.5 group"
               title="View Detailed Schedule"
             >
               <span className="text-[10px] font-black uppercase tracking-widest transition-opacity text-primary">
