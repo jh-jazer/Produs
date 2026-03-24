@@ -193,7 +193,7 @@ function Layout() {
             className="bg-[#f8f8f8] dark:bg-[#000000] dark:bg-grid bg-grid-light font-display text-[#111111] dark:text-slate-100 h-screen flex flex-row overflow-hidden"
         >
             {/* Mobile Top Bar */}
-            <div className="md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-6 z-[130] bg-[#f8f8f8]/80 dark:bg-[#000000]/80 backdrop-blur-md border-b border-black/[0.05] dark:border-white/[0.05]">
+            <div className={`md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-6 z-[130] transition-all duration-300 ${isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
                 <div
                     className="flex items-center gap-4 group cursor-pointer relative"
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -228,6 +228,15 @@ function Layout() {
                 `}
             >
                 {/* 1. Sidebar Header: Brand Interface */}
+                {/* Mobile Close Button */}
+                {isMobileMenuOpen && (
+                    <button
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="md:hidden absolute top-6 right-6 size-10 flex items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/[0.05] text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-all"
+                    >
+                        <span className="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                )}
                 <div className="pt-10 flex flex-col gap-8">
                     <div
                         className="flex items-center gap-4 group cursor-pointer relative pl-[28px]"
@@ -345,41 +354,64 @@ function Layout() {
 
                         <AnimatePresence>
                             {isProfileOpen && (
-                                <motion.div
-                                    initial={{ opacity: 0, x: 10, scale: 0.95 }}
-                                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                                    exit={{ opacity: 0, x: 10, scale: 0.95 }}
-                                    className="absolute left-full bottom-0 ml-4 w-56 bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-black/10 dark:border-white/10 p-2 z-[200]"
-                                >
-                                    <div className="p-3 border-b border-black/[0.06] dark:border-white/[0.06] mb-1">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-black/40 dark:text-white/40 mb-1">Authenticated As</p>
-                                        <p className="text-xs font-bold text-black dark:text-white">{user?.name}</p>
+                                <>
+                                    {/* Mobile Centered Modal Backdrop */}
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        onClick={() => setIsProfileOpen(false)}
+                                        className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[190]"
+                                    />
+                                    <motion.div
+                                        initial={{ opacity: 0, x: 10, scale: 0.95, y: 0 }}
+                                        animate={{
+                                            opacity: 1,
+                                            x: (typeof window !== "undefined" && window.innerWidth < 768) ? "-50%" : 0,
+                                            scale: 1,
+                                            y: (typeof window !== "undefined" && window.innerWidth < 768) ? "-50%" : 0,
+                                            left: (typeof window !== "undefined" && window.innerWidth < 768) ? "50%" : "100%",
+                                            top: (typeof window !== "undefined" && window.innerWidth < 768) ? "50%" : "auto",
+                                            bottom: (typeof window !== "undefined" && window.innerWidth < 768) ? "auto" : 0
+                                        }}
+                                        exit={{ opacity: 0, x: 10, scale: 0.95 }}
+                                        className="fixed md:absolute ml-0 md:ml-4 w-[90vw] md:w-56 bg-white dark:bg-[#121212] rounded-[32px] md:rounded-2xl shadow-2xl border border-black/10 dark:border-white/10 p-4 md:p-2 z-[200] flex flex-col gap-1"
+                                    >
+                                    <div className="p-3 border-b border-black/[0.06] dark:border-white/[0.06] mb-1 flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-black/40 dark:text-white/40 mb-1">Authenticated As</p>
+                                            <p className="text-xs font-bold text-black dark:text-white">{user?.name}</p>
+                                        </div>
+                                        <button onClick={() => setIsProfileOpen(false)} className="md:hidden size-10 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
+                                            <span className="material-symbols-outlined text-2xl">close</span>
+                                        </button>
                                     </div>
-                                    <button onClick={() => { setIsProfileOpen(false); navigate('/dashboard/profile'); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all flex items-center gap-3">
+                                    <button onClick={() => { setIsProfileOpen(false); navigate('/dashboard/profile'); }} className="w-full px-4 md:px-3 py-3 md:py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-[16px] md:rounded-xl transition-all flex items-center gap-3">
                                         <span className="material-symbols-outlined text-lg">person</span> Profile
                                     </button>
                                     {user?.email === 'ernestodesabillejr@gmail.com' && (
-                                        <button onClick={() => { setIsProfileOpen(false); navigate('/dashboard/admin'); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all flex items-center gap-3">
+                                        <button onClick={() => { setIsProfileOpen(false); navigate('/dashboard/admin'); }} className="w-full px-4 md:px-3 py-3 md:py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-[16px] md:rounded-xl transition-all flex items-center gap-3">
                                             <span className="material-symbols-outlined text-lg">admin_panel_settings</span> Manage
                                         </button>
                                     )}
-                                    <button onClick={() => { setIsProfileOpen(false); setIsNotificationModalOpen(true); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all flex items-center gap-3 relative">
+                                    <button onClick={() => { setIsProfileOpen(false); setIsNotificationModalOpen(true); }} className="w-full px-4 md:px-3 py-3 md:py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-[16px] md:rounded-xl transition-all flex items-center gap-3 relative">
                                         <span className="material-symbols-outlined text-lg">notifications</span> Notifications
                                         {unreadCount > 0 && (
                                             <span className="absolute left-6 top-2 size-2 bg-primary rounded-full border border-white dark:border-[#121212]" />
                                         )}
                                     </button>
-                                    <button onClick={() => { setIsProfileOpen(false); setIsSettingsModalOpen(true); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all flex items-center gap-3">
+                                    <button onClick={() => { setIsProfileOpen(false); setIsSettingsModalOpen(true); }} className="w-full px-4 md:px-3 py-3 md:py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-[16px] md:rounded-xl transition-all flex items-center gap-3">
                                         <span className="material-symbols-outlined text-lg">settings</span> Settings
                                     </button>
                                     <div className="h-px bg-black/[0.06] dark:bg-white/[0.06] my-1" />
-                                    <button onClick={() => { setIsProfileOpen(false); setIsBugModalOpen(true); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all flex items-center gap-3">
+                                    <button onClick={() => { setIsProfileOpen(false); setIsBugModalOpen(true); }} className="w-full px-4 md:px-3 py-3 md:py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-[16px] md:rounded-xl transition-all flex items-center gap-3">
                                         <span className="material-symbols-outlined text-lg">bug_report</span> Bug Report
                                     </button>
-                                    <button onClick={handleSignOut} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-signal-orange hover:bg-signal-orange/5 rounded-xl transition-all flex items-center gap-3">
+                                    <button onClick={handleSignOut} className="w-full px-4 md:px-3 py-3 md:py-2 text-left text-[10px] font-bold uppercase tracking-widest text-signal-orange hover:bg-signal-orange/5 rounded-[16px] md:rounded-xl transition-all flex items-center gap-3">
                                         <span className="material-symbols-outlined text-lg">logout</span> Sign Out
                                     </button>
                                 </motion.div>
+                                </>
                             )}
                         </AnimatePresence>
                     </div>
