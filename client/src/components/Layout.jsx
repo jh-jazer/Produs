@@ -17,7 +17,7 @@ import SyncService from '../services/SyncService';
 export const DashboardContext = React.createContext();
 
 // Compact header pill showing sync status + connectivity (Icon only)
-function SyncStatusPill({ isOnline, userId, isOverview }) {
+function SyncStatusPill({ isOnline, userId, isOverview, isMobile }) {
     const [syncInfo, setSyncInfo] = React.useState(() => SyncService.getSyncStatus());
 
     React.useEffect(() => {
@@ -58,7 +58,7 @@ function SyncStatusPill({ isOnline, userId, isOverview }) {
             onClick={handleForceSync}
             title={title}
             className={`flex items-center gap-3 size-10 rounded-xl border transition-all duration-700 hover:opacity-80 active:scale-95 ${statusColor} 
-                ${isOverview ? 'w-auto px-4' : 'w-10 px-0 justify-center'}
+                ${(isOverview && !isMobile) ? 'w-auto px-4' : 'w-10 px-0 justify-center'}
             `}
         >
             <motion.span
@@ -69,7 +69,7 @@ function SyncStatusPill({ isOnline, userId, isOverview }) {
                 {statusIcon}
             </motion.span>
             
-            {isOverview && (
+            {isOverview && !isMobile && (
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap animate-in fade-in duration-1000">
                     {statusText}
                 </span>
@@ -94,6 +94,7 @@ function Layout() {
     const { user, logout, syncUser, viewMode, setViewMode } = useAuthStore();
     const isOnline = useConnectivityStore(state => state.isOnline);
     const [deferredPath, setDeferredPath] = useState(location.pathname);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         // Delay architectural shifts (sidebar width/padding) 
@@ -102,6 +103,11 @@ function Layout() {
             setDeferredPath(location.pathname);
         }, 50);
         return () => clearTimeout(timer);
+    }, [location.pathname]);
+
+    useEffect(() => {
+        // Close mobile menu on route change
+        setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -186,27 +192,57 @@ function Layout() {
         <div
             className="bg-[#f8f8f8] dark:bg-[#000000] dark:bg-grid bg-grid-light font-display text-[#111111] dark:text-slate-100 h-screen flex flex-row overflow-hidden"
         >
+            {/* Mobile Top Bar */}
+            <div className="md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-6 z-[130] bg-[#f8f8f8]/80 dark:bg-[#000000]/80 backdrop-blur-md border-b border-black/[0.05] dark:border-white/[0.05]">
+                <div
+                    className="flex items-center gap-4 group cursor-pointer relative"
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                >
+                    <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue ${isMobileMenuOpen ? 'rotate-0 scale-110 bg-electric-blue' : ''}`} />
+                    <span className="font-bold text-[11px] uppercase tracking-[0.8em] text-black dark:text-white">
+                        Produs
+                    </span>
+                </div>
+            </div>
+
+            {/* Mobile Backdrop Overlay */}
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] md:hidden"
+                    />
+                )}
+            </AnimatePresence>
+
             {/* Tactical System Sidebar */}
             <aside 
-                className={`flex flex-col absolute left-0 top-0 h-full transition-all duration-[400ms] ease-[0.16,1,0.3,1] z-[120] 
-                    ${deferredPath === '/dashboard' 
-                        ? 'w-72 bg-transparent border-none md:border-none' 
-                        : 'w-20 bg-[#f8f8f8]/80 dark:bg-[#050505]/80 backdrop-blur-md border-r border-black/[0.08] dark:border-white/10'}
+                className={`flex flex-col fixed md:absolute left-0 top-0 h-full transition-all duration-[400ms] ease-[0.16,1,0.3,1] z-[120]
+                    ${isMobileMenuOpen ? 'translate-x-0 w-72 bg-[#f8f8f8]/90 dark:bg-[#050505]/90 backdrop-blur-xl border-r border-black/[0.08] dark:border-white/10' : '-translate-x-full md:translate-x-0'}
+                    ${!isMobileMenuOpen && (deferredPath === '/dashboard'
+                        ? 'md:w-72 md:bg-transparent md:border-none'
+                        : 'md:w-20 md:bg-[#f8f8f8]/80 md:dark:bg-[#050505]/80 md:backdrop-blur-md md:border-r md:border-black/[0.08] md:dark:border-white/10')}
                 `}
             >
                 {/* 1. Sidebar Header: Brand Interface */}
                 <div className="pt-10 flex flex-col gap-8">
                     <div
                         className="flex items-center gap-4 group cursor-pointer relative pl-[28px]"
-                        onClick={() => navigate('/dashboard')}
+                        onClick={() => {
+                            navigate('/dashboard');
+                            setIsMobileMenuOpen(false);
+                        }}
                     >
-                        <div className="size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0" />
+                        <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0 ${isMobileMenuOpen ? 'rotate-0' : ''}`} />
                         
                         {/* Connecting Spine to Nav Items */}
                         <div className="absolute left-[39px] top-6 h-10 w-[2px] bg-slate-200 dark:bg-white/10" />
 
                         <span className={`font-bold text-[11px] uppercase tracking-[0.8em] text-black dark:text-white transition-all duration-500 overflow-hidden whitespace-nowrap
-                            ${deferredPath === '/dashboard' ? 'opacity-100 w-auto' : 'opacity-0 w-0'}
+                            ${(deferredPath === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0'}
                         `}>
                             Produs
                         </span>
@@ -218,7 +254,7 @@ function Layout() {
                             const isActive = item.path === '/dashboard' 
                                 ? location.pathname === '/dashboard' 
                                 : location.pathname.startsWith(item.path);
-                            const isOverview = deferredPath === '/dashboard';
+                            const isOverview = deferredPath === '/dashboard' || isMobileMenuOpen;
                             
                             return (
                                 <motion.button
@@ -226,7 +262,10 @@ function Layout() {
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.1 + (idx * 0.05) }}
-                                    onClick={() => navigate(item.path)}
+                                    onClick={() => {
+                                        navigate(item.path);
+                                        setIsMobileMenuOpen(false);
+                                    }}
                                     className="relative group/nav flex items-center h-16 pl-0 outline-none"
                                 >
                                     {/* Spine Segments */}
@@ -270,7 +309,7 @@ function Layout() {
 
                 {/* 3. Sidebar Footer: System Actions */}
                 <div className="mt-auto p-4 md:p-6 flex flex-col items-start pl-[20px] gap-5 border-t border-black/[0.06] dark:border-white/10">
-                    <SyncStatusPill isOnline={isOnline} userId={user?._id} isOverview={deferredPath === '/dashboard'} />
+                    <SyncStatusPill isOnline={isOnline} userId={user?._id} isOverview={deferredPath === '/dashboard' || isMobileMenuOpen} isMobile={isMobileMenuOpen} />
 
                     <div className="relative flex items-center gap-4 group" ref={profileRef}>
                         <button
@@ -285,7 +324,7 @@ function Layout() {
                         </button>
 
                         <AnimatePresence mode="wait">
-                            {deferredPath === '/dashboard' && (
+                            {(deferredPath === '/dashboard' || isMobileMenuOpen) && (
                                 <motion.div 
                                     key="profile-greeting"
                                     initial={{ opacity: 0, x: -10 }}
@@ -349,10 +388,11 @@ function Layout() {
 
             {/* Main Application Interface */}
             <div className={`flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]
-                ${deferredPath === '/dashboard' ? 'pl-0' : 'pl-20'}
+                ${deferredPath === '/dashboard' ? 'md:pl-0' : 'md:pl-20'}
+                ${isMobileMenuOpen ? 'blur-md' : 'blur-0'}
             `}>
 
-                <div className="flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar flex flex-col relative">
+                <div className="flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar flex flex-col relative mt-16 md:mt-0">
                     <DashboardContext.Provider value={{ setIsSearchModalOpen }}>
                         <AnimatePresence mode="wait">
                             <motion.main 
