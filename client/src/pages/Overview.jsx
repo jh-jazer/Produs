@@ -1,94 +1,50 @@
-import React from "react";
-import useSWR from "swr";
-import HabitTracker from "../components/habit_components/HabitTracker";
-import Priority from "../components/planner_components/Priority";
-import FinancialStats from "../components/finance_components/FinancialStats";
-import JournalSnippet from "../components/journal_components/JournalSnippet";
+import React, { useContext } from 'react';
+import { DashboardContext } from "../components/Layout";
 import useAuthStore from "../store/useAuthStore";
 import MainFeed from "../components/MainFeed";
-import { useHabitsLocal } from "../hooks/useHabitsLocal";
 
 function Overview() {
+  const { setIsSearchModalOpen } = useContext(DashboardContext);
   const user = useAuthStore((state) => state.user);
   const firstName = user?.name ? user.name.split(" ")[0] : "User";
-  const currencySymbol = user?.currency === "PHP" ? "₱" : "$";
 
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
-  const { data: transactions = [] } = useSWR("/finance/transactions");
-  const {
-    habits,
-    isLoading,
-    toggleCheck,
-    addHabit,
-    deleteHabit,
-    updateHabit,
-    reorderHabits,
-  } = useHabitsLocal();
-
-  const myHabits = React.useMemo(
-    () => habits.filter((h) => h.userId === user?._id),
-    [habits, user],
-  );
-  const partnerHabits = React.useMemo(
-    () => habits.filter((h) => h.userId !== user?._id),
-    [habits, user],
-  );
-
-  const checks = React.useMemo(() => {
-    const dict = {};
-    habits.forEach((habit) => {
-      dict[habit._id] = { completed: {} };
-      if (habit.checks && Array.isArray(habit.checks)) {
-        habit.checks.forEach((check) => {
-          dict[habit._id].completed[check.date] = check.completed;
-        });
-      }
-    });
-    return dict;
-  }, [habits]);
-
   return (
-    <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-12 gap-6">
-      {/* Left Column (4 units): Greeting & Productive Panels (Sticky - Hidden on Mobile) */}
-      <div className="hidden lg:flex lg:col-span-4 flex-col gap-6 lg:border-r border-slate-100 dark:border-white/10/50 pr-6 sticky top-0 h-[calc(100vh-72px)] overflow-y-auto custom-scrollbar hover-scrollbar">
-        {/* Greeting Header - Desktop only */}
-        <div className="hidden md:flex flex-col gap-0.5 pt-8 pb-6 mb-2 border-b border-slate-100 dark:border-white/10/50">
-          <h1 className="text-black dark:text-white text-3xl font-semibold tracking-[-0.02em]">
-            {greeting}, {firstName}
-          </h1>
-          <p className="text-black/40 dark:text-white/40 text-xs font-semibold uppercase tracking-[0.3em]">
-            What are you up to?
+    <div className="w-full max-w-2xl mx-auto pt-8 pb-24">
+      {/* Greeting Header */}
+      <div className="flex flex-col gap-1 mb-8 px-1 text-center sm:text-left">
+        <h1 className="text-black dark:text-white text-3xl font-semibold tracking-[-0.04em]">
+          {greeting}, {firstName}
+        </h1>
+        <div className="flex items-center justify-center sm:justify-start gap-2">
+          <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <p className="text-black/40 dark:text-white/40 text-[10px] font-bold uppercase tracking-[0.3em]">
+            System Online // {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
-        <HabitTracker
-          isDashboard={true}
-          habits={habits}
-          myHabits={myHabits}
-          partnerHabits={partnerHabits}
-          checks={checks}
-          isLoading={isLoading}
-          toggleCheck={toggleCheck}
-          addHabit={addHabit}
-          deleteHabit={deleteHabit}
-          updateHabit={updateHabit}
-          reorderHabits={reorderHabits}
-          myUserId={user?._id}
-        />
-        <Priority isCompact={true} />
-        <FinancialStats
-          transactions={transactions}
-          currencySymbol={currencySymbol}
-        />
-        <JournalSnippet />
       </div>
 
-      {/* Right Column (8 units / Full Width on Mobile): Unified Feed */}
-      <div className="col-span-1 lg:col-span-8 flex flex-col gap-5 pb-24 lg:pt-8 lg:pl-6">
-        <MainFeed />
+      {/* Tactical Search Bar */}
+      <div className="mb-10 group">
+        <button
+          onClick={() => setIsSearchModalOpen(true)}
+          className="w-full h-14 bg-white/50 dark:bg-white/[0.03] hover:bg-white/80 dark:hover:bg-white/[0.05] backdrop-blur-xl border border-black/[0.08] dark:border-white/10 rounded-[22px] px-6 flex items-center gap-4 transition-all duration-500 hover:scale-[1.01] hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] group-active:scale-[0.99]"
+        >
+          <span className="material-symbols-outlined text-black/40 dark:text-white/40 text-2xl group-hover:text-electric-blue transition-colors duration-500">search</span>
+          <div className="flex-1 flex items-center justify-between">
+            <span className="text-black/30 dark:text-white/30 text-[11px] font-bold uppercase tracking-[0.2em]">Search commands, users or files...</span>
+            <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-black/[0.05] dark:bg-white/[0.05] border border-black/[0.03] dark:border-white/[0.03]">
+              <span className="text-[10px] font-black text-black/20 dark:text-white/20">⌘</span>
+              <span className="text-[10px] font-black text-black/20 dark:text-white/20">K</span>
+            </div>
+          </div>
+        </button>
       </div>
+
+      <MainFeed />
     </div>
   );
 }

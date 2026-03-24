@@ -11,6 +11,7 @@ import Wishlist from '../components/finance_components/Wishlist';
 import BalanceHistory from '../components/finance_components/BalanceHistory';
 import SavingsPanel from '../components/finance_components/SavingsPanel';
 import MobileTabNav from '../components/ui/MobileTabNav';
+import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 
 const Finance = () => {
     const { user } = useAuthStore();
@@ -55,8 +56,10 @@ const Finance = () => {
         { id: 'debts', label: 'Flow', icon: 'account_balance' },
     ];
 
+    if (isLoading && transactions.length === 0) return <WorkspaceSkeleton />;
+
     return (
-        <div className="w-full max-w-[1200px] lg:pt-12 flex flex-col gap-2 animate-in fade-in duration-700 pb-28 md:pb-8">
+        <div className="w-full max-w-[1200px] lg:pt-12 flex flex-col gap-2 pb-28 md:pb-8">
             
             {/* Mobile Navigation */}
             <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />

@@ -1,21 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Priority from '../components/planner_components/Priority';
 import DailySchedule from '../components/planner_components/DailySchedule';
 import FullCalendar from '../components/planner_components/FullCalendar';
 import GoalSetter from '../components/planner_components/GoalSetter';
 import useAuthStore from '../store/useAuthStore';
 import useConnectivityStore from '../store/useConnectivityStore';
-import { useEffect } from 'react';
-
 import { motion } from 'framer-motion';
 import MobileTabNav from '../components/ui/MobileTabNav';
+import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
+import { usePlannerLocal } from '../hooks/usePlannerLocal';
 
-function Planner() {
+const Planner = () => {
     const { user, viewMode, setViewMode } = useAuthStore();
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [isFlipped, setIsFlipped] = useState(false);
-    const [activeTab, setActiveTab] = useState('schedule');
     const isOnline = useConnectivityStore(state => state.isOnline);
+
+    const { 
+        tasks = [], 
+        isLoading
+    } = usePlannerLocal(selectedDate);
+
+    const [activeTab, setActiveTab] = React.useState('planner');
 
     // Force 'me' view if offline
     useEffect(() => {
@@ -26,13 +32,16 @@ function Planner() {
 
 
     const tabs = [
-        { id: 'schedule', label: 'Schedule', icon: 'event_note' },
-        { id: 'calendar', label: 'Calendar', icon: 'calendar_month' },
+        { id: 'planner', label: 'Planner', icon: 'event_note' },
+        { id: 'schedule', label: 'Schedule', icon: 'schedule' },
+        { id: 'calendar', label: 'Calendar', icon: 'calendar_today' },
         { id: 'goals', label: 'Goals', icon: 'flag' },
     ];
 
+    if (isLoading && tasks.length === 0) return <WorkspaceSkeleton />;
+
     return (
-        <div className="w-full max-w-[1200px] lg:pt-12 flex flex-col gap-2 animate-in fade-in duration-700 pb-28 md:pb-8">
+        <div className="w-full max-w-[1200px] lg:pt-12 flex flex-col gap-2 pb-28 md:pb-8">
             
 
             {/* Mobile Navigation */}

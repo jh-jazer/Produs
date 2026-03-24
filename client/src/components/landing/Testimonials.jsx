@@ -1,12 +1,12 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-export default function Testimonials({ testimonials, isLightMode }) {
+export default function Testimonials({ testimonials }) {
   return (
-    <section className={`fixed inset-0 flex flex-col items-center justify-center text-center px-6 pt-32 pb-12 scene-testimonials pointer-events-none opacity-0 z-30 ${isLightMode ? 'bg-[#f8f8f8]' : 'bg-[#020202]'} transition-colors duration-1000`}>
+    <section className="fixed inset-0 flex flex-col items-center justify-center text-center px-6 pt-32 pb-12 scene-testimonials pointer-events-none opacity-0 z-30 bg-[#020202] transition-colors duration-1000">
       <div className="max-w-6xl w-full mx-auto flex flex-col items-center">
         <div className="mb-12 w-full">
-          <span className={`text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.5em] md:tracking-[1.5em] ${isLightMode ? 'text-black/70' : 'text-white/70'} mb-12 block`}>
+          <span className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.5em] md:tracking-[1.5em] text-white/70 mb-12 block">
             Global User Reviews // Testimonials
           </span>
           

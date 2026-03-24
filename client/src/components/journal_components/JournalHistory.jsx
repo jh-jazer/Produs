@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import { useJournalLocal } from '../../hooks/useJournalLocal';
 
@@ -59,11 +60,16 @@ const JournalHistory = ({ entries = [], onAction }) => {
                         <p className="text-xs font-bold uppercase tracking-widest text-center px-4">Your story begins here. Write your first entry.</p>
                     </div>
                 ) : (
-                    entries.map((entry) => (
-                        <div 
-                            key={entry._id}
-                            className="group relative p-4 rounded-xl bg-white dark:bg-[#121212]/40 border border-slate-100 dark:border-white/10 hover:border-primary/30 transition-all shadow-none hover:shadow-none"
-                        >
+                    <AnimatePresence mode="popLayout">
+                        {entries.map((entry, idx) => (
+                            <motion.div 
+                                key={entry._id || idx}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                transition={{ duration: 0.8, delay: Math.min(idx * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
+                                className="group relative p-4 rounded-xl bg-white dark:bg-[#121212]/40 border border-slate-100 dark:border-white/10 hover:border-primary/30 transition-all shadow-none hover:shadow-none"
+                            >
                             <div className="flex justify-between items-start mb-2">
                                 <div className="flex items-center gap-3">
                                     <span className="text-2xl">{entry.mood}</span>
@@ -95,8 +101,9 @@ const JournalHistory = ({ entries = [], onAction }) => {
                                 className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed font-medium"
                                 dangerouslySetInnerHTML={parseMarkdown(entry.content)}
                             />
-                        </div>
-                    ))
+                        </motion.div>
+                    ))}
+                    </AnimatePresence>
                 )}
             </div>
         </div>

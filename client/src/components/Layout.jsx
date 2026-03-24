@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation, useOutlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import api from '../services/api';
@@ -10,11 +10,14 @@ import OnboardingModal from './ui/OnboardingModal';
 import Avatar from './ui/Avatar';
 import UserSearch from './ui/UserSearch';
 import BugReportModal from './ui/BugReportModal';
+import NotificationModal from './ui/NotificationModal';
 import useConnectivityStore from '../store/useConnectivityStore';
 import SyncService from '../services/SyncService';
 
+export const DashboardContext = React.createContext();
+
 // Compact header pill showing sync status + connectivity (Icon only)
-function SyncStatusPill({ isOnline, userId }) {
+function SyncStatusPill({ isOnline, userId, isOverview }) {
     const [syncInfo, setSyncInfo] = React.useState(() => SyncService.getSyncStatus());
 
     React.useEffect(() => {
@@ -39,6 +42,10 @@ function SyncStatusPill({ isOnline, userId }) {
             : syncInfo.syncStatus === 'syncing' ? 'sync'
                 : 'cloud_done';
 
+    const statusText = !isOnline ? 'Offline'
+        : syncInfo.syncStatus === 'syncing' ? 'Syncing'
+            : 'Synced';
+
     const title = !isOnline ? 'Offline — changes will sync when reconnected'
         : syncInfo.syncStatus === 'syncing' ? 'Syncing…'
             : syncInfo.syncStatus === 'error' ? 'Sync failed — click to retry'
@@ -50,7 +57,9 @@ function SyncStatusPill({ isOnline, userId }) {
         <button
             onClick={handleForceSync}
             title={title}
-            className={`flex items-center justify-center size-8 rounded-lg border transition-all hover:opacity-80 active:scale-95 ${statusColor}`}
+            className={`flex items-center gap-3 size-10 rounded-xl border transition-all duration-700 hover:opacity-80 active:scale-95 ${statusColor} 
+                ${isOverview ? 'w-auto px-4' : 'w-10 px-0 justify-center'}
+            `}
         >
             <motion.span
                 animate={syncInfo.isSyncing ? { rotate: 360 } : { rotate: 0 }}
@@ -59,34 +68,53 @@ function SyncStatusPill({ isOnline, userId }) {
             >
                 {statusIcon}
             </motion.span>
+            
+            {isOverview && (
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap animate-in fade-in duration-1000">
+                    {statusText}
+                </span>
+            )}
         </button>
     );
 }
 
-function Layout() {
-    const [isProfileOpen, setIsProfileOpen] = useState(false);
-    const [isLogoDropdownOpen, setIsLogoDropdownOpen] = useState(false);
-    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-    const [isBugModalOpen, setIsBugModalOpen] = useState(false);
+function FrozenRoute({ context }) {
+    const outlet = useOutlet();
+    const [frozenOutlet] = useState(outlet);
+    return (
+        <div className="w-full flex justify-center">
+            {frozenOutlet}
+        </div>
+    );
+}
 
+function Layout() {
+    const location = useLocation();
+    const navigate = useNavigate();
     const { user, logout, syncUser, viewMode, setViewMode } = useAuthStore();
     const isOnline = useConnectivityStore(state => state.isOnline);
-
-    const logoDropdownRef = useRef(null);
+    const [deferredPath, setDeferredPath] = useState(location.pathname);
 
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (logoDropdownRef.current && !logoDropdownRef.current.contains(event.target)) {
-                setIsLogoDropdownOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+        // Delay architectural shifts (sidebar width/padding) 
+        // until the old content has started fading out effectively (400ms)
+        const timer = setTimeout(() => {
+            setDeferredPath(location.pathname);
+        }, 50);
+        return () => clearTimeout(timer);
+    }, [location.pathname]);
+
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+    const [isBugModalOpen, setIsBugModalOpen] = useState(false);
+    const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+    const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
+    const profileRef = useRef(null);
+    const { data: notifications = [] } = useSWR('/notifications');
+    const unreadCount = notifications.filter(n => !n.read).length;
 
     useEffect(() => {
         // Apply Dark Mode from settings
@@ -116,38 +144,18 @@ function Layout() {
     useEffect(() => {
         const handleUserSelected = () => {
             setIsSearchModalOpen(false);
-            setIsMobileMenuOpen(false);
         };
         window.addEventListener('user-selected', handleUserSelected);
         return () => window.removeEventListener('user-selected', handleUserSelected);
     }, []);
 
     // Perform data synchronization for offline-first architecture
-    // Added: Automatic sync when connection is restored
     useEffect(() => {
         if (user?._id && isOnline) {
             SyncService.syncAll(user._id);
         }
     }, [user?._id, isOnline]);
 
-    const { data: notifications = [], mutate: mutateNotifications } = useSWR(user ? '/notifications' : null, {
-        refreshInterval: 30000
-    });
-
-    const navigate = useNavigate();
-    const location = useLocation();
-    const profileRef = useRef(null);
-
-    const getPageTitle = () => {
-        const path = location.pathname;
-        if (path === '/dashboard') return 'Overview';
-        if (path.includes('/habits')) return 'Habits';
-        if (path.includes('/planner')) return 'Planner';
-        if (path.includes('/finance')) return 'Finance';
-        if (path.includes('/journal')) return 'Journal';
-        if (path.includes('/admin')) return 'Admin';
-        return 'Produs';
-    };
 
     useSWR('/auth/me', {
         refreshInterval: 15000,
@@ -160,62 +168,10 @@ function Layout() {
         }
     });
 
-    const mergedNotifications = React.useMemo(() => {
-        const list = [...notifications].map(n => ({
-            ...n,
-            id: n._id,
-            time: new Date(n.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-        }));
-        if (user?.incomingPartnerRequest) {
-            list.unshift({
-                id: 'partner-request',
-                text: `${user.incomingPartnerRequest.name} wants to share orbits! 🤝`,
-                time: "Request Pending",
-                read: false,
-                icon: "favorite",
-                color: "text-rose-500",
-                isShareRequest: true
-            });
-        }
-        return list;
-    }, [notifications, user?.incomingPartnerRequest]);
-
-    const unreadCount = mergedNotifications.filter(n => !n.read).length;
 
     const handleSignOut = () => {
         logout();
         navigate('/auth');
-    };
-
-    const markAllAsRead = async () => {
-        try {
-            await api.patch('/notifications');
-            mutateNotifications();
-        } catch (error) {
-            console.error('Failed to mark all as read:', error);
-        }
-    };
-
-    const handleNotificationClick = async (n) => {
-        if (n.isShareRequest) {
-            navigate('/dashboard/profile');
-            setIsNotificationsOpen(false);
-            return;
-        }
-
-        if (!n.read) {
-            try {
-                await api.patch(`/notifications/${n.id}`);
-                mutateNotifications();
-            } catch (error) {
-                console.error('Failed to mark notification as read:', error);
-            }
-        }
-
-        if (n.type === 'finance') navigate('/dashboard/finance');
-        if (n.type === 'habit') navigate('/dashboard/habits');
-
-        setIsNotificationsOpen(false);
     };
 
     const navItems = [
@@ -227,261 +183,248 @@ function Layout() {
     ];
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="bg-[#f8f8f8] dark:bg-[#000000] dark:bg-grid bg-grid-light font-display text-[#111111] dark:text-slate-100 h-screen flex flex-col overflow-hidden"
+        <div
+            className="bg-[#f8f8f8] dark:bg-[#000000] dark:bg-grid bg-grid-light font-display text-[#111111] dark:text-slate-100 h-screen flex flex-row overflow-hidden"
         >
-            <div className="layout-container flex h-full flex-col relative">
-                {/* Cinematic Floating Nav */}
-                <motion.nav
-                    initial={{ y: -20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="sticky top-0 left-0 w-full z-[100] px-4 md:px-10 py-6 md:py-10 flex justify-between items-center bg-transparent"
-                >
-                    {/* Brand / Logo with Dropdown */}
-                    <div 
-                        ref={logoDropdownRef}
-                        className="relative flex items-center gap-3 md:gap-4 group cursor-pointer" 
-                        onClick={() => setIsLogoDropdownOpen(!isLogoDropdownOpen)}
+            {/* Tactical System Sidebar */}
+            <aside 
+                className={`flex flex-col absolute left-0 top-0 h-full transition-all duration-[400ms] ease-[0.16,1,0.3,1] z-[120] 
+                    ${deferredPath === '/dashboard' 
+                        ? 'w-72 bg-transparent border-none md:border-none' 
+                        : 'w-20 bg-[#f8f8f8]/80 dark:bg-[#050505]/80 backdrop-blur-md border-r border-black/[0.08] dark:border-white/10'}
+                `}
+            >
+                {/* 1. Sidebar Header: Brand Interface */}
+                <div className="pt-10 flex flex-col gap-8">
+                    <div
+                        className="flex items-center gap-4 group cursor-pointer relative pl-[28px]"
+                        onClick={() => navigate('/dashboard')}
                     >
-                        <div className={`size-5 md:size-6 flex items-center justify-center bg-black dark:bg-white transition-all group-hover:bg-electric-blue ${isLogoDropdownOpen ? 'rotate-0' : 'rotate-45'}`} />
-                        <span className="font-bold text-[10px] md:text-[11px] uppercase tracking-[0.5em] md:tracking-[0.8em] text-black/80 dark:text-white/80 group-hover:text-black dark:group-hover:text-white transition-all hidden sm:inline-block">Produs</span>
+                        <div className="size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0" />
+                        
+                        {/* Connecting Spine to Nav Items */}
+                        <div className="absolute left-[39px] top-6 h-10 w-[2px] bg-slate-200 dark:bg-white/10" />
 
-                        <AnimatePresence>
-                            {isLogoDropdownOpen && (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.9, y: 10, rotateX: -20 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
-                                    exit={{ opacity: 0, scale: 0.9, y: 10, rotateX: -20 }}
-                                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                    className="absolute left-0 top-full mt-6 w-64 bg-white dark:bg-[#050505] border border-black/[0.08] dark:border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] z-[110] overflow-hidden ar-corners origin-top-left"
+                        <span className={`font-bold text-[11px] uppercase tracking-[0.8em] text-black dark:text-white transition-all duration-500 overflow-hidden whitespace-nowrap
+                            ${deferredPath === '/dashboard' ? 'opacity-100 w-auto' : 'opacity-0 w-0'}
+                        `}>
+                            Produs
+                        </span>
+                    </div>
+
+                    {/* 2. Sidebar Body: Dendritic Tree Navigation */}
+                    <div className="relative flex flex-col py-4">
+                        {navItems.map((item, idx) => {
+                            const isActive = item.path === '/dashboard' 
+                                ? location.pathname === '/dashboard' 
+                                : location.pathname.startsWith(item.path);
+                            const isOverview = deferredPath === '/dashboard';
+                            
+                            return (
+                                <motion.button
+                                    key={item.name}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.1 + (idx * 0.05) }}
+                                    onClick={() => navigate(item.path)}
+                                    className="relative group/nav flex items-center h-16 pl-0 outline-none"
                                 >
-                                    <div className="py-4 flex flex-col">
-                                        <div className="px-6 py-2 mb-2 font-bold text-[9px] uppercase tracking-[0.5em] text-black/30 dark:text-white/20 border-b border-black/[0.05] dark:border-white/[0.05]">Navigation</div>
-                                        {navItems.map((item, idx) => (
-                                            <motion.button
-                                                key={item.name}
-                                                initial={{ x: -20, opacity: 0 }}
-                                                animate={{ x: 0, opacity: 1 }}
-                                                transition={{ delay: idx * 0.05 }}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigate(item.path);
-                                                    setIsLogoDropdownOpen(false);
-                                                }}
-                                                className="w-full px-6 py-4 text-left flex items-center gap-4 group/item hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all"
-                                            >
-                                                <span className="material-symbols-outlined text-[18px] text-black/30 dark:text-white/20 group-hover/item:text-electric-blue transition-colors">{item.icon}</span>
-                                                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-black/50 dark:text-white/40 group-hover/item:text-black dark:group-hover:text-white group-hover/item:tracking-[0.6em] transition-all">{item.name}</span>
-                                            </motion.button>
-                                        ))}
-                                        <div className="mt-4 px-6 pt-4 border-t border-black/[0.05] dark:border-white/[0.05]">
-                                            <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-black/20 dark:text-white/10 flex items-center gap-2 italic">
-                                                <span className="size-1 rounded-full bg-electric-blue" /> Cinematic Motion
-                                            </p>
+                                    {/* Spine Segments */}
+                                    <div className={`absolute left-[39px] top-0 h-[calc(50%-12px)] w-[2px] transition-colors duration-500 bg-slate-200 dark:bg-white/10`} />
+                                    <div className={`absolute left-[39px] bottom-0 h-[calc(50%-12px)] w-[2px] transition-colors duration-500 bg-slate-200 dark:bg-white/10
+                                        ${idx === navItems.length - 1 ? 'bg-gradient-to-b !from-current !to-transparent opacity-40' : ''}
+                                    `} />
+
+                                    {/* Icon Node */}
+                                    <div className="relative flex items-center w-full h-full">
+                                        <div className="absolute left-[31px] flex items-center justify-center size-[18px] z-50">
+                                            <div className={`absolute inset-[-8px] rounded-full transition-all duration-500 
+                                                ${isActive ? 'bg-electric-blue/20 ring-1 ring-electric-blue/30 scale-110 shadow-[0_0_15px_rgba(0,183,255,0.2)]' : 'bg-electric-blue/0 group-hover/nav:bg-electric-blue/10'}
+                                            `} />
+                                            <span className={`material-symbols-outlined text-[19px] transition-all duration-500 relative z-10 
+                                                ${isActive ? 'text-electric-blue scale-110' : 'text-slate-400 group-hover/nav:text-electric-blue group-hover/nav:scale-110'}
+                                            `}>
+                                                {item.icon}
+                                            </span>
+                                        </div>
+
+                                        {/* Labels */}
+                                        <div className={`flex items-center absolute left-0 w-max pointer-events-none transition-all duration-[400ms] ease-[0.16,1,0.3,1]
+                                            ${isOverview ? 'relative pl-10 md:pl-12 opacity-100 translate-x-0' : 'pl-16 opacity-0 -translate-x-12 group-hover/nav:opacity-100 group-hover/nav:translate-x-[-10px] group-hover/nav:pl-14 group-hover/nav:pointer-events-auto'}
+                                        `}>
+                                            <div className="flex items-center gap-4">
+                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${isOverview ? 'w-4' : 'w-0 group-hover/nav:w-4'}`} />
+                                                <span className={`text-[10px] font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300
+                                                    ${isActive ? 'text-black dark:text-white' : 'text-slate-500 dark:text-slate-400 group-hover/nav:text-black dark:group-hover:text-white'}
+                                                `}>
+                                                    {item.name}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
+                                </motion.button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* 3. Sidebar Footer: System Actions */}
+                <div className="mt-auto p-4 md:p-6 flex flex-col items-start pl-[20px] gap-5 border-t border-black/[0.06] dark:border-white/10">
+                    <SyncStatusPill isOnline={isOnline} userId={user?._id} isOverview={deferredPath === '/dashboard'} />
+
+                    <div className="relative flex items-center gap-4 group" ref={profileRef}>
+                        <button
+                            onClick={() => setIsProfileOpen(!isProfileOpen)}
+                            className="size-10 rounded-full ring-2 ring-electric-blue/10 hover:ring-electric-blue/40 overflow-hidden transition-all active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0"
+                        >
+                            {user?.avatar?.url ? (
+                                <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-xs font-bold">{user?.name?.charAt(0)}</span>
+                            )}
+                        </button>
+
+                        <AnimatePresence mode="wait">
+                            {deferredPath === '/dashboard' && (
+                                <motion.div 
+                                    key="profile-greeting"
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -10 }}
+                                    transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                    className="flex flex-col whitespace-nowrap"
+                                >
+                                    <span className="text-[10px] font-black uppercase tracking-[0.1em] text-black/40 dark:text-white/40 leading-none">
+                                        {new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 18 ? 'Good Afternoon' : 'Good Evening'}
+                                    </span>
+                                    <span className="text-xs font-bold text-black dark:text-white mt-0.5">
+                                        {user?.name?.split(' ')[0]}
+                                    </span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        <AnimatePresence>
+                            {isProfileOpen && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                                    exit={{ opacity: 0, x: 10, scale: 0.95 }}
+                                    className="absolute left-full bottom-0 ml-4 w-56 bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-black/10 dark:border-white/10 p-2 z-[200]"
+                                >
+                                    <div className="p-3 border-b border-black/[0.06] dark:border-white/[0.06] mb-1">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-black/40 dark:text-white/40 mb-1">Authenticated As</p>
+                                        <p className="text-xs font-bold text-black dark:text-white">{user?.name}</p>
+                                    </div>
+                                    <button onClick={() => { setIsProfileOpen(false); navigate('/dashboard/profile'); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all flex items-center gap-3">
+                                        <span className="material-symbols-outlined text-lg">person</span> Profile
+                                    </button>
+                                    {user?.email === 'ernestodesabillejr@gmail.com' && (
+                                        <button onClick={() => { setIsProfileOpen(false); navigate('/dashboard/admin'); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all flex items-center gap-3">
+                                            <span className="material-symbols-outlined text-lg">admin_panel_settings</span> Manage
+                                        </button>
+                                    )}
+                                    <button onClick={() => { setIsProfileOpen(false); setIsNotificationModalOpen(true); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all flex items-center gap-3 relative">
+                                        <span className="material-symbols-outlined text-lg">notifications</span> Notifications
+                                        {unreadCount > 0 && (
+                                            <span className="absolute left-6 top-2 size-2 bg-primary rounded-full border border-white dark:border-[#121212]" />
+                                        )}
+                                    </button>
+                                    <button onClick={() => { setIsProfileOpen(false); setIsSettingsModalOpen(true); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all flex items-center gap-3">
+                                        <span className="material-symbols-outlined text-lg">settings</span> Settings
+                                    </button>
+                                    <div className="h-px bg-black/[0.06] dark:bg-white/[0.06] my-1" />
+                                    <button onClick={() => { setIsProfileOpen(false); setIsBugModalOpen(true); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all flex items-center gap-3">
+                                        <span className="material-symbols-outlined text-lg">bug_report</span> Bug Report
+                                    </button>
+                                    <button onClick={handleSignOut} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-signal-orange hover:bg-signal-orange/5 rounded-xl transition-all flex items-center gap-3">
+                                        <span className="material-symbols-outlined text-lg">logout</span> Sign Out
+                                    </button>
                                 </motion.div>
                             )}
                         </AnimatePresence>
                     </div>
-
-                    <div className="flex items-center gap-3 sm:gap-6 shrink-0">
-                        {/* Sync + Connectivity Status Pill */}
-                        <SyncStatusPill isOnline={isOnline} userId={user?._id} />
-                        
-                        {/* Mobile Menu Trigger */}
-                        <button
-                            className="lg:hidden relative size-8 flex items-center justify-center rounded-lg hover:bg-black/[0.04] dark:hover:bg-white/[0.04] text-black/40 dark:text-white/40 transition-colors"
-                            onClick={() => setIsMobileMenuOpen(true)}
-                        >
-                            <span className="material-symbols-outlined text-[20px]">menu</span>
-                        </button>
-
-                        {/* Mobile Perspective Toggle */}
-                        {user?.partner && (
-                            <button
-                                onClick={() => setViewMode(viewMode === 'me' ? 'partner' : 'me')}
-                                title={`Switch to ${viewMode === 'me' ? 'Shared' : 'My'} view`}
-                                className={`sm:hidden relative size-10 flex items-center justify-center rounded-full transition-all active:scale-95 ${viewMode === 'partner' ? 'bg-electric-blue/10 text-electric-blue' : 'text-black/50 dark:text-white/40 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-electric-blue dark:hover:text-electric-blue'}`}
-                            >
-                                <span className="material-symbols-outlined text-[24px]">group</span>
-                                {viewMode === 'partner' && <span className="absolute bottom-1 right-1 size-2.5 bg-signal-orange border-[1.5px] border-white dark:border-[#050505] rounded-full" />}
-                            </button>
-                        )}
-                        
-                        <div className="relative shrink-0" ref={profileRef}>
-                            <button
-                                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                                className="relative bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-electric-blue/20 overflow-hidden bg-black/10 dark:bg-white/10 flex items-center justify-center text-xl font-bold text-black/50 dark:text-white/50 hover:ring-electric-blue/40 transition-all active:scale-95"
-                            >
-                                <Avatar config={user?.avatar} />
-                                {unreadCount > 0 && <span className="absolute top-0 right-0 size-3 bg-rose-500 rounded-full border-2 border-background-light dark:border-background-dark pointer-events-none" />}
-                            </button>
-
-                            <AnimatePresence>
-                                {isProfileOpen && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        className="absolute right-0 mt-3 w-52 bg-white dark:bg-[#121212] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 py-2 z-50 overflow-hidden ar-corners"
-                                    >
-                                        <div className="px-4 py-3 border-b border-black/[0.06] dark:border-white/[0.06] mb-1 font-semibold text-[9px] text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">Account</div>
-                                        <button onClick={() => { navigate('/dashboard/profile'); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-xs font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 transition-colors">
-                                            <span className="material-symbols-outlined text-lg">dashboard</span> Profile
-                                        </button>
-                                        {user?.email === 'ernestodesabillejr@gmail.com' && (
-                                            <button 
-                                                onClick={() => { navigate('/dashboard/admin'); setIsProfileOpen(false); }} 
-                                                className="w-full px-4 py-2.5 text-left text-xs font-semibold text-electric-blue hover:bg-electric-blue/5 flex items-center gap-3 transition-colors"
-                                            >
-                                                <span className="material-symbols-outlined text-lg">admin_panel_settings</span> Manage
-                                            </button>
-                                        )}
-                                        <button onClick={() => { setIsNotificationsOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-xs font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center justify-between transition-colors">
-                                            <div className="flex items-center gap-3"><span className="material-symbols-outlined text-lg">notifications</span> Notifications</div>
-                                            {unreadCount > 0 && <span className="bg-signal-orange text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
-                                        </button>
-                                        <button onClick={() => { setIsSettingsModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-xs font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 transition-colors">
-                                            <span className="material-symbols-outlined text-lg">settings</span> Settings
-                                        </button>
-                                        <button onClick={() => { setIsBugModalOpen(true); setIsProfileOpen(false); }} className="w-full px-4 py-2.5 text-left text-xs font-semibold text-signal-orange/80 hover:bg-signal-orange/5 flex items-center gap-3 transition-colors">
-                                            <span className="material-symbols-outlined text-lg">bug_report</span> Report Bug
-                                        </button>
-                                        <div className="h-px bg-black/[0.06] dark:bg-white/[0.06] my-1.5"></div>
-                                        <button onClick={handleSignOut} className="w-full px-4 py-2.5 text-left text-xs font-semibold text-signal-orange hover:bg-signal-orange/5 flex items-center gap-3 transition-colors">
-                                            <span className="material-symbols-outlined text-lg">logout</span> Sign Out
-                                        </button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
-                            <AnimatePresence>
-                                {isNotificationsOpen && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        className="absolute right-0 mt-3 w-80 bg-white dark:bg-[#121212] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 p-2 overflow-hidden z-[60] ar-corners"
-                                    >
-                                        <div className="p-4 border-b border-black/[0.06] dark:border-white/[0.06] flex items-center gap-3">
-                                            <button onClick={() => { setIsNotificationsOpen(false); setIsProfileOpen(true); }} className="size-8 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center justify-center transition-colors -ml-2">
-                                                <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-                                            </button>
-                                            <h4 className="text-xs font-semibold uppercase tracking-[0.3em] dark:text-white flex-1">Notifications</h4>
-                                            {unreadCount > 0 && <button onClick={markAllAsRead} className="text-[9px] font-semibold text-electric-blue hover:underline uppercase tracking-[0.3em]">Mark all read</button>}
-                                        </div>
-                                        <div className="max-h-[320px] overflow-y-auto custom-scrollbar">
-                                            {mergedNotifications.length > 0 ? (
-                                                <div className="p-2 space-y-1">
-                                                    {mergedNotifications.map((n) => (
-                                                        <button key={n.id} onClick={() => handleNotificationClick(n)} className={`w-full text-left p-3 rounded-2xl flex gap-3 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors relative group ${!n.read ? 'bg-black/[0.03] dark:bg-electric-blue/5' : ''}`}>
-                                                            <div className={`size-10 shrink-0 rounded-xl bg-black/[0.04] dark:bg-[#000000] flex items-center justify-center ${n.color}`}><span className="material-symbols-outlined text-xl">{n.icon}</span></div>
-                                                            <div className="flex-1 min-w-0">
-                                                                <p className={`text-xs font-semibold leading-snug mb-1 ${!n.read ? 'text-black dark:text-white' : 'text-black/50 dark:text-white/40'}`}>{n.text}</p>
-                                                                <p className="text-[10px] text-black/40 dark:text-white/30 font-medium">{n.time}</p>
-                                                            </div>
-                                                            {!n.read && <div className="absolute right-3 top-1/2 -translate-y-1/2 size-1.5 bg-electric-blue rounded-full" />}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="p-8 text-center text-[11px] text-black/40 dark:text-white/30 font-medium uppercase tracking-[0.3em]">All caught up</div>
-                                            )}
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                    </div>
-                </motion.nav>
-
-                <AnimatePresence>
-                    {isMobileMenuOpen && (
-                        <>
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)} />
-                            <motion.div initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} className="fixed top-0 left-0 h-full w-72 z-[80] bg-[#f8f8f8] dark:bg-[#050505] border-r border-black/[0.08] dark:border-white/10 flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.5)] md:hidden">
-                                <div className="flex items-center justify-between px-5 py-4 border-b border-black/[0.06] dark:border-white/[0.06]">
-                                    <NavLink to="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                                        <div className="size-8 flex items-center justify-center rounded-lg overflow-hidden bg-white shadow-none ring-1 ring-black/10 dark:ring-white/10">
-                                            <img src="/produs-logo.png" alt="Produs Logo" className="w-full h-full object-cover" />
-                                        </div>
-                                        <span className="text-black dark:text-white text-[11px] font-semibold uppercase tracking-[0.5em]">Produs</span>
-                                    </NavLink>
-                                    <button onClick={() => setIsMobileMenuOpen(false)} className="size-8 flex items-center justify-center rounded-lg text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors">
-                                        <span className="material-symbols-outlined text-xl">close</span>
-                                    </button>
-                                </div>
-
-                                <div className="px-4 py-3 border-b border-black/[0.06] dark:border-white/[0.06]">
-                                    <button
-                                        onClick={() => {
-                                            setIsMobileMenuOpen(false);
-                                            setIsSearchModalOpen(true);
-                                        }}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-[#121212]/30 flex items-center gap-3 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-all active:scale-95 group"
-                                    >
-                                        <span className="material-symbols-outlined text-[20px] group-hover:text-electric-blue transition-colors">search</span>
-                                        <span className="text-xs font-semibold uppercase tracking-[0.3em]">Search Users</span>
-                                    </button>
-                                </div>
-
-                                <nav className="flex flex-col gap-1 p-4 flex-1">
-                                    {navItems.map((item) => (
-                                        <NavLink 
-                                            key={item.name} 
-                                            to={item.path} 
-                                            end={item.name === 'Overview'} 
-                                            onClick={() => setIsMobileMenuOpen(false)} 
-                                            className={({ isActive }) => `px-4 py-3 rounded-xl text-[11px] font-semibold uppercase tracking-[0.3em] flex items-center gap-3 transition-colors ${isActive ? 'bg-electric-blue/10 text-electric-blue' : 'text-black/60 dark:text-white/60 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-black dark:hover:text-white'}`}
-                                        >
-                                            <span className="material-symbols-outlined text-xl">{item.icon}</span> {item.name}
-                                        </NavLink>
-                                    ))}
-                                </nav>
-                                <div className="p-4 border-t border-black/[0.06] dark:border-white/[0.06] text-center text-[9px] text-black/30 dark:text-white/20 font-medium uppercase tracking-[0.4em]">Produs &copy; {new Date().getFullYear()}</div>
-                            </motion.div>
-                        </>
-                    )}
-                </AnimatePresence>
-
-                {/* Main Content Area */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
-                    <main className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10">
-                        <Outlet />
-                    </main>
                 </div>
+            </aside>
 
-                <AnimatePresence>
-                    {isSearchModalOpen && (
-                        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vw] px-4">
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSearchModalOpen(false)} className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                            <motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="relative w-full max-w-lg bg-white dark:bg-[#121212] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 overflow-hidden flex flex-col max-h-[80vh] ar-corners">
-                                <div className="flex items-center justify-between p-4 border-b border-black/[0.06] dark:border-white/[0.06] bg-black/[0.02] dark:bg-white/[0.02]">
-                                    <button onClick={() => setIsSearchModalOpen(false)} className="size-8 flex items-center justify-center rounded-full text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/[0.06] dark:hover:bg-white/[0.06] transition-colors"><span className="material-symbols-outlined text-[20px]">close</span></button>
-                                </div>
-                                <UserSearch onSelect={() => setIsSearchModalOpen(false)} />
-                            </motion.div>
-                        </div>
-                    )}
-                </AnimatePresence>
+            {/* Main Application Interface */}
+            <div className={`flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]
+                ${deferredPath === '/dashboard' ? 'pl-0' : 'pl-20'}
+            `}>
 
-                {isProfileModalOpen && (
-                    <ProfileModal 
-                        username={user?.username} 
-                        onClose={() => setIsProfileModalOpen(false)} 
-                    />
-                )}
-                <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} />
-                <BugReportModal isOpen={isBugModalOpen} onClose={() => setIsBugModalOpen(false)} />
-                <OnboardingModal isOpen={!!user && !user.onboardingCompleted} />
+                <div className="flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar flex flex-col relative">
+                    <DashboardContext.Provider value={{ setIsSearchModalOpen }}>
+                        <AnimatePresence mode="wait">
+                            <motion.main 
+                                key={location.pathname}
+                                initial={{ x: "100%", opacity: 1 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: "-10%", opacity: 0, scale: 0.96, filter: "blur(12px)" }}
+                                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                                className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+                            >
+                                <FrozenRoute context={{ setIsSearchModalOpen }} />
+                            </motion.main>
+                        </AnimatePresence>
+                    </DashboardContext.Provider>
+                </div>
             </div>
-        </motion.div>
+
+            {/* Notification Portal Removed */}
+
+            <AnimatePresence>
+                {isSearchModalOpen && (
+                    <div className="fixed inset-0 z-[300] flex items-start justify-center pt-[10vw] px-4">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSearchModalOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-md" />
+                        <motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="relative w-full max-w-lg bg-white dark:bg-[#121212] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 overflow-hidden flex flex-col max-h-[80vh] ar-corners">
+                            <div className="flex items-center justify-between p-4 border-b border-black/[0.06] dark:border-white/[0.06] bg-black/[0.02] dark:bg-white/[0.02]">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.4em] ml-4 text-black/40 dark:text-white/40">Database Search</h4>
+                                <button onClick={() => setIsSearchModalOpen(false)} className="size-8 flex items-center justify-center rounded-full text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/[0.06] dark:hover:bg-white/[0.06] transition-colors"><span className="material-symbols-outlined text-[20px]">close</span></button>
+                            </div>
+                            <div className="p-4 flex-1 overflow-y-auto">
+                                <UserSearch onSelect={() => setIsSearchModalOpen(false)} />
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {isProfileModalOpen && (
+                <ProfileModal 
+                    username={user?.username} 
+                    onClose={() => setIsProfileModalOpen(false)} 
+                />
+            )}
+            
+            {isSettingsModalOpen && (
+                <SettingsModal 
+                    isOpen={isSettingsModalOpen} 
+                    onClose={() => setIsSettingsModalOpen(false)} 
+                />
+            )}
+            
+            {isBugModalOpen && (
+                <BugReportModal 
+                    isOpen={isBugModalOpen} 
+                    onClose={() => setIsBugModalOpen(false)} 
+                    user={user} 
+                />
+            )}
+
+            {isNotificationModalOpen && (
+                <NotificationModal 
+                    isOpen={isNotificationModalOpen} 
+                    onClose={() => setIsNotificationModalOpen(false)} 
+                />
+            )}
+            
+            {isOnboardingOpen && (
+                <OnboardingModal 
+                    isOpen={isOnboardingOpen} 
+                    onClose={() => setIsOnboardingOpen(false)} 
+                />
+            )}
+        </div>
     );
 }
 

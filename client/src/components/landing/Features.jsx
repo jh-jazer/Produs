@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Features({ features, isLightMode }) {
+export default function Features({ features }) {
   return (
     <div className="h-[600vh] relative flex flex-col items-center justify-center">
       {features.map((feature, idx) => (

@@ -11,7 +11,7 @@ const SEQ_1 = Object.values(
 
 const HERO_IMAGES = SEQ_1;
 
-export default function ScrollCanvas({ progress, activeFrame, isLightMode }) {
+export default function ScrollCanvas({ progress, activeFrame }) {
   const canvasRef = useRef(null);
   const { heroImages, isHeroLoaded, preloadHeroImages } = useAssetStore();
 
@@ -90,17 +90,12 @@ export default function ScrollCanvas({ progress, activeFrame, isLightMode }) {
   }, []);
 
   return (
-    <div className={`absolute inset-0 z-0 overflow-hidden ${isLightMode ? 'bg-[#f8f8f8]' : 'bg-black'} transition-colors duration-1000`}>
+    <div className="absolute inset-0 z-0 overflow-hidden bg-black transition-colors duration-1000">
       <canvas 
         ref={canvasRef} 
         className="w-full h-full object-cover transition-all duration-1000"
-        style={{ filter: isLightMode ? "brightness(1.1) saturate(0.5) contrast(1.1) invert(0.9)" : "brightness(0.4) saturate(0.8)" }}
+        style={{ filter: "brightness(0.4) saturate(0.8)" }}
       />
-      {!isHeroLoaded && (
-        <div className={`absolute inset-0 flex items-center justify-center ${isLightMode ? 'bg-[#f8f8f8]' : 'bg-black'} z-50`}>
-           <div className={`w-12 h-12 border-4 ${isLightMode ? 'border-black/10 border-t-black' : 'border-white/20 border-t-white'} rounded-full animate-spin`} />
-        </div>
-      )}
     </div>
   );
 }

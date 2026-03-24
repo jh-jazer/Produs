@@ -148,9 +148,9 @@ async function updateLegacyModels(feature, userId, doc) {
         for (const entry of entries) {
             try {
                 // Safeguard against corrupted dates
-                if (entry.date && typeof entry.date === 'object' && Object.keys(entry.date).length === 0) {
-                    console.error("🚨 CORRUPTED JOURNAL ENTRY DATE DETECTED! Skipping.", JSON.stringify(entry));
-                    continue;
+                if (!entry.date || (typeof entry.date === 'object' && Object.keys(entry.date).length === 0)) {
+                    console.warn("⚠️ CORRUPTED JOURNAL ENTRY DATE DETECTED! Healing with current timestamp.", entry._id);
+                    entry.date = new Date().toISOString();
                 }
 
                 // Update or Create the Journal record

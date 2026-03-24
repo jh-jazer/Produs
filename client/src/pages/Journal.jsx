@@ -3,6 +3,7 @@ import JournalEntry from '../components/journal_components/JournalEntry';
 import JournalHistory from '../components/journal_components/JournalHistory';
 import YearlyMoodBoard from '../components/journal_components/YearlyMoodBoard';
 import MobileTabNav from '../components/ui/MobileTabNav';
+import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 import { useJournalLocal } from '../hooks/useJournalLocal';
 
 function Journal() {
@@ -20,8 +21,10 @@ function Journal() {
         // as Dexie's useLiveQuery handles it. But we keep it for potential future needs.
     };
 
+    if (isLoading && entries.length === 0) return <WorkspaceSkeleton />;
+
     return (
-        <div className="w-full max-w-[1200px] lg:pt-12 flex flex-col gap-2 animate-in fade-in duration-700 pb-28 md:pb-8">
+        <div className="w-full max-w-[1200px] lg:pt-12 flex flex-col gap-2 pb-28 md:pb-8">
             {/* Mobile Navigation */}
             <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 

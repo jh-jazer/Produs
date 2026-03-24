@@ -8,6 +8,7 @@ import ConsistencyGrid from '../components/habit_components/ConsistencyGrid';
 import TopStreaks from '../components/habit_components/TopStreaks';
 import HabitChallenge from '../components/habit_components/HabitChallenge';
 import MobileTabNav from '../components/ui/MobileTabNav';
+import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 
 const categories = ['All', 'Health', 'Mindset', 'Finance', 'Productivity', 'Creative'];
 
@@ -54,8 +55,10 @@ function Habits() {
         setActiveDate(nextDate);
     };
 
+    if (isLoading && habits.length === 0) return <WorkspaceSkeleton />;
+
     return (
-        <div className="w-full max-w-[1200px] lg:pt-12 flex flex-col gap-2 animate-in fade-in duration-700 pb-28 md:pb-8">
+        <div className="w-full max-w-[1200px] lg:pt-12 flex flex-col gap-2 pb-28 md:pb-8">
             <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
