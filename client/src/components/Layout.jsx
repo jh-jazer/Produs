@@ -289,7 +289,7 @@ function Layout() {
 
                                         {/* Labels */}
                                         <div className={`flex items-center absolute left-0 w-max pointer-events-none transition-all duration-[400ms] ease-[0.16,1,0.3,1]
-                                            ${isOverview ? 'relative pl-10 md:pl-12 opacity-100 translate-x-0' : 'pl-16 opacity-0 -translate-x-12 group-hover/nav:opacity-100 group-hover/nav:translate-x-[-10px] group-hover/nav:pl-14 group-hover/nav:pointer-events-auto'}
+                                            ${isOverview ? 'relative pl-14 md:pl-16 opacity-100 translate-x-0' : 'pl-16 opacity-0 -translate-x-12 group-hover/nav:opacity-100 group-hover/nav:translate-x-[-10px] group-hover/nav:pl-14 group-hover/nav:pointer-events-auto'}
                                         `}>
                                             <div className="flex items-center gap-4">
                                                 <div className={`h-px bg-electric-blue transition-all duration-300 ${isOverview ? 'w-4' : 'w-0 group-hover/nav:w-4'}`} />
