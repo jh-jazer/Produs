@@ -11,6 +11,7 @@ import Avatar from './ui/Avatar';
 import UserSearch from './ui/UserSearch';
 import BugReportModal from './ui/BugReportModal';
 import NotificationModal from './ui/NotificationModal';
+import UserMenuModal from "./ui/UserMenuModal";
 import useConnectivityStore from '../store/useConnectivityStore';
 import SyncService from '../services/SyncService';
 
@@ -48,31 +49,19 @@ function SyncStatusPill({ isOnline, userId, isOverview, isMobile }) {
 
     const title = !isOnline ? 'Offline — changes will sync when reconnected'
         : syncInfo.syncStatus === 'syncing' ? 'Syncing…'
-            : syncInfo.syncStatus === 'error' ? 'Sync failed — click to retry'
-                : syncInfo.lastSyncedAt
-                    ? `Synced at ${syncInfo.lastSyncedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                    : 'Click to sync';
+            : 'All changes saved locally and synced';
 
     return (
         <button
             onClick={handleForceSync}
             title={title}
-            className={`flex items-center gap-3 size-10 rounded-xl border transition-all duration-700 hover:opacity-80 active:scale-95 ${statusColor} 
-                ${(isOverview && !isMobile) ? 'w-auto px-4' : 'w-10 px-0 justify-center'}
-            `}
+            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-full border transition-all active:scale-95 ${statusColor} ${!isOverview && !isMobile ? 'size-10 justify-center' : ''}`}
         >
-            <motion.span
-                animate={syncInfo.isSyncing ? { rotate: 360 } : { rotate: 0 }}
-                transition={syncInfo.isSyncing ? { repeat: Infinity, duration: 1, ease: 'linear' } : {}}
-                className="material-symbols-outlined text-[18px]"
-            >
+            <span className={`material-symbols-outlined text-[18px] ${syncInfo.syncStatus === 'syncing' ? 'animate-spin' : ''}`}>
                 {statusIcon}
-            </motion.span>
-            
-            {isOverview && !isMobile && (
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap animate-in fade-in duration-1000">
-                    {statusText}
-                </span>
+            </span>
+            {(isOverview || isMobile) && (
+                <span className="text-[10px] font-black uppercase tracking-widest">{statusText}</span>
             )}
         </button>
     );
@@ -82,27 +71,28 @@ function FrozenRoute({ context }) {
     const outlet = useOutlet();
     const [frozenOutlet] = useState(outlet);
     return (
-        <div className="w-full flex justify-center">
+        <DashboardContext.Provider value={context}>
             {frozenOutlet}
-        </div>
+        </DashboardContext.Provider>
     );
 }
 
 function Layout() {
-    const location = useLocation();
+    const { user, signOut } = useAuthStore();
     const navigate = useNavigate();
-    const { user, logout, syncUser, viewMode, setViewMode } = useAuthStore();
-    const isOnline = useConnectivityStore(state => state.isOnline);
-    const [deferredPath, setDeferredPath] = useState(location.pathname);
+    const location = useLocation();
+    const isOnline = useConnectivityStore((state) => state.isOnline);
+    const profileRef = useRef(null);
+
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [deferredPath, setDeferredPath] = useState(location.pathname);
 
     useEffect(() => {
-        // Delay architectural shifts (sidebar width/padding) 
-        // until the old content has started fading out effectively (400ms)
-        const timer = setTimeout(() => {
+        // Handle subtle navigation delay for premium feel
+        const timeout = setTimeout(() => {
             setDeferredPath(location.pathname);
-        }, 50);
-        return () => clearTimeout(timer);
+        }, 100);
+        return () => clearTimeout(timeout);
     }, [location.pathname]);
 
     useEffect(() => {
@@ -110,73 +100,36 @@ function Layout() {
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
-    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (isUserMenuOpen || isSettingsModalOpen) {
+            setIsMobileMenuOpen(false);
+        }
+    }, [isUserMenuOpen, isSettingsModalOpen]);
+
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [isBugModalOpen, setIsBugModalOpen] = useState(false);
     const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
-    const profileRef = useRef(null);
-    const { data: notifications = [] } = useSWR('/notifications');
+    // Fetch notifications
+    const { data: notifications = [] } = useSWR('/notifications', (url) => api.get(url).then(res => res.data), {
+        refreshInterval: 30000
+    });
     const unreadCount = notifications.filter(n => !n.read).length;
 
     useEffect(() => {
-        // Apply Dark Mode from settings
-        if (user?.settings?.darkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
+        if (user && !user.onboardingCompleted) {
+            setIsOnboardingOpen(true);
         }
+    }, [user]);
 
-        // Apply Theme from settings
-        if (user?.settings?.theme) {
-            const themes = [
-                { id: 'classic', color: '#135bec' },
-                { id: 'rose', color: '#ec4899' },
-                { id: 'forest', color: '#10b981' },
-                { id: 'amber', color: '#f59e0b' },
-                { id: 'midnight', color: '#6366f1' },
-            ];
-            const theme = themes.find(t => t.id === user.settings.theme);
-            if (theme) {
-                document.documentElement.style.setProperty('--primary', theme.color);
-                document.documentElement.setAttribute('data-theme', theme.id);
-            }
-        }
-    }, [user?.settings?.darkMode, user?.settings?.theme]);
-
-    useEffect(() => {
-        const handleUserSelected = () => {
-            setIsSearchModalOpen(false);
-        };
-        window.addEventListener('user-selected', handleUserSelected);
-        return () => window.removeEventListener('user-selected', handleUserSelected);
-    }, []);
-
-    // Perform data synchronization for offline-first architecture
-    useEffect(() => {
-        if (user?._id && isOnline) {
-            SyncService.syncAll(user._id);
-        }
-    }, [user?._id, isOnline]);
-
-
-    useSWR('/auth/me', {
-        refreshInterval: 15000,
-        onSuccess: (data) => {
-            if (JSON.stringify(data.incomingPartnerRequest) !== JSON.stringify(user?.incomingPartnerRequest) ||
-                JSON.stringify(data.outgoingPartnerRequest) !== JSON.stringify(user?.outgoingPartnerRequest) ||
-                data.partner?._id !== user?.partner?._id) {
-                syncUser(data);
-            }
-        }
-    });
-
-
-    const handleSignOut = () => {
-        logout();
+    const handleSignOut = async () => {
+        setIsUserMenuOpen(false);
+        await signOut();
         navigate('/auth');
     };
 
@@ -205,7 +158,7 @@ function Layout() {
                 </div>
             </div>
 
-            {/* Mobile Backdrop Overlay */}
+            {/* Sidebar Backdrop Mobile */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div
@@ -213,73 +166,50 @@ function Layout() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] md:hidden"
+                        className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-md z-[140]"
                     />
                 )}
             </AnimatePresence>
 
-            {/* Tactical System Sidebar */}
+            {/* Main Side Navigation */}
             <aside 
-                className={`flex flex-col fixed md:absolute left-0 top-0 h-full transition-all duration-[400ms] ease-[0.16,1,0.3,1] z-[120]
+                className={`
+                    fixed md:relative z-[150] h-full flex flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1]
                     ${isMobileMenuOpen ? 'translate-x-0 w-72 bg-[#f8f8f8]/90 dark:bg-[#050505]/90 backdrop-blur-xl border-r border-black/[0.08] dark:border-white/10' : '-translate-x-full md:translate-x-0'}
-                    ${!isMobileMenuOpen && (deferredPath === '/dashboard'
-                        ? 'md:w-72 md:bg-transparent md:border-none'
-                        : 'md:w-20 md:bg-[#f8f8f8]/80 md:dark:bg-[#050505]/80 md:backdrop-blur-md md:border-r md:border-black/[0.08] md:dark:border-white/10')}
+                    ${!isMobileMenuOpen && (deferredPath === '/dashboard' ? 'md:w-72 border-r border-black/[0.08] dark:border-white/10' : 'md:w-20')}
                 `}
             >
-                {/* 1. Sidebar Header: Brand Interface */}
-                {/* Mobile Close Button */}
-                {isMobileMenuOpen && (
-                    <button
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="md:hidden absolute top-3 right-6 size-10 flex items-center justify-center rounded-full bg-black/[0.05] dark:bg-white/[0.05] text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-all z-10"
-                    >
-                        <span className="material-symbols-outlined text-2xl">close</span>
-                    </button>
-                )}
-                <div className="pt-0 md:pt-10 flex flex-col gap-0 md:gap-8">
-                    <div
-                        className="h-16 flex items-center gap-4 group cursor-pointer relative px-6 md:px-0 md:pl-[28px]"
-                        onClick={() => {
-                            navigate('/dashboard');
-                            setIsMobileMenuOpen(false);
-                        }}
-                    >
+                {/* 1. Sidebar Header: Logo */}
+                <div className="h-24 flex items-center px-6 shrink-0">
+                    <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => navigate('/dashboard')}>
                         <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0 ${isMobileMenuOpen ? 'rotate-0' : ''}`} />
-                        
-                        {/* Connecting Spine to Nav Items */}
-                        <div className="absolute left-[35px] md:left-[39px] top-[48px] md:top-10 h-[24px] md:h-10 w-[2px] bg-slate-200 dark:bg-white/10 hidden md:block" />
-
-                        <span className={`font-bold text-[11px] uppercase tracking-[0.8em] text-black dark:text-white transition-all duration-500 overflow-hidden whitespace-nowrap
+                        <div className={`flex flex-col overflow-hidden transition-all duration-500 ease-in-out
                             ${(deferredPath === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0'}
                         `}>
-                            Produs
-                        </span>
+                            <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-black dark:text-white">Produs</span>
+                            <span className="text-[8px] font-bold text-electric-blue uppercase tracking-widest mt-1.5 opacity-60">System Core</span>
+                        </div>
                     </div>
+                </div>
 
-                    {/* 2. Sidebar Body: Dendritic Tree Navigation */}
-                    <div className="relative flex flex-col py-4 mt-2 md:mt-0">
+                {/* 2. Primary Navigation */}
+                <div className="flex-1 px-4 py-8">
+                    <div className="flex flex-col gap-1.5">
                         {navItems.map((item, idx) => {
-                            const isActive = item.path === '/dashboard' 
-                                ? location.pathname === '/dashboard' 
-                                : location.pathname.startsWith(item.path);
+                            const isActive = deferredPath === item.path || (item.path === '/dashboard' && deferredPath === '/dashboard');
                             const isOverview = deferredPath === '/dashboard' || isMobileMenuOpen;
                             
                             return (
                                 <motion.button
-                                    key={item.name}
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.1 + (idx * 0.05) }}
-                                    onClick={() => {
-                                        navigate(item.path);
-                                        setIsMobileMenuOpen(false);
-                                    }}
-                                    className="relative group/nav flex items-center h-16 pl-0 outline-none"
+                                    key={item.path}
+                                    onClick={() => navigate(item.path)}
+                                    className={`relative group/nav flex items-center h-12 rounded-2xl transition-all duration-300
+                                        ${isActive ? 'bg-black/[0.04] dark:bg-white/[0.06]' : 'hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}
+                                        ${!isOverview ? 'w-12' : 'w-full'}
+                                    `}
                                 >
-                                    {/* Spine Segments */}
-                                    <div className={`absolute left-[39px] top-0 h-[calc(50%-12px)] w-[2px] transition-colors duration-500 bg-slate-200 dark:bg-white/10`} />
-                                    <div className={`absolute left-[39px] bottom-0 h-[calc(50%-12px)] w-[2px] transition-colors duration-500 bg-slate-200 dark:bg-white/10
+                                    {/* Active Indicator Line */}
+                                    <div className={`absolute left-0 top-[calc(50%-12px)] w-[2px] transition-colors duration-500 bg-slate-200 dark:bg-white/10
                                         ${idx === navItems.length - 1 ? 'bg-gradient-to-b !from-current !to-transparent opacity-40' : ''}
                                     `} />
 
@@ -322,7 +252,7 @@ function Layout() {
 
                     <div className="relative flex items-center gap-4 group" ref={profileRef}>
                         <button
-                            onClick={() => setIsProfileOpen(!isProfileOpen)}
+                            onClick={() => setIsUserMenuOpen(true)}
                             className="size-10 rounded-full ring-2 ring-electric-blue/10 hover:ring-electric-blue/40 overflow-hidden transition-all active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0"
                         >
                             {user?.avatar?.url ? (
@@ -349,69 +279,6 @@ function Layout() {
                                         {user?.name?.split(' ')[0]}
                                     </span>
                                 </motion.div>
-                            )}
-                        </AnimatePresence>
-
-                        <AnimatePresence>
-                            {isProfileOpen && (
-                                <>
-                                    {/* Mobile Centered Modal Backdrop */}
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        onClick={() => setIsProfileOpen(false)}
-                                        className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[190]"
-                                    />
-                                    <motion.div
-                                        initial={{ opacity: 0, x: 10, scale: 0.95, y: 0 }}
-                                        animate={{
-                                            opacity: 1,
-                                            x: 0,
-                                            scale: 1,
-                                            y: 0,
-                                            left: (typeof window !== "undefined" && window.innerWidth < 768) ? "50%" : "100%",
-                                            top: (typeof window !== "undefined" && window.innerWidth < 768) ? "50%" : "auto",
-                                            bottom: (typeof window !== "undefined" && window.innerWidth < 768) ? "auto" : 0
-                                        }}
-                                        exit={{ opacity: 0, x: 10, scale: 0.95 }}
-                                        className="fixed md:absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:top-auto md:left-full md:translate-x-0 md:translate-y-0 md:bottom-0 ml-0 md:ml-4 w-[90vw] md:w-56 bg-white dark:bg-[#121212] rounded-[32px] md:rounded-2xl shadow-2xl border border-black/10 dark:border-white/10 p-4 md:p-2 z-[200] flex flex-col gap-1"
-                                    >
-                                    <div className="p-3 border-b border-black/[0.06] dark:border-white/[0.06] mb-1 flex items-center justify-between">
-                                        <div>
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-black/40 dark:text-white/40 mb-1">Authenticated As</p>
-                                            <p className="text-xs font-bold text-black dark:text-white">{user?.name}</p>
-                                        </div>
-                                        <button onClick={() => setIsProfileOpen(false)} className="md:hidden size-10 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white">
-                                            <span className="material-symbols-outlined text-2xl">close</span>
-                                        </button>
-                                    </div>
-                                    <button onClick={() => { setIsProfileOpen(false); navigate('/dashboard/profile'); }} className="w-full px-4 md:px-3 py-3 md:py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-[16px] md:rounded-xl transition-all flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-lg">person</span> Profile
-                                    </button>
-                                    {user?.email === 'ernestodesabillejr@gmail.com' && (
-                                        <button onClick={() => { setIsProfileOpen(false); navigate('/dashboard/admin'); }} className="w-full px-4 md:px-3 py-3 md:py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-[16px] md:rounded-xl transition-all flex items-center gap-3">
-                                            <span className="material-symbols-outlined text-lg">admin_panel_settings</span> Manage
-                                        </button>
-                                    )}
-                                    <button onClick={() => { setIsProfileOpen(false); setIsNotificationModalOpen(true); }} className="w-full px-4 md:px-3 py-3 md:py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-[16px] md:rounded-xl transition-all flex items-center gap-3 relative">
-                                        <span className="material-symbols-outlined text-lg">notifications</span> Notifications
-                                        {unreadCount > 0 && (
-                                            <span className="absolute left-6 top-2 size-2 bg-primary rounded-full border border-white dark:border-[#121212]" />
-                                        )}
-                                    </button>
-                                    <button onClick={() => { setIsProfileOpen(false); setIsSettingsModalOpen(true); }} className="w-full px-4 md:px-3 py-3 md:py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-[16px] md:rounded-xl transition-all flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-lg">settings</span> Settings
-                                    </button>
-                                    <div className="h-px bg-black/[0.06] dark:bg-white/[0.06] my-1" />
-                                    <button onClick={() => { setIsProfileOpen(false); setIsBugModalOpen(true); }} className="w-full px-4 md:px-3 py-3 md:py-2 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 rounded-[16px] md:rounded-xl transition-all flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-lg">bug_report</span> Bug Report
-                                    </button>
-                                    <button onClick={handleSignOut} className="w-full px-4 md:px-3 py-3 md:py-2 text-left text-[10px] font-bold uppercase tracking-widest text-signal-orange hover:bg-signal-orange/5 rounded-[16px] md:rounded-xl transition-all flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-lg">logout</span> Sign Out
-                                    </button>
-                                </motion.div>
-                                </>
                             )}
                         </AnimatePresence>
                     </div>
@@ -468,6 +335,17 @@ function Layout() {
                 />
             )}
             
+            <UserMenuModal
+                isOpen={isUserMenuOpen}
+                onClose={() => setIsUserMenuOpen(false)}
+                user={user}
+                unreadCount={unreadCount}
+                onOpenSettings={() => setIsSettingsModalOpen(true)}
+                onOpenNotifications={() => setIsNotificationModalOpen(true)}
+                onOpenBugReport={() => setIsBugModalOpen(true)}
+                onSignOut={handleSignOut}
+            />
+
             {isSettingsModalOpen && (
                 <SettingsModal 
                     isOpen={isSettingsModalOpen} 
