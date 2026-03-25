@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
   ChevronRight, 
   Activity, 
@@ -23,8 +23,6 @@ import Testimonials from "../components/landing/Testimonials";
 import CTA from "../components/landing/CTA";
 import ScrollIndicator from "../components/landing/ScrollIndicator";
 import Lenis from "lenis";
-
-import { useAssetStore } from "../store/useAssetStore";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
@@ -63,36 +61,8 @@ const TESTIMONIALS = [
 
 export default function Landing() {
   const { user } = useAuthStore();
-  const { isHeroLoaded, heroLoadingProgress } = useAssetStore();
   const containerRef = useRef(null);
   const [progress, setProgress] = useState(0);
-  const [showSplash, setShowSplash] = useState(true);
-  const [minDelayMet, setMinDelayMet] = useState(false);
-
-  // Splash Screen Lifecycle
-  useEffect(() => {
-    // Minimum 2 second timer to ensure opening animations look good
-    const timer = setTimeout(() => {
-        setMinDelayMet(true);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    // Only dismiss splash when both the minimum delay and assets are fully loaded
-    if (minDelayMet && isHeroLoaded) {
-      const exitTimer = setTimeout(() => {
-          setShowSplash(false);
-          document.body.style.overflow = '';
-      }, 500); // Soft fade-out delay
-      return () => clearTimeout(exitTimer);
-    } else {
-      document.body.style.overflow = 'hidden';
-    }
-  }, [minDelayMet, isHeroLoaded]);
-
-  // Navbar Visibility Logic (Always visible as requested)
-  const [navVisible] = useState(true);
 
   // GSAP Scrollytelling Timeline
   useEffect(() => {
@@ -229,54 +199,6 @@ export default function Landing() {
 
   return (
     <div ref={containerRef} className="relative bg-black text-white selection:bg-electric-blue/30 font-sans h-[1200vh]">
-
-      {/* Splash Screen Overlay */}
-      <AnimatePresence>
-        {showSplash && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-            className="fixed inset-0 z-[10000] bg-black flex flex-col items-center justify-center pointer-events-auto transition-colors duration-1000"
-          >
-            <div className="relative flex flex-col items-center">
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 1.5, ease: "easeOut" }}
-                className="flex items-center justify-center relative mb-8"
-              >
-                <div className="absolute inset-0 bg-electric-blue/20 blur-xl rounded-full size-24 transform translate-y-2"></div>
-                <div className="size-20 bg-white shadow-[0_0_40px_rgba(255,255,255,0.8)] transform rotate-45 relative z-10 flex items-center justify-center border border-white/40">
-                  <div className="size-10 bg-black shadow-[inset_0_0_20px_rgba(255,255,255,0.5)] transform -rotate-45" />
-                </div>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 1 }}
-                className="flex flex-col items-center gap-4"
-              >
-                <h1 className="text-xl md:text-2xl font-semibold tracking-[0.8em] text-white uppercase ml-[0.8em]">Produs</h1>
-                <div className="w-32 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                <span className="text-[12px] font-semibold uppercase tracking-[0.4em] text-white/70 animate-pulse">Initializing System</span>
-              </motion.div>
-            </div>
-            
-            <div className="absolute bottom-12 w-full flex justify-center">
-              <div className="w-48 h-[2px] bg-white/10 rounded-full overflow-hidden">
-                <motion.div 
-                  initial={{ width: "0%" }}
-                  animate={{ width: `${heroLoadingProgress}%` }}
-                  transition={{ duration: 0.5, ease: "easeOut" }}
-                  className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]"
-                />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Dynamic Cursor Background */}
       <div

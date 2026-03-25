@@ -25,11 +25,13 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 )
 
-// Hide initial loader once React is ready
+// Hide initial loader once React is ready and cinematic animation finishes
+// The CSS animation for the progress bar is 3.5s, so we wait at least that long
 setTimeout(() => {
   const loader = document.getElementById('initial-loader');
   if (loader) {
     loader.classList.add('fade-out');
-    setTimeout(() => loader.remove(), 800);
+    // Allow time for the 1.2s opacity transition to complete
+    setTimeout(() => loader.remove(), 1200);
   }
-}, 500);
+}, 3800);
