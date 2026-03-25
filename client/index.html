@@ -1,19 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
 
 <head>
   <meta charset="UTF-8" />
-  <!-- Apply system dark/light theme before first paint to avoid flash -->
-  <script>
-    (function () {
-      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (prefersDark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    })();
-  </script>
+
   <link rel="icon" type="image/png" href="/produs-logo.png" />
   <link rel="apple-touch-icon" href="/produs-logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -68,35 +58,6 @@
       justify-content: center;
       z-index: 99999;
       transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s;
-    }
-
-    /* Support light mode if OS prefers */
-    @media (prefers-color-scheme: light) {
-      .initial-loader {
-        background: #f8f8f8;
-      }
-      .logo-inner {
-        background: #fff !important;
-        box-shadow: inset 0 0 20px rgba(0,0,0,0.1) !important;
-      }
-      .loader-logo {
-        background: #000 !important;
-        box-shadow: 0 0 40px rgba(0,0,0,0.2) !important;
-        border-color: rgba(0,0,0,0.4) !important;
-      }
-      .loader-title, .loader-text {
-        color: #000 !important;
-      }
-      .loader-line {
-        background: linear-gradient(to right, transparent, rgba(0,0,0,0.6), transparent) !important;
-      }
-      .loader-progress-container {
-        background: rgba(0, 0, 0, 0.1) !important;
-      }
-      .loader-progress-bar {
-        background: #000 !important;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
-      }
     }
 
     .loader-content {

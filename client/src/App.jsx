@@ -75,6 +75,16 @@ import api from './services/api';
 const fetcher = url => api.get(url).then(res => res.data);
 
 function App() {
+  const user = useAuthStore((state) => state.user);
+
+  useEffect(() => {
+    // Hide the initial loader once auth state is settled.
+    // We give it a small extra buffer to ensure the first mount is stable.
+    if (typeof window.hideInitialLoader === 'function') {
+      window.hideInitialLoader();
+    }
+  }, []);
+
   const setOnline = useConnectivityStore((state) => state.setOnline);
   const setIsSyncing = useConnectivityStore((state) => state.setIsSyncing);
   const offlineQueue = useConnectivityStore((state) => state.offlineQueue);
