@@ -124,8 +124,10 @@ function Layout() {
     useEffect(() => {
         if (user && !user.onboardingCompleted) {
             setIsOnboardingOpen(true);
+        } else {
+            setIsOnboardingOpen(false);
         }
-    }, [user]);
+    }, [user?.onboardingCompleted]);
 
     const handleSignOut = async () => {
         setIsUserMenuOpen(false);
@@ -148,76 +150,71 @@ function Layout() {
             {/* Mobile Top Bar */}
             <div className={`md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-6 z-[130] transition-all duration-300 ${isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
                 <div
-                    className="flex items-center gap-4 group cursor-pointer relative"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    onClick={() => setIsMobileMenuOpen(true)}
+                    className="flex items-center gap-3 cursor-pointer group"
                 >
-                    <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue ${isMobileMenuOpen ? 'rotate-0 scale-110 bg-electric-blue' : ''}`} />
-                    <span className="font-bold text-[11px] uppercase tracking-[0.8em] text-black dark:text-white">
-                        Produs
-                    </span>
+                    <div className="size-9 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shadow-lg shadow-black/10 transition-transform active:scale-90 overflow-hidden">
+                        {user?.avatar?.url ? (
+                            <img src={user.avatar.url} alt="Logo" className="w-full h-full object-cover" />
+                        ) : (
+                            <span className="material-symbols-outlined text-xl">rocket_launch</span>
+                        )}
+                    </div>
+                    <span className="text-xs font-black uppercase tracking-[0.4em] text-black dark:text-white group-active:opacity-40 transition-opacity">Produs</span>
                 </div>
             </div>
 
-            {/* Sidebar Backdrop Mobile */}
-            <AnimatePresence>
-                {isMobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-md z-[140]"
-                    />
-                )}
-            </AnimatePresence>
-
-            {/* Main Side Navigation */}
-            <aside 
-                className={`
-                    fixed md:relative z-[150] h-full flex flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1]
-                    ${isMobileMenuOpen ? 'translate-x-0 w-72 bg-[#f8f8f8]/90 dark:bg-[#050505]/90 backdrop-blur-xl border-r border-black/[0.08] dark:border-white/10' : '-translate-x-full md:translate-x-0'}
-                    ${!isMobileMenuOpen && (deferredPath === '/dashboard' ? 'md:w-72 border-r border-black/[0.08] dark:border-white/10' : 'md:w-20')}
+            {/* Sidebar / Navigation (Universal) */}
+            <aside
+                className={`fixed inset-y-0 left-0 z-[150] w-72 md:w-20 md:hover:w-72 bg-white/80 dark:bg-black/60 backdrop-blur-2xl border-r border-black/[0.06] dark:border-white/10 flex flex-col transition-all duration-700 ease-[0.16,1,0.3,1] group/nav overflow-hidden
+                    ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                 `}
             >
-                {/* 1. Sidebar Header: Logo */}
-                <div className="h-24 flex items-center px-6 shrink-0">
-                    <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => navigate('/dashboard')}>
-                        <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0 ${isMobileMenuOpen ? 'rotate-0' : ''}`} />
-                        <div className={`flex flex-col overflow-hidden transition-all duration-500 ease-in-out
-                            ${(deferredPath === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0'}
-                        `}>
-                            <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-black dark:text-white">Produs</span>
-                            <span className="text-[8px] font-bold text-electric-blue uppercase tracking-widest mt-1.5 opacity-60">System Core</span>
+                {/* 1. Sidebar Header: Identity */}
+                <div className="p-4 md:p-6 flex flex-col gap-6">
+                    <div
+                        className={`flex items-center gap-4 transition-all duration-500 overflow-hidden
+                            ${deferredPath === '/dashboard' || isMobileMenuOpen ? 'pl-2 opacity-100' : 'pl-0 md:opacity-0 md:group-hover/nav:opacity-100 md:group-hover/nav:pl-2'}
+                        `}
+                    >
+                        <div className="size-10 rounded-2xl bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shrink-0 shadow-2xl shadow-black/20">
+                            <span className="material-symbols-outlined text-xl font-light">rocket_launch</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[11px] font-black uppercase tracking-[0.4em] leading-none">Produs</span>
+                            <span className="text-[9px] font-medium text-black/40 dark:text-white/40 uppercase tracking-[0.1em] mt-1">Intelligence OS</span>
                         </div>
                     </div>
-                </div>
 
-                {/* 2. Primary Navigation */}
-                <div className="flex-1 px-4 py-8">
-                    <div className="flex flex-col gap-1.5">
-                        {navItems.map((item, idx) => {
-                            const isActive = deferredPath === item.path || (item.path === '/dashboard' && deferredPath === '/dashboard');
+                    {/* Navigation Items */}
+                    <div className="flex flex-col gap-2">
+                        {navItems.map((item) => {
+                            const isActive = location.pathname === item.path;
                             const isOverview = deferredPath === '/dashboard' || isMobileMenuOpen;
                             
                             return (
                                 <motion.button
                                     key={item.path}
                                     onClick={() => navigate(item.path)}
-                                    className={`relative group/nav flex items-center h-12 rounded-2xl transition-all duration-300
-                                        ${isActive ? 'bg-black/[0.04] dark:bg-white/[0.06]' : 'hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}
-                                        ${!isOverview ? 'w-12' : 'w-full'}
-                                    `}
+                                    className="relative flex items-center h-12 w-full group/item"
+                                    whileHover={{ x: 4 }}
+                                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                                 >
-                                    {/* Active Indicator Line */}
-                                    <div className={`absolute left-0 top-[calc(50%-12px)] w-[2px] transition-colors duration-500 bg-slate-200 dark:bg-white/10
-                                        ${idx === navItems.length - 1 ? 'bg-gradient-to-b !from-current !to-transparent opacity-40' : ''}
-                                    `} />
+                                    {/* Active Indicator */}
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="active-pill"
+                                            className="absolute left-0 w-1 h-6 bg-electric-blue rounded-full z-20"
+                                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                        />
+                                    )}
 
-                                    {/* Icon Node */}
-                                    <div className="relative flex items-center w-full h-full">
-                                        <div className="absolute left-[31px] flex items-center justify-center size-[18px] z-50">
-                                            <div className={`absolute inset-[-8px] rounded-full transition-all duration-500 
-                                                ${isActive ? 'bg-electric-blue/20 ring-1 ring-electric-blue/30 scale-110 shadow-[0_0_15px_rgba(0,183,255,0.2)]' : 'bg-electric-blue/0 group-hover/nav:bg-electric-blue/10'}
+                                    <div className="flex items-center w-full px-4 relative">
+                                        <div className={`size-10 rounded-xl flex items-center justify-center transition-all duration-500 relative
+                                            ${isActive ? 'bg-electric-blue/10' : 'bg-transparent group-hover/nav:bg-black/5 dark:group-hover/nav:bg-white/5'}
+                                        `}>
+                                            <div className={`absolute inset-0 rounded-xl transition-all duration-500
+                                           ${isActive ? 'bg-electric-blue/20 ring-1 ring-electric-blue/30 scale-110 shadow-[0_0_15px_rgba(0,183,255,0.2)]' : 'bg-electric-blue/0 group-hover/nav:bg-electric-blue/10'}
                                             `} />
                                             <span className={`material-symbols-outlined text-[19px] transition-all duration-500 relative z-10 
                                                 ${isActive ? 'text-electric-blue scale-110' : 'text-slate-400 group-hover/nav:text-electric-blue group-hover/nav:scale-110'}
@@ -228,12 +225,12 @@ function Layout() {
 
                                         {/* Labels */}
                                         <div className={`flex items-center absolute left-0 w-max pointer-events-none transition-all duration-[400ms] ease-[0.16,1,0.3,1]
-                                            ${isOverview ? 'relative pl-14 md:pl-16 opacity-100 translate-x-0' : 'pl-16 opacity-0 -translate-x-12 group-hover/nav:opacity-100 group-hover/nav:translate-x-[-10px] group-hover/nav:pl-14 group-hover/nav:pointer-events-auto'}
+                                            ${isOverview ? 'relative pl-14 md:pl-16 opacity-100 translate-x-0' : 'pl-16 opacity-0 -translate-x-12 md:group-hover/nav:opacity-100 md:group-hover/nav:translate-x-[-10px] md:group-hover/nav:pl-14 md:group-hover/nav:pointer-events-auto'}
                                         `}>
                                             <div className="flex items-center gap-4">
-                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${isOverview ? 'w-4' : 'w-0 group-hover/nav:w-4'}`} />
+                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${isOverview ? 'w-4' : 'w-0 md:group-hover/nav:w-4'}`} />
                                                 <span className={`text-[10px] font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300
-                                                    ${isActive ? 'text-black dark:text-white' : 'text-slate-500 dark:text-slate-400 group-hover/nav:text-black dark:group-hover:text-white'}
+                                                    ${isActive ? 'text-black dark:text-white' : 'text-slate-500 dark:text-slate-400 md:group-hover/nav:text-black md:dark:group-hover:text-white'}
                                                 `}>
                                                     {item.name}
                                                 </span>
@@ -309,7 +306,18 @@ function Layout() {
                 </div>
             </div>
 
-            {/* Notification Portal Removed */}
+            {/* Mobile Sidebar Close Overlay */}
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="md:hidden fixed inset-0 z-[140] bg-black/20 backdrop-blur-sm"
+                    />
+                )}
+            </AnimatePresence>
 
             <AnimatePresence>
                 {isSearchModalOpen && (

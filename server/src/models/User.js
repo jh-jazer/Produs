@@ -75,6 +75,11 @@ const userSchema = new mongoose.Schema({
             start: { type: String, default: "22:00" },
             end: { type: String, default: "07:00" }
         },
+        themeMode: {
+            type: String,
+            enum: ["light", "dark", "system"],
+            default: "light"
+        },
         darkMode: {
             type: Boolean,
             default: false
