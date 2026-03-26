@@ -134,7 +134,7 @@ function Layout() {
                 <div className="h-24 flex items-center px-6 shrink-0">
                     <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => navigate('/dashboard')}>
                         <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0 ${isMobileMenuOpen ? 'rotate-0' : ''}`} />
-                        <div className={`flex flex-col overflow-hidden transition-all duration-500 ease-in-out
+                        <div className={`hidden md:flex flex-col overflow-hidden transition-all duration-500 ease-in-out
                             ${(deferredPath === '/dashboard') ? 'opacity-100 w-auto' : 'opacity-0 w-0'}
                         `}>
                             <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-black dark:text-white">Produs</span>
@@ -178,7 +178,7 @@ function Layout() {
                                         </div>
 
                                         {/* Labels */}
-                                        <div className={`flex items-center absolute left-0 w-max pointer-events-none transition-all duration-[400ms] ease-[0.16,1,0.3,1]
+                                        <div className={`hidden md:flex items-center absolute left-0 w-max pointer-events-none transition-all duration-[400ms] ease-[0.16,1,0.3,1]
                                             ${isOverview ? 'relative pl-14 md:pl-16 opacity-100 translate-x-0' : 'pl-16 opacity-0 -translate-x-12 group-hover/nav:opacity-100 group-hover/nav:translate-x-[-10px] group-hover/nav:pl-14 group-hover/nav:pointer-events-auto'}
                                         `}>
                                             <div className="flex items-center gap-4">
@@ -222,7 +222,7 @@ function Layout() {
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -10 }}
                                     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                    className="flex flex-col whitespace-nowrap"
+                                    className="hidden md:flex flex-col whitespace-nowrap"
                                 >
                                     <span className="text-[10px] font-black uppercase tracking-[0.1em] text-black/40 dark:text-white/40 leading-none">
                                         {new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 18 ? 'Good Afternoon' : 'Good Evening'}
