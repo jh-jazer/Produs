@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import api from '../../services/api';
 
 const PRESET_CATEGORIES = [
     'Food', 'Rent', 'Transport', 'Utilities', 'Health', 'Shopping',
