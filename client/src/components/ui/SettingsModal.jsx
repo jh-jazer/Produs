@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import useAuthStore from '../../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
+import useAuthStore from '../../store/useAuthStore';
+import SyncService from '../../services/SyncService';
+
 const SettingsModal = ({ isOpen, onClose }) => {
     const { user, updateSettings, deleteAccount } = useAuthStore();
     const navigate = useNavigate();
-    const [localSettings, setLocalSettings] = useState(user?.settings || { darkMode: false, notificationsEnabled: false, theme: 'classic' });
+    const [localSettings, setLocalSettings] = useState(user?.settings || { darkMode: false, notificationsEnabled: false, theme: 'classic', themeMode: 'light' });
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteWord, setDeleteWord] = useState('');
@@ -63,15 +65,37 @@ const SettingsModal = ({ isOpen, onClose }) => {
         }
     };
 
+    const handleThemeModeChange = async (mode) => {
+        const updatedLocal = { ...localSettings, themeMode: mode };
+        setLocalSettings(updatedLocal);
+
+        if (mode === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else if (mode === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            // System
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        try {
+            await updateSettings({ themeMode: mode });
+        } catch (err) {
+            console.error('Failed to sync theme mode:', err);
+        }
+    };
+
     const handleThemeChange = async (themeId) => {
         const updatedLocal = { ...localSettings, theme: themeId };
         setLocalSettings(updatedLocal);
 
-        // Apply theme color to --primary
         const theme = themes.find(t => t.id === themeId);
         if (theme) {
             document.documentElement.style.setProperty('--primary', theme.color);
-            // Also store in data-theme attribute
             document.documentElement.setAttribute('data-theme', themeId);
         }
 
@@ -125,22 +149,18 @@ const SettingsModal = ({ isOpen, onClose }) => {
                         <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
                             {/* General */}
                             <div className="space-y-4">
-                                <h4 className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] px-1">General</h4>
+                                <h4 className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] px-1">Appearance</h4>
 
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.03] dark:bg-[#000000]/40 border border-black/[0.05] dark:border-white/10">
-                                    <div className="flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-electric-blue">dark_mode</span>
-                                        <span className="text-xs font-semibold text-black/70 dark:text-white/70">Dark Mode</span>
-                                    </div>
-                                    <button
-                                        onClick={() => handleToggle('darkMode')}
-                                        className={`w-10 h-5 rounded-full transition-all relative flex items-center ${localSettings.darkMode ? 'bg-electric-blue' : 'bg-black/10 dark:bg-white/10'}`}
-                                    >
-                                        <motion.div
-                                            animate={{ x: localSettings.darkMode ? 22 : 3 }}
-                                            className="absolute size-3.5 bg-white rounded-full shadow-sm"
-                                        />
-                                    </button>
+                                <div className="grid grid-cols-3 gap-2 p-1 bg-black/[0.03] dark:bg-[#000000]/40 border border-black/[0.05] dark:border-white/10 rounded-2xl">
+                                    {['light', 'dark', 'system'].map((mode) => (
+                                        <button
+                                            key={mode}
+                                            onClick={() => handleThemeModeChange(mode)}
+                                            className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${localSettings.themeMode === mode ? 'bg-white dark:bg-[#121212] text-electric-blue shadow-sm ring-1 ring-black/[0.05] dark:ring-white/10' : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'}`}
+                                        >
+                                            {mode}
+                                        </button>
+                                    ))}
                                 </div>
 
                                 <div className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.03] dark:bg-[#000000]/40 border border-black/[0.05] dark:border-white/10">
@@ -184,7 +204,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
                             {/* Theme Selection */}
                             <div className="space-y-4">
-                                <h4 className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] px-1">Theme</h4>
+                                <h4 className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] px-1">Accent Theme</h4>
                                 <div className="grid grid-cols-5 gap-3">
                                     {themes.map((t) => (
                                         <button
@@ -207,72 +227,18 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                 </div>
                             </div>
 
-                            {/* System Area */}
+                            {/* System Status */}
                             <div className="space-y-4">
-                                <h4 className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] px-1">System</h4>
-
-                                <div className="flex items-center justify-between p-4 rounded-2xl border border-black/[0.05] dark:border-white/10 bg-black/[0.03] dark:bg-[#000000]/40">
-                                    <div className="flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-black/30 dark:text-white/30">dns</span>
-                                        <span className="text-xs font-semibold text-black/70 dark:text-white/70">API Status</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {apiStatus === 'checking' && <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-black/30 dark:text-white/30">Checking...</span>}
-                                        {apiStatus === 'online' && (
-                                            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                                                <span className="text-[9px] font-semibold uppercase tracking-[0.2em]">Online</span>
-                                            </div>
-                                        )}
-                                        {apiStatus === 'offline' && (
-                                            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-                                                <span className="text-[9px] font-semibold uppercase tracking-[0.2em]">Offline</span>
-                                            </div>
-                                        )}
-                                        <button onClick={checkApiStatus} className="size-7 flex items-center justify-center hover:bg-black/[0.05] dark:hover:bg-white/[0.05] rounded-xl transition-colors cursor-pointer" title="Refresh Status">
-                                            <span className="material-symbols-outlined text-lg text-black/30 dark:text-white/30">refresh</span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Sync Status Row */}
-                                <div className="p-4 rounded-2xl border border-black/[0.05] dark:border-white/10 bg-black/[0.03] dark:bg-[#000000]/40 space-y-3">
+                                <h4 className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] px-1">Cloud Sync</h4>
+                                <div className="p-4 rounded-2xl bg-black/[0.03] dark:bg-[#000000]/40 border border-black/[0.05] dark:border-white/10 space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <span className="material-symbols-outlined text-black/30 dark:text-white/30">sync</span>
-                                            <div>
-                                                <span className="text-xs font-semibold text-black/70 dark:text-white/70 block">Data Sync</span>
-                                                <span className="text-[9px] text-black/40 dark:text-white/40 uppercase tracking-wider font-semibold">
-                                                    {syncInfo.lastSyncedAt
-                                                        ? `Synced ${syncInfo.lastSyncedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                                                        : 'Pending Sync'}
-                                                </span>
-                                            </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className={`size-2 rounded-full ${apiStatus === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-black/60 dark:text-white/60">
+                                                {apiStatus === 'online' ? 'Systems Online' : 'Connecting...'}
+                                            </span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            {syncInfo.syncStatus === 'syncing' && (
-                                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-electric-blue/10 border border-electric-blue/20 text-electric-blue">
-                                                    <motion.span
-                                                        animate={{ rotate: 360 }}
-                                                        transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                                                        className="material-symbols-outlined text-sm"
-                                                    >sync</motion.span>
-                                                    <span className="text-[9px] font-semibold uppercase tracking-[0.2em]">Syncing…</span>
-                                                </div>
-                                            )}
-                                            {syncInfo.syncStatus === 'success' && (
-                                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
-                                                    <span className="material-symbols-outlined text-sm">check_circle</span>
-                                                    <span className="text-[9px] font-semibold uppercase tracking-[0.2em]">Synced</span>
-                                                </div>
-                                            )}
-                                            {syncInfo.syncStatus === 'error' && (
-                                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500">
-                                                    <span className="material-symbols-outlined text-sm">error</span>
-                                                    <span className="text-[9px] font-semibold uppercase tracking-[0.2em]">Failed</span>
-                                                </div>
-                                            )}
                                             {syncInfo.syncStatus === 'idle' && (
                                                 <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-black/[0.05] dark:bg-[#000000] border border-black/[0.08] dark:border-white/10 text-black/30 dark:text-white/30">
                                                     <span className="material-symbols-outlined text-sm">cloud_done</span>

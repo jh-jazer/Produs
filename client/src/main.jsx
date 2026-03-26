@@ -25,11 +25,15 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 )
 
-// Hide initial loader once React is ready
-setTimeout(() => {
+
+// Global function to hide initial loader, allowing synchronization with React state/auth
+window.hideInitialLoader = () => {
   const loader = document.getElementById('initial-loader');
-  if (loader) {
+  if (loader && !loader.classList.contains('fade-out')) {
+    // The CSS animation for the progress bar is 3.5s
+    // If this is called before 3.5s, we might want to wait,
+    // but typically we want it to stay until auth is ready.
     loader.classList.add('fade-out');
-    setTimeout(() => loader.remove(), 800);
+    setTimeout(() => loader.remove(), 1200);
   }
-}, 500);
+};

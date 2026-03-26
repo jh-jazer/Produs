@@ -431,6 +431,11 @@ export const completeOnboarding = async (req, res) => {
             user.onboardingCompleted = true;
             user.timezone = req.body.timezone || user.timezone;
             user.currency = req.body.currency || user.currency;
+
+            if (req.body.themeMode) {
+                user.settings.themeMode = req.body.themeMode;
+                user.settings.darkMode = req.body.themeMode === "dark";
+            }
             
             if (Array.isArray(req.body.subscriptions) && req.body.subscriptions.length > 0) {
                 user.settings.subscriptions = req.body.subscriptions;
@@ -438,7 +443,10 @@ export const completeOnboarding = async (req, res) => {
                 // Legacy single-subscription fallback
                 user.settings.subscriptions = [req.body.subscription];
             }
-            user.markModified('settings');
+            if (req.body.themeMode) {
+                    user.settings.darkMode = req.body.themeMode === "dark";
+                }
+                user.markModified('settings');
             
             await user.save();
 
@@ -494,7 +502,10 @@ export const updateSubscriptions = async (req, res) => {
         }
 
         user.settings.subscriptions = req.body.subscriptions;
-        user.markModified('settings');
+        if (req.body.themeMode) {
+                    user.settings.darkMode = req.body.themeMode === "dark";
+                }
+                user.markModified('settings');
         await user.save();
 
         res.json({ subscriptions: user.settings.subscriptions });
@@ -536,6 +547,9 @@ export const updateSettings = async (req, res) => {
                         user.settings[key] = req.body[key];
                     }
                 });
+                if (req.body.themeMode) {
+                    user.settings.darkMode = req.body.themeMode === "dark";
+                }
                 user.markModified('settings');
             }
 

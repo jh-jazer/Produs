@@ -75,6 +75,66 @@ import api from './services/api';
 const fetcher = url => api.get(url).then(res => res.data);
 
 function App() {
+  const user = useAuthStore((state) => state.user);
+
+  useEffect(() => {
+    // Hide the initial loader once auth state is settled.
+    // We give it a small extra buffer to ensure the first mount is stable.
+    if (typeof window.hideInitialLoader === 'function') {
+      window.hideInitialLoader();
+    }
+  }, []);
+
+  const setOnline = useConnectivityStore((state) => state.setOnline);
+  const setIsSyncing = useConnectivityStore((state) => state.setIsSyncing);
+  const offlineQueue = useConnectivityStore((state) => state.offlineQueue);
+  const removeFromQueue = useConnectivityStore((state) => state.removeFromQueue);
+
+  const processQueue = async () => {
+    if (offlineQueue.length === 0) return;
+    
+    setIsSyncing(true);
+    // Process one by one to maintain order
+    for (const item of offlineQueue) {
+      try {
+        if (item.method === 'POST') {
+          await api.post(item.url, item.data);
+        } else if (item.method === 'DELETE') {
+          await api.delete(item.url);
+        } else if (item.method === 'PATCH') {
+          await api.patch(item.url, item.data);
+        }
+        removeFromQueue(item.id);
+      } catch (error) {
+        console.error('Failed to sync offline item:', item, error);
+        // If it's a permanent error (e.g. 400), we might want to remove it anyway
+        // For now, let's just log and continue to next
+      }
+    }
+    setIsSyncing(false);
+  };
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setOnline(true);
+      processQueue();
+    };
+    const handleOffline = () => setOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Also try to process queue on mount if online
+    if (navigator.onLine) {
+      processQueue();
+    }
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [setOnline, setIsSyncing, offlineQueue.length]); // Re-run if queue length changes while online
+
   return (
     <SWRConfig value={{ fetcher }}>
       <BrowserRouter>

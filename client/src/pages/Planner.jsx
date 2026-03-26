@@ -21,7 +21,7 @@ const Planner = () => {
         isLoading
     } = usePlannerLocal(selectedDate);
 
-    const [activeTab, setActiveTab] = React.useState('planner');
+    const [activeTab, setActiveTab] = React.useState('priority');
 
     // Force 'me' view if offline
     useEffect(() => {
@@ -32,8 +32,8 @@ const Planner = () => {
 
 
     const tabs = [
-        { id: 'planner', label: 'Planner', icon: 'event_note' },
-        { id: 'schedule', label: 'Schedule', icon: 'schedule' },
+        { id: 'priority', label: 'Priority', icon: 'stars' },
+        { id: 'planner', label: 'Planner', icon: 'schedule' },
         { id: 'calendar', label: 'Calendar', icon: 'calendar_today' },
         { id: 'goals', label: 'Goals', icon: 'flag' },
     ];
@@ -50,7 +50,7 @@ const Planner = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
                 {/* Main Column */}
-                <div className={`lg:col-span-4 flex flex-col gap-6 ${activeTab !== 'schedule' && activeTab !== 'calendar' && activeTab !== 'goals' ? 'hidden lg:flex' : ''}`}>
+                <div className={`lg:col-span-4 flex flex-col gap-6 ${activeTab !== 'priority' && activeTab !== 'planner' && activeTab !== 'calendar' && activeTab !== 'goals' ? 'hidden lg:flex' : ''}`}>
                     
                     {/* Header - Hidden on Mobile */}
                     <div className="hidden lg:flex flex-col gap-1 px-1">
@@ -88,8 +88,26 @@ const Planner = () => {
                         <FullCalendar onDateSelect={setSelectedDate} selectedDate={selectedDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
                     </div>
 
-                    {/* Priority / Daily Schedule (Schedule Tab) */}
-                    <div className={`relative w-full ${activeTab === 'schedule' ? 'block' : 'hidden lg:block'}`} style={{ perspective: '2000px' }}>
+                    {/* Priority (Mobile Priority Tab) */}
+                    <div className={`relative w-full ${activeTab === 'priority' ? 'block' : 'hidden'} lg:hidden`}>
+                        <Priority
+                            viewMode={viewMode}
+                            isReadOnly={viewMode === 'partner'}
+                            onFlip={() => {}} // Disabled on mobile
+                        />
+                    </div>
+
+                    {/* Daily Schedule (Mobile Planner Tab) */}
+                    <div className={`relative w-full ${activeTab === 'planner' ? 'block' : 'hidden'} lg:hidden`}>
+                        <DailySchedule
+                            viewMode={viewMode}
+                            isReadOnly={viewMode === 'partner'}
+                            onFlip={() => {}} // Disabled on mobile
+                        />
+                    </div>
+
+                    {/* Desktop Priority / Daily Schedule Flip Card */}
+                    <div className={`relative w-full hidden lg:block`} style={{ perspective: '2000px' }}>
                         <motion.div
                             animate={{ rotateY: isFlipped ? 180 : 0 }}
                             transition={{ duration: 0.7, type: 'spring', stiffness: 100, damping: 20 }}
