@@ -3,8 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import SyncService from '../../services/SyncService';
-
 const SettingsModal = ({ isOpen, onClose }) => {
     const { user, updateSettings, deleteAccount } = useAuthStore();
     const navigate = useNavigate();
@@ -13,7 +11,6 @@ const SettingsModal = ({ isOpen, onClose }) => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteWord, setDeleteWord] = useState('');
     const [apiStatus, setApiStatus] = useState('checking');
-    const [syncInfo, setSyncInfo] = useState(() => SyncService.getSyncStatus());
 
     const themes = [
         { id: 'classic', name: 'Classic Blue', color: '#135bec' },
@@ -22,23 +19,6 @@ const SettingsModal = ({ isOpen, onClose }) => {
         { id: 'amber', name: 'Sunset Amber', color: '#f59e0b' },
         { id: 'midnight', name: 'Midnight', color: '#6366f1' },
     ];
-
-    useEffect(() => {
-        const unsub = SyncService.subscribe(setSyncInfo);
-        return unsub;
-    }, []);
-
-    useEffect(() => {
-        if (isOpen) {
-            checkApiStatus();
-        }
-    }, [isOpen]);
-
-    const handleForceSync = () => {
-        if (user?._id) {
-            SyncService.syncAll(user._id);
-        }
-    };
 
     const checkApiStatus = async () => {
         setApiStatus('checking');
@@ -49,6 +29,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
             setApiStatus('offline');
         }
     };
+
+    useEffect(() => {
+        if (isOpen) {
+            checkApiStatus();
+        }
+    }, [isOpen]);
 
     useEffect(() => {
         if (user?.settings) {

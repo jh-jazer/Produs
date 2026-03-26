@@ -12,69 +12,26 @@ import UserSearch from './ui/UserSearch';
 import BugReportModal from './ui/BugReportModal';
 import NotificationModal from './ui/NotificationModal';
 import useConnectivityStore from '../store/useConnectivityStore';
-import SyncService from '../services/SyncService';
 
 export const DashboardContext = React.createContext();
 
-// Compact header pill showing sync status + connectivity (Icon only)
-function SyncStatusPill({ isOnline, userId, isOverview }) {
-    const [syncInfo, setSyncInfo] = React.useState(() => SyncService.getSyncStatus());
-
-    React.useEffect(() => {
-        const unsub = SyncService.subscribe(setSyncInfo);
-        return unsub;
-    }, []);
-
-    const handleForceSync = () => {
-        if (userId) SyncService.syncAll(userId);
-    };
-
-    const statusColor = !isOnline
-        ? 'text-signal-orange bg-signal-orange/10 border-signal-orange/20'
-        : syncInfo.syncStatus === 'error'
-            ? 'text-rose-500 bg-rose-500/10 border-rose-500/20'
-            : syncInfo.syncStatus === 'syncing'
-                ? 'text-electric-blue bg-electric-blue/10 border-electric-blue/20'
-                : 'text-black/50 dark:text-white/40 bg-black/[0.04] dark:bg-white/[0.04] border-black/[0.07] dark:border-white/10';
-
-    const statusIcon = !isOnline ? 'cloud_off'
-        : syncInfo.syncStatus === 'error' ? 'sync_problem'
-            : syncInfo.syncStatus === 'syncing' ? 'sync'
-                : 'cloud_done';
-
-    const statusText = !isOnline ? 'Offline'
-        : syncInfo.syncStatus === 'syncing' ? 'Syncing'
-            : 'Synced';
-
-    const title = !isOnline ? 'Offline — changes will sync when reconnected'
-        : syncInfo.syncStatus === 'syncing' ? 'Syncing…'
-            : syncInfo.syncStatus === 'error' ? 'Sync failed — click to retry'
-                : syncInfo.lastSyncedAt
-                    ? `Synced at ${syncInfo.lastSyncedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                    : 'Click to sync';
-
+// Simple connectivity indicator
+function ConnectivityIndicator({ isOnline, isOverview }) {
     return (
-        <button
-            onClick={handleForceSync}
-            title={title}
-            className={`flex items-center gap-3 size-10 rounded-xl border transition-all duration-700 hover:opacity-80 active:scale-95 ${statusColor} 
-                ${isOverview ? 'w-auto px-4' : 'w-10 px-0 justify-center'}
-            `}
-        >
-            <motion.span
-                animate={syncInfo.isSyncing ? { rotate: 360 } : { rotate: 0 }}
-                transition={syncInfo.isSyncing ? { repeat: Infinity, duration: 1, ease: 'linear' } : {}}
-                className="material-symbols-outlined text-[18px]"
-            >
-                {statusIcon}
-            </motion.span>
-            
+        <div className={`flex items-center gap-3 size-10 rounded-xl border transition-all duration-700 ${
+            isOnline 
+            ? 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' 
+            : 'text-rose-500 bg-rose-500/10 border-rose-500/20'
+        } ${isOverview ? 'w-auto px-4' : 'w-10 px-0 justify-center'}`}>
+            <span className="material-symbols-outlined text-[18px]">
+                {isOnline ? 'cloud_done' : 'cloud_off'}
+            </span>
             {isOverview && (
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap animate-in fade-in duration-1000">
-                    {statusText}
+                <span className="text-[10px] font-black uppercase tracking-[0.2em]">
+                    {isOnline ? 'Online' : 'Offline'}
                 </span>
             )}
-        </button>
+        </div>
     );
 }
 
@@ -148,13 +105,6 @@ function Layout() {
         window.addEventListener('user-selected', handleUserSelected);
         return () => window.removeEventListener('user-selected', handleUserSelected);
     }, []);
-
-    // Perform data synchronization for offline-first architecture
-    useEffect(() => {
-        if (user?._id && isOnline) {
-            SyncService.syncAll(user._id);
-        }
-    }, [user?._id, isOnline]);
 
 
     useSWR('/auth/me', {
@@ -270,7 +220,7 @@ function Layout() {
 
                 {/* 3. Sidebar Footer: System Actions */}
                 <div className="mt-auto p-4 md:p-6 flex flex-col items-start pl-[20px] gap-5 border-t border-black/[0.06] dark:border-white/10">
-                    <SyncStatusPill isOnline={isOnline} userId={user?._id} isOverview={deferredPath === '/dashboard'} />
+                    <ConnectivityIndicator isOnline={isOnline} isOverview={deferredPath === '/dashboard'} />
 
                     <div className="relative flex items-center gap-4 group" ref={profileRef}>
                         <button

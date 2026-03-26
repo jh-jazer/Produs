@@ -1,6 +1,5 @@
-import { useLiveQuery } from 'dexie-react-hooks';
-import db from '../db/db';
-import SyncService from '../services/SyncService';
+import useSWR, { useSWRConfig } from 'swr';
+import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 
 /**
@@ -45,88 +44,59 @@ const calculateStreak = (checks) => {
 export const useHabitsLocal = () => {
     const { user } = useAuthStore();
     const userId = user?._id;
+    const { mutate } = useSWRConfig();
 
-    const habits = useLiveQuery(
-        async () => {
-            if (!userId) return [];
-            return await db.habits
-                .where('userId')
-                .equals(userId)
-                .sortBy('order');
-        },
-        [userId]
-    );
+    const fetcher = url => api.get(url).then(res => res.data);
+    const { data: habits, error, isLoading } = useSWR(userId ? '/habits' : null, fetcher);
 
     const addHabit = async (habitData) => {
         if (!userId) return;
-
-        const newHabit = {
-            _id: `local-${Date.now()}`,
-            userId,
-            ...habitData,
-            streak: 0,
-            checks: [],
-            isPending: true,
-            order: (habits?.length || 0)
-        };
-
-        await db.habits.add(newHabit);
-        await SyncService.updateFeatureData('habits', userId, newHabit._id, 'set', newHabit);
+        try {
+            await api.post('/habits', habitData);
+            mutate('/habits');
+        } catch (err) {
+            console.error('Failed to add habit:', err);
+        }
     };
 
     const toggleCheck = async (habitId, dateStr) => {
         if (!userId) return;
-
-        const habit = await db.habits.get(habitId);
-        if (!habit) return;
-
-        const checks = habit.checks || [];
-        const checkIndex = checks.findIndex(c => c.date === dateStr);
-        const newChecks = [...checks];
-
-        if (checkIndex > -1) {
-            newChecks[checkIndex] = { ...newChecks[checkIndex], completed: !newChecks[checkIndex].completed };
-        } else {
-            newChecks.push({ date: dateStr, completed: true });
+        try {
+            await api.patch(`/habits/${habitId}/check`, { dateStr });
+            mutate('/habits');
+        } catch (err) {
+            console.error('Failed to toggle check:', err);
         }
-
-        const newStreak = calculateStreak(newChecks);
-        const updatedHabit = { ...habit, checks: newChecks, streak: newStreak, isPending: true };
-
-        await db.habits.put(updatedHabit);
-        await SyncService.updateFeatureData('habits', userId, habitId, 'set', updatedHabit);
     };
 
     const updateHabit = async (id, data) => {
         if (!userId) return;
-        const habit = await db.habits.get(id);
-        if (habit) {
-            const updatedHabit = { ...habit, ...data, isPending: true };
-            await db.habits.put(updatedHabit);
-            await SyncService.updateFeatureData('habits', userId, id, 'set', updatedHabit);
+        try {
+            await api.put(`/habits/${id}`, data);
+            mutate('/habits');
+        } catch (err) {
+            console.error('Failed to update habit:', err);
         }
     };
 
     const deleteHabit = async (id) => {
         if (!userId) return;
-        await db.habits.delete(id);
-        await SyncService.updateFeatureData('habits', userId, id, 'delete');
+        try {
+            await api.delete(`/habits/${id}`);
+            mutate('/habits');
+        } catch (err) {
+            console.error('Failed to delete habit:', err);
+        }
     };
 
     const reorderHabits = async (habitIds) => {
         if (!userId) return;
-        
-        await db.transaction('rw', db.habits, async () => {
-            for (let i = 0; i < habitIds.length; i++) {
-                const id = habitIds[i];
-                const habit = await db.habits.get(id);
-                if (habit) {
-                    const updatedHabit = { ...habit, order: i, isPending: true };
-                    await db.habits.put(updatedHabit);
-                    await SyncService.updateFeatureData('habits', userId, id, 'set', updatedHabit);
-                }
-            }
-        });
+        try {
+            await api.put('/habits/reorder', { habitIds });
+            mutate('/habits');
+        } catch (err) {
+            console.error('Failed to reorder habits:', err);
+        }
     };
 
     const processedHabits = habits?.map(habit => ({
@@ -141,6 +111,7 @@ export const useHabitsLocal = () => {
         updateHabit,
         deleteHabit,
         reorderHabits,
-        isLoading: habits === undefined
+        isLoading,
+        error
     };
 };

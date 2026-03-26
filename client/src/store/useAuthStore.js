@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import api, { setAuthToken } from '../services/api';
-import db from '../db/db';
 
 // Try to load any existing token/user info from localStorage safely
 let storedUserInfo = null;
@@ -24,8 +23,6 @@ const useAuthStore = create((set) => ({
         set({ user: data });
         if (data?.token) {
             setAuthToken(data.token);
-            // Store in IndexedDB for Service Worker access
-            db.yjs_state.put({ id: 'auth:current', token: data.token });
         }
         localStorage.setItem('userInfo', JSON.stringify(data));
     },

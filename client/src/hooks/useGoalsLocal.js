@@ -1,67 +1,57 @@
-import { useLiveQuery } from 'dexie-react-hooks';
-import db from '../db/db';
-import SyncService from '../services/SyncService';
+import useSWR, { useSWRConfig } from 'swr';
+import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 
 export const useGoalsLocal = (filters = {}) => {
     const { user } = useAuthStore();
     const userId = user?._id;
+    const { mutate } = useSWRConfig();
     
-    const goals = useLiveQuery(
-        async () => {
-            if (!userId) return [];
-            let collection = db.goals.where('userId').equals(userId);
-            
-            // Apply filters if provided
-            const allGoals = await collection.toArray();
-            return allGoals.filter(g => {
-                if (filters.period && g.period !== filters.period) return false;
-                if (filters.year && g.year !== filters.year) return false;
-                if (filters.month !== undefined && g.month !== filters.month) return false;
-                if (filters.week !== undefined && g.week !== filters.week) return false;
-                return true;
-            });
-        },
-        [userId, filters.period, filters.year, filters.month, filters.week]
-    );
+    // Construct query params from filters
+    const queryParams = new URLSearchParams();
+    if (filters.period) queryParams.append('period', filters.period);
+    if (filters.year) queryParams.append('year', filters.year);
+    if (filters.month !== undefined) queryParams.append('month', filters.month);
+    if (filters.week !== undefined) queryParams.append('week', filters.week);
+    
+    const queryString = queryParams.toString();
+    const fetchUrl = userId ? `/goals?${queryString}` : null;
+
+    const fetcher = url => api.get(url).then(res => res.data);
+    const { data: goals, error, isLoading } = useSWR(fetchUrl, fetcher);
 
     const addGoal = async (goalData) => {
         if (!userId) return;
-
-        const newGoal = {
-            _id: `local-${Date.now()}`,
-            userId,
-            title: goalData.title,
-            period: goalData.period,
-            year: goalData.year,
-            month: goalData.month,
-            week: goalData.week,
-            completed: false,
-            isPending: true
-        };
-
-        await db.goals.add(newGoal);
-        await SyncService.updateFeatureData('planner', userId, newGoal._id, 'set', { ...newGoal, type: 'goal' });
+        try {
+            await api.post('/goals', goalData);
+            mutate(fetchUrl);
+        } catch (err) {
+            console.error('Failed to add goal:', err);
+        }
     };
 
     const updateGoal = async (id, goalData) => {
         if (!userId) return;
-        const goal = await db.goals.get(id);
-        if (goal) {
-            const updatedGoal = { ...goal, ...goalData, isPending: true };
-            await db.goals.put(updatedGoal);
-            await SyncService.updateFeatureData('planner', userId, id, 'set', { ...updatedGoal, type: 'goal' });
+        try {
+            await api.put(`/goals/${id}`, goalData);
+            mutate(fetchUrl);
+        } catch (err) {
+            console.error('Failed to update goal:', err);
         }
     };
 
     const deleteGoal = async (id) => {
         if (!userId) return;
-        await db.goals.delete(id);
-        await SyncService.updateFeatureData('planner', userId, id, 'delete');
+        try {
+            await api.delete(`/goals/${id}`);
+            mutate(fetchUrl);
+        } catch (err) {
+            console.error('Failed to delete goal:', err);
+        }
     };
 
     const toggleGoal = async (id) => {
-        const goal = await db.goals.get(id);
+        const goal = goals?.find(g => g._id === id);
         if (goal) {
             await updateGoal(id, { completed: !goal.completed });
         }
@@ -73,6 +63,7 @@ export const useGoalsLocal = (filters = {}) => {
         updateGoal,
         deleteGoal,
         toggleGoal,
-        isLoading: goals === undefined
+        isLoading,
+        error
     };
 };

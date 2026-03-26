@@ -1,72 +1,60 @@
-import { useLiveQuery } from 'dexie-react-hooks';
-import db from '../db/db';
-import SyncService from '../services/SyncService';
+import useSWR, { useSWRConfig } from 'swr';
+import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 
 export const usePlannerLocal = (selectedDate) => {
     const { user } = useAuthStore();
     const userId = user?._id;
+    const { mutate } = useSWRConfig();
     
     // Normalize date string (YYYY-MM-DD)
     const dateStr = selectedDate instanceof Date 
         ? selectedDate.toISOString().split('T')[0]
         : selectedDate;
 
-    const tasks = useLiveQuery(
-        async () => {
-            if (!userId) return [];
-            // If dateStr is provided, filter by date, otherwise get all (for calendar/goals)
-            let query = db.planner.where('userId').equals(userId);
-            if (dateStr) {
-                return await query.filter(t => t.date === dateStr).sortBy('order');
-            }
-            return await query.sortBy('order');
-        },
-        [userId, dateStr]
+    const fetcher = url => api.get(url).then(res => res.data);
+    
+    // Fetch tasks for the specific date
+    const { data: tasks, error, isLoading } = useSWR(
+        userId ? `/tasks?date=${dateStr}` : null, 
+        fetcher
     );
 
     const addTask = async (taskData) => {
         if (!userId) return;
-
-        const newTask = {
-            _id: `local-${Date.now()}`,
-            userId,
-            title: taskData.title,
-            description: taskData.description || '',
-            date: taskData.date || dateStr,
-            endDate: taskData.endDate || taskData.date || dateStr,
-            startTime: taskData.startTime || '',
-            endTime: taskData.endTime || '',
-            priority: taskData.priority || false,
-            completed: taskData.completed || false,
-            type: taskData.type || 'task',
-            color: taskData.color || '#3b82f6',
-            order: (tasks?.length || 0),
-            isPending: true
-        };
-
-        await db.planner.add(newTask);
-        await SyncService.updateFeatureData('planner', userId, newTask._id, 'set', newTask);
+        try {
+            await api.post('/tasks', {
+                ...taskData,
+                date: taskData.date || dateStr
+            });
+            mutate(`/tasks?date=${dateStr}`);
+        } catch (err) {
+            console.error('Failed to add task:', err);
+        }
     };
 
     const updateTask = async (id, taskData) => {
         if (!userId) return;
-        const task = await db.planner.get(id);
-        if (task) {
-            const updatedTask = { ...task, ...taskData, isPending: true };
-            await db.planner.put(updatedTask);
-            await SyncService.updateFeatureData('planner', userId, id, 'set', updatedTask);
+        try {
+            await api.put(`/tasks/${id}`, taskData);
+            mutate(`/tasks?date=${dateStr}`);
+        } catch (err) {
+            console.error('Failed to update task:', err);
         }
     };
 
     const deleteTask = async (id) => {
         if (!userId) return;
-        await db.planner.delete(id);
-        await SyncService.updateFeatureData('planner', userId, id, 'delete');
+        try {
+            await api.delete(`/tasks/${id}`);
+            mutate(`/tasks?date=${dateStr}`);
+        } catch (err) {
+            console.error('Failed to delete task:', err);
+        }
     };
 
     const toggleComplete = async (id) => {
-        const task = await db.planner.get(id);
+        const task = tasks?.find(t => t._id === id);
         if (task) {
             await updateTask(id, { completed: !task.completed });
         }
@@ -74,17 +62,12 @@ export const usePlannerLocal = (selectedDate) => {
 
     const reorderTasks = async (taskIds) => {
         if (!userId) return;
-        await db.transaction('rw', db.planner, async () => {
-            for (let i = 0; i < taskIds.length; i++) {
-                const id = taskIds[i];
-                const task = await db.planner.get(id);
-                if (task) {
-                    const updatedTask = { ...task, order: i, isPending: true };
-                    await db.planner.put(updatedTask);
-                    await SyncService.updateFeatureData('planner', userId, id, 'set', updatedTask);
-                }
-            }
-        });
+        try {
+            await api.put('/tasks/reorder', { habitIds: taskIds }); // Note: controller uses habitIds but works for tasks
+            mutate(`/tasks?date=${dateStr}`);
+        } catch (err) {
+            console.error('Failed to reorder tasks:', err);
+        }
     };
 
     return {
@@ -94,6 +77,7 @@ export const usePlannerLocal = (selectedDate) => {
         deleteTask,
         toggleComplete,
         reorderTasks,
-        isLoading: tasks === undefined
+        isLoading,
+        error
     };
 };
