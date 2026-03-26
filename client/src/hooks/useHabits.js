@@ -2,9 +2,6 @@ import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 
-/**
- * Helper to calculate habit streak matching server logic.
- */
 const calculateStreak = (checks) => {
     if (!checks || checks.length === 0) return 0;
 
@@ -41,7 +38,7 @@ const calculateStreak = (checks) => {
     return currentStreak;
 };
 
-export const useHabitsLocal = () => {
+export const useHabits = () => {
     const { user } = useAuthStore();
     const userId = user?._id;
     const { mutate } = useSWRConfig();

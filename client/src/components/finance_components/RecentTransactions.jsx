@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
-import useConnectivityStore from '../../store/useConnectivityStore';
 
 const RecentTransactions = ({ transactions = [], budgets = [], currencySymbol = '$', onAction, addFinanceItem, deleteFinanceItem }) => {
     const [showAdd, setShowAdd] = useState(false);

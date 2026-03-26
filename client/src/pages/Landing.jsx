@@ -22,6 +22,8 @@ import Features from "../components/landing/Features";
 import Testimonials from "../components/landing/Testimonials";
 import CTA from "../components/landing/CTA";
 import ScrollIndicator from "../components/landing/ScrollIndicator";
+import LandingSplashScreen from "../components/landing/LandingSplashScreen";
+
 import Lenis from "lenis";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -63,6 +65,7 @@ export default function Landing() {
   const { user } = useAuthStore();
   const containerRef = useRef(null);
   const [progress, setProgress] = useState(0);
+  const [showSplash, setShowSplash] = useState(true);
 
   // GSAP Scrollytelling Timeline
   useEffect(() => {
@@ -169,6 +172,13 @@ export default function Landing() {
   };
 
   useEffect(() => {
+    if (window.lenis) {
+      if (showSplash) window.lenis.stop();
+      else window.lenis.start();
+    }
+  }, [showSplash]);
+
+  useEffect(() => {
     document.documentElement.classList.add("no-scrollbar");
 
     const lenis = new Lenis({
@@ -179,6 +189,8 @@ export default function Landing() {
     
     // Store lenis for navigation
     window.lenis = lenis;
+    if (showSplash) lenis.stop();
+    else lenis.start();
 
     lenis.on('scroll', ScrollTrigger.update);
 
@@ -209,7 +221,7 @@ export default function Landing() {
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1, delay: 1, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 1, delay: 3.5, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-6 md:py-10 flex justify-between items-center pointer-events-none"
       >
         <div className="flex items-center gap-3 md:gap-4 group cursor-pointer pointer-events-auto">
@@ -254,6 +266,8 @@ export default function Landing() {
 
       {/* Scroll Progress Indicator */}
       <ScrollIndicator progress={progress} onNavigate={handleNavigate} />
+
+      <LandingSplashScreen onComplete={() => setShowSplash(false)} />
     </div>
   );
 }

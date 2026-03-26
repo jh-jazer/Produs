@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useAuthStore from '../store/useAuthStore';
-import useConnectivityStore from '../store/useConnectivityStore';
-import { useHabitsLocal } from '../hooks/useHabitsLocal';
+import { useHabits } from '../hooks/useHabits';
 
 import HabitTracker from '../components/habit_components/HabitTracker';
 import ConsistencyGrid from '../components/habit_components/ConsistencyGrid';
@@ -17,15 +16,14 @@ function Habits() {
     const [activeDate, setActiveDate] = useState(new Date());
     const [currentFilter, setCurrentFilter] = useState('All');
     const [activeTab, setActiveTab] = useState('tracker');
-    const isOnline = useConnectivityStore(state => state.isOnline);
-
-    const { habits, isLoading, toggleCheck, addHabit, deleteHabit, updateHabit, reorderHabits } = useHabitsLocal();
+    const { habits, isLoading, toggleCheck, addHabit, deleteHabit, updateHabit, reorderHabits } = useHabits();
 
     useEffect(() => {
-        if (!isOnline && viewMode === 'partner') {
-            setViewMode('me');
+        if (viewMode === 'partner') {
+            // No need to check isOnline here, we assume online in remote-first
+            // setViewMode('me');
         }
-    }, [isOnline, viewMode, setViewMode]);
+    }, [viewMode, setViewMode]);
 
     const tabs = [
         { id: 'tracker', label: 'Tracker', icon: 'check_circle' },
@@ -108,7 +106,7 @@ function Habits() {
                     </div>
 
                     {/* View Toggle - Desktop only */}
-                    {user?.partner && isOnline && (
+                    {user?.partner && (
                         <div className="hidden lg:flex bg-black/[0.04] dark:bg-[#000000]/50 p-1 rounded-xl border border-black/[0.06] dark:border-white/10">
                             <button
                                 onClick={() => setViewMode('me')}

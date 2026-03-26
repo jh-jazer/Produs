@@ -4,14 +4,14 @@ import useSWR from 'swr';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
-import { usePlannerLocal } from '../../hooks/usePlannerLocal';
+import { usePlanner } from '../../hooks/usePlanner';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
 const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
     const containerRef = useRef(null);
     const today = new Date();
-    const { tasks, addTask, updateTask, deleteTask, isLoading } = usePlannerLocal(today);
+    const { tasks, addTask, updateTask, deleteTask, isLoading } = usePlanner(today);
     const { data: customTemplates, mutate: mutateTemplates } = useSWR('/planner/templates', fetcher);
     
     const [isAdding, setIsAdding] = useState(false);

@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
-import useConnectivityStore from '../../store/useConnectivityStore';
 
 const WISHLIST_CATEGORIES = [
     { label: 'General', color: 'bg-slate-100 text-slate-600 dark:bg-slate-500/10' },
@@ -21,9 +20,7 @@ const WISHLIST_CATEGORIES = [
     { label: 'Pets', color: 'bg-teal-100 text-teal-600 dark:bg-teal-500/10' },
 ];
 
-const Wishlist = ({ items, budgets = [], currencySymbol, onAction }) => {
-    const isOnline = useConnectivityStore(state => state.isOnline);
-    const addToQueue = useConnectivityStore(state => state.addToQueue);
+const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceItem, updateFinanceItem, deleteFinanceItem }) => {
     const [isAdding, setIsAdding] = useState(false);
     const [filterCategory, setFilterCategory] = useState('All');
     const [filterStatus, setFilterStatus] = useState('All');

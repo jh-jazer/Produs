@@ -18,6 +18,10 @@ const protect = async (req, res, next) => {
             // Get user from the token
             req.user = await User.findById(decoded.id).select('-password');
 
+            if (!req.user) {
+                return res.status(401).json({ message: 'Not authorized, user not found' });
+            }
+
             next();
         } catch (error) {
             console.error(error);
@@ -49,6 +53,12 @@ const optionalProtect = async (req, res, next) => {
             token = req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             req.user = await User.findById(decoded.id).select('-password');
+            
+            if (!req.user) {
+                // If token is valid but user doesn't exist, treat as unauthenticated
+                req.user = null;
+            }
+            
             next();
         } catch (error) {
             console.error('Optional Auth Failed:', error.message);

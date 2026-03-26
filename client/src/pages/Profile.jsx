@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 import useAuthStore from '../store/useAuthStore';
 
-import useConnectivityStore from '../store/useConnectivityStore';
 import api from '../services/api';
 
 import Avatar from '../components/ui/Avatar';
@@ -14,8 +13,8 @@ import ProfileModal from '../components/ui/ProfileModal';
 function Profile() {
     const navigate = useNavigate();
     const { user, updateSettings, setCredentials, viewMode, setViewMode } = useAuthStore();
-    const isSyncing = useConnectivityStore(state => state.isSyncing);
-    const isOnline = useConnectivityStore(state => state.isOnline);
+    const isSyncing = false;
+    const isOnline = true;
 
     const today = new Date().toISOString().split('T')[0];
 
@@ -416,20 +415,6 @@ function Profile() {
                                 </div>
                             )}
                             
-                            {/* Sync Status Badge */}
-                            <div className="mt-2 flex items-center justify-end">
-                                {isSyncing ? (
-                                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20 animate-pulse">
-                                        <div className="size-1.5 rounded-full bg-primary animate-ping" />
-                                        Syncing Progress...
-                                    </div>
-                                ) : isOnline ? (
-                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
-                                        <span className="material-symbols-outlined text-[12px]">cloud_done</span>
-                                        All Synced
-                                    </div>
-                                ) : null}
-                            </div>
 
                         </div>
 

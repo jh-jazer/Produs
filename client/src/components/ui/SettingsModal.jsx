@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import useAuthStore from '../../store/useAuthStore';
-import SyncService from '../../services/SyncService';
 
 const SettingsModal = ({ isOpen, onClose }) => {
     const { user, updateSettings, deleteAccount } = useAuthStore();
@@ -227,46 +226,6 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                 </div>
                             </div>
 
-                            {/* System Status */}
-                            <div className="space-y-4">
-                                <h4 className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] px-1">Cloud Sync</h4>
-                                <div className="p-4 rounded-2xl bg-black/[0.03] dark:bg-[#000000]/40 border border-black/[0.05] dark:border-white/10 space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <div className={`size-2 rounded-full ${apiStatus === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-black/60 dark:text-white/60">
-                                                {apiStatus === 'online' ? 'Systems Online' : 'Connecting...'}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {syncInfo.syncStatus === 'idle' && (
-                                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-black/[0.05] dark:bg-[#000000] border border-black/[0.08] dark:border-white/10 text-black/30 dark:text-white/30">
-                                                    <span className="material-symbols-outlined text-sm">cloud_done</span>
-                                                    <span className="text-[9px] font-semibold uppercase tracking-[0.2em]">Idle</span>
-                                                </div>
-                                            )}
-                                            <button
-                                                onClick={handleForceSync}
-                                                disabled={syncInfo.isSyncing}
-                                                title="Force Sync Now"
-                                                className="size-7 flex items-center justify-center hover:bg-black/[0.05] dark:hover:bg-white/[0.05] rounded-xl transition-colors cursor-pointer disabled:opacity-40"
-                                            >
-                                                <span className="material-symbols-outlined text-lg text-black/30 dark:text-white/30">refresh</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    {syncInfo.isSyncing && (
-                                        <div className="w-full h-1 bg-black/[0.08] dark:bg-[#000000] rounded-full overflow-hidden">
-                                            <motion.div
-                                                className="h-full bg-electric-blue rounded-full"
-                                                animate={{ x: ['-100%', '200%'] }}
-                                                transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
-                                                style={{ width: '50%' }}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
 
                             {/* Security */}
                             <div className="space-y-4">

@@ -4,31 +4,28 @@ import DailySchedule from '../components/planner_components/DailySchedule';
 import FullCalendar from '../components/planner_components/FullCalendar';
 import GoalSetter from '../components/planner_components/GoalSetter';
 import useAuthStore from '../store/useAuthStore';
-import useConnectivityStore from '../store/useConnectivityStore';
 import { motion } from 'framer-motion';
 import MobileTabNav from '../components/ui/MobileTabNav';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
-import { usePlannerLocal } from '../hooks/usePlannerLocal';
+import { usePlanner } from '../hooks/usePlanner';
 
 const Planner = () => {
     const { user, viewMode, setViewMode } = useAuthStore();
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [isFlipped, setIsFlipped] = useState(false);
-    const isOnline = useConnectivityStore(state => state.isOnline);
-
     const { 
         tasks = [], 
         isLoading
-    } = usePlannerLocal(selectedDate);
+    } = usePlanner(selectedDate);
 
     const [activeTab, setActiveTab] = React.useState('priority');
 
-    // Force 'me' view if offline
+    // Force 'me' view if partner not available
     useEffect(() => {
-        if (!isOnline && viewMode === 'partner') {
+        if (viewMode === 'partner' && !user?.partner) {
             setViewMode('me');
         }
-    }, [isOnline, viewMode, setViewMode]);
+    }, [viewMode, setViewMode, user?.partner]);
 
 
     const tabs = [

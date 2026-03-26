@@ -2,7 +2,7 @@ import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 
-export const useGoalsLocal = (filters = {}) => {
+export const useGoals = (filters = {}) => {
     const { user } = useAuthStore();
     const userId = user?._id;
     const { mutate } = useSWRConfig();

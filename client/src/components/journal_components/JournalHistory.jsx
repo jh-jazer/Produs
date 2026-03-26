@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmDialog from '../ui/ConfirmDialog';
-import { useJournalLocal } from '../../hooks/useJournalLocal';
+import { useJournal } from '../../hooks/useJournal';
 
 const parseMarkdown = (text) => {
     if (!text) return { __html: '' };
@@ -24,7 +24,7 @@ const parseMarkdown = (text) => {
 
 const JournalHistory = ({ entries = [], onAction }) => {
     const [confirmDelete, setConfirmDelete] = useState(null);
-    const { deleteEntry } = useJournalLocal();
+    const { deleteEntry } = useJournal();
 
     const handleDelete = async (id) => {
         try {

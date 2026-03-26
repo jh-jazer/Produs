@@ -1,7 +1,6 @@
 import React from 'react';
 import useAuthStore from '../store/useAuthStore';
-import useConnectivityStore from '../store/useConnectivityStore';
-import { useFinanceLocal } from '../hooks/useFinanceLocal';
+import { useFinance } from '../hooks/useFinance';
 
 import FinancialOverview from '../components/finance_components/FinancialOverview';
 import DebtManager from '../components/finance_components/DebtManager';
@@ -15,7 +14,6 @@ import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 
 const Finance = () => {
     const { user } = useAuthStore();
-    const isOnline = useConnectivityStore(state => state.isOnline);
     const currencySymbol = user?.currency === 'PHP' ? '₱' : '$';
 
 
@@ -29,7 +27,7 @@ const Finance = () => {
         updateFinanceItem, 
         deleteFinanceItem,
         isLoading 
-    } = useFinanceLocal();
+    } = useFinance();
 
     // Mobile Navigation State
     const [activeTab, setActiveTab] = React.useState('summary');

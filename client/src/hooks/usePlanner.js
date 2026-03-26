@@ -2,7 +2,7 @@ import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 
-export const usePlannerLocal = (selectedDate) => {
+export const usePlanner = (selectedDate) => {
     const { user } = useAuthStore();
     const userId = user?._id;
     const { mutate } = useSWRConfig();
@@ -63,7 +63,7 @@ export const usePlannerLocal = (selectedDate) => {
     const reorderTasks = async (taskIds) => {
         if (!userId) return;
         try {
-            await api.put('/tasks/reorder', { habitIds: taskIds }); // Note: controller uses habitIds but works for tasks
+            await api.put('/tasks/reorder', { habitIds: taskIds }); 
             mutate(`/tasks?date=${dateStr}`);
         } catch (err) {
             console.error('Failed to reorder tasks:', err);

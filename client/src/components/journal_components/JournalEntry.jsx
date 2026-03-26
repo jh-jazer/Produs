@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useJournalLocal } from '../../hooks/useJournalLocal';
+import { useJournal } from '../../hooks/useJournal';
 
 const JOURNAL_PROMPTS = [
     "What is one small victory you achieved today, and how did it make you feel?",
@@ -25,7 +25,7 @@ const JournalEntry = ({ onAction }) => {
     const [showSizeMenu, setShowSizeMenu] = useState(false);
     const textareaRef = useRef(null);
 
-    const { addEntry } = useJournalLocal();
+    const { addEntry } = useJournal();
 
     const checkFormatting = () => {
         if (!textareaRef.current) return;

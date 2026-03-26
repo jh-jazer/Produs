@@ -12,59 +12,9 @@ import UserSearch from './ui/UserSearch';
 import BugReportModal from './ui/BugReportModal';
 import NotificationModal from './ui/NotificationModal';
 import UserMenuModal from "./ui/UserMenuModal";
-import useConnectivityStore from '../store/useConnectivityStore';
 
 export const DashboardContext = React.createContext();
 
-// Compact header pill showing sync status + connectivity (Icon only)
-function SyncStatusPill({ isOnline, userId, isOverview, isMobile }) {
-    const [syncInfo, setSyncInfo] = React.useState(() => SyncService.getSyncStatus());
-
-    React.useEffect(() => {
-        const unsub = SyncService.subscribe(setSyncInfo);
-        return unsub;
-    }, []);
-
-    const handleForceSync = () => {
-        if (userId) SyncService.syncAll(userId);
-    };
-
-    const statusColor = !isOnline
-        ? 'text-signal-orange bg-signal-orange/10 border-signal-orange/20'
-        : syncInfo.syncStatus === 'error'
-            ? 'text-rose-500 bg-rose-500/10 border-rose-500/20'
-            : syncInfo.syncStatus === 'syncing'
-                ? 'text-electric-blue bg-electric-blue/10 border-electric-blue/20'
-                : 'text-black/50 dark:text-white/40 bg-black/[0.04] dark:bg-white/[0.04] border-black/[0.07] dark:border-white/10';
-
-    const statusIcon = !isOnline ? 'cloud_off'
-        : syncInfo.syncStatus === 'error' ? 'sync_problem'
-            : syncInfo.syncStatus === 'syncing' ? 'sync'
-                : 'cloud_done';
-
-    const statusText = !isOnline ? 'Offline'
-        : syncInfo.syncStatus === 'syncing' ? 'Syncing'
-            : 'Synced';
-
-    const title = !isOnline ? 'Offline — changes will sync when reconnected'
-        : syncInfo.syncStatus === 'syncing' ? 'Syncing…'
-            : 'All changes saved locally and synced';
-
-    return (
-        <button
-            onClick={handleForceSync}
-            title={title}
-            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-full border transition-all active:scale-95 ${statusColor} ${!isOverview && !isMobile ? 'size-10 justify-center' : ''}`}
-        >
-            <span className={`material-symbols-outlined text-[18px] ${syncInfo.syncStatus === 'syncing' ? 'animate-spin' : ''}`}>
-                {statusIcon}
-            </span>
-            {(isOverview || isMobile) && (
-                <span className="text-[10px] font-black uppercase tracking-widest">{statusText}</span>
-            )}
-        </div>
-    );
-}
 
 function FrozenRoute({ context }) {
     const outlet = useOutlet();
@@ -80,7 +30,7 @@ function Layout() {
     const { user, signOut } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
-    const isOnline = useConnectivityStore((state) => state.isOnline);
+    const isOnline = true; // navigator.onLine (Offline features removed)
     const profileRef = useRef(null);
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -174,8 +124,10 @@ function Layout() {
             <aside
                 className={`
                     fixed md:relative z-[150] h-full flex flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1]
-                    ${isMobileMenuOpen ? 'translate-x-0 w-72 bg-[#f8f8f8]/90 dark:bg-[#050505]/90 backdrop-blur-xl border-r border-black/[0.08] dark:border-white/10' : '-translate-x-full md:translate-x-0'}
-                    ${!isMobileMenuOpen && (deferredPath === '/dashboard' ? 'md:w-72 border-r border-black/[0.08] dark:border-white/10' : 'md:w-20')}
+                    ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                    ${(deferredPath === '/dashboard' || (isMobileMenuOpen && deferredPath === '/dashboard')) ? 'w-72' : 'w-20'}
+                    ${isMobileMenuOpen ? 'bg-[#f8f8f8]/90 dark:bg-[#050505]/90 backdrop-blur-xl border-r border-black/[0.08] dark:border-white/10 shadow-2xl' : ''}
+                    ${deferredPath === '/dashboard' || isMobileMenuOpen ? 'border-r border-black/[0.08] dark:border-white/10' : ''}
                 `}
             >
                 {/* 1. Sidebar Header: Logo */}
@@ -183,7 +135,7 @@ function Layout() {
                     <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => navigate('/dashboard')}>
                         <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0 ${isMobileMenuOpen ? 'rotate-0' : ''}`} />
                         <div className={`flex flex-col overflow-hidden transition-all duration-500 ease-in-out
-                            ${(deferredPath === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0'}
+                            ${(deferredPath === '/dashboard') ? 'opacity-100 w-auto' : 'opacity-0 w-0'}
                         `}>
                             <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-black dark:text-white">Produs</span>
                             <span className="text-[8px] font-bold text-electric-blue uppercase tracking-widest mt-1.5 opacity-60">System Core</span>
@@ -195,8 +147,8 @@ function Layout() {
                 <div className="flex-1 px-4 py-8">
                     <div className="flex flex-col gap-1.5">
                         {navItems.map((item, idx) => {
+                            const isOverview = deferredPath === '/dashboard';
                             const isActive = deferredPath === item.path || (item.path === '/dashboard' && deferredPath === '/dashboard');
-                            const isOverview = deferredPath === '/dashboard' || isMobileMenuOpen;
                             
                             return (
                                 <motion.button
@@ -230,7 +182,7 @@ function Layout() {
                                             ${isOverview ? 'relative pl-14 md:pl-16 opacity-100 translate-x-0' : 'pl-16 opacity-0 -translate-x-12 group-hover/nav:opacity-100 group-hover/nav:translate-x-[-10px] group-hover/nav:pl-14 group-hover/nav:pointer-events-auto'}
                                         `}>
                                             <div className="flex items-center gap-4">
-                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${isOverview ? 'w-4' : 'w-0 group-hover/nav:w-4'}`} />
+                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${isOverview ? 'w-4' : 'w-0'}`} />
                                                 <span className={`text-[10px] font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300
                                                     ${isActive ? 'text-black dark:text-white' : 'text-slate-500 dark:text-slate-400 group-hover/nav:text-black dark:group-hover:text-white'}
                                                 `}>
@@ -246,8 +198,9 @@ function Layout() {
                 </div>
 
                 {/* 3. Sidebar Footer: System Actions */}
-                <div className="mt-auto p-4 md:p-6 flex flex-col items-start pl-[20px] gap-5 border-t border-black/[0.06] dark:border-white/10">
-                    <SyncStatusPill isOnline={isOnline} userId={user?._id} isOverview={deferredPath === '/dashboard' || isMobileMenuOpen} isMobile={isMobileMenuOpen} />
+                <div className={`mt-auto p-4 md:p-6 flex flex-col items-start pl-[20px] gap-5 transition-all duration-[600ms] 
+                    ${(deferredPath === '/dashboard') ? 'border-t border-black/[0.06] dark:border-white/10' : 'border-t-0'}
+                `}>
 
                     <div className="relative flex items-center gap-4 group" ref={profileRef}>
                         <button
@@ -262,7 +215,7 @@ function Layout() {
                         </button>
 
                         <AnimatePresence mode="wait">
-                            {(deferredPath === '/dashboard' || isMobileMenuOpen) && (
+                            {(deferredPath === '/dashboard') && (
                                 <motion.div 
                                     key="profile-greeting"
                                     initial={{ opacity: 0, x: -10 }}

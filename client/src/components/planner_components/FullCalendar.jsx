@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ConfirmDialog from '../ui/ConfirmDialog';
-import { usePlannerLocal } from '../../hooks/usePlannerLocal';
+import { usePlanner } from '../../hooks/usePlanner';
 
 const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly = false }) => {
     const [viewDate, setViewDate] = useState(new Date());
@@ -21,7 +21,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
         { name: 'Slate', value: '#64748b' }
     ];
 
-    const { tasks, addTask: addTaskLocal, deleteTask: deleteTaskLocal } = usePlannerLocal(null);
+    const { tasks, addTask: addTaskLocal, deleteTask: deleteTaskLocal } = usePlanner(null);
 
     const months = [
         "January", "February", "March", "April", "May", "June",

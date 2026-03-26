@@ -4,10 +4,10 @@ import JournalHistory from '../components/journal_components/JournalHistory';
 import YearlyMoodBoard from '../components/journal_components/YearlyMoodBoard';
 import MobileTabNav from '../components/ui/MobileTabNav';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
-import { useJournalLocal } from '../hooks/useJournalLocal';
+import { useJournal } from '../hooks/useJournal';
 
 function Journal() {
-    const { entries, isLoading } = useJournalLocal();
+    const { entries, isLoading } = useJournal();
     const [activeTab, setActiveTab] = React.useState('new');
 
     const tabs = [
@@ -17,8 +17,7 @@ function Journal() {
     ];
 
     const handleAction = () => {
-        // Local-first means we don't necessarily need to trigger a manual update
-        // as Dexie's useLiveQuery handles it. But we keep it for potential future needs.
+        // SWR handles refreshing via mutate in the hook
     };
 
     if (isLoading && entries.length === 0) return <WorkspaceSkeleton />;
@@ -58,7 +57,7 @@ function Journal() {
             </div>
             {isLoading && (
                 <div className="fixed bottom-4 right-4 bg-electric-blue/10 text-electric-blue px-3 py-1 rounded-full text-[9px] font-semibold uppercase tracking-[0.2em] animate-pulse border border-electric-blue/20">
-                    Loading Local Data...
+                    Syncing...
                 </div>
             )}
         </div>

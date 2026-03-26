@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
-import useConnectivityStore from '../../store/useConnectivityStore';
 
 const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updateFinanceItem, deleteFinanceItem }) => {
     const [showAdd, setShowAdd] = useState(false);
@@ -188,7 +187,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                                 <input
                                     required type="text" placeholder="e.g. Dream House"
                                     className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                    value={newSaving.title} onChange={e => setNewSaving({ ...newSaving, title: e.target.value })}
+                                    value={newGoal.title} onChange={e => setNewGoal({ ...newGoal, title: e.target.value })}
                                 />
                             </div>
 
@@ -200,7 +199,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                                         <input
                                             required type="number" placeholder="0.00"
                                             className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                            value={newSaving.amount} onChange={e => setNewSaving({ ...newSaving, amount: e.target.value })}
+                                            value={newGoal.amount} onChange={e => setNewGoal({ ...newGoal, amount: e.target.value })}
                                         />
                                     </div>
                                 </div>
@@ -211,7 +210,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                                         <input
                                             required type="number" placeholder="0.00"
                                             className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                            value={newSaving.target} onChange={e => setNewSaving({ ...newSaving, target: e.target.value })}
+                                            value={newGoal.target} onChange={e => setNewGoal({ ...newGoal, target: e.target.value })}
                                         />
                                     </div>
                                 </div>
@@ -231,7 +230,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                     <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowFundModal(null)}></div>
                     <form 
-                        onSubmit={handleUpdateAmount} 
+                        onSubmit={handleFund} 
                         className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
                     >
                         <div className="flex justify-between items-center mb-1">

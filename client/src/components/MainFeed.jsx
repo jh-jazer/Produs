@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import useSWR from 'swr';
 import useAuthStore from '../store/useAuthStore';
 import api from '../services/api';
-import useConnectivityStore from '../store/useConnectivityStore';
 
 import feedData from '../data/feed_mock_dataset_500_posts.json';
 import Avatar from './ui/Avatar';
@@ -290,27 +289,6 @@ export default function MainFeed() {
         }
     };
 
-    const isOnline = useConnectivityStore(state => state.isOnline);
-
-    if (!isOnline) {
-        return (
-            <div className="flex flex-col gap-5">
-                <div className="flex items-center gap-2 px-1">
-                    <span className="material-symbols-outlined text-primary text-xl">dynamic_feed</span>
-                    <span className="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">News Feed</span>
-                </div>
-                <div className="bg-white dark:bg-[#192233] border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-12 text-center flex flex-col items-center gap-4">
-                    <div className="size-16 rounded-2xl bg-rose-500/10 dark:bg-rose-500/20 flex items-center justify-center text-rose-500">
-                        <span className="material-symbols-outlined text-4xl">signal_wifi_off</span>
-                    </div>
-                    <div className="max-w-xs">
-                        <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Offline Mode</p>
-                        <p className="text-xs text-slate-400 mt-2 font-medium">News Feed requires an internet connection to fetch the latest updates.</p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     if (isActivityLoading && rawActivities.length === 0) {
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { usePlannerLocal } from "../../hooks/usePlannerLocal";
+import { usePlanner } from "../../hooks/usePlanner";
 
 const Priority = ({
   isCompact = false,
@@ -8,7 +8,7 @@ const Priority = ({
   onFlip,
 }) => {
   const today = new Date();
-  const { tasks, toggleComplete, isLoading } = usePlannerLocal(today);
+  const { tasks, toggleComplete, isLoading } = usePlanner(today);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {

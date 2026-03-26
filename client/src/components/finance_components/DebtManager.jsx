@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
-import useConnectivityStore from '../../store/useConnectivityStore';
 
 const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFinanceItem, deleteFinanceItem }) => {
     const [showAdd, setShowAdd] = useState(false);
