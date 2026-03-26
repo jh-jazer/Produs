@@ -87,6 +87,7 @@ function Layout() {
         { name: 'Habits', path: '/dashboard/habits', icon: 'check_circle' },
         { name: 'Planner', path: '/dashboard/planner', icon: 'event' },
         { name: 'Finance', path: '/dashboard/finance', icon: 'payments' },
+        { name: 'Health', path: '/dashboard/health', icon: 'monitor_heart' },
         { name: 'Journal', path: '/dashboard/journal', icon: 'book' },
     ];
 

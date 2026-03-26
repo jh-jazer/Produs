@@ -6,6 +6,7 @@ import Habits from './pages/Habits';
 import Overview from './pages/Overview';
 import Planner from './pages/Planner';
 import Finance from './pages/Finance';
+import Health from './pages/Health';
 import Journal from './pages/Journal';
 import Auth from './pages/Auth';
 import AuthCallback from './pages/AuthCallback';
@@ -59,6 +60,7 @@ function AnimatedRoutes() {
           <Route path="habits" element={<Habits />} />
           <Route path="planner" element={<Planner />} />
           <Route path="finance" element={<Finance />} />
+          <Route path="health" element={<Health />} />
           <Route path="journal" element={<Journal />} />
           <Route path="profile" element={<Profile />} />
           <Route path="admin" element={<AdminRoute><Admin /></AdminRoute>} />
