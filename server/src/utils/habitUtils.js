@@ -29,11 +29,20 @@ export const initializeSystemHabits = async (userId) => {
     ];
 
     try {
-        for (const h of habits) {
-            const exists = await Habit.findOne({ user: userId, systemId: h.systemId });
-            if (!exists) {
-                await Habit.create(h);
-            }
+        // Find existing system habits for this user
+        const existingHabits = await Habit.find({
+            user: userId,
+            systemId: { $in: habits.map(h => h.systemId) }
+        });
+
+        const existingSystemIds = new Set(existingHabits.map(h => h.systemId));
+
+        // Filter out habits that already exist
+        const missingHabits = habits.filter(h => !existingSystemIds.has(h.systemId));
+
+        // Bulk insert missing habits
+        if (missingHabits.length > 0) {
+            await Habit.insertMany(missingHabits);
         }
     } catch (error) {
         console.error('Failed to initialize system habits:', error);
