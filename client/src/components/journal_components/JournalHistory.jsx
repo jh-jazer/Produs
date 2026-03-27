@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import { useJournal } from '../../hooks/useJournal';
+import { sanitizeHtml } from '../../utils/sanitize';
 
 const parseMarkdown = (text) => {
     if (!text) return { __html: '' };
@@ -19,7 +20,9 @@ const parseMarkdown = (text) => {
     html = html.replace(/<\/div><br \/>/g, '</div>');
     html = html.replace(/<\/blockquote><br \/>/g, '</blockquote>');
 
-    return { __html: html };
+    const sanitizedHtml = sanitizeHtml(html);
+
+    return { __html: sanitizedHtml };
 };
 
 const JournalHistory = ({ entries = [], onAction }) => {
