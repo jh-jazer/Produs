@@ -32,6 +32,7 @@ function Layout() {
     const { user, signOut } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
+    const isOverview = location.pathname === '/dashboard';
     const isOnline = true; // navigator.onLine (Offline features removed)
     const profileRef = useRef(null);
 
@@ -217,14 +218,50 @@ function Layout() {
                     </div>
                 </div>
 
-                {/* 3. Sidebar Footer: System Actions */}
-                <div className={`mt-auto p-4 md:p-6 flex flex-col items-start pl-[20px] gap-5 transition-all duration-[600ms] 
+                {/* 3. Sidebar Footer: System Actions & Identity HUD */}
+                <div className={`mt-auto p-4 md:p-6 flex flex-col items-start gap-4 transition-all duration-[600ms] 
+                    ${isOverview ? 'pl-[20px]' : 'pl-[16px]'}
                 `}>
 
+                    {/* Unified Level HUD: Persistent Icon + Conditional Progress Bar */}
+                    <div className="hidden md:flex items-center gap-4 w-full h-10">
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setIsStatsModalOpen(true)}
+                            className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/[0.05] dark:border-white/10 flex flex-col items-center justify-center gap-0.5 transition-all hover:bg-electric-blue/10 hover:border-electric-blue/30 group/lvl shrink-0"
+                        >
+                            <span className="text-[7px] font-black text-black/30 dark:text-white/30 group-hover/lvl:text-electric-blue/60 uppercase tracking-tighter italic leading-none">LVL</span>
+                            <span className="text-sm font-black text-black dark:text-white group-hover/lvl:text-electric-blue leading-none">{user?.level || 1}</span>
+                        </motion.button>
+
+                        <AnimatePresence>
+                            {(deferredPath === '/dashboard') && (
+                                <motion.div 
+                                    key="prog-bar"
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -10 }}
+                                    className="flex-1 min-w-0"
+                                >
+                                    <LevelDisplay 
+                                        level={user?.level} 
+                                        exp={user?.exp} 
+                                        totalRequired={user?.totalRequired}
+                                        nextLevelExp={user?.nextLevelExp}
+                                        className="w-full" 
+                                        onClick={() => setIsStatsModalOpen(true)}
+                                    />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Profile & Name Identity */}
                     <div className="relative flex items-center gap-4 group" ref={profileRef}>
                         <button
                             onClick={() => setIsUserMenuOpen(true)}
-                            className="size-10 rounded-full ring-2 ring-electric-blue/10 hover:ring-electric-blue/40 overflow-hidden transition-all active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0"
+                            className="size-10 rounded-full ring-2 ring-electric-blue/10 hover:ring-electric-blue/40 overflow-hidden transition-all active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0 relative"
                         >
                             {user?.avatar?.url ? (
                                 <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover" />
@@ -243,14 +280,17 @@ function Layout() {
                                     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                                     className="hidden md:flex flex-col whitespace-nowrap overflow-hidden"
                                 >
-                                    <LevelDisplay 
-                                        level={user?.level} 
-                                        exp={user?.exp} 
-                                        totalRequired={user?.totalRequired}
-                                        nextLevelExp={user?.nextLevelExp}
-                                        className="w-32" 
-                                        onClick={() => setIsStatsModalOpen(true)}
-                                    />
+                                    <div className="flex flex-col">
+                                        <p className="text-[10px] font-black text-black dark:text-white leading-none uppercase tracking-[0.2em]">{user?.username ? `@${user.username}` : user?.name}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            {user?.username && <span className="text-[8px] font-bold text-electric-blue uppercase">{user.name}</span>}
+                                            {user?.rpg?.archetype?.stage && (
+                                                <span className="text-[8px] font-medium text-black/30 dark:text-white/30 uppercase tracking-tighter italic">
+                                                    // {user.rpg.archetype.stage}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>

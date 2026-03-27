@@ -412,6 +412,9 @@ export const getPublicProfile = async (req, res) => {
             topHabits,
             systemStreaks,
             achievementCount,
+            level: user.level,
+            exp: user.exp,
+            rpg: user.rpg,
             ...partnerData
         });
     } catch (error) {
@@ -447,12 +450,13 @@ export const completeOnboarding = async (req, res) => {
                 if (existingUser && existingUser.id !== user.id) {
                     return res.status(400).json({ message: 'Username is already taken' });
                 }
-                user.username = req.body.username;
+                user.username = req.body.username.toLowerCase();
             }
 
             user.onboardingCompleted = true;
             user.timezone = req.body.timezone || user.timezone;
             user.currency = req.body.currency || user.currency;
+            user.interests = req.body.interests || [];
 
             if (req.body.themeMode) {
                 user.settings.themeMode = req.body.themeMode;
@@ -467,25 +471,46 @@ export const completeOnboarding = async (req, res) => {
             }
                 user.markModified('settings');
             
-            // Handle RPG Assessment Results
-            if (Array.isArray(req.body.statsToBoost)) {
-                for (const stat of req.body.statsToBoost) {
-                    // Starting bonus (+20 XP in chosen stats)
-                    await awardXP(user._id, stat, 20);
+            if (req.body.archetype) {
+                user.rpg.archetype.name = req.body.archetype;
+                user.markModified('rpg.archetype');
+            }
+
+            if (req.body.subscriptions && Array.isArray(req.body.subscriptions)) {
+                user.settings.subscriptions = req.body.subscriptions;
+                user.markModified('settings.subscriptions');
+            }
+
+            // Handle RPG Assessment Results (Awarding Base Stats only, No EXP/Level boot during onboarding)
+            if (req.body.statsToBoost && typeof req.body.statsToBoost === 'object') {
+                for (const [stat, points] of Object.entries(req.body.statsToBoost)) {
+                    if (points > 0) {
+                        user.rpg.stats[stat] += (points * 5);
+                    }
                 }
+                // Finalize the initial 'Awakened' archetype based on these base stats
+                user.rpg.archetype = determineArchetype(user.rpg.stats, user.level);
+                user.markModified('rpg');
             }
 
             await user.save();
 
+            const levelInfo = calculateLevel(user.exp);
             res.json({
                 _id: user.id,
                 name: user.name,
                 email: user.email,
                 avatar: user.avatar,
+                username: user.username,
                 onboardingCompleted: user.onboardingCompleted,
                 timezone: user.timezone,
                 currency: user.currency,
                 settings: user.settings,
+                level: user.level,
+                exp: user.exp,
+                rpg: user.rpg,
+                totalRequired: levelInfo.totalRequired,
+                nextLevelExp: levelInfo.xpToNext,
             });
         } else {
             res.status(404).json({ message: 'User not found' });

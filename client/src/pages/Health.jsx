@@ -1,7 +1,11 @@
 import React from 'react';
 import { useHealth } from '../hooks/useHealth';
 
-import HealthMetrics from '../components/health_components/HealthMetrics';
+import WaterTracker from '../components/health_components/WaterTracker';
+import SleepTracker from '../components/health_components/SleepTracker';
+import BMITracker from '../components/health_components/BMITracker';
+import WeightTracker from '../components/health_components/WeightTracker';
+import RecentHealthLogs from '../components/health_components/RecentHealthLogs';
 import WorkoutTracker from '../components/health_components/WorkoutTracker';
 import NutritionLog from '../components/health_components/NutritionLog';
 import MobileTabNav from '../components/ui/MobileTabNav';
@@ -35,7 +39,7 @@ const Health = () => {
             {/* Mobile Navigation */}
             <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
                 {/* Secondary Column (Left) */}
                 <div className={`lg:col-span-4 flex flex-col gap-6 ${activeTab !== 'metrics' ? 'hidden lg:flex' : ''}`}>
@@ -48,10 +52,21 @@ const Health = () => {
                         <p className="text-black/40 dark:text-white/40 text-xs font-semibold uppercase tracking-[0.2em] mt-1">Status Overview</p>
                     </div>
 
-                    <div className={activeTab === 'metrics' ? 'block' : 'hidden lg:block'}>
-                         <HealthMetrics
+                    <div className={`flex flex-col gap-6 ${activeTab === 'metrics' ? 'block' : 'hidden lg:block'}`}>
+                         <BMITracker
                             metrics={metrics}
                             addHealthLog={addHealthLog}
+                        />
+                         <WaterTracker
+                            metrics={metrics}
+                            addHealthLog={addHealthLog}
+                        />
+                         <SleepTracker
+                            metrics={metrics}
+                            addHealthLog={addHealthLog}
+                        />
+                         <RecentHealthLogs
+                            metrics={metrics}
                             deleteHealthLog={deleteHealthLog}
                         />
                     </div>

@@ -4,10 +4,10 @@
  */
 
 export const LEVEL_TABLE = [
-    { level: 1, title: 'Shut-in', xpToNext: 100, totalRequired: 0 },
-    { level: 2, title: 'Restless', xpToNext: 250, totalRequired: 100 },
-    { level: 3, title: 'Stirring', xpToNext: 500, totalRequired: 350 },
-    { level: 4, title: 'Emerging', xpToNext: 1000, totalRequired: 850 },
+    { level: 1, title: 'Archetype Tier 1', xpToNext: 100, totalRequired: 0 },
+    { level: 2, title: 'Archetype Tier 1', xpToNext: 250, totalRequired: 100 },
+    { level: 3, title: 'Archetype Tier 1', xpToNext: 500, totalRequired: 350 },
+    { level: 4, title: 'Archetype Tier 1', xpToNext: 1000, totalRequired: 850 },
     { level: 5, title: 'Archetype Tier 1', xpToNext: 1750, totalRequired: 1850 },
     { level: 6, title: 'Archetype Tier 1', xpToNext: 2750, totalRequired: 3600 },
     { level: 7, title: 'Archetype Tier 1', xpToNext: 4000, totalRequired: 6350 },
@@ -114,43 +114,52 @@ export const calculateLevel = (totalXP) => {
 };
 
 export const determineArchetype = (stats, level) => {
-    if (level < 5) {
-        const levelInfo = LEVEL_TABLE.find(l => l.level === level) || LEVEL_TABLE[0];
-        return { name: 'None', tier: 0, stage: levelInfo.title };
-    }
-
     const statEntries = Object.entries(stats).sort((a, b) => b[1] - a[1]);
     const highest = statEntries[0][0];
     const secondHighest = statEntries[1][0];
 
     let archeKey = '';
 
-    // Simplified logic based on Dominant/Secondary stats from guideline
-    if ((highest === 'str' && secondHighest === 'dex') || (highest === 'dex' && secondHighest === 'str')) {
-        archeKey = 'BLADE_DANCER';
-    } else if ((highest === 'str' && secondHighest === 'end') || (highest === 'end' && secondHighest === 'str')) {
-        archeKey = 'SENTINEL';
-    } else if ((highest === 'int' && secondHighest === 'wis') || (highest === 'wis' && secondHighest === 'int')) {
-        archeKey = 'ALCHEMIST';
-    } else if ((highest === 'int' && secondHighest === 'dex') || (highest === 'dex' && secondHighest === 'int')) {
-        archeKey = 'ARCHITECT';
-    } else if (highest === 'wis' && secondHighest === 'end') {
-        // Tiebreaker for Oracle vs Druid
-        archeKey = stats.str > 55 ? 'DRUID' : 'ORACLE';
-    } else if (highest === 'cha' && secondHighest === 'str') {
-        archeKey = 'COMMANDER';
-    } else if (highest === 'cha' && secondHighest === 'int') {
-        archeKey = 'BARD';
-    } else if (highest === 'wis' && secondHighest === 'dex') {
-        archeKey = 'SHADOW_MONK';
-    } else {
-        // Fallback to highest stat matching
-        if (highest === 'str') archeKey = 'SENTINEL';
-        else if (highest === 'dex') archeKey = 'BLADE_DANCER';
-        else if (highest === 'int') archeKey = 'ALCHEMIST';
-        else if (highest === 'wis') archeKey = 'ORACLE';
-        else if (highest === 'cha') archeKey = 'BARD';
-        else archeKey = 'SENTINEL';
+    // Synchronized Neural Link Mapping (Exhaustive)
+    switch (highest) {
+        case 'str':
+            if (secondHighest === 'dex') archeKey = 'BLADE_DANCER';
+            else if (secondHighest === 'end') archeKey = 'SENTINEL';
+            else if (secondHighest === 'cha') archeKey = 'COMMANDER';
+            else archeKey = 'SENTINEL';
+            break;
+        case 'dex':
+            if (secondHighest === 'str') archeKey = 'BLADE_DANCER';
+            else if (secondHighest === 'int') archeKey = 'ARCHITECT';
+            else if (secondHighest === 'end') archeKey = 'SHADOW_MONK';
+            else archeKey = 'ARCHITECT';
+            break;
+        case 'int':
+            if (secondHighest === 'wis') archeKey = 'ALCHEMIST';
+            else if (secondHighest === 'dex') archeKey = 'ARCHITECT';
+            else if (secondHighest === 'cha') archeKey = 'BARD';
+            else archeKey = 'ALCHEMIST';
+            break;
+        case 'wis':
+            if (secondHighest === 'end') archeKey = stats.str > 15 ? 'DRUID' : 'ORACLE';
+            else if (secondHighest === 'dex') archeKey = 'SHADOW_MONK';
+            else if (secondHighest === 'int') archeKey = 'ALCHEMIST';
+            else archeKey = 'ORACLE';
+            break;
+        case 'cha':
+            if (secondHighest === 'str') archeKey = 'COMMANDER';
+            else if (secondHighest === 'int') archeKey = 'BARD';
+            else if (secondHighest === 'wis') archeKey = 'ORACLE';
+            else archeKey = 'COMMANDER';
+            break;
+        case 'end':
+            if (secondHighest === 'str') archeKey = 'SENTINEL';
+            else if (secondHighest === 'wis') archeKey = 'DRUID';
+            else if (secondHighest === 'cha') archeKey = 'COMMANDER';
+            else archeKey = 'SENTINEL';
+            break;
+        default:
+            archeKey = 'SENTINEL';
     }
 
     const archetype = ARCHETYPES[archeKey];

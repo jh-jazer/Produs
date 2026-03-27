@@ -112,8 +112,17 @@ function ProfileModal({ username, onClose }) {
                             {/* Identity Area */}
                             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                                 <div className="min-w-0">
-                                    <h2 className="text-xl font-semibold text-black dark:text-white truncate tracking-[-0.02em]">{profile.name}</h2>
-                                    <p className="text-xs font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.2em] mt-0.5">@{profile.username}</p>
+                                    <h2 className="text-xl font-black text-black dark:text-white truncate tracking-[-0.02em] uppercase">
+                                        {profile.username ? `@${profile.username}` : profile.name}
+                                    </h2>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <p className="text-[10px] font-bold text-black/40 dark:text-white/40 uppercase tracking-[0.2em]">{profile.name}</p>
+                                        {profile.rpg?.archetype?.stage && (
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-electric-blue italic">
+                                                // {profile.rpg.archetype.stage}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                                 
                                 {/* Quick Actions */}
@@ -157,6 +166,24 @@ function ProfileModal({ username, onClose }) {
                                     )}
                                 </div>
                             </div>
+
+                            {/* RPG Stats Section */}
+                            {profile.rpg && (
+                                <div className="mt-6 bg-black/[0.03] dark:bg-[#050505] rounded-2xl p-4 border border-black/[0.05] dark:border-white/10">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-[9px] font-black uppercase tracking-[0.3em] text-black/30 dark:text-white/30">System Profile</h3>
+                                        <span className="text-[9px] font-bold text-electric-blue">LVL {profile.level || 1}</span>
+                                    </div>
+                                    <div className="grid grid-cols-6 gap-2">
+                                        {Object.entries(profile.rpg.stats || {}).map(([stat, val]) => (
+                                            <div key={stat} className="flex flex-col items-center">
+                                                <span className="text-[9px] font-black uppercase tracking-tighter text-black/20 dark:text-white/20 mb-1">{stat}</span>
+                                                <span className="text-[10px] font-bold text-black/60 dark:text-white/80">{val}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Core Streaks Area */}
                             <div className="mt-6 grid grid-cols-3 gap-2.5">

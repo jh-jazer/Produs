@@ -4,27 +4,40 @@ import { awardXP } from '../utils/rpgUtils.js';
 
 export const logHealth = async (req, res) => {
     try {
-        const { type, value, isGoalHit } = req.body;
-        const today = new Date().toISOString().split('T')[0];
+        const { type, title, value, unit, isGoalHit, details } = req.body;
+        // The frontend currently passes date as YYYY-MM-DD from the client, we should use it if provided
+        const date = req.body.date || new Date().toISOString().split('T')[0];
 
         const healthLog = await HealthLog.create({
             user: req.user._id,
-            date: today,
+            date,
             type,
+            title,
             value,
-            isGoalHit
+            unit,
+            isGoalHit,
+            details
         });
 
         const user = await User.findById(req.user._id);
         
         // Award STR XP based on type
-        // Workout: +10, Sleep: +8, Nutrition: +8, Hydration: +5
+        // Workout: +10, Sleep/Metric: +8, Nutrition: +8, Hydration: +5
         let xpAmount = 0;
-        switch (type) {
+        let mainType = type;
+        if (type === 'metric') {
+            const metricType = details?.metricType;
+            if (metricType === 'sleep') mainType = 'sleep';
+            else if (metricType === 'weight' || metricType === 'bmi') mainType = 'metric';
+            else if (metricType === 'hydration') mainType = 'hydration';
+        }
+
+        switch (mainType) {
             case 'workout': xpAmount = 10; break;
             case 'sleep': xpAmount = 8; break;
             case 'nutrition': xpAmount = 8; break;
             case 'hydration': xpAmount = 5; break;
+            case 'metric': xpAmount = 5; break;
         }
 
         if (isGoalHit) {

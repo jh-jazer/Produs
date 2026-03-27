@@ -88,6 +88,41 @@ function App() {
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
+    // Theme Management logic
+    const themeMode = user?.settings?.themeMode || 'system';
+    const isDark = user?.settings?.darkMode;
+
+    const applyTheme = (mode) => {
+      if (mode === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else if (mode === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        // System
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+    };
+
+    // Initial apply
+    applyTheme(themeMode);
+
+    // If system, listen for changes
+    if (themeMode === 'system') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      const listener = (e) => {
+        document.documentElement.classList.toggle('dark', e.matches);
+      };
+      
+      mq.addEventListener('change', listener);
+      return () => mq.removeEventListener('change', listener);
+    }
+  }, [user?.settings?.themeMode]);
+
+  useEffect(() => {
     // Hide the initial loader once auth state is settled.
     // We give it a small extra buffer to ensure the first mount is stable.
     if (typeof window.hideInitialLoader === 'function') {

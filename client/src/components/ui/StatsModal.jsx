@@ -20,7 +20,8 @@ const getArchetypeDisplay = (user) => {
   
   const { name, tier, stage } = user.rpg.archetype;
   
-  if (user.level < 5) {
+  // Show archetype if onboarding is complete, regardless of level
+  if (user.level < 5 && !user.onboardingCompleted) {
     return {
       name: 'Potential',
       icon: '✨',
@@ -31,10 +32,10 @@ const getArchetypeDisplay = (user) => {
   }
 
   return {
-    name: name,
-    icon: '⚔️', // Default icon, could be mapped in ARCHETYPES constants
+    name: name || 'Seeker',
+    icon: '⚔️',
     tierName: stage,
-    tier: tier,
+    tier: tier || 1,
     isUnawakened: false
   };
 };

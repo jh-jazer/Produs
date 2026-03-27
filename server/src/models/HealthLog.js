@@ -11,17 +11,23 @@ const healthLogSchema = new mongoose.Schema({
         required: true
     },
     type: {
-        type: String,
-        enum: ['workout', 'sleep', 'nutrition', 'hydration'],
+        type: String, // 'workout', 'sleep', 'nutrition', 'metric', 'hydration', etc
         required: true
     },
+    title: {
+        type: String,
+        default: ''
+    },
     value: {
-        type: Number,
-        required: true
+        type: Number // kept for legacy or simple logs
     },
     unit: {
         type: String,
         default: ''
+    },
+    details: {
+        type: mongoose.Schema.Types.Mixed, // flexible object for duration, intensity, metricType, etc.
+        default: {}
     },
     isGoalHit: {
         type: Boolean,

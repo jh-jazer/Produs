@@ -25,7 +25,17 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
                         <div className="p-6 border-b border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02]">
                             <div>
                                 <p className="text-[10px] font-black uppercase tracking-widest text-black/40 dark:text-white/40 mb-1">Authenticated As</p>
-                                <p className="text-sm font-bold text-black dark:text-white">{user?.name}</p>
+                                <div className="flex flex-col">
+                                    <p className="text-sm font-bold text-black dark:text-white leading-tight">{user?.name}</p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        {user?.username && <p className="text-[9px] font-medium text-electric-blue/80 tracking-wider">@{user.username}</p>}
+                                        {user?.rpg?.archetype?.stage && (
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-black/30 dark:text-white/30 italic">
+                                                // {user.rpg.archetype.stage}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                             <button
                                 onClick={onClose}

@@ -58,6 +58,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    interests: {
+        type: [String],
+        default: []
+    },
     rpg: {
         stats: {
             str: { type: Number, default: 0 },
@@ -117,7 +121,7 @@ const userSchema = new mongoose.Schema({
         themeMode: {
             type: String,
             enum: ["light", "dark", "system"],
-            default: "light"
+            default: "system"
         },
         darkMode: {
             type: Boolean,
@@ -134,7 +138,6 @@ const userSchema = new mongoose.Schema({
     },
     currency: {
         type: String,
-        enum: ['USD', 'PHP'],
         default: 'USD'
     },
     partner: {
