@@ -9,9 +9,12 @@ export default defineConfig({
     react(), 
     tailwindcss(),
     VitePWA({
-      injectRegister: false,
-      selfDestroying: true,
+      registerType: 'prompt',
+      injectRegister: 'auto',
       includeAssets: ['produs-logo.png'],
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+      },
       manifest: {
         name: 'Produs Productivity',
         short_name: 'Produs',
