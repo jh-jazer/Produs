@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useAssetStore } from "../../store/useAssetStore";
 
 const SEQ_1 = Object.values(
-  import.meta.glob("../../assets/sequence_1/*.jpg", { eager: true, query: '?url', import: 'default' })
+  import.meta.glob("../../assets/sequence_1/*.jpg", { eager: true, import: 'default' })
 ).sort((a, b) => {
     const aNum = parseInt(a.match(/frame-(\d+)/)?.[1] || "0");
     const bNum = parseInt(b.match(/frame-(\d+)/)?.[1] || "0");
