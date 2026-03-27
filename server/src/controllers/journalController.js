@@ -3,7 +3,7 @@ import { checkSystemHabit } from '../utils/habitUtils.js';
 import User from '../models/User.js';
 import { awardXP } from '../utils/rpgUtils.js';
 
-export const createJournalEntry = async (req, res) => {
+export const createEntry = async (req, res) => {
     try {
         const { title, content, mood, tags, date } = req.body;
         const entry = await Journal.create({

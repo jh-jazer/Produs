@@ -1,7 +1,9 @@
 import User from '../models/User.js';
+import Task from '../models/Task.js';
+import Goal from '../models/Goal.js';
 import Template from '../models/Template.js';
 import { checkSystemHabit } from '../utils/habitUtils.js';
-import { addExp } from '../utils/levelUtils.js';
+import { awardXP } from '../utils/rpgUtils.js';
 
 // Helper to check for overlaps
 const checkOverlap = async (userId, date, startTime, endTime, excludeTaskId = null) => {
