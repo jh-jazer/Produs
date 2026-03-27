@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, Settings, BarChart3, ShieldCheck, Database, Search, RefreshCcw } from 'lucide-react';
 import useSWR from 'swr';
-import api from '../services/api';
 import AdminBugs from '../components/AdminBugs';
 import MobileTabNav from '../components/ui/MobileTabNav';
 
