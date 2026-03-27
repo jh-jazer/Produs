@@ -224,7 +224,7 @@ function Layout() {
                 `}>
 
                     {/* Unified Level HUD: Persistent Icon + Conditional Progress Bar */}
-                    <div className="hidden md:flex items-center gap-4 w-full h-10">
+                    <div className="flex items-center gap-4 w-full h-10">
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -242,7 +242,7 @@ function Layout() {
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -10 }}
-                                    className="flex-1 min-w-0"
+                                    className="hidden md:flex flex-1 min-w-0"
                                 >
                                     <LevelDisplay 
                                         level={user?.level} 
