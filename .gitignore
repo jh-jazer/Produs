@@ -1,0 +1,25 @@
+# Dependency directories
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build artifacts
+dist/
+client/dist/
+server/dist/
+.vercel/
+.next/
+
+# Environment variables
+.env
+*.local
+
+# Logs
+*.log
+logs/
+client/logs/
+server/logs/
+
+# OS files
+.DS_Store
+Thumbs.db

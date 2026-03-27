@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <link rel="icon" type="image/png" href="/produs-logo.png" />
+  <link rel="apple-touch-icon" href="/produs-logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f6f6f8" media="(prefers-color-scheme: light)" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Produs" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="description" content="Produs - The Minimalist Productivity Tool" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <title>Produs</title>
+</head>
+
+<body>
+  <div id="initial-loader" class="initial-loader">
+    <div class="loader-content">
+      <div class="loader-logo-container">
+        <div class="logo-glow"></div>
+        <div class="loader-logo">
+          <div class="logo-inner"></div>
+        </div>
+      </div>
+      <div class="loader-text-container">
+        <h1 class="loader-title">Produs</h1>
+        <div class="loader-line"></div>
+        <span class="loader-text">INITIALIZING SYSTEM</span>
+      </div>
+    </div>
+    <div class="loader-progress-container">
+      <div class="loader-progress-bar"></div>
+    </div>
+  </div>
+
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+  <style>
+    :root {
+      --electric-blue: #0066FF;
+    }
+
+    .initial-loader {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s;
+    }
+
+    .loader-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3rem;
+      animation: contentEntrance 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes contentEntrance {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .loader-logo-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-glow {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 102, 255, 0.2);
+      filter: blur(25px);
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      transform: translateY(10px);
+      animation: glowPulse 3s infinite ease-in-out;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.5; transform: translateY(10px) scale(1); }
+      50% { opacity: 0.8; transform: translateY(10px) scale(1.2); }
+    }
+
+    .loader-logo {
+      width: 80px;
+      height: 80px;
+      background: #fff;
+      transform: rotate(45deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,0.4);
+      box-shadow: 0 0 40px rgba(255,255,255,0.8);
+      position: relative;
+      z-index: 10;
+      animation: logoRotate 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes logoRotate {
+      from { transform: rotate(0deg) scale(0.8); opacity: 0; }
+      to { transform: rotate(45deg) scale(1); opacity: 1; }
+    }
+
+    .logo-inner {
+      width: 40px;
+      height: 40px;
+      background: #000;
+      transform: rotate(-45deg);
+      box-shadow: inset 0 0 20px rgba(255,255,255,0.5);
+    }
+
+    .loader-text-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      opacity: 0;
+      animation: textReveal 1s 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes textReveal {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .loader-title {
+      font-family: "Inter", "Manrope", sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.8em;
+      text-transform: uppercase;
+      color: #fff;
+      margin-left: 0.8em;
+    }
+
+    .loader-line {
+      width: 128px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
+    }
+
+    .loader-text {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 0.3; }
+    }
+
+    .loader-progress-container {
+      position: absolute;
+      bottom: 3rem;
+      width: 192px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .loader-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      animation: progressFill 3.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    }
+
+    @keyframes progressFill {
+      0% { width: 0%; }
+      30% { width: 20%; }
+      60% { width: 70%; }
+      100% { width: 100%; }
+    }
+
+    .initial-loader.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+  </style>
+</body>
+
+</html>

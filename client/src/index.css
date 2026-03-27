@@ -1,0 +1,236 @@
+@import url("https://fonts.googleapis.com/css2?family=Bangers&family=Bebas+Neue&family=Comic+Neue:ital,wght@0,400;0,700;1,400;1,700&family=Kalam:wght@300;400;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+    --font-display: "Inter", "Manrope", sans-serif;
+    --font-ubuntu: "Ubuntu", sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
+    --font-bangers: "Bangers", system-ui;
+    --font-bebas: "Bebas Neue", sans-serif;
+    --font-comic: "Comic Neue", cursive;
+    --font-kalam: "Kalam", cursive;
+
+    --color-primary: #0066ff;
+    --color-deep-space: #000000;
+    --color-neural-black: #050505;
+    --color-obsidian: #121212;
+    --color-electric-blue: #0066ff;
+    --color-titanium-white: #ffffff;
+    --color-muted-slate: #888888;
+    --color-signal-orange: #ff4d00;
+    --color-neon-emerald: #00ff88;
+    --color-dark-amethyst: #a855f7;
+
+    --color-background-light: #f8f8f8;
+    --color-background-dark: #000000;
+
+    --color-habit-health: #00ff88;
+
+    --color-habit-mindset: #a855f7;
+
+    --color-habit-focus: #0066ff;
+
+    --color-habit-social: #ff4d00;
+
+    --color-habit-social: #ff4d00;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+    --primary: #0066ff;
+    --background: #f8f8f8;
+    --foreground: #111111;
+    --card: #ffffff;
+    --border: #e8e8e8;
+}
+
+.dark {
+    --background: #000000;
+    --foreground: #f8fafc;
+    --card: #121212;
+    --border: #ffffff1a;
+}
+
+html,
+body {
+    background-color: var(--background);
+    color: var(--foreground);
+    transition:
+        background-color 0.5s ease,
+        color 0.5s ease,
+        border-color 0.5s ease,
+        box-shadow 0.5s ease;
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+}
+
+* {
+    transition:
+        border-color 0.3s ease,
+        background-color 0.3s ease-out;
+}
+
+@layer utilities {
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 20px;
+    }
+
+    html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Hover-only scrollbar thumb */
+    .hover-scrollbar::-webkit-scrollbar-thumb {
+        background-color: transparent;
+    }
+
+    .hover-scrollbar:hover::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.15);
+    }
+
+    html.dark .hover-scrollbar:hover::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .heatmap-cell {
+        @apply w-3 h-3 rounded-sm transition-all duration-200;
+    }
+
+    .mood-heat-cell {
+        @apply w-3 h-3 rounded-sm transition-colors duration-200;
+    }
+
+    /* Brand grid overlay — Intelligence Aesthetic */
+    .bg-grid {
+        background-size: 40px 40px;
+        background-image:
+            linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0.05) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0.05) 1px,
+                transparent 1px
+            );
+    }
+
+    /* Light-mode grid variant */
+    .bg-grid-light {
+        background-size: 40px 40px;
+        background-image:
+            linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+    }
+
+    .glow-active {
+        box-shadow: 0 0 20px -5px rgba(0, 102, 255, 0.3);
+    }
+
+    /* HUD card — high-depth shadow (brand spec) */
+    .shadow-hud {
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    /* AR corner decorations — Intelligence Aesthetic */
+    .ar-corners {
+        /* Positioned by caller (relative/absolute) */
+    }
+    .ar-corners::before,
+    .ar-corners::after {
+        content: "";
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        opacity: 0.25;
+        pointer-events: none;
+    }
+    .ar-corners::before {
+        top: 0;
+        left: 0;
+        border-top: 1px solid currentColor;
+        border-left: 1px solid currentColor;
+    }
+    .ar-corners::after {
+        bottom: 0;
+        right: 0;
+        border-bottom: 1px solid currentColor;
+        border-right: 1px solid currentColor;
+    }
+
+    .perspective-2000 {
+        perspective: 2000px;
+    }
+
+    .animate-scan-line {
+        animation: scan-line 4s linear infinite;
+    }
+
+    @keyframes scan-line {
+        0% {
+            top: -10%;
+
+            opacity: 0;
+        }
+
+        5% {
+            opacity: 1;
+        }
+
+        95% {
+            opacity: 1;
+        }
+
+        100% {
+            top: 110%;
+
+            opacity: 0;
+        }
+    }
+
+}
+
+@theme {
+    --animate-shimmer: shimmer 2s infinite;
+
+    @keyframes shimmer {
+        100% {
+            transform: translateX(100%);
+        }
+    }
+
+    --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+/* Hide scrollbar while middle-click/touch/scroll still works */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
