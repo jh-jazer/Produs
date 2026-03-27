@@ -307,6 +307,11 @@ export const disconnectConnection = async (req, res) => {
 // @desc    Search public users by name or username
 // @route   GET /api/auth/search?q=query
 // @access  Private
+// Helper function to escape regex characters to prevent ReDoS or unintended matching
+const escapeRegExp = (string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+};
+
 export const searchUsers = async (req, res) => {
     try {
         const query = req.query.q;
@@ -316,13 +321,16 @@ export const searchUsers = async (req, res) => {
 
         const isIdSearch = mongoose.isValidObjectId(query);
         
+        // Escape the query string to prevent NoSQL injection via regex
+        const safeQuery = escapeRegExp(query);
+
         // Match by Name, Username OR ID
         // Simplified query: Find any user that matches query string OR exact ID, excluding the searcher
         const searchQuery = {
             _id: { $ne: req.user.id },
             $or: [
-                { name: { $regex: query, $options: 'i' } },
-                { username: { $regex: query, $options: 'i' } }
+                { name: { $regex: safeQuery, $options: 'i' } },
+                { username: { $regex: safeQuery, $options: 'i' } }
             ]
         };
 
