@@ -13,6 +13,9 @@ import AuthCallback from './pages/AuthCallback';
 import Landing from './pages/Landing';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import Manual from './pages/Manual';
+import Classes from './pages/Classes';
+import PatchNotes from './pages/PatchNotes';
 import PublicProfile from './pages/PublicProfile';
 import useAuthStore from './store/useAuthStore';
 import { useEffect } from 'react';
@@ -47,6 +50,10 @@ function AnimatedRoutes() {
       <Routes location={location} key={transitionKey}>
         {/* Public Landing Page */}
         <Route path="/" element={<Landing />} />
+
+        <Route path="/manual" element={<Manual />} />
+        <Route path="/classes" element={<Classes />} />
+        <Route path="/updates" element={<PatchNotes />} />
 
         <Route path="/auth" element={<Auth />} />
         <Route path="/auth/callback" element={<AuthCallback />} />

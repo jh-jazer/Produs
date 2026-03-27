@@ -1,0 +1,17 @@
+1. Update `client/src/App.jsx` to include routes for the new pages:
+  - `/manual` -> `<Manual />`
+  - `/classes` -> `<Classes />`
+  - `/updates` -> `<PatchNotes />`
+
+2. Create the new pages in `client/src/pages/`:
+  - `Manual.jsx` (System Overview, Mission, Creator, Tech, Ledger/Privacy)
+  - `Classes.jsx` (Deep dive into RPG mechanics: Titan, Muse, Mogul, Sage, Zen Archer, Health Guide, Financial Tracker)
+  - `PatchNotes.jsx` (Version History, Roadmap)
+
+3. Update the navbar in `client/src/pages/Landing.jsx` to reflect the suggested organization:
+  - System (`/manual`)
+  - Classes (`/classes`)
+  - Patch Notes (`/updates`)
+  - The Vault (`/login` or `/auth`) - replacing the current `Entry` or similar links, or just keeping the main `Access Interface` button pointing to `/auth`. The request asks for "The Vault /login", so we'll update the navigation links to match: `System`, `Classes`, `Patch Notes`, `The Vault`.
+
+4. Use the "The Intelligence Aesthetic" styles (Deep Space, Obsidian, electric-blue accents, uppercase tracking, Inter font).
