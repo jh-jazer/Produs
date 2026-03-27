@@ -13,7 +13,7 @@ function Overview() {
     hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="w-full max-w-2xl mx-auto pt-8 pb-24">
+    <div className="w-full max-w-2xl pt-8 pb-24">
       {/* Greeting Header */}
       <div className="flex flex-col gap-1 mb-8 px-1 text-center sm:text-left">
         <h1 className="text-black dark:text-white text-3xl font-semibold tracking-[-0.04em]">

@@ -240,7 +240,6 @@ function Layout() {
 
             {/* Main Application Interface */}
             <div className={`flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]
-                ${deferredPath === '/dashboard' ? 'md:pl-0' : 'md:pl-20'}
                 ${isMobileMenuOpen ? 'blur-md' : 'blur-0'}
             `}>
 
@@ -253,7 +252,7 @@ function Layout() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: "-10%", opacity: 0, scale: 0.96, filter: "blur(12px)" }}
                                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                className="flex-1 flex justify-center pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
+                                className="flex-1 flex justify-start pb-32 md:pb-12 px-4 md:px-6 lg:px-10 w-full"
                             >
                                 <FrozenRoute context={{ setIsSearchModalOpen }} />
                             </motion.main>
