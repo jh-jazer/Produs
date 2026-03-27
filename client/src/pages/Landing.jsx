@@ -233,7 +233,6 @@ export default function Landing() {
           <Link to="/manual" className="hover:text-current transition-all hover:tracking-[0.8em]">System</Link>
           <Link to="/classes" className="hover:text-current transition-all hover:tracking-[0.8em]">Classes</Link>
           <Link to="/updates" className="hover:text-current transition-all hover:tracking-[0.8em]">Patch Notes</Link>
-          <Link to="/auth" className="hover:text-current transition-all hover:tracking-[0.8em] border-l border-white/30 pl-10 xl:pl-16">The Vault</Link>
         </div>
 
         <Link to={user ? "/dashboard" : "/auth"} className="pointer-events-auto group flex items-center gap-3 md:gap-6">

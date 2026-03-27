@@ -116,6 +116,8 @@ function Layout() {
                     <LevelDisplay 
                         level={user?.level} 
                         exp={user?.exp} 
+                        totalRequired={user?.totalRequired}
+                        nextLevelExp={user?.nextLevelExp}
                         className="w-32" 
                         onClick={() => setIsStatsModalOpen(true)}
                     />
@@ -141,8 +143,7 @@ function Layout() {
                     fixed md:relative z-[150] h-full flex flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1]
                     ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                     ${(deferredPath === '/dashboard' || (isMobileMenuOpen && deferredPath === '/dashboard')) ? 'w-72' : 'w-20'}
-                    ${isMobileMenuOpen ? 'bg-[#f8f8f8]/90 dark:bg-[#050505]/90 backdrop-blur-xl border-r border-black/[0.08] dark:border-white/10 shadow-2xl' : ''}
-                    ${deferredPath === '/dashboard' || isMobileMenuOpen ? 'border-r border-black/[0.08] dark:border-white/10' : ''}
+                    ${isMobileMenuOpen ? 'bg-[#f8f8f8]/90 dark:bg-[#050505]/90 backdrop-blur-xl shadow-2xl' : ''}
                 `}
             >
                 {/* 1. Sidebar Header: Logo */}
@@ -193,13 +194,17 @@ function Layout() {
                                         </div>
 
                                         {/* Labels */}
-                                        <div className={`hidden md:flex items-center absolute left-0 w-max pointer-events-none transition-all duration-[400ms] ease-[0.16,1,0.3,1]
-                                            ${isOverview ? 'relative pl-14 md:pl-16 opacity-100 translate-x-0' : 'pl-16 opacity-0 -translate-x-12 group-hover/nav:opacity-100 group-hover/nav:translate-x-[-10px] group-hover/nav:pl-14 group-hover/nav:pointer-events-auto'}
+                                        <div className={`hidden md:flex items-center absolute pointer-events-none transition-all duration-[400ms] ease-[0.16,1,0.3,1] z-50
+                                            ${isOverview 
+                                                ? 'left-0 relative pl-14 md:pl-16 opacity-100 translate-x-0 w-max' 
+                                                : 'left-[60px] bg-black dark:bg-white px-3.5 py-2.5 rounded shadow-xl opacity-0 -translate-x-2 group-hover/nav:opacity-100 group-hover/nav:translate-x-0 w-max border border-white/10 dark:border-black/10'}
                                         `}>
-                                            <div className="flex items-center gap-4">
-                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${isOverview ? 'w-4' : 'w-0'}`} />
-                                                <span className={`text-[10px] font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300
-                                                    ${isActive ? 'text-black dark:text-white' : 'text-slate-500 dark:text-slate-400 group-hover/nav:text-black dark:group-hover:text-white'}
+                                            <div className={`flex items-center ${isOverview ? 'gap-4' : 'gap-0'}`}>
+                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${isOverview ? 'w-4' : 'w-0 hidden'}`} />
+                                                <span className={`text-[10px] font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300 mt-[1px]
+                                                    ${isOverview 
+                                                        ? (isActive ? 'text-black dark:text-white' : 'text-slate-500 dark:text-slate-400 group-hover/nav:text-black dark:group-hover:text-white')
+                                                        : 'text-white dark:text-black'}
                                                 `}>
                                                     {item.name}
                                                 </span>
@@ -214,7 +219,6 @@ function Layout() {
 
                 {/* 3. Sidebar Footer: System Actions */}
                 <div className={`mt-auto p-4 md:p-6 flex flex-col items-start pl-[20px] gap-5 transition-all duration-[600ms] 
-                    ${(deferredPath === '/dashboard') ? 'border-t border-black/[0.06] dark:border-white/10' : 'border-t-0'}
                 `}>
 
                     <div className="relative flex items-center gap-4 group" ref={profileRef}>
@@ -242,6 +246,8 @@ function Layout() {
                                     <LevelDisplay 
                                         level={user?.level} 
                                         exp={user?.exp} 
+                                        totalRequired={user?.totalRequired}
+                                        nextLevelExp={user?.nextLevelExp}
                                         className="w-32" 
                                         onClick={() => setIsStatsModalOpen(true)}
                                     />

@@ -114,7 +114,10 @@ export const calculateLevel = (totalXP) => {
 };
 
 export const determineArchetype = (stats, level) => {
-    if (level < 5) return { name: 'None', tier: 0, stage: 'Unawakened' };
+    if (level < 5) {
+        const levelInfo = LEVEL_TABLE.find(l => l.level === level) || LEVEL_TABLE[0];
+        return { name: 'None', tier: 0, stage: levelInfo.title };
+    }
 
     const statEntries = Object.entries(stats).sort((a, b) => b[1] - a[1]);
     const highest = statEntries[0][0];
@@ -219,11 +222,6 @@ export const awardXP = async (user, stat, amount, streak = 1) => {
             to: archetypeInfo.name,
             date: new Date()
         });
-    }
-
-    // Check for Level-Up vs Phase 1 Titles
-    if (user.level < 5) {
-        user.rpg.archetype.stage = levelInfo.title;
     }
 
     return {

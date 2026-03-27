@@ -130,7 +130,7 @@ export default function StatsModal({ isOpen, onClose, user }) {
         </div>
 
         {/* Level 5 Unlock Callout */}
-        {user?.level === 5 && !archetype.isUnawakened && (
+        {user?.level === 5 && !display.isUnawakened && (
             <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
