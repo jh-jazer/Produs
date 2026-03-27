@@ -50,6 +50,8 @@ export const initializeSystemHabits = async (userId) => {
 };
 
 export const checkSystemHabit = async (userId, systemId, dateStr = null) => {
+    if (!userId || !systemId) return;
+
     try {
         const targetDateStr = dateStr || new Date().toISOString().split('T')[0];
         const habit = await Habit.findOne({ user: userId, systemId });
