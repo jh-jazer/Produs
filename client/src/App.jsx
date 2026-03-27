@@ -75,6 +75,8 @@ import api from './services/api';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
+import DevTools from './components/ui/DevTools';
+
 function App() {
   const user = useAuthStore((state) => state.user);
 
@@ -91,6 +93,7 @@ function App() {
     <SWRConfig value={{ fetcher }}>
       <BrowserRouter>
         <AnimatedRoutes />
+        <DevTools />
       </BrowserRouter>
     </SWRConfig>
   );

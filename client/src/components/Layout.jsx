@@ -12,6 +12,8 @@ import UserSearch from './ui/UserSearch';
 import BugReportModal from './ui/BugReportModal';
 import NotificationModal from './ui/NotificationModal';
 import UserMenuModal from "./ui/UserMenuModal";
+import LevelDisplay from './ui/LevelDisplay';
+import StatsModal from './ui/StatsModal';
 
 export const DashboardContext = React.createContext();
 
@@ -63,6 +65,7 @@ function Layout() {
     const [isBugModalOpen, setIsBugModalOpen] = useState(false);
     const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+    const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
 
     // Fetch notifications
     const { data: notifications = [] } = useSWR('/notifications', (url) => api.get(url).then(res => res.data), {
@@ -99,12 +102,23 @@ function Layout() {
             <div className={`md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-6 z-[130] transition-all duration-300 ${isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
                 <div
                     className="flex items-center gap-4 group cursor-pointer relative"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 >
-                    <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue ${isMobileMenuOpen ? 'rotate-0 scale-110 bg-electric-blue' : ''}`} />
-                    <span className="font-bold text-[11px] uppercase tracking-[0.8em] text-black dark:text-white">
+                    <div 
+                        className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue ${isMobileMenuOpen ? 'rotate-0 scale-110 bg-electric-blue' : ''}`} 
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    />
+                    <span className="font-bold text-[11px] uppercase tracking-[0.8em] text-black dark:text-white" onClick={() => navigate('/dashboard')}>
                         Produs
                     </span>
+                </div>
+                {/* Mobile Level Display */}
+                <div className="ml-auto">
+                    <LevelDisplay 
+                        level={user?.level} 
+                        exp={user?.exp} 
+                        className="w-32" 
+                        onClick={() => setIsStatsModalOpen(true)}
+                    />
                 </div>
             </div>
 
@@ -223,14 +237,14 @@ function Layout() {
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -10 }}
                                     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                    className="hidden md:flex flex-col whitespace-nowrap"
+                                    className="hidden md:flex flex-col whitespace-nowrap overflow-hidden"
                                 >
-                                    <span className="text-[10px] font-black uppercase tracking-[0.1em] text-black/40 dark:text-white/40 leading-none">
-                                        {new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 18 ? 'Good Afternoon' : 'Good Evening'}
-                                    </span>
-                                    <span className="text-xs font-bold text-black dark:text-white mt-0.5">
-                                        {user?.name?.split(' ')[0]}
-                                    </span>
+                                    <LevelDisplay 
+                                        level={user?.level} 
+                                        exp={user?.exp} 
+                                        className="w-32" 
+                                        onClick={() => setIsStatsModalOpen(true)}
+                                    />
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -319,6 +333,16 @@ function Layout() {
                     onClose={() => setIsNotificationModalOpen(false)} 
                 />
             )}
+            
+            <AnimatePresence>
+                {isStatsModalOpen && (
+                    <StatsModal 
+                        isOpen={isStatsModalOpen} 
+                        onClose={() => setIsStatsModalOpen(false)} 
+                        user={user}
+                    />
+                )}
+            </AnimatePresence>
             
             {isOnboardingOpen && (
                 <OnboardingModal 

@@ -214,8 +214,14 @@ const DoseCard = ({ item, activeJournalId, setActiveJournalId, journalText, setJ
 
 export default function MainFeed() {
     const user = useAuthStore(state => state.user);
-    const subscriptions = user?.settings?.subscriptions || [];
-    const { data: rawActivities = [], isLoading: isActivityLoading } = useSWR('/feed');
+    const subscriptions = useMemo(() => user?.settings?.subscriptions || [], [user?.settings?.subscriptions]);
+    
+    // Optimize SWR to prevent excessive reloading on window focus/reconnect
+    const { data: rawActivities = [], isLoading: isActivityLoading } = useSWR('/feed', {
+        revalidateOnFocus: false,
+        revalidateIfStale: false,
+        dedupingInterval: 60000 // 1 minute
+    });
 
     const [channelModalOpen, setChannelModalOpen] = useState(false);
     const [activeJournalId, setActiveJournalId] = useState(null);

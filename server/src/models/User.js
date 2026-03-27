@@ -46,9 +46,48 @@ const userSchema = new mongoose.Schema({
     banner: {
         type: String
     },
+    level: {
+        type: Number,
+        default: 1
+    },
+    exp: {
+        type: Number,
+        default: 0
+    },
     onboardingCompleted: {
         type: Boolean,
         default: false
+    },
+    rpg: {
+        stats: {
+            str: { type: Number, default: 0 },
+            dex: { type: Number, default: 0 },
+            end: { type: Number, default: 0 },
+            int: { type: Number, default: 0 },
+            wis: { type: Number, default: 0 },
+            cha: { type: Number, default: 0 }
+        },
+        archetype: {
+            name: { type: String, default: 'None' },
+            tier: { type: Number, default: 1 },
+            stage: { type: String, default: 'Unawakened' }
+        },
+        dailyXP: {
+            date: { type: String },
+            total: { type: Number, default: 0 },
+            byStat: {
+                str: { type: Number, default: 0 },
+                dex: { type: Number, default: 0 },
+                end: { type: Number, default: 0 },
+                int: { type: Number, default: 0 },
+                wis: { type: Number, default: 0 },
+                cha: { type: Number, default: 0 }
+            }
+        },
+        archetypeHistory: {
+            type: [Object],
+            default: []
+        }
     },
     timezone: {
         type: String

@@ -20,8 +20,9 @@ const habitSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        enum: ['Health', 'Mindset', 'Finance', 'Productivity', 'Creative', 'Spiritual'],
-        required: true
+        enum: ['STR', 'INT', 'WIS', 'DEX', 'CHA', 'END', 'Other'],
+        required: true,
+        default: 'INT' // Added default category as per instruction interpretation
     },
     streak: {
         type: Number,

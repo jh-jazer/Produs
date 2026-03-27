@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import { registerUser, loginUser, getMe, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, sendPartnerRequest, acceptPartnerRequest, rejectPartnerRequest, cancelPartnerRequest, unlinkPartner, searchUsers, checkUsername, updateSubscriptions, sendConnectionRequest, acceptConnectionRequest, rejectConnectionRequest, cancelConnectionRequest, disconnectConnection, getConnections } from '../controllers/authController.js';
+import { registerUser, loginUser, getMe, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, sendPartnerRequest, acceptPartnerRequest, rejectPartnerRequest, cancelPartnerRequest, unlinkPartner, searchUsers, checkUsername, updateSubscriptions, sendConnectionRequest, acceptConnectionRequest, rejectConnectionRequest, cancelConnectionRequest, disconnectConnection, getConnections, getStats, devRPGTest } from '../controllers/authController.js';
 import { protect, optionalProtect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -8,6 +8,7 @@ const router = express.Router();
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/me', protect, getMe);
+router.get('/stats', protect, getStats);
 router.get('/search', protect, searchUsers);
 router.get('/connections', protect, getConnections);
 router.put('/onboarding', protect, completeOnboarding);
@@ -26,6 +27,7 @@ router.post('/connection/cancel/:id', protect, cancelConnectionRequest);
 router.post('/connection/disconnect/:id', protect, disconnectConnection);
 router.get('/check-username', protect, checkUsername);
 router.put('/subscriptions', protect, updateSubscriptions);
+router.post('/dev/rpg-test', protect, devRPGTest);
 
 // @route   GET /api/auth/google
 // @desc    Auth with Google

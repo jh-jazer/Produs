@@ -1,11 +1,12 @@
 import User from '../models/User.js';
 import Habit from '../models/Habit.js';
-import generateToken from '../utils/generateToken.js';
-import Joi from 'joi';
-import mongoose from 'mongoose';
+import Journal from '../models/Journal.js';
 import Task from '../models/Task.js';
 import Wishlist from '../models/Wishlist.js';
-
+import Joi from 'joi';
+import mongoose from 'mongoose';
+import generateToken from '../utils/generateToken.js';
+import { calculateLevel, awardXP, determineArchetype } from '../utils/rpgUtils.js';
 const registerSchema = Joi.object({
     name: Joi.string().min(2).max(50).required(),
     email: Joi.string().email().required(),
@@ -48,15 +49,23 @@ export const registerUser = async (req, res) => {
             // Initialize mandatory system habits
             await initializeSystemHabits(user._id);
 
+            const levelInfo = calculateLevel(user.exp);
+
             res.status(201).json({
                 _id: user.id,
                 name: user.name,
                 email: user.email,
+                username: user.username,
                 avatar: user.avatar,
                 onboardingCompleted: user.onboardingCompleted,
                 timezone: user.timezone,
                 currency: user.currency,
                 settings: user.settings,
+                level: user.level,
+                exp: user.exp,
+                rpg: user.rpg,
+                totalRequired: levelInfo.totalRequired,
+                nextLevelExp: levelInfo.xpToNext,
                 token: generateToken(user._id),
             });
         } else {
@@ -83,15 +92,22 @@ export const loginUser = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (user && (await user.matchPassword(password))) {
+            const levelInfo = calculateLevel(user.exp);
             res.json({
                 _id: user.id,
                 name: user.name,
                 email: user.email,
+                username: user.username,
                 avatar: user.avatar,
                 onboardingCompleted: user.onboardingCompleted,
                 timezone: user.timezone,
                 currency: user.currency,
                 settings: user.settings,
+                level: user.level,
+                exp: user.exp,
+                rpg: user.rpg,
+                totalRequired: levelInfo.totalRequired,
+                nextLevelExp: levelInfo.xpToNext,
                 token: generateToken(user._id),
             });
         } else {
@@ -113,6 +129,7 @@ export const getMe = async (req, res) => {
             .populate('incomingPartnerRequest', 'name username email avatar');
         
         if (user) {
+            const levelInfo = calculateLevel(user.exp);
             res.json({
                 _id: user.id,
                 name: user.name,
@@ -128,6 +145,11 @@ export const getMe = async (req, res) => {
                 partner: user.partner,
                 outgoingPartnerRequest: user.outgoingPartnerRequest,
                 incomingPartnerRequest: user.incomingPartnerRequest,
+                level: user.level,
+                exp: user.exp,
+                rpg: user.rpg,
+                totalRequired: levelInfo.totalRequired,
+                nextLevelExp: levelInfo.xpToNext,
                 connections: user.connections || [],
                 outgoingConnectionRequests: user.outgoingConnectionRequests || [],
                 incomingConnectionRequests: user.incomingConnectionRequests || []
@@ -443,11 +465,16 @@ export const completeOnboarding = async (req, res) => {
                 // Legacy single-subscription fallback
                 user.settings.subscriptions = [req.body.subscription];
             }
-            if (req.body.themeMode) {
-                    user.settings.darkMode = req.body.themeMode === "dark";
-                }
                 user.markModified('settings');
             
+            // Handle RPG Assessment Results
+            if (Array.isArray(req.body.statsToBoost)) {
+                for (const stat of req.body.statsToBoost) {
+                    // Starting bonus (+20 XP in chosen stats)
+                    await awardXP(user._id, stat, 20);
+                }
+            }
+
             await user.save();
 
             res.json({
@@ -766,6 +793,150 @@ export const unlinkPartner = async (req, res) => {
         await currentUser.save();
 
         res.json({ message: 'Partner unlinked successfully' });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get user evolution stats (RPG style)
+// @route   GET /api/auth/stats
+// @access  Private
+export const getStats = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // Fetch all habits and tasks for categorization
+        const habits = await Habit.find({ user: userId });
+        const tasks = await Task.find({ user: userId, completed: true });
+        const journalEntriesCount = await Journal.countDocuments({ user: userId });
+
+        // Helper to calculate impact for specific categories
+        const getHabitImpact = (categories) => {
+            const filtered = habits.filter(h => categories.includes(h.category));
+            const totalChecks = filtered.reduce((acc, h) => acc + (h.checks?.filter(c => c.completed).length || 0), 0);
+            const totalStreak = filtered.reduce((acc, h) => acc + (h.streak || 0), 0);
+            return totalChecks + (totalStreak * 2); // Streaks have more weight
+        };
+
+        // 💪 STR: Physical/Health
+        const str = getHabitImpact(['STR']);
+ 
+        // ⚡ DEX: Speed/Tasks
+        const dex = getHabitImpact(['DEX']) + (tasks.length * 2);
+ 
+        // 🔥 END: Consistency (Total Streaks across all habits)
+        const totalStreaks = habits.reduce((acc, h) => acc + (h.streak || 0), 0);
+        const end = totalStreaks * 10; // High weight for streaks
+ 
+        // 🧠 INT: Knowledge + Journaling
+        const journalWeight = journalEntriesCount * 5;
+        const int = getHabitImpact(['INT']) + journalWeight;
+ 
+        // 🌀 WIS: Reflection + Finance
+        const wis = getHabitImpact(['WIS', 'PER']); // Include legacy PER for migration safety
+ 
+        // ✨ CHA: Relationships + Accountability
+        const sharedHabitsCount = habits.filter(h => h.isShared).length;
+        const cha = getHabitImpact(['CHA']) + (sharedHabitsCount * 10);
+ 
+        res.json({
+            str,
+            dex,
+            end,
+            int,
+            wis,
+            cha,
+            raw: {
+                tasksCompleted: tasks.length,
+                habitsCount: habits.length,
+                journalEntries: journalEntriesCount
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    DevTools: RPG Debug Actions
+// @route   POST /api/auth/dev/rpg-test
+// @access  Private
+export const devRPGTest = async (req, res) => {
+    try {
+        const { action } = req.body;
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Auto-reset daily limits for dev actions to ensure testing always works
+        user.rpg.dailyXP.total = 0;
+        user.rpg.dailyXP.byStat = { str: 0, dex: 0, end: 0, int: 0, wis: 0, cha: 0 };
+        user.markModified('rpg');
+
+        switch (action) {
+            case 'giveXP':
+                // Directly add specified EXP amount to the level without affecting attribute points
+                const expAmount = parseInt(req.body.amount) || 100;
+                user.exp += expAmount;
+                user.level = calculateLevel(user.exp).level;
+                user.rpg.archetype = determineArchetype(user.rpg.stats, user.level);
+                user.markModified('rpg');
+                await user.save();
+                break;
+            case 'giveStats':
+                // Directly boost attribute points without affecting total level EXP
+                const { stat } = req.body;
+                const pointAmount = parseInt(req.body.amount) || 5;
+                if (stat) {
+                    const s = stat.toLowerCase();
+                    user.rpg.stats[s] = (user.rpg.stats[s] || 0) + pointAmount;
+                } else {
+                    const stats = ['str', 'dex', 'end', 'int', 'wis', 'cha'];
+                    for (const s of stats) {
+                        user.rpg.stats[s] = (user.rpg.stats[s] || 0) + pointAmount;
+                    }
+                }
+                // Recalculate archetype as stats have changed
+                user.rpg.archetype = determineArchetype(user.rpg.stats, user.level);
+                user.markModified('rpg');
+                await user.save();
+                break;
+            case 'resetRPG':
+                user.exp = 0;
+                user.level = 1;
+                user.rpg = {
+                    str: 0, dex: 0, end: 0, int: 0, wis: 0, cha: 0,
+                    dailyXP: 0,
+                    lastDailyReset: new Date()
+                };
+                user.markModified('rpg');
+                await user.save();
+                break;
+            case 'resetOnboarding':
+                user.onboardingCompleted = false;
+                await user.save();
+                break;
+            case 'removeDailyLimit':
+                user.rpg.dailyXP = 0;
+                user.markModified('rpg');
+                await user.save();
+                break;
+            default:
+                return res.status(400).json({ message: 'Invalid action' });
+        }
+
+        // Fetch updated user with level info
+        const updatedUser = await User.findById(req.user.id);
+        const levelInfo = calculateLevel(updatedUser.exp);
+        
+        res.json({
+            message: `Dev action ${action} successful`,
+            level: updatedUser.level,
+            exp: updatedUser.exp,
+            rpg: updatedUser.rpg,
+            onboardingCompleted: updatedUser.onboardingCompleted,
+            totalRequired: levelInfo.totalRequired,
+            nextLevelExp: levelInfo.xpToNext
+        });
 
     } catch (error) {
         res.status(500).json({ message: error.message });

@@ -7,7 +7,7 @@ export const initializeSystemHabits = async (userId) => {
             name: 'Journal',
             icon: 'menu_book',
             color: 'violet',
-            category: 'Mindset',
+            category: 'WIS',
             systemId: 'journal'
         },
         {
@@ -15,7 +15,7 @@ export const initializeSystemHabits = async (userId) => {
             name: 'Finance Tracking',
             icon: 'payments',
             color: 'emerald',
-            category: 'Finance',
+            category: 'PER',
             systemId: 'finance'
         },
         {
@@ -23,7 +23,7 @@ export const initializeSystemHabits = async (userId) => {
             name: 'Daily Planning',
             icon: 'event_note',
             color: 'amber',
-            category: 'Productivity',
+            category: 'DEX',
             systemId: 'planner'
         }
     ];

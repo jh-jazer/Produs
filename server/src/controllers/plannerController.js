@@ -1,8 +1,7 @@
-import Task from '../models/Task.js';
-import Goal from '../models/Goal.js';
 import User from '../models/User.js';
 import Template from '../models/Template.js';
 import { checkSystemHabit } from '../utils/habitUtils.js';
+import { addExp } from '../utils/levelUtils.js';
 
 // Helper to check for overlaps
 const checkOverlap = async (userId, date, startTime, endTime, excludeTaskId = null) => {
@@ -132,6 +131,28 @@ export const updateTask = async (req, res) => {
             req.body,
             { new: true }
         );
+
+        // Award XP if task was just completed
+        if (req.body.completed === true && existingTask.completed === false) {
+            const user = await User.findById(req.user._id);
+            
+            // Individual task completion: +2 DEX
+            await awardXP(user, 'dex', 2);
+
+            // Check if all tasks for this date are now completed: +15 DEX bonus
+            const remainingTasks = await Task.countDocuments({
+                user: req.user._id,
+                date: task.date,
+                completed: false
+            });
+
+            if (remainingTasks === 0) {
+                await awardXP(user, 'dex', 15);
+            }
+
+            await user.save();
+        }
+
         res.json(task);
     } catch (error) {
         res.status(400).json({ message: error.message });

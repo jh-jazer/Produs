@@ -3,7 +3,9 @@ import Transaction from '../models/Transaction.js';
 import Budget from '../models/Budget.js';
 import Debt from '../models/Debt.js';
 import Saving from '../models/Saving.js';
+import User from '../models/User.js';
 import { checkSystemHabit } from '../utils/habitUtils.js';
+import { awardXP } from '../utils/rpgUtils.js';
 
 // --- Transactions ---
 export const getTransactions = async (req, res) => {
@@ -31,7 +33,12 @@ export const addTransaction = async (req, res) => {
         const txDateStr = new Date(transaction.date || Date.now()).toISOString().split('T')[0];
         await checkSystemHabit(req.user._id, 'finance', txDateStr);
 
-        res.status(201).json(transaction);
+        // Award WIS XP
+        const user = await User.findById(req.user._id);
+        const result = await awardXP(user, 'wis', 8);
+        await user.save();
+
+        res.status(201).json({ transaction, result });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }

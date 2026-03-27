@@ -40,6 +40,57 @@ const CHANNEL_ICONS = {
   cultural_facts: "diversity_3"
 };
 
+const ASSESSMENT_QUESTIONS = [
+  {
+    id: "str",
+    question: "When facing a physical obstacle, how do you usually react?",
+    options: [
+      { text: "I embrace the challenge and push my physical limits.", active: true },
+      { text: "I look for the most efficient, low-effort path.", active: false }
+    ]
+  },
+  {
+    id: "dex",
+    question: "How would you describe your relationship with your schedule?",
+    options: [
+      { text: "I love optimizing every minute for peak execution.", active: true },
+      { text: "I prefer to stay fluid and react as things come.", active: false }
+    ]
+  },
+  {
+    id: "end",
+    question: "A new difficult habit requires a 30-day commitment. You...",
+    options: [
+      { text: "Will never miss a day, regardless of how I feel.", active: true },
+      { text: "Will try my best but might miss a few sessions.", active: false }
+    ]
+  },
+  {
+    id: "int",
+    question: "You have two hours of free time. What do you choose?",
+    options: [
+      { text: "Deep dive into a complex topic or skill.", active: true },
+      { text: "Decompress with light entertainment.", active: false }
+    ]
+  },
+  {
+    id: "wis",
+    question: "When making a major life decision, you rely on...",
+    options: [
+      { text: "Data, reflection, and long-term implications.", active: true },
+      { text: "Immediate intuition and current feelings.", active: false }
+    ]
+  },
+  {
+    id: "cha",
+    question: "Do you believe your growth is tied to others' success?",
+    options: [
+      { text: "Yes, I lead by example and lift those around me.", active: true },
+      { text: "I prefer to focus on my own path first.", active: false }
+    ]
+  }
+];
+
 const variants = {
   enter: { opacity: 0, y: 10 },
   center: { opacity: 1, y: 0 },
@@ -63,6 +114,9 @@ export default function Onboarding() {
     "productivity",
     "stoicism"
   ]);
+
+  const [assessmentAnswers, setAssessmentAnswers] = useState({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   const [loading, setLoading] = useState(false);
 
@@ -117,12 +171,13 @@ export default function Onboarding() {
   };
 
   /* ---------------- COMPLETE ---------------- */
-
+  
   const handleComplete = async () => {
-
-    if (selectedChannels.length < MIN_CHANNELS) return;
-
     setLoading(true);
+
+    const statsToBoost = Object.entries(assessmentAnswers)
+      .filter(([_, isHighAlignment]) => isHighAlignment)
+      .map(([stat, _]) => stat);
 
     try {
 
@@ -130,7 +185,8 @@ export default function Onboarding() {
         username,
         timezone,
         currency,
-        subscriptions: selectedChannels
+        subscriptions: selectedChannels,
+        statsToBoost
       });
 
       setCredentials({ ...user, ...data });
@@ -166,6 +222,7 @@ export default function Onboarding() {
               {step === 1 && "Claim Your Identity"}
               {step === 2 && "Set Your Environment"}
               {step === 3 && "Fuel Your Mind"}
+              {step === 4 && "The Pathfinder Assessment"}
 
             </h1>
 
@@ -181,7 +238,7 @@ export default function Onboarding() {
 
               <motion.div
                 className="bg-primary h-full"
-                animate={{ width: `${(step / 3) * 100}%` }}
+                animate={{ width: `${(step / 4) * 100}%` }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
 
@@ -409,19 +466,84 @@ export default function Onboarding() {
                       );
 
                     })}
-
                   </div>
 
                   <button
                     disabled={selectedChannels.length < MIN_CHANNELS}
-                    onClick={handleComplete}
-                    className="py-3 bg-primary text-white rounded-xl font-black"
+                    onClick={() => setStep(4)}
+                    className="py-3 bg-primary text-white rounded-xl font-black mt-4"
                   >
-
-                    {loading ? "Finishing..." : "Finish Setup 🚀"}
-
+                    {loading ? "Finishing..." : "Continue to Assessment 🛡️"}
                   </button>
 
+                </motion.div>
+              )}
+
+              {/* STEP 4 — ASSESSMENT */}
+
+              {step === 4 && (
+                <motion.div
+                  key="assessment"
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="flex flex-col gap-6 w-full max-w-md"
+                >
+                  <div className="flex items-center justify-between">
+                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
+                       Question {currentQuestionIndex + 1} of 6
+                     </span>
+                     <div className="flex gap-1">
+                        {[...Array(6)].map((_, i) => (
+                           <div key={i} className={`size-1.5 rounded-full ${i <= currentQuestionIndex ? 'bg-primary' : 'bg-black/10 dark:bg-white/10'}`} />
+                        ))}
+                     </div>
+                  </div>
+
+                  <div className="min-h-[80px]">
+                    <h3 className="text-lg font-black leading-tight text-black dark:text-white">
+                      {ASSESSMENT_QUESTIONS[currentQuestionIndex].question}
+                    </h3>
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    {ASSESSMENT_QUESTIONS[currentQuestionIndex].options.map((option, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          setAssessmentAnswers(prev => ({
+                            ...prev,
+                            [ASSESSMENT_QUESTIONS[currentQuestionIndex].id]: option.active
+                          }));
+                          if (currentQuestionIndex < 5) {
+                            setCurrentQuestionIndex(prev => prev + 1);
+                          } else {
+                            handleComplete();
+                          }
+                        }}
+                        className="w-full p-5 rounded-2xl border-2 border-slate-200 dark:border-white/10 hover:border-primary hover:bg-primary/5 transition-all text-left flex items-center justify-between group"
+                      >
+                        <span className="text-sm font-bold group-hover:text-primary transition-colors">{option.text}</span>
+                        <span className="material-symbols-outlined text-black/10 dark:text-white/20 group-hover:text-primary/40">chevron_right</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        if (currentQuestionIndex > 0) {
+                          setCurrentQuestionIndex(prev => prev - 1);
+                        } else {
+                          setStep(3);
+                        }
+                      }}
+                      className="px-5 py-3 bg-slate-100 dark:bg-[#000000] text-slate-500 rounded-xl font-bold text-xs"
+                    >
+                      Back
+                    </button>
+                  </div>
                 </motion.div>
               )}
 
@@ -440,9 +562,7 @@ export default function Onboarding() {
           <JournalSnippet />
 
         </div>
-
       </div>
-
     </div>
   );
 }

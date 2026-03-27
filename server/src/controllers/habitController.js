@@ -1,5 +1,6 @@
 import Habit from '../models/Habit.js';
 import User from '../models/User.js';
+import { awardXP } from '../utils/rpgUtils.js';
 
 // @desc    Get all habits for a user
 // @route   GET /api/habits
@@ -82,7 +83,42 @@ export const toggleCheck = async (req, res) => {
     try {
         const habit = await Habit.findById(req.params.id);
         if (habit) {
+            const alreadyChecked = habit.checks.some(c => c.date === dateStr && c.completed);
             await habit.toggleCheck(dateStr);
+            
+            // Award XP if precisely toggled TO completed
+            if (!alreadyChecked) {
+                const user = await User.findById(req.user._id);
+                const category = (habit.category || 'INT').toLowerCase();
+                let baseXP = 5;
+
+                // Specific "Iconic" rewards from guideline
+                const name = habit.name.toLowerCase();
+                const icon = habit.icon.toLowerCase();
+                
+                if (icon.includes('fitness') || name.includes('workout')) baseXP = 10;
+                else if (icon.includes('book') || name.includes('read')) baseXP = 10;
+                else if (icon.includes('meditation') || icon.includes('improvement')) baseXP = 10;
+                else if (icon.includes('sunny') || name.includes('routine')) baseXP = 10;
+
+                // Award Primary Stat XP
+                await awardXP(user, category, baseXP, habit.streak);
+
+                // Award Endurance (END) XP based on streak milestones
+                const streak = habit.streak;
+                let endXP = 0;
+                if (streak === 100) endXP = 300;
+                else if (streak === 30) endXP = 100;
+                else if (streak === 14) endXP = 50;
+                else if (streak === 7) endXP = 25;
+                else if (streak === 3) endXP = 10;
+
+                if (endXP > 0) {
+                    await awardXP(user, 'end', endXP);
+                }
+
+                await user.save();
+            }
             res.json(habit);
         } else {
             res.status(404).json({ message: 'Habit not found' });

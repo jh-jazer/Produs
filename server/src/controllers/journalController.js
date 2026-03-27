@@ -1,10 +1,12 @@
 import Journal from '../models/Journal.js';
 import { checkSystemHabit } from '../utils/habitUtils.js';
+import User from '../models/User.js';
+import { awardXP } from '../utils/rpgUtils.js';
 
-export const createEntry = async (req, res) => {
+export const createJournalEntry = async (req, res) => {
     try {
         const { title, content, mood, tags, date } = req.body;
-        const entry = new Journal({
+        const entry = await Journal.create({
             user: req.user._id,
             title,
             content,
@@ -12,11 +14,11 @@ export const createEntry = async (req, res) => {
             tags,
             date: date || new Date()
         });
-        await entry.save();
         
         // Auto-check the Journal habit
         const entryDateStr = new Date(entry.date).toISOString().split('T')[0];
         await checkSystemHabit(req.user._id, 'journal', entryDateStr);
+
         
         res.status(201).json(entry);
     } catch (error) {

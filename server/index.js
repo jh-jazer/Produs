@@ -22,6 +22,7 @@ import notificationRoutes from './src/routes/notificationRoutes.js';
 import journalRoutes from './src/routes/journalRoutes.js';
 import adminRoutes from './src/routes/adminRoutes.js';
 import bugRoutes from './src/routes/bugRoutes.js';
+import healthRoutes from './src/routes/healthRoutes.js';
 
 // Connect to Database
 connectDB();
@@ -66,6 +67,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/journal', journalRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/bugs', bugRoutes);
+app.use('/api/health', healthRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

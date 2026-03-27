@@ -19,55 +19,47 @@ const ICON_OPTIONS = [
 
 const SUGGESTIONS = [
     {
-        category: 'Health',
+        category: 'STR',
         habits: [
-            { name: 'Drink Water', icon: 'local_drink', color: 'emerald' },
-            { name: 'Evening Walk', icon: 'directions_run', color: 'orange' },
-            { name: 'Eat Healthy', icon: 'restaurant', color: 'amber' },
-            { name: 'Go to Gym', icon: 'fitness_center', color: 'red' },
+            { name: 'Workout Session', icon: 'fitness_center', color: 'red' },
+            { name: '7h+ Sleep', icon: 'bedtime', color: 'indigo' },
+            { name: 'Healthy Nutrition', icon: 'restaurant', color: 'emerald' },
+            { name: 'Hydration (2L)', icon: 'local_drink', color: 'blue' },
         ]
     },
     {
-        category: 'Mindset',
+        category: 'DEX',
+        habits: [
+            { name: 'Morning Routine', icon: 'wb_sunny', color: 'orange' },
+            { name: 'Time Block Day', icon: 'schedule', color: 'amber' },
+            { name: 'Inbox Zero', icon: 'mail', color: 'blue' },
+            { name: 'Quick Task Dash', icon: 'bolt', color: 'cyan' },
+        ]
+    },
+    {
+        category: 'INT',
+        habits: [
+            { name: 'Deep Work Box', icon: 'psychology', color: 'blue' },
+            { name: 'Read 20 Pages', icon: 'menu_book', color: 'indigo' },
+            { name: 'Skill Practice', icon: 'brush', color: 'pink' },
+            { name: 'Daily Journal', icon: 'history_edu', color: 'violet' },
+        ]
+    },
+    {
+        category: 'WIS',
         habits: [
             { name: 'Meditation', icon: 'self_improvement', color: 'purple' },
-            { name: 'Read 30m', icon: 'menu_book', color: 'blue' },
-            { name: 'Journaling', icon: 'history_edu', color: 'violet' },
-            { name: 'Early Bed', icon: 'bedtime', color: 'indigo' },
+            { name: 'Weekly Review', icon: 'auto_awesome', color: 'amber' },
+            { name: 'Gratitude List', icon: 'favorite', color: 'rose' },
+            { name: 'Budget Check', icon: 'payments', color: 'emerald' },
         ]
     },
     {
-        category: 'Creative',
+        category: 'CHA',
         habits: [
-            { name: 'Daily Sketch', icon: 'brush', color: 'pink' },
-            { name: 'Coding', icon: 'code', color: 'cyan' },
-            { name: 'Practice Music', icon: 'music_note', color: 'violet' },
-            { name: 'Writing', icon: 'school', color: 'teal' },
-        ]
-    },
-    {
-        category: 'Finance',
-        habits: [
-            { name: 'Track Expenses', icon: 'payments', color: 'emerald' },
-            { name: 'Save $10', icon: 'savings', color: 'amber' },
-            { name: 'No Spend Day', icon: 'wallet', color: 'blue' },
-        ]
-    },
-    {
-        category: 'Productivity',
-        habits: [
-            { name: 'Deep Work', icon: 'bolt', color: 'amber' },
-            { name: 'Inbox Zero', icon: 'mail', color: 'blue' },
-            { name: 'Plan Tomorrow', icon: 'event_note', color: 'indigo' },
-        ]
-    },
-    {
-        category: 'Spiritual',
-        habits: [
-            { name: 'Daily Prayer', icon: 'auto_awesome', color: 'purple' },
-            { name: 'Gratitude Journal', icon: 'history_edu', color: 'violet' },
-            { name: 'Scripture Reading', icon: 'menu_book', color: 'indigo' },
-            { name: 'Acts of Kindness', icon: 'favorite', color: 'rose' },
+            { name: 'Linked Goal Check', icon: 'link', color: 'blue' },
+            { name: 'Accountability Call', icon: 'groups', color: 'pink' },
+            { name: 'Shared Habit', icon: 'handshake', color: 'rose' },
         ]
     }
 ];
@@ -115,7 +107,7 @@ function HabitTracker({
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [modalStep, setModalStep] = useState('suggestions');
     const [editingHabit, setEditingHabit] = useState(null);
-    const [newHabit, setNewHabit] = useState({ name: '', icon: 'local_drink', color: 'emerald', isShared: false, category: 'Productivity' });
+    const [newHabit, setNewHabit] = useState({ name: '', icon: 'local_drink', color: 'emerald', isShared: false, category: 'DEX' });
     const [localTeamHabits, setLocalTeamHabits] = useState([]);
     const [confirmDelete, setConfirmDelete] = useState(null);
 
@@ -634,9 +626,9 @@ function HabitTracker({
                                     
                                     {/* Category Picker */}
                                     <div className="flex flex-col gap-1.5 mb-5">
-                                        <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Category</label>
+                                        <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Category (Stat)</label>
                                         <div className="grid grid-cols-3 gap-2">
-                                            {['Health', 'Mindset', 'Finance', 'Productivity', 'Creative', 'Spiritual'].map((cat) => (
+                                            {['STR', 'INT', 'WIS', 'DEX', 'CHA', 'PER'].map((cat) => (
                                                 <button
                                                     key={cat}
                                                     onClick={() => setNewHabit({ ...newHabit, category: cat })}
