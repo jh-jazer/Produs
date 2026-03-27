@@ -6,7 +6,6 @@ import {
   Activity, 
   Zap, 
   Orbit, 
-  Layers,
   Brain,
   TrendingUp,
   Calendar,
