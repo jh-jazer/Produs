@@ -26,4 +26,42 @@ const getSystemStats = async (req, res) => {
     }
 };
 
-export { getSystemStats };
+const resetUserOnboarding = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.onboardingCompleted = false;
+        user.username = undefined;
+        user.interests = [];
+        user.level = 1;
+        user.exp = 0;
+        user.rpg.stats = {
+            str: 0,
+            dex: 0,
+            end: 0,
+            int: 0,
+            wis: 0,
+            cha: 0
+        };
+        user.rpg.archetype = {
+            name: 'None',
+            tier: 1,
+            stage: 'Unawakened'
+        };
+        user.settings.subscriptions = [];
+
+        user.markModified('rpg');
+        user.markModified('settings');
+
+        await user.save();
+
+        res.json({ message: 'User onboarding data reset successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export { getSystemStats, resetUserOnboarding };

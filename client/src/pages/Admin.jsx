@@ -1,11 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, Settings, BarChart3, ShieldCheck, Database, Search, RefreshCcw } from 'lucide-react';
-import useSWR from 'swr';
+import { Users, Settings, BarChart3, ShieldCheck, Database, Search, RefreshCcw, RotateCcw } from 'lucide-react';
+import useSWR, { useSWRConfig } from 'swr';
+import api from '../services/api';
 import AdminBugs from '../components/AdminBugs';
 import MobileTabNav from '../components/ui/MobileTabNav';
 
 const Admin = () => {
+    const { mutate: globalMutate } = useSWRConfig();
     const { data, mutate, isValidating } = useSWR('/admin/stats');
     const [activeTab, setActiveTab] = React.useState('overview');
 
@@ -24,6 +26,22 @@ const Admin = () => {
     ];
 
     const recentUsers = data?.recentUsers || [];
+    const handleResetOnboarding = async (userId, userName) => {
+        if (!window.confirm(`Are you sure you want to reset onboarding for ${userName}? This will clear their username, RPG stats, and interests, and force them to re-onboard.`)) {
+            return;
+        }
+
+        try {
+            await api.post(`/admin/users/${userId}/reset-onboarding`);
+            alert('User data has been reset successfully. They will be prompted for onboarding on their next session/navigation.');
+            mutate(); // Refresh the user list
+            globalMutate('/auth/me'); // Just in case the admin resets their own data
+        } catch (error) {
+            console.error('Failed to reset onboarding:', error);
+            alert('Error resetting user data: ' + (error.response?.data?.message || error.message));
+        }
+    };
+
     const systemStatus = data?.systemStatus || [
         { label: 'API Server', status: 'Checking...', color: 'bg-zinc-700' },
         { label: 'Database', status: 'Checking...', color: 'bg-zinc-700' },
@@ -168,9 +186,18 @@ const Admin = () => {
                                                 {new Date(user.createdAt).toLocaleDateString()}
                                             </td>
                                             <td className="py-4 text-right">
-                                                <button className="text-slate-400 hover:text-primary transition-colors">
-                                                    <Settings size={16} />
-                                                </button>
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        onClick={() => handleResetOnboarding(user._id, user.name)}
+                                                        className="text-slate-400 hover:text-orange-500 transition-colors"
+                                                        title="Reset Onboarding"
+                                                    >
+                                                        <RotateCcw size={16} />
+                                                    </button>
+                                                    <button className="text-slate-400 hover:text-primary transition-colors">
+                                                        <Settings size={16} />
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
