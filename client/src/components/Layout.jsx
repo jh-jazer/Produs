@@ -151,11 +151,10 @@ function Layout() {
                 <div className="h-24 flex items-center px-6 shrink-0">
                     <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => isMobileMenuOpen ? setIsMobileMenuOpen(false) : navigate('/dashboard')}>
                         <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0 ${isMobileMenuOpen ? 'rotate-0 bg-electric-blue' : ''}`} />
-                        <div className={`flex flex-col overflow-hidden transition-all duration-500 ease-in-out
+                        <div className={`flex items-center overflow-hidden transition-all duration-500 ease-in-out
                             ${(deferredPath === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden md:flex'}
                         `}>
                             <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-black dark:text-white">Produs</span>
-                            <span className="text-[8px] font-bold text-electric-blue uppercase tracking-widest mt-1.5 opacity-60">System Core</span>
                         </div>
                     </div>
                 </div>
