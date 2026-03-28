@@ -10,7 +10,7 @@ const DevTools = () => {
     const [view, setView] = useState('main'); // main, exp, stats, points
     const [selectedStat, setSelectedStat] = useState(null);
 
-    if (!user) return null;
+    if (!user || user.email !== 'ernestodesabillejr@gmail.com') return null;
 
     const handleAction = async (action, stat = null, amount = null) => {
         setLoading(stat ? `${action}-${stat}` : action);
