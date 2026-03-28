@@ -36,9 +36,10 @@ const useAuthStore = create((set) => ({
         });
     },
 
-    logout: () => {
+    signOut: () => {
         set({ user: null });
         localStorage.removeItem('userInfo');
+        setAuthToken(null);
     },
 
     updateSettings: async (settings) => {
