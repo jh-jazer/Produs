@@ -37,9 +37,12 @@ const io = new Server(server, {
 });
 
 // PostHog Analytics
-const posthog = new PostHog(process.env.POSTHOG_API_KEY, {
-    host: process.env.POSTHOG_HOST || "https://app.posthog.com"
-});
+let posthog = null;
+if (process.env.POSTHOG_API_KEY) {
+    posthog = new PostHog(process.env.POSTHOG_API_KEY, {
+        host: process.env.POSTHOG_HOST || "https://app.posthog.com"
+    });
+}
 
 // Middleware
 app.use(express.json());
@@ -83,14 +86,16 @@ const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-    posthog.capture({
-        distinctId: 'server',
-        event: 'server_started',
-        properties: {
-            port: PORT,
-            timestamp: new Date()
-        }
-    });
+    if (posthog) {
+        posthog.capture({
+            distinctId: 'server',
+            event: 'server_started',
+            properties: {
+                port: PORT,
+                timestamp: new Date()
+            }
+        });
+    }
 });
 
 export default app;

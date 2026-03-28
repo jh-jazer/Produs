@@ -49,7 +49,7 @@ const RecentTransactions = ({ transactions = [], budgets = [], currencySymbol = 
     };
 
     const handleDelete = async (id) => {
-        await deleteFinanceItem(id);
+        await deleteFinanceItem(id, 'transaction');
         if (onAction) onAction();
     };
 

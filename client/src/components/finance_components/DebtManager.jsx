@@ -57,7 +57,7 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     const handleDelete = async (id) => {
-        await deleteFinanceItem(id);
+        await deleteFinanceItem(id, 'debt');
         if (onAction) onAction();
     };
 

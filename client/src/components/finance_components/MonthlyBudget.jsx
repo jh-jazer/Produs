@@ -36,7 +36,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
     const handleSave = async () => {
         // 1. Delete marked budgets
         await Promise.all(
-            deletedBudgetIds.map(id => deleteFinanceItem(id))
+            deletedBudgetIds.map(id => deleteFinanceItem(id, 'budget'))
         );
 
         // 2. Update existing or create new budgets

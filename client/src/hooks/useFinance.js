@@ -8,21 +8,29 @@ export const useFinance = () => {
     const { mutate } = useSWRConfig();
 
     const fetcher = url => api.get(url).then(res => res.data);
-    const { data: allFinanceItems, error, isLoading } = useSWR(userId ? '/finance' : null, fetcher);
+    const { data: financeData, error, isLoading } = useSWR(userId ? '/finance' : null, fetcher);
 
-    // Grouping helper
-    const getItemsByType = (type) => allFinanceItems?.filter(item => item.type === type) || [];
+    const transactions = financeData?.transactions || [];
+    const budgets = financeData?.budgets || [];
+    const debts = financeData?.debts || [];
+    const wishlist = financeData?.wishlist || [];
+    const savings = financeData?.savings || [];
 
-    const transactions = getItemsByType('transaction');
-    const budgets = getItemsByType('budget');
-    const debts = getItemsByType('debt');
-    const wishlist = getItemsByType('wishlist');
-    const savings = getItemsByType('saving');
+    const getApiPath = (type) => {
+        switch (type) {
+            case 'transaction': return '/finance/transactions';
+            case 'budget': return '/finance/budgets';
+            case 'debt': return '/finance/debts';
+            case 'wishlist': return '/finance/wishlist';
+            case 'saving': return '/finance/savings';
+            default: return '/finance';
+        }
+    };
 
     const addFinanceItem = async (type, data) => {
         if (!userId) return;
         try {
-            await api.post('/finance', { ...data, type });
+            await api.post(getApiPath(type), data);
             mutate('/finance');
         } catch (err) {
             console.error('Failed to add finance item:', err);
@@ -32,17 +40,21 @@ export const useFinance = () => {
     const updateFinanceItem = async (id, type, updates) => {
         if (!userId) return;
         try {
-            await api.put(`/finance/${id}`, updates);
+            // Some updates might not need ID in URL if they use category/title (like budgets)
+            const path = (type === 'budget')
+                ? getApiPath(type)
+                : `${getApiPath(type)}/${id}`;
+            await api.patch(path, updates);
             mutate('/finance');
         } catch (err) {
             console.error('Failed to update finance item:', err);
         }
     };
 
-    const deleteFinanceItem = async (id) => {
+    const deleteFinanceItem = async (id, type) => {
         if (!userId) return;
         try {
-            await api.delete(`/finance/${id}`);
+            await api.delete(`${getApiPath(type)}/${id}`);
             mutate('/finance');
         } catch (err) {
             console.error('Failed to delete finance item:', err);

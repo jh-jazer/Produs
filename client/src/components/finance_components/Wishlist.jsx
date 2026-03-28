@@ -39,6 +39,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
 
     const handleAdd = async (e) => {
         e.preventDefault();
+        setLoading(true);
         const wishlistData = {
             ...newItem,
             budgetPrice: parseFloat(newItem.budgetPrice),
@@ -49,12 +50,14 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
         if (onAction) onAction();
         setIsAdding(false);
         setNewItem({ title: '', budgetPrice: '', priority: 'Medium', category: 'General', link: '', imageUrl: '' });
+        setLoading(false);
     };
 
     const handleBought = async (e) => {
         e.preventDefault();
         if (!buyingItem) return;
 
+        setLoading(true);
         const actual = parseFloat(actualPrice);
         const savingsAmount = (buyingItem.budgetPrice || buyingItem.price) - actual;
 
@@ -88,6 +91,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
         if (onAction) onAction();
         setBuyingItem(null);
         setActualPrice('');
+        setLoading(false);
     };
 
     const togglePurchased = async (item) => {
@@ -98,7 +102,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     const handleDelete = async (id) => {
-        await deleteFinanceItem(id);
+        await deleteFinanceItem(id, 'wishlist');
         if (onAction) onAction();
     };
 

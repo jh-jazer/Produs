@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+    getFinanceData,
     getWishlist,
     addWishlistItem,
     updateWishlistItem,
@@ -23,17 +24,20 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+router.route('/')
+    .get(protect, getFinanceData);
+
 router.route('/transactions')
     .get(protect, getTransactions)
     .post(protect, addTransaction);
 
 router.route('/transactions/:id')
-    .put(protect, updateTransaction)
+    .patch(protect, updateTransaction)
     .delete(protect, deleteTransaction);
 
 router.route('/budgets')
     .get(protect, getBudgets)
-    .put(protect, updateBudget);
+    .patch(protect, updateBudget);
 
 router.route('/budgets/:id')
     .delete(protect, deleteBudget);
@@ -51,6 +55,7 @@ router.route('/savings')
     .post(protect, updateSaving);
 
 router.route('/savings/:id')
+    .patch(protect, updateSaving)
     .delete(protect, deleteSaving);
 
 router.route('/wishlist')
