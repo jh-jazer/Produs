@@ -1,11 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
+import Footer from "./Footer";
 
 export default function CTA({ user }) {
   return (
-    <section className="fixed inset-0 flex flex-col items-center justify-center text-center px-6 pb-40 scene-cta pointer-events-none opacity-0 z-30 bg-[#020202] transition-colors duration-1000">
-      <div className="w-full max-w-4xl mx-auto flex flex-col items-center">
+    <section className="fixed inset-0 flex flex-col items-center justify-between text-center px-6 scene-cta pointer-events-none opacity-0 z-30 bg-[#020202] transition-colors duration-1000">
+      <div className="flex-grow flex flex-col items-center justify-center w-full max-w-4xl mx-auto">
         <div className="w-px h-32 bg-gradient-to-b from-transparent via-white/10 to-transparent mb-16"></div>
 
         <span className="text-[10px] md:text-[12px] font-semibold uppercase tracking-[0.5em] md:tracking-[1.5em] text-white/60 mb-8 md:mb-12 block">
@@ -22,6 +23,10 @@ export default function CTA({ user }) {
           </div>
           <span className="text-[10px] md:text-xs font-semibold uppercase tracking-[0.5em] md:tracking-[1.5em] text-white/80 group-hover:text-white transition-colors">Get Started Now</span>
         </Link>
+      </div>
+
+      <div className="w-full pointer-events-auto">
+        <Footer />
       </div>
     </section>
   );
