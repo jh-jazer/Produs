@@ -144,18 +144,17 @@ function Layout() {
                     fixed md:relative z-[150] h-full flex flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1]
                     ${isMobileMenuOpen ? 'translate-x-0 w-[75vw]' : '-translate-x-full md:translate-x-0'}
                     ${!isMobileMenuOpen ? (deferredPath === '/dashboard' ? 'md:w-72' : 'md:w-20') : ''}
-                    ${isMobileMenuOpen ? 'bg-white/95 dark:bg-[#050505]/95 backdrop-blur-3xl shadow-[40px_0_80px_rgba(0,0,0,0.3)]' : ''}
+                    ${isMobileMenuOpen ? 'bg-white/20 dark:bg-black/20 backdrop-blur-3xl shadow-[40px_0_80px_rgba(0,0,0,0.3)]' : ''}
                 `}
             >
                 {/* 1. Sidebar Header: Logo */}
                 <div className="h-24 flex items-center px-6 shrink-0">
                     <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => isMobileMenuOpen ? setIsMobileMenuOpen(false) : navigate('/dashboard')}>
                         <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0 ${isMobileMenuOpen ? 'rotate-0 bg-electric-blue' : ''}`} />
-                        <div className={`flex flex-col overflow-hidden transition-all duration-500 ease-in-out
+                        <div className={`flex items-center overflow-hidden transition-all duration-500 ease-in-out
                             ${(deferredPath === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden md:flex'}
                         `}>
                             <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-black dark:text-white">Produs</span>
-                            <span className="text-[8px] font-bold text-electric-blue uppercase tracking-widest mt-1.5 opacity-60">System Core</span>
                         </div>
                     </div>
                 </div>
@@ -205,9 +204,9 @@ function Layout() {
                                                 : 'hidden md:flex left-[60px] bg-black dark:bg-white px-3.5 py-2.5 rounded shadow-xl opacity-0 -translate-x-2 group-hover/nav:opacity-100 group-hover/nav:translate-x-0 w-max border border-white/10 dark:border-black/10'}
                                         `}>
                                             <div className={`flex items-center ${(isOverview || isMobileMenuOpen) ? 'gap-4' : 'gap-0'}`}>
-                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${(isOverview || isMobileMenuOpen) ? 'w-4' : 'w-0 hidden'}`} />
+                                            <div className={`h-px bg-electric-blue transition-all duration-300 ${(isOverview && !isMobileMenuOpen) ? 'w-4' : 'w-0 hidden'}`} />
                                                 <span className={`font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300 mt-[1px]
-                                                    ${isMobileMenuOpen ? 'text-[15px]' : 'text-[10px]'}
+                                                    ${isMobileMenuOpen ? 'text-[11px]' : 'text-[10px]'}
                                                     ${(isOverview || isMobileMenuOpen)
                                                         ? (isActive ? 'text-black dark:text-white' : 'text-slate-500 dark:text-slate-400 group-hover/nav:text-black dark:group-hover:text-white')
                                                         : 'text-white dark:text-black'}
