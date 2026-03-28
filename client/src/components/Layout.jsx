@@ -144,7 +144,7 @@ function Layout() {
                     fixed md:relative z-[150] h-full flex flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1]
                     ${isMobileMenuOpen ? 'translate-x-0 w-[75vw]' : '-translate-x-full md:translate-x-0'}
                     ${!isMobileMenuOpen ? (deferredPath === '/dashboard' ? 'md:w-72' : 'md:w-20') : ''}
-                    ${isMobileMenuOpen ? 'bg-white/95 dark:bg-[#050505]/95 backdrop-blur-3xl shadow-[40px_0_80px_rgba(0,0,0,0.3)]' : ''}
+                    ${isMobileMenuOpen ? 'bg-white/20 dark:bg-black/20 backdrop-blur-3xl shadow-[40px_0_80px_rgba(0,0,0,0.3)]' : ''}
                 `}
             >
                 {/* 1. Sidebar Header: Logo */}
@@ -205,9 +205,9 @@ function Layout() {
                                                 : 'hidden md:flex left-[60px] bg-black dark:bg-white px-3.5 py-2.5 rounded shadow-xl opacity-0 -translate-x-2 group-hover/nav:opacity-100 group-hover/nav:translate-x-0 w-max border border-white/10 dark:border-black/10'}
                                         `}>
                                             <div className={`flex items-center ${(isOverview || isMobileMenuOpen) ? 'gap-4' : 'gap-0'}`}>
-                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${(isOverview || isMobileMenuOpen) ? 'w-4' : 'w-0 hidden'}`} />
+                                            <div className={`h-px bg-electric-blue transition-all duration-300 ${(isOverview && !isMobileMenuOpen) ? 'w-4' : 'w-0 hidden'}`} />
                                                 <span className={`font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300 mt-[1px]
-                                                    ${isMobileMenuOpen ? 'text-[15px]' : 'text-[10px]'}
+                                                    ${isMobileMenuOpen ? 'text-[11px]' : 'text-[10px]'}
                                                     ${(isOverview || isMobileMenuOpen)
                                                         ? (isActive ? 'text-black dark:text-white' : 'text-slate-500 dark:text-slate-400 group-hover/nav:text-black dark:group-hover:text-white')
                                                         : 'text-white dark:text-black'}
