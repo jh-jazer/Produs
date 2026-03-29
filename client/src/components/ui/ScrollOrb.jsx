@@ -75,10 +75,10 @@ const ScrollOrb = ({ containerRef }) => {
                 {/* The Orb */}
                 <div className={`relative size-3 md:size-4 rounded-full bg-white dark:bg-black border border-black/[0.1] dark:border-white/20 shadow-lg transition-all duration-300 ${isDragging ? 'scale-125' : ''}`}>
                     {/* Glowing Core */}
-                    <div className={`absolute inset-1 rounded-full bg-electric-blue shadow-[0_0_10px_rgba(34,211,238,0.4)] ${isDragging ? 'opacity-100 scale-110' : 'animate-pulse'}`} />
+                    <div className={`absolute inset-1 rounded-full bg-accent shadow-[0_0_10px_var(--accent-glow)] ${isDragging ? 'opacity-100 scale-110' : 'animate-pulse'}`} />
                     
                     {/* Outer Ring */}
-                    <div className={`absolute inset-[-4px] rounded-full border border-cyan-500/20 transition-transform duration-500 ${isDragging ? 'scale-150' : 'group-hover:scale-125'}`} />
+                    <div className={`absolute inset-[-4px] rounded-full border border-accent/20 transition-transform duration-500 ${isDragging ? 'scale-150' : 'group-hover:scale-125'}`} />
                 </div>
 
                 {/* Percentage Label */}
@@ -92,7 +92,7 @@ const ScrollOrb = ({ containerRef }) => {
 
                 {/* Tactical metadata (Bottom label) */}
                 <div className={`absolute top-full mt-4 -rotate-90 origin-right whitespace-nowrap transition-opacity duration-500 ${isDragging ? 'opacity-100' : 'opacity-0 group-hover:opacity-40'}`}>
-                    <span className="text-[7px] font-black uppercase tracking-[0.4em] text-cyan-500 dark:text-cyan-400">MANUAL_OVERRIDE_ACTIVE_V4</span>
+                    <span className="text-[7px] font-black uppercase tracking-[0.4em] text-accent">MANUAL_OVERRIDE_ACTIVE_V4</span>
                 </div>
             </motion.div>
         </div>

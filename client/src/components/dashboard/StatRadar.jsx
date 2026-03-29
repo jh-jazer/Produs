@@ -21,7 +21,7 @@ const StatRadar = ({ user }) => {
         STR: 'rose-500',
         DEX: 'orange-400',
         END: 'emerald-500',
-        INT: 'cyan-400',
+        INT: 'accent',
         WIS: 'purple-500',
         CHA: 'pink-500'
     };
@@ -45,15 +45,15 @@ const StatRadar = ({ user }) => {
                         <Radar
                             name="Stats"
                             dataKey="value"
-                            stroke="#06b6d4"
-                            fill="#06b6d4"
+                            stroke="var(--accent)"
+                            fill="var(--accent)"
                             fillOpacity={0.15}
                         />
                     </RadarChart>
                 </ResponsiveContainer>
 
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="size-16 rounded-full bg-cyan-500/5 blur-2xl" />
+                    <div className="size-16 rounded-full bg-accent/5 blur-2xl" />
                 </div>
             </div>
 
@@ -73,7 +73,7 @@ const StatRadar = ({ user }) => {
                                 <div key={subject} className="space-y-1.5">
                                     <div className="flex justify-between items-center group cursor-help">
                                         <div className="flex items-center gap-2">
-                                            <span className={`text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest font-exo italic group-hover:text-cyan-500 transition-colors`}>
+                                            <span className={`text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest font-exo italic group-hover:text-accent transition-colors`}>
                                                 {subject}
                                             </span>
                                             <div className="size-1 rounded-full bg-slate-200 dark:bg-white/10" />
@@ -90,7 +90,7 @@ const StatRadar = ({ user }) => {
                                         <motion.div 
                                             initial={{ width: 0 }}
                                             animate={{ width: `${capProgress}%` }}
-                                            className={`h-full bg-cyan-500 shadow-[0_0_8px_rgba(34,211,238,0.4)]`}
+                                            className={`h-full bg-accent shadow-[0_0_8px_var(--accent-glow)]`}
                                         />
                                     </div>
                                 </div>
@@ -100,8 +100,8 @@ const StatRadar = ({ user }) => {
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 dark:border-white/5">
-                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-cyan-500/5 border border-cyan-500/10">
-                        <Zap size={14} className="text-cyan-500" />
+                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-accent/5 border border-accent/10">
+                        <Zap size={14} className="text-accent" />
                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-tight">
                             Live synchronization active. Neural stats update every 10ms.
                         </p>

@@ -66,13 +66,13 @@ const SystemWindow = ({ children, title, subtitle, status = "STABLE", module = "
 
     const isDanger = variant === "danger";
     const isGlass = variant === "glass";
-    const accentColor = isDanger ? "text-red-500" : "text-cyan-400";
-    const borderColor = isDanger ? "border-red-500/40" : (isGlass ? "border-white/10" : "border-cyan-400/40");
+    const accentColor = isDanger ? "text-red-500" : "text-accent";
+    const borderColor = isDanger ? "border-red-500/40" : (isGlass ? "border-white/10" : "border-accent/40");
     const glowColor = isDanger 
         ? "shadow-[0_0_50px_rgba(239,68,68,0.3)]" 
-        : (isGlass ? "shadow-[0_0_50px_rgba(255,255,255,0.05)]" : "shadow-[0_0_50px_rgba(6,182,212,0.3)]");
-    const underlineColor = isDanger ? "decoration-red-500/40" : "decoration-cyan-400/40";
-    const coreBackground = isGlass ? "bg-white/5 dark:bg-white/[0.03]" : "bg-black";
+        : (isGlass ? "shadow-[0_0_50px_rgba(255,255,255,0.05)]" : "shadow-[0_0_50px_var(--accent-glow)]");
+    const underlineColor = isDanger ? "decoration-red-500/40" : "decoration-accent/40";
+    const coreBackground = isGlass ? "bg-white/5 dark:bg-white/[0.03]" : "bg-[var(--card)]";
 
     useEffect(() => {
         const timer = setInterval(() => setTime(new Date()), 1000);
@@ -102,16 +102,16 @@ const SystemWindow = ({ children, title, subtitle, status = "STABLE", module = "
 
             {/* Outer Glow: High-Intensity Neon Line */}
             <div 
-                className={`relative p-[1.5px] ${isDanger ? 'bg-red-500 shadow-[0_0_30px_rgba(239,68,68,0.5)]' : 'bg-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.5)]'} transition-all duration-700`}
+                className={`relative p-[1.5px] ${isDanger ? 'bg-red-500 shadow-[0_0_30px_rgba(239,68,68,0.5)]' : 'bg-accent shadow-[0_0_30px_var(--accent-glow)]'} transition-all duration-700`}
                 style={{ clipPath: polygon }}
             >
                 {/* Inner Offset: Frame within a Frame */}
                 <div 
-                    className="w-full h-full bg-neutral-900 p-[2px]"
+                    className="w-full h-full bg-[var(--background)] p-[2px]"
                     style={{ clipPath: polygon }}
                 >
                     <div 
-                        className={`w-full h-full border ${isDanger ? 'border-red-500/30' : 'border-cyan-400/30'}`}
+                        className={`w-full h-full border ${isDanger ? 'border-red-500/30' : 'border-accent/30'}`}
                         style={{ clipPath: polygon }}
                     >
                         {/* Solid Core: Vertical Teal/Cyan Gradient */}
@@ -129,12 +129,12 @@ const SystemWindow = ({ children, title, subtitle, status = "STABLE", module = "
                             <div className="px-8 pb-8 pt-2 text-center">
                                 {title && (
                                     <div className="mb-4 text-left">
-                                        <h2 className="text-xl md:text-2xl font-black italic tracking-tighter text-white uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] leading-none mb-2 font-exo">
+                                        <h2 className="text-xl md:text-2xl font-black italic tracking-tighter text-[var(--foreground)] uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] leading-none mb-2 font-exo">
                                             {title}
                                         </h2>
                                         {subtitle && (
                                             <div className="flex items-center gap-4 mb-8">
-                                                <div className={`h-1 w-12 ${isDanger ? 'bg-red-500' : 'bg-cyan-500'} shadow-[0_0_10px_${isDanger ? 'rgba(239,68,68,0.8)' : 'rgba(6,182,212,0.8)'}]`} />
+                                                <div className={`h-1 w-12 ${isDanger ? 'bg-red-500' : 'bg-accent'} shadow-[0_0_10px_var(--accent-glow)]`} />
                                                 <div className={`text-[10px] font-mono tracking-[0.4em] ${accentColor} opacity-50 uppercase`}>
                                                     {subtitle}
                                                 </div>
@@ -142,7 +142,7 @@ const SystemWindow = ({ children, title, subtitle, status = "STABLE", module = "
                                         )}
                                     </div>
                                 )}
-                                <div className="text-neutral-200">
+                                <div style={{ color: 'var(--foreground)' }}>
                                     {children}
                                 </div>
                             </div>

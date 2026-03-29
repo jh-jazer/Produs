@@ -14,7 +14,7 @@ const XpFeed = ({ user }) => {
         str: 'rose-500',
         dex: 'orange-400',
         end: 'emerald-500',
-        int: 'cyan-400',
+        int: 'accent',
         wis: 'purple-500',
         cha: 'pink-500',
         none: 'slate-400'
@@ -39,7 +39,7 @@ const XpFeed = ({ user }) => {
         <div className="w-full space-y-4">
             <div className="flex items-center justify-between px-1 mb-2">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">REALTIME_XP_STREAM</span>
-                <span className="text-[8px] font-black font-mono text-cyan-500 animate-pulse">SYNC_ACTIVE</span>
+                <span className="text-[8px] font-black font-mono text-accent animate-pulse">SYNC_ACTIVE</span>
             </div>
 
             <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">

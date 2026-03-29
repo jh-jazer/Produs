@@ -137,7 +137,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                 }}
                                                 autoFocus
                                                 placeholder="IDENT_REQUIRED"
-                                                className="w-full bg-transparent border-b-2 border-cyan-400/30 px-0 py-4 text-xl font-black outline-none focus:border-cyan-400 transition-all text-cyan-400 placeholder:text-cyan-400/10 tracking-[0.4em] font-mono text-center uppercase"
+                                                className="w-full bg-transparent border-b-2 border-accent/30 px-0 py-4 text-xl font-black outline-none focus:border-accent transition-all text-accent placeholder:text-accent/10 tracking-[0.4em] font-mono text-center uppercase"
                                             />
                                             <div className="flex flex-col items-center gap-4">
                                                 <button
@@ -150,7 +150,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                         }, 1200);
                                                     }}
                                                     disabled={!isUsernameAvailable || isCheckingUsername || isAuthorizing}
-                                                    className="w-full py-4 bg-gradient-to-r from-cyan-400 to-blue-600 disabled:from-neutral-800 disabled:to-neutral-900 text-white font-black uppercase tracking-[1em] text-[10px] hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(34,211,238,0.3)] font-exo"
+                                                    className="w-full py-4 bg-gradient-to-r from-accent to-blue-600 disabled:from-neutral-800 disabled:to-neutral-900 text-white font-black uppercase tracking-[1em] text-[10px] hover:scale-[1.02] transition-all shadow-[0_0_30px_var(--accent-glow)] font-exo"
                                                 >
                                                     {isAuthorizing ? 'Authorizing...' : 'Enter'}
                                                 </button>
@@ -171,7 +171,9 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     }
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black overflow-y-auto bg-grid font-outfit">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto font-outfit transition-colors duration-500"
+            style={{ backgroundColor: 'var(--background)' }}
+        >
             <div className="w-full max-w-6xl h-full flex flex-col items-center justify-center p-8 md:p-12 relative">
                 <AnimatePresence mode="wait">
                     {step === 2 && (
@@ -194,14 +196,14 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                 onClick={() => handleThemeChange(mode.id)}
                                                 className={`p-6 border-2 flex flex-col items-center gap-4 transition-all ${
                                                     themeMode === mode.id
-                                                        ? "border-cyan-400 bg-cyan-400/10 shadow-[0_0_20px_rgba(34,211,238,0.2)]"
-                                                        : "border-white/10 hover:border-white/20 bg-white/5"
+                                                        ? "border-accent bg-accent/10 shadow-[0_0_20px_var(--accent-glow)]"
+                                                        : "border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 bg-black/5 dark:bg-white/5"
                                                 }`}
                                             >
-                                                <span className={`material-symbols-outlined text-3xl ${themeMode === mode.id ? 'text-cyan-400' : 'text-white/40'}`}>
+                                                <span className={`material-symbols-outlined text-3xl ${themeMode === mode.id ? 'text-accent' : 'text-black/40 dark:text-white/40'}`}>
                                                     {mode.icon}
                                                 </span>
-                                                <span className={`text-[10px] font-black uppercase tracking-widest ${themeMode === mode.id ? 'text-white' : 'text-white/40'}`}>
+                                                <span className={`text-[10px] font-black uppercase tracking-widest ${themeMode === mode.id ? 'text-[var(--foreground)]' : 'text-black/40 dark:text-white/40'}`}>
                                                     {mode.name}
                                                 </span>
                                             </button>
@@ -211,13 +213,13 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                     <div className="flex gap-4">
                                         <button 
                                             onClick={() => { setIsBooting(true); setStep(1); }}
-                                            className="px-8 py-4 border border-white/10 text-white/40 font-black text-[10px] uppercase tracking-widest hover:text-white transition-all font-exo"
+                                            className="px-8 py-4 border border-black/10 dark:border-white/10 text-black/40 dark:text-white/40 font-black text-[10px] uppercase tracking-widest hover:text-[var(--foreground)] transition-all font-exo"
                                         >
                                             RE_IDENTIFY
                                         </button>
                                         <button 
                                             onClick={() => setStep(3)}
-                                            className="flex-1 py-4 bg-gradient-to-r from-cyan-400 to-blue-600 text-white font-black text-[10px] uppercase tracking-[0.4em] hover:scale-[1.02] transition-all font-exo"
+                                            className="flex-1 py-4 bg-gradient-to-r from-accent to-blue-600 text-white font-black text-[10px] uppercase tracking-[0.4em] hover:scale-[1.02] transition-all font-exo"
                                         >
                                             CALIBRATE
                                         </button>
@@ -236,25 +238,25 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                 className="max-w-xl text-center"
                             >
                                 <div className="space-y-8 py-4">
-                                    <div className="size-24 mx-auto bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center rounded-full animate-pulse">
-                                        <span className="material-symbols-outlined text-cyan-400 text-5xl">verified_user</span>
+                                    <div className="size-24 mx-auto bg-accent/10 border border-accent/20 flex items-center justify-center rounded-full animate-pulse">
+                                        <span className="material-symbols-outlined text-accent text-5xl">verified_user</span>
                                     </div>
 
                                     <div className="space-y-2">
-                                        <h2 className="text-3xl font-black text-white italic tracking-tighter font-exo uppercase">WELCOME, @{username}</h2>
-                                        <p className="text-[10px] font-mono text-cyan-400/60 uppercase tracking-[0.3em]">
+                                        <h2 className="text-3xl font-black text-[var(--foreground)] italic tracking-tighter font-exo uppercase">WELCOME, @{username}</h2>
+                                        <p className="text-[10px] font-mono text-accent/60 uppercase tracking-[0.3em]">
                                             STATUS: [ SHUT-IN ] // ARCHETYPE: [ UNKNOWN ]
                                         </p>
                                     </div>
 
-                                    <p className="text-xs text-neutral-400 leading-relaxed uppercase tracking-widest max-w-sm mx-auto font-medium">
+                                    <p className="text-xs text-[var(--foreground)]/60 leading-relaxed uppercase tracking-widest max-w-sm mx-auto font-medium">
                                         To reveal your true identity and awaken your core potential, proceed to the dashboard and trigger the Awakening Protocol.
                                     </p>
 
                                     <button
                                         onClick={handleOnboardingComplete}
                                         disabled={loading}
-                                        className="w-full py-5 bg-gradient-to-r from-cyan-400 to-blue-600 text-white font-black text-xs uppercase tracking-[0.8em] transition-all hover:scale-[1.02] font-exo shadow-[0_0_40px_rgba(34,211,238,0.3)]"
+                                        className="w-full py-5 bg-gradient-to-r from-accent to-blue-600 text-white font-black text-xs uppercase tracking-[0.8em] transition-all hover:scale-[1.02] font-exo shadow-[0_0_40px_var(--accent-glow)]"
                                     >
                                         {loading ? 'INITIALIZING...' : 'INITIALIZE_SYSTEM'}
                                     </button>

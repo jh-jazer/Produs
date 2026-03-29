@@ -31,16 +31,16 @@ const PanelWrapper = ({ children, title, subtitle, status, isInline, className =
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ layout: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } }}
-            className={`bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group transition-all border-l-4 border-l-cyan-500 mb-4 ${className}`}
+            className={`bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group transition-all border-l-4 border-l-accent mb-4 ${className}`}
         >
             {/* Header for Inline version */}
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-500">
+                    <div className="size-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
                         <Zap size={20} />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.2em] font-mono">
+                        <span className="text-[10px] font-black text-accent uppercase tracking-[0.2em] font-mono">
                             {title || 'PROTOCOL: AWAKENING'}
                         </span>
                         <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
@@ -74,7 +74,7 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
         { label: "Disagree", score: 2, color: "orange-400" },
         { label: "Neutral", score: 3, color: "neutral-400" },
         { label: "Agree", score: 4, color: "emerald-400" },
-        { label: "Strongly Agree", score: 5, color: "cyan-400" }
+        { label: "Strongly Agree", score: 5, color: "accent" }
     ];
 
     const handleAnswer = (score) => {
@@ -142,7 +142,7 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                         {/* Simple Tactical Progress Line */}
                         <div className="relative h-1 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
                             <motion.div 
-                                className="absolute inset-y-0 left-0 bg-cyan-500"
+                                className="absolute inset-y-0 left-0 bg-accent"
                                 animate={{ width: `${((quizIndex + 1) / ARCHETYPE_QUIZ.length) * 100}%` }}
                                 transition={{ type: "spring", stiffness: 100, damping: 20 }}
                             />
@@ -185,7 +185,7 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                                         setQuizIndex(quizIndex - 1);
                                         setAnswers(answers.slice(0, -1));
                                     }}
-                                    className="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-cyan-500 transition-colors uppercase tracking-widest"
+                                    className="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-accent transition-colors uppercase tracking-widest"
                                 >
                                     <ArrowLeft size={10} />
                                     <span>BACK</span>
@@ -209,11 +209,11 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                     >
                         <div className="relative size-24 mx-auto mb-10">
                             <motion.div 
-                                className="absolute inset-0 border-2 border-t-cyan-500 border-transparent rounded-full"
+                                className="absolute inset-0 border-2 border-t-accent border-transparent rounded-full"
                                 animate={{ rotate: 360 }}
                                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                             />
-                            <div className="absolute inset-0 flex items-center justify-center font-mono text-[10px] text-cyan-500">
+                            <div className="absolute inset-0 flex items-center justify-center font-mono text-[10px] text-accent">
                                 {Math.floor(Math.random()*100)}%
                             </div>
                         </div>

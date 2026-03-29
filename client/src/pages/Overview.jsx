@@ -44,12 +44,6 @@ function Overview() {
 
   return (
     <div className="relative w-full min-h-[calc(100vh-64px)] flex flex-col overflow-hidden">
-      {/* Cinematic Overview Background: Neural Glow & Grid */}
-    <div className="absolute inset-0 -z-10 pointer-events-none">
-        <div className="absolute inset-0 bg-grid" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(6,182,212,0.15),transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_100%,rgba(0,102,255,0.1),transparent_50%)]" />
-      </div>
 
       <AnimatePresence mode="wait">
         {isLevel0 && !isInitializing ? (
