@@ -18,9 +18,28 @@ function Overview() {
   const { setIsSearchModalOpen } = useContext(DashboardContext);
   const user = useAuthStore((state) => state.user);
   const [isAwakeningModalOpen, setIsAwakeningModalOpen] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
   
   const today = new Date().toISOString().split('T')[0];
   const isLevel0 = user?.level === 0;
+
+  const handleAwakened = () => {
+    setIsAwakeningModalOpen(false);
+    setIsInitializing(true);
+    // Cinematic delay for system hydration
+    setTimeout(() => {
+      setIsInitializing(false);
+    }, 4500);
+  };
+
+  const initLogs = [
+    "ATTACHING_NEURAL_LINK...",
+    "CALIBRATING_SYNERGY_MATRICES...",
+    "HYDRATING_DASHBOARD_ZONES...",
+    "LINKING_RPG_VECTORS...",
+    "SYNCHRONIZING_STAT_RADAR...",
+    "ESTABLISHING_PARTNER_ENCRYPTION..."
+  ];
 
   return (
     <div className="relative w-full min-h-[calc(100vh-64px)] flex flex-col overflow-hidden">
@@ -32,15 +51,55 @@ function Overview() {
       </div>
 
       <AnimatePresence mode="wait">
-        {isLevel0 ? (
+        {isLevel0 && !isInitializing ? (
           <motion.div
             key="awakening"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
             className="flex-1 flex items-center justify-center px-6"
           >
             <AwakeningOverlay onAwaken={() => setIsAwakeningModalOpen(true)} />
+          </motion.div>
+        ) : isInitializing ? (
+          <motion.div
+            key="initializing"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex-1 flex flex-col items-center justify-center space-y-8"
+          >
+            <div className="w-64 space-y-4">
+              <div className="flex items-center justify-between text-[10px] font-black text-cyan-500 uppercase tracking-widest font-mono">
+                <span>SYSTEM_INITIALIZING</span>
+                <motion.span 
+                  animate={{ opacity: [0, 1, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  LIVE
+                </motion.span>
+              </div>
+              <div className="h-1 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                <motion.div 
+                   initial={{ width: 0 }}
+                   animate={{ width: "100%" }}
+                   transition={{ duration: 4, ease: "easeInOut" }}
+                   className="h-full bg-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.5)]"
+                />
+              </div>
+              <div className="h-20 overflow-hidden relative">
+                 <motion.div
+                   animate={{ y: [0, -100] }}
+                   transition={{ duration: 4, ease: "linear" }}
+                   className="flex flex-col gap-1"
+                 >
+                    {[...initLogs, ...initLogs].map((log, i) => (
+                      <span key={i} className="text-[8px] font-mono text-slate-400 uppercase tracking-widest">{log}</span>
+                    ))}
+                 </motion.div>
+                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none" />
+              </div>
+            </div>
           </motion.div>
         ) : (
           <motion.div 
@@ -97,7 +156,7 @@ function Overview() {
                animate={{ opacity: 1, scale: 1 }}
                className="w-full max-w-xl max-h-[85vh] overflow-y-auto custom-scrollbar"
              >
-                <AwakeningAssessment onComplete={() => setIsAwakeningModalOpen(false)} />
+                <AwakeningAssessment isOpen={true} isInline={true} onComplete={handleAwakened} />
              </motion.div>
           </div>
         )}

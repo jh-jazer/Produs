@@ -60,7 +60,7 @@ const PanelWrapper = ({ children, title, subtitle, status, isInline, className =
 
 const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
     const { mutate } = useSWRConfig();
-    const [step, setStep] = useState(isInline ? 2 : 1); // 1: Briefing, 2: Quiz, 3: Syncing, 4: Revealed
+    const [step, setStep] = useState(2); // Start directly at Step 2 (Quiz)
     const [quizIndex, setQuizIndex] = useState(0);
     const [answers, setAnswers] = useState([]);
     const [isSyncing, setIsSyncing] = useState(false);
