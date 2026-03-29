@@ -109,18 +109,6 @@ function Overview() {
             animate={{ opacity: 1 }}
             className="w-full max-w-5xl mx-auto pt-8 pb-32 space-y-12"
           >
-            {/* Tactical Search Bar */}
-            <div className="max-w-2xl mx-auto group">
-              <button
-                onClick={() => setIsSearchModalOpen(true)}
-                className="w-full h-14 bg-white/50 dark:bg-white/[0.03] hover:bg-white/80 dark:hover:bg-white/[0.05] backdrop-blur-xl border border-black/[0.08] dark:border-white/10 rounded-[22px] px-6 flex items-center gap-4 transition-all duration-500 hover:scale-[1.01] hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] group-active:scale-[0.99]"
-              >
-                <span className="material-symbols-outlined text-black/40 dark:text-white/40 text-2xl group-hover:text-cyan-500 transition-colors duration-500">search</span>
-                <div className="flex-1 flex items-center justify-between">
-                  <span className="text-black/30 dark:text-white/30 text-[11px] font-bold uppercase tracking-[0.2em] font-mono">SEARCH_TACTICAL_DATA (⌘K)</span>
-                </div>
-              </button>
-            </div>
 
             {/* ZONE 1: Identity Header (Above the fold) */}
             <IdentityHeader user={user} />
