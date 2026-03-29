@@ -336,7 +336,7 @@ export default function Classes() {
           <div className="size-10 rounded-full border border-white/10 flex items-center justify-center group-hover:border-primary transition-all backdrop-blur-md">
             <ChevronLeft size={16} className="text-white/60 group-hover:text-primary group-hover:-translate-x-1 transition-all" />
           </div>
-          <span className="text-[10px] uppercase tracking-[0.6em] text-white/40 group-hover:text-white transition-colors">Return</span>
+          <span className="hidden md:inline-block text-[10px] uppercase tracking-[0.6em] text-white/40 group-hover:text-white transition-colors">Return</span>
         </Link>
         <div className="mx-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-4">
           <div className="size-4 bg-primary rotate-45" />

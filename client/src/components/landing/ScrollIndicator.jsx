@@ -66,7 +66,7 @@ export default function ScrollIndicator({ progress, onNavigate }) {
   }, [isDragging]);
 
   return (
-    <div className="fixed right-6 md:right-12 top-1/2 -translate-y-1/2 z-[100] flex flex-col items-center gap-6 pointer-events-none select-none transition-colors duration-1000 text-white">
+    <div className="fixed right-6 md:right-12 top-1/2 -translate-y-1/2 z-[100] hidden md:flex flex-col items-center gap-6 pointer-events-none select-none transition-colors duration-1000 text-white">
       {/* Percentage Text */}
       <div className="flex flex-col items-center gap-1">
         <span className="text-[11px] font-mono font-black tracking-widest text-white/80 uppercase">Sync</span>

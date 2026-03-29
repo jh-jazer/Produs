@@ -51,7 +51,7 @@ const ScrollOrb = ({ containerRef }) => {
     };
 
     return (
-        <div className="fixed right-0 top-0 bottom-0 w-12 md:w-16 flex justify-center z-[200] pointer-events-none overflow-hidden select-none">
+        <div className="fixed right-0 top-0 bottom-0 w-12 md:w-16 hidden md:flex justify-center z-[200] pointer-events-none overflow-hidden select-none">
             {/* The actual vertical track area (Expanded hit-area for stable drag) */}
             <div 
                 ref={trackRef} 
