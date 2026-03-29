@@ -5,7 +5,7 @@ import SystemWindow from '../ui/SystemWindow';
 
 const AwakeningOverlay = ({ onAwaken }) => {
     return (
-        <div className="w-full max-w-xl mx-auto flex items-center justify-center py-20">
+        <div className="w-full max-w-xl mx-auto flex items-center justify-center">
             <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -40,7 +40,7 @@ const AwakeningOverlay = ({ onAwaken }) => {
                             className="w-full py-4 bg-cyan-500 text-black font-black text-[11px] uppercase tracking-[0.4em] rounded-2xl shadow-lg flex items-center justify-center gap-3 group transition-all"
                         >
                             <Sparkles size={10} className="group-hover:rotate-12 transition-transform" />
-                            INITIALIZE_SYSTEM_SYNC
+                            AWAKEN
                         </motion.button>
                         
                         

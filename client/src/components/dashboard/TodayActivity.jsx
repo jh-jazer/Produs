@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Circle, Zap, Plus, Flame, Award } from 'lucide-react';
+import { CheckCircle2, Circle, Zap, Plus, Flame, Award, Brain } from 'lucide-react';
 import { useHabits } from '../../hooks/useHabits';
 import { XP_CAPS } from '../../utils/rpgHelpers';
 

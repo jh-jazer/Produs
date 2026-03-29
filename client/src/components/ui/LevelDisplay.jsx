@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default function LevelDisplay({ 
-  level = 1, 
+  level = 0, 
   exp = 0, 
   totalRequired = 0, 
   nextLevelExp = 100, 

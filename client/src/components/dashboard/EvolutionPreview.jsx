@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, Target, Zap } from 'lucide-react';
+import { ArrowRight, Sparkles, Target, Zap, Plus } from 'lucide-react';
 import { ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
 
 const EvolutionPreview = ({ user }) => {

@@ -32,7 +32,7 @@ function Overview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="flex items-center justify-center min-h-[80vh] px-6"
+            className="fixed inset-0 z-[100] flex flex-col justify-center px-6"
           >
             <AwakeningOverlay onAwaken={() => setIsAwakeningModalOpen(true)} />
           </motion.div>
