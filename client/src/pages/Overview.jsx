@@ -23,7 +23,7 @@ function Overview() {
   const isLevel0 = user?.level === 0;
 
   return (
-    <div className="relative w-full min-h-screen">
+    <div className="relative w-full min-h-[calc(100vh-64px)] flex flex-col">
       
       <AnimatePresence mode="wait">
         {isLevel0 ? (
@@ -32,7 +32,7 @@ function Overview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-[100] flex flex-col justify-center px-6"
+            className="flex-1 flex items-center justify-center px-6"
           >
             <AwakeningOverlay onAwaken={() => setIsAwakeningModalOpen(true)} />
           </motion.div>

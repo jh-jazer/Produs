@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default function LevelDisplay({ 
-  level = 0, 
+  level = 1, 
   exp = 0, 
   totalRequired = 0, 
   nextLevelExp = 100, 
@@ -10,6 +10,8 @@ export default function LevelDisplay({
 }) {
   const currentLevelProgress = exp - totalRequired;
   const progress = Math.min(100, Math.max(0, (currentLevelProgress / nextLevelExp) * 100));
+
+  if (level === 0) return null;
 
   return (
     <div 

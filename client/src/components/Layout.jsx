@@ -230,38 +230,40 @@ function Layout() {
                 `}>
 
                     {/* Unified Level HUD: Persistent Icon + Conditional Progress Bar */}
-                    <div className="flex items-center gap-4 w-full h-10">
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setIsStatsModalOpen(true)}
-                            className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/[0.05] dark:border-white/10 flex flex-col items-center justify-center gap-0.5 transition-all hover:bg-electric-blue/10 hover:border-electric-blue/30 group/lvl shrink-0"
-                        >
-                            <span className="text-[7px] font-black text-black/30 dark:text-white/30 group-hover/lvl:text-electric-blue/60 uppercase tracking-tighter italic leading-none">LVL</span>
-                            <span className="text-sm font-black text-black dark:text-white group-hover/lvl:text-electric-blue leading-none">{user?.level ?? 0}</span>
-                        </motion.button>
+                    {user?.level > 0 && (
+                        <div className="flex items-center gap-4 w-full h-10">
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setIsStatsModalOpen(true)}
+                                className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/[0.05] dark:border-white/10 flex flex-col items-center justify-center gap-0.5 transition-all hover:bg-electric-blue/10 hover:border-electric-blue/30 group/lvl shrink-0"
+                            >
+                                <span className="text-[7px] font-black text-black/30 dark:text-white/30 group-hover/lvl:text-electric-blue/60 uppercase tracking-tighter italic leading-none">LVL</span>
+                                <span className="text-sm font-black text-black dark:text-white group-hover/lvl:text-electric-blue leading-none">{user?.level || 1}</span>
+                            </motion.button>
 
-                        <AnimatePresence>
-                            {(deferredPath === '/dashboard' || isMobileMenuOpen) && (
-                                <motion.div 
-                                    key="prog-bar"
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -10 }}
-                                    className={`${isMobileMenuOpen ? 'flex' : 'hidden md:flex'} flex-1 min-w-0`}
-                                >
-                                    <LevelDisplay 
-                                        level={user?.level} 
-                                        exp={user?.exp} 
-                                        totalRequired={user?.totalRequired}
-                                        nextLevelExp={user?.nextLevelExp}
-                                        className="w-full" 
-                                        onClick={() => setIsStatsModalOpen(true)}
-                                    />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
+                            <AnimatePresence>
+                                {(deferredPath === '/dashboard' || isMobileMenuOpen) && (
+                                    <motion.div 
+                                        key="prog-bar"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -10 }}
+                                        className={`${isMobileMenuOpen ? 'flex' : 'hidden md:flex'} flex-1 min-w-0`}
+                                    >
+                                        <LevelDisplay 
+                                            level={user?.level} 
+                                            exp={user?.exp} 
+                                            totalRequired={user?.totalRequired}
+                                            nextLevelExp={user?.nextLevelExp}
+                                            className="w-full" 
+                                            onClick={() => setIsStatsModalOpen(true)}
+                                        />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    )}
 
                     {/* Profile & Name Identity */}
                     <div className="relative flex items-center gap-4 group" ref={profileRef}>
