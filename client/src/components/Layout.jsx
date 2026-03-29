@@ -99,7 +99,7 @@ function Layout() {
 
     return (
         <div
-            className="bg-[#f8f8f8] dark:bg-[#000000] dark:bg-grid bg-grid-light font-display text-[#111111] dark:text-slate-100 h-screen flex flex-row overflow-hidden"
+        className="bg-grid-light dark:bg-transparent font-display text-[#111111] dark:text-slate-100 h-screen flex flex-row overflow-hidden"
         >
             {/* Mobile Top Bar */}
             <div className={`md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-6 z-[130] transition-all duration-300 ${isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
