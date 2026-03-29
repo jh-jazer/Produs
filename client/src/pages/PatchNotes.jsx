@@ -58,7 +58,7 @@ export default function PatchNotes() {
           <div className="size-8 md:size-10 rounded-full border border-white/30 flex items-center justify-center group-hover:border-current transition-all">
             <ChevronLeft size={14} className="text-white/80 group-hover:text-current group-hover:-translate-x-1 transition-all" />
           </div>
-          <span className="font-normal text-[10px] uppercase tracking-[0.5em] text-white/80 group-hover:text-current transition-colors">Return</span>
+          <span className="hidden md:inline-block font-normal text-[10px] uppercase tracking-[0.5em] text-white/80 group-hover:text-current transition-colors">Return</span>
         </Link>
         <div className="mx-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
           <div className="size-4 bg-electric-blue flex items-center justify-center rotate-45" />
