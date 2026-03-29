@@ -4,6 +4,7 @@ import { ARCHETYPE_QUIZ, calculateScores, ARCHETYPE_PROTOCOLS } from '../../cons
 import SystemWindow from '../ui/SystemWindow';
 import api from '../../services/api';
 import { useSWRConfig } from 'swr';
+import useAuthStore from '../../store/useAuthStore';
 import { ArrowLeft, Zap, Shield, Target, Brain, Heart, Users, Sparkles } from 'lucide-react';
 
 /**
@@ -60,12 +61,13 @@ const PanelWrapper = ({ children, title, subtitle, status, isInline, className =
 
 const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
     const { mutate } = useSWRConfig();
+    const syncUser = useAuthStore(state => state.syncUser);
     const [step, setStep] = useState(2); // Start directly at Step 2 (Quiz)
     const [quizIndex, setQuizIndex] = useState(0);
     const [answers, setAnswers] = useState([]);
     const [isSyncing, setIsSyncing] = useState(false);
     const [results, setResults] = useState(null);
-    const [activeIndex, setActiveIndex] = useState(2); // Default to Neutral (index 2)
+    const [activeIndex, setActiveIndex] = useState(null); // No default focus
 
     const quizOptions = [
         { label: "Strongly Disagree", score: 1, color: "rose-500" },
@@ -80,7 +82,7 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
         if (quizIndex < ARCHETYPE_QUIZ.length - 1) {
             setAnswers(next);
             setQuizIndex(quizIndex + 1);
-            setActiveIndex(2);
+            // Don't reset to 2 to avoid 'ghost glow' on next question
         } else {
             setAnswers(next);
             finalizeAssessment(next);
@@ -98,11 +100,21 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
             const { data } = await api.post('/auth/awaken', { stats });
             setResults(data);
             setStep(4);
+            
+            // Sync level/rpg directly — backend returns { level, exp, rpg } (no .user wrapper)
+            syncUser(data);
+            
             mutate('/auth/me');
         } catch (error) {
             console.error('Awakening failed:', error);
-            setIsSyncing(false);
-            setStep(2);
+            // If user is already awakened, just close and proceed
+            const isAlreadyAwakened = error?.response?.status === 400;
+            if (isAlreadyAwakened) {
+                onClose?.();
+            } else {
+                setIsSyncing(false);
+                setStep(2);
+            }
         }
     };
 
@@ -142,7 +154,10 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                             </h3>
                         </div>
 
-                        <div className="grid grid-cols-5 gap-2 md:gap-4 pt-4 pb-4">
+                        <div 
+                            className="grid grid-cols-5 gap-2 md:gap-4 pt-4 pb-4"
+                            onMouseLeave={() => setActiveIndex(null)}
+                        >
                             {quizOptions.map((opt, idx) => {
                                 const isFocused = idx === activeIndex;
                                 return (

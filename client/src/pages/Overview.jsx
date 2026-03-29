@@ -19,14 +19,15 @@ function Overview() {
   const user = useAuthStore((state) => state.user);
   const [isAwakeningModalOpen, setIsAwakeningModalOpen] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
+  const [hasAwakened, setHasAwakened] = useState(false);
   
   const today = new Date().toISOString().split('T')[0];
-  const isLevel0 = user?.level === 0;
+  const isLevel0 = user?.level === 0 && !hasAwakened;
 
   const handleAwakened = () => {
     setIsAwakeningModalOpen(false);
+    setHasAwakened(true); // client-side gate — ensures we never snap back
     setIsInitializing(true);
-    // Cinematic delay for system hydration
     setTimeout(() => {
       setIsInitializing(false);
     }, 4500);
@@ -156,7 +157,7 @@ function Overview() {
                animate={{ opacity: 1, scale: 1 }}
                className="w-full max-w-xl max-h-[85vh] overflow-y-auto custom-scrollbar"
              >
-                <AwakeningAssessment isOpen={true} isInline={true} onComplete={handleAwakened} />
+                <AwakeningAssessment isOpen={true} isInline={true} onClose={handleAwakened} />
              </motion.div>
           </div>
         )}
