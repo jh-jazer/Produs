@@ -1,6 +1,7 @@
 import HealthLog from '../models/HealthLog.js';
 import User from '../models/User.js';
 import { awardXP } from '../utils/rpgUtils.js';
+import { checkSystemHabit } from '../utils/habitUtils.js';
 
 export const logHealth = async (req, res) => {
     try {
@@ -18,6 +19,11 @@ export const logHealth = async (req, res) => {
             isGoalHit,
             details
         });
+
+        // Auto-check Workout habit
+        if (type === 'workout') {
+            await checkSystemHabit(req.user._id, 'workout', date);
+        }
 
         const user = await User.findById(req.user._id);
         

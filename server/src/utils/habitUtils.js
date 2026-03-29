@@ -4,7 +4,23 @@ export const initializeSystemHabits = async (userId) => {
     const habits = [
         {
             user: userId,
-            name: 'Journal',
+            name: 'Daily Planning',
+            icon: 'event_note',
+            color: 'amber',
+            category: 'DEX',
+            systemId: 'planner'
+        },
+        {
+            user: userId,
+            name: 'Finance Tracking',
+            icon: 'payments',
+            color: 'emerald',
+            category: 'WIS',
+            systemId: 'finance'
+        },
+        {
+            user: userId,
+            name: 'Journaling',
             icon: 'menu_book',
             color: 'violet',
             category: 'WIS',
@@ -12,19 +28,11 @@ export const initializeSystemHabits = async (userId) => {
         },
         {
             user: userId,
-            name: 'Finance Tracking',
-            icon: 'payments',
-            color: 'emerald',
-            category: 'PER',
-            systemId: 'finance'
-        },
-        {
-            user: userId,
-            name: 'Daily Planning',
-            icon: 'event_note',
-            color: 'amber',
-            category: 'DEX',
-            systemId: 'planner'
+            name: 'Workout',
+            icon: 'fitness_center',
+            color: 'red',
+            category: 'STR',
+            systemId: 'workout'
         }
     ];
 
