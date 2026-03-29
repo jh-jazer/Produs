@@ -180,7 +180,9 @@ export const determineArchetype = (stats, level) => {
     };
 };
 
-export const awardXP = async (user, stat, amount, streak = 1) => {
+import Activity from '../models/Activity.js';
+
+export const awardXP = async (user, stat, amount, streak = 1, activityType = 'system', action = 'Syncing data') => {
     const today = new Date().toISOString().split('T')[0];
     
     // Initialize/Reset Daily XP if needed
@@ -208,13 +210,13 @@ export const awardXP = async (user, stat, amount, streak = 1) => {
     }
 
     // Check Total Daily Cap
-    if (user.rpg.dailyXP.total >= XP_CAPS.total) return;
+    if (user.rpg.dailyXP.total >= XP_CAPS.total) return { xpAwarded: 0 };
 
     // Check Stat Daily Cap
     const currentStatXP = user.rpg.dailyXP.byStat[stat] || 0;
     const statCap = XP_CAPS[stat] || 50;
     
-    if (currentStatXP >= statCap) return;
+    if (currentStatXP >= statCap) return { xpAwarded: 0 };
     
     // Adjust finalXP if it exceeds caps
     if (user.rpg.dailyXP.total + finalXP > XP_CAPS.total) {
@@ -223,6 +225,8 @@ export const awardXP = async (user, stat, amount, streak = 1) => {
     if (currentStatXP + finalXP > statCap) {
         finalXP = statCap - currentStatXP;
     }
+
+    if (finalXP <= 0) return { xpAwarded: 0 };
 
     // Update User Stats and XP
     user.rpg.stats[stat] += finalXP;
@@ -246,6 +250,20 @@ export const awardXP = async (user, stat, amount, streak = 1) => {
             to: archetypeInfo.name,
             date: new Date()
         });
+    }
+
+    // Log Activity
+    try {
+        await Activity.create({
+            user: user._id,
+            type: activityType,
+            action,
+            stat,
+            amount: finalXP,
+            perkActivated: multiplier > 1 ? `Streak ${multiplier}x` : null
+        });
+    } catch (logError) {
+        console.error('Failed to log RPG activity:', logError);
     }
 
     return {

@@ -118,6 +118,43 @@ export const loginUser = async (req, res) => {
     }
 };
 
+// @desc    Get link partner information
+// @route   GET /api/auth/partner
+// @access  Private
+export const getPartner = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).populate('partner');
+        if (!user || !user.partner) {
+            return res.json(null);
+        }
+
+        const partner = user.partner;
+        
+        // Fetch partner's habits for today to show status
+        const Habit = mongoose.model('Habit');
+        const habits = await Habit.find({ user: partner._id });
+        const today = new Date().toISOString().split('T')[0];
+        
+        const completedToday = habits.filter(h => 
+            h.checks?.some(c => c.date === today && c.completed)
+        ).length;
+
+        res.json({
+            _id: partner._id,
+            name: partner.name,
+            username: partner.username,
+            avatar: partner.avatar,
+            level: partner.level,
+            rpg: partner.rpg,
+            stats: partner.rpg.stats,
+            habitsCount: habits.length,
+            completedToday,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Get user profile
 // @route   GET /api/auth/me
 // @access  Private

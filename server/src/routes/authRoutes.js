@@ -8,6 +8,7 @@ const router = express.Router();
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/me', protect, getMe);
+router.get('/partner', protect, getPartner);
 router.get('/stats', protect, getStats);
 router.get('/search', protect, searchUsers);
 router.get('/connections', protect, getConnections);

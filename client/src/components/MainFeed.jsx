@@ -7,6 +7,7 @@ import feedData from '../data/feed_mock_dataset_500_posts.json';
 import Avatar from './ui/Avatar';
 import ChannelModal from './ui/ChannelModal';
 import DailyQuiz from './rpg_components/DailyQuiz';
+import AwakeningAssessment from './rpg_components/AwakeningAssessment';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, CheckCircle2 } from 'lucide-react';
 
@@ -68,39 +69,9 @@ const AssessmentPanel = ({ isLevel0, isDailyQuizCompleted, setIsAwakeningModalOp
     return (
         <AnimatePresence mode="wait">
             {isLevel0 ? (
-                <motion.div
-                    key="awakening-card"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 relative overflow-hidden group transition-all border-l-4 border-l-cyan-500 shadow-xl shadow-cyan-500/5 mb-4"
-                >
-                    <div className="relative z-10 flex flex-col gap-6">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="size-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-500">
-                                    <Zap size={20} />
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.2em] font-mono">PROTOCOL: AWAKENING</span>
-                                    <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">Identity Unmapped</h3>
-                                </div>
-                            </div>
-                            <span className="text-[9px] font-black px-2 py-1 rounded-md bg-cyan-500 text-white uppercase tracking-widest font-mono animate-pulse">Action Required</span>
-                        </div>
-
-                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed max-w-md italic">
-                            "System initialized in baseline state. Trigger the awakening protocol to synchronize neural vectors and reveal your true archetype."
-                        </p>
-
-                        <button 
-                            onClick={() => setIsAwakeningModalOpen(true)}
-                            className="w-full h-14 bg-black dark:bg-white text-white dark:text-black rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] font-black text-xs uppercase tracking-[0.3em] shadow-lg shadow-black/10 dark:shadow-white/5"
-                        >
-                            Initialize Sync
-                        </button>
-                    </div>
-                </motion.div>
+                <div className="mb-4">
+                    <AwakeningAssessment isInline={true} />
+                </div>
             ) : !isDailyQuizCompleted ? (
                 <div className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-2 overflow-hidden border-l-4 border-l-emerald-500 shadow-xl shadow-emerald-500/5 mb-4">
                     <DailyQuiz />
@@ -410,7 +381,7 @@ export default function MainFeed({ isLevel0, isDailyQuizCompleted, setIsAwakenin
                     user={user}
                 />
 
-                {interleavedFeed.length === 0 ? (
+                {interleavedFeed.length === 0 && !isLevel0 ? (
                     <div className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-12 text-center flex flex-col items-center gap-4">
                         <div className="size-16 rounded-2xl bg-slate-50 dark:bg-[#000000] flex items-center justify-center text-slate-300">
                             <span className="material-symbols-outlined text-4xl">all_inclusive</span>

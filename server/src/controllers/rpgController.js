@@ -1,5 +1,22 @@
+import Activity from '../models/Activity.js';
 import User from '../models/User.js';
 import { awardXP } from '../utils/rpgUtils.js';
+
+// @route   GET /api/rpg/history
+// @desc    Get recent XP activity history
+// @access  Private
+export const getActivityHistory = async (req, res) => {
+    try {
+        const history = await Activity.find({ user: req.user._id })
+            .sort({ createdAt: -1 })
+            .limit(20);
+        
+        res.json(history);
+    } catch (error) {
+        console.error('Failed to fetch activity history:', error);
+        res.status(500).json({ message: 'Server error during history retrieval.' });
+    }
+};
 
 // @route   POST /api/rpg/daily-quiz
 // @desc    Complete daily reflection quiz
