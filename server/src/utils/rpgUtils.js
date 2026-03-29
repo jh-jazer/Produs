@@ -4,82 +4,97 @@
  */
 
 export const LEVEL_TABLE = [
-    { level: 1, title: 'Archetype Tier 1', xpToNext: 100, totalRequired: 0 },
-    { level: 2, title: 'Archetype Tier 1', xpToNext: 250, totalRequired: 100 },
-    { level: 3, title: 'Archetype Tier 1', xpToNext: 500, totalRequired: 350 },
-    { level: 4, title: 'Archetype Tier 1', xpToNext: 1000, totalRequired: 850 },
-    { level: 5, title: 'Archetype Tier 1', xpToNext: 1750, totalRequired: 1850 },
-    { level: 6, title: 'Archetype Tier 1', xpToNext: 2750, totalRequired: 3600 },
-    { level: 7, title: 'Archetype Tier 1', xpToNext: 4000, totalRequired: 6350 },
-    { level: 8, title: 'Archetype Tier 2', xpToNext: 5500, totalRequired: 10350 },
-    { level: 9, title: 'Archetype Tier 2', xpToNext: 7500, totalRequired: 15850 },
-    { level: 10, title: 'Archetype Tier 2', xpToNext: 10000, totalRequired: 23350 },
-    { level: 11, title: 'Archetype Tier 3', xpToNext: 13000, totalRequired: 33350 },
-    { level: 12, title: 'Archetype Tier 3', xpToNext: 17000, totalRequired: 46350 },
-    { level: 13, title: 'Archetype Tier 3', xpToNext: 22000, totalRequired: 63350 },
-    { level: 14, title: 'Archetype Tier 4', xpToNext: 28000, totalRequired: 85350 },
-    { level: 15, title: 'Archetype Tier 4', xpToNext: 35000, totalRequired: 113350 },
-    { level: 16, title: 'Archetype Tier 4', xpToNext: 45000, totalRequired: 148350 },
-    { level: 17, title: 'Archetype Tier 5', xpToNext: 57000, totalRequired: 193350 },
-    { level: 18, title: 'Archetype Tier 5', xpToNext: 72000, totalRequired: 250350 },
-    { level: 19, title: 'Archetype Tier 5', xpToNext: 90000, totalRequired: 322350 },
-    { level: 20, title: 'Archetype Tier 5', xpToNext: 0, totalRequired: 412350 },
+    { level: 0, title: 'Shut-in', xpToNext: 100, totalRequired: 0 },
+    { level: 1, title: 'Tier 1', xpToNext: 150, totalRequired: 100 },
+    { level: 2, title: 'Tier 1', xpToNext: 250, totalRequired: 250 },
+    { level: 3, title: 'Tier 1', xpToNext: 500, totalRequired: 500 },
+    { level: 4, title: 'Tier 1', xpToNext: 1000, totalRequired: 1000 },
+    { level: 5, title: 'Tier 1', xpToNext: 1750, totalRequired: 2000 },
+    { level: 6, title: 'Tier 1', xpToNext: 2750, totalRequired: 3750 },
+    { level: 7, title: 'Tier 1', xpToNext: 4000, totalRequired: 6500 },
+    { level: 8, title: 'Tier 2', xpToNext: 5500, totalRequired: 10500 },
+    { level: 9, title: 'Tier 2', xpToNext: 7500, totalRequired: 16000 },
+    { level: 10, title: 'Tier 2', xpToNext: 10000, totalRequired: 23500 },
+    { level: 11, title: 'Tier 3', xpToNext: 13000, totalRequired: 33500 },
+    { level: 12, title: 'Tier 3', xpToNext: 17000, totalRequired: 46500 },
+    { level: 13, title: 'Tier 3', xpToNext: 22000, totalRequired: 63500 },
+    { level: 14, title: 'Tier 4', xpToNext: 28000, totalRequired: 85500 },
+    { level: 15, title: 'Tier 4', xpToNext: 35000, totalRequired: 113500 },
+    { level: 16, title: 'Tier 4', xpToNext: 45000, totalRequired: 148500 },
+    { level: 17, title: 'Tier 5', xpToNext: 57000, totalRequired: 193500 },
+    { level: 18, title: 'Tier 5', xpToNext: 72000, totalRequired: 250500 },
+    { level: 19, title: 'Tier 5', xpToNext: 90000, totalRequired: 322500 },
+    { level: 20, title: 'Tier 5', xpToNext: 0, totalRequired: 412500 },
 ];
 
 export const ARCHETYPES = {
-    BLADE_DANCER: {
+    'Iron Fist': {
+        name: 'Iron Fist',
+        tiers: ["Brawler", "Iron Fist", "The Relentless", "Unstoppable Force", "The Wall That Walks"]
+    },
+    'Blade Dancer': {
         name: 'Blade Dancer',
-        dominant: ['str', 'dex'],
-        secondary: 'end',
-        tiers: ['Street Brawler', 'Blade Dancer', 'Phantom Edge', 'Death\'s Silhouette', 'The Undying Blade']
+        tiers: ["Street Brawler", "Blade Dancer", "Phantom Edge", "Death's Silhouette", "The Undying Blade"]
     },
-    SENTINEL: {
+    'Warlord': {
+        name: 'Warlord',
+        tiers: ["Pack Leader", "Warlord", "Iron Banner", "The Conqueror", "King of the Battlefield"]
+    },
+    'Vanguard': {
+        name: 'Vanguard',
+        tiers: ["The Eager", "Vanguard", "Spearhead", "The Unstoppable", "First of the New World"]
+    },
+    'Sentinel': {
         name: 'Sentinel',
-        dominant: ['str', 'end'],
-        secondary: 'wis',
-        tiers: ['The Stubborn', 'Sentinel', 'Iron Bulwark', 'The Immovable', 'Eternal Fortress']
+        tiers: ["The Stubborn", "Sentinel", "Iron Bulwark", "The Immovable", "Eternal Fortress"]
     },
-    ALCHEMIST: {
-        name: 'Alchemist',
-        dominant: ['int', 'wis'],
-        secondary: 'dex',
-        tiers: ['Tinkerer', 'Alchemist', 'Formula Breaker', 'Grand Synthesist', 'Architect of Truth']
+    'Forge Master': {
+        name: 'Forge Master',
+        tiers: ["The Maker", "Forge Master", "Ironwright", "The Architect of Steel", "Builder of Civilizations"]
     },
-    ARCHITECT: {
-        name: 'Architect',
-        dominant: ['int', 'dex'],
-        secondary: 'wis',
-        tiers: ['Draftsman', 'Architect', 'System Lord', 'World Builder', 'The Eternal Planner']
-    },
-    ORACLE: {
-        name: 'Oracle',
-        dominant: ['wis', 'end'],
-        secondary: 'int',
-        tiers: ['Dreamer', 'Oracle', 'The Farsighted', 'Keeper of Inevitable Truths', 'The One Who Already Knew']
-    },
-    COMMANDER: {
+    'Commander': {
         name: 'Commander',
-        dominant: ['cha', 'str'],
-        secondary: 'wis',
-        tiers: ['Squad Leader', 'Commander', 'Warlord', 'Iron Sovereign', 'The Undefeated King']
+        tiers: ["Squad Leader", "Commander", "Warlord", "Iron Sovereign", "The Undefeated King"]
     },
-    BARD: {
-        name: 'Bard',
-        dominant: ['cha', 'int'],
-        secondary: 'wis',
-        tiers: ['Storyteller', 'Bard', 'Silver Tongue', 'Voice of Legends', 'The Word That Moves Worlds']
+    'Champion': {
+        name: 'Champion',
+        tiers: ["Contender", "Champion", "The Proven", "Legend in the Making", "The Undisputed"]
     },
-    SHADOW_MONK: {
+    'Shadow Monk': {
         name: 'Shadow Monk',
-        dominant: ['wis', 'dex'],
-        secondary: 'int',
-        tiers: ['Introvert', 'Shadow Monk', 'The Unseen', 'Void Walker', 'He Who Needs No Witness']
+        tiers: ["Introvert", "Shadow Monk", "The Unseen", "Void Walker", "He Who Needs No Witness"]
     },
-    DRUID: {
+    'Ghost': {
+        name: 'Ghost',
+        tiers: ["The Quiet One", "Ghost", "No Trace", "The Vanishing", "Never There"]
+    },
+    'Diplomat': {
+        name: 'Diplomat',
+        tiers: ["The Listener", "Diplomat", "Silver Tongue", "The Peacemaker", "The One Who Stopped the War"]
+    },
+    'Bard': {
+        name: 'Bard',
+        tiers: ["Storyteller", "Bard", "Silver Tongue", "Voice of Legends", "The Word That Moves Worlds"]
+    },
+    'Oracle': {
+        name: 'Oracle',
+        tiers: ["Dreamer", "Oracle", "The Farsighted", "Keeper of Inevitable Truths", "The One Who Already Knew"]
+    },
+    'Druid': {
         name: 'Druid',
-        dominant: ['wis', 'end'],
-        secondary: 'str',
-        tiers: ['Wanderer', 'Druid', 'Pattern Seer', 'Voice of the Wild', 'The Living Codex']
+        tiers: ["Wanderer", "Druid", "Pattern Seer", "Voice of the Wild", "The Living Codex"]
+    },
+    'Alchemist': {
+        name: 'Alchemist',
+        tiers: ["Tinkerer", "Alchemist", "Formula Breaker", "Grand Synthesist", "Architect of Truth"]
+    },
+    'Architect': {
+        name: 'Architect',
+        tiers: ["Draftsman", "Architect", "System Lord", "World Builder", "The Eternal Planner"]
+    },
+    'None': {
+        name: 'None',
+        tiers: ["Shut-in", "Awakening", "Searching", "Aligned", "Mastered"]
     }
 };
 
@@ -114,55 +129,44 @@ export const calculateLevel = (totalXP) => {
 };
 
 export const determineArchetype = (stats, level) => {
-    const statEntries = Object.entries(stats).sort((a, b) => b[1] - a[1]);
-    const highest = statEntries[0][0];
-    const secondHighest = statEntries[1][0];
-
-    let archeKey = '';
-
-    // Synchronized Neural Link Mapping (Exhaustive)
-    switch (highest) {
-        case 'str':
-            if (secondHighest === 'dex') archeKey = 'BLADE_DANCER';
-            else if (secondHighest === 'end') archeKey = 'SENTINEL';
-            else if (secondHighest === 'cha') archeKey = 'COMMANDER';
-            else archeKey = 'SENTINEL';
-            break;
-        case 'dex':
-            if (secondHighest === 'str') archeKey = 'BLADE_DANCER';
-            else if (secondHighest === 'int') archeKey = 'ARCHITECT';
-            else if (secondHighest === 'end') archeKey = 'SHADOW_MONK';
-            else archeKey = 'ARCHITECT';
-            break;
-        case 'int':
-            if (secondHighest === 'wis') archeKey = 'ALCHEMIST';
-            else if (secondHighest === 'dex') archeKey = 'ARCHITECT';
-            else if (secondHighest === 'cha') archeKey = 'BARD';
-            else archeKey = 'ALCHEMIST';
-            break;
-        case 'wis':
-            if (secondHighest === 'end') archeKey = stats.str > 15 ? 'DRUID' : 'ORACLE';
-            else if (secondHighest === 'dex') archeKey = 'SHADOW_MONK';
-            else if (secondHighest === 'int') archeKey = 'ALCHEMIST';
-            else archeKey = 'ORACLE';
-            break;
-        case 'cha':
-            if (secondHighest === 'str') archeKey = 'COMMANDER';
-            else if (secondHighest === 'int') archeKey = 'BARD';
-            else if (secondHighest === 'wis') archeKey = 'ORACLE';
-            else archeKey = 'COMMANDER';
-            break;
-        case 'end':
-            if (secondHighest === 'str') archeKey = 'SENTINEL';
-            else if (secondHighest === 'wis') archeKey = 'DRUID';
-            else if (secondHighest === 'cha') archeKey = 'COMMANDER';
-            else archeKey = 'SENTINEL';
-            break;
-        default:
-            archeKey = 'SENTINEL';
+    if (level === 0) {
+        return {
+            name: 'None',
+            tier: 1,
+            stage: 'Shut-in'
+        };
     }
 
-    const archetype = ARCHETYPES[archeKey];
+    const { str, dex, end, int, wis, cha } = stats;
+
+    const axis1 = str >= wis ? 'STR' : 'WIS';
+    const axis2 = dex >= int ? 'DEX' : 'INT';
+    const axis3 = end >= cha ? 'END' : 'CHA';
+    const axis4 = end >= dex ? 'STABLE' : 'ADAPTIVE';
+
+    const map = {
+        'STR-DEX-END-STABLE': 'Iron Fist',
+        'STR-DEX-END-ADAPTIVE': 'Blade Dancer',
+        'STR-DEX-CHA-STABLE': 'Warlord',
+        'STR-DEX-CHA-ADAPTIVE': 'Vanguard',
+        'STR-INT-END-STABLE': 'Sentinel',
+        'STR-INT-END-ADAPTIVE': 'Forge Master',
+        'STR-INT-CHA-STABLE': 'Commander',
+        'STR-INT-CHA-ADAPTIVE': 'Champion',
+        'WIS-DEX-END-STABLE': 'Shadow Monk',
+        'WIS-DEX-END-ADAPTIVE': 'Ghost',
+        'WIS-DEX-CHA-STABLE': 'Diplomat',
+        'WIS-DEX-CHA-ADAPTIVE': 'Bard',
+        'WIS-INT-END-STABLE': 'Oracle',
+        'WIS-INT-END-ADAPTIVE': 'Druid',
+        'WIS-INT-CHA-STABLE': 'Alchemist',
+        'WIS-INT-CHA-ADAPTIVE': 'Architect',
+    };
+
+    const key = `${axis1}-${axis2}-${axis3}-${axis4}`;
+    const archeName = map[key] || 'Shadow Monk';
+    
+    const archetype = ARCHETYPES[archeName] || ARCHETYPES['None'];
     let tier = 1;
     if (level >= 17) tier = 5;
     else if (level >= 14) tier = 4;
@@ -191,6 +195,17 @@ export const awardXP = async (user, stat, amount, streak = 1) => {
     // Apply Streak Multiplier
     const multiplier = getStreakMultiplier(streak);
     let finalXP = Math.round(amount * multiplier);
+
+    // Apply Archetype Multipliers if they exist
+    if (user.rpg.statMultipliers && user.rpg.statMultipliers.get) {
+        // Mongoose Map uses .get()
+        const mult = user.rpg.statMultipliers.get(stat);
+        if (mult) finalXP = Math.round(finalXP * mult);
+    } else if (user.rpg.statMultipliers && user.rpg.statMultipliers[stat]) {
+        // Plain object fallback
+        const mult = user.rpg.statMultipliers[stat];
+        if (mult) finalXP = Math.round(finalXP * mult);
+    }
 
     // Check Total Daily Cap
     if (user.rpg.dailyXP.total >= XP_CAPS.total) return;

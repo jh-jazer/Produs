@@ -47,6 +47,23 @@
     --border: #e8e8e8;
 }
 
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+}
+
+/* Global scrollbar hide for cinematic scrollytelling */
+::-webkit-scrollbar {
+    display: none;
+}
+
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
 .dark {
     --background: #000000;
     --foreground: #f8fafc;

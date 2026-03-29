@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema({
     },
     level: {
         type: Number,
-        default: 1
+        default: 0
     },
     exp: {
         type: Number,
@@ -76,6 +76,8 @@ const userSchema = new mongoose.Schema({
             tier: { type: Number, default: 1 },
             stage: { type: String, default: 'Unawakened' }
         },
+        perk: { type: String, default: '' },
+        statMultipliers: { type: Map, of: Number, default: {} },
         dailyXP: {
             date: { type: String },
             total: { type: Number, default: 0 },
@@ -91,6 +93,9 @@ const userSchema = new mongoose.Schema({
         archetypeHistory: {
             type: [Object],
             default: []
+        },
+        dailyQuiz: {
+            lastCompleted: { type: String, default: null }
         }
     },
     timezone: {

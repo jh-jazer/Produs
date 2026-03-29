@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, GitCommit, Rocket, Wrench } from 'lucide-react';
+import Footer from '../components/landing/Footer';
 
 export default function PatchNotes() {
   const updates = [
@@ -141,6 +142,8 @@ export default function PatchNotes() {
 
         </motion.div>
       </main>
+      
+      <Footer />
     </div>
   );
 }

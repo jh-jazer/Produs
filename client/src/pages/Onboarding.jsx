@@ -8,89 +8,6 @@ import SmallCalendar from "../components/planner_components/SmallCalendar";
 import FinancialStats from "../components/finance_components/FinancialStats";
 import JournalSnippet from "../components/journal_components/JournalSnippet";
 
-import feedData from "../data/feed_mock_dataset_500_posts.json";
-
-const MIN_CHANNELS = 3;
-
-const CHANNEL_ICONS = {
-  bible_verses: "auto_stories",
-  stoicism: "self_improvement",
-  philosophers: "history_edu",
-  psychology: "psychology",
-  science_trivia: "biotech",
-  geography: "public",
-  history_facts: "account_balance",
-  astronomy: "dark_mode",
-  biology: "pest_control",
-  physics: "bolt",
-  ai_facts: "memory",
-  economics: "payments",
-  mental_models: "hub",
-  study_techniques: "edit_note",
-  productivity: "rocket_launch",
-  creativity: "palette",
-  leadership: "group",
-  startup_lessons: "business_center",
-  famous_quotes: "format_quote",
-  language_facts: "language",
-  math_curiosities: "calculate",
-  ancient_civilizations: "fort",
-  brain_science: "neurology",
-  human_behavior: "face",
-  cultural_facts: "diversity_3"
-};
-
-const ASSESSMENT_QUESTIONS = [
-  {
-    id: "str",
-    question: "When facing a physical obstacle, how do you usually react?",
-    options: [
-      { text: "I embrace the challenge and push my physical limits.", active: true },
-      { text: "I look for the most efficient, low-effort path.", active: false }
-    ]
-  },
-  {
-    id: "dex",
-    question: "How would you describe your relationship with your schedule?",
-    options: [
-      { text: "I love optimizing every minute for peak execution.", active: true },
-      { text: "I prefer to stay fluid and react as things come.", active: false }
-    ]
-  },
-  {
-    id: "end",
-    question: "A new difficult habit requires a 30-day commitment. You...",
-    options: [
-      { text: "Will never miss a day, regardless of how I feel.", active: true },
-      { text: "Will try my best but might miss a few sessions.", active: false }
-    ]
-  },
-  {
-    id: "int",
-    question: "You have two hours of free time. What do you choose?",
-    options: [
-      { text: "Deep dive into a complex topic or skill.", active: true },
-      { text: "Decompress with light entertainment.", active: false }
-    ]
-  },
-  {
-    id: "wis",
-    question: "When making a major life decision, you rely on...",
-    options: [
-      { text: "Data, reflection, and long-term implications.", active: true },
-      { text: "Immediate intuition and current feelings.", active: false }
-    ]
-  },
-  {
-    id: "cha",
-    question: "Do you believe your growth is tied to others' success?",
-    options: [
-      { text: "Yes, I lead by example and lift those around me.", active: true },
-      { text: "I prefer to focus on my own path first.", active: false }
-    ]
-  }
-];
-
 const variants = {
   enter: { opacity: 0, y: 10 },
   center: { opacity: 1, y: 0 },
@@ -98,39 +15,20 @@ const variants = {
 };
 
 export default function Onboarding() {
-
   const navigate = useNavigate();
-  const { user, setCredentials } = useAuthStore();
+  const { user, setCredentials, updateSettings } = useAuthStore();
 
   const [step, setStep] = useState(1);
-
   const [username, setUsername] = useState("");
   const [usernameStatus, setUsernameStatus] = useState("idle");
-
-  const [timezone, setTimezone] = useState("");
-  const [currency, setCurrency] = useState("PHP");
-
-  const [selectedChannels, setSelectedChannels] = useState([
-    "productivity",
-    "stoicism"
-  ]);
-
-  const [assessmentAnswers, setAssessmentAnswers] = useState({});
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-
+  const [themeMode, setThemeMode] = useState(user?.settings?.themeMode || "system");
   const [loading, setLoading] = useState(false);
 
   const firstName = user?.name?.split(" ")[0] || "User";
 
-  useEffect(() => {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    setTimezone(tz);
-  }, []);
-
   /* ---------------- USERNAME CHECK ---------------- */
 
   useEffect(() => {
-
     if (!username || username.length < 3) {
       setUsernameStatus("idle");
       return;
@@ -139,35 +37,30 @@ export default function Onboarding() {
     setUsernameStatus("checking");
 
     const delay = setTimeout(async () => {
-
       try {
-
         const { data } = await api.get(`/auth/check-username?username=${username}`);
-
         setUsernameStatus(data.available ? "available" : "taken");
-
       } catch {
-
         setUsernameStatus("idle");
-
       }
-
     }, 400);
 
     return () => clearTimeout(delay);
-
   }, [username]);
 
-  /* ---------------- CHANNEL TOGGLE ---------------- */
+  /* ---------------- THEME PREVIEW ---------------- */
 
-  const toggleChannel = (id) => {
-
-    setSelectedChannels(prev =>
-      prev.includes(id)
-        ? prev.filter(c => c !== id)
-        : [...prev, id]
-    );
-
+  const handleThemeChange = async (mode) => {
+    setThemeMode(mode);
+    // Apply theme preview immediately
+    if (mode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (mode === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', prefersDark);
+    }
   };
 
   /* ---------------- COMPLETE ---------------- */
@@ -175,81 +68,52 @@ export default function Onboarding() {
   const handleComplete = async () => {
     setLoading(true);
 
-    const statsToBoost = Object.entries(assessmentAnswers)
-      .filter(([_, isHighAlignment]) => isHighAlignment)
-      .map(([stat, _]) => stat);
-
     try {
-
       const { data } = await api.put("/auth/onboarding", {
         username,
-        timezone,
-        currency,
-        subscriptions: selectedChannels,
-        statsToBoost
+        themeMode,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        currency: "USD" // Default currency
       });
 
       setCredentials({ ...user, ...data });
-
       navigate("/dashboard");
 
     } catch (error) {
-
       console.error("Onboarding error:", error);
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   return (
-
     <div className="w-full max-w-[1200px] flex flex-col gap-6">
-
       <div className="flex flex-col md:flex-row gap-4 min-h-[calc(100vh-140px)] pt-4 pb-12">
-
         {/* LEFT COLUMN */}
-
         <div className="w-full md:w-2/3 flex flex-col gap-4">
-
           <div className="flex flex-col gap-1 pb-2">
-
             <h1 className="text-xl md:text-2xl font-black tracking-tight">
-
               {step === 1 && "Claim Your Identity"}
-              {step === 2 && "Set Your Environment"}
-              {step === 3 && "Fuel Your Mind"}
-              {step === 4 && "The Pathfinder Assessment"}
-
+              {step === 2 && "Visual Calibration"}
+              {step === 3 && "Protocol Initiation"}
             </h1>
-
           </div>
 
           {/* CARD */}
-
-          <div className="min-h-[380px] flex-1 bg-white dark:bg-[#121212] rounded-2xl border border-slate-200 dark:border-white/10 shadow-none flex flex-col items-center justify-center p-8 relative overflow-hidden">
-
+          <div className="min-h-[420px] flex-1 bg-white dark:bg-[#121212] rounded-2xl border border-slate-200 dark:border-white/10 shadow-none flex flex-col items-center justify-center p-8 relative overflow-hidden">
+            
             {/* PROGRESS */}
-
             <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-100 dark:bg-[#000000]">
-
               <motion.div
                 className="bg-primary h-full"
-                animate={{ width: `${(step / 4) * 100}%` }}
+                animate={{ width: `${(step / 3) * 100}%` }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
-
             </div>
 
             <AnimatePresence mode="wait">
-
               {/* STEP 1 — USERNAME */}
-
               {step === 1 && (
-
                 <motion.div
                   key="username"
                   variants={variants}
@@ -258,11 +122,10 @@ export default function Onboarding() {
                   exit="exit"
                   className="flex flex-col items-center text-center max-w-md w-full"
                 >
-
+                  <p className="text-sm font-bold text-slate-400 mb-8 uppercase tracking-[0.2em]">How shall you be recorded in the archives?</p>
+                  
                   <div className="flex items-center gap-3 relative w-full">
-
                     <div className="absolute left-6 text-slate-400 font-black text-xl">@</div>
-
                     <input
                       value={username}
                       onChange={(e) =>
@@ -272,295 +135,143 @@ export default function Onboarding() {
                             .replace(/[^a-z0-9_]/g, "")
                         )
                       }
+                      autoFocus
                       placeholder="username"
-                      className="w-full bg-slate-50 dark:bg-[#121212] border-2 border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-14 py-4 font-bold outline-none"
+                      className="w-full bg-slate-50 dark:bg-[#121212] border-2 border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-14 py-4 font-bold outline-none ring-primary/20 focus:ring-4 transition-all"
                     />
-
                     <div className="absolute right-5">
-
                       {usernameStatus === "checking" && (
                         <div className="size-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                       )}
-
                       {usernameStatus === "available" && (
-                        <span className="material-symbols-outlined text-emerald-500">
-                          check_circle
-                        </span>
+                        <span className="material-symbols-outlined text-emerald-500">check_circle</span>
                       )}
-
                       {usernameStatus === "taken" && (
-                        <span className="material-symbols-outlined text-rose-500">
-                          cancel
-                        </span>
+                        <span className="material-symbols-outlined text-rose-500">cancel</span>
                       )}
-
                     </div>
-
                   </div>
 
-                  <div className="h-4 mt-2 text-xs font-bold uppercase tracking-widest">
-
-                    {usernameStatus === "available" && (
-                      <span className="text-emerald-500">
-                        Username available
-                      </span>
-                    )}
-
-                    {usernameStatus === "taken" && (
-                      <span className="text-rose-500">
-                        Username is already taken
-                      </span>
-                    )}
-
+                  <div className="h-4 mt-2 text-[10px] font-black uppercase tracking-widest text-center">
+                    {usernameStatus === "available" && <span className="text-emerald-500">[ ARCHIVE_SLOT_AVAILABLE ]</span>}
+                    {usernameStatus === "taken" && <span className="text-rose-500">[ IDENTITY_CONFLICT_DETECTED ]</span>}
                   </div>
 
                   <button
                     disabled={usernameStatus !== "available"}
                     onClick={() => setStep(2)}
-                    className="w-full mt-6 py-3 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl font-black disabled:opacity-40"
+                    className="w-full mt-10 py-4 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl font-black disabled:opacity-40 uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
-                    Continue
+                    Establish Identity
                   </button>
-
                 </motion.div>
               )}
 
+              {/* STEP 2 — APPEARANCE */}
               {step === 2 && (
-
                 <motion.div
-                  key="environment"
-                  variants={variants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  className="flex flex-col gap-5 w-full max-w-md"
-                >
-
-                  {/* Timezone Card */}
-                  <div className="w-full bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/60 dark:to-[#192233] rounded-2xl border border-slate-200 dark:border-white/10 p-5 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-28 h-28 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
-                    <div className="flex items-center justify-between relative z-10">
-                      <div className="flex items-center gap-4">
-                        <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center ring-4 ring-primary/5">
-                          <span className="material-symbols-outlined text-primary text-lg">public</span>
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Detected Timezone</p>
-                          <p className="text-sm font-black text-slate-900 dark:text-white mt-0.5">{timezone}</p>
-                        </div>
-                      </div>
-                      <span className="material-symbols-outlined text-emerald-500 text-xl">check_circle</span>
-                    </div>
-                  </div>
-
-                  {/* Currency Label */}
-                  <div className="flex items-center gap-2">
-                    <div className="size-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-emerald-500 text-base">account_balance_wallet</span>
-                    </div>
-                    <p className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Primary Currency</p>
-                  </div>
-
-                  {/* Currency Buttons */}
-                  <div className="grid grid-cols-2 gap-3 w-full">
-                    <button
-                      onClick={() => setCurrency("USD")}
-                      className={`p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 relative overflow-hidden ${
-                        currency === "USD"
-                          ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
-                          : "border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212]/50 hover:border-slate-300"
-                      }`}
-                    >
-                      {currency === "USD" && <div className="absolute inset-0 bg-primary/5" />}
-                      <span className={`text-3xl font-black relative z-10 ${currency === "USD" ? "text-primary" : "text-slate-900 dark:text-white"}`}>$</span>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">United States Dollar</span>
-                      {currency === "USD" && (
-                        <span className="absolute top-2.5 right-2.5 material-symbols-outlined text-primary text-base">check_circle</span>
-                      )}
-                    </button>
-
-                    <button
-                      onClick={() => setCurrency("PHP")}
-                      className={`p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 relative overflow-hidden ${
-                        currency === "PHP"
-                          ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
-                          : "border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212]/50 hover:border-slate-300"
-                      }`}
-                    >
-                      {currency === "PHP" && <div className="absolute inset-0 bg-primary/5" />}
-                      <span className={`text-3xl font-black relative z-10 ${currency === "PHP" ? "text-primary" : "text-slate-900 dark:text-white"}`}>₱</span>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10">Philippine Peso</span>
-                      {currency === "PHP" && (
-                        <span className="absolute top-2.5 right-2.5 material-symbols-outlined text-primary text-base">check_circle</span>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setStep(1)}
-                      className="px-5 py-3 bg-slate-100 dark:bg-[#000000] text-slate-500 rounded-xl font-bold text-xs hover:bg-slate-200 dark:hover:bg-[#121212] transition-colors"
-                    >
-                      Back
-                    </button>
-                    <button
-                      onClick={() => setStep(3)}
-                      className="flex-1 py-3 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-sm transition-all"
-                    >
-                      Continue
-                    </button>
-                  </div>
-
-                </motion.div>
-              )}
-
-              {/* STEP 3 — CHANNELS */}
-
-              {step === 3 && (
-
-                <motion.div
-                  key="channels"
-                  variants={variants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  className="flex flex-col gap-4 w-full max-w-lg"
-                >
-
-                  <div className="flex justify-between text-xs text-slate-500">
-
-                    <span>Select at least 3 interests</span>
-                    <span>{selectedChannels.length}</span>
-
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[280px] overflow-y-auto">
-
-                    {feedData.channels.map(channel => {
-
-                      const active = selectedChannels.includes(channel.channel_id);
-
-                      return (
-
-                        <button
-                          key={channel.channel_id}
-                          onClick={() => toggleChannel(channel.channel_id)}
-                          className={`p-3 rounded-2xl border-2 flex items-center gap-3 ${
-                            active
-                              ? "border-primary bg-primary/5"
-                              : "border-slate-200 dark:border-white/10"
-                          }`}
-                        >
-
-                          <span className="material-symbols-outlined">
-                            {CHANNEL_ICONS[channel.channel_id] || "auto_awesome"}
-                          </span>
-
-                          <span className="text-xs font-bold truncate">
-                            {channel.name}
-                          </span>
-
-                        </button>
-
-                      );
-
-                    })}
-                  </div>
-
-                  <button
-                    disabled={selectedChannels.length < MIN_CHANNELS}
-                    onClick={() => setStep(4)}
-                    className="py-3 bg-primary text-white rounded-xl font-black mt-4"
-                  >
-                    {loading ? "Finishing..." : "Continue to Assessment 🛡️"}
-                  </button>
-
-                </motion.div>
-              )}
-
-              {/* STEP 4 — ASSESSMENT */}
-
-              {step === 4 && (
-                <motion.div
-                  key="assessment"
+                  key="appearance"
                   variants={variants}
                   initial="enter"
                   animate="center"
                   exit="exit"
                   className="flex flex-col gap-6 w-full max-w-md"
                 >
-                  <div className="flex items-center justify-between">
-                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 dark:text-white/40">
-                       Question {currentQuestionIndex + 1} of 6
-                     </span>
-                     <div className="flex gap-1">
-                        {[...Array(6)].map((_, i) => (
-                           <div key={i} className={`size-1.5 rounded-full ${i <= currentQuestionIndex ? 'bg-primary' : 'bg-black/10 dark:bg-white/10'}`} />
-                        ))}
-                     </div>
-                  </div>
-
-                  <div className="min-h-[80px]">
-                    <h3 className="text-lg font-black leading-tight text-black dark:text-white">
-                      {ASSESSMENT_QUESTIONS[currentQuestionIndex].question}
-                    </h3>
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    {ASSESSMENT_QUESTIONS[currentQuestionIndex].options.map((option, idx) => (
+                  <p className="text-sm font-bold text-slate-400 text-center uppercase tracking-[0.2em]">Select your visual interface preference.</p>
+                  
+                  <div className="grid grid-cols-1 gap-3">
+                    {[
+                      { id: 'light', name: 'Light Mode', icon: 'light_mode' },
+                      { id: 'dark', name: 'Dark Mode', icon: 'dark_mode' },
+                      { id: 'system', name: 'System Default', icon: 'settings_brightness' }
+                    ].map(mode => (
                       <button
-                        key={idx}
-                        onClick={() => {
-                          setAssessmentAnswers(prev => ({
-                            ...prev,
-                            [ASSESSMENT_QUESTIONS[currentQuestionIndex].id]: option.active
-                          }));
-                          if (currentQuestionIndex < 5) {
-                            setCurrentQuestionIndex(prev => prev + 1);
-                          } else {
-                            handleComplete();
-                          }
-                        }}
-                        className="w-full p-5 rounded-2xl border-2 border-slate-200 dark:border-white/10 hover:border-primary hover:bg-primary/5 transition-all text-left flex items-center justify-between group"
+                        key={mode.id}
+                        onClick={() => handleThemeChange(mode.id)}
+                        className={`p-4 rounded-xl border-2 flex items-center justify-between transition-all ${
+                          themeMode === mode.id
+                            ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                            : "border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20"
+                        }`}
                       >
-                        <span className="text-sm font-bold group-hover:text-primary transition-colors">{option.text}</span>
-                        <span className="material-symbols-outlined text-black/10 dark:text-white/20 group-hover:text-primary/40">chevron_right</span>
+                        <div className="flex items-center gap-4">
+                          <span className={`material-symbols-outlined ${themeMode === mode.id ? 'text-primary' : 'text-slate-400'}`}>
+                            {mode.icon}
+                          </span>
+                          <span className={`text-sm font-black uppercase tracking-widest ${themeMode === mode.id ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>
+                            {mode.name}
+                          </span>
+                        </div>
+                        {themeMode === mode.id && (
+                          <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                        )}
                       </button>
                     ))}
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 pt-4">
                     <button
-                      onClick={() => {
-                        if (currentQuestionIndex > 0) {
-                          setCurrentQuestionIndex(prev => prev - 1);
-                        } else {
-                          setStep(3);
-                        }
-                      }}
-                      className="px-5 py-3 bg-slate-100 dark:bg-[#000000] text-slate-500 rounded-xl font-bold text-xs"
+                      onClick={() => setStep(1)}
+                      className="px-6 py-4 bg-slate-100 dark:bg-white/5 text-slate-500 rounded-xl font-black text-[10px] uppercase tracking-widest"
                     >
                       Back
+                    </button>
+                    <button
+                      onClick={() => setStep(3)}
+                      className="flex-1 py-4 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:scale-[1.02]"
+                    >
+                      Calibrate Visuals
                     </button>
                   </div>
                 </motion.div>
               )}
 
+              {/* STEP 3 — WELCOME */}
+              {step === 3 && (
+                <motion.div
+                  key="welcome"
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="flex flex-col items-center text-center max-w-md w-full"
+                >
+                  <div className="size-20 rounded-full bg-emerald-500/10 flex items-center justify-center mb-8">
+                    <span className="material-symbols-outlined text-emerald-500 text-4xl animate-pulse">verified_user</span>
+                  </div>
+                  
+                  <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2 italic">Welcome to the System, {firstName}.</h2>
+                  <p className="text-sm font-bold text-slate-400 uppercase tracking-widest leading-relaxed mb-12">
+                     Identity @{username} confirmed.<br/>
+                     Current Status: [ SHUT-IN ]<br/>
+                     Archetype: [ UNKNOWN ]
+                  </p>
+
+                  <div className="p-6 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 mb-10 w-full text-left">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Notice:</p>
+                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 leading-relaxed italic">
+                      "To unlock your full potential and reveal your true Archetype, complete the Awakening Protocol on your dashboard."
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={handleComplete}
+                    disabled={loading}
+                    className="w-full py-5 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl font-black uppercase tracking-[0.4em] text-xs transition-all hover:scale-[1.02] shadow-xl shadow-primary/20"
+                  >
+                    {loading ? "Initializing..." : "Initialize System"}
+                  </button>
+                </motion.div>
+              )}
             </AnimatePresence>
-
           </div>
-
         </div>
 
         {/* RIGHT PREVIEW */}
-
         <div className="hidden md:flex md:w-1/3 flex-col gap-4 opacity-30 grayscale pointer-events-none">
-
           <SmallCalendar />
           <FinancialStats />
           <JournalSnippet />
-
         </div>
       </div>
     </div>

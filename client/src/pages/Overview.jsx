@@ -1,11 +1,21 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { DashboardContext } from "../components/Layout";
 import useAuthStore from "../store/useAuthStore";
 import MainFeed from "../components/MainFeed";
+import AwakeningAssessment from "../components/rpg_components/AwakeningAssessment";
+import DailyQuiz from "../components/rpg_components/DailyQuiz";
+import { motion, AnimatePresence } from 'framer-motion';
+import { Zap, Sparkles, Brain, Target, Shield, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 function Overview() {
   const { setIsSearchModalOpen } = useContext(DashboardContext);
   const user = useAuthStore((state) => state.user);
+  const [isAwakeningModalOpen, setIsAwakeningModalOpen] = useState(false);
+  
+  const today = new Date().toISOString().split('T')[0];
+  const isDailyQuizCompleted = user?.rpg?.dailyQuiz?.lastCompleted === today;
+  const isLevel0 = user?.level === 0;
+
   const firstName = user?.name ? user.name.split(" ")[0] : "User";
 
   const hour = new Date().getHours();
@@ -14,18 +24,7 @@ function Overview() {
 
   return (
     <div className="w-full max-w-2xl pt-8 pb-24">
-      {/* Greeting Header */}
-      <div className="flex flex-col gap-1 mb-8 px-1 text-center sm:text-left">
-        <h1 className="text-black dark:text-white text-3xl font-semibold tracking-[-0.04em]">
-          {greeting}, {firstName}
-        </h1>
-        <div className="flex items-center justify-center sm:justify-start gap-2">
-          <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <p className="text-black/40 dark:text-white/40 text-[10px] font-bold uppercase tracking-[0.3em]">
-            System Online // {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-          </p>
-        </div>
-      </div>
+      
 
       {/* Tactical Search Bar */}
       <div className="mb-10 group">
@@ -42,9 +41,12 @@ function Overview() {
             </div>
           </div>
         </button>
-      </div>
-
-      <MainFeed />
+      </div>      {/* Assessment Section */}
+      <MainFeed 
+        isLevel0={isLevel0}
+        isDailyQuizCompleted={isDailyQuizCompleted}
+        setIsAwakeningModalOpen={setIsAwakeningModalOpen}
+      />
     </div>
   );
 }

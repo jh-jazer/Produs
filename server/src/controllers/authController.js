@@ -481,15 +481,31 @@ export const completeOnboarding = async (req, res) => {
                 user.markModified('settings.subscriptions');
             }
 
-            // Handle RPG Assessment Results (Awarding Base Stats only, No EXP/Level boot during onboarding)
-            if (req.body.statsToBoost && typeof req.body.statsToBoost === 'object') {
+            if (req.body.perk) {
+                user.rpg.perk = req.body.perk;
+            }
+
+            if (req.body.statMultipliers) {
+                user.rpg.statMultipliers = req.body.statMultipliers;
+            }
+
+            // Handle RPG Initial Stat Profile (Awakening)
+            if (req.body.initialStats && typeof req.body.initialStats === 'object') {
+                user.rpg.stats = req.body.initialStats;
+                
+                // Finalize the initial 'Awakened' archetype
+                const archetypeInfo = determineArchetype(user.rpg.stats, user.level);
+                user.rpg.archetype = archetypeInfo;
+                user.markModified('rpg');
+            } else if (req.body.statsToBoost && typeof req.body.statsToBoost === 'object') {
+                // Legacy fallback for old-style onboarding
                 for (const [stat, points] of Object.entries(req.body.statsToBoost)) {
                     if (points > 0) {
                         user.rpg.stats[stat] += (points * 5);
                     }
                 }
-                // Finalize the initial 'Awakened' archetype based on these base stats
-                user.rpg.archetype = determineArchetype(user.rpg.stats, user.level);
+                const archetypeInfo = determineArchetype(user.rpg.stats, user.level);
+                user.rpg.archetype = archetypeInfo;
                 user.markModified('rpg');
             }
 
@@ -515,6 +531,48 @@ export const completeOnboarding = async (req, res) => {
         } else {
             res.status(404).json({ message: 'User not found' });
         }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Awaken user from Shut-in status
+// @route   POST /api/auth/awaken
+// @access  Private
+export const awakenUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        if (user.level !== 0) {
+            return res.status(400).json({ message: 'User is already awakened' });
+        }
+
+        const { stats } = req.body;
+        if (!stats) return res.status(400).json({ message: 'Assessment stats required' });
+
+        // Update Stats
+        user.rpg.stats = stats;
+        
+        // Update Level and XP to Level 1 baseline
+        user.level = 1;
+        user.exp = 100;
+
+        // Determine Archetype for Level 1
+        const archetypeInfo = determineArchetype(user.rpg.stats, 1);
+        user.rpg.archetype = archetypeInfo;
+        
+        user.markModified('rpg');
+        await user.save();
+
+        const levelInfo = calculateLevel(user.exp);
+        res.json({
+            level: user.level,
+            exp: user.exp,
+            rpg: user.rpg,
+            totalRequired: levelInfo.totalRequired,
+            nextLevelExp: levelInfo.xpToNext,
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

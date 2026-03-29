@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Database, Shield, Server, User } from 'lucide-react';
+import Footer from '../components/landing/Footer';
 
 export default function Manual() {
   return (
@@ -114,6 +115,8 @@ export default function Manual() {
 
         </motion.div>
       </main>
+      
+      <Footer />
     </div>
   );
 }

@@ -28,11 +28,11 @@ export default function Hero() {
             Start Now
           </Link>
         </div>
-        
-        <div className="absolute bottom-[-150px] flex flex-col items-center gap-12">
-          <div className="w-px h-40 bg-gradient-to-b from-white/40 to-transparent" />
-          <span className="text-[10px] font-medium uppercase tracking-[0.5em] md:tracking-[1em] text-white/60 animate-pulse">Scroll to Begin</span>
-        </div>
+      </div>
+
+      <div className="absolute bottom-12 flex flex-col items-center gap-8">
+        <div className="w-px h-24 bg-gradient-to-b from-white/40 to-transparent" />
+        <span className="text-[10px] font-medium uppercase tracking-[0.5em] md:tracking-[1em] text-white/40 animate-pulse">Scroll to Begin</span>
       </div>
     </section>
   );

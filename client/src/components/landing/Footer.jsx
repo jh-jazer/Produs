@@ -1,29 +1,50 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [time, setTime] = useState(new Date());
+  const location = useLocation();
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
-    <footer className="w-full py-6 md:py-10 border-t border-white/5 bg-black/50 backdrop-blur-sm">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col items-center">
-        {/* Brand Logo & Name */}
-        <div className="flex items-center gap-3 md:gap-4 mb-12 group cursor-default">
-          <div className="size-4 md:size-5 bg-white flex items-center justify-center transition-all group-hover:bg-electric-blue rotate-45 group-hover:rotate-0" />
-          <span className="font-normal text-[10px] md:text-xs uppercase tracking-[0.5em] md:tracking-[0.8em] text-white/80">Produs</span>
+    <footer className="w-full py-4 border-t border-white/5 bg-black/50 backdrop-blur-sm transition-all">
+      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        {/* Left: Original Logo & Name */}
+        <div className="flex items-center gap-3 group cursor-default">
+          <div className="size-3 bg-white rotate-45 transition-all group-hover:rotate-0" />
+          <span className="font-normal text-[10px] uppercase tracking-[0.5em] text-white/80">
+            Produs
+          </span>
+          <span className="hidden sm:inline text-white/10 ml-2">//</span>
+          <span className="hidden sm:inline font-mono text-[9px] tracking-widest text-white/30 uppercase">
+            {time.toLocaleTimeString([], { hour12: false })}
+          </span>
         </div>
 
-        {/* Navigation Links */}
-        <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center text-[10px] uppercase font-normal tracking-[0.4em] md:tracking-[0.6em] text-white/50 mb-12">
-          <Link to="/manual" className="hover:text-white transition-all hover:tracking-[0.8em]">System</Link>
-          <Link to="/classes" className="hover:text-white transition-all hover:tracking-[0.8em]">Classes</Link>
-          <Link to="/updates" className="hover:text-white transition-all hover:tracking-[0.8em]">Patch Notes</Link>
-        </div>
+        {/* Center: Original Navigation Links Style (Dynamic Hiding) */}
+        <nav className="flex items-center gap-8 text-[9px] uppercase font-normal tracking-[0.4em] text-white/50">
+          {location.pathname !== "/manual" && (
+            <Link to="/manual" className="hover:text-white transition-all hover:tracking-[0.6em]">System</Link>
+          )}
+          {location.pathname !== "/classes" && (
+            <Link to="/classes" className="hover:text-white transition-all hover:tracking-[0.6em]">Classes</Link>
+          )}
+          {location.pathname !== "/updates" && (
+            <Link to="/updates" className="hover:text-white transition-all hover:tracking-[0.6em]">Patch Notes</Link>
+          )}
+        </nav>
 
-        {/* Copyright Notice */}
-        <div className="text-[9px] uppercase tracking-[0.3em] text-white/20">
-          © {currentYear} PRODUS. All Rights Reserved. // Intelligence Aesthetic
+        {/* Right: Original Copyright Style */}
+        <div className="text-[8px] uppercase tracking-[0.3em] text-white/20">
+          © {currentYear} PRODUS. All Rights Reserved.
         </div>
+        
       </div>
     </footer>
   );

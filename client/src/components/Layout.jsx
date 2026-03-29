@@ -14,6 +14,7 @@ import NotificationModal from './ui/NotificationModal';
 import UserMenuModal from "./ui/UserMenuModal";
 import LevelDisplay from './ui/LevelDisplay';
 import StatsModal from './ui/StatsModal';
+import ScrollOrb from './ui/ScrollOrb';
 
 export const DashboardContext = React.createContext();
 
@@ -30,6 +31,7 @@ function FrozenRoute({ context }) {
 
 function Layout() {
     const { user, signOut } = useAuthStore();
+    const [scrollContainer, setScrollContainer] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
     const isOverview = location.pathname === '/dashboard';
@@ -307,8 +309,12 @@ function Layout() {
             <div className={`flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]
                 ${isMobileMenuOpen ? 'blur-md' : 'blur-0'}
             `}>
+                {scrollContainer && <ScrollOrb containerRef={scrollContainer} />}
 
-                <div className="flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar flex flex-col relative mt-16 md:mt-0">
+                <div 
+                    ref={setScrollContainer}
+                    className="flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar flex flex-col relative mt-16 md:mt-0"
+                >
                     <DashboardContext.Provider value={{ setIsSearchModalOpen }}>
                         <AnimatePresence mode="wait">
                             <motion.main 
