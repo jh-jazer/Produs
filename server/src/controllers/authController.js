@@ -92,6 +92,9 @@ export const loginUser = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (user && (await user.matchPassword(password))) {
+            // Ensure core habits exist (Handles migration for existing users)
+            await initializeSystemHabits(user._id);
+
             const levelInfo = calculateLevel(user.exp);
             res.json({
                 _id: user.id,
@@ -428,11 +431,12 @@ export const getPublicProfile = async (req, res) => {
         }
 
         // Fetch System Streaks
-        const systemHabits = await Habit.find({ user: user._id, systemId: { $in: ['journal', 'finance', 'planner'] } });
+        const systemHabits = await Habit.find({ user: user._id, systemId: { $in: ['journal', 'finance', 'planner', 'workout'] } });
         const systemStreaks = {
             journal: systemHabits.find(h => h.systemId === 'journal')?.streak || 0,
             finance: systemHabits.find(h => h.systemId === 'finance')?.streak || 0,
-            planner: systemHabits.find(h => h.systemId === 'planner')?.streak || 0
+            planner: systemHabits.find(h => h.systemId === 'planner')?.streak || 0,
+            workout: systemHabits.find(h => h.systemId === 'workout')?.streak || 0
         };
 
         // Achievements (Joined Challenges)

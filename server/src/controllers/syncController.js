@@ -66,7 +66,7 @@ export const syncFeature = async (req, res) => {
         // FORCE HYDRATE SYSTEM HABITS
         // Some users might have initialized their CRDTs before system habits were properly seeded.
         if (feature === 'habits') {
-            const systemHabits = await Habit.find({ user: userId, systemId: { $in: ['journal', 'finance', 'planner'] } }).lean();
+            const systemHabits = await Habit.find({ user: userId, systemId: { $in: ['journal', 'finance', 'planner', 'workout'] } }).lean();
             const serializedSys = JSON.parse(JSON.stringify(systemHabits));
             serializedSys.forEach(item => {
                 const id = item._id.toString();

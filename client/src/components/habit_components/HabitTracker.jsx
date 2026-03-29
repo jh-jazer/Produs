@@ -129,10 +129,25 @@ function HabitTracker({
     };
 
     const { teamHabits, partnerHabitsOnly } = React.useMemo(() => {
+        const CORE_ORDER = ['planner', 'finance', 'journal', 'workout'];
+
+        const sortHabits = (a, b) => {
+            const sysA = a.myPart ? a.myPart.systemId : a.systemId;
+            const sysB = b.myPart ? b.myPart.systemId : b.systemId;
+
+            if (sysA && !sysB) return -1;
+            if (!sysA && sysB) return 1;
+            if (sysA && sysB) {
+                return CORE_ORDER.indexOf(sysA) - CORE_ORDER.indexOf(sysB);
+            }
+            return 0; // Stable for non-system habits
+        };
+
         if (!isPartnerView) {
-            const sorted = [...habits].sort((a, b) => (a.systemId ? -1 : 1));
+            const sorted = [...habits].sort(sortHabits);
             return { teamHabits: sorted, partnerHabitsOnly: [] };
         }
+
         const shared = {};
         const standalonePartner = [];
         habits.forEach(h => {
@@ -144,14 +159,17 @@ function HabitTracker({
                 standalonePartner.push(h);
             }
         });
+
         const team = Object.keys(shared).map(gid => ({
             ...shared[gid].myPart || shared[gid].partnerPart,
             _id: gid,
             myPart: shared[gid].myPart,
             partnerPart: shared[gid].partnerPart,
             isGrouped: true
-        })).sort((a, b) => (a.systemId ? -1 : 1));
-        return { teamHabits: team, partnerHabitsOnly: standalonePartner };
+        })).sort(sortHabits);
+
+        const standalonePartnerSorted = [...standalonePartner].sort(sortHabits);
+        return { teamHabits: team, partnerHabitsOnly: standalonePartnerSorted };
     }, [habits, isPartnerView, myUserId]);
 
     useEffect(() => {
@@ -522,7 +540,7 @@ function HabitTracker({
                                 {editMode && !isPartnerView ? (
                                     <Reorder.Group axis="y" values={localTeamHabits} onReorder={setLocalTeamHabits} className="flex flex-col">
                                         {localTeamHabits
-                                            .filter(h => currentFilter === 'All' || h.category === currentFilter)
+                                            .filter(h => currentFilter === 'All' || h.category === currentFilter || !!(h.myPart ? h.myPart.systemId : h.systemId))
                                             .map((habit) => (
                                                 <Reorder.Item key={habit._id} value={habit} onDragEnd={() => saveOrder(localTeamHabits)}>
                                                     {renderHabitRow(habit)}
@@ -532,7 +550,7 @@ function HabitTracker({
                                 ) : (
                                     <>
                                         {teamHabits
-                                            .filter(h => currentFilter === 'All' || h.category === currentFilter)
+                                            .filter(h => currentFilter === 'All' || h.category === currentFilter || !!(h.myPart ? h.myPart.systemId : h.systemId))
                                             .map((habit) => renderHabitRow(habit))}
                                     </>
                                 )}
@@ -549,7 +567,7 @@ function HabitTracker({
 
                                 {/* Render Partner Only Habits Section */}
                                 {isPartnerView && partnerHabitsOnly
-                                    .filter(h => currentFilter === 'All' || h.category === currentFilter)
+                                    .filter(h => currentFilter === 'All' || h.category === currentFilter || !!h.systemId)
                                     .map((habit) => renderHabitRow(habit))}
                             </>
                         )}
