@@ -3,6 +3,44 @@ import User from '../models/User.js';
 const getSystemStats = async (req, res) => {
     try {
         const totalUsers = await User.countDocuments();
+
+        const archetypeStats = await User.aggregate([
+            {
+                $match: {
+                    "rpg.archetype.name": { $exists: true, $ne: "None" }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        name: "$rpg.archetype.name",
+                        tier: "$rpg.archetype.tier"
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id.name",
+                    total: { $sum: "$count" },
+                    tiers: {
+                        $push: {
+                            tier: "$_id.tier",
+                            count: "$count"
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    name: "$_id",
+                    total: 1,
+                    tiers: 1
+                }
+            },
+            { $sort: { total: -1 } }
+        ]);
         
         // Return dummy data for things that aren't fully tracked yet
         // but provide some structure for the dashboard
@@ -13,6 +51,7 @@ const getSystemStats = async (req, res) => {
                 { label: 'Database Size', value: '2.4 GB', icon: 'Database', color: 'text-purple-500' },
                 { label: 'Growth', value: '+12%', icon: 'BarChart3', color: 'text-orange-500' },
             ],
+            archetypeStats,
             recentUsers: await User.find().sort({ createdAt: -1 }).limit(10).select('name email username banner avatar settings createdAt'),
             systemStatus: [
                  { label: 'API Server', status: 'Healthy', color: 'bg-green-500' },
