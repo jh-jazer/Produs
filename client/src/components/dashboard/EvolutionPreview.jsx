@@ -1,61 +1,43 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Plus, Sparkles, Target, Zap } from 'lucide-react';
+import { Sparkles, TrendingUp, Plus } from 'lucide-react';
 import { ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
+import { LEVEL_TABLE } from '../../utils/rpgHelpers';
 
 const EvolutionPreview = ({ user }) => {
     if (!user || user.level === 0) return null;
 
-    const stats = user.rpg?.stats || { str: 0, dex: 0, end: 0, int: 0, wis: 0, cha: 0 };
-    const currentArchetype = user.rpg?.archetype?.name || 'None';
-
-    // Calculation logic for "Next Evolution"
-    // We analyze the 4 axes and find the smallest delta to flip a dominant stat
-    const getEvolutionPath = () => {
-        const paths = [
-            { axis: 'Force vs Wisdom', stat1: 'str', stat2: 'wis', diff: Math.abs(stats.str - stats.wis) },
-            { axis: 'Speed vs Knowledge', stat1: 'dex', stat2: 'int', diff: Math.abs(stats.dex - stats.int) },
-            { axis: 'Vigor vs Presence', stat1: 'end', stat2: 'cha', diff: Math.abs(stats.end - stats.cha) },
-            { axis: 'Stability vs Adaptivity', stat1: 'end', stat2: 'dex', diff: Math.abs(stats.end - stats.dex) }
+    const currentLevel = user.level || 1;
+    const currentArchetype = user.rpg?.archetype?.name || 'Unknown';
+    
+    // Find next tier threshold
+    const getTierEvolution = () => {
+        const tiers = [
+            { level: 8, name: 'Tier 2: Adept' },
+            { level: 11, name: 'Tier 3: Master' },
+            { level: 14, name: 'Tier 4: Grandmaster' },
+            { level: 17, name: 'Tier 5: Legend' },
+            { level: 21, name: 'Tier 6: Ascended' }
         ];
 
-        // Sort by smallest difference (closest to flipping)
-        const closest = paths.sort((a, b) => a.diff - b.diff)[0];
+        const nextTier = tiers.find(t => t.level > currentLevel) || tiers[tiers.length - 1];
+        const prevTierLevel = [...tiers].reverse().find(t => t.level <= currentLevel)?.level || 1;
         
-        // Determine what stat to grow
-        const targetStat = stats[closest.stat1] > stats[closest.stat2] ? closest.stat2 : closest.stat1;
-        const requiredGrow = Math.max(closest.diff, 5); // Minimum 5 XP to show progress
-
-        // Simulate new archetype
-        const simulatedStats = { ...stats, [targetStat]: stats[targetStat] + requiredGrow + 1 };
-        
-        // Helper to get archetype (copied logic for speed within component)
-        const axis1 = simulatedStats.str >= simulatedStats.wis ? 'STR' : 'WIS';
-        const axis2 = simulatedStats.dex >= simulatedStats.int ? 'DEX' : 'INT';
-        const axis3 = simulatedStats.end >= simulatedStats.cha ? 'END' : 'CHA';
-        const axis4 = simulatedStats.end >= simulatedStats.dex ? 'STABLE' : 'ADAPTIVE';
-        const map = {
-            'STR-DEX-END-STABLE': 'Iron Fist', 'STR-DEX-END-ADAPTIVE': 'Blade Dancer',
-            'STR-DEX-CHA-STABLE': 'Warlord', 'STR-DEX-CHA-ADAPTIVE': 'Vanguard',
-            'STR-INT-END-STABLE': 'Sentinel', 'STR-INT-END-ADAPTIVE': 'Forge Master',
-            'STR-INT-CHA-STABLE': 'Commander', 'STR-INT-CHA-ADAPTIVE': 'Champion',
-            'WIS-DEX-END-STABLE': 'Shadow Monk', 'WIS-DEX-END-ADAPTIVE': 'Ghost',
-            'WIS-DEX-CHA-STABLE': 'Diplomat', 'WIS-DEX-CHA-ADAPTIVE': 'Bard',
-            'WIS-INT-END-STABLE': 'Oracle', 'WIS-INT-END-ADAPTIVE': 'Druid',
-            'WIS-INT-CHA-STABLE': 'Alchemist', 'WIS-INT-CHA-ADAPTIVE': 'Architect',
-        };
-        const nextName = map[`${axis1}-${axis2}-${axis3}-${axis4}`] || currentArchetype;
+        const totalGap = nextTier.level - prevTierLevel;
+        const currentGap = currentLevel - prevTierLevel;
+        const progress = Math.min((currentGap / totalGap) * 100, 100);
 
         return {
-            nextName,
-            targetStat,
-            distance: requiredGrow,
-            axis: closest.axis
+            nextName: nextTier.name,
+            levelsRemaining: nextTier.level - currentLevel,
+            progress,
+            isMax: currentLevel >= 20
         };
     };
 
-    const path = getEvolutionPath();
-    const nextProtocol = ARCHETYPE_PROTOCOLS[path.nextName] || ARCHETYPE_PROTOCOLS['None'];
+    const path = getTierEvolution();
+    const currentTier = LEVEL_TABLE.find(l => l.level === currentLevel)?.title || 'Tier 1: Novice';
+    const nextProtocol = ARCHETYPE_PROTOCOLS[currentArchetype] || ARCHETYPE_PROTOCOLS['None'];
 
     return (
         <div className="w-full bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 overflow-hidden relative">
@@ -64,22 +46,30 @@ const EvolutionPreview = ({ user }) => {
             </div>
 
             <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
-                {/* Current */}
+                {/* Current Identity (LOCKED) */}
                 <div className="flex flex-col items-center gap-3 shrink-0">
-                    <div className="size-20 rounded-3xl bg-slate-900 flex items-center justify-center text-white shadow-xl">
-                        <span className="text-2xl font-black font-exo italic">{currentArchetype?.[0]}</span>
+                    <div className="relative">
+                        <div className="size-20 rounded-3xl bg-slate-900 flex items-center justify-center text-white shadow-xl">
+                            <span className="text-2xl font-black font-exo italic">{currentArchetype?.[0]}</span>
+                        </div>
+                        <div className="absolute -bottom-1 -right-1 size-6 bg-accent rounded-lg flex items-center justify-center border-2 border-white dark:border-[#0a0a0a] shadow-lg">
+                            <span className="material-symbols-outlined text-[14px] text-white font-black">lock</span>
+                        </div>
                     </div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{currentArchetype}</span>
+                    <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">{currentArchetype}</span>
+                        <span className="text-[7px] font-black text-accent uppercase tracking-[0.2em] mt-1 font-mono">[ IDENTITY_LOCKED ]</span>
+                    </div>
                 </div>
 
-                {/* Progress Bridge */}
+                {/* Ascension Progress */}
                 <div className="flex-1 w-full space-y-6">
                     <div className="flex flex-col items-center md:items-start gap-1">
-                        <span className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.3em] font-mono flex items-center gap-2">
-                            <Target size={12} /> EVOLUTION_PATH_DETECTED
+                        <span className="text-[10px] font-black text-accent uppercase tracking-[0.3em] font-mono flex items-center gap-2">
+                            <TrendingUp size={12} /> ASCENSION_PATH_ACTIVE
                         </span>
                         <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic font-exo">
-                            The {path.nextName} Call
+                            {path.isMax ? 'Peak Potential Reached' : `Path to ${path.nextName}`}
                         </h3>
                     </div>
 
@@ -87,29 +77,29 @@ const EvolutionPreview = ({ user }) => {
                         <div className="h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden flex">
                             <motion.div 
                                 initial={{ width: 0 }}
-                                animate={{ width: '65%' }} // Abstract progress
-                                className="h-full bg-gradient-to-r from-cyan-500 to-purple-500"
+                                animate={{ width: `${path.progress}%` }}
+                                className="h-full bg-gradient-to-r from-accent to-purple-500 shadow-[0_0_10px_var(--accent-glow)]"
                             />
                         </div>
                         <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest">
-                            <span className="text-slate-400">Current Pattern</span>
-                            <span className="text-cyan-500">
-                                Need +{path.distance} {path.targetStat.toUpperCase()} XP to shift axes
+                            <span className="text-slate-400">{currentTier}</span>
+                            <span className="text-accent">
+                                {path.isMax ? 'MAX_LEVEL' : `${path.levelsRemaining} Levels to next milestone`}
                             </span>
                         </div>
                     </div>
 
-                    <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-wider">
-                        " {nextProtocol.flavor.slice(0, 80)}... "
+                    <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-wider italic">
+                        " {nextProtocol?.flavor?.slice(0, 100)}... "
                     </p>
                 </div>
 
-                {/* Next Teaser */}
-                <div className="flex flex-col items-center gap-3 shrink-0 opacity-40">
+                {/* Legacy Indicator */}
+                <div className="flex flex-col items-center gap-3 shrink-0 opacity-20">
                     <div className="size-20 rounded-3xl border-2 border-dashed border-slate-300 dark:border-white/10 flex items-center justify-center text-slate-300 dark:text-white/20">
                         <Plus size={32} />
                     </div>
-                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Locked</span>
+                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">NEURAL_SYNC</span>
                 </div>
             </div>
         </div>
