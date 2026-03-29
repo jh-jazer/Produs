@@ -65,7 +65,7 @@
 }
 
 .dark {
-    --background: #000000;
+    --background: #020617;
     --foreground: #f8fafc;
     --card: #121212;
     --border: #ffffff1a;
@@ -130,20 +130,26 @@ body {
         @apply w-3 h-3 rounded-sm transition-colors duration-200;
     }
 
-    /* Brand grid overlay — Intelligence Aesthetic */
+    /* Brand grid overlay — Intense Neural Glow & Tactical Grid */
     .bg-grid {
-        background-size: 40px 40px;
+        background-size: 40px 40px, 100% 100%;
         background-image:
             linear-gradient(
                 to right,
-                rgba(255, 255, 255, 0.05) 1px,
+                rgba(34, 211, 238, 0.15) 1px,
                 transparent 1px
             ),
             linear-gradient(
                 to bottom,
-                rgba(255, 255, 255, 0.05) 1px,
+                rgba(34, 211, 238, 0.15) 1px,
                 transparent 1px
+            ),
+            radial-gradient(
+                circle at 50% 40%,
+                rgba(0, 102, 255, 0.15) 0%,
+                rgba(0, 0, 0, 1) 100%
             );
+        background-attachment: fixed;
     }
 
     /* Light-mode grid variant */

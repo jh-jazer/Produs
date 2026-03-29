@@ -23,8 +23,14 @@ function Overview() {
   const isLevel0 = user?.level === 0;
 
   return (
-    <div className="relative w-full min-h-[calc(100vh-64px)] flex flex-col">
-      
+    <div className="relative w-full min-h-[calc(100vh-64px)] flex flex-col overflow-hidden">
+      {/* Cinematic Overview Background: Neural Glow & Grid */}
+      <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden bg-transparent">
+        <div className="absolute inset-0 bg-grid opacity-30 dark:opacity-60" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(6,182,212,0.2),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(0,102,255,0.12),transparent_50%)]" />
+      </div>
+
       <AnimatePresence mode="wait">
         {isLevel0 ? (
           <motion.div
