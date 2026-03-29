@@ -5,7 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import api from '../../services/api';
 import useAuthStore from '../../store/useAuthStore';
 import SystemWindow from './SystemWindow';
-import { ARCHETYPE_QUIZ, INTEREST_ORBS, ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
+import { ARCHETYPE_QUIZ, INTEREST_ORBS, ARCHETYPE_PROTOCOLS, calculateScores } from '../../constants/assessment';
 
 const OnboardingModal = ({ isOpen, onClose }) => {
     const { mutate } = useSWRConfig();
@@ -40,12 +40,14 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [showStats, setShowStats] = useState(false);
 
-    // Shuffle options when entering a new question
-    const shuffledOptions = useMemo(() => {
-        if (step !== 3 || !isShowingForm || !ARCHETYPE_QUIZ[quizIndex]) return [];
-        setActiveIndex(0); // Reset focus on new question
-        return [...ARCHETYPE_QUIZ[quizIndex].options].sort(() => Math.random() - 0.5);
-    }, [quizIndex, step, isShowingForm]);
+    // Shuffling removed as we use a fixed 1-5 Likert scale
+    const quizOptions = [
+        { label: "Strongly Disagree", score: 1, color: "rose-500" },
+        { label: "Disagree", score: 2, color: "orange-400" },
+        { label: "Neutral", score: 3, color: "neutral-400" },
+        { label: "Agree", score: 4, color: "emerald-400" },
+        { label: "Strongly Agree", score: 5, color: "cyan-400" }
+    ];
 
     useEffect(() => {
         if (!isOpen) return;
@@ -98,17 +100,20 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                     }
                 }
             }
-            // Step 3: Assessment
+            // Step 3: Assessment (Likert Scale 1-5)
             else if (step === 3 && isShowingForm) {
-                if (e.key === 'ArrowDown') {
+                if (e.key >= '1' && e.key <= '5') {
                     e.preventDefault();
-                    setActiveIndex(prev => (prev + 1) % shuffledOptions.length);
-                } else if (e.key === 'ArrowUp') {
+                    handleAnswer(parseInt(e.key));
+                } else if (e.key === 'ArrowLeft') {
                     e.preventDefault();
-                    setActiveIndex(prev => (prev - 1 + shuffledOptions.length) % shuffledOptions.length);
+                    setActiveIndex(prev => (prev - 1 + 5) % 5);
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    setActiveIndex(prev => (prev + 1) % 5);
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
-                    if (shuffledOptions[activeIndex]) handleOptionSelect(shuffledOptions[activeIndex]);
+                    handleAnswer(quizOptions[activeIndex].score);
                 }
             }
             // Step 4: Resolution (Go Back/Enter)
@@ -129,19 +134,20 @@ const OnboardingModal = ({ isOpen, onClose }) => {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [step, isShowingForm, isOpen, activeIndex, shuffledOptions, isDenied, showStats]);
+    }, [step, isShowingForm, isOpen, activeIndex, isDenied, showStats, quizAnswers, quizIndex]);
 
-    const handleOptionSelect = (opt) => {
-        const next = [...quizAnswers, opt.boosts];
+    const handleAnswer = (score) => {
+        const next = [...quizAnswers, { id: ARCHETYPE_QUIZ[quizIndex].id, score }];
         if (quizIndex < ARCHETYPE_QUIZ.length - 1) {
             setQuizAnswers(next);
             setQuizIndex(quizIndex + 1);
+            setActiveIndex(2); // Reset focus to Neutral (index 2)
         } else {
             setQuizAnswers(next);
             setIsSyncingResults(true);
             setStep(4);
             setTimeout(() => {
-                setCalculatedArchetype(calculateWeightedArchetype());
+                setCalculatedArchetype(calculateWeightedArchetype(next));
                 setIsSyncingResults(false);
             }, 2500);
         }
@@ -163,18 +169,8 @@ const OnboardingModal = ({ isOpen, onClose }) => {
         }
     };
 
-    const calculateStatTotals = () => {
-        const stats = { str: 0, dex: 0, end: 0, int: 0, wis: 0, cha: 0 };
-        quizAnswers.forEach(answer => {
-            Object.entries(answer).forEach(([stat, boost]) => {
-                stats[stat] += boost;
-            });
-        });
-        return stats;
-    };
-
-    const calculateWeightedArchetype = () => {
-        const stats = calculateStatTotals();
+    const calculateWeightedArchetype = (finalAnswers = quizAnswers) => {
+        const stats = calculateScores(finalAnswers);
         const sorted = Object.entries(stats).sort((a, b) => b[1] - a[1]);
         const primary = sorted[0][0];
         const secondary = sorted[1][0];
@@ -220,7 +216,8 @@ const OnboardingModal = ({ isOpen, onClose }) => {
         setLoading(true);
         try {
             const archetype = calculateWeightedArchetype();
-            const channels = ARCHETYPE_PROTOCOLS[archetype]?.channels || [];
+            const archetypeData = ARCHETYPE_PROTOCOLS[archetype] || ARCHETYPE_PROTOCOLS['None'];
+            const channels = archetypeData.channels || [];
             
             const store = useAuthStore.getState();
             await store.completeOnboarding({ 
@@ -228,9 +225,10 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                 currency: 'USD',
                 username, 
                 archetype,
+                perk: archetypeData.perk,
+                statMultipliers: archetypeData.multipliers,
                 subscriptions: channels,
                 interests,
-                statsToBoost: calculateStatTotals()
             });
             
             mutate('/auth/me');
@@ -484,23 +482,22 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                 {ARCHETYPE_QUIZ[quizIndex].question}
                                             </h3>
 
-                                            <div className="grid grid-cols-1 gap-2">
-                                                {shuffledOptions.map((opt, idx) => {
+                                            <div className="grid grid-cols-5 gap-2 md:gap-4 pt-8">
+                                                {quizOptions.map((opt, idx) => {
                                                     const isFocused = idx === activeIndex;
                                                     return (
                                                         <button
                                                             key={idx}
                                                             onMouseEnter={() => setActiveIndex(idx)}
-                                                            onClick={(e) => {
-                                                                e.currentTarget.blur();
-                                                                handleOptionSelect(opt);
-                                                            }}
-                                                            className={`w-full text-left py-2 md:py-3 px-4 md:px-6 transition-all group flex items-center justify-between border-b border-white/5 last:border-0 cursor-pointer focus:outline-none ${isFocused ? 'bg-white/5 text-cyan-400' : 'hover:text-cyan-400 hover:bg-white/5 focus:text-cyan-400 focus:bg-white/5'}`}
+                                                            onClick={() => handleAnswer(opt.score)}
+                                                            className={`flex flex-col items-center gap-3 transition-all group focus:outline-none ${isFocused ? 'scale-110' : 'opacity-40 hover:opacity-100'}`}
                                                         >
-                                                            <div className="flex items-center gap-4">
-                                                                <span className={`text-[10px] font-mono text-cyan-400 transition-all ${isFocused ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus:opacity-100'}`}>{" >> "}</span>
-                                                                <span className={`text-sm font-black uppercase tracking-[0.2em] font-exo transition-colors ${isFocused ? 'text-white' : 'text-neutral-400 group-hover:text-white group-focus:text-white'}`}>{opt.text}</span>
+                                                            <div className={`size-12 md:size-16 rounded-2xl flex items-center justify-center border-2 transition-all ${isFocused ? `border-${opt.color} bg-${opt.color}/10 shadow-[0_0_20px_var(--${opt.color})]` : 'border-white/10'}`}>
+                                                                <span className="text-xl font-black text-white">{opt.score}</span>
                                                             </div>
+                                                            <span className={`text-[8px] md:text-[9px] font-black uppercase tracking-widest text-center h-8 flex items-center ${isFocused ? `text-${opt.color}` : 'text-neutral-500'}`}>
+                                                                {opt.label}
+                                                            </span>
                                                         </button>
                                                     );
                                                 })}
@@ -624,8 +621,8 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                             })}
                                                             {/* Data Area */}
                                                             {(() => {
-                                                                const s = calculateStatTotals();
-                                                                const max = 30; // Max possible per stat
+                                                                const s = calculateScores(quizAnswers);
+                                                                const max = 100; // New scale is percentage based
                                                                 const labels = ['STR', 'DEX', 'END', 'INT', 'WIS', 'CHA'];
                                                                 const keys = ['str', 'dex', 'end', 'int', 'wis', 'cha'];
                                                                 const valPoints = keys.map((k, i) => {
