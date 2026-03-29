@@ -1,4 +1,5 @@
 import { completeDailyQuiz, getActivityHistory } from '../controllers/rpgController.js';
+import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();

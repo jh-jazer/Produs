@@ -5,13 +5,14 @@ import SystemWindow from '../ui/SystemWindow';
 
 const AwakeningOverlay = ({ onAwaken }) => {
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm pointer-events-auto">
+        <div className="w-full max-w-xl mx-auto flex items-center justify-center py-20">
             <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="max-w-xl w-full"
+                className="w-full"
             >
                 <SystemWindow 
+                    variant="glass"
                     subtitle="NEURAL_SYNC_REQUIRED"
                     module="CORE_SYNC_00"
                     status="GATED"

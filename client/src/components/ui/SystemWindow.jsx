@@ -65,10 +65,14 @@ const SystemWindow = ({ children, title, subtitle, status = "STABLE", module = "
     const [time, setTime] = useState(new Date());
 
     const isDanger = variant === "danger";
+    const isGlass = variant === "glass";
     const accentColor = isDanger ? "text-red-500" : "text-cyan-400";
-    const borderColor = isDanger ? "border-red-500/40" : "border-cyan-400/40";
-    const glowColor = isDanger ? "shadow-[0_0_50px_rgba(239,68,68,0.3)]" : "shadow-[0_0_50px_rgba(6,182,212,0.3)]";
+    const borderColor = isDanger ? "border-red-500/40" : (isGlass ? "border-white/10" : "border-cyan-400/40");
+    const glowColor = isDanger 
+        ? "shadow-[0_0_50px_rgba(239,68,68,0.3)]" 
+        : (isGlass ? "shadow-[0_0_50px_rgba(255,255,255,0.05)]" : "shadow-[0_0_50px_rgba(6,182,212,0.3)]");
     const underlineColor = isDanger ? "decoration-red-500/40" : "decoration-cyan-400/40";
+    const coreBackground = isGlass ? "bg-white/5 dark:bg-white/[0.03]" : "bg-black";
 
     useEffect(() => {
         const timer = setInterval(() => setTime(new Date()), 1000);
@@ -112,7 +116,7 @@ const SystemWindow = ({ children, title, subtitle, status = "STABLE", module = "
                     >
                         {/* Solid Core: Vertical Teal/Cyan Gradient */}
                         <div 
-                            className={`relative bg-black border-2 ${borderColor} backdrop-blur-3xl ${glowColor} p-px transition-all duration-700`}
+                            className={`relative ${coreBackground} border-2 ${borderColor} backdrop-blur-3xl ${glowColor} p-px transition-all duration-700`}
                             style={{ clipPath: polygon }}
                         >
                             {/* Header Metadata */}
