@@ -228,11 +228,6 @@ export default function Landing() {
           <span className="font-normal text-[11px] md:text-xs uppercase tracking-[0.5em] md:tracking-[0.8em] text-white/80 group-hover:text-current transition-colors hidden sm:inline-block">Produs</span>
         </div>
 
-        <div className="hidden lg:flex gap-10 xl:gap-16 items-center text-[10px] uppercase font-normal tracking-[0.5em] text-white/70 pointer-events-auto">
-          <Link to="/manual" className="hover:text-current transition-all hover:tracking-[0.8em]">System</Link>
-          <Link to="/classes" className="hover:text-current transition-all hover:tracking-[0.8em]">Classes</Link>
-          <Link to="/updates" className="hover:text-current transition-all hover:tracking-[0.8em]">Patch Notes</Link>
-        </div>
 
         <Link to={user ? "/dashboard" : "/auth"} className="pointer-events-auto group flex items-center gap-3 md:gap-6">
           <span className="font-normal text-[9px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.5em] text-white/80 group-hover:text-current transition-colors text-right max-w-[100px] md:max-w-none">The Vault</span>

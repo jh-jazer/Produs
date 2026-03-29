@@ -133,7 +133,7 @@ function Layout() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-md z-[140]"
+                        className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-xl z-[140]"
                     />
                 )}
             </AnimatePresence>
@@ -142,20 +142,19 @@ function Layout() {
             <aside
                 className={`
                     fixed md:relative z-[150] h-full flex flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1]
-                    ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-                    ${(deferredPath === '/dashboard' || (isMobileMenuOpen && deferredPath === '/dashboard')) ? 'w-72' : 'w-20'}
-                    ${isMobileMenuOpen ? 'bg-[#f8f8f8]/90 dark:bg-[#050505]/90 backdrop-blur-xl shadow-2xl' : ''}
+                    ${isMobileMenuOpen ? 'translate-x-0 w-[75vw]' : '-translate-x-full md:translate-x-0'}
+                    ${!isMobileMenuOpen ? (deferredPath === '/dashboard' ? 'md:w-72' : 'md:w-20') : ''}
+                    ${isMobileMenuOpen ? 'bg-white/[0.99] dark:bg-black/[0.99] backdrop-blur-3xl shadow-[40px_0_80px_rgba(0,0,0,0.3)]' : ''}
                 `}
             >
                 {/* 1. Sidebar Header: Logo */}
                 <div className="h-24 flex items-center px-6 shrink-0">
-                    <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => navigate('/dashboard')}>
-                        <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0 ${isMobileMenuOpen ? 'rotate-0' : ''}`} />
-                        <div className={`hidden md:flex flex-col overflow-hidden transition-all duration-500 ease-in-out
-                            ${(deferredPath === '/dashboard') ? 'opacity-100 w-auto' : 'opacity-0 w-0'}
+                    <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => isMobileMenuOpen ? setIsMobileMenuOpen(false) : navigate('/dashboard')}>
+                        <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0 ${isMobileMenuOpen ? 'rotate-0 bg-electric-blue' : ''}`} />
+                        <div className={`flex items-center overflow-hidden transition-all duration-500 ease-in-out
+                            ${(deferredPath === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden md:flex'}
                         `}>
                             <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-black dark:text-white">Produs</span>
-                            <span className="text-[8px] font-bold text-electric-blue uppercase tracking-widest mt-1.5 opacity-60">System Core</span>
                         </div>
                     </div>
                 </div>
@@ -171,23 +170,27 @@ function Layout() {
                                 <motion.button
                                     key={item.path}
                                     onClick={() => navigate(item.path)}
-                                    className={`relative group/nav flex items-center h-12 rounded-2xl transition-all duration-300
+                                    className={`relative group/nav flex items-center rounded-2xl transition-all duration-300
                                         ${isActive ? 'bg-black/[0.04] dark:bg-white/[0.06]' : 'hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}
-                                        ${!isOverview ? 'w-12' : 'w-full'}
+                                        ${isMobileMenuOpen ? 'h-16 w-full px-4' : 'h-12'}
+                                        ${(!isOverview && !isMobileMenuOpen) ? 'w-12' : 'w-full'}
                                     `}
                                 >
                                     {/* Active Indicator Line */}
-                                    <div className={`absolute left-0 top-[calc(50%-12px)] w-[2px] transition-colors duration-500 bg-slate-200 dark:bg-white/10
-                                        ${idx === navItems.length - 1 ? 'bg-gradient-to-b !from-current !to-transparent opacity-40' : ''}
-                                    `} />
+                                    {!isMobileMenuOpen && (
+                                        <div className={`absolute left-0 top-[calc(50%-12px)] w-[2px] transition-colors duration-500 bg-slate-200 dark:bg-white/10
+                                            ${idx === navItems.length - 1 ? 'bg-gradient-to-b !from-current !to-transparent opacity-40' : ''}
+                                        `} />
+                                    )}
 
                                     {/* Icon Node */}
                                     <div className="relative flex items-center w-full h-full">
-                                        <div className="absolute left-[31px] flex items-center justify-center size-[18px] z-50">
+                                        <div className={`absolute flex items-center justify-center size-[18px] z-50 transition-all duration-500 ${isMobileMenuOpen ? 'left-[36px]' : 'left-[31px]'}`}>
                                             <div className={`absolute inset-[-8px] rounded-full transition-all duration-500
                                                 ${isActive ? 'bg-electric-blue/20 ring-1 ring-electric-blue/30 scale-110 shadow-[0_0_15px_rgba(0,183,255,0.2)]' : 'bg-electric-blue/0 group-hover/nav:bg-electric-blue/10'}
                                             `} />
-                                            <span className={`material-symbols-outlined text-[19px] transition-all duration-500 relative z-10 
+                                            <span className={`material-symbols-outlined transition-all duration-500 relative z-10
+                                                ${isMobileMenuOpen ? 'text-[24px]' : 'text-[19px]'}
                                                 ${isActive ? 'text-electric-blue scale-110' : 'text-slate-400 group-hover/nav:text-electric-blue group-hover/nav:scale-110'}
                                             `}>
                                                 {item.icon}
@@ -195,15 +198,16 @@ function Layout() {
                                         </div>
 
                                         {/* Labels */}
-                                        <div className={`hidden md:flex items-center absolute pointer-events-none transition-all duration-[400ms] ease-[0.16,1,0.3,1] z-50
-                                            ${isOverview 
-                                                ? 'left-0 relative pl-14 md:pl-16 opacity-100 translate-x-0 w-max' 
-                                                : 'left-[60px] bg-black dark:bg-white px-3.5 py-2.5 rounded shadow-xl opacity-0 -translate-x-2 group-hover/nav:opacity-100 group-hover/nav:translate-x-0 w-max border border-white/10 dark:border-black/10'}
+                                        <div className={`flex items-center absolute pointer-events-none transition-all duration-[400ms] ease-[0.16,1,0.3,1] z-50
+                                            ${(isOverview || isMobileMenuOpen)
+                                                ? `left-0 relative ${isMobileMenuOpen ? 'pl-20' : 'pl-14 md:pl-16'} opacity-100 translate-x-0 w-max`
+                                                : 'hidden md:flex left-[60px] bg-black dark:bg-white px-3.5 py-2.5 rounded shadow-xl opacity-0 -translate-x-2 group-hover/nav:opacity-100 group-hover/nav:translate-x-0 w-max border border-white/10 dark:border-black/10'}
                                         `}>
-                                            <div className={`flex items-center ${isOverview ? 'gap-4' : 'gap-0'}`}>
-                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${isOverview ? 'w-4' : 'w-0 hidden'}`} />
-                                                <span className={`text-[10px] font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300 mt-[1px]
-                                                    ${isOverview 
+                                            <div className={`flex items-center ${(isOverview || isMobileMenuOpen) ? 'gap-4' : 'gap-0'}`}>
+                                            <div className={`h-px bg-electric-blue transition-all duration-300 ${(isOverview && !isMobileMenuOpen) ? 'w-4' : 'w-0 hidden'}`} />
+                                                <span className={`font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300 mt-[1px]
+                                                    ${isMobileMenuOpen ? 'text-[11px]' : 'text-[10px]'}
+                                                    ${(isOverview || isMobileMenuOpen)
                                                         ? (isActive ? 'text-black dark:text-white' : 'text-slate-500 dark:text-slate-400 group-hover/nav:text-black dark:group-hover:text-white')
                                                         : 'text-white dark:text-black'}
                                                 `}>
@@ -220,7 +224,7 @@ function Layout() {
 
                 {/* 3. Sidebar Footer: System Actions & Identity HUD */}
                 <div className={`mt-auto p-4 md:p-6 flex flex-col items-start gap-4 transition-all duration-[600ms] 
-                    ${isOverview ? 'pl-[20px]' : 'pl-[16px]'}
+                    ${(isOverview || isMobileMenuOpen) ? 'pl-[20px]' : 'pl-[16px]'}
                 `}>
 
                     {/* Unified Level HUD: Persistent Icon + Conditional Progress Bar */}
@@ -236,13 +240,13 @@ function Layout() {
                         </motion.button>
 
                         <AnimatePresence>
-                            {(deferredPath === '/dashboard') && (
+                            {(deferredPath === '/dashboard' || isMobileMenuOpen) && (
                                 <motion.div 
                                     key="prog-bar"
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -10 }}
-                                    className="hidden md:flex flex-1 min-w-0"
+                                    className={`${isMobileMenuOpen ? 'flex' : 'hidden md:flex'} flex-1 min-w-0`}
                                 >
                                     <LevelDisplay 
                                         level={user?.level} 
@@ -271,14 +275,14 @@ function Layout() {
                         </button>
 
                         <AnimatePresence mode="wait">
-                            {(deferredPath === '/dashboard') && (
+                            {(deferredPath === '/dashboard' || isMobileMenuOpen) && (
                                 <motion.div 
                                     key="profile-greeting"
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -10 }}
                                     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                    className="hidden md:flex flex-col whitespace-nowrap overflow-hidden"
+                                    className={`${isMobileMenuOpen ? 'flex' : 'hidden md:flex'} flex-col whitespace-nowrap overflow-hidden`}
                                 >
                                     <div className="flex flex-col">
                                         <p className="text-[10px] font-black text-black dark:text-white leading-none uppercase tracking-[0.2em]">{user?.username ? `@${user.username}` : user?.name}</p>
@@ -295,6 +299,7 @@ function Layout() {
                             )}
                         </AnimatePresence>
                     </div>
+
                 </div>
             </aside>
 
