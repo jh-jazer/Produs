@@ -1,8 +1,32 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Flame, Trophy, TrendingUp, AlertCircle, Zap } from 'lucide-react';
+import {
+    Flame, Trophy, TrendingUp, AlertCircle, Zap,
+    Shield, Brain, Crosshair, Heart, Network,
+    Target, Eye, Sparkles, Dumbbell, Activity
+} from 'lucide-react';
 import { useHabits } from '../../hooks/useHabits';
-import { getStreakMultiplier } from '../../utils/rpgHelpers';
+import { ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
+
+const iconMap = {
+    'Iron Fist': Dumbbell,
+    'Blade Dancer': Zap,
+    'Warlord': Crosshair,
+    'Vanguard': TrendingUp,
+    'Sentinel': Shield,
+    'Forge Master': Sparkles,
+    'Commander': Network,
+    'Champion': Target,
+    'Shadow Monk': Eye,
+    'Ghost': Sparkles,
+    'Diplomat': Network,
+    'Bard': Sparkles,
+    'Oracle': Brain,
+    'Druid': Heart,
+    'Alchemist': Sparkles,
+    'Architect': TrendingUp,
+    'None': Activity
+};
 
 const StreakStatus = ({ user }) => {
     const { habits } = useHabits();
@@ -10,7 +34,6 @@ const StreakStatus = ({ user }) => {
 
     // Calculate streaks
     const activeStreaks = habits.filter(h => h.streak > 0).sort((a, b) => b.streak - a.streak);
-    const maxStreak = Math.max(...habits.map(h => h.streak), 0);
     
     // Find streaks that need completion today
     const criticalStreaks = habits.filter(h => {
@@ -18,37 +41,48 @@ const StreakStatus = ({ user }) => {
         return h.streak > 0 && !isCompletedToday;
     });
 
-    // Global multiplier based on highest streak
-    const multiplier = getStreakMultiplier(maxStreak);
-    const enduranceXPToday = user?.rpg?.dailyXP?.byStat?.end || 0;
+    const archetype = user?.rpg?.archetype?.name || 'None';
+    const protocol = ARCHETYPE_PROTOCOLS[archetype] || ARCHETYPE_PROTOCOLS['None'];
+    const Icon = iconMap[archetype] || Activity;
 
     return (
         <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Global Multiplier Card */}
+            {/* Archetype Protocol Card */}
             <div className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <TrendingUp size={120} className="text-white" strokeWidth={3} />
+                    <Icon size={120} className="text-white" strokeWidth={3} />
                 </div>
                 
                 <div className="relative z-10 flex flex-col justify-between h-full">
                     <div className="space-y-2">
-                        <span className="text-[10px] font-black text-orange-500 uppercase tracking-[0.4em] font-mono">ACTIVE_MULTIPLIER</span>
-                        <h3 className="text-6xl font-black text-white italic font-exo tracking-tighter">
-                            {multiplier.toFixed(2)}x
+                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] font-mono">ARCHETYPE_PROTOCOL</span>
+                        <h3 className="text-5xl font-black text-white italic font-exo tracking-tighter uppercase">
+                            {archetype}
                         </h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest max-w-[200px]">
-                            XP EARNING EFFICIENCY BOOSTED BY STREAK CONSISTENCY
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest max-w-[400px]">
+                            {protocol.flavor}
                         </p>
+
+                        <div className="grid grid-cols-1 gap-1.5 mt-4">
+                            {protocol.perk.split('|').map((p, i) => (
+                                <div key={i} className="flex items-center gap-2">
+                                    <div className="size-1 rounded-full bg-emerald-500" />
+                                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">{p.trim()}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-6 mt-8 pt-6 border-t border-white/10">
-                        <div className="flex flex-col">
-                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">RECORD_STREAK</span>
-                            <span className="text-xl font-black text-white font-exo italic">{maxStreak} DAYS</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">ENDURANCE_GAIN_TODAY</span>
-                            <span className="text-xl font-black text-emerald-500 font-exo italic">+{enduranceXPToday} XP</span>
+                    <div className="flex items-center gap-6 mt-8 pt-6 border-t border-white/10 overflow-x-auto no-scrollbar">
+                        {Object.entries(protocol.multipliers).map(([stat, val]) => (
+                            <div key={stat} className="flex flex-col min-w-fit">
+                                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{stat}_MULT</span>
+                                <span className={`text-xl font-black ${val >= 1 ? 'text-emerald-500' : 'text-orange-500'} font-exo italic`}>{val}x</span>
+                            </div>
+                        ))}
+                        <div className="flex flex-col ml-auto">
+                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">CURRENT_STAGE</span>
+                            <span className="text-xl font-black text-white font-exo italic uppercase">{user?.rpg?.archetype?.stage || 'NONE'}</span>
                         </div>
                     </div>
                 </div>
