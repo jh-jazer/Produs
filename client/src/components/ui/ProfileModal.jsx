@@ -186,14 +186,14 @@ function ProfileModal({ username, onClose }) {
                             )}
 
                             {/* Core Streaks Area */}
-                            <div className="mt-6 grid grid-cols-3 gap-2.5">
-                                <div className="p-2.5 bg-violet-500/5 dark:bg-violet-500/10 rounded-2xl border border-violet-500/10 flex flex-col items-center text-center">
-                                    <span className="material-symbols-outlined text-lg text-violet-500 mb-1">menu_book</span>
+                            <div className="mt-6 grid grid-cols-4 gap-2.5">
+                                <div className="p-2.5 bg-blue-500/5 dark:bg-blue-500/10 rounded-2xl border border-blue-500/10 flex flex-col items-center text-center">
+                                    <span className="material-symbols-outlined text-lg text-blue-500 mb-1">history_edu</span>
                                     <p className="text-sm font-semibold text-black dark:text-white leading-none">{profile.systemStreaks?.journal || 0}</p>
-                                    <p className="text-[8px] font-semibold text-black/30 dark:text-white/30 uppercase tracking-[0.2em] mt-1.5 leading-none">Journal</p>
+                                    <p className="text-[8px] font-semibold text-black/30 dark:text-white/30 uppercase tracking-[0.2em] mt-1.5 leading-none">Journaling</p>
                                 </div>
-                                <div className="p-2.5 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-2xl border border-emerald-500/10 flex flex-col items-center text-center">
-                                    <span className="material-symbols-outlined text-lg text-emerald-500 mb-1">payments</span>
+                                <div className="p-2.5 bg-purple-500/5 dark:bg-purple-500/10 rounded-2xl border border-purple-500/10 flex flex-col items-center text-center">
+                                    <span className="material-symbols-outlined text-lg text-purple-500 mb-1">payments</span>
                                     <p className="text-sm font-semibold text-black dark:text-white leading-none">{profile.systemStreaks?.finance || 0}</p>
                                     <p className="text-[8px] font-semibold text-black/30 dark:text-white/30 uppercase tracking-[0.2em] mt-1.5 leading-none">Finance</p>
                                 </div>
@@ -201,6 +201,11 @@ function ProfileModal({ username, onClose }) {
                                     <span className="material-symbols-outlined text-lg text-amber-500 mb-1">event_note</span>
                                     <p className="text-sm font-semibold text-black dark:text-white leading-none">{profile.systemStreaks?.planner || 0}</p>
                                     <p className="text-[8px] font-semibold text-black/30 dark:text-white/30 uppercase tracking-[0.2em] mt-1.5 leading-none">Planner</p>
+                                </div>
+                                <div className="p-2.5 bg-red-500/5 dark:bg-red-500/10 rounded-2xl border border-red-500/10 flex flex-col items-center text-center">
+                                    <span className="material-symbols-outlined text-lg text-red-500 mb-1">fitness_center</span>
+                                    <p className="text-sm font-semibold text-black dark:text-white leading-none">{profile.systemStreaks?.workout || 0}</p>
+                                    <p className="text-[8px] font-semibold text-black/30 dark:text-white/30 uppercase tracking-[0.2em] mt-1.5 leading-none">Workout</p>
                                 </div>
                             </div>
 

@@ -14,16 +14,16 @@ export const initializeSystemHabits = async (userId) => {
             user: userId,
             name: 'Finance Tracking',
             icon: 'payments',
-            color: 'emerald',
+            color: 'purple',
             category: 'WIS',
             systemId: 'finance'
         },
         {
             user: userId,
             name: 'Journaling',
-            icon: 'menu_book',
-            color: 'violet',
-            category: 'WIS',
+            icon: 'history_edu',
+            color: 'blue',
+            category: 'INT',
             systemId: 'journal'
         },
         {
@@ -51,6 +51,21 @@ export const initializeSystemHabits = async (userId) => {
         // Bulk insert missing habits
         if (missingHabits.length > 0) {
             await Habit.insertMany(missingHabits);
+        }
+
+        // Update existing habits to ensure name, icon, and category are synchronized
+        for (const habit of habits) {
+            await Habit.updateOne(
+                { user: userId, systemId: habit.systemId },
+                {
+                    $set: {
+                        name: habit.name,
+                        icon: habit.icon,
+                        color: habit.color,
+                        category: habit.category
+                    }
+                }
+            );
         }
     } catch (error) {
         console.error('Failed to initialize system habits:', error);

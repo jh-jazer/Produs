@@ -199,7 +199,7 @@ const ARCHETYPES = [
     perks: [
       { name: "Transmutation", desc: "INT XP x1.55 permanently" },
       { name: "Refinement", desc: "Courses permanently increase INT multiplier" },
-      { name: "Synthesis", desc: "Journal + Finance combo bonus INT XP" }
+      { name: "Synthesis", desc: "Journaling + Finance combo bonus INT XP" }
     ],
     tiers: ["Tinkerer", "Alchemist", "Formula Breaker", "Grand Synthesist", "Architect of Truth"],
     icon: Sparkles, color: "text-yellow-500"

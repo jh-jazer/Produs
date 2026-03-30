@@ -242,7 +242,7 @@ const DoseCard = ({ item, activeJournalId, setActiveJournalId, journalText, setJ
                     {savedStatus[item.id] && !activeJournalId && (
                         <div className="mt-[-1rem] text-[10px] font-black text-emerald-500 uppercase flex items-center justify-end gap-1 animate-in fade-in zoom-in duration-300">
                             <span className="material-symbols-outlined text-xs">done_all</span>
-                            Reflected in Journal
+                            Reflected in Daily Journal
                         </div>
                     )}
                 </div>
