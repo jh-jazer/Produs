@@ -52,9 +52,9 @@ const DAILY_QUESTIONS = [
     },
     {
         id: 'journal',
-        channel: 'JOURNAL',
+        channel: 'DAILY_JOURNAL',
         question: 'Have you performed your daily brain dump?',
-        icon: <Brain className="text-purple-400" size={18} />,
+        icon: <Brain className="text-blue-400" size={18} />,
         options: [
             { label: 'COMPLETE', score: 5, color: 'text-emerald-400' },
             { label: 'PARTIAL', score: 3, color: 'text-amber-400' },
@@ -122,7 +122,7 @@ const DailyQuiz = ({ onComplete }) => {
 
                         <div className="flex flex-col items-center gap-2">
                             <div className="px-4 py-1.5 bg-emerald-500 text-white rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">
-                                +{reward?.xpAwarded || 25} XP // WISDOM
+                                +{reward?.xpAwarded || 25} XP // SYNC
                             </div>
                         </div>
                     </div>

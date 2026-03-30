@@ -130,7 +130,7 @@ const ARCHETYPES = [
     id: 10, name: "Ghost", code: "WDEA", role: "Infiltrator",
     stats: { str: 50, dex: 90, end: 70, int: 75, wis: 88, cha: 22 },
     lore: "Fluid and untraceable. Moves leaving no footprint. Wisdom guides their movement.",
-    habits: "Flexible routines, journaling, solo habit streaks.",
+    habits: "Flexible routines, daily journal, solo habit streaks.",
     perks: [
       { name: "Phase", desc: "DEX XP x1.5 permanently" },
       { name: "No Footprint", desc: "Habit-type switching gives bonus DEX XP" },
@@ -156,10 +156,10 @@ const ARCHETYPES = [
     id: 12, name: "Bard", code: "WDCA", role: "Voice of the Movement",
     stats: { str: 35, dex: 85, end: 48, int: 72, wis: 82, cha: 95 },
     lore: "Words are spells. Understands that narrative is the most powerful force in human systems.",
-    habits: "Journaling, social streaks, creative writing.",
+    habits: "Daily journal, social streaks, creative writing.",
     perks: [
       { name: "Spellbind", desc: "CHA XP x1.55 permanently" },
-      { name: "The Story", desc: "Journaling gives x1.4 INT XP" },
+      { name: "The Story", desc: "Daily Journal gives x1.4 INT XP" },
       { name: "Ripple", desc: "Grows through linked partner progress" }
     ],
     tiers: ["Storyteller", "Bard", "Silver Tongue", "Voice of Legends", "The Word That Moves Worlds"],
@@ -199,7 +199,7 @@ const ARCHETYPES = [
     perks: [
       { name: "Transmutation", desc: "INT XP x1.55 permanently" },
       { name: "Refinement", desc: "Courses permanently increase INT multiplier" },
-      { name: "Synthesis", desc: "Journal + Finance combo bonus INT XP" }
+      { name: "Synthesis", desc: "Daily Journal + Finance combo bonus INT XP" }
     ],
     tiers: ["Tinkerer", "Alchemist", "Formula Breaker", "Grand Synthesist", "Architect of Truth"],
     icon: Sparkles, color: "text-yellow-500"

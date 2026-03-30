@@ -179,7 +179,7 @@ const DailyContentFeed = () => {
                                                 ? 'text-emerald-500'
                                                 : 'text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-[#000000]/50'
                                         }`}
-                                        title="Journal Reflection"
+                                        title="Daily Journal Reflection"
                                     >
                                         <span className="material-symbols-outlined text-xl">
                                             {savedStatus[item.id] ? 'check' : 'edit_note'}
@@ -228,7 +228,7 @@ const DailyContentFeed = () => {
                                                 disabled={!journalText.trim() || isSaving}
                                                 className="px-6 py-1.5 bg-primary text-white text-[10px] font-black uppercase rounded-full shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all disabled:opacity-50"
                                             >
-                                                {isSaving ? 'Saving...' : 'Save to Journal'}
+                                                {isSaving ? 'Saving...' : 'Save to Daily Journal'}
                                             </button>
                                         </div>
                                     </div>
@@ -237,7 +237,7 @@ const DailyContentFeed = () => {
                                 {savedStatus[item.id] && !activeJournalId && (
                                     <div className="mt-[-1rem] text-[10px] font-black text-emerald-500 uppercase flex items-center justify-end gap-1 animate-in fade-in zoom-in duration-300">
                                         <span className="material-symbols-outlined text-xs">done_all</span>
-                                        Saved to your journal
+                                        Saved to your Daily Journal
                                     </div>
                                 )}
                             </div>
