@@ -507,7 +507,7 @@ function Profile() {
                 {/* Core Streaks */}
                 <div className="bg-white dark:bg-[#121212] p-6 rounded-3xl shadow-none border border-slate-200 dark:border-white/10 lg:col-span-2">
                     <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4">Core System Streaks 🔥</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         {coreHabits.length > 0 ? coreHabits.map((habit) => (
                             <div key={habit._id} className="p-4 rounded-2xl bg-slate-50 dark:bg-[#121212]/50 border border-slate-100 dark:border-white/10 flex items-center gap-3">
                                 <div className={`size-10 rounded-xl bg-${habit.color}-500/20 text-${habit.color}-500 flex items-center justify-center shrink-0`}>
@@ -519,7 +519,7 @@ function Profile() {
                                 </div>
                             </div>
                         )) : (
-                            <p className="text-sm text-slate-500 col-span-3 text-center py-4">Core system habits missing!</p>
+                            <p className="text-sm text-slate-500 col-span-4 text-center py-4">Core system habits missing!</p>
                         )}
                     </div>
                 </div>

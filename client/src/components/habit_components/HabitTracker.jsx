@@ -42,7 +42,7 @@ const SUGGESTIONS = [
             { name: 'Deep Work Box', icon: 'psychology', color: 'blue' },
             { name: 'Read 20 Pages', icon: 'menu_book', color: 'indigo' },
             { name: 'Skill Practice', icon: 'brush', color: 'pink' },
-            { name: 'Daily Journal', icon: 'history_edu', color: 'violet' },
+            { name: 'Journaling', icon: 'history_edu', color: 'blue' },
         ]
     },
     {

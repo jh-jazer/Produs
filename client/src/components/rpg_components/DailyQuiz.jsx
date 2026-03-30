@@ -52,7 +52,7 @@ const DAILY_QUESTIONS = [
     },
     {
         id: 'journal',
-        channel: 'DAILY_JOURNAL',
+        channel: 'JOURNAL',
         question: 'Have you performed your daily brain dump?',
         icon: <Brain className="text-blue-400" size={18} />,
         options: [
