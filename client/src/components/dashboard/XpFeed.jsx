@@ -37,12 +37,14 @@ const XpFeed = ({ user }) => {
 
     return (
         <div className="w-full space-y-4">
-            <div className="flex items-center justify-between px-1 mb-2">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">REALTIME_XP_STREAM</span>
-                <span className="text-[8px] font-black font-mono text-accent animate-pulse">SYNC_ACTIVE</span>
-            </div>
-
             <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="flex items-center justify-between px-1 mb-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">REALTIME_XP_STREAM</span>
+                    <div className="flex items-center gap-2">
+                        <div className="size-1 rounded-full bg-cyan-500 animate-pulse" />
+                        <span className="text-[8px] font-black font-mono text-cyan-500 uppercase leading-none">SYNC_ACTIVE</span>
+                    </div>
+                </div>
                 {history.map((event, idx) => {
                     const color = statColors[event.stat] || 'slate-400';
                     const time = new Date(event.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -53,7 +55,7 @@ const XpFeed = ({ user }) => {
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.05 }}
-                            className="flex items-center gap-4 bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 p-4 rounded-3xl hover:border-slate-300 dark:hover:border-white/20 transition-all group"
+                            className="glass-card flex items-center gap-4 p-4 rounded-3xl hover:border-white/40 transition-all group"
                         >
                             {/* Stat Badge */}
                             <div className={`size-10 rounded-2xl bg-${color}/10 border border-${color}/20 flex items-center justify-center text-${color} shrink-0`}>
@@ -87,10 +89,14 @@ const XpFeed = ({ user }) => {
                         </motion.div>
                     );
                 })}
-            </div>
-            
-            <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex justify-center">
-                <p className="text-[8px] font-black text-slate-300 dark:text-white/10 uppercase tracking-[0.4em]">END_OF_TRANSCRIPT</p>
+                {/* End of Transcript Indicator - Now inside scroll for organic feel */}
+                <div className="pt-6 pb-2 flex justify-center opacity-40">
+                    <div className="flex items-center gap-4 w-full px-4">
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent to-slate-200 dark:to-white/10" />
+                        <p className="text-[8px] font-black text-slate-400 dark:text-white/20 uppercase tracking-[0.4em] whitespace-nowrap">END_OF_TRANSCRIPT</p>
+                        <div className="flex-1 h-px bg-gradient-to-l from-transparent to-slate-200 dark:to-white/10" />
+                    </div>
+                </div>
             </div>
         </div>
     );

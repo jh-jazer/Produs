@@ -9,7 +9,7 @@ const PartnerPanel = ({ user }) => {
     const { data: partner, error } = useSWR(user?.partner ? '/auth/partner' : null, fetcher);
 
     if (!user?.partner) return (
-        <div className="w-full bg-slate-50 dark:bg-white/[0.02] border-2 border-dashed border-slate-200 dark:border-white/10 rounded-[2.5rem] p-12 flex flex-col items-center justify-center text-center space-y-4 group hover:border-cyan-500/50 transition-colors">
+        <div className="glass-panel w-full border-2 border-dashed p-12 flex flex-col items-center justify-center text-center space-y-4 group hover:border-cyan-500/50 transition-colors rounded-[2.5rem]">
             <div className="size-16 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-300 dark:text-white/20 group-hover:scale-110 transition-transform">
                 <Link size={32} />
             </div>
@@ -37,7 +37,7 @@ const PartnerPanel = ({ user }) => {
     };
 
     return (
-        <div className="w-full bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-6 lg:p-8">
+        <div className="glass-panel w-full p-6 lg:p-8 rounded-[2.5rem]">
             <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
                 
                 {/* Partner Profile */}

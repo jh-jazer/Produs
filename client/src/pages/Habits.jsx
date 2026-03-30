@@ -1,4 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { 
+    CheckCircle, 
+    Calendar, 
+    Trophy, 
+    Flame, 
+    Target,
+    Users,
+    User
+} from 'lucide-react';
 import useAuthStore from '../store/useAuthStore';
 import { useHabits } from '../hooks/useHabits';
 
@@ -8,6 +17,7 @@ import TopStreaks from '../components/habit_components/TopStreaks';
 import HabitChallenge from '../components/habit_components/HabitChallenge';
 import MobileTabNav from '../components/ui/MobileTabNav';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
+import DashboardPanel from '../components/ui/DashboardPanel';
 
 const categories = ['All', 'Health', 'Mindset', 'Finance', 'Productivity', 'Creative'];
 
@@ -20,10 +30,9 @@ function Habits() {
 
     useEffect(() => {
         if (viewMode === 'partner') {
-            // No need to check isOnline here, we assume online in remote-first
-            // setViewMode('me');
+            // Background sync or other partner logic if needed
         }
-    }, [viewMode, setViewMode]);
+    }, [viewMode]);
 
     const tabs = [
         { id: 'tracker', label: 'Tracker', icon: 'check_circle' },
@@ -56,76 +65,110 @@ function Habits() {
     if (isLoading && habits.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full max-w-[1200px] lg:pt-12 flex flex-col gap-2 pb-28 md:pb-8">
+        <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-8 pb-28 md:pb-8 mx-auto">
             <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div className="lg:col-span-8 flex flex-col gap-6 order-1 lg:order-2">
+            {/* Tactical Page Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 md:px-0">
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-3">
+                        <div className="size-2 bg-cyan-500 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.5)] animate-pulse" />
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] font-mono">HABIT_PROTOCOL_ACTIVE</span>
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic font-exo">
+                        Neural Consistency
+                    </h1>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] max-w-md">
+                        Tracking daily operational efficiency and long-term behavioral patterns for archetype evolution.
+                    </p>
+                </div>
+
+                {/* View Toggle - Desktop only */}
+                {user?.partner && (
+                    <div className="hidden lg:flex bg-slate-100 dark:bg-white/5 p-1 rounded-2xl border border-slate-200 dark:border-white/10 ml-auto">
+                        <button
+                            onClick={() => setViewMode('me')}
+                            className={`flex items-center gap-2 px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${viewMode === 'me' ? 'bg-white dark:bg-slate-900 shadow-xl text-cyan-500' : 'text-slate-500 hover:text-slate-300'}`}
+                        >
+                            <User size={12} /> Personal
+                        </button>
+                        <button
+                            onClick={() => setViewMode('partner')}
+                            className={`flex items-center gap-2 px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${viewMode === 'partner' ? 'bg-white dark:bg-slate-900 shadow-xl text-purple-500' : 'text-slate-500 hover:text-slate-300'}`}
+                        >
+                            <Users size={12} /> Sync_View
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Left Column (Challenges & Streaks) */}
+                <div className={`lg:col-span-4 flex flex-col gap-8 order-2 lg:order-1 ${activeTab !== 'challenges' && 'hidden lg:flex'}`}>
+                    <DashboardPanel
+                        title="TOP_CONSISTENCY_CHAINS"
+                        subtitle="NEURAL_STREAK_ANALYSIS"
+                        icon={Flame}
+                        showZap={false}
+                    >
+                        <TopStreaks habits={habits} isSharedView={viewMode === 'partner'} />
+                    </DashboardPanel>
+
+                    <DashboardPanel
+                        title="ACTIVE_CHALLENGES"
+                        subtitle="BEHAVIORAL_SYNCHRONIZATION"
+                        icon={Trophy}
+                        showZap={false}
+                    >
+                        <HabitChallenge />
+                    </DashboardPanel>
+                </div>
+
+                {/* Right Column (Tracker & Grid) */}
+                <div className="lg:col-span-8 flex flex-col gap-8 order-1 lg:order-2">
                     <div className={activeTab === 'tracker' ? 'block' : 'hidden lg:block'}>
-                        <HabitTracker
-                            activeDate={activeDate}
-                            onDateChange={changeWeek}
-                            currentFilter={currentFilter}
-                            onFilterChange={setCurrentFilter}
-                            habits={habits}
-                            myHabits={myHabits}
-                            partnerHabits={partnerHabits}
-                            checks={checks}
-                            isPartnerView={viewMode === 'partner'}
-                            partnerName={user?.partner?.name}
-                            isLoading={isLoading}
-                            toggleCheck={toggleCheck}
-                            addHabit={addHabit}
-                            deleteHabit={deleteHabit}
-                            updateHabit={updateHabit}
-                            reorderHabits={reorderHabits}
-                            myUserId={user?._id}
-                        />
+                        <DashboardPanel
+                            title="HABIT_TRACKER_INTERFACE"
+                            subtitle="DAILY_OPERATIONAL_CHECK"
+                            icon={CheckCircle}
+                            pulseColor="cyan"
+                        >
+                            <HabitTracker
+                                activeDate={activeDate}
+                                onDateChange={changeWeek}
+                                currentFilter={currentFilter}
+                                onFilterChange={setCurrentFilter}
+                                habits={habits}
+                                myHabits={myHabits}
+                                partnerHabits={partnerHabits}
+                                checks={checks}
+                                isPartnerView={viewMode === 'partner'}
+                                partnerName={user?.partner?.name}
+                                isLoading={isLoading}
+                                toggleCheck={toggleCheck}
+                                addHabit={addHabit}
+                                deleteHabit={deleteHabit}
+                                updateHabit={updateHabit}
+                                reorderHabits={reorderHabits}
+                                myUserId={user?._id}
+                            />
+                        </DashboardPanel>
                     </div>
 
                     <div className={activeTab === 'consistency' ? 'block' : 'hidden lg:block'}>
-                        <ConsistencyGrid
-                            checks={checks}
-                            isPartnerView={viewMode === 'partner'}
-                            myUserId={user?._id}
-                            partnerUserId={user?.partner?._id}
-                        />
-                    </div>
-                </div>
-
-                <div className={`lg:col-span-4 flex flex-col gap-6 order-2 lg:order-1 ${activeTab !== 'challenges' && 'hidden lg:flex'}`}>
-                    <div className="hidden md:flex flex-col gap-1">
-                        <div className="flex items-center justify-between">
-                            <h1 className="text-black dark:text-white text-2xl md:text-3xl font-semibold tracking-[-0.02em]">
-                                Build Better Habits
-                            </h1>
-                        </div>
-                        <p className="text-black/40 dark:text-white/40 text-[10px] font-semibold uppercase tracking-[0.3em]">
-                            Track your daily goals.
-                        </p>
-                    </div>
-
-                    {/* View Toggle - Desktop only */}
-                    {user?.partner && (
-                        <div className="hidden lg:flex bg-black/[0.04] dark:bg-[#000000]/50 p-1 rounded-xl border border-black/[0.06] dark:border-white/10">
-                            <button
-                                onClick={() => setViewMode('me')}
-                                className={`flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] rounded-lg transition-all ${viewMode === 'me' ? 'bg-white dark:bg-[#121212] shadow-sm text-black dark:text-white' : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'}`}
-                            >
-                                My Habits
-                            </button>
-                            <button
-                                onClick={() => setViewMode('partner')}
-                                className={`flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] rounded-lg transition-all ${viewMode === 'partner' ? 'bg-white dark:bg-[#121212] shadow-sm text-black dark:text-white' : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'}`}
-                            >
-                                Shared Habits
-                            </button>
-                        </div>
-                    )}
-
-                    <div className="flex flex-col gap-6">
-                        <TopStreaks habits={habits} isSharedView={viewMode === 'partner'} />
-                        <HabitChallenge />
+                        <DashboardPanel
+                            title="LONG_TERM_CONSISTENCY_MATRIX"
+                            subtitle="NEURAL_ACTIVITY_TRENDS"
+                            icon={Calendar}
+                            pulseColor="emerald"
+                        >
+                            <ConsistencyGrid
+                                checks={checks}
+                                isPartnerView={viewMode === 'partner'}
+                                myUserId={user?._id}
+                                partnerUserId={user?.partner?._id}
+                            />
+                        </DashboardPanel>
                     </div>
                 </div>
             </div>

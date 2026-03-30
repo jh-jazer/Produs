@@ -57,12 +57,4 @@ export const getStreakMultiplier = (streak) => {
     return 1.0;
 };
 
-export const XP_CAPS = {
-    str: 60,
-    dex: 50,
-    end: 40,
-    int: 55,
-    wis: 65,
-    cha: 45,
-    total: 315
-};
+

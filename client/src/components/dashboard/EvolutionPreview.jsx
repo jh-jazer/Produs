@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Sparkles, TrendingUp, Plus } from 'lucide-react';
 import { ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
 import { LEVEL_TABLE } from '../../utils/rpgHelpers';
+import DashboardPanel from '../ui/DashboardPanel';
 
 const EvolutionPreview = ({ user }) => {
     if (!user || user.level === 0) return null;
@@ -40,12 +41,13 @@ const EvolutionPreview = ({ user }) => {
     const nextProtocol = ARCHETYPE_PROTOCOLS[currentArchetype] || ARCHETYPE_PROTOCOLS['None'];
 
     return (
-        <div className="w-full bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 overflow-hidden relative">
-            <div className="absolute top-0 right-0 p-8 opacity-[0.03] dark:opacity-[0.05]">
-                <Sparkles size={160} />
-            </div>
-
-            <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
+        <DashboardPanel
+            title="ASCENSION_PATH_ACTIVE"
+            subtitle="NEURAL_EVOLUTION_COEFFICIENT"
+            showZap={false}
+            icon={Sparkles}
+        >
+            <div className="flex flex-col md:flex-row items-center gap-12">
                 {/* Current Identity (LOCKED) */}
                 <div className="flex flex-col items-center gap-3 shrink-0">
                     <div className="relative">
@@ -66,7 +68,7 @@ const EvolutionPreview = ({ user }) => {
                 <div className="flex-1 w-full space-y-6">
                     <div className="flex flex-col items-center md:items-start gap-1">
                         <span className="text-[10px] font-black text-accent uppercase tracking-[0.3em] font-mono flex items-center gap-2">
-                            <TrendingUp size={12} /> ASCENSION_PATH_ACTIVE
+                            <TrendingUp size={12} /> STATUS: EVOLVING
                         </span>
                         <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic font-exo">
                             {path.isMax ? 'Peak Potential Reached' : `Path to ${path.nextName}`}
@@ -82,7 +84,7 @@ const EvolutionPreview = ({ user }) => {
                             />
                         </div>
                         <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest">
-                            <span className="text-slate-400">{currentTier}</span>
+                            <span className="text-slate-500">{currentTier}</span>
                             <span className="text-accent">
                                 {path.isMax ? 'MAX_LEVEL' : `${path.levelsRemaining} Levels to next milestone`}
                             </span>
@@ -102,7 +104,7 @@ const EvolutionPreview = ({ user }) => {
                     <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">NEURAL_SYNC</span>
                 </div>
             </div>
-        </div>
+        </DashboardPanel>
     );
 };
 

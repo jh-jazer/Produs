@@ -97,52 +97,36 @@ const TopStreaks = ({ habits, isSharedView = false }) => {
     };
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none overflow-hidden relative group min-h-[300px]">
-            <div className="absolute -right-12 -bottom-12 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-500"></div>
-
-            <div className="relative z-10 flex flex-col">
-                <div className="flex justify-between items-center mb-6">
-                    <div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-none">
-                            {isSharedView ? 'Shared Top Streaks' : 'Top Streaks'}
-                        </h3>
-                        <p className="text-[10px] uppercase font-bold text-slate-400 mt-1 tracking-widest">
-                            {isSharedView ? 'Shared Habits Only' : 'Consistency Leaders'}
-                        </p>
+        <div className="relative flex flex-col min-h-[300px]">
+            <div className="space-y-6">
+                {isSharedView ? (
+                    <div className="space-y-4">
+                        {uniqueSharedStreaks.length > 0 ? (
+                            uniqueSharedStreaks.slice(0, 5).map((s, i) => <StreakItem key={s._id} streak={s} index={i} isShared={true} />)
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-white/5 rounded-3xl">
+                                <h4 className="text-[11px] font-black text-slate-300 mb-1 uppercase tracking-tight">No shared streaks yet!</h4>
+                                <p className="text-[9px] text-slate-500 font-medium max-w-[150px] leading-tight uppercase tracking-wider">Start a shared habit together! 🔥</p>
+                            </div>
+                        )}
                     </div>
-                    <span className="material-symbols-outlined text-amber-500 text-xl">workspace_premium</span>
-                </div>
-
-                <div className="space-y-6">
-                    {isSharedView ? (
-                        <div className="space-y-3">
-                            {uniqueSharedStreaks.length > 0 ? (
-                                uniqueSharedStreaks.slice(0, 5).map((s, i) => <StreakItem key={s._id} streak={s} index={i} isShared={true} />)
-                            ) : (
-                                <div className="flex flex-col items-center justify-center py-6 text-center">
-                                    <h4 className="text-[11px] font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tight">No shared streaks yet!</h4>
-                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium max-w-[150px] leading-tight">Start a shared habit together! 🔥</p>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            {activeHabits
-                                .filter(h => h.streak > 0)
-                                .sort((a, b) => b.streak - a.streak)
-                                .slice(0, 5)
-                                .map((s, i) => (
-                                    <StreakItem key={s._id} streak={s} index={i} isShared={s.isShared} />
-                                ))}
-                            {activeHabits.filter(h => h.streak > 0).length === 0 && (
-                                <div className="flex flex-col items-center justify-center py-6 text-center">
-                                    <h4 className="text-[11px] font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tight">Ignite your first streak!</h4>
-                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium max-w-[150px] leading-tight">Consistency is key! 🔥</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
+                ) : (
+                    <div className="space-y-4">
+                        {activeHabits
+                            .filter(h => h.streak > 0)
+                            .sort((a, b) => b.streak - a.streak)
+                            .slice(0, 5)
+                            .map((s, i) => (
+                                <StreakItem key={s._id} streak={s} index={i} isShared={s.isShared} />
+                            ))}
+                        {activeHabits.filter(h => h.streak > 0).length === 0 && (
+                            <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-white/5 rounded-3xl">
+                                <h4 className="text-[11px] font-black text-slate-300 mb-1 uppercase tracking-tight">Ignite your first streak!</h4>
+                                <p className="text-[9px] text-slate-500 font-medium max-w-[150px] leading-tight uppercase tracking-wider">Consistency is key! 🔥</p>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

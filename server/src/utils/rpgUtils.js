@@ -98,16 +98,6 @@ export const ARCHETYPES = {
     }
 };
 
-export const XP_CAPS = {
-    str: 60,
-    dex: 50,
-    end: 40,
-    int: 55,
-    wis: 65,
-    cha: 45,
-    total: 315
-};
-
 export const getStreakMultiplier = (streak) => {
     if (streak >= 100) return 2.0;
     if (streak >= 30) return 1.75;
@@ -200,32 +190,14 @@ export const awardXP = async (user, stat, amount, streak = 1, activityType = 'sy
 
     // Apply Archetype Multipliers if they exist
     if (user.rpg.statMultipliers && user.rpg.statMultipliers.get) {
-        // Mongoose Map uses .get()
         const mult = user.rpg.statMultipliers.get(stat);
         if (mult) finalXP = Math.round(finalXP * mult);
     } else if (user.rpg.statMultipliers && user.rpg.statMultipliers[stat]) {
-        // Plain object fallback
         const mult = user.rpg.statMultipliers[stat];
         if (mult) finalXP = Math.round(finalXP * mult);
     }
 
-    // Check Total Daily Cap
-    if (user.rpg.dailyXP.total >= XP_CAPS.total) return { xpAwarded: 0 };
-
-    // Check Stat Daily Cap
-    const currentStatXP = user.rpg.dailyXP.byStat[stat] || 0;
-    const statCap = XP_CAPS[stat] || 50;
-    
-    if (currentStatXP >= statCap) return { xpAwarded: 0 };
-    
-    // Adjust finalXP if it exceeds caps
-    if (user.rpg.dailyXP.total + finalXP > XP_CAPS.total) {
-        finalXP = XP_CAPS.total - user.rpg.dailyXP.total;
-    }
-    if (currentStatXP + finalXP > statCap) {
-        finalXP = statCap - currentStatXP;
-    }
-
+    // DAILY CAPS REMOVED PER USER REQUEST
     if (finalXP <= 0) return { xpAwarded: 0 };
 
     // Update User Stats and XP

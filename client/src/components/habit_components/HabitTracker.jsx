@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
+import { Plus, Edit2 } from 'lucide-react';
 import ConfirmDialog from '../ui/ConfirmDialog';
 
 const ICON_OPTIONS = [
@@ -233,13 +234,26 @@ function HabitTracker({
         await reorderHabits(newList.map(h => h._id));
     };
 
+    const saveOrder = (newList) => {
+        handleReorder(newList);
+    };
+
     const renderHabitRow = (habit) => {
         const colors = COLOR_MAP[habit.color] || COLOR_MAP.emerald;
         const isEditing = editingHabit?._id === (habit.isGrouped ? habit.myPart?._id : habit._id);
         const isSystemHabit = !!(habit.myPart ? habit.myPart.systemId : habit.systemId);
 
         return (
-            <div key={habit._id} className={`flex items-center gap-4 py-3 ${isSystemHabit ? 'bg-slate-50 dark:bg-[#000000]/40 border border-slate-200 dark:border-white/10/60 rounded-xl my-1.5 px-3 shadow-none' : 'border-b border-slate-100 dark:border-white/10/50'} ${editMode ? 'hover:bg-slate-50 dark:hover:bg-[#000000]/30 rounded-lg transition-colors cursor-grab active:cursor-grabbing pl-2' : ''}`}>
+            <div 
+                key={habit._id} 
+                className={`group/row relative flex items-center gap-4 py-3.5 my-1.5 rounded-2xl transition-all duration-300 border
+                    ${isSystemHabit 
+                        ? 'bg-slate-100/80 dark:bg-white/[0.03] border-slate-200 dark:border-white/10 shadow-[0_2px_10px_rgba(0,0,0,0.02)] shadow-none' 
+                        : 'bg-white/40 dark:bg-black/20 border-slate-100 dark:border-white/[0.05] hover:border-slate-200 dark:hover:border-white/10 hover:bg-slate-50/80 dark:hover:bg-white/[0.04] shadow-sm'}
+                    ${editMode ? 'pl-2 cursor-grab active:cursor-grabbing' : 'px-4'}`}
+            >
+                {/* Vertical Accent Indicator */}
+                <div className={`absolute left-0 top-4 bottom-4 w-1 rounded-r-full ${colors.solid} opacity-40 group-hover/row:opacity-100 transition-all duration-300 shadow-[0_0_10px_rgba(0,0,0,0.1)]`} />
                 
                 {editMode && !isPartnerView && (
                     <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 cursor-grab active:cursor-grabbing hover:text-primary transition-colors pr-1">drag_indicator</span>
@@ -305,7 +319,7 @@ function HabitTracker({
 
                         return (
                             <div key={dayIdx} className={`relative w-8 h-8 flex items-center justify-center ${isHiddenOnMobile ? 'hidden md:flex' : 'flex'}`}>
-                                {isPartnerView && isGrouped ? (
+                                {isPartnerView && habit.isGrouped ? (
                                     // SPLIT CHECK CIRCLE
                                     <div className="relative w-7 h-7 rounded-full border border-slate-200 dark:border-white/10 overflow-hidden flex">
                                         {/* My Half (Left) */}
@@ -350,7 +364,7 @@ function HabitTracker({
                                     // NORMAL CHECK CIRCLE
                                     <button
                                         onClick={() => handleToggle(habit._id, date)}
-                                        disabled={editMode || isLocked || isReadOnly || (isPartnerView && habit.user !== propMyHabits?.[0]?.user) || isSystemHabit}
+                                        disabled={editMode || isLocked || isReadOnly || (isPartnerView && habit.userId !== myUserId) || isSystemHabit}
                                         title={isSystemHabit ? "Completed automatically by doing the task" : ""}
                                         className={`relative w-7 h-7 rounded-full flex items-center justify-center transition-all overflow-hidden ${isFuture
                                             ? 'border border-dashed border-slate-200 dark:border-white/10 opacity-30 shadow-none cursor-not-allowed'
@@ -431,7 +445,7 @@ function HabitTracker({
     };
 
     return (
-        <>
+        <React.Fragment>
             <ConfirmDialog
                 isOpen={!!confirmDelete}
                 title="Delete Habit"
@@ -440,55 +454,52 @@ function HabitTracker({
                 onConfirm={() => { deleteHabit(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex flex-col justify-between relative overflow-hidden group flex-1 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ease-in-out min-h-[280px]">
-                <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-500 pointer-events-none"></div>
-
-                <div className="relative z-10 flex flex-row justify-between items-center gap-3 mb-6">
+            <div className={`relative flex flex-col justify-between group flex-1 transition-all duration-300 ease-in-out ${isDashboard ? 'min-h-[280px]' : ''}`}>
+                <div className="relative z-10 flex flex-row justify-between items-center gap-3 mb-6 font-inter">
                     <div className="flex justify-between items-center flex-1">
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{isPartnerView ? `Team View` : 'Habit Tracker'}</h3>
                         {!isDashboard && onDateChange && (
                             <div className="hidden md:flex items-center gap-1 p-0.5">
                                 <button
                                     onClick={() => onDateChange(-1)}
-                                    className="p-1 px-1.5 hover:bg-white dark:hover:bg-[#121212] rounded-lg text-slate-400 hover:text-primary transition-all"
+                                    className="p-1 px-1.5 hover:bg-white dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-cyan-500 transition-all font-inter"
                                 >
-                                    <span className="material-symbols-outlined text-sm">chevron_left</span>
+                                    <span className="material-symbols-outlined text-sm font-inter">chevron_left</span>
                                 </button>
-                                <div className="px-1 text-[10px] font-black text-slate-600 dark:text-slate-300 min-w-[100px] text-center uppercase tracking-wider">
+                                <div className="px-1 text-[10px] font-black text-slate-600 dark:text-slate-300 min-w-[100px] text-center uppercase tracking-wider font-mono">
                                     <span>{months[activeDate.getMonth()]} • {getWeekOfMonth(activeDate)}</span>
                                 </div>
                                 <button
                                     onClick={() => onDateChange(1)}
-                                    className="p-1 px-1.5 hover:bg-white dark:hover:bg-[#121212] rounded-lg text-slate-400 hover:text-primary transition-all"
+                                    className="p-1 px-1.5 hover:bg-white dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-cyan-500 transition-all font-inter"
                                 >
-                                    <span className="material-symbols-outlined text-sm">chevron_right</span>
+                                    <span className="material-symbols-outlined text-sm font-inter">chevron_right</span>
                                 </button>
                             </div>
                         )}
                     </div>
 
-                    <div className="flex items-center justify-end gap-2">
-                        <div className="flex items-center gap-1">
+                    <div className="flex items-center justify-end gap-3">
+                        <div className="flex items-center gap-2">
                             {!isReadOnly && !isDashboard && (
                                 <button
                                     onClick={() => {
                                         setNewHabit({ name: '', icon: 'local_drink', color: 'emerald', isShared: isPartnerView, category: 'Productivity' });
                                         setAddModalOpen(true);
                                     }}
-                                    className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#121212]/50 text-slate-500 hover:text-primary transition-colors flex items-center gap-1.5"
+                                    className="px-4 py-2 rounded-xl bg-cyan-500 text-slate-900 text-[9px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.3)] font-inter"
                                     title={isPartnerView ? 'Add Team Habit' : 'Add Habit'}
                                 >
-                                    <span className="material-symbols-outlined text-xl">add_circle</span>
+                                    <Plus size={14} strokeWidth={3} /> ADD_HABIT
                                 </button>
                             )}
 
                             {!isReadOnly && !isDashboard && (
                                 <button
                                     onClick={() => { setEditMode(!editMode); setEditingHabit(null); }}
-                                    className={`p-2 rounded-lg transition-all duration-300 ${editMode ? 'text-primary bg-primary/10 ring-1 ring-primary/20 shadow-none' : 'text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-[#121212]/50'}`}
+                                    className={`p-2 rounded-xl border transition-all duration-300 ${editMode ? 'text-cyan-500 bg-cyan-500/10 border-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.2)]' : 'text-slate-500 border-white/5 hover:border-white/10 hover:bg-white/5'}`}
                                     title={editMode ? 'Stop Editing' : 'Edit Habits'}
                                 >
-                                    <span className="material-symbols-outlined text-xl">edit</span>
+                                    <Edit2 size={14} />
                                 </button>
                             )}
                         </div>
@@ -496,10 +507,9 @@ function HabitTracker({
                 </div>
 
                 {/* Table */}
-                <div className="relative z-10 w-full overflow-y-auto custom-scrollbar hover-scrollbar flex-1 flex flex-col">
-
+                <div className="relative z-10 w-full overflow-y-auto custom-scrollbar hover-scrollbar flex-1 flex flex-col pt-2 font-inter">
                     {/* Header Row */}
-                    <div className="flex items-center gap-4 py-3 border-b border-slate-200 dark:border-white/10 px-2 lg:px-0">
+                    <div className="flex items-center gap-4 py-4 border-b border-slate-200 dark:border-white/10 px-4">
                         {editMode && !isPartnerView && (
                             <div className="w-[24px] pr-1"></div>
                         )}
@@ -515,7 +525,6 @@ function HabitTracker({
                     {/* Habit Rows */}
                     <div className={`flex flex-col overflow-y-auto pr-1 custom-scrollbar hover-scrollbar ${isDashboard ? 'max-h-[240px]' : 'max-h-[500px]'}`}>
                         {isLoading ? (
-                            // Skeleton Rows for Loading state
                             Array(5).fill(0).map((_, i) => (
                                 <div key={i} className="flex items-center gap-4 py-3 border-b border-slate-100 dark:border-white/10/50 animate-pulse">
                                     <div className={`${isDashboard ? 'flex-1' : 'w-1/3'} flex items-center gap-2`}>
@@ -535,7 +544,7 @@ function HabitTracker({
                                 </div>
                             ))
                         ) : (
-                            <>
+                            <React.Fragment>
                                 {/* Render Team/Shared Habits Section */}
                                 {editMode && !isPartnerView ? (
                                     <Reorder.Group axis="y" values={localTeamHabits} onReorder={setLocalTeamHabits} className="flex flex-col">
@@ -548,11 +557,11 @@ function HabitTracker({
                                             ))}
                                     </Reorder.Group>
                                 ) : (
-                                    <>
+                                    <React.Fragment>
                                         {teamHabits
                                             .filter(h => currentFilter === 'All' || h.category === currentFilter || !!(h.myPart ? h.myPart.systemId : h.systemId))
                                             .map((habit) => renderHabitRow(habit))}
-                                    </>
+                                    </React.Fragment>
                                 )}
 
                                 {/* Divider for Team View */}
@@ -569,7 +578,7 @@ function HabitTracker({
                                 {isPartnerView && partnerHabitsOnly
                                     .filter(h => currentFilter === 'All' || h.category === currentFilter || !!h.systemId)
                                     .map((habit) => renderHabitRow(habit))}
-                            </>
+                            </React.Fragment>
                         )}
                     </div>
                 </div>
@@ -628,7 +637,7 @@ function HabitTracker({
                                     </button>
                                 </div>
                             ) : (
-                                <>
+                                <React.Fragment>
                                     {/* Habit Name */}
                                     <div className="flex flex-col gap-1.5 mb-5">
                                         <label className="text-xs font-bold text-slate-500 dark:text-slate-400">Habit Name</label>
@@ -732,13 +741,13 @@ function HabitTracker({
                                             Add Habit
                                         </button>
                                     </div>
-                                </>
+                                </React.Fragment>
                             )}
                         </div>
                     </div>
                 </div>
             )}
-        </>
+        </React.Fragment>
     );
 }
 
