@@ -1,10 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import useSWR from 'swr';
-import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import { useGoals } from '../../hooks/useGoals';
-
-const fetcher = url => api.get(url).then(res => res.data);
 
 /* ─── helpers ─────────────────────────────────────────── */
 
