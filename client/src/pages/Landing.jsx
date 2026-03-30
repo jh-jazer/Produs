@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { 
   ChevronRight, 
   Activity, 
-  Zap, 
   Orbit, 
   Brain,
   TrendingUp,
