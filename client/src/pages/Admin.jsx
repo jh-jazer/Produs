@@ -4,6 +4,7 @@ import { Users, Settings, BarChart3, ShieldCheck, Database, Search, RefreshCcw, 
 import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import AdminBugs from '../components/AdminBugs';
+import ArchetypeChart from '../components/ArchetypeChart';
 import MobileTabNav from '../components/ui/MobileTabNav';
 
 const Admin = () => {
@@ -26,6 +27,8 @@ const Admin = () => {
     ];
 
     const recentUsers = data?.recentUsers || [];
+    const archetypeStats = data?.archetypeStats || [];
+
     const handleResetOnboarding = async (userId, userName) => {
         if (!window.confirm(`Are you sure you want to reset onboarding for ${userName}? This will clear their username, RPG stats, and interests, and force them to re-onboard.`)) {
             return;
@@ -111,13 +114,19 @@ const Admin = () => {
                             ))}
                         </div>
 
-                        
-
+                        {/* Archetype Stats (Mobile) */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-white dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 p-6 rounded-[2.5rem] overflow-hidden"
+                        >
+                            <ArchetypeChart data={archetypeStats} />
+                        </motion.div>
                     </div>
                 )}
 
                 {/* Desktop Tabs / Stats Grid */}
-                <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 hidden md:grid ${activeTab !== 'overview' && 'lg:hidden'}`}>
+                <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 hidden md:grid ${activeTab !== 'overview' && 'lg:hidden'}`}>
                     {stats.map((stat, index) => (
                         <motion.div
                             key={index}
@@ -135,6 +144,15 @@ const Admin = () => {
                         </motion.div>
                     ))}
                 </div>
+
+                {/* Archetype Stats (Desktop) */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`bg-white dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 p-8 rounded-[2.5rem] mb-12 hidden md:block ${activeTab !== 'overview' && 'lg:hidden'}`}
+                >
+                    <ArchetypeChart data={archetypeStats} />
+                </motion.div>
 
                 {/* Management Sections */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
