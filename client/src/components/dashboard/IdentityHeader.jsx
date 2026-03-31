@@ -144,7 +144,7 @@ const IdentityHeader = ({ user, habits = [] }) => {
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic text-slate-900 dark:text-white font-exo leading-none"
+                                className="text-2xl md:text-3xl font-black uppercase tracking-tighter italic text-slate-900 dark:text-white font-exo leading-none"
                             >
                                 @{user.username || user.name || 'USER_LINK_LOST'}
                             </motion.h1>
