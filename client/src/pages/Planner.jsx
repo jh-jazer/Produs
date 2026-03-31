@@ -5,6 +5,7 @@ import FullCalendar from '../components/planner_components/FullCalendar';
 import GoalSetter from '../components/planner_components/GoalSetter';
 import useAuthStore from '../store/useAuthStore';
 import { motion } from 'framer-motion';
+import { User, Users } from 'lucide-react';
 import MobileTabNav from '../components/ui/MobileTabNav';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 import { usePlanner } from '../hooks/usePlanner';
@@ -38,47 +39,50 @@ const Planner = () => {
     if (isLoading && tasks.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full max-w-[1200px] lg:pt-12 flex flex-col gap-2 pb-28 md:pb-8">
+        <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-8 pb-28 md:pb-8 mx-auto">
             
 
             {/* Mobile Navigation */}
             <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
+            {/* Tactical Page Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 md:px-0">
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-3">
+                        <div className="size-2 bg-cyan-500 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.5)] animate-pulse" />
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] font-mono">PLANNER_PROTOCOL_ACTIVE</span>
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic font-exo">
+                        The Plan
+                    </h1>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] max-w-md">
+                        Daily Trajectory
+                    </p>
+                </div>
+
+                {/* View Toggle - Desktop only */}
+                {user?.partner && (
+                    <div className="hidden lg:flex bg-slate-100 dark:bg-white/5 p-1 rounded-2xl border border-slate-200 dark:border-white/10 ml-auto">
+                        <button
+                            onClick={() => setViewMode('me')}
+                            className={`flex items-center gap-2 px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${viewMode === 'me' ? 'bg-white dark:bg-slate-900 shadow-xl text-cyan-500' : 'text-slate-500 hover:text-slate-300'}`}
+                        >
+                            <User size={12} /> Personal
+                        </button>
+                        <button
+                            onClick={() => setViewMode('partner')}
+                            className={`flex items-center gap-2 px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${viewMode === 'partner' ? 'bg-white dark:bg-slate-900 shadow-xl text-purple-500' : 'text-slate-500 hover:text-slate-300'}`}
+                        >
+                            <Users size={12} /> Sync_View
+                        </button>
+                    </div>
+                )}
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
                 {/* Main Column */}
                 <div className={`lg:col-span-4 flex flex-col gap-6 ${activeTab !== 'priority' && activeTab !== 'planner' && activeTab !== 'calendar' && activeTab !== 'goals' ? 'hidden lg:flex' : ''}`}>
-                    
-                    {/* Header - Hidden on Mobile */}
-                    <div className="hidden lg:flex flex-col gap-1 px-1">
-                        <div className="flex items-center justify-between">
-                            <h1 className="text-black dark:text-white text-3xl font-semibold tracking-[-0.02em]">
-                                The Plan
-                            </h1>
-                        </div>
-                        <p className="text-black/40 dark:text-white/40 text-[9px] font-semibold uppercase tracking-[0.4em] mt-1">
-                            Daily Trajectory
-                        </p>
-                    </div>
-
-
-                    {/* View Toggle */}
-                    {user?.partner && (
-                        <div className="bg-black/[0.04] dark:bg-[#050505]/60 p-1 rounded-2xl flex border border-black/[0.05] dark:border-white/5">
-                            <button
-                                onClick={() => setViewMode('me')}
-                                className={`flex-1 py-2 text-[9px] font-semibold uppercase tracking-[0.2em] rounded-xl transition-all ${viewMode === 'me' ? 'bg-white dark:bg-[#121212] shadow-lg text-black dark:text-white border border-black/[0.05] dark:border-white/10' : 'text-black/40 dark:text-white/40 hover:text-black/60 dark:hover:text-white/60'}`}
-                            >
-                                Personal
-                            </button>
-                            <button
-                                onClick={() => setViewMode('partner')}
-                                className={`flex-1 py-2 text-[9px] font-semibold uppercase tracking-[0.2em] rounded-xl transition-all ${viewMode === 'partner' ? 'bg-white dark:bg-[#121212] shadow-lg text-black dark:text-white border border-black/[0.05] dark:border-white/10' : 'text-black/40 dark:text-white/40 hover:text-black/60 dark:hover:text-white/60'}`}
-                            >
-                                Shared
-                            </button>
-                        </div>
-                    )}
 
                     {/* Mobile Only: Calendar */}
                     <div className={activeTab === 'calendar' ? 'block' : 'hidden lg:hidden'}>
