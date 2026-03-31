@@ -95,7 +95,7 @@ export default function Onboarding() {
             <h1 className="text-xl md:text-2xl font-black tracking-tight">
               {step === 1 && "Claim Your Identity"}
               {step === 2 && "Visual Calibration"}
-              {step === 3 && "Protocol Initiation"}
+              {step === 3 && ""}
             </h1>
           </div>
 
@@ -259,7 +259,7 @@ export default function Onboarding() {
                     disabled={loading}
                     className="w-full py-5 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl font-black uppercase tracking-[0.4em] text-xs transition-all hover:scale-[1.02] shadow-xl shadow-primary/20"
                   >
-                    {loading ? "Initializing..." : "Initialize System"}
+                    {loading ? "Initializing..." : "initialize"}
                   </button>
                 </motion.div>
               )}
