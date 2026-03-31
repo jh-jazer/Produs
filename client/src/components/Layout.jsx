@@ -111,26 +111,26 @@ function Layout() {
 
                     {/* Tactical Tools Right */}
                     <div className="ml-auto flex items-center gap-2">
-                        {/* 1. Partner Toggle (Only on Dashboard) */}
+                        {/* 1. Partner Toggle */}
+                        <button
+                            onClick={() => setViewMode(viewMode === 'personal' ? 'partner' : 'personal')}
+                            className="size-9 glass-panel rounded-xl flex items-center justify-center relative bg-black/5 dark:bg-white/5 active:scale-95 transition-all"
+                        >
+                            {viewMode === 'personal' ? <User size={14} className="text-slate-500" /> : <Users size={14} className="text-cyan-500" />}
+                            {!user?.partner && (
+                                <Lock size={8} className="absolute bottom-1.5 right-1.5 text-slate-400" />
+                            )}
+                        </button>
+
+                        {/* 2. Search Icon (Overview Only) */}
                         {isOverview && (
                             <button
-                                onClick={() => setViewMode(viewMode === 'personal' ? 'partner' : 'personal')}
-                                className="size-9 glass-panel rounded-xl flex items-center justify-center relative bg-black/5 dark:bg-white/5 active:scale-95 transition-all"
+                                onClick={() => setIsSearchModalOpen(true)}
+                                className="size-9 glass-panel rounded-xl flex items-center justify-center bg-black/5 dark:bg-white/5 active:scale-95 transition-all"
                             >
-                                {viewMode === 'personal' ? <User size={14} className="text-slate-500" /> : <Users size={14} className="text-cyan-500" />}
-                                {!user?.partner && (
-                                    <Lock size={8} className="absolute bottom-1.5 right-1.5 text-slate-400" />
-                                )}
+                                <Search size={14} className="text-slate-500" />
                             </button>
                         )}
-
-                        {/* 2. Search Icon */}
-                        <button
-                            onClick={() => setIsSearchModalOpen(true)}
-                            className="size-9 glass-panel rounded-xl flex items-center justify-center bg-black/5 dark:bg-white/5 active:scale-95 transition-all"
-                        >
-                            <Search size={14} className="text-slate-500" />
-                        </button>
 
                         {/* 3. Notification Hub */}
                         <button
