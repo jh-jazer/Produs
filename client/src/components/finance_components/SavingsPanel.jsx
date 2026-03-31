@@ -9,9 +9,11 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
     const [fundingGoal, setFundingGoal] = useState(null); // stores saving object
     const [fundAmount, setFundAmount] = useState('');
     const [newGoal, setNewGoal] = useState({ title: '', target: '', initialAmount: '' });
+    const [loading, setLoading] = useState(false);
 
     const handleAdd = async (e) => {
         e.preventDefault();
+        setLoading(true);
         const goalData = {
             ...newGoal,
             target: parseFloat(newGoal.target),
@@ -24,6 +26,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
         if (onAction) onAction();
         setShowAdd(false);
         setNewGoal({ title: '', target: '', initialAmount: '' });
+        setLoading(false);
     };
 
     const handleFund = async (e) => {
@@ -32,17 +35,19 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
         const amount = parseFloat(fundAmount);
         if (isNaN(amount) || amount <= 0) return;
 
+        setLoading(true);
         const newAmount = fundingGoal.amount + amount;
         await updateFinanceItem(fundingGoal._id, 'saving', { amount: newAmount });
         if (onAction) onAction();
         setFundingGoal(null);
         setFundAmount('');
+        setLoading(false);
     };
 
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     const handleDelete = async (id) => {
-        await deleteFinanceItem(id);
+        await deleteFinanceItem(id, 'saving');
         if (onAction) onAction();
     };
 

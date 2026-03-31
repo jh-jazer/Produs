@@ -7,6 +7,29 @@ import User from '../models/User.js';
 import { checkSystemHabit } from '../utils/habitUtils.js';
 import { awardXP } from '../utils/rpgUtils.js';
 
+// --- Unified Finance Data ---
+export const getFinanceData = async (req, res) => {
+    try {
+        const [transactions, budgets, debts, wishlist, savings] = await Promise.all([
+            Transaction.find({ user: req.user._id }).sort({ date: -1, createdAt: -1 }),
+            Budget.find({ user: req.user._id }),
+            Debt.find({ user: req.user._id }),
+            Wishlist.find({ user: req.user._id }).sort({ createdAt: -1 }),
+            Saving.find({ user: req.user._id })
+        ]);
+
+        res.json({
+            transactions,
+            budgets,
+            debts,
+            wishlist,
+            savings
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // --- Transactions ---
 export const getTransactions = async (req, res) => {
     try {
@@ -262,8 +285,18 @@ export const getSavings = async (req, res) => {
 export const updateSaving = async (req, res) => {
     const { title, amount, target, category } = req.body;
     try {
-        let saving = await Saving.findOne({ user: req.user._id, title });
+        let saving;
+        if (req.params.id) {
+            saving = await Saving.findById(req.params.id);
+            if (saving && saving.user.toString() !== req.user._id.toString()) {
+                return res.status(401).json({ message: 'User not authorized' });
+            }
+        } else {
+            saving = await Saving.findOne({ user: req.user._id, title });
+        }
+
         if (saving) {
+            if (title !== undefined) saving.title = title;
             if (amount !== undefined) saving.amount = amount;
             if (target !== undefined) saving.target = target;
             if (category !== undefined) saving.category = category;
