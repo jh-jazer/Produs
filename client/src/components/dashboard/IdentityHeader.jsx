@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check } from 'lucide-react';
 import { getLevelProgress } from '../../utils/rpgHelpers';
 import { ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
 import Avatar from '../ui/Avatar';
@@ -9,6 +9,17 @@ import { DashboardContext } from '../../context/DashboardContext';
 const IdentityHeader = ({ user, habits = [] }) => {
     const { protocolMode, setProtocolMode } = useContext(DashboardContext);
     const [isIdVisible, setIsIdVisible] = useState(false);
+    const [hasCopiedId, setHasCopiedId] = useState(false);
+
+    const handleCopyId = async () => {
+        try {
+            await navigator.clipboard.writeText(user._id);
+            setHasCopiedId(true);
+            setTimeout(() => setHasCopiedId(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy ID', err);
+        }
+    };
     if (!user) return null;
 
     const today = new Date().toISOString().split('T')[0];
@@ -116,6 +127,13 @@ const IdentityHeader = ({ user, habits = [] }) => {
                                             title={isIdVisible ? "Hide ID" : "Show ID"}
                                         >
                                             {isIdVisible ? <EyeOff size={10} /> : <Eye size={10} />}
+                                        </button>
+                                        <button
+                                            onClick={handleCopyId}
+                                            className="p-1 rounded-md bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-500 transition-colors"
+                                            title="Copy ID"
+                                        >
+                                            {hasCopiedId ? <Check size={10} className="text-emerald-500" /> : <Copy size={10} />}
                                         </button>
                                         <div className="size-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.4)]" />
                                     </motion.div>
