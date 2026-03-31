@@ -244,7 +244,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                     {step === 3 && (
                         <div key="step3" className="w-full flex justify-center">
                             <SystemWindow 
-                                title="PROTOCOL_INITIATED"
+                                title=""
                                 subtitle="FINALIZING NEURAL SYNC"
                                 status="READY"
                                 className="max-width-xl text-center"
@@ -271,7 +271,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                         disabled={loading}
                                         className="w-full py-5 bg-gradient-to-r from-accent to-blue-600 text-white font-black text-xs uppercase tracking-[0.8em] transition-all hover:scale-[1.02] font-exo shadow-[0_0_40px_var(--accent-glow)]"
                                     >
-                                        {loading ? 'INITIALIZING...' : 'INITIALIZE_SYSTEM'}
+                                        {loading ? 'INITIALIZING...' : 'initialize'}
                                     </button>
                                 </div>
                             </SystemWindow>
