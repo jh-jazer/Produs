@@ -92,9 +92,9 @@ export default function Onboarding() {
         {/* LEFT COLUMN */}
         <div className="w-full md:w-2/3 flex flex-col gap-4">
           <div className="flex flex-col gap-1 pb-2">
-            <h1 className="text-xl md:text-2xl font-black tracking-tight uppercase">
+            <h1 className="text-xl md:text-2xl font-black tracking-tight">
               {step === 1 && "Claim Your Identity"}
-              {step === 2 && "Preference"}
+              {step === 2 && "Visual Calibration"}
               {step === 3 && "Protocol Initiation"}
             </h1>
           </div>
@@ -220,7 +220,7 @@ export default function Onboarding() {
                       onClick={() => setStep(3)}
                       className="flex-1 py-4 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:scale-[1.02]"
                     >
-                      Set
+                      Calibrate Visuals
                     </button>
                   </div>
                 </motion.div>

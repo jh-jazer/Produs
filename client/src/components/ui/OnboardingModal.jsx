@@ -190,7 +190,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                     {step === 2 && (
                         <div key="step2" className="w-full flex justify-center">
                             <SystemWindow 
-                                title="VISUAL_CALIBRATION"
+                                title="PREFERENCE"
                                 subtitle="INTERFACE PREFERENCE"
                                 status="USER_CONFIG"
                                 className="max-width-xl text-center"
@@ -233,7 +233,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                             onClick={() => setStep(3)}
                                             className="flex-1 py-4 bg-gradient-to-r from-accent to-blue-600 text-white font-black text-[10px] uppercase tracking-[0.4em] hover:scale-[1.02] transition-all font-exo"
                                         >
-                                            CALIBRATE
+                                            Set
                                         </button>
                                     </div>
                                 </div>

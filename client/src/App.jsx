@@ -17,7 +17,6 @@ import Manual from './pages/Manual';
 import Classes from './pages/Classes';
 import PatchNotes from './pages/PatchNotes';
 import PublicProfile from './pages/PublicProfile';
-import Onboarding from './pages/Onboarding';
 import useAuthStore from './store/useAuthStore';
 import { useEffect } from 'react';
 
@@ -58,7 +57,6 @@ function AnimatedRoutes() {
 
         <Route path="/auth" element={<Auth />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
 
         {/* Public Profile Route */}
         <Route path="/u/:username" element={<PublicProfile />} />
