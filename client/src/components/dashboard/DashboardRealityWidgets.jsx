@@ -42,7 +42,7 @@ export const MoodTracker = ({ user, updateMood }) => {
                             className={`group relative flex flex-col items-center gap-3 p-4 rounded-3xl transition-all duration-300 border
                                 ${currentMood === key 
                                     ? `${data.bg} border-${key === 'neutral' ? 'slate' : key}-500/50 shadow-lg ring-2 ring-${key === 'neutral' ? 'slate' : key}-500/20` 
-                                    : 'bg-white dark:bg-white/[0.02] border-slate-100 dark:border-white/5 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 dark:hover:bg-white/5'}`}
+                                    : 'bg-white dark:bg-white/[0.02] border-cyan-500/10 dark:border-white/5 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 dark:hover:bg-white/5'}`}
                         >
                             <span className="text-4xl">{data.emoji}</span>
                             <span className={`text-[9px] font-black uppercase tracking-widest ${currentMood === key ? data.color : 'text-slate-400'}`}>
@@ -72,7 +72,7 @@ export const CoreStreaksList = ({ habits = [] }) => {
         >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
                 {coreHabits.length > 0 ? coreHabits.map((habit) => (
-                    <div key={habit._id} className="group/streak relative p-6 rounded-[2rem] bg-slate-50 dark:bg-black/20 border border-slate-200/50 dark:border-white/5 hover:border-cyan-500/30 transition-all duration-300">
+                    <div key={habit._id} className="group/streak relative p-6 rounded-[2rem] bg-slate-50 dark:bg-black/20 border border-cyan-500/20 dark:border-white/5 hover:border-cyan-500/40 transition-all duration-300">
                         <div className="flex items-center gap-5">
                             <div className="size-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-500 shrink-0 group-hover/streak:scale-110 transition-transform">
                                 <span className="material-symbols-outlined text-3xl">{habit.icon}</span>
@@ -117,7 +117,7 @@ export const RealityAchievements = ({ habits = [], wishlist = [] }) => {
         >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-2">
                 {milestones.map((ms) => (
-                    <div key={ms.id} className="flex items-center gap-4 p-5 rounded-3xl bg-slate-50 dark:bg-black/20 border border-slate-200/50 dark:border-white/5">
+                    <div key={ms.id} className="flex items-center gap-4 p-5 rounded-3xl bg-slate-50 dark:bg-black/20 border border-cyan-500/10 dark:border-white/5 shadow-sm">
                         <div className={`size-12 rounded-2xl bg-${ms.color}-500/10 border border-${ms.color}-500/20 flex items-center justify-center text-${ms.color}-500 shrink-0`}>
                             {ms.icon}
                         </div>
@@ -148,7 +148,7 @@ export const WishlistPreview = ({ wishlist = [] }) => {
         >
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-2">
                 {wishlist.length > 0 ? wishlist.slice(0, 4).map((item) => (
-                    <div key={item._id} className="group relative flex flex-col rounded-3xl bg-slate-50 dark:bg-black/20 border border-slate-200/50 dark:border-white/5 overflow-hidden transition-all duration-300 hover:border-amber-500/30">
+                    <div key={item._id} className="group relative flex flex-col rounded-3xl bg-slate-50 dark:bg-black/20 border border-cyan-500/10 dark:border-white/5 overflow-hidden transition-all duration-300 hover:border-amber-500/30 shadow-sm">
                         <div className="aspect-video w-full bg-slate-100 dark:bg-[#000000] overflow-hidden">
                             {item.imageUrl ? (
                                 <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />

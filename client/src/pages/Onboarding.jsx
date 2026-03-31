@@ -100,7 +100,7 @@ export default function Onboarding() {
           </div>
 
           {/* CARD */}
-          <div className="min-h-[420px] flex-1 bg-white dark:bg-[#121212] rounded-2xl border border-slate-200 dark:border-white/10 shadow-none flex flex-col items-center justify-center p-8 relative overflow-hidden">
+          <div className="min-h-[420px] flex-1 glass-panel rounded-2xl flex flex-col items-center justify-center p-8 relative overflow-hidden">
             
             {/* PROGRESS */}
             <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-100 dark:bg-[#000000]">

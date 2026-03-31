@@ -95,7 +95,13 @@ const OnboardingModal = ({ isOpen, onClose }) => {
 
     if (isBooting) {
         return (
-            <div className="fixed inset-0 z-[250] bg-black flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden font-outfit">
+            <div className="fixed inset-0 z-[250] flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden font-outfit"
+                style={{ 
+                    backgroundColor: 'var(--background)',
+                    backgroundImage: 'var(--bg-image)',
+                    backgroundSize: 'var(--bg-size)'
+                }}
+            >
                 <div className="w-full max-w-4xl text-center relative flex justify-center">
                     <AnimatePresence mode="wait">
                         <SystemWindow 
@@ -103,6 +109,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                             status={bootTextIndex < bootLines.length - 1 ? "ANALYZING" : "ID_CORE"}
                             module={bootTextIndex < bootLines.length - 1 ? "SYS_BOOT" : "ID_SIG"}
                             className="w-full max-w-2xl"
+                            variant="tactical"
                         >
                             <div className="min-h-[100px] flex flex-col justify-start pt-4">
                                 {bootTextIndex < bootLines.length - 1 ? (
@@ -111,7 +118,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
-                                        className="text-2xl md:text-3xl font-black text-white italic tracking-tighter font-exo shadow-cyan-500/20 drop-shadow-lg"
+                                        className="text-2xl md:text-3xl font-black text-[var(--foreground)] italic tracking-tighter font-exo drop-shadow-lg"
                                     >
                                         {bootLines[bootTextIndex]}
                                     </motion.p>
@@ -122,7 +129,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                         animate={{ opacity: 1 }}
                                         className="space-y-4 -mt-2"
                                     >
-                                        <p className="text-xl md:text-2xl font-black text-white tracking-tighter font-exo italic">
+                                        <p className="text-xl md:text-2xl font-black text-[var(--foreground)] tracking-tighter font-exo italic">
                                             {bootLines[bootLines.length - 1]}
                                         </p>
                                         
@@ -165,14 +172,18 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                         </SystemWindow>
                     </AnimatePresence>
                 </div>
-                <div className="absolute inset-0 pointer-events-none opacity-[0.05] bg-grid z-10" />
+                <div className="absolute inset-0 pointer-events-none opacity-[0.2] bg-[radial-gradient(circle_at_50%_50%,rgba(0,102,255,0.05),transparent_70%)] z-10" />
             </div>
         );
     }
 
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto font-outfit transition-colors duration-500"
-            style={{ backgroundColor: 'var(--background)' }}
+            style={{ 
+                backgroundColor: 'var(--background)',
+                backgroundImage: 'var(--bg-image)',
+                backgroundSize: 'var(--bg-size)'
+            }}
         >
             <div className="w-full max-w-6xl h-full flex flex-col items-center justify-center p-8 md:p-12 relative">
                 <AnimatePresence mode="wait">
@@ -182,7 +193,8 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                 title="VISUAL_CALIBRATION"
                                 subtitle="INTERFACE PREFERENCE"
                                 status="USER_CONFIG"
-                                className="max-w-xl text-center"
+                                className="max-width-xl text-center"
+                                variant="tactical"
                             >
                                 <div className="space-y-8">
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -213,7 +225,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                     <div className="flex gap-4">
                                         <button 
                                             onClick={() => { setIsBooting(true); setStep(1); }}
-                                            className="px-8 py-4 border border-black/10 dark:border-white/10 text-black/40 dark:text-white/40 font-black text-[10px] uppercase tracking-widest hover:text-[var(--foreground)] transition-all font-exo"
+                                            className="px-8 py-4 border border-black/[0.05] dark:border-white/10 text-[var(--foreground)]/40 font-black text-[10px] uppercase tracking-widest hover:text-[var(--foreground)] transition-all font-exo"
                                         >
                                             RE_IDENTIFY
                                         </button>
@@ -235,7 +247,8 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                 title="PROTOCOL_INITIATED"
                                 subtitle="FINALIZING NEURAL SYNC"
                                 status="READY"
-                                className="max-w-xl text-center"
+                                className="max-width-xl text-center"
+                                variant="tactical"
                             >
                                 <div className="space-y-8 py-4">
                                     <div className="size-24 mx-auto bg-accent/10 border border-accent/20 flex items-center justify-center rounded-full animate-pulse">

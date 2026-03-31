@@ -23,7 +23,7 @@ import { DashboardContext, FrozenRoute } from '../context/DashboardContext';
 function Layout() {
     const { user, signOut } = useAuthStore();
     const [viewMode, setViewMode] = useState('personal'); // 'personal' | 'partner'
-    const [protocolMode, setProtocolMode] = useState('rpg'); // 'rpg' | 'reality'
+    const [protocolMode, setProtocolMode] = useState('reality'); // 'reality' | 'rpg'
     const [scrollContainer, setScrollContainer] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();

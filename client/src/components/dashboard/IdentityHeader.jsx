@@ -46,18 +46,18 @@ const IdentityHeader = ({ user, habits = [] }) => {
                     {/* Protocol Selector Toggle */}
                     <div className="flex bg-black/40 dark:bg-black/60 backdrop-blur-md rounded-2xl p-1 border border-white/10 shadow-2xl">
                         <button
-                            onClick={() => setProtocolMode('rpg')}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${protocolMode === 'rpg' ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'text-white/40 hover:text-white/70'}`}
-                        >
-                            <Zap size={10} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
-                            <span>RPG_LINK</span>
-                        </button>
-                        <button
                             onClick={() => setProtocolMode('reality')}
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${protocolMode === 'reality' ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'text-white/40 hover:text-white/70'}`}
                         >
                             <User size={10} />
-                            <span>REALITY</span>
+                            <span className="hidden md:block">REALITY</span>
+                        </button>
+                        <button
+                            onClick={() => setProtocolMode('rpg')}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${protocolMode === 'rpg' ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'text-white/40 hover:text-white/70'}`}
+                        >
+                            <Zap size={10} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
+                            <span className="hidden md:block">RPG_LINK</span>
                         </button>
                     </div>
 
@@ -142,7 +142,7 @@ const IdentityHeader = ({ user, habits = [] }) => {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ delay: 0.2 }}
-                                className="glass-card flex items-center gap-5 p-4 md:p-5 rounded-3xl md:self-end border border-white/40 dark:border-white/10"
+                                className="glass-card flex items-center gap-5 p-4 md:p-5 rounded-3xl md:self-end"
                             >
                                 {/* Level Icon Badge */}
                                 <div className="size-12 md:size-14 rounded-2xl bg-slate-900 dark:bg-white flex flex-col items-center justify-center shrink-0 border border-black/5 dark:border-white/5 shadow-none">
@@ -180,7 +180,7 @@ const IdentityHeader = ({ user, habits = [] }) => {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ delay: 0.2 }}
-                                className="glass-card flex items-center gap-5 p-4 md:p-5 rounded-3xl md:self-end border border-white/40 dark:border-white/10"
+                                className="glass-card flex items-center gap-5 p-4 md:p-5 rounded-3xl md:self-end"
                             >
                                 {/* Account Status Badge */}
                                 <div className="size-12 md:size-14 rounded-2xl bg-cyan-500 flex flex-col items-center justify-center shrink-0 border border-cyan-500/10 shadow-none">

@@ -31,7 +31,7 @@ const DashboardPanel = ({
     const navigate = useNavigate();
 
     return (
-        <div className={`bg-slate-50/80 dark:bg-[#080808]/80 backdrop-blur-2xl border border-black/5 dark:border-white/5 rounded-[2.5rem] relative overflow-hidden group shadow-none ${noPadding ? '' : 'p-8'} ${className}`}>
+        <div className={`bg-slate-50/80 dark:bg-[#080808]/80 backdrop-blur-2xl border border-cyan-500/40 dark:border-white/5 rounded-[2.5rem] relative overflow-hidden group shadow-none ${noPadding ? '' : 'p-8'} ${className}`}>
             
             {/* Tactical Backdrop Decoration */}
             {showZap && (

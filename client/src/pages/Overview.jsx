@@ -49,6 +49,7 @@ function Overview() {
   
   const today = new Date().toISOString().split('T')[0];
   const isLevel0 = user?.level === 0 && !hasAwakened;
+  const isLevel0Active = isLevel0 && protocolMode === 'rpg';
 
   const handleAwakened = () => {
     setIsAwakeningModalOpen(false);
@@ -69,18 +70,21 @@ function Overview() {
   ];
 
   return (
-    <div className="relative w-full min-h-[calc(100vh-64px)] flex flex-col overflow-hidden">
+    <div className={`relative w-full ${isLevel0Active ? 'h-[calc(100vh-64px)]' : 'min-h-[calc(100vh-64px)]'} flex flex-col overflow-hidden`}>
 
       <AnimatePresence mode="wait">
-        {isLevel0 && !isInitializing ? (
+        {isLevel0Active && !isInitializing ? (
           <motion.div
             key="awakening"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
-            className="flex-1 flex items-center justify-center px-6"
+            className="flex-1 h-full flex items-center justify-center px-6"
           >
-            <AwakeningOverlay onAwaken={() => setIsAwakeningModalOpen(true)} />
+            <AwakeningOverlay 
+              onAwaken={() => setIsAwakeningModalOpen(true)} 
+              onBackToReality={() => setProtocolMode('reality')}
+            />
           </motion.div>
         ) : isInitializing ? (
           <motion.div
@@ -198,7 +202,7 @@ function Overview() {
                   {!user?.partner ? (
                     /* Locked State: Collective Mode Restriction */
                     <div className="w-full max-w-3xl mx-auto">
-                      <div className="glass-panel p-12 md:p-20 rounded-[3rem] relative overflow-hidden border-2 border-slate-200 dark:border-white/10 shadow-hud group">
+                      <div className="glass-panel p-12 md:p-20 rounded-[3rem] relative overflow-hidden border border-cyan-500/30 dark:border-white/10 shadow-hud group">
                         {/* Tactical Backdrop */}
                         <div className="absolute top-0 right-0 p-8 opacity-[0.03] dark:opacity-[0.05] pointer-events-none group-hover:scale-110 transition-transform duration-1000">
                            <ShieldAlert size={300} />

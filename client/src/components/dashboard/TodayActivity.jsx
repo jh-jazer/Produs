@@ -44,7 +44,7 @@ const TodayActivity = ({ user }) => {
                             className={`flex items-center gap-4 p-4 rounded-[2rem] border transition-all duration-300 group/item ${
                                 isCompleted 
                                 ? 'bg-white/5 border-white/5 border-transparent' 
-                                : 'bg-transparent border-slate-800 hover:border-cyan-500/30'
+                                : 'bg-transparent border-cyan-500/40 dark:border-slate-800 hover:border-cyan-500/60'
                             }`}
                         >
                             {/* Check Status (Read-Only on Dashboard) */}

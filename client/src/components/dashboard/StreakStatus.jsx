@@ -75,7 +75,7 @@ const StreakStatus = ({ user }) => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-10 mt-8 pt-8 border-t border-white/5 overflow-x-auto no-scrollbar">
+                    <div className="flex items-center gap-10 mt-8 pt-8 border-t border-cyan-500/20 dark:border-white/5 overflow-x-auto no-scrollbar">
                         {Object.entries(protocol.multipliers).map(([stat, val]) => (
                             <div key={stat} className="flex flex-col min-w-fit">
                                 <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">{stat}_MULT</span>
@@ -108,7 +108,7 @@ const StreakStatus = ({ user }) => {
                             </div>
                         ))
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-6 text-center space-y-3 bg-white/5 rounded-[1.5rem] border border-white/5">
+                        <div className="flex flex-col items-center justify-center py-6 text-center space-y-3 glass-panel rounded-[1.5rem]">
                             <div className="size-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                                 <CheckCircle2 size={20} />
                             </div>
@@ -121,7 +121,7 @@ const StreakStatus = ({ user }) => {
                     <div className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">NEURAL_CHAINS_ACTIVE</div>
                     <div className="flex flex-wrap gap-2">
                         {activeStreaks.slice(0, 4).map(h => (
-                            <div key={h._id} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/5 hover:border-orange-500/30 transition-colors">
+                            <div key={h._id} className="flex items-center gap-1.5 px-3 py-2 rounded-xl glass-card hover:border-orange-500/50 transition-colors">
                                 <Flame size={10} className="text-orange-500" />
                                 <span className="text-[10px] font-black text-white font-mono">{h.streak}</span>
                             </div>
