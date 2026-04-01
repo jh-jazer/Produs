@@ -1,9 +1,7 @@
 import Activity from '../models/Activity.js';
 import User from '../models/User.js';
 import { awardXP } from '../utils/rpgUtils.js';
-import { calculateScores, calculateMasteryRank } from '../../../client/src/constants/assessment.js'; 
-// Note: Cross-layer imports are tricky in monorepos, but since this is JS and we share logic, we'll keep it consistent.
-// In a full production app, these constants should be in a shared package.
+import { calculateScores, calculateMasteryRank } from '../shared/assessment.js'; 
 
 // @route   GET /api/rpg/history
 // @desc    Get recent XP activity history
@@ -53,6 +51,8 @@ export const completeDailyQuiz = async (req, res) => {
         res.status(500).json({ message: 'Server error during daily quiz sync.' });
     }
 };
+import { ARCHETYPE_QUIZ, calculateScores, calculateMasteryRank } from '../shared/assessment.js'; 
+
 // @route   POST /api/rpg/sync-neural
 // @desc    Synchronize a level-unlocked neural question
 // @access  Private
@@ -64,6 +64,18 @@ export const syncNeural = async (req, res) => {
         if (!user.rpg.pendingQuestions.includes(questionId)) {
             return res.status(400).json({ message: 'Synchronization sequence invalid or already complete.' });
         }
+
+        // --- SECURITY VALIDATION ---
+        const questionRef = ARCHETYPE_QUIZ.find(q => q.id === questionId);
+        if (!questionRef) {
+            return res.status(404).json({ message: 'Neural question reference not found.' });
+        }
+
+        const isValidOption = questionRef.options.some(opt => opt.value === value);
+        if (!isValidOption) {
+            return res.status(403).json({ message: 'Neural synchronization failed: Invalid value signature.' });
+        }
+        // ---------------------------
 
         // 1. Persist the answer
         user.rpg.completedAnswers.push({ id: questionId, value, timestamp: new Date() });
@@ -129,11 +141,18 @@ export const getSSSLeaderboard = async (req, res) => {
 // @access  Private
 export const getTerritoryLords = async (req, res) => {
     try {
-        const stats = ['str', 'vit', 'agi', 'int', 'wis', 'luk'];
+        const statMappings = {
+            str: "Lord of Iron",
+            vit: "Lord of Resilience",
+            agi: "Lord of Storms",
+            int: "Lord of Void",
+            wis: "Lord of Light",
+            luk: "Lord of Chaos"
+        };
         const lords = {};
 
-        for (const stat of stats) {
-            const topUser = await User.findOne({ 'rpg.specialistRank': 'SSS' }) // Only SSS can own territory
+        for (const [stat, title] of Object.entries(statMappings)) {
+            const topUser = await User.findOne({ 'rpg.specialistRank': 'SSS' }) 
                 .select(`name username avatar rpg.stats.${stat} rpg.finalLabel`)
                 .sort({ [`rpg.stats.${stat}`]: -1, level: -1 })
                 .lean();
@@ -141,7 +160,21 @@ export const getTerritoryLords = async (req, res) => {
             if (topUser) {
                 lords[stat] = {
                     user: topUser,
-                    value: topUser.rpg.stats[stat]
+                    value: topUser.rpg.stats[stat],
+                    claimed: true
+                };
+            } else {
+                // Return a "System Lord" NPC if no human SSS has claimed it yet
+                lords[stat] = {
+                    user: {
+                        name: "System_Sentinel",
+                        username: "produs_npc",
+                        avatar: { url: "/assets/npc_void.png" },
+                        rpg: { finalLabel: title }
+                    },
+                    value: 99,
+                    claimed: false,
+                    hint: "Rank SSS Required to Contest"
                 };
             }
         }

@@ -222,43 +222,61 @@ export const determineArchetype = (user, level) => {
 };
 
 /**
- * Checks if new questions should be unlocked based on the current level.
+ * Checks if new questions should be unlocked based on the level climb.
+ * Now handles multi-level jumps and repeating trials.
  */
-export const checkNeuralSync = (user, level) => {
+export const checkNeuralSync = (user, currentLevel, prevLevel = null) => {
     if (!user.rpg.pendingQuestions) user.rpg.pendingQuestions = [];
     const answeredIds = new Set((user.rpg.completedAnswers || []).map(a => a.id));
     const pendingIds = new Set(user.rpg.pendingQuestions);
     
+    // Start from prevLevel + 1 up to currentLevel
+    // If prevLevel is null (init), we just check currentLevel
+    const startLvl = prevLevel ? prevLevel + 1 : currentLevel;
+    
     const tryUnlock = (id) => {
-        if (!answeredIds.has(id) && !pendingIds.has(id)) {
-            user.rpg.pendingQuestions.push(id);
-            return true;
+        // ALLOW repeating IDs for Tier 4 Strategy Trials (ID >= 33)
+        const isTrial = id >= 33;
+        
+        if (isTrial) {
+            if (!pendingIds.has(id)) {
+                user.rpg.pendingQuestions.push(id);
+                return true;
+            }
+        } else {
+            if (!answeredIds.has(id) && !pendingIds.has(id)) {
+                user.rpg.pendingQuestions.push(id);
+                return true;
+            }
         }
         return false;
     };
 
     let unlockedAny = false;
 
-    // Tier 1: Archetype (Q16-Q23) - 1 per level L2-L9
-    if (level >= 2 && level <= 9) unlockedAny = tryUnlock(14 + level) || unlockedAny; // L2=16, L9=23
+    for (let level = startLvl; level <= currentLevel; level++) {
+        // Tier 1: Archetype (Q16-Q23) - 1 per level L2-L9
+        if (level >= 2 && level <= 9) unlockedAny = tryUnlock(14 + level) || unlockedAny; // L2=16, L9=23
 
-    // Tier 2: Style (Q24-Q28) - 1 per 2 levels L11-L19
-    if (level >= 11 && level <= 19) {
-        const styleIdx = Math.floor((level - 11) / 2);
-        if (styleIdx >= 0 && styleIdx < 5) unlockedAny = tryUnlock(24 + styleIdx) || unlockedAny;
-    }
+        // Tier 2: Style (Q24-Q28) - 1 per 2 levels L11-L19
+        if (level >= 11 && level <= 19) {
+            const styleIdx = Math.floor((level - 11) / 2);
+            if (styleIdx >= 0 && styleIdx < 5) unlockedAny = tryUnlock(24 + styleIdx) || unlockedAny;
+        }
 
-    // Tier 3: Alignment (Q29-Q32) - 1 per 3 levels L24-L33
-    if (level >= 24 && level <= 33) {
-        const alignIdx = Math.floor((level - 24) / 3);
-        if (alignIdx >= 0 && alignIdx < 4) unlockedAny = tryUnlock(29 + alignIdx) || unlockedAny;
-    }
+        // Tier 3: Alignment (Q29-Q32) - 1 per 3 levels L24-L33
+        if (level >= 24 && level <= 33) {
+            const alignIdx = Math.floor((level - 24) / 3);
+            if (alignIdx >= 0 && alignIdx < 4) unlockedAny = tryUnlock(29 + alignIdx) || unlockedAny;
+        }
 
-    // Tier 4: Specialist Trials (Q33+) - 1 per 2 levels L36+
-    if (level >= 36) {
-        const trialIdx = Math.floor((level - 36) / 2);
-        // IDs for trials start at 33
-        unlockedAny = tryUnlock(33 + trialIdx) || unlockedAny;
+        // Tier 4: Specialist Trials (Q33+) - 1 per 2 levels L36+
+        if (level >= 36) {
+            const TRIAL_POOL_SIZE = 8; 
+            const trialIdx = Math.floor((level - 36) / 2);
+            const questionId = 33 + (trialIdx % TRIAL_POOL_SIZE);
+            unlockedAny = tryUnlock(questionId) || unlockedAny;
+        }
     }
 
     return unlockedAny;
@@ -344,6 +362,11 @@ export const awardXP = async (user, stat, amount, streak = 1, activityType = 'sy
     user.level = levelInfo.level;
 
     const archetypeInfo = determineArchetype(user, user.level);
+    user.rpg.finalLabel = archetypeInfo.name;
+    
+    // TRIGGER Neural Sync check (Pass oldLevel to check for multi-level jumps)
+    const unlocked = checkNeuralSync(user, user.level, oldLevel);
+    
     const oldArchetype = user.rpg.archetype.name;
     user.rpg.archetype = archetypeInfo;
 
