@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation, useOutlet } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
+import DashboardScrollIndicator from './dashboard/DashboardScrollIndicator';
 import { Search, Bell, Users, User, Lock } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../services/api';
@@ -14,7 +15,6 @@ import BugReportModal from './ui/BugReportModal';
 import NotificationModal from './ui/NotificationModal';
 import UserMenuModal from "./ui/UserMenuModal";
 import LevelDisplay from './ui/LevelDisplay';
-import ScrollOrb from './ui/ScrollOrb';
 import NeuralSyncModal from './rpg_components/NeuralSyncModal';
 
 import DashboardHeader from './dashboard/DashboardHeader';
@@ -24,7 +24,9 @@ function Layout() {
     const { user, signOut } = useAuthStore();
     const [viewMode, setViewMode] = useState('personal'); // 'personal' | 'partner'
     const [protocolMode, setProtocolMode] = useState('reality'); // 'reality' | 'rpg'
-    const [scrollContainer, setScrollContainer] = useState(null);
+    const mainRef = useRef(null);
+    const { scrollYProgress } = useScroll({ container: mainRef });
+    const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
     const navigate = useNavigate();
     const location = useLocation();
     const isOverview = location.pathname === '/dashboard';
@@ -96,6 +98,15 @@ function Layout() {
         { name: 'Health', path: '/dashboard/health', icon: 'monitor_heart' },
         { name: 'Journal', path: '/dashboard/journal', icon: 'book' },
     ];
+
+    const handleNavigate = (progress, behavior = 'smooth') => {
+        if (!mainRef.current) return;
+        const scrollHeight = mainRef.current.scrollHeight - mainRef.current.clientHeight;
+        mainRef.current.scrollTo({
+            top: progress * scrollHeight,
+            behavior: behavior
+        });
+    };
 
     return (
         <DashboardContext.Provider value={{ 
@@ -355,10 +366,8 @@ function Layout() {
                         </div>
                     </div>
 
-                    {scrollContainer && <ScrollOrb containerRef={scrollContainer} />}
-
                     <div 
-                        ref={setScrollContainer}
+                        ref={mainRef}
                         className="flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar flex flex-col relative md:pt-24 mt-16 md:mt-0"
                     >
                         <AnimatePresence mode="wait">
@@ -454,6 +463,12 @@ function Layout() {
                 <NeuralSyncModal 
                     isOpen={isNeuralSyncOpen} 
                     onClose={() => setIsNeuralSyncOpen(false)} 
+                />
+
+                {/* Global Cinematic Scroll HUD */}
+                <DashboardScrollIndicator 
+                    progress={scrollYProgress}
+                    onNavigate={handleNavigate}
                 />
             </div>
         </DashboardContext.Provider>

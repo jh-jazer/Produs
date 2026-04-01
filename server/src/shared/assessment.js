@@ -443,6 +443,39 @@ export const ARCHETYPE_MATRIX = {
   }
 };
 
+/**
+ * UI Metadata and Flavor for Archetype Identity
+ * Reconstructed based on system archetypes and tactical aesthetics.
+ */
+export const ARCHETYPE_PROTOCOLS = {
+    'Strategist': {
+        flavor: "Cognitive optimization protocol initiated. Analysis of complex variables prioritized for maximum strategic leverage.",
+        perk: "Neural Insight (+15% XP from Planning) | Logic Buffer (Resist Stress) | System Architect (+10% Focus Multiplier)",
+        multipliers: { int: 1.5, wis: 1.5, str: 0.8, agi: 0.8, vit: 1.0, luk: 1.0 }
+    },
+    'Visionary': {
+        flavor: "Inspiration broadcast active. Aligning group purpose with future-state projections. The mission is the message.",
+        perk: "Charisma Pulse (+20% Group XP) | Ideological Shield (High Morale) | Future-Proof (+10% Innovation Rate)",
+        multipliers: { int: 1.1, wis: 1.3, str: 0.7, agi: 1.0, vit: 0.9, luk: 1.5 }
+    },
+    'Warden': {
+        flavor: "Defense protocols stabilized. Fortifying boundaries and ensuring structural integrity of the collective ecosystem.",
+        perk: "Absolute Guard (+20% Resilience) | Supply Chain Logic (Resource Bonus) | Tactical Wall (+15% System Stability)",
+        multipliers: { int: 0.8, wis: 1.0, str: 1.5, agi: 0.7, vit: 1.5, luk: 0.8 }
+    },
+    'Scout': {
+        flavor: "Reconnaissance sequence engaged. Mapping unexplored vectors and identifying high-value opportunities at the edge.",
+        perk: "Ghost Step (Reduced Energy Cost) | Fortune Scanner (+20% Luck on Trials) | Rapid Response (+15% Agility Multiplier)",
+        multipliers: { int: 1.0, wis: 0.8, str: 0.9, agi: 1.5, vit: 1.0, luk: 1.5 }
+    },
+    'None': {
+        flavor: "Baseline identity detected. Awakening protocol pending synchronization. System potential unmapped.",
+        perk: "Blank Slate (Versatile Growth) | Potentiality Index (Fast Initial Levels) | Unbound (No Path Constraints)",
+        multipliers: { int: 1.0, wis: 1.0, str: 1.0, agi: 1.0, vit: 1.0, luk: 1.0 }
+    }
+};
+
+
 export function calculateScores(answers) {
   const stageResults = {
     PATH: {},
@@ -482,6 +515,7 @@ export function calculateScores(answers) {
       tier1 = ARCHETYPE_MATRIX[path].archetypes[tier1Index];
   }
 
+  const protocol = ARCHETYPE_PROTOCOLS[path] || ARCHETYPE_PROTOCOLS['None'];
   let styleLabel = null;
   let finalLabel = null;
 
@@ -503,12 +537,12 @@ export function calculateScores(answers) {
     masteryPoints,
     specialistRank: calculateMasteryRank(masteryPoints),
     stats: { 
-        str: path === "Warden" ? 80 : 40,
-        vit: path === "Warden" ? 80 : 40,
-        agi: path === "Scout" ? 80 : 40,
-        int: path === "Strategist" ? 80 : 40,
-        wis: path === "Strategist" ? 80 : 40,
-        luk: path === "Scout" ? 60 : 40
+        str: Math.round(50 * protocol.multipliers.str),
+        vit: Math.round(50 * protocol.multipliers.vit),
+        agi: Math.round(50 * protocol.multipliers.agi),
+        int: Math.round(50 * protocol.multipliers.int),
+        wis: Math.round(50 * protocol.multipliers.wis),
+        luk: Math.round(50 * protocol.multipliers.luk)
     }
   };
 }

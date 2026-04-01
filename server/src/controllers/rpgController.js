@@ -1,7 +1,7 @@
 import Activity from '../models/Activity.js';
 import User from '../models/User.js';
 import { awardXP } from '../utils/rpgUtils.js';
-import { calculateScores, calculateMasteryRank } from '../shared/assessment.js'; 
+import { ARCHETYPE_QUIZ, calculateScores, calculateMasteryRank } from '../shared/assessment.js'; 
 
 // @route   GET /api/rpg/history
 // @desc    Get recent XP activity history
@@ -51,7 +51,6 @@ export const completeDailyQuiz = async (req, res) => {
         res.status(500).json({ message: 'Server error during daily quiz sync.' });
     }
 };
-import { ARCHETYPE_QUIZ, calculateScores, calculateMasteryRank } from '../shared/assessment.js'; 
 
 // @route   POST /api/rpg/sync-neural
 // @desc    Synchronize a level-unlocked neural question

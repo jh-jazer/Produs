@@ -39,6 +39,14 @@ function Overview() {
   const { data: habits = [] } = useSWR('/habits', (url) => api.get(url).then(res => res.data));
   const { data: wishlist = [] } = useSWR('/finance/wishlist', (url) => api.get(url).then(res => res.data));
 
+  const realitySections = [
+    { id: 'header', label: 'Identity' },
+    { id: 'mood', label: 'Psych' },
+    { id: 'habits', label: 'Habits' },
+    { id: 'achievements', label: 'Goals' },
+    { id: 'wishlist', label: 'Finance' }
+  ];
+
   const updateMood = async (newMood) => {
     try {
       await updateSettings({ mood: newMood });
