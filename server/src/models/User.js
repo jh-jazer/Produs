@@ -96,6 +96,26 @@ const userSchema = new mongoose.Schema({
                 cha: { type: Number, default: 0 }
             }
         },
+        completedAnswers: {
+            type: [Object],
+            default: []
+        },
+        pendingQuestions: {
+            type: [Number],
+            default: []
+        },
+        masteryPoints: {
+            type: Number,
+            default: 0
+        },
+        specialistRank: {
+            type: String,
+            default: 'F'
+        },
+        levelReachedSSS: {
+            type: Number,
+            default: null
+        },
         archetypeHistory: {
             type: [Object],
             default: []

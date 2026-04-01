@@ -256,8 +256,98 @@ export const ARCHETYPE_QUIZ = [
       { text: "Built and shared", value: "Good" },
       { text: "Limited and managed", value: "Evil" }
     ]
+  },
+  // ==================== SECTION 5: SPECIALIST TRIALS (Q33+) ====================
+  // High-level strategic scenarios for Mastery Points
+  { id: 33, section: 'TRIAL', weight: 1.0, question: "A structural collapse is imminent in a sector you don't control. You:", 
+    options: [
+      { text: "Divert resources to shore up the foundation immediately", value: 150 }, // Genius
+      { text: "Evacuate the sector and salvage materials", value: 100 }, // Smart
+      { text: "Warn the locals and let them handle it", value: 50 }, // Basic
+      { text: "Ignore it and focus on your own borders", value: 0 } // Failure
+    ]
+  },
+  { id: 34, section: 'TRIAL', weight: 1.0, question: "A rogue AI signal is interfering with your communications. Your move:", 
+    options: [
+      { text: "Isolate the frequency and trace it back to its source", value: 150 },
+      { text: "Encrypt all outgoing transmissions", value: 100 },
+      { text: "Reset the network and hope for the best", value: 50 },
+      { text: "Abandon the frequency and use manual couriers", value: 0 }
+    ]
+  },
+  { id: 35, section: 'TRIAL', weight: 1.0, question: "A hostile group offers a trade that is clearly a trap. You:", 
+    options: [
+      { text: "Accept, but set a counter-ambush at the trade site", value: 150 },
+      { text: "Decline and prepare for their inevitable assault", value: 100 },
+      { text: "Send a proxy to the trade", value: 50 },
+      { text: "Block all contact with them", value: 0 }
+    ]
+  },
+  { id: 36, section: 'TRIAL', weight: 1.0, question: "Your primary energy source is failing. You must choose:", 
+    options: [
+      { text: "Overclock the core while researching a backup", value: 150 },
+      { text: "Ration power across all non-essential systems", value: 100 },
+      { text: "Shut down one entire wing of your facility", value: 50 },
+      { text: "Let it burn out and adapt to the dark", value: 0 }
+    ]
+  },
+  { id: 37, section: 'TRIAL', weight: 1.0, question: "An unknown plague is spreading at your borders. You:", 
+    options: [
+      { text: "Establish a strict quarantine and research a cure", value: 150 },
+      { text: "Burn the affected areas to stop the spread", value: 100 },
+      { text: "Seal the borders and ignore the victims", value: 50 },
+      { text: "Do nothing and hope for natural immunity", value: 0 }
+    ]
+  },
+  { id: 38, section: 'TRIAL', weight: 1.0, question: "A deep-cover agent has been discovered in your inner circle. You:", 
+    options: [
+      { text: "Feed them false data to map their entire network", value: 150 },
+      { text: "Publicly execute them as a warning to others", value: 100 },
+      { text: "Quietly exile them and change all protocols", value: 50 },
+      { text: "Pretend you didn't notice to avoid conflict", value: 0 }
+    ]
+  },
+  { id: 39, section: 'TRIAL', weight: 1.0, question: "A massive storm is approaching your farms. You decide to:", 
+    options: [
+      { text: "Deploy atmospheric stabilizers to divert the front", value: 150 },
+      { text: "Harvest everything early and store in bunkers", value: 100 },
+      { text: "Reinforce the field barriers and pray", value: 50 },
+      { text: "Abandon the harvest and flee to higher ground", value: 0 }
+    ]
+  },
+  { id: 40, section: 'TRIAL', weight: 1.0, question: "Two allied groups are on the brink of war. Your intervention:", 
+    options: [
+      { text: "Forge a new treaty based on a common external threat", value: 150 },
+      { text: "Act as a neutral mediator to reach a compromise", value: 100 },
+      { text: "Support the stronger side to end it quickly", value: 50 },
+      { text: "Stay out of it and profit from the weapon sales", value: 0 }
+    ]
   }
 ];
+
+export const RANK_THRESHOLDS = [
+    { rank: 'F', points: 0 },
+    { rank: 'E', points: 50 },
+    { rank: 'D', points: 120 },
+    { rank: 'C', points: 200 },
+    { rank: 'B', points: 300 },
+    { rank: 'A', points: 450 },
+    { rank: 'S', points: 650 },
+    { rank: 'SS', points: 900 },
+    { rank: 'SSS', points: 1200 }
+];
+
+export function calculateMasteryRank(points) {
+    let currentRank = 'F';
+    for (const threshold of RANK_THRESHOLDS) {
+        if (points >= threshold.points) {
+            currentRank = threshold.rank;
+        } else {
+            break;
+        }
+    }
+    return currentRank;
+}
 
 export const ARCHETYPE_MATRIX = {
   Strategist: {
@@ -362,50 +452,77 @@ export function calculateScores(answers) {
     ALIGNMENT: {}
   };
 
+  let masteryPoints = 0;
+
   answers.forEach(({ id, value }) => {
     const q = ARCHETYPE_QUIZ.find(item => item.id === id);
     if (!q) return;
+
+    if (q.section === 'TRIAL') {
+        masteryPoints += parseInt(value);
+        return;
+    }
 
     const currentStage = q.section;
     stageResults[currentStage][value] = (stageResults[currentStage][value] || 0) + q.weight;
   });
 
-  const getWinner = (results) => Object.entries(results).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+  const getWinner = (results) => {
+    if (Object.keys(results).length === 0) return null;
+    return Object.entries(results).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+  };
 
   const path = getWinner(stageResults.PATH);
-  const tier1Index = parseInt(getWinner(stageResults.TIER1));
-  const tier1 = ARCHETYPE_MATRIX[path].archetypes[tier1Index];
+  const t1Val = getWinner(stageResults.TIER1);
   const style = getWinner(stageResults.STYLE);
   const alignment = getWinner(stageResults.ALIGNMENT);
 
-  // Consistency Logic
+  let tier1 = null;
+  if (path && t1Val !== null) {
+      const tier1Index = parseInt(t1Val);
+      tier1 = ARCHETYPE_MATRIX[path].archetypes[tier1Index];
+  }
+
+  // Identity Resolver for Dashboard
+  let finalArchetype = path;
+  let styleLabel = null;
+  let finalLabel = null;
+
+  if (path && tier1 && style) {
+      const config = ARCHETYPE_MATRIX[path][tier1][style];
+      styleLabel = config.label;
+      if (alignment) {
+          finalLabel = alignment === "Good" ? config.good : config.evil;
+          finalArchetype = finalLabel;
+      } else {
+          finalArchetype = styleLabel || tier1;
+      }
+  } else if (path && tier1) {
+      finalArchetype = tier1;
+  }
+
+  // Consistency Logic (Only if full Tier 3 is done)
   let consistency = 100;
-  const findAnswer = (id) => answers.find(a => a.id === id)?.value;
-
-  // Mirror Checks
-  if (findAnswer(7) === "Scout" && findAnswer(25) === "Defensive") consistency -= 10;
-  if (findAnswer(24) === "Aggressive" && findAnswer(27) === "Defensive") consistency -= 10;
-  
-  // Value Checks
-  if (findAnswer(11) === "Visionary" && findAnswer(31) === "Evil") consistency -= 5;
-  if (findAnswer(29) === "Good" && findAnswer(32) === "Evil") consistency -= 5;
-
-  // Role Checks
-  if (findAnswer(3) === "Strategist" && findAnswer(10) === "Warden") consistency -= 5;
-  if (findAnswer(5) === "Strategist" && findAnswer(8) === "Visionary") consistency -= 5;
-
-  const config = ARCHETYPE_MATRIX[path][tier1][style];
-  const finalArchetype = alignment === "Good" ? config.good : config.evil;
+  if (answers.length >= 32) {
+    const findAnswer = (id) => answers.find(a => a.id === id)?.value;
+    if (findAnswer(7) === "Scout" && findAnswer(25) === "Defensive") consistency -= 10;
+    if (findAnswer(24) === "Aggressive" && findAnswer(27) === "Defensive") consistency -= 10;
+    if (findAnswer(11) === "Visionary" && findAnswer(31) === "Evil") consistency -= 5;
+    if (findAnswer(29) === "Good" && findAnswer(32) === "Evil") consistency -= 5;
+  }
 
   return {
     path,
     tier1,
     style,
     alignment,
-    styleLabel: config.label,
+    styleLabel,
+    finalLabel,
     finalArchetype,
+    masteryPoints,
+    specialistRank: calculateMasteryRank(masteryPoints),
     consistency: Math.max(0, consistency),
-    stats: { // Keep stats for backward compatibility/legacy HUD
+    stats: { 
         str: path === "Warden" ? 80 : 40,
         dex: path === "Scout" ? 80 : 40,
         int: path === "Strategist" ? 80 : 40,

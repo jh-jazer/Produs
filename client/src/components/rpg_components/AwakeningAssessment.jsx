@@ -63,25 +63,20 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
     const { mutate } = useSWRConfig();
     const syncUser = useAuthStore(state => state.syncUser);
     const [stage, setStage] = useState('PATH');
+    const [step, setStep] = useState(2); // 2: Quiz, 3: Syncing, 4: Revealed
     const [quizIndex, setQuizIndex] = useState(0);
     const [answers, setAnswers] = useState([]);
     const [isSyncing, setIsSyncing] = useState(false);
     const [results, setResults] = useState(null);
     const [activeIndex, setActiveIndex] = useState(null);
 
-    const STAGES = ['PATH', 'TIER1', 'STYLE', 'ALIGNMENT'];
+    const PATH_QUESTIONS = useMemo(() => ARCHETYPE_QUIZ.slice(0, 15), []);
 
     const handleAnswer = (value) => {
-        const q = ARCHETYPE_QUIZ[quizIndex];
-        const nextAnswers = [...answers, { id: q.id, value }];
+        const nextAnswers = [...answers, { id: PATH_QUESTIONS[quizIndex].id, value }];
         setAnswers(nextAnswers);
 
-        if (quizIndex < ARCHETYPE_QUIZ.length - 1) {
-            const nextQ = ARCHETYPE_QUIZ[quizIndex + 1];
-            if (nextQ.section !== stage) {
-                // Transition between stages
-                setStage(nextQ.section);
-            }
+        if (quizIndex < PATH_QUESTIONS.length - 1) {
             setQuizIndex(quizIndex + 1);
         } else {
             finalizeAssessment(nextAnswers);
@@ -95,7 +90,7 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
         const result = calculateScores(finalAnswers);
         
         try {
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await new Promise(resolve => setTimeout(resolve, 2000));
             const { data } = await api.post('/auth/awaken', { result });
             setResults(data);
             setStep(4);
@@ -104,25 +99,20 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
             mutate('/auth/me');
         } catch (error) {
             console.error('Awakening failed:', error);
-            const isAlreadyAwakened = error?.response?.status === 400;
-            if (isAlreadyAwakened) {
-                onClose?.();
-            } else {
-                setIsSyncing(false);
-                setStep(2);
-            }
+            setIsSyncing(false);
+            setStep(2);
         }
     };
 
     if (!isInline && !isOpen) return null;
 
-    const currentQuestion = ARCHETYPE_QUIZ[quizIndex];
+    const currentQuestion = PATH_QUESTIONS[quizIndex];
 
     const mainContent = (
         <PanelWrapper 
             isInline={isInline}
-            title={step === 2 ? `PROTOCOL: ${stage}` : step === 3 ? "NEURAL_STABILIZATION" : "IDENTITY_AWAKENED"}
-            subtitle={step === 2 ? `SYNAPSE ${quizIndex + 1} / ${ARCHETYPE_QUIZ.length}` : step === 3 ? "MAPPING PROFILING DIMENSIONS" : "NEURAL_PROFILE_OPTIMIZED"}
+            title={step === 2 ? `PROTOCOL: PATH_INIT` : step === 3 ? "NEURAL_STABILIZATION" : "PATH_IDENTIFIED"}
+            subtitle={step === 2 ? `SYNAPSE ${quizIndex + 1} / ${PATH_QUESTIONS.length}` : step === 3 ? "ESTABLISHING CORE INSTINCT" : "IDENTITY_FOUNDATION_READY"}
             status={step === 2 ? "SYNCING" : step === 3 ? "SYNC_DATA" : "COMPLETE"}
             className={step === 4 ? "border-l-accent" : ""}
         >
@@ -139,7 +129,7 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                         <div className="relative h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
                             <motion.div 
                                 className="absolute inset-y-0 left-0 bg-accent"
-                                animate={{ width: `${((quizIndex + 1) / ARCHETYPE_QUIZ.length) * 100}%` }}
+                                animate={{ width: `${((quizIndex + 1) / PATH_QUESTIONS.length) * 100}%` }}
                             />
                         </div>
 
@@ -169,7 +159,6 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                                 <button
                                     onClick={() => {
                                         setQuizIndex(quizIndex - 1);
-                                        setStage(ARCHETYPE_QUIZ[quizIndex - 1].section);
                                         setAnswers(answers.slice(0, -1));
                                     }}
                                     className="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-accent transition-colors uppercase tracking-widest"
@@ -197,8 +186,8 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                                 {Math.floor(Math.random()*100)}%
                             </motion.div>
                         </div>
-                        <h2 className="text-lg font-black uppercase tracking-[0.4em] text-slate-900 dark:text-white animate-pulse italic font-exo">ANALYZING_SYNAPSE_MAP</h2>
-                        <p className="mt-4 text-[9px] text-slate-400 tracking-[0.2em] font-mono uppercase">Constructing Personality Identity...</p>
+                        <h2 className="text-lg font-black uppercase tracking-[0.4em] text-slate-900 dark:text-white animate-pulse italic font-exo">ANALYZING_CORE_INSTINCT</h2>
+                        <p className="mt-4 text-[9px] text-slate-400 tracking-[0.2em] font-mono uppercase">Mapping Neural Origin...</p>
                     </motion.div>
                 )}
 
@@ -209,34 +198,28 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                         className="text-center space-y-8"
                     >
                         <div className="space-y-4">
-                            <div className="text-[9px] font-black text-accent uppercase tracking-[0.4em] font-mono">NEURAL_PROFILE_AWAKENED</div>
-                            <h3 className="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
-                                {results?.rpg?.path} {results?.rpg?.tier1}
-                            </h3>
-                            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-slate-900 dark:text-white font-exo italic">
-                                {results?.rpg?.finalLabel}
+                            <div className="text-[9px] font-black text-accent uppercase tracking-[0.4em] font-mono">NEURAL_FOUNDATION_ACTIVE</div>
+                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Your Core Path Is:</div>
+                            <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-slate-900 dark:text-white font-exo italic">
+                                {results?.rpg?.path}
                             </h2>
-                            <div className="flex justify-center gap-3">
-                                <div className="px-3 py-1 bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase tracking-widest">{results?.rpg?.style}</div>
-                                <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase tracking-widest">{results?.rpg?.alignment}</div>
-                            </div>
                         </div>
 
                         <div className="max-w-xl mx-auto border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] rounded-[2.5rem] p-8 space-y-6">
                             <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Consistency Result</span>
-                                <span className="text-[10px] font-black text-accent font-mono">{results?.rpg?.confidence}%</span>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Neural Sync Status</span>
+                                <span className="text-[10px] font-black text-accent font-mono">1/5 Tiers</span>
                             </div>
                             <div className="h-1.5 w-full bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden">
                                 <motion.div 
                                     className="h-full bg-accent"
                                     initial={{ width: 0 }}
-                                    animate={{ width: `${results?.rpg?.confidence}%` }}
+                                    animate={{ width: `20%` }}
                                     transition={{ duration: 1 }}
                                 />
                             </div>
-                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-[0.1em] italic">
-                                Your neural patterns have converged into the {results?.rpg?.finalLabel} archetype. This identity governs your focus, adaptive capabilities, and moral priority.
+                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-[0.1em] italic text-center">
+                                You have successfully Awakened. As you level up and gain power, you will unlock further "Neural Syncs" to determine your Archetype, Style, Alignment, and Specialist Rank.
                             </p>
                         </div>
 
@@ -244,7 +227,7 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                             onClick={onClose}
                             className="w-full py-5 bg-slate-900 dark:bg-white text-white dark:text-black rounded-[2rem] font-black text-xs uppercase tracking-[0.5em] transition-transform hover:scale-[1.02] shadow-xl"
                         >
-                            ACCESS_DASHBOARD
+                            BEGIN_JOURNEY
                         </button>
                     </motion.div>
                 )}

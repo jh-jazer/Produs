@@ -14,8 +14,8 @@ import BugReportModal from './ui/BugReportModal';
 import NotificationModal from './ui/NotificationModal';
 import UserMenuModal from "./ui/UserMenuModal";
 import LevelDisplay from './ui/LevelDisplay';
-import StatsModal from './ui/StatsModal';
 import ScrollOrb from './ui/ScrollOrb';
+import NeuralSyncModal from './rpg_components/NeuralSyncModal';
 
 import DashboardHeader from './dashboard/DashboardHeader';
 import { DashboardContext, FrozenRoute } from '../context/DashboardContext';
@@ -62,6 +62,7 @@ function Layout() {
     const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
     const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+    const [isNeuralSyncOpen, setIsNeuralSyncOpen] = useState(false);
 
     // Fetch notifications
     const { data: notifications = [] } = useSWR('/notifications', (url) => api.get(url).then(res => res.data), {
@@ -74,6 +75,12 @@ function Layout() {
             setIsOnboardingOpen(true);
         }
     }, [user]);
+
+    useEffect(() => {
+        if (user?.rpg?.pendingQuestions?.length > 0) {
+            setIsNeuralSyncOpen(true);
+        }
+    }, [user?.rpg?.pendingQuestions]);
 
     const handleSignOut = async () => {
         setIsUserMenuOpen(false);
@@ -91,7 +98,16 @@ function Layout() {
     ];
 
     return (
-        <DashboardContext.Provider value={{ setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, viewMode, setViewMode, protocolMode, setProtocolMode }}>
+        <DashboardContext.Provider value={{ 
+            setIsSearchModalOpen, 
+            setIsNotificationModalOpen, 
+            setIsNeuralSyncOpen, 
+            unreadCount, 
+            viewMode, 
+            setViewMode, 
+            protocolMode, 
+            setProtocolMode 
+        }}>
             <div
             className="bg-transparent font-display text-[#111111] dark:text-slate-100 h-screen flex flex-row overflow-hidden"
             >
@@ -434,6 +450,11 @@ function Layout() {
                         onClose={() => setIsOnboardingOpen(false)} 
                     />
                 )}
+
+                <NeuralSyncModal 
+                    isOpen={isNeuralSyncOpen} 
+                    onClose={() => setIsNeuralSyncOpen(false)} 
+                />
             </div>
         </DashboardContext.Provider>
     );

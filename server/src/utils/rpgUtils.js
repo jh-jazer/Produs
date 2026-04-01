@@ -6,25 +6,70 @@
 export const LEVEL_TABLE = [
     { level: 0, title: 'Shut-in', xpToNext: 100, totalRequired: 0 },
     { level: 1, title: 'Tier 1', xpToNext: 150, totalRequired: 100 },
-    { level: 2, title: 'Tier 1', xpToNext: 250, totalRequired: 250 },
-    { level: 3, title: 'Tier 1', xpToNext: 500, totalRequired: 500 },
-    { level: 4, title: 'Tier 1', xpToNext: 1000, totalRequired: 1000 },
-    { level: 5, title: 'Tier 1', xpToNext: 1750, totalRequired: 2000 },
-    { level: 6, title: 'Tier 1', xpToNext: 2750, totalRequired: 3750 },
-    { level: 7, title: 'Tier 1', xpToNext: 4000, totalRequired: 6500 },
-    { level: 8, title: 'Tier 2', xpToNext: 5500, totalRequired: 10500 },
-    { level: 9, title: 'Tier 2', xpToNext: 7500, totalRequired: 16000 },
-    { level: 10, title: 'Tier 2', xpToNext: 10000, totalRequired: 23500 },
-    { level: 11, title: 'Tier 3', xpToNext: 13000, totalRequired: 33500 },
-    { level: 12, title: 'Tier 3', xpToNext: 17000, totalRequired: 46500 },
-    { level: 13, title: 'Tier 3', xpToNext: 22000, totalRequired: 63500 },
-    { level: 14, title: 'Tier 4', xpToNext: 28000, totalRequired: 85500 },
-    { level: 15, title: 'Tier 4', xpToNext: 35000, totalRequired: 113500 },
-    { level: 16, title: 'Tier 4', xpToNext: 45000, totalRequired: 148500 },
-    { level: 17, title: 'Tier 5', xpToNext: 57000, totalRequired: 193500 },
-    { level: 18, title: 'Tier 5', xpToNext: 72000, totalRequired: 250500 },
-    { level: 19, title: 'Tier 5', xpToNext: 90000, totalRequired: 322500 },
-    { level: 20, title: 'Tier 5', xpToNext: 0, totalRequired: 412500 },
+    { level: 2, title: 'Tier 1', xpToNext: 200, totalRequired: 250 },
+    { level: 3, title: 'Tier 1', xpToNext: 300, totalRequired: 450 },
+    { level: 4, title: 'Tier 1', xpToNext: 450, totalRequired: 750 },
+    { level: 5, title: 'Tier 1', xpToNext: 600, totalRequired: 1200 },
+    { level: 6, title: 'Tier 1', xpToNext: 800, totalRequired: 2000 },
+    { level: 7, title: 'Tier 1', xpToNext: 1100, totalRequired: 2800 },
+    { level: 8, title: 'Tier 1', xpToNext: 1500, totalRequired: 3900 },
+    { level: 9, title: 'Tier 1', xpToNext: 2000, totalRequired: 5400 },
+    { level: 10, title: 'Tier 1', xpToNext: 2600, totalRequired: 7400 },
+    { level: 11, title: 'Tier 2', xpToNext: 3300, totalRequired: 10000 },
+    { level: 12, title: 'Tier 2', xpToNext: 4200, totalRequired: 13300 },
+    { level: 13, title: 'Tier 2', xpToNext: 5200, totalRequired: 17500 },
+    { level: 14, title: 'Tier 2', xpToNext: 6400, totalRequired: 22700 },
+    { level: 15, title: 'Tier 2', xpToNext: 7800, totalRequired: 29100 },
+    { level: 16, title: 'Tier 2', xpToNext: 9400, totalRequired: 36900 },
+    { level: 17, title: 'Tier 2', xpToNext: 11200, totalRequired: 46300 },
+    { level: 18, title: 'Tier 2', xpToNext: 13200, totalRequired: 57500 },
+    { level: 19, title: 'Tier 2', xpToNext: 15400, totalRequired: 70700 },
+    { level: 20, title: 'Tier 2', xpToNext: 18000, totalRequired: 86100 },
+    { level: 21, title: 'Tier 3', xpToNext: 20000, totalRequired: 104100 },
+    { level: 22, title: 'Tier 3', xpToNext: 22500, totalRequired: 124100 },
+    { level: 23, title: 'Tier 3', xpToNext: 25000, totalRequired: 146600 },
+    { level: 24, title: 'Tier 3', xpToNext: 28000, totalRequired: 171600 },
+    { level: 25, title: 'Tier 3', xpToNext: 31000, totalRequired: 199600 },
+    { level: 26, title: 'Tier 3', xpToNext: 34500, totalRequired: 230600 },
+    { level: 27, title: 'Tier 3', xpToNext: 38000, totalRequired: 265100 },
+    { level: 28, title: 'Tier 3', xpToNext: 42000, totalRequired: 303100 },
+    { level: 29, title: 'Tier 3', xpToNext: 46000, totalRequired: 345100 },
+    { level: 30, title: 'Tier 3', xpToNext: 51000, totalRequired: 391100 },
+    { level: 31, title: 'Tier 4', xpToNext: 56000, totalRequired: 442100 },
+    { level: 32, title: 'Tier 4', xpToNext: 62000, totalRequired: 498100 },
+    { level: 33, title: 'Tier 4', xpToNext: 68000, totalRequired: 560100 },
+    { level: 34, title: 'Tier 4', xpToNext: 75000, totalRequired: 628100 },
+    { level: 35, title: 'Tier 4', xpToNext: 82000, totalRequired: 703100 },
+    { level: 36, title: 'Tier 4', xpToNext: 90000, totalRequired: 785100 },
+    { level: 37, title: 'Tier 4', xpToNext: 98000, totalRequired: 875100 },
+    { level: 38, title: 'Tier 4', xpToNext: 107000, totalRequired: 973100 },
+    { level: 39, title: 'Tier 4', xpToNext: 116000, totalRequired: 1080100 },
+    { level: 40, title: 'Tier 4', xpToNext: 126000, totalRequired: 1196100 },
+    { level: 41, title: 'Tier 5', xpToNext: 137000, totalRequired: 1322100 },
+    { level: 42, title: 'Tier 5', xpToNext: 148000, totalRequired: 1459100 },
+    { level: 43, title: 'Tier 5', xpToNext: 160000, totalRequired: 1607100 },
+    { level: 44, title: 'Tier 5', xpToNext: 172000, totalRequired: 1767100 },
+    { level: 45, title: 'Tier 5', xpToNext: 185000, totalRequired: 1939100 },
+    { level: 46, title: 'Tier 5', xpToNext: 198000, totalRequired: 2124100 },
+    { level: 47, title: 'Tier 5', xpToNext: 212000, totalRequired: 2322100 },
+    { level: 48, title: 'Tier 5', xpToNext: 227000, totalRequired: 2534100 },
+    { level: 49, title: 'Tier 5', xpToNext: 242000, totalRequired: 2761100 },
+    { level: 50, title: 'Tier 5', xpToNext: 260000, totalRequired: 3003100 },
+    { level: 51, title: 'Tier 5', xpToNext: 280000, totalRequired: 3263100 },
+    { level: 52, title: 'Tier 5', xpToNext: 300000, totalRequired: 3543100 },
+    { level: 53, title: 'Tier 5', xpToNext: 330000, totalRequired: 3843100 },
+    { level: 54, title: 'Tier 5', xpToNext: 360000, totalRequired: 4173100 },
+    { level: 55, title: 'Tier 5', xpToNext: 400000, totalRequired: 4533100 },
+    { level: 56, title: 'Tier 5', xpToNext: 440000, totalRequired: 4933100 },
+    { level: 57, title: 'Tier 5', xpToNext: 480000, totalRequired: 5373100 },
+    { level: 58, title: 'Tier 5', xpToNext: 530000, totalRequired: 5853100 },
+    { level: 59, title: 'Tier 5', xpToNext: 580000, totalRequired: 6383100 },
+    { level: 60, title: 'Tier 5', xpToNext: 640000, totalRequired: 6963100 },
+    { level: 61, title: 'Tier 5', xpToNext: 700000, totalRequired: 7603100 },
+    { level: 62, title: 'Tier 5', xpToNext: 770000, totalRequired: 8303100 },
+    { level: 63, title: 'Tier 5', xpToNext: 850000, totalRequired: 9073100 },
+    { level: 64, title: 'Tier 5', xpToNext: 940000, totalRequired: 9923100 },
+    { level: 65, title: 'Tier 5', xpToNext: 0, totalRequired: 10863100 }
 ];
 
 export const ARCHETYPES = {
@@ -127,64 +172,134 @@ export const determineArchetype = (user, level) => {
         };
     }
 
-    // If the user has been profiled by the new system, we prioritize the finalLabel
-    if (user.rpg.finalLabel) {
-        let tier = 1;
-        if (level >= 17) tier = 5;
-        else if (level >= 14) tier = 4;
-        else if (level >= 11) tier = 3;
-        else if (level >= 8) tier = 2;
+    const { path, completedAnswers, masteryPoints, specialistRank, territory } = user.rpg;
+    
+    // 1. Determine Tier based on Level
+    let tier = 1;
+    if (level >= 56) tier = 5;
+    else if (level >= 36) tier = 4;
+    else if (level >= 23) tier = 3;
+    else if (level >= 11) tier = 2;
 
-        // Stage names for the new system could be mapped by Tier, 
-        // but for now we'll stick to the Tier 1 name + Tier number
-        return {
-            name: user.rpg.finalLabel,
-            tier: tier,
-            stage: `${user.rpg.tier1} (Tier ${tier})`
-        };
+    // 2. Build the Identity Label dynamically
+    let identityLabel = path || 'None';
+    
+    // Check completion counts
+    const t1Count = (completedAnswers || []).filter(a => a.id >= 16 && a.id <= 23).length;
+    const styleCount = (completedAnswers || []).filter(a => a.id >= 24 && a.id <= 28).length;
+    const alignCount = (completedAnswers || []).filter(a => a.id >= 29 && a.id <= 32).length;
+
+    // Phase 1: Tier 1 (Archetype)
+    if (t1Count === 8 && user.rpg.tier1) {
+        identityLabel = user.rpg.tier1;
     }
 
-    // Legacy Stat-based Fallback
-    const { str, dex, end, int, wis, cha } = user.rpg.stats;
-    const axis1 = str >= wis ? 'STR' : 'WIS';
-    const axis2 = dex >= int ? 'DEX' : 'INT';
-    const axis3 = end >= cha ? 'END' : 'CHA';
-    const axis4 = end >= dex ? 'STABLE' : 'ADAPTIVE';
+    // Phase 2: Style
+    if (styleCount === 5 && user.rpg.style) {
+        identityLabel = `${user.rpg.style} ${identityLabel}`;
+    }
 
-    const map = {
-        'STR-DEX-END-STABLE': 'Iron Fist',
-        'STR-DEX-END-ADAPTIVE': 'Blade Dancer',
-        'STR-DEX-CHA-STABLE': 'Warlord',
-        'STR-DEX-CHA-ADAPTIVE': 'Vanguard',
-        'STR-INT-END-STABLE': 'Sentinel',
-        'STR-INT-END-ADAPTIVE': 'Forge Master',
-        'STR-INT-CHA-STABLE': 'Commander',
-        'STR-INT-CHA-ADAPTIVE': 'Champion',
-        'WIS-DEX-END-STABLE': 'Shadow Monk',
-        'WIS-DEX-END-ADAPTIVE': 'Ghost',
-        'WIS-DEX-CHA-STABLE': 'Diplomat',
-        'WIS-DEX-CHA-ADAPTIVE': 'Bard',
-        'WIS-INT-END-STABLE': 'Oracle',
-        'WIS-INT-END-ADAPTIVE': 'Druid',
-        'WIS-INT-CHA-STABLE': 'Alchemist',
-        'WIS-INT-CHA-ADAPTIVE': 'Architect',
-    };
+    // Phase 3: Alignment (Final Tier 3 Label)
+    if (alignCount === 4 && user.rpg.finalLabel) {
+        identityLabel = user.rpg.finalLabel;
+    }
 
-    const key = `${axis1}-${axis2}-${axis3}-${axis4}`;
-    const archeName = map[key] || 'Shadow Monk';
-    
-    const archetype = ARCHETYPES[archeName] || ARCHETYPES['None'];
-    let tier = 1;
-    if (level >= 17) tier = 5;
-    else if (level >= 14) tier = 4;
-    else if (level >= 11) tier = 3;
-    else if (level >= 8) tier = 2;
+    // Phase 4: Specialist Rank
+    if (level >= 36) {
+        identityLabel = `${identityLabel} (Rank ${specialistRank || 'F'})`;
+    }
+
+    // Phase 5: Territory (Lordship)
+    if (territory) {
+        identityLabel = `Lord of ${territory} ${identityLabel}`;
+    }
 
     return {
-        name: archetype.name,
+        name: identityLabel,
         tier: tier,
-        stage: archetype.tiers[tier - 1]
+        stage: `Lv ${level} ${path || 'Awakened'}`
     };
+};
+
+/**
+ * Checks if new questions should be unlocked based on the current level.
+ */
+export const checkNeuralSync = (user, level) => {
+    if (!user.rpg.pendingQuestions) user.rpg.pendingQuestions = [];
+    const answeredIds = new Set((user.rpg.completedAnswers || []).map(a => a.id));
+    const pendingIds = new Set(user.rpg.pendingQuestions);
+    
+    const tryUnlock = (id) => {
+        if (!answeredIds.has(id) && !pendingIds.has(id)) {
+            user.rpg.pendingQuestions.push(id);
+            return true;
+        }
+        return false;
+    };
+
+    let unlockedAny = false;
+
+    // Tier 1: Archetype (Q16-Q23) - 1 per level L2-L9
+    if (level >= 2 && level <= 9) unlockedAny = tryUnlock(14 + level) || unlockedAny; // L2=16, L9=23
+
+    // Tier 2: Style (Q24-Q28) - 1 per 2 levels L11-L19
+    if (level >= 11 && level <= 19) {
+        const styleIdx = Math.floor((level - 11) / 2);
+        if (styleIdx >= 0 && styleIdx < 5) unlockedAny = tryUnlock(24 + styleIdx) || unlockedAny;
+    }
+
+    // Tier 3: Alignment (Q29-Q32) - 1 per 3 levels L24-L33
+    if (level >= 24 && level <= 33) {
+        const alignIdx = Math.floor((level - 24) / 3);
+        if (alignIdx >= 0 && alignIdx < 4) unlockedAny = tryUnlock(29 + alignIdx) || unlockedAny;
+    }
+
+    // Tier 4: Specialist Trials (Q33+) - 1 per 2 levels L36+
+    if (level >= 36) {
+        const trialIdx = Math.floor((level - 36) / 2);
+        // IDs for trials start at 33
+        unlockedAny = tryUnlock(33 + trialIdx) || unlockedAny;
+    }
+
+    return unlockedAny;
+};
+
+/**
+ * Checks if the user is the global top in any stat to award Territory title.
+ */
+export const syncTerritoryOwnership = async (user) => {
+    if (user.level < 56 || user.rpg.specialistRank !== 'SSS') return;
+
+    const stats = ['str', 'dex', 'end', 'int', 'wis', 'cha'];
+    const statNames = {
+        str: 'Iron',
+        dex: 'Shadows',
+        end: 'Bastion',
+        int: 'Logic',
+        wis: 'Oracle',
+        cha: 'Embers'
+    };
+
+    let topStat = null;
+
+    for (const stat of stats) {
+        const userStat = user.rpg.stats[stat];
+        // Check if anyone has a higher stat
+        const superior = await User.findOne({
+            _id: { $ne: user._id },
+            [`rpg.stats.${stat}`]: { $gt: userStat }
+        });
+
+        if (!superior) {
+            topStat = statNames[stat];
+            break; // Can only "own" one primary territory in the title
+        }
+    }
+
+    if (user.rpg.territory !== topStat) {
+        user.rpg.territory = topStat;
+        user.markModified('rpg');
+    }
 };
 
 import Activity from '../models/Activity.js';
