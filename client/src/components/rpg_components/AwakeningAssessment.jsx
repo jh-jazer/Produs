@@ -62,30 +62,29 @@ const PanelWrapper = ({ children, title, subtitle, status, isInline, className =
 const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
     const { mutate } = useSWRConfig();
     const syncUser = useAuthStore(state => state.syncUser);
-    const [step, setStep] = useState(2); // Start directly at Step 2 (Quiz)
+    const [stage, setStage] = useState('PATH');
     const [quizIndex, setQuizIndex] = useState(0);
     const [answers, setAnswers] = useState([]);
     const [isSyncing, setIsSyncing] = useState(false);
     const [results, setResults] = useState(null);
-    const [activeIndex, setActiveIndex] = useState(null); // No default focus
+    const [activeIndex, setActiveIndex] = useState(null);
 
-    const quizOptions = [
-        { label: "Strongly Disagree", score: 1, color: "rose-500" },
-        { label: "Disagree", score: 2, color: "orange-400" },
-        { label: "Neutral", score: 3, color: "neutral-400" },
-        { label: "Agree", score: 4, color: "emerald-400" },
-        { label: "Strongly Agree", score: 5, color: "accent" }
-    ];
+    const STAGES = ['PATH', 'TIER1', 'STYLE', 'ALIGNMENT'];
 
-    const handleAnswer = (score) => {
-        const next = [...answers, { id: ARCHETYPE_QUIZ[quizIndex].id, score }];
+    const handleAnswer = (value) => {
+        const q = ARCHETYPE_QUIZ[quizIndex];
+        const nextAnswers = [...answers, { id: q.id, value }];
+        setAnswers(nextAnswers);
+
         if (quizIndex < ARCHETYPE_QUIZ.length - 1) {
-            setAnswers(next);
+            const nextQ = ARCHETYPE_QUIZ[quizIndex + 1];
+            if (nextQ.section !== stage) {
+                // Transition between stages
+                setStage(nextQ.section);
+            }
             setQuizIndex(quizIndex + 1);
-            // Don't reset to 2 to avoid 'ghost glow' on next question
         } else {
-            setAnswers(next);
-            finalizeAssessment(next);
+            finalizeAssessment(nextAnswers);
         }
     };
 
@@ -93,21 +92,18 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
         setIsSyncing(true);
         setStep(3);
         
-        const stats = calculateScores(finalAnswers);
+        const result = calculateScores(finalAnswers);
         
         try {
             await new Promise(resolve => setTimeout(resolve, 3000));
-            const { data } = await api.post('/auth/awaken', { stats });
+            const { data } = await api.post('/auth/awaken', { result });
             setResults(data);
             setStep(4);
             
-            // Sync level/rpg directly — backend returns { level, exp, rpg } (no .user wrapper)
             syncUser(data);
-            
             mutate('/auth/me');
         } catch (error) {
             console.error('Awakening failed:', error);
-            // If user is already awakened, just close and proceed
             const isAlreadyAwakened = error?.response?.status === 400;
             if (isAlreadyAwakened) {
                 onClose?.();
@@ -120,13 +116,15 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
 
     if (!isInline && !isOpen) return null;
 
+    const currentQuestion = ARCHETYPE_QUIZ[quizIndex];
+
     const mainContent = (
         <PanelWrapper 
             isInline={isInline}
-            title={step === 2 ? "SYNAPSE_MAPPING" : step === 3 ? "NEURAL_STABILIZATION" : "IDENTITY_AWAKENED"}
-            subtitle={step === 2 ? `SEQUENCE: ${quizIndex + 1} / ${ARCHETYPE_QUIZ.length}` : step === 3 ? "CALCULATING ARCHETYPE PATHS" : "NEURAL_PROFILE_OPTIMIZED"}
+            title={step === 2 ? `PROTOCOL: ${stage}` : step === 3 ? "NEURAL_STABILIZATION" : "IDENTITY_AWAKENED"}
+            subtitle={step === 2 ? `SYNAPSE ${quizIndex + 1} / ${ARCHETYPE_QUIZ.length}` : step === 3 ? "MAPPING PROFILING DIMENSIONS" : "NEURAL_PROFILE_OPTIMIZED"}
             status={step === 2 ? "SYNCING" : step === 3 ? "SYNC_DATA" : "COMPLETE"}
-            className={step === 4 ? "border-l-emerald-500" : ""}
+            className={step === 4 ? "border-l-accent" : ""}
         >
             <AnimatePresence mode="wait">
                 {/* Step 2: Quiz */}
@@ -136,46 +134,34 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 1.02 }}
-                        transition={{ duration: 0.2 }}
                         className="space-y-10"
                     >
-                        {/* Simple Tactical Progress Line */}
-                        <div className="relative h-1 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                        <div className="relative h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
                             <motion.div 
                                 className="absolute inset-y-0 left-0 bg-accent"
                                 animate={{ width: `${((quizIndex + 1) / ARCHETYPE_QUIZ.length) * 100}%` }}
-                                transition={{ type: "spring", stiffness: 100, damping: 20 }}
                             />
                         </div>
 
-                        <div className="min-h-[100px] flex items-center">
+                        <div className="min-h-[80px]">
                             <h3 className="text-xl md:text-2xl font-black italic tracking-tighter text-slate-900 dark:text-white leading-tight uppercase font-exo">
-                                {ARCHETYPE_QUIZ[quizIndex].question}
+                                {currentQuestion.question}
                             </h3>
                         </div>
 
-                        <div 
-                            className="grid grid-cols-5 gap-2 md:gap-4 pt-4 pb-4"
-                            onMouseLeave={() => setActiveIndex(null)}
-                        >
-                            {quizOptions.map((opt, idx) => {
-                                const isFocused = idx === activeIndex;
-                                return (
-                                    <button
-                                        key={idx}
-                                        onMouseEnter={() => setActiveIndex(idx)}
-                                        onClick={() => handleAnswer(opt.score)}
-                                        className={`flex flex-col items-center gap-3 transition-opacity outline-none ${isFocused ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                                    >
-                                        <div className={`size-12 md:size-16 rounded-2xl flex items-center justify-center border-2 transition-all duration-300 ${isFocused ? `border-${opt.color} bg-${opt.color}/10 scale-110 shadow-[0_0_20px_rgba(34,211,238,0.2)]` : 'border-slate-200 dark:border-white/10 dark:bg-white/5'}`}>
-                                            <span className="text-lg font-black text-slate-900 dark:text-white">{opt.score}</span>
-                                        </div>
-                                        <span className={`text-[7px] md:text-[8px] font-black uppercase tracking-widest text-center h-4 transition-colors ${isFocused ? `text-${opt.color}` : 'text-slate-400'}`}>
-                                            {opt.label}
-                                        </span>
-                                    </button>
-                                );
-                            })}
+                        <div className="flex flex-col gap-3">
+                            {currentQuestion.options.map((opt, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => handleAnswer(opt.value)}
+                                    className="p-5 rounded-3xl border-2 border-slate-200 dark:border-white/10 hover:border-accent hover:bg-accent/5 flex items-center gap-4 transition-all group text-left"
+                                >
+                                    <div className="size-8 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center font-black group-hover:bg-accent group-hover:text-white transition-colors">
+                                        {String.fromCharCode(65 + idx)}
+                                    </div>
+                                    <span className="text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white uppercase tracking-widest">{opt.text}</span>
+                                </button>
+                            ))}
                         </div>
 
                         <div className="flex justify-between items-center pt-8 border-t border-slate-100 dark:border-white/5">
@@ -183,6 +169,7 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                                 <button
                                     onClick={() => {
                                         setQuizIndex(quizIndex - 1);
+                                        setStage(ARCHETYPE_QUIZ[quizIndex - 1].section);
                                         setAnswers(answers.slice(0, -1));
                                     }}
                                     className="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-accent transition-colors uppercase tracking-widest"
@@ -191,9 +178,6 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                                     <span>BACK</span>
                                 </button>
                             ) : <div />}
-                            <div className="text-[10px] font-mono text-slate-300 dark:text-white/20 uppercase tracking-widest">
-                                LINK_STABILITY: {(85 + Math.random() * 15).toFixed(2)}%
-                            </div>
                         </div>
                     </motion.div>
                 )}
@@ -202,23 +186,19 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                 {step === 3 && (
                     <motion.div
                         key="syncing-step"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
                         className="py-16 text-center"
                     >
                         <div className="relative size-24 mx-auto mb-10">
                             <motion.div 
-                                className="absolute inset-0 border-2 border-t-accent border-transparent rounded-full"
+                                className="absolute inset-0 border-2 border-t-accent border-transparent rounded-full font-mono text-[10px] text-accent flex items-center justify-center"
                                 animate={{ rotate: 360 }}
                                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center font-mono text-[10px] text-accent">
+                            >
                                 {Math.floor(Math.random()*100)}%
-                            </div>
+                            </motion.div>
                         </div>
-                        <h2 className="text-lg font-black uppercase tracking-[0.4em] text-slate-900 dark:text-white animate-pulse italic font-exo">AWAKENING_CORE</h2>
-                        <p className="mt-4 text-[9px] text-slate-400 tracking-[0.2em] font-mono uppercase">Decoding behavior patterns...</p>
+                        <h2 className="text-lg font-black uppercase tracking-[0.4em] text-slate-900 dark:text-white animate-pulse italic font-exo">ANALYZING_SYNAPSE_MAP</h2>
+                        <p className="mt-4 text-[9px] text-slate-400 tracking-[0.2em] font-mono uppercase">Constructing Personality Identity...</p>
                     </motion.div>
                 )}
 
@@ -226,40 +206,45 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                 {step === 4 && (
                     <motion.div
                         key="revealed-step"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-center space-y-10"
+                        className="text-center space-y-8"
                     >
                         <div className="space-y-4">
-                            <div className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.4em] font-mono">NEW_ARCHETYPE_DETECTED</div>
-                            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-slate-900 dark:text-white font-exo italic mb-2">
-                                {results?.rpg?.archetype?.name}
+                            <div className="text-[9px] font-black text-accent uppercase tracking-[0.4em] font-mono">NEURAL_PROFILE_AWAKENED</div>
+                            <h3 className="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
+                                {results?.rpg?.path} {results?.rpg?.tier1}
+                            </h3>
+                            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-slate-900 dark:text-white font-exo italic">
+                                {results?.rpg?.finalLabel}
                             </h2>
                             <div className="flex justify-center gap-3">
-                                <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase tracking-widest">LEVEL 1</div>
-                                <div className="px-3 py-1 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-400 text-[10px] font-black uppercase tracking-widest">AWAKENED</div>
+                                <div className="px-3 py-1 bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase tracking-widest">{results?.rpg?.style}</div>
+                                <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase tracking-widest">{results?.rpg?.alignment}</div>
                             </div>
                         </div>
 
-                        <div className="max-w-xl mx-auto border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] rounded-3xl p-8 space-y-6 relative overflow-hidden">
-                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-relaxed relative z-10 italic">
-                                " {ARCHETYPE_PROTOCOLS[results?.rpg?.archetype?.name]?.flavor} "
-                            </p>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-slate-200 dark:border-white/10">
-                                {Object.entries(results?.rpg?.stats || {}).map(([stat, val]) => (
-                                    <div key={stat} className="space-y-1 text-center">
-                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{stat}</p>
-                                        <p className="text-xl font-black text-slate-900 dark:text-white font-exo">{val}</p>
-                                    </div>
-                                ))}
+                        <div className="max-w-xl mx-auto border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] rounded-[2.5rem] p-8 space-y-6">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Consistency Result</span>
+                                <span className="text-[10px] font-black text-accent font-mono">{results?.rpg?.confidence}%</span>
                             </div>
+                            <div className="h-1.5 w-full bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden">
+                                <motion.div 
+                                    className="h-full bg-accent"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${results?.rpg?.confidence}%` }}
+                                    transition={{ duration: 1 }}
+                                />
+                            </div>
+                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-[0.1em] italic">
+                                Your neural patterns have converged into the {results?.rpg?.finalLabel} archetype. This identity governs your focus, adaptive capabilities, and moral priority.
+                            </p>
                         </div>
 
                         <button
                             onClick={onClose}
-                            className="w-full py-5 bg-slate-900 dark:bg-white text-white dark:text-black rounded-3xl font-black text-xs uppercase tracking-[0.5em] transition-transform hover:scale-[1.02] shadow-xl shadow-black/20"
+                            className="w-full py-5 bg-slate-900 dark:bg-white text-white dark:text-black rounded-[2rem] font-black text-xs uppercase tracking-[0.5em] transition-transform hover:scale-[1.02] shadow-xl"
                         >
-                            START_DASHBOARD
+                            ACCESS_DASHBOARD
                         </button>
                     </motion.div>
                 )}

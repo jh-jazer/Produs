@@ -1,264 +1,417 @@
+export const ASSESSMENT_STAGES = {
+  PATH: 'PATH',
+  TIER1: 'TIER1',
+  STYLE: 'STYLE',
+  ALIGNMENT: 'ALIGNMENT'
+};
+
 export const ARCHETYPE_QUIZ = [
-  // ==================== STRENGTH (STR) ====================
-  { id: 1,  question: "I consistently push myself to achieve challenging goals.", trait: "str", reverse: false },
-  { id: 2,  question: "I often lose motivation and don't finish what I start.", trait: "str", reverse: true },
-  { id: 3,  question: "Discipline and hard work are very important to me.", trait: "str", reverse: false },
-  { id: 4,  question: "I take pride in enduring discomfort to reach my goals.", trait: "str", reverse: false },
-  { id: 5,  question: "I tend to quit when things get really difficult.", trait: "str", reverse: true },
+  // ==================== SECTION 1: PATH (Q1-Q15) ====================
+  { id: 1, section: 'PATH', weight: 2.0, question: "A distant fire is spreading slowly toward your area. You:", 
+    options: [
+      { text: "Study wind and terrain to predict its path", value: "Strategist" },
+      { text: "Warn others and organize a response", value: "Visionary" },
+      { text: "Establish barriers and controlled zones", value: "Warden" },
+      { text: "Move early before it becomes a threat", value: "Scout" }
+    ]
+  },
+  { id: 2, section: 'PATH', weight: 1.5, question: "A stranger arrives with unclear intentions. You:", 
+    options: [
+      { text: "Observe behavior before acting", value: "Strategist" },
+      { text: "Welcome them cautiously", value: "Visionary" },
+      { text: "Set strict boundaries immediately", value: "Warden" },
+      { text: "Stay mobile and avoid dependence", value: "Scout" }
+    ]
+  },
+  { id: 3, section: 'PATH', weight: 2.0, question: "Supplies are inconsistent week to week. You:", 
+    options: [
+      { text: "Analyze patterns in shortages", value: "Strategist" },
+      { text: "Keep morale steady despite uncertainty", value: "Visionary" },
+      { text: "Tighten control over distribution", value: "Warden" },
+      { text: "Continuously search for new sources", value: "Scout" }
+    ]
+  },
+  { id: 4, section: 'PATH', weight: 1.5, question: "You discover a partially ruined facility. You focus on:", 
+    options: [
+      { text: "Understanding how it was used", value: "Strategist" },
+      { text: "Whether people can safely live there", value: "Visionary" },
+      { text: "Securing and organizing the space", value: "Warden" },
+      { text: "Entry/exit routes and escape options", value: "Scout" }
+    ]
+  },
+  { id: 5, section: 'PATH', weight: 2.0, question: "Conflict breaks out in your group. You:", 
+    options: [
+      { text: "Identify root causes", value: "Strategist" },
+      { text: "Calm both sides", value: "Visionary" },
+      { text: "Enforce order", value: "Warden" },
+      { text: "Step away and reassess options", value: "Scout" }
+    ]
+  },
+  { id: 6, section: 'PATH', weight: 1.0, question: "You hear unusual sounds at night. You:", 
+    options: [
+      { text: "Track patterns over time", value: "Strategist" },
+      { text: "Check on others’ reactions", value: "Visionary" },
+      { text: "Increase security measures", value: "Warden" },
+      { text: "Relocate if needed", value: "Scout" }
+    ]
+  },
+  { id: 7, section: 'PATH', weight: 1.5, question: "A risky opportunity appears. You:", 
+    options: [
+      { text: "Evaluate long-term consequences", value: "Strategist" },
+      { text: "Consider group impact", value: "Visionary" },
+      { text: "Control how it’s handled", value: "Warden" },
+      { text: "Act quickly before it disappears", value: "Scout" }
+    ]
+  },
+  { id: 8, section: 'PATH', weight: 1.0, question: "A system fails unexpectedly. You:", 
+    options: [
+      { text: "Diagnose the failure", value: "Strategist" },
+      { text: "Support affected people", value: "Visionary" },
+      { text: "Restore structure and rules", value: "Warden" },
+      { text: "Adapt and move forward", value: "Scout" }
+    ]
+  },
+  { id: 9, section: 'PATH', weight: 2.0, question: "You enter unfamiliar territory. You:", 
+    options: [
+      { text: "Observe and gather data", value: "Strategist" },
+      { text: "Stay close to others", value: "Visionary" },
+      { text: "Establish control points", value: "Warden" },
+      { text: "Explore freely", value: "Scout" }
+    ]
+  },
+  { id: 10, section: 'PATH', weight: 1.0, question: "A plan goes wrong. You:", 
+    options: [
+      { text: "Adjust the strategy", value: "Strategist" },
+      { text: "Keep people focused", value: "Visionary" },
+      { text: "Reassert control", value: "Warden" },
+      { text: "Change direction quickly", value: "Scout" }
+    ]
+  },
+  { id: 11, section: 'PATH', weight: 1.5, question: "Resources are abundant temporarily. You:", 
+    options: [
+      { text: "Plan long-term use", value: "Strategist" },
+      { text: "Share to strengthen unity", value: "Visionary" },
+      { text: "Store and regulate strictly", value: "Warden" },
+      { text: "Use it while available", value: "Scout" }
+    ]
+  },
+  { id: 12, section: 'PATH', weight: 1.0, question: "You notice inefficiencies. You:", 
+    options: [
+      { text: "Redesign the system", value: "Strategist" },
+      { text: "Help others cope", value: "Visionary" },
+      { text: "Enforce better structure", value: "Warden" },
+      { text: "Work around them", value: "Scout" }
+    ]
+  },
+  { id: 13, section: 'PATH', weight: 1.5, question: "A new group approaches. You:", 
+    options: [
+      { text: "Assess intentions carefully", value: "Strategist" },
+      { text: "Seek cooperation", value: "Visionary" },
+      { text: "Prepare defenses", value: "Warden" },
+      { text: "Stay ready to leave", value: "Scout" }
+    ]
+  },
+  { id: 14, section: 'PATH', weight: 2.0, question: "Time pressure increases. You:", 
+    options: [
+      { text: "Prioritize critical decisions", value: "Strategist" },
+      { text: "Keep people steady", value: "Visionary" },
+      { text: "Maintain order", value: "Warden" },
+      { text: "Act immediately", value: "Scout" }
+    ]
+  },
+  { id: 15, section: 'PATH', weight: 1.0, question: "You succeed in a task. You:", 
+    options: [
+      { text: "Refine the method", value: "Strategist" },
+      { text: "Share the success", value: "Visionary" },
+      { text: "Standardize the process", value: "Warden" },
+      { text: "Move to the next opportunity", value: "Scout" }
+    ]
+  },
 
-  // ==================== ENDURANCE (END) ====================
-  { id: 6,  question: "I stay calm under pressure when others get stressed.", trait: "end", reverse: false },
-  { id: 7,  question: "Setbacks affect me deeply for a long time.", trait: "end", reverse: true },
-  { id: 8,  question: "I recover quickly from disappointments or failures.", trait: "end", reverse: false },
-  { id: 9,  question: "I worry a lot about things that could go wrong.", trait: "end", reverse: true },
-  { id: 10, question: "I can remain steady even in chaotic situations.", trait: "end", reverse: false },
+  // ==================== SECTION 2: TIER 1 (Q16-Q23) ====================
+  // Values: A, B, C, D (map to index 0, 1, 2, 3 in Path's Tier 1 list)
+  { id: 16, section: 'TIER1', weight: 2.0, question: "Faced with a complex issue, you:", 
+    options: [
+      { text: "Plan multiple steps ahead", value: 0 },
+      { text: "Build or modify something", value: 1 },
+      { text: "Study patterns and signals", value: 2 },
+      { text: "Organize structure and layout", value: 3 }
+    ]
+  },
+  { id: 17, section: 'TIER1', weight: 1.5, question: "Your strength is:", 
+    options: [
+      { text: "Strategy", value: 0 },
+      { text: "Creation", value: 1 },
+      { text: "Insight", value: 2 },
+      { text: "Structure", value: 3 }
+    ]
+  },
+  { id: 18, section: 'TIER1', weight: 1.0, question: "You prefer to:", 
+    options: [
+      { text: "Direct outcomes", value: 0 },
+      { text: "Improve tools", value: 1 },
+      { text: "Understand behavior", value: 2 },
+      { text: "Build stability", value: 3 }
+    ]
+  },
+  { id: 19, section: 'TIER1', weight: 1.5, question: "In preparation, you:", 
+    options: [
+      { text: "Map scenarios", value: 0 },
+      { text: "Prepare equipment", value: 1 },
+      { text: "Gather information", value: 2 },
+      { text: "Reinforce systems", value: 3 }
+    ]
+  },
+  { id: 20, section: 'TIER1', weight: 2.0, question: "Others rely on you for:", 
+    options: [
+      { text: "Plans", value: 0 },
+      { text: "Fixes", value: 1 },
+      { text: "Analysis", value: 2 },
+      { text: "Organization", value: 3 }
+    ]
+  },
+  { id: 21, section: 'TIER1', weight: 1.5, question: "You approach problems by:", 
+    options: [
+      { text: "Anticipating outcomes", value: 0 },
+      { text: "Creating solutions", value: 1 },
+      { text: "Interpreting data", value: 2 },
+      { text: "Structuring environments", value: 3 }
+    ]
+  },
+  { id: 22, section: 'TIER1', weight: 1.0, question: "You value:", 
+    options: [
+      { text: "Control of direction", value: 0 },
+      { text: "Practical capability", value: 1 },
+      { text: "Understanding", value: 2 },
+      { text: "Stability", value: 3 }
+    ]
+  },
+  { id: 23, section: 'TIER1', weight: 1.0, question: "You improve survival by:", 
+    options: [
+      { text: "Planning ahead", value: 0 },
+      { text: "Building tools", value: 1 },
+      { text: "Reading situations", value: 2 },
+      { text: "Strengthening systems", value: 3 }
+    ]
+  },
 
-  // ==================== INTELLECT (INT) ====================
-  { id: 11, question: "I love exploring complex ideas and deep topics.", trait: "int", reverse: false },
-  { id: 12, question: "Learning new skills and knowledge excites me.", trait: "int", reverse: false },
-  { id: 13, question: "I get bored easily with simple or superficial things.", trait: "int", reverse: false },
-  { id: 14, question: "I rarely seek out new information just for curiosity.", trait: "int", reverse: true },
-  { id: 15, question: "I enjoy thinking about theories and possibilities.", trait: "int", reverse: false },
+  // ==================== SECTION 3: STYLE (Q24-Q28) ====================
+  { id: 24, section: 'STYLE', weight: 2.0, question: "Entering danger, you:", 
+    options: [
+      { text: "Move first to gain advantage", value: "Aggressive" },
+      { text: "Secure position before acting", value: "Defensive" },
+      { text: "Wait for the right moment", value: "Opportunist" }
+    ]
+  },
+  { id: 25, section: 'STYLE', weight: 1.5, question: "When uncertain, you:", 
+    options: [
+      { text: "Take initiative", value: "Aggressive" },
+      { text: "Reduce exposure", value: "Defensive" },
+      { text: "Stay flexible", value: "Opportunist" }
+    ]
+  },
+  { id: 26, section: 'STYLE', weight: 1.0, question: "Facing resistance, you:", 
+    options: [
+      { text: "Push through", value: "Aggressive" },
+      { text: "Hold ground", value: "Defensive" },
+      { text: "Redirect approach", value: "Opportunist" }
+    ]
+  },
+  { id: 27, section: 'STYLE', weight: 2.0, question: "In conflict, you:", 
+    options: [
+      { text: "Engage quickly", value: "Aggressive" },
+      { text: "Defend carefully", value: "Defensive" },
+      { text: "Adapt continuously", value: "Opportunist" }
+    ]
+  },
+  { id: 28, section: 'STYLE', weight: 1.5, question: "Under pressure, you:", 
+    options: [
+      { text: "Act decisively", value: "Aggressive" },
+      { text: "Stabilize the situation", value: "Defensive" },
+      { text: "Adjust dynamically", value: "Opportunist" }
+    ]
+  },
 
-  // ==================== DEXTERITY (DEX) ====================
-  { id: 16, question: "I naturally create systems and routines to stay organized.", trait: "dex", reverse: false },
-  { id: 17, question: "I adapt quickly when plans suddenly change.", trait: "dex", reverse: false },
-  { id: 18, question: "Disorganized spaces or schedules bother me a lot.", trait: "dex", reverse: false },
-  { id: 19, question: "I prefer going with the flow instead of planning everything.", trait: "dex", reverse: true },
-  { id: 20, question: "Keeping track of details and logistics is one of my strengths.", trait: "dex", reverse: false },
-
-  // ==================== CHARISMA (CHA) ====================
-  { id: 21, question: "I feel energized when interacting with groups of people.", trait: "cha", reverse: false },
-  { id: 22, question: "I can easily read people's emotions and respond well.", trait: "cha", reverse: false },
-  { id: 23, question: "I prefer staying in the background rather than leading.", trait: "cha", reverse: true },
-  { id: 24, question: "Making new connections comes naturally to me.", trait: "cha", reverse: false },
-  { id: 25, question: "I am comfortable taking charge and motivating others.", trait: "cha", reverse: false },
-
-  // ==================== WISDOM (WIS) ====================
-  { id: 26, question: "I regularly reflect on my purpose and personal growth.", trait: "wis", reverse: false },
-  { id: 27, question: "Spending time alone thinking or meditating recharges me.", trait: "wis", reverse: false },
-  { id: 28, question: "I rarely think about the deeper meaning behind my actions.", trait: "wis", reverse: true },
-  { id: 29, question: "I carefully consider feedback to improve myself.", trait: "wis", reverse: false },
-  { id: 30, question: "I have a strong sense of what truly matters in life.", trait: "wis", reverse: false }
+  // ==================== SECTION 4: ALIGNMENT (Q29-Q32) ====================
+  { id: 29, section: 'ALIGNMENT', weight: 1.5, question: "You find hidden resources. You:", 
+    options: [
+      { text: "Use them for group benefit", value: "Good" },
+      { text: "Keep them for controlled use", value: "Evil" }
+    ]
+  },
+  { id: 30, section: 'ALIGNMENT', weight: 1.5, question: "Leadership should:", 
+    options: [
+      { text: "Serve the group", value: "Good" },
+      { text: "Maintain control", value: "Evil" }
+    ]
+  },
+  { id: 31, section: 'ALIGNMENT', weight: 2.0, question: "In scarcity, you:", 
+    options: [
+      { text: "Distribute fairly", value: "Good" },
+      { text: "Prioritize strategically", value: "Evil" }
+    ]
+  },
+  { id: 32, section: 'ALIGNMENT', weight: 1.0, question: "Trust is:", 
+    options: [
+      { text: "Built and shared", value: "Good" },
+      { text: "Limited and managed", value: "Evil" }
+    ]
+  }
 ];
 
-export function calculateScores(answers) {
-  const scores = { str: 0, end: 0, int: 0, dex: 0, cha: 0, wis: 0 };
+export const ARCHETYPE_MATRIX = {
+  Strategist: {
+    archetypes: ["Mastermind", "Tinkerer", "Analyst", "Architect"],
+    Mastermind: {
+      Aggressive: { good: "War Planner", evil: "Tyrant Schemer", label: "War Conductor" },
+      Defensive: { good: "Bastion Strategist", evil: "Isolationist Controller", label: "Bastion Planner" },
+      Opportunist: { good: "Adaptive Tactician", evil: "Manipulative Puppetmaster", label: "Scheme Weaver" }
+    },
+    Tinkerer: {
+      Aggressive: { good: "Weapons Innovator", evil: "Mad Armorer", label: "Arms Prototyper" },
+      Defensive: { good: "Survival Engineer", evil: "Hoarding Mechanist", label: "Systems Hardener" },
+      Opportunist: { good: "Scrap Genius", evil: "Black Market Fabricator", label: "Jury-Rig Savant" }
+    },
+    Analyst: {
+      Aggressive: { good: "Threat Predictor", evil: "Cold Calculator", label: "Threat Forecaster" },
+      Defensive: { good: "Risk Minimizer", evil: "Paranoia Architect", label: "Risk Auditor" },
+      Opportunist: { good: "Pattern Specialist", evil: "Data Manipulator", label: "Pattern Exploiter" }
+    },
+    Architect: {
+      Aggressive: { good: "Siege Planner", evil: "Oppression Builder", label: "Siege Designer" },
+      Defensive: { good: "Fortress Creator", evil: "Walled Dictator", label: "Fortress Engineer" },
+      Opportunist: { good: "Flexible Constructor", evil: "Resource Hoarder", label: "Adaptive Builder" }
+    }
+  },
+  Visionary: {
+    archetypes: ["Inspirer", "Healer", "Peacemaker", "Dreamer"],
+    Inspirer: {
+      Aggressive: { good: "Rally Commander", evil: "Fanatic Leader", label: "War Orator" },
+      Defensive: { good: "Hope Guardian", evil: "Cult Figure", label: "Morale Anchor" },
+      Opportunist: { good: "Situational Motivator", evil: "Manipulative Icon", label: "Pulse Reader" }
+    },
+    Healer: {
+      Aggressive: { good: "Combat Medic", evil: "Selective Savior", label: "Combat Surgeon" },
+      Defensive: { good: "Lifeline Keeper", evil: "Dependency Maker", label: "Life Warden" },
+      Opportunist: { good: "Resource Healer", evil: "Opportunistic Surgeon", label: "Triage Savant" }
+    },
+    Peacemaker: {
+      Aggressive: { good: "Conflict Resolver", evil: "Authority Imposer", label: "Conflict Breaker" },
+      Defensive: { good: "Harmony Keeper", evil: "Suppression Agent", label: "Accord Keeper" },
+      Opportunist: { good: "Alliance Builder", evil: "Double Dealer", label: "Deal Broker" }
+    },
+    Dreamer: {
+      Aggressive: { good: "Revolutionary Visionary", evil: "Radical Ideologue", label: "Reform Catalyst" },
+      Defensive: { good: "Culture Preserver", evil: "Delusional Escapist", label: "Legacy Keeper" },
+      Opportunist: { good: "Adaptive Idealist", evil: "False Prophet", label: "Vision Shaper" }
+    }
+  },
+  Warden: {
+    archetypes: ["Fortifier", "Quartermaster", "Enforcer", "Protector"],
+    Fortifier: {
+      Aggressive: { good: "Expansion Defender", evil: "Territory Tyrant", label: "Expansion Marshal" },
+      Defensive: { good: "Wall Master", evil: "Isolation Warden", label: "Wall Keeper" },
+      Opportunist: { good: "Adaptive Defender", evil: "Resource Blocker", label: "Barrier Shifter" }
+    },
+    Quartermaster: {
+      Aggressive: { good: "War Supplier", evil: "Resource Controller", label: "War Provisioner" },
+      Defensive: { good: "Efficiency Keeper", evil: "Hoarding Overseer", label: "Stockpile Keeper" },
+      Opportunist: { good: "Trade Manager", evil: "Black Market Hoarder", label: "Trade Broker" }
+    },
+    Enforcer: {
+      Aggressive: { good: "Strike Captain", evil: "Brutal Enforcer", label: "Strike Commander" },
+      Defensive: { good: "Law Keeper", evil: "Oppressive Guard", label: "Code Enforcer" },
+      Opportunist: { good: "Tactical Enforcer", evil: "Corrupt Officer", label: "Pressure Agent" }
+    },
+    Protector: {
+      Aggressive: { good: "Frontline Defender", evil: "Zealous Defender", label: "Frontline Guardian" },
+      Defensive: { good: "Shield Bearer", evil: "Overprotective Controller", label: "Shield Warden" },
+      Opportunist: { good: "Reactive Defender", evil: "Selective Protector", label: "Reactive Sentinel" }
+    }
+  },
+  Scout: {
+    archetypes: ["Runner", "Improviser", "Pathfinder", "Adrenaline"],
+    Runner: {
+      Aggressive: { good: "Hit-and-Run Specialist", evil: "Reckless Sprinter", label: "Raid Sprinter" },
+      Defensive: { good: "Evacuation Expert", evil: "Cowardly Escape Artist", label: "Evac Specialist" },
+      Opportunist: { good: "Route Exploiter", evil: "Smuggler Runner", label: "Route Ghost" }
+    },
+    Improviser: {
+      Aggressive: { good: "Combat Engineer", evil: "Chaos Maker", label: "Combat Crafter" },
+      Defensive: { good: "Utility Builder", evil: "Scrap Hoarder", label: "Utility Fabricator" },
+      Opportunist: { good: "Versatile Survivor", evil: "Unpredictable Saboteur", label: "Scrap Savant" }
+    },
+    Pathfinder: {
+      Aggressive: { good: "Forward Scout", evil: "Risk Pusher", label: "Forward Vanguard" },
+      Defensive: { good: "Safe Route Planner", evil: "Overcautious Guide", label: "Safe Route Keeper" },
+      Opportunist: { good: "Terrain Specialist", evil: "Path Manipulator", label: "Terrain Exploiter" }
+    },
+    Adrenaline: {
+      Aggressive: { good: "Shock Trooper", evil: "Thrill Killer", label: "Shock Rusher" },
+      Defensive: { good: "Crisis Responder", evil: "Panic Reactor", label: "Crisis Stabilizer" },
+      Opportunist: { good: "Chaos Operator", evil: "Danger Addict", label: "Chaos Rider" }
+    }
+  }
+};
 
-  answers.forEach(({ id, score }) => {
+export function calculateScores(answers) {
+  const stageResults = {
+    PATH: {},
+    TIER1: {},
+    STYLE: {},
+    ALIGNMENT: {}
+  };
+
+  answers.forEach(({ id, value }) => {
     const q = ARCHETYPE_QUIZ.find(item => item.id === id);
     if (!q) return;
 
-    let points = score;
-    if (q.reverse) points = 6 - score;
-
-    scores[q.trait] += points;
+    const currentStage = q.section;
+    stageResults[currentStage][value] = (stageResults[currentStage][value] || 0) + q.weight;
   });
 
-  // Convert to percentage (max = 25 points per trait with 5 questions)
-  Object.keys(scores).forEach(key => {
-    scores[key] = Math.round((scores[key] / 25) * 100);
-  });
+  const getWinner = (results) => Object.entries(results).reduce((a, b) => a[1] > b[1] ? a : b)[0];
 
-  return scores;
-}
+  const path = getWinner(stageResults.PATH);
+  const tier1Index = parseInt(getWinner(stageResults.TIER1));
+  const tier1 = ARCHETYPE_MATRIX[path].archetypes[tier1Index];
+  const style = getWinner(stageResults.STYLE);
+  const alignment = getWinner(stageResults.ALIGNMENT);
 
-export const INTEREST_ORBS = [
-    { id: 'deep_work', name: 'Deep Work', icon: 'psychology', color: '#00B7FF' },
-    { id: 'fitness', name: 'Physical Prowess', icon: 'fitness_center', color: '#FF3B30' },
-    { id: 'creative', name: 'Creative Flow', icon: 'palette', color: '#AF52DE' },
-    { id: 'finance', name: 'Wealth Mastery', icon: 'payments', color: '#34C759' },
-    { id: 'mental_toughness', name: 'Mental Armor', icon: 'shield', color: '#5856D6' },
-    { id: 'learning', name: 'Archival Learning', icon: 'menu_book', color: '#FF9500' },
-    { id: 'biotech', name: 'System Bio-hacking', icon: 'biotech', color: '#32ADE6' },
-    { id: 'leadership', name: 'Strategic Command', icon: 'groups', color: '#FF2D55' }
-];
+  // Consistency Logic
+  let consistency = 100;
+  const findAnswer = (id) => answers.find(a => a.id === id)?.value;
 
-export const ARCHETYPE_PROTOCOLS = {
-    'Iron Fist': {
-        icon: 'sports_mma',
-        flavor: "Relentless, methodical, and impossible to stop. You clear the path through disciplined physical force.",
-        statProfile: { str: 92, dex: 80, end: 95, int: 40, wis: 45, cha: 40 },
-        evolution: ["Brawler", "Iron Fist", "The Relentless", "Unstoppable Force", "The Wall That Walks"],
-        multipliers: { str: 1.5, end: 1.4, cha: 0.8 },
-        perk: "Ironclad: STR XP x1.5 | Unbroken: END XP x1.4 | The Wall: Monthly Streak Protection.",
-        channels: ['history_facts', 'biography_lessons', 'philosophy', 'productivity']
-    },
-    'Blade Dancer': {
-        icon: 'fluid',
-        flavor: "Fluid, precise, and faster than thought. You read the terrain and strike with surgical accuracy.",
-        statProfile: { str: 88, dex: 95, end: 72, int: 45, wis: 48, cha: 42 },
-        evolution: ["Street Brawler", "Blade Dancer", "Phantom Edge", "Death's Silhouette", "The Undying Blade"],
-        multipliers: { dex: 1.5, str: 1.2, wis: 0.8 },
-        perk: "Flow State: DEX XP x1.5 | Strike First: Morning Planner Bonus | Momentum: Multi-stat Stacking.",
-        channels: ['creativity', 'mental_models', 'study_techniques', 'language_facts']
-    },
-    'Warlord': {
-        icon: 'military_tech',
-        flavor: "Built to lead through action. You inspire by being the first through the door.",
-        statProfile: { str: 90, dex: 78, end: 65, int: 50, wis: 55, cha: 82 },
-        evolution: ["Pack Leader", "Warlord", "Iron Banner", "The Conqueror", "King of the Battlefield"],
-        multipliers: { cha: 1.4, str: 1.4, int: 0.8 },
-        perk: "War Cry: Link Partner Bonus x1.4 | By Force: STR XP x1.4 | Conquest: Personal Record Bonus.",
-        channels: ['leadership', 'strategy_lessons', 'economics', 'human_behavior']
-    },
-    'Vanguard': {
-        icon: 'explore',
-        flavor: "The tip of the spear. You create momentum and pull everyone else into it.",
-        statProfile: { str: 85, dex: 90, end: 55, int: 52, wis: 58, cha: 88 },
-        evolution: ["The Eager", "Vanguard", "Spearhead", "The Unstoppable", "First of the New World"],
-        multipliers: { dex: 1.4, cha: 1.4, end: 0.8 },
-        perk: "First Blood: Daily First Habit x1.5 | Charge: DEX XP x1.4 | Pull: CHA XP x1.4.",
-        channels: ['leadership', 'productivity', 'startup_lessons', 'language_facts']
-    },
-    'Sentinel': {
-        icon: 'shield_with_heart',
-        flavor: "The last line of defense. You have studied every threat and built a body that cannot be broken.",
-        statProfile: { str: 85, dex: 50, end: 95, int: 72, wis: 60, cha: 48 },
-        evolution: ["The Stubborn", "Sentinel", "Iron Bulwark", "The Immovable", "Eternal Fortress"],
-        multipliers: { end: 1.6, str: 1.35, int: 1.25, cha: 0.75 },
-        perk: "Fortified: END XP x1.6 | Garrison: STR XP x1.35 | Iron Memory: 2x Streak Protection.",
-        channels: ['history_facts', 'economics', 'geography', 'ancient_civilizations']
-    },
-    'Forge Master': {
-        icon: 'handyman',
-        flavor: "Builder and engineer. You combine physical capability with intellectual precision to create things that last.",
-        statProfile: { str: 82, dex: 70, end: 80, int: 78, wis: 58, cha: 45 },
-        evolution: ["The Maker", "Forge Master", "Ironwright", "The Architect of Steel", "Builder of Civilizations"],
-        multipliers: { int: 1.4, end: 1.35, cha: 0.8 },
-        perk: "Masterwork: STR+INT stacking | Iteration: Course Bonus x1.4 | Blueprint: Weekly Review boost.",
-        channels: ['science_trivia', 'math_curiosities', 'ai_facts', 'psychology']
-    },
-    'Commander': {
-        icon: 'account_balance',
-        flavor: "Formidable across every axis. You earn authority through demonstrated capability.",
-        statProfile: { str: 80, dex: 55, end: 75, int: 72, wis: 65, cha: 92 },
-        evolution: ["Squad Leader", "Commander", "Warlord", "Iron Sovereign", "The Undefeated King"],
-        multipliers: { cha: 1.5, str: 1.35 },
-        perk: "Supreme Command: CHA XP x1.5 | No Weak Flank: Automatic recovery for falling stats.",
-        channels: ['leadership', 'startup_lessons', 'economics', 'human_behavior']
-    },
-    'Champion': {
-        icon: 'grade',
-        flavor: "Crisis leader. You step into the chaos and create order through sheer force of presence.",
-        statProfile: { str: 82, dex: 78, end: 55, int: 75, wis: 60, cha: 90 },
-        evolution: ["Contender", "Champion", "The Proven", "Legend in the Making", "The Undisputed"],
-        multipliers: { cha: 1.45, dex: 1.4, end: 0.85 },
-        perk: "Clutch: Late Night XP x1.4 | Rising Star: CHA XP x1.45 | Burst: Multi-habit day bonus.",
-        channels: ['creativity', 'leadership', 'productivity', 'mental_models']
-    },
-    'Shadow Monk': {
-        icon: 'nights_stay',
-        flavor: "Master of the self. Your power is entirely internal and requires no witness.",
-        statProfile: { str: 55, dex: 82, end: 80, int: 72, wis: 95, cha: 18 },
-        evolution: ["Introvert", "Shadow Monk", "The Unseen", "Void Walker", "He Who Needs No Witness"],
-        multipliers: { wis: 1.6, dex: 1.4 },
-        perk: "Inner Sanctum: WIS XP x1.6 | Discipline of Silence: Solo growth bonus.",
-        channels: ['stoicism', 'mental_models', 'study_techniques', 'brain_science']
-    },
-    'Ghost': {
-        icon: 'visibility_off',
-        flavor: "Untraceable survivor. You adapt to any situation without losing your center.",
-        statProfile: { str: 50, dex: 90, end: 70, int: 75, wis: 88, cha: 22 },
-        evolution: ["The Quiet One", "Ghost", "No Trace", "The Vanishing", "Never There"],
-        multipliers: { dex: 1.5, wis: 1.4, cha: 0.75 },
-        perk: "Phase: DEX XP x1.5 | No Footprint: Switch bonus | Vanish: Weekly free skip.",
-        channels: ['stoicism', 'metal_models', 'ai_facts', 'brain_science']
-    },
-    'Diplomat': {
-        icon: 'handshake',
-        flavor: "Peace keeper and alliance builder. You resolve conflict through surgical verbal precision.",
-        statProfile: { str: 38, dex: 80, end: 72, int: 68, wis: 90, cha: 85 },
-        evolution: ["The Listener", "Diplomat", "Silver Tongue", "The Peacemaker", "The One Who Stopped the War"],
-        multipliers: { wis: 1.5, cha: 1.4, str: 0.85 },
-        perk: "Read the Room: WIS XP x1.5 | Timing: Rhythmic bonus | Long Game: Finance wisdom.",
-        channels: ['economics', 'human_behavior', 'philosophers', 'ancient_civilizations']
-    },
-    'Bard': {
-        icon: 'music_note',
-        flavor: "The voice of legends. You understand that narrative is the most powerful force in any system.",
-        statProfile: { str: 35, dex: 85, end: 48, int: 72, wis: 82, cha: 95 },
-        evolution: ["Storyteller", "Bard", "Silver Tongue", "Voice of Legends", "The Word That Moves Worlds"],
-        multipliers: { cha: 1.55, int: 1.4, end: 0.8 },
-        perk: "Spellbind: CHA XP x1.55 | The Story: Journal bonus | Ripple: Partner growth gain.",
-        channels: ['human_behavior', 'cultural_facts', 'famous_quotes', 'language_facts']
-    },
-    'Oracle': {
-        icon: 'visibility',
-        flavor: "The group's compass. You see patterns and endings before others even see the beginning.",
-        statProfile: { str: 22, dex: 38, end: 82, int: 80, wis: 98, cha: 60 },
-        evolution: ["Dreamer", "Oracle", "The Farsighted", "Keeper of Inevitable Truths", "The One Who Already Knew"],
-        multipliers: { wis: 1.65, int: 1.4, str: 0.7 },
-        perk: "The Sight: WIS XP x1.65 | Ancient Knowledge: INT XP x1.4 | Inevitable: 100-day streak x2.2.",
-        channels: ['bible_verses', 'philosophers', 'human_behavior', 'ancient_civilizations']
-    },
-    'Druid': {
-        icon: 'nature',
-        flavor: "System tracker. You find patterns in nature and behavior, reading the world as a living system.",
-        statProfile: { str: 65, dex: 72, end: 85, int: 75, wis: 90, cha: 52 },
-        evolution: ["Wanderer", "Druid", "Pattern Seer", "Voice of the Wild", "The Living Codex"],
-        multipliers: { end: 1.5, wis: 1.45, cha: 0.85 },
-        perk: "Root System: END XP x1.5 | Living Cycle: WIS XP x1.45 | Symbiosis: Hybrid bonus.",
-        channels: ['biology', 'geography', 'stoicism', 'cultural_facts']
-    },
-    'Alchemist': {
-        icon: 'science',
-        flavor: "Master of synthesis. You turn raw data and scrap materials into clarity and medicine.",
-        statProfile: { str: 30, dex: 55, end: 75, int: 92, wis: 88, cha: 70 },
-        evolution: ["Tinkerer", "Alchemist", "Formula Breaker", "Grand Synthesist", "Architect of Truth"],
-        multipliers: { int: 1.55, wis: 1.4, str: 0.8 },
-        perk: "Transmutation: INT XP x1.55 | Formula: WIS XP x1.4 | Refinement: Permanent INT growth.",
-        channels: ['science_trivia', 'math_curiosities', 'ai_facts', 'psychology']
-    },
-    'Architect': {
-        icon: 'architecture',
-        flavor: "System designer. Your structures outlast any individual, physical or behaviorally.",
-        statProfile: { str: 32, dex: 88, end: 50, int: 92, wis: 82, cha: 75 },
-        evolution: ["Draftsman", "Architect", "System Lord", "World Builder", "The Eternal Planner"],
-        multipliers: { int: 1.55, dex: 1.45, str: 0.8 },
-        perk: "Blueprint Mind: INT XP x1.55 | The System: DEX XP x1.45 | Compound Design: Power-stacking.",
-        channels: ['productivity', 'mental_models', 'study_techniques', 'brain_science']
-    },
-    'None': {
-        icon: 'sensors',
-        flavor: "Alignment pending. The system awaits your unique signature.",
-        statProfile: { str: 10, dex: 10, end: 10, int: 10, wis: 10, cha: 10 },
-        evolution: ["Unawakened", "Awakening", "Searching", "Aligned", "Mastered"],
-        multipliers: { str: 0.20, dex: 0.20, end: 0.20, int: 0.20, wis: 0.20, cha: 0.20 },
-        perk: "Versatile: Small bonus to everything, flexible growth.",
-        channels: ['productivity', 'stoicism', 'science_trivia', 'famous_quotes']
+  // Mirror Checks
+  if (findAnswer(7) === "Scout" && findAnswer(25) === "Defensive") consistency -= 10;
+  if (findAnswer(24) === "Aggressive" && findAnswer(27) === "Defensive") consistency -= 10;
+  
+  // Value Checks
+  if (findAnswer(11) === "Visionary" && findAnswer(31) === "Evil") consistency -= 5;
+  if (findAnswer(29) === "Good" && findAnswer(32) === "Evil") consistency -= 5;
+
+  // Role Checks
+  if (findAnswer(3) === "Strategist" && findAnswer(10) === "Warden") consistency -= 5;
+  if (findAnswer(5) === "Strategist" && findAnswer(8) === "Visionary") consistency -= 5;
+
+  const config = ARCHETYPE_MATRIX[path][tier1][style];
+  const finalArchetype = alignment === "Good" ? config.good : config.evil;
+
+  return {
+    path,
+    tier1,
+    style,
+    alignment,
+    styleLabel: config.label,
+    finalArchetype,
+    consistency: Math.max(0, consistency),
+    stats: { // Keep stats for backward compatibility/legacy HUD
+        str: path === "Warden" ? 80 : 40,
+        dex: path === "Scout" ? 80 : 40,
+        int: path === "Strategist" ? 80 : 40,
+        wis: path === "Strategist" ? 60 : 40,
+        cha: path === "Visionary" ? 80 : 40,
+        end: path === "Warden" ? 90 : 40
     }
-};
-
-export function getArchetype(stats) {
-    const { str, dex, end, int, wis, cha } = stats;
-
-    const axis1 = str >= wis ? 'STR' : 'WIS';
-    const axis2 = dex >= int ? 'DEX' : 'INT';
-    const axis3 = end >= cha ? 'END' : 'CHA';
-    const axis4 = end >= dex ? 'STABLE' : 'ADAPTIVE';
-
-    const map = {
-        'STR-DEX-END-STABLE': 'Iron Fist',
-        'STR-DEX-END-ADAPTIVE': 'Blade Dancer',
-        'STR-DEX-CHA-STABLE': 'Warlord',
-        'STR-DEX-CHA-ADAPTIVE': 'Vanguard',
-        'STR-INT-END-STABLE': 'Sentinel',
-        'STR-INT-END-ADAPTIVE': 'Forge Master',
-        'STR-INT-CHA-STABLE': 'Commander',
-        'STR-INT-CHA-ADAPTIVE': 'Champion',
-        'WIS-DEX-END-STABLE': 'Shadow Monk',
-        'WIS-DEX-END-ADAPTIVE': 'Ghost',
-        'WIS-DEX-CHA-STABLE': 'Diplomat',
-        'WIS-DEX-CHA-ADAPTIVE': 'Bard',
-        'WIS-INT-END-STABLE': 'Oracle',
-        'WIS-INT-END-ADAPTIVE': 'Druid',
-        'WIS-INT-CHA-STABLE': 'Alchemist',
-        'WIS-INT-CHA-ADAPTIVE': 'Architect',
-    };
-
-    const key = `${axis1}-${axis2}-${axis3}-${axis4}`;
-    return map[key] || 'Shadow Monk';
-};
-
-export const ARCHETYPE_FEED_MAPPING = ARCHETYPE_PROTOCOLS;
+  };
+}

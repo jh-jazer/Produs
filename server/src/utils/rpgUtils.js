@@ -118,8 +118,8 @@ export const calculateLevel = (totalXP) => {
     return currentLevel;
 };
 
-export const determineArchetype = (stats, level) => {
-    if (level === 0) {
+export const determineArchetype = (user, level) => {
+    if (level === 0 || !user.rpg) {
         return {
             name: 'None',
             tier: 1,
@@ -127,8 +127,25 @@ export const determineArchetype = (stats, level) => {
         };
     }
 
-    const { str, dex, end, int, wis, cha } = stats;
+    // If the user has been profiled by the new system, we prioritize the finalLabel
+    if (user.rpg.finalLabel) {
+        let tier = 1;
+        if (level >= 17) tier = 5;
+        else if (level >= 14) tier = 4;
+        else if (level >= 11) tier = 3;
+        else if (level >= 8) tier = 2;
 
+        // Stage names for the new system could be mapped by Tier, 
+        // but for now we'll stick to the Tier 1 name + Tier number
+        return {
+            name: user.rpg.finalLabel,
+            tier: tier,
+            stage: `${user.rpg.tier1} (Tier ${tier})`
+        };
+    }
+
+    // Legacy Stat-based Fallback
+    const { str, dex, end, int, wis, cha } = user.rpg.stats;
     const axis1 = str >= wis ? 'STR' : 'WIS';
     const axis2 = dex >= int ? 'DEX' : 'INT';
     const axis3 = end >= cha ? 'END' : 'CHA';
@@ -211,7 +228,7 @@ export const awardXP = async (user, stat, amount, streak = 1, activityType = 'sy
     const oldLevel = user.level;
     user.level = levelInfo.level;
 
-    const archetypeInfo = determineArchetype(user.rpg.stats, user.level);
+    const archetypeInfo = determineArchetype(user, user.level);
     const oldArchetype = user.rpg.archetype.name;
     user.rpg.archetype = archetypeInfo;
 

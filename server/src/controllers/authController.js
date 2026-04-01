@@ -535,7 +535,7 @@ export const completeOnboarding = async (req, res) => {
                 user.rpg.stats = req.body.initialStats;
                 
                 // Finalize the initial 'Awakened' archetype
-                const archetypeInfo = determineArchetype(user.rpg.stats, user.level);
+                const archetypeInfo = determineArchetype(user, user.level);
                 user.rpg.archetype = archetypeInfo;
                 user.markModified('rpg');
             } else if (req.body.statsToBoost && typeof req.body.statsToBoost === 'object') {
@@ -545,7 +545,7 @@ export const completeOnboarding = async (req, res) => {
                         user.rpg.stats[stat] += (points * 5);
                     }
                 }
-                const archetypeInfo = determineArchetype(user.rpg.stats, user.level);
+                const archetypeInfo = determineArchetype(user, user.level);
                 user.rpg.archetype = archetypeInfo;
                 user.markModified('rpg');
             }
@@ -589,19 +589,28 @@ export const awakenUser = async (req, res) => {
             return res.status(400).json({ message: 'User is already awakened' });
         }
 
-        const { stats } = req.body;
-        if (!stats) return res.status(400).json({ message: 'Assessment stats required' });
+        const { result } = req.body;
+        if (!result) return res.status(400).json({ message: 'Assessment result required' });
 
-        // Update Stats
-        user.rpg.stats = stats;
+        // Update Stats and Profile
+        user.rpg.stats = result.stats;
+        user.rpg.path = result.path;
+        user.rpg.tier1 = result.tier1;
+        user.rpg.style = result.style;
+        user.rpg.alignment = result.alignment;
+        user.rpg.finalLabel = result.finalArchetype;
+        user.rpg.confidence = result.consistency;
         
         // Update Level and XP to Level 1 baseline
         user.level = 1;
         user.exp = 100;
 
-        // Determine Archetype for Level 1
-        const archetypeInfo = determineArchetype(user.rpg.stats, 1);
-        user.rpg.archetype = archetypeInfo;
+        // Finalize Archetype Identity
+        user.rpg.archetype = {
+            name: result.finalArchetype,
+            tier: 1,
+            stage: result.tier1
+        };
         
         user.markModified('rpg');
         await user.save();

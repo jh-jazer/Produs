@@ -71,6 +71,12 @@ const userSchema = new mongoose.Schema({
             wis: { type: Number, default: 0 },
             cha: { type: Number, default: 0 }
         },
+        path: { type: String, default: null },
+        tier1: { type: String, default: null },
+        style: { type: String, default: null },
+        alignment: { type: String, default: null },
+        finalLabel: { type: String, default: null },
+        confidence: { type: Number, default: 100 },
         archetype: {
             name: { type: String, default: 'None' },
             tier: { type: Number, default: 1 },
