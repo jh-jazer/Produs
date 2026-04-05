@@ -25,13 +25,6 @@ export const MoodTracker = ({ user, updateMood }) => {
             indicatorColor="rose"
         >
             <div className="flex flex-col items-center justify-center py-6 gap-8">
-                <div className="text-center space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Current Biological Pulse</p>
-                    <h3 className="text-2xl font-black uppercase italic font-exo text-slate-900 dark:text-white leading-none">
-                        System Status: {currentMood}
-                    </h3>
-                </div>
-
                 <div className="flex items-center justify-center gap-4 flex-wrap">
                     {Object.entries(moodEmojis).map(([key, data]) => (
                         <motion.button
