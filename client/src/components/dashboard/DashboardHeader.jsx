@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Bell, Users, User, Lock, Zap } from 'lucide-react';
+import { Search, Bell, Users, User, Lock } from 'lucide-react';
 import { DashboardContext } from '../../context/DashboardContext';
 
 const DashboardHeader = ({ viewMode, setViewMode, user }) => {
-    const { setIsSearchModalOpen, setIsNotificationModalOpen, setIsNeuralSyncOpen, unreadCount } = useContext(DashboardContext);
+    const { setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount } = useContext(DashboardContext);
 
     const isPartnerLocked = !user?.partner;
     return (
@@ -58,19 +58,6 @@ const DashboardHeader = ({ viewMode, setViewMode, user }) => {
                         )}
                     </button>
                 </div>
-
-                {/* 2.5 Neural Sync (Conditional Alert) */}
-                {user?.rpg?.pendingQuestions?.length > 0 && (
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setIsNeuralSyncOpen(true)}
-                        className="size-10 md:size-12 bg-accent shadow-[0_0_20px_rgba(var(--accent-rgb),0.4)] rounded-2xl flex items-center justify-center relative group overflow-hidden shrink-0 border border-white/20 animate-pulse"
-                    >
-                        <Zap size={18} className="text-white fill-white" />
-                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                    </motion.button>
-                )}
 
                 {/* 3. Notification Hub */}
                 <motion.button

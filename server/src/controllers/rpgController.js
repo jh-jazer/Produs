@@ -1,7 +1,8 @@
 import Activity from '../models/Activity.js';
 import User from '../models/User.js';
 import { awardXP } from '../utils/rpgUtils.js';
-import { ARCHETYPE_QUIZ, calculateScores, calculateMasteryRank } from '../shared/assessment.js'; 
+import { calculateScores, calculateMasteryRank } from '../shared/assessment.js'; 
+import NarrativeQuestion from '../models/NarrativeQuestion.js';
 
 // @route   GET /api/rpg/history
 // @desc    Get recent XP activity history
@@ -60,29 +61,82 @@ export const syncNeural = async (req, res) => {
         const { questionId, value } = req.body;
         const user = await User.findById(req.user._id);
 
-        if (!user.rpg.pendingQuestions.includes(questionId)) {
+        if (!user.rpg.pendingQuestions.some(id => String(id) === String(questionId))) {
+            console.error(`[SYNC_ERROR] Sequence Mismatch. Attempted: ${questionId}. Pending:`, user.rpg.pendingQuestions);
             return res.status(400).json({ message: 'Synchronization sequence invalid or already complete.' });
         }
 
-        // --- SECURITY VALIDATION ---
-        const questionRef = ARCHETYPE_QUIZ.find(q => q.id === questionId);
+        // 1. Validate Question & Option
+        const questionRef = await NarrativeQuestion.findOne({ questionId });
         if (!questionRef) {
-            return res.status(404).json({ message: 'Neural question reference not found.' });
+            console.error(`[SYNC_ERROR] Node ${questionId} not found`);
+            return res.status(404).json({ message: 'Sync Node Offline' });
         }
 
-        const isValidOption = questionRef.options.some(opt => opt.value === value);
-        if (!isValidOption) {
-            return res.status(403).json({ message: 'Neural synchronization failed: Invalid value signature.' });
-        }
-        // ---------------------------
+        const selectedOption = questionRef.options.find(opt => {
+            const dbVal = String(opt.value || "").trim().toLowerCase();
+            const dbText = String(opt.text || "").trim().toLowerCase();
+            const reqVal = String(value || "").trim().toLowerCase();
+            
+            // Match against value OR text (as a fallback for older data nodes)
+            return dbVal === reqVal || dbText === reqVal;
+        });
 
-        // 1. Persist the answer
-        user.rpg.completedAnswers.push({ id: questionId, value, timestamp: new Date() });
+        if (!selectedOption) {
+            console.error(`[SYNC_ERROR] Mismatch at Node ${questionId}. Provided: [${value}]. Valid Options:`, 
+                questionRef.options.map(o => `V:${o.value}|T:${o.text}`)
+            );
+            return res.status(400).json({ 
+                message: 'Invalid Neural Choice',
+                debug: { sent: value, expected: questionRef.options.map(o => o.value) }
+            });
+        }
+
+        // 1. Persist the answer with weight from DB
+        user.rpg.completedAnswers.push({ 
+            id: questionId, 
+            value, 
+            weight: questionRef.weight, 
+            section: questionRef.section,
+            timestamp: new Date() 
+        });
         
-        // 2. Remove from pending queue
-        user.rpg.pendingQuestions = user.rpg.pendingQuestions.filter(id => id !== questionId);
+        // Force string comparison for the filter
+        user.rpg.pendingQuestions = user.rpg.pendingQuestions.filter(id => String(id) !== String(questionId));
         
-        // 3. Recalculate profiling results
+        // Finalize Transition IDs
+        let nextId = selectedOption.nextId ? String(selectedOption.nextId) : null;
+        let nextExists = null;
+
+        if (nextId) {
+            const cleanNextId = String(nextId).trim().toLowerCase();
+            const numericNextId = parseFloat(cleanNextId);
+            
+            // Normalize IDs: "2.0" -> "2", "2.0.0" -> "2.0.0"
+            const normalizedId = !isNaN(numericNextId) ? String(numericNextId) : cleanNextId;
+            
+            console.log(`[SYNC_TRACE] Node ${questionId} searching for nextId: [${cleanNextId}] | Normalized: [${normalizedId}]`);
+
+            // Hybrid Lookup: Check for exact string, normalized numeric string, or regex-normalized ID
+            nextExists = await NarrativeQuestion.findOne({ 
+                $or: [
+                    { questionId: cleanNextId },
+                    { questionId: normalizedId },
+                    { questionId: normalizedId + ".0" }, // For "2" -> "2.0"
+                    { questionId: { $regex: new RegExp(`^${cleanNextId.replace('.', '\\.')}$`, 'i') } }
+                ].filter(clause => clause.questionId !== null)
+            });
+            
+            if (nextExists) {
+                const verifiedId = nextExists.questionId;
+                if (!user.rpg.pendingQuestions.includes(verifiedId)) {
+                    user.rpg.pendingQuestions.unshift(verifiedId);
+                    console.log(`[SYNC_LINK] Node ${questionId} -> ${verifiedId} (Verified).`);
+                }
+            } else {
+                console.warn(`[SYNC_WARNING] Node ${questionId} points to missing nextId: [${cleanNextId}].`);
+            }
+        }
         const results = calculateScores(user.rpg.completedAnswers);
         
         // 4. Update Identity Slices
@@ -104,13 +158,45 @@ export const syncNeural = async (req, res) => {
             user.rpg.levelReachedSSS = user.level;
         }
 
+        // 7. Handle Initial Awakening (Level 0 -> 1)
+        if (user.level === 0) {
+            user.level = 1;
+            user.exp = 100; // Baseline Level 1 XP
+            
+            // Assign some starter Archetype flags if they don't exist
+            if (!user.rpg.archetype || !user.rpg.archetype.name) {
+                user.rpg.archetype = {
+                    name: 'Initiate',
+                    tier: 1,
+                    stage: 'Awakened'
+                };
+            }
+        }
+
         user.markModified('rpg');
         await user.save();
 
+        // Diagnostic Trace
+        const narrativeCount = await NarrativeQuestion.countDocuments();
+        const debug = {
+            receivedId: questionId,
+            cleanNextId: nextId,
+            foundNext: !!nextExists,
+            totalNodes: narrativeCount,
+            userPendingLength: user.rpg.pendingQuestions.length
+        };
+
+        // Safety check for rank comparison
+        const safeOldRank = String(oldRank || 'F');
+        const safeNewRank = String(newRank || 'F');
+
         res.json({
             ...user.rpg.toObject(),
-            newRank: oldRank !== newRank ? newRank : null,
-            message: 'Neural synapse stabilized.'
+            level: user.level,
+            exp: user.exp,
+            newRank: (safeOldRank !== safeNewRank) ? safeNewRank : null,
+            message: 'Neural synapse stabilized.',
+            debug
         });
 
     } catch (error) {
@@ -118,6 +204,76 @@ export const syncNeural = async (req, res) => {
         res.status(500).json({ message: 'Server error during neural synchronization.' });
     }
 };
+
+/**
+ * initiateAwakening - Sets up the first narrative node for a Level 0 user.
+ * @route POST /api/rpg/initiate-awakening
+ * @access Private
+ */
+export const initiateAwakening = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        if (user.level !== 0) {
+            return res.status(400).json({ message: 'User is already awakened.' });
+        }
+
+        // Initialize with the root Node 1.0
+        user.rpg.pendingQuestions = [String("1.0")];
+        user.markModified('rpg');
+        await user.save();
+
+        res.json({
+            message: "Awakening Sequence Initiated.",
+            rpg: user.rpg
+        });
+    } catch (error) {
+        console.error('Initiate Awakening failed:', error);
+        res.status(500).json({ message: 'Failed to initiate awakening sequence.' });
+    }
+};
+
+// @route   GET /api/rpg/narrative-history
+// @desc    Get the full chronological story log for the user
+// @access  Private
+export const getNarrativeHistory = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const history = user.rpg.completedAnswers;
+
+        if (!history || history.length === 0) {
+            return res.json([]);
+        }
+
+        // Fetch all unique question details
+        const questionIds = [...new Set(history.map(h => h.id))];
+        const narrativeNodes = await NarrativeQuestion.find({ questionId: { $in: questionIds } });
+
+        const log = history.map(ans => {
+            const node = narrativeNodes.find(n => n.questionId === ans.id);
+            if (!node) return null;
+
+            const selectedOption = node.options.find(opt => opt.value === ans.value);
+            
+            return {
+                questionId: ans.id,
+                section: ans.section,
+                timestamp: ans.timestamp,
+                story: node.story,
+                question: node.question,
+                choiceText: selectedOption?.text || "Unknown Choice",
+                postText: selectedOption?.postText || ""
+            };
+        }).filter(Boolean);
+
+        res.json(log);
+    } catch (error) {
+        console.error('Failed to fetch narrative history:', error);
+        res.status(500).json({ message: 'Neural memory retrieval failed.' });
+    }
+};
+
 // @route   GET /api/rpg/leaderboard/sss
 // @desc    Get the Hall of SSS (Soonest to reach SSS)
 // @access  Private
@@ -184,3 +340,4 @@ export const getTerritoryLords = async (req, res) => {
         res.status(500).json({ message: 'Server error during territory sync.' });
     }
 };
+

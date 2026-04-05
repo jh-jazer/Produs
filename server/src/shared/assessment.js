@@ -486,17 +486,25 @@ export function calculateScores(answers) {
 
   let masteryPoints = 0;
 
-  answers.forEach(({ id, value }) => {
-    const q = ARCHETYPE_QUIZ.find(item => item.id === id);
-    if (!q) return;
+  answers.forEach(({ id, value, weight, section }) => {
+    // If we have weight and section in the answer (new DB-backed system), use them.
+    // Otherwise, fallback to the static ARCHETYPE_QUIZ (legacy support during transition).
+    let qWeight = weight;
+    let qSection = section;
 
-    if (q.section === 'TRIAL') {
+    if (qWeight === undefined || qSection === undefined) {
+      const q = ARCHETYPE_QUIZ.find(item => item.id === id);
+      if (!q) return;
+      qWeight = q.weight;
+      qSection = q.section;
+    }
+
+    if (qSection === 'TRIAL') {
         masteryPoints += parseInt(value);
         return;
     }
 
-    const currentStage = q.section;
-    stageResults[currentStage][value] = (stageResults[currentStage][value] || 0) + q.weight;
+    stageResults[qSection][value] = (stageResults[qSection][value] || 0) + qWeight;
   });
 
   const getWinner = (results) => {

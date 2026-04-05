@@ -87,11 +87,11 @@ const DevTools = () => {
                                         </div>
                                         <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500">Reset Onboarding</span>
                                     </button>
-                                    <button onClick={() => handleAction('resetRPG')} className="group flex items-center gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                                    <button onClick={() => handleAction('resetPath')} className="group flex items-center gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
                                         <div className="size-10 rounded-full bg-rose-600 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
                                             <span className="material-symbols-outlined text-xl text-white">restart_alt</span>
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-rose-500">Reset RPG</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-rose-500">Reset Path</span>
                                     </button>
                                 </>
                             )}

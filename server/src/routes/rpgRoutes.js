@@ -1,4 +1,5 @@
-import { completeDailyQuiz, getActivityHistory, syncNeural, getSSSLeaderboard, getTerritoryLords } from '../controllers/rpgController.js';
+import { completeDailyQuiz, getActivityHistory, syncNeural, getSSSLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening } from '../controllers/rpgController.js';
+import { getQuestionById } from '../controllers/narrativeController.js';
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -17,12 +18,24 @@ router.post('/daily-quiz', protect, completeDailyQuiz);
 // @access  Private
 router.post('/sync-neural', protect, syncNeural);
 
+// @route   POST /api/rpg/initiate-awakening
+// @desc    Initiate the awakening process
+router.post('/initiate-awakening', protect, initiateAwakening);
+
+// @route   GET /api/rpg/narrative/:questionId
+// @desc    Get a single narrative question
+router.get('/narrative/:questionId', protect, getQuestionById);
+
 // @route   GET /api/rpg/leaderboard/sss
 // @desc    Get the Hall of SSS (Speed to master)
 router.get('/leaderboard/sss', protect, getSSSLeaderboard);
 
 // @route   GET /api/rpg/leaderboard/territory
 // @desc    Get Territory Lords (Stat leaders)
-router.get('/leaderboard/territory', protect, getTerritoryLords);
+router.get('/territory-lords', protect, getTerritoryLords);
+
+// @route   GET /api/rpg/narrative-history
+// @desc    Get the full chronological story log for the user
+router.get('/narrative-history', protect, getNarrativeHistory);
 
 export default router;

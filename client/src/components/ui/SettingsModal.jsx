@@ -293,10 +293,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                     </p>
 
                                     <div className="mb-6">
-                                        <p className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] mb-2 px-1">Type "delete" to confirm</p>
+                                        <p className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] mb-2 px-1">Type "DELETE" to confirm</p>
                                         <input
                                             type="text"
-                                            placeholder="delete"
+                                            placeholder="DELETE"
                                             value={deleteWord}
                                             onChange={(e) => setDeleteWord(e.target.value)}
                                             className="w-full bg-black/[0.03] dark:bg-[#000000]/40 border border-black/[0.08] dark:border-white/10 rounded-[20px] px-5 py-4 text-xs font-semibold outline-none focus:border-signal-orange transition-all text-black dark:text-white placeholder:text-black/20 dark:placeholder:text-white/20"
@@ -306,7 +306,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                     <div className="flex flex-col gap-3">
                                         <button
                                             onClick={handleDeleteAccount}
-                                            disabled={isDeleting || deleteWord !== 'delete'}
+                                            disabled={isDeleting || deleteWord !== 'DELETE'}
                                             className="w-full py-4 bg-signal-orange text-white rounded-[20px] font-semibold text-xs uppercase tracking-[0.3em] hover:opacity-90 transition-all disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed"
                                         >
                                             {isDeleting ? 'Deleting...' : 'Confirm Deletion'}

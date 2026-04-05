@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, Settings, BarChart3, ShieldCheck, Database, Search, RefreshCcw, RotateCcw } from 'lucide-react';
+import { Users, Settings, BarChart3, ShieldCheck, Database, Search, RefreshCcw, RotateCcw, Brain } from 'lucide-react';
 import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import AdminBugs from '../components/AdminBugs';
+import AdminNarrativeManager from '../components/AdminNarrativeManager';
 import ArchetypeChart from '../components/ArchetypeChart';
 import MobileTabNav from '../components/ui/MobileTabNav';
 
@@ -15,6 +16,7 @@ const Admin = () => {
     const tabs = [
         { id: 'overview', label: 'Overview', icon: BarChart3 },
         { id: 'users', label: 'Users', icon: Users },
+        { id: 'narrative', label: 'Narrative', icon: Brain },
         { id: 'health', label: 'Health', icon: ShieldCheck },
         { id: 'bugs', label: 'Bugs', icon: Database },
     ];
@@ -53,11 +55,11 @@ const Admin = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 p-4 md:p-8">
+        <div className="min-h-screen bg-transparent text-slate-900 dark:text-slate-100 p-4 md:p-8 w-full">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="max-w-7xl mx-auto"
+                className="w-full max-w-none"
             >
                 {/* Desktop Header */}
                 <header className="hidden md:flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
@@ -89,6 +91,28 @@ const Admin = () => {
 
                 {/* Mobile Navigation */}
                 <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+
+                {/* Desktop Tab Navigation */}
+                <div className="hidden md:flex items-center gap-1 mb-8 bg-zinc-100 dark:bg-zinc-900/50 p-1.5 rounded-2xl w-fit border border-zinc-200 dark:border-white/5">
+                    {tabs.map((tab) => {
+                        const Icon = tab.icon;
+                        const isActive = activeTab === tab.id;
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                    isActive 
+                                        ? 'bg-white dark:bg-zinc-800 text-primary shadow-sm ring-1 ring-black/5 dark:ring-white/10' 
+                                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5'
+                                }`}
+                            >
+                                <Icon size={16} strokeWidth={isActive ? 3 : 2} />
+                                {tab.label}
+                            </button>
+                        );
+                    })}
+                </div>
 
                 {/* Overview Tab Content */}
                 {activeTab === 'overview' && (
@@ -126,38 +150,44 @@ const Admin = () => {
                 )}
 
                 {/* Desktop Tabs / Stats Grid */}
-                <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 hidden md:grid ${activeTab !== 'overview' && 'lg:hidden'}`}>
-                    {stats.map((stat, index) => (
-                        <motion.div
-                            key={index}
-                            whileHover={{ y: -5 }}
-                            className="bg-white dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 p-6 rounded-3xl shadow-none backdrop-blur-xl transition-all"
-                        >
-                            <div className="flex justify-between items-start mb-4">
-                                <div className={`p-3 rounded-2xl bg-slate-100 dark:bg-[#000000] ${stat.color}`}>
-                                    <stat.icon size={24} />
+                {activeTab === 'overview' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 hidden md:grid">
+                        {stats.map((stat, index) => (
+                            <motion.div
+                                key={index}
+                                whileHover={{ y: -5 }}
+                                className="bg-white dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 p-6 rounded-3xl shadow-none backdrop-blur-xl transition-all"
+                            >
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className={`p-3 rounded-2xl bg-slate-100 dark:bg-[#000000] ${stat.color}`}>
+                                        <stat.icon size={24} />
+                                    </div>
+                                    <span className="text-emerald-500 text-xs font-black uppercase tracking-widest">↑ 5%</span>
                                 </div>
-                                <span className="text-emerald-500 text-xs font-black uppercase tracking-widest">↑ 5%</span>
-                            </div>
-                            <h3 className="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-black tracking-widest leading-none mb-2">{stat.label}</h3>
-                            <p className="text-3xl font-black">{stat.value}</p>
-                        </motion.div>
-                    ))}
-                </div>
+                                <h3 className="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-black tracking-widest leading-none mb-2">{stat.label}</h3>
+                                <p className="text-3xl font-black">{stat.value}</p>
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
 
                 {/* Archetype Stats (Desktop) */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`bg-white dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 p-8 rounded-[2.5rem] mb-12 hidden md:block ${activeTab !== 'overview' && 'lg:hidden'}`}
-                >
-                    <ArchetypeChart data={archetypeStats} />
-                </motion.div>
+                {activeTab === 'overview' && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-white dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 p-8 rounded-[2.5rem] mb-12 hidden md:block"
+                    >
+                        <ArchetypeChart data={archetypeStats} />
+                    </motion.div>
+                )}
 
                 {/* Management Sections */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                    {/* User Management */}
-                    <div className={`lg:col-span-2 bg-white dark:bg-[#121212]/30 border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden backdrop-blur-md shadow-none ${activeTab !== 'users' && 'hidden lg:block'}`}>
+                {(activeTab === 'overview' || activeTab === 'users' || activeTab === 'health' || activeTab === 'registry') && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                        {/* User Management */}
+                        <div className={`lg:col-span-2 bg-white dark:bg-[#121212]/30 border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden backdrop-blur-md shadow-none ${(activeTab !== 'users' && activeTab !== 'overview' && activeTab !== 'registry') ? 'hidden' : 'block'}`}>
+                            {/* ... User Management Content (Implicitly kept by keeping section intact) ... */}
                         <div className="p-6 border-b border-slate-100 dark:border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <h2 className="text-xl font-black">Recent Users</h2>
                             <div className="relative w-full sm:w-auto">
@@ -259,10 +289,23 @@ const Admin = () => {
                         </div>
                     </div>
                 </div>
+            )}
 
-                {/* Bug Reports Section */}
-                <div className={activeTab !== 'bugs' ? 'hidden lg:block' : 'block'}>
-                    <AdminBugs />
+                {/* Management Sections (Unifying Bugs and Narrative with Widescreen Layout) */}
+                <div className="w-full">
+                    {/* Bug Reports Section */}
+                    {(activeTab === 'bugs' || activeTab === 'reports') && (
+                        <div className="w-full">
+                            <AdminBugs />
+                        </div>
+                    )}
+
+                    {/* Narrative Management Section */}
+                    {(activeTab === 'narrative' || activeTab === 'library') && (
+                        <div className="w-full">
+                            <AdminNarrativeManager />
+                        </div>
+                    )}
                 </div>
             </motion.div>
         </div>

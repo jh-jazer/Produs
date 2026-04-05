@@ -15,8 +15,6 @@ import BugReportModal from './ui/BugReportModal';
 import NotificationModal from './ui/NotificationModal';
 import UserMenuModal from "./ui/UserMenuModal";
 import LevelDisplay from './ui/LevelDisplay';
-import NeuralSyncModal from './rpg_components/NeuralSyncModal';
-
 import DashboardHeader from './dashboard/DashboardHeader';
 import { DashboardContext, FrozenRoute } from '../context/DashboardContext';
 
@@ -64,7 +62,7 @@ function Layout() {
     const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
     const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
-    const [isNeuralSyncOpen, setIsNeuralSyncOpen] = useState(false);
+    const isNeuralSyncDismissed = useAuthStore((state) => state.isNeuralSyncDismissed);
 
     // Fetch notifications
     const { data: notifications = [] } = useSWR('/notifications', (url) => api.get(url).then(res => res.data), {
@@ -78,11 +76,6 @@ function Layout() {
         }
     }, [user]);
 
-    useEffect(() => {
-        if (user?.rpg?.pendingQuestions?.length > 0) {
-            setIsNeuralSyncOpen(true);
-        }
-    }, [user?.rpg?.pendingQuestions]);
 
     const handleSignOut = async () => {
         setIsUserMenuOpen(false);
@@ -112,7 +105,6 @@ function Layout() {
         <DashboardContext.Provider value={{ 
             setIsSearchModalOpen, 
             setIsNotificationModalOpen, 
-            setIsNeuralSyncOpen, 
             unreadCount, 
             viewMode, 
             setViewMode, 
@@ -460,10 +452,7 @@ function Layout() {
                     />
                 )}
 
-                <NeuralSyncModal 
-                    isOpen={isNeuralSyncOpen} 
-                    onClose={() => setIsNeuralSyncOpen(false)} 
-                />
+                {/* Neural Sync Modal Removed */}
 
                 {/* Global Cinematic Scroll HUD */}
                 <DashboardScrollIndicator 

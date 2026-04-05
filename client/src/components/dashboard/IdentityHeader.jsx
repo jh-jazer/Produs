@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check } from 'lucide-react';
+import { Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check, Lock } from 'lucide-react';
 import { getLevelProgress } from '../../utils/rpgHelpers';
 import { ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
 import Avatar from '../ui/Avatar';
@@ -64,10 +64,20 @@ const IdentityHeader = ({ user, habits = [] }) => {
                             <span className="hidden md:block">REALITY</span>
                         </button>
                         <button
-                            onClick={() => setProtocolMode('rpg')}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${protocolMode === 'rpg' ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'text-white/40 hover:text-white/70'}`}
+                            onClick={() => (user.rpg?.path || user.rpg?.pendingQuestions?.length > 0 || user.level === 0) && setProtocolMode('rpg')}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                                protocolMode === 'rpg' 
+                                ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' 
+                                : (!user.rpg?.path && !user.rpg?.pendingQuestions?.length && user.level > 0) 
+                                    ? 'text-white/20 cursor-not-allowed' 
+                                    : 'text-white/40 hover:text-white/70'
+                            }`}
                         >
-                            <Zap size={10} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
+                            {(user.rpg?.path || user.rpg?.pendingQuestions?.length > 0 || user.level === 0) ? (
+                                <Zap size={10} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
+                            ) : (
+                                <Lock size={10} className="text-white/20" />
+                            )}
                             <span className="hidden md:block">RPG_LINK</span>
                         </button>
                     </div>

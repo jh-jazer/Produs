@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Target, Zap, Shield, Sparkles } from 'lucide-react';
 import SystemWindow from '../ui/SystemWindow';
 
-const AwakeningOverlay = ({ onAwaken, onBackToReality }) => {
+const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading }) => {
     return (
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
             <motion.div 
@@ -37,11 +37,12 @@ const AwakeningOverlay = ({ onAwaken, onBackToReality }) => {
                             <motion.button
                                 whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(34,211,238,0.3)" }}
                                 whileTap={{ scale: 0.98 }}
-                                onClick={onAwaken}
-                                className="w-full py-4 bg-cyan-500 text-black font-black text-[11px] uppercase tracking-[0.4em] rounded-2xl shadow-lg flex items-center justify-center gap-3 group transition-all"
+                                onClick={!isLoading ? onAwaken : undefined}
+                                disabled={isLoading}
+                                className={`w-full py-4 bg-cyan-500 text-black font-black text-[11px] uppercase tracking-[0.4em] rounded-2xl shadow-lg flex items-center justify-center gap-3 group transition-all ${isLoading ? 'opacity-50 cursor-wait' : ''}`}
                             >
-                                <Sparkles size={10} className="group-hover:rotate-12 transition-transform" />
-                                AWAKEN
+                                <Sparkles size={10} className={`${isLoading ? 'animate-spin' : 'group-hover:rotate-12'} transition-transform`} />
+                                {isLoading ? 'SYNCHRONIZING...' : 'AWAKEN'}
                             </motion.button>
 
                             <motion.button

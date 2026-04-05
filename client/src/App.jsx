@@ -17,6 +17,7 @@ import Manual from './pages/Manual';
 import Classes from './pages/Classes';
 import PatchNotes from './pages/PatchNotes';
 import PublicProfile from './pages/PublicProfile';
+import NeuralSyncPage from './pages/NeuralSyncPage';
 import useAuthStore from './store/useAuthStore';
 import { useEffect } from 'react';
 
@@ -72,6 +73,8 @@ function AnimatedRoutes() {
           <Route path="profile" element={<Profile />} />
           <Route path="admin" element={<AdminRoute><Admin /></AdminRoute>} />
         </Route>
+
+        <Route path="/dashboard/neural-sync" element={<ProtectedRoute><NeuralSyncPage /></ProtectedRoute>} />
       </Routes>
     </AnimatePresence>
   );

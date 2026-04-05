@@ -60,7 +60,7 @@ const DataBits = () => (
  * - className: Additional classes for the outer container
  * - children: Window content
  */
-const SystemWindow = ({ children, title, subtitle, status = "STABLE", module = "SYSTEM_01", className = "", variant = "primary" }) => {
+const SystemWindow = ({ children, title, subtitle, status = "STABLE", module = "SYSTEM_01", className = "", variant = "primary", onClose }) => {
     const sessionId = useMemo(() => `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}`, []);
     const [time, setTime] = useState(new Date());
 
@@ -139,9 +139,20 @@ const SystemWindow = ({ children, title, subtitle, status = "STABLE", module = "
                             style={{ clipPath: polygon }}
                         >
                             {/* Header Metadata */}
-                            <div className={`flex justify-between items-center px-10 pt-6 pb-2 ${isTactical ? 'opacity-80 dark:opacity-40' : 'opacity-40'} font-mono text-[8px] tracking-[0.5em] ${accentColor} uppercase`}>
-                                <span className={`flex items-center gap-2 underline ${underlineColor} underline-offset-4`}>{module} // {sessionId}</span>
-                                <span>{timeString}</span>
+                            <div className={`flex justify-between items-center px-10 pt-6 pb-2 font-mono text-[8px] tracking-[0.5em] ${accentColor} uppercase relative z-50`}>
+                                <span className={`flex items-center gap-2 underline ${underlineColor} underline-offset-4 ${isTactical ? 'opacity-60' : 'opacity-40'}`}>{module} // {sessionId}</span>
+                                <div className="flex items-center gap-6">
+                                    <span className={isTactical ? 'opacity-60' : 'opacity-40'}>{timeString}</span>
+                                    {onClose && (
+                                        <button 
+                                            onClick={onClose}
+                                            className="size-7 flex items-center justify-center rounded-lg bg-white/10 hover:bg-rose-500 text-white hover:text-white border border-white/20 hover:border-rose-500 transition-all group/close pointer-events-auto shadow-lg hover:shadow-rose-500/40"
+                                            title="CLOSE_UPLINK"
+                                        >
+                                            <span className="material-symbols-outlined text-[16px] font-black">close</span>
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Content Area */}

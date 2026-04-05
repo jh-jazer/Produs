@@ -1033,14 +1033,21 @@ export const devRPGTest = async (req, res) => {
                 user.markModified('rpg');
                 await user.save();
                 break;
-            case 'resetRPG':
+            case 'resetPath':
+                // Full Reversion: Return user to Level 0 (Unawakened)
                 user.exp = 0;
-                user.level = 1;
-                user.rpg = {
-                    str: 0, dex: 0, end: 0, int: 0, wis: 0, cha: 0,
-                    dailyXP: 0,
-                    lastDailyReset: new Date()
-                };
+                user.level = 0;
+                user.rpg.stats = { str: 0, dex: 0, end: 0, int: 0, wis: 0, cha: 0 };
+                user.rpg.path = null;
+                user.rpg.tier1 = null;
+                user.rpg.style = null;
+                user.rpg.alignment = null;
+                user.rpg.finalLabel = null;
+                user.rpg.archetype = { name: 'None', tier: 1, stage: 'Unawakened' };
+                user.rpg.pendingQuestions = ["1.0"]; // Correct string format
+                user.rpg.completedAnswers = [];
+                user.rpg.dailyXP.total = 0;
+                
                 user.markModified('rpg');
                 await user.save();
                 break;

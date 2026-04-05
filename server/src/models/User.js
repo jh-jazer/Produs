@@ -101,7 +101,7 @@ const userSchema = new mongoose.Schema({
             default: []
         },
         pendingQuestions: {
-            type: [Number],
+            type: [String],
             default: []
         },
         masteryPoints: {

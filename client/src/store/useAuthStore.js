@@ -16,8 +16,10 @@ try {
 const useAuthStore = create((set) => ({
     user: storedUserInfo,
     viewMode: 'me',
+    isNeuralSyncDismissed: false,
 
     setViewMode: (mode) => set({ viewMode: mode }),
+    setNeuralSyncDismissed: (bool) => set({ isNeuralSyncDismissed: bool }),
 
     setCredentials: (data) => {
         set({ user: data });
@@ -30,7 +32,17 @@ const useAuthStore = create((set) => ({
     syncUser: (data) => {
         set((state) => {
             if (!state.user) return { user: data };
-            const updatedUser = { ...state.user, ...data, token: state.user.token };
+            
+            // If data is just the RPG object, nest it correctly
+            const rpgData = data.pendingQuestions ? { rpg: data } : data;
+            
+            const updatedUser = { 
+                ...state.user, 
+                ...rpgData, 
+                rpg: { ...state.user.rpg, ...(rpgData.rpg || {}) },
+                token: state.user.token 
+            };
+            
             localStorage.setItem('userInfo', JSON.stringify(updatedUser));
             return { user: updatedUser };
         });
