@@ -70,6 +70,8 @@ const NeuralSyncPage = () => {
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [isUserInteracting, setIsUserInteracting] = useState(false);
     const [syncError, setSyncError] = useState(null);
+    const [showHUD, setShowHUD] = useState(true);
+    const lastScrollY = useRef(0);
 
     // 1. Initial Diagnostic Boot Sequence
     useEffect(() => {
@@ -151,8 +153,19 @@ const NeuralSyncPage = () => {
         }
     }, [currentQuestion, archivedAnswer]);
 
-    // 3. User Interaction Monitoring
+    // 3. User Interaction Monitoring & HUD Visibility
     useEffect(() => {
+        const handleScroll = () => {
+            // HUD Visibility Logic
+            const currentScrollY = window.scrollY;
+            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+                setShowHUD(false);
+            } else {
+                setShowHUD(true);
+            }
+            lastScrollY.current = currentScrollY;
+        };
+
         const handleInteraction = () => {
             setIsUserInteracting(true);
             if (interactionTimeoutRef.current) clearTimeout(interactionTimeoutRef.current);
@@ -161,12 +174,14 @@ const NeuralSyncPage = () => {
             }, 3000); // 3 seconds of peace before resuming auto-scroll
         };
 
+        window.addEventListener('scroll', handleScroll, { passive: true });
         window.addEventListener('scroll', handleInteraction, { passive: true });
         window.addEventListener('wheel', handleInteraction, { passive: true });
         window.addEventListener('touchmove', handleInteraction, { passive: true });
         window.addEventListener('mousedown', handleInteraction, { passive: true });
 
         return () => {
+            window.removeEventListener('scroll', handleScroll);
             window.removeEventListener('scroll', handleInteraction);
             window.removeEventListener('wheel', handleInteraction);
             window.removeEventListener('touchmove', handleInteraction);
@@ -361,7 +376,15 @@ const NeuralSyncPage = () => {
             </div>
 
             {/* Neural Progress HUD (Floating) */}
-            <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2">
+            <motion.div
+                initial={{ y: 0, opacity: 1, x: "-50%" }}
+                animate={{
+                    y: showHUD ? 0 : -100,
+                    opacity: showHUD ? 1 : 0
+                }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="fixed top-8 left-1/2 z-50 flex flex-col items-center gap-2"
+            >
                 <div className="flex items-center gap-4 px-6 py-3 bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl">
                     <div className="flex items-center gap-3 pr-4 border-r border-white/10">
                         <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -379,7 +402,7 @@ const NeuralSyncPage = () => {
                     animate={{ scaleX: 1 }}
                     className="h-px w-32 bg-gradient-to-r from-transparent via-rose-500/50 to-transparent"
                 />
-            </div>
+            </motion.div>
 
             <div className="max-w-3xl mx-auto px-6 relative z-10" ref={scrollContainerRef}>
                 <AnimatePresence mode="wait">
@@ -434,33 +457,38 @@ const NeuralSyncPage = () => {
                             {/* Narrative Section */}
                             <div className="space-y-6">
                                 {/* Cinematic Chapter Title */}
-                                    <div className="flex items-center gap-10 pt-10 pb-8 border-b border-white/5">
-                                        <button 
-                                            disabled={historyIndex <= 0}
-                                            onClick={handlePrev}
-                                            className="size-10 rounded-2xl border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:cursor-not-allowed transition-all font-black text-2xl"
-                                        >
-                                            <span className="mb-1 leading-none">&lt;</span>
-                                        </button>
-                                        
-                                        <div className="flex-1 text-center">
-                                            <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic text-white font-exo mb-2 select-none">
+                                    <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10 pt-10 pb-8 border-b border-white/5">
+                                        <div className="flex-1 text-center order-1 md:order-2">
+                                            <h1 className="text-2xl md:text-5xl font-black uppercase tracking-tighter italic text-white font-exo mb-2 select-none">
                                                 {currentQuestion?.title || currentQuestion?.section}
                                             </h1>
                                             <div className="flex items-center justify-center gap-4 text-white/20">
                                                 <div className="h-px w-10 bg-rose-500" />
-                                                <span className="text-[9px] font-mono tracking-[0.6em] uppercase">SYSTEM_CHAPTER_ARCHIVE</span>
+                                                <span className="text-[9px] font-mono tracking-[0.6em] uppercase">
+                                                    NODE_{currentQuestion?.questionId || '0.0'}
+                                                </span>
                                                 <div className="h-px w-10 bg-rose-500" />
                                             </div>
                                         </div>
 
-                                        <button 
-                                            disabled={historyIndex >= sessionHistory.length - 1}
-                                            onClick={handleNext}
-                                            className="size-10 rounded-2xl border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:cursor-not-allowed transition-all font-black text-2xl"
-                                        >
-                                            <span className="mb-1 leading-none">&gt;</span>
-                                        </button>
+                                        {/* Navigation Buttons */}
+                                        <div className="flex items-center gap-4 order-2 md:contents">
+                                            <button
+                                                disabled={historyIndex <= 0}
+                                                onClick={handlePrev}
+                                                className="size-10 rounded-2xl border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:cursor-not-allowed transition-all font-black text-2xl md:order-1"
+                                            >
+                                                <span className="mb-1 leading-none">&lt;</span>
+                                            </button>
+
+                                            <button
+                                                disabled={historyIndex >= sessionHistory.length - 1}
+                                                onClick={handleNext}
+                                                className="size-10 rounded-2xl border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:cursor-not-allowed transition-all font-black text-2xl md:order-3"
+                                            >
+                                                <span className="mb-1 leading-none">&gt;</span>
+                                            </button>
+                                        </div>
                                     </div>
 
                                 <div className="text-lg md:text-xl font-medium text-slate-300 leading-[1.8] space-y-8 font-display">
