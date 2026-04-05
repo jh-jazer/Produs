@@ -154,9 +154,9 @@ function Overview() {
             <IdentityHeader user={user} habits={habits} />
             
             <AnimatePresence mode="wait">
-              {viewMode === 'individual' ? (
+              {viewMode === 'personal' ? (
                 <motion.div
-                  key="individual-view"
+                  key="personal-view"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
