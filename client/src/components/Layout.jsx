@@ -123,8 +123,15 @@ function Layout() {
                             className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue ${isMobileMenuOpen ? 'rotate-0 scale-110 bg-electric-blue' : ''}`} 
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         />
-                        <span className="font-black text-[10px] uppercase tracking-[0.6em] text-black dark:text-white" onClick={() => navigate('/dashboard')}>
-                            Produs
+                        <span
+                            className={`font-black text-[10px] uppercase tracking-[0.6em] text-black dark:text-white ${isOverview ? 'cursor-pointer' : 'cursor-default'}`}
+                            onClick={() => isOverview && navigate('/dashboard')}
+                        >
+                            {isOverview ? 'Produs' : (
+                                navItems.find(item => item.path === location.pathname)?.name ||
+                                (location.pathname === '/dashboard/admin' ? 'Admin' :
+                                 location.pathname === '/dashboard/profile' ? 'Profile' : 'Produs')
+                            )}
                         </span>
                     </div>
 
