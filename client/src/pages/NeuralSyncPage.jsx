@@ -130,7 +130,16 @@ const NeuralSyncPage = () => {
     const currentQuestion = sessionHistory[historyIndex];
     const archivedAnswer = user?.rpg?.completedAnswers?.find(ans => ans.id === currentQuestion?.questionId);
 
-    // 3. Restore state for archived nodes
+    // 3. Reset all interaction states when switching questions
+    useEffect(() => {
+        setSelectedOption(null);
+        setPendingSyncData(null);
+        setIsTypingComplete(false);
+        setIsPostTypingComplete(false);
+        setSyncError(null);
+    }, [currentQuestion?.questionId]);
+
+    // 4. Restore state for archived nodes
     useEffect(() => {
         if (currentQuestion && archivedAnswer) {
             const preservedOption = currentQuestion.options.find(opt => opt.value === archivedAnswer.value);
@@ -417,7 +426,7 @@ const NeuralSyncPage = () => {
                     ) : currentQuestion ? (
                         <motion.div
                             key={currentQuestion.questionId}
-                            initial={{ opacity: 0 }}
+                            initial={archivedAnswer ? false : { opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="space-y-24"
@@ -456,7 +465,7 @@ const NeuralSyncPage = () => {
 
                                 <div className="text-lg md:text-xl font-medium text-slate-300 leading-[1.8] space-y-8 font-display">
                                     {archivedAnswer ? (
-                                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                                        <div className="">
                                             {currentQuestion?.story}
                                         </div>
                                     ) : (
@@ -471,7 +480,7 @@ const NeuralSyncPage = () => {
                                     <AnimatePresence>
                                         {selectedOption && (
                                             <motion.div 
-                                                initial={{ opacity: 0, y: 10 }}
+                                                initial={archivedAnswer ? false : { opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 className="pt-4 border-t border-white/5 space-y-6"
                                             >
@@ -481,7 +490,7 @@ const NeuralSyncPage = () => {
                                                 </div>
                                                 {selectedOption.postText && (
                                                     archivedAnswer ? (
-                                                        <div className="animate-in fade-in duration-700">
+                                                        <div className="">
                                                             {selectedOption.postText}
                                                         </div>
                                                     ) : (
@@ -502,7 +511,7 @@ const NeuralSyncPage = () => {
                             <AnimatePresence>
                                 {isTypingComplete && (
                                     <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
+                                        initial={archivedAnswer ? false : { opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className="space-y-6 pt-4"
                                     >
@@ -561,19 +570,22 @@ const NeuralSyncPage = () => {
                                                 </div>
                                             ) : selectedOption ? (
                                                 <motion.div 
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: (isPostTypingComplete || !selectedOption.postText) ? 1 : 0 }}
+                                                    initial={archivedAnswer ? false : { opacity: 0 }}
+                                                    animate={{ opacity: (isPostTypingComplete || !selectedOption.postText || archivedAnswer) ? 1 : 0 }}
                                                     className="pt-12"
                                                 >
-                                                    <button 
-                                                        onClick={handleProceed}
-                                                        className="w-fit text-lg md:text-xl font-black text-white hover:text-rose-500 transition-all font-display italic uppercase tracking-tighter flex items-center gap-4 group"
-                                                    >
-                                                        <span>NXT</span>
-                                                        <div className="size-6 rounded-full border border-white/20 flex items-center justify-center group-hover:border-rose-500 group-hover:translate-x-2 transition-all">
-                                                            <span className="text-xs">&gt;</span>
-                                                        </div>
-                                                    </button>
+                                                    {/* Show NXT if not archived, OR if archived but there are more questions in history */}
+                                                    {(!archivedAnswer || historyIndex < sessionHistory.length - 1) && (
+                                                        <button 
+                                                            onClick={archivedAnswer ? handleNext : handleProceed}
+                                                            className="w-fit text-lg md:text-xl font-black text-white hover:text-rose-500 transition-all font-display italic uppercase tracking-tighter flex items-center gap-4 group"
+                                                        >
+                                                            <span>NXT</span>
+                                                            <div className="size-6 rounded-full border border-white/20 flex items-center justify-center group-hover:border-rose-500 group-hover:translate-x-2 transition-all">
+                                                                <span className="text-xs">&gt;</span>
+                                                            </div>
+                                                        </button>
+                                                    )}
                                                 </motion.div>
                                             ) : historyIndex < sessionHistory.length - 1 ? (
                                                 <div className="space-y-4 pt-12">

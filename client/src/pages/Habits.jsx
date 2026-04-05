@@ -4,9 +4,7 @@ import {
     Calendar, 
     Trophy, 
     Flame, 
-    Target,
-    Users,
-    User
+    Target
 } from 'lucide-react';
 import useAuthStore from '../store/useAuthStore';
 import { useHabits } from '../hooks/useHabits';
@@ -83,23 +81,7 @@ function Habits() {
                     </p>
                 </div>
 
-                {/* View Toggle - Desktop only */}
-                {user?.partner && (
-                    <div className="hidden lg:flex bg-slate-100 dark:bg-white/5 p-1 rounded-2xl border border-slate-200 dark:border-white/10 ml-auto">
-                        <button
-                            onClick={() => setViewMode('me')}
-                            className={`flex items-center gap-2 px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${viewMode === 'me' ? 'bg-white dark:bg-slate-900 shadow-xl text-cyan-500' : 'text-slate-500 hover:text-slate-300'}`}
-                        >
-                            <User size={12} /> Personal
-                        </button>
-                        <button
-                            onClick={() => setViewMode('partner')}
-                            className={`flex items-center gap-2 px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${viewMode === 'partner' ? 'bg-white dark:bg-slate-900 shadow-xl text-purple-500' : 'text-slate-500 hover:text-slate-300'}`}
-                        >
-                            <Users size={12} /> Sync_View
-                        </button>
-                    </div>
-                )}
+
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

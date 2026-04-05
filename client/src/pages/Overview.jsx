@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Dashboard Zones
-import DashboardHeader from '../components/dashboard/DashboardHeader';
 import IdentityHeader from '../components/dashboard/IdentityHeader';
 import TodayActivity from '../components/dashboard/TodayActivity';
 import StreakStatus from '../components/dashboard/StreakStatus';
@@ -42,13 +41,7 @@ function Overview() {
   const { data: habits = [] } = useSWR('/habits', (url) => api.get(url).then(res => res.data));
   const { data: wishlist = [] } = useSWR('/finance/wishlist', (url) => api.get(url).then(res => res.data));
 
-  const realitySections = [
-    { id: 'header', label: 'Identity' },
-    { id: 'mood', label: 'Psych' },
-    { id: 'habits', label: 'Habits' },
-    { id: 'achievements', label: 'Goals' },
-    { id: 'wishlist', label: 'Finance' }
-  ];
+
 
   const updateMood = async (newMood) => {
     try {
@@ -88,7 +81,7 @@ function Overview() {
     "ATTACHING_NEURAL_LINK...",
     "CALIBRATING_SYNERGY_MATRICES...",
     "HYDRATING_DASHBOARD_ZONES...",
-    "LINKING_RPG_VECTORS...",
+    "LINKING_ISEKAI_VECTORS...",
     "SYNCHRONIZING_STAT_RADAR...",
     "ESTABLISHING_PARTNER_ENCRYPTION..."
   ];
@@ -163,7 +156,7 @@ function Overview() {
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   className="space-y-12"
                 >
-                  <DashboardHeader />
+
 
                   {/* Mode Switching Logic */}
                   <AnimatePresence mode="wait">
@@ -196,14 +189,7 @@ function Overview() {
                         exit={{ opacity: 0 }}
                         className="space-y-12"
                       >
-                        {/* Reality Section Navigation */}
-                        <div className="flex items-center gap-3 overflow-x-auto pb-4 no-scrollbar">
-                           {realitySections.map(s => (
-                             <button key={s.id} className="px-5 py-2.5 rounded-2xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-cyan-500 transition-all shrink-0">
-                                {s.label}
-                             </button>
-                           ))}
-                        </div>
+
 
                         {/* ZONE 1: Psychological Baseline */}
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">

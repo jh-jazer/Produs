@@ -78,7 +78,7 @@ const IdentityHeader = ({ user, habits = [] }) => {
                             ) : (
                                 <Lock size={10} className="text-white/20" />
                             )}
-                            <span className="hidden md:block">RPG_LINK</span>
+                            <span className="hidden md:block">ISEKAI</span>
                         </button>
                     </div>
 
