@@ -226,7 +226,8 @@ export default function Landing() {
         className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-6 md:py-10 flex justify-between items-center pointer-events-none"
       >
         <div className="flex items-center gap-3 md:gap-4 group cursor-pointer pointer-events-auto">
-          <Logo glow className="size-12" color="#3B82F6" />
+          <Logo glow className="size-8 md:size-10" color="#3B82F6" />
+          <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-white mt-1">Produs</span>
         </div>
 
 
