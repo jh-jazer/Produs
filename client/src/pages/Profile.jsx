@@ -9,6 +9,8 @@ import api from '../services/api';
 import Avatar from '../components/ui/Avatar';
 import AvatarEditor from '../components/ui/AvatarEditor';
 import ProfileModal from '../components/ui/ProfileModal';
+import ConnectionsModal from '../components/ui/ConnectionsModal';
+import PartnerModal from '../components/ui/PartnerModal';
 
 function Profile() {
     const navigate = useNavigate();
@@ -46,15 +48,9 @@ function Profile() {
     const [saveMessage, setSaveMessage] = useState("");
 
     const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
-    const [connectionsData, setConnectionsData] = useState({ connections: [], incoming: [], outgoing: [] });
-    const [isFetchingConnections, setIsFetchingConnections] = useState(false);
-    const [activeConnectionsTab, setActiveConnectionsTab] = useState('connections');
     const [isEditing, setIsEditing] = useState(false);
     const [profileModalUser, setProfileModalUser] = useState(null);
 
-    const [partnerEmail, setPartnerEmail] = useState("");
-    const [isLinking, setIsLinking] = useState(false);
-    const [linkMessage, setLinkMessage] = useState("");
     const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
     const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
@@ -73,23 +69,6 @@ function Profile() {
             console.error("Failed to sync user state", err);
         }
     };
-
-    useEffect(() => {
-        const fetchConnections = async () => {
-            if (!isConnectionsModalOpen) return;
-            try {
-                setIsFetchingConnections(true);
-                const res = await api.get('/auth/connections');
-                setConnectionsData(res.data);
-            } catch (err) {
-                console.error("Failed to fetch connections", err);
-            } finally {
-                setIsFetchingConnections(false);
-            }
-        };
-        fetchConnections();
-    }, [isConnectionsModalOpen]);
-
 
     useEffect(() => {
         const checkAvailability = async () => {
@@ -173,83 +152,6 @@ function Profile() {
         }
     };
 
-    const handleLinkPartner = async (e) => {
-        e.preventDefault();
-        if (!partnerEmail.trim()) return;
-        setIsLinking(true);
-        setLinkMessage("");
-        try {
-            const res = await api.post('/auth/partner/request', { email: partnerEmail });
-            setLinkMessage(res.data.message || "Request sent!");
-            setCredentials({ ...user, outgoingPartnerRequest: res.data.outgoingRequest });
-            setPartnerEmail("");
-            setTimeout(() => setLinkMessage(""), 3000);
-        } catch (error) {
-            setLinkMessage(error.response?.data?.message || "Failed to send request");
-        } finally {
-            setIsLinking(false);
-        }
-    };
-
-    const handleAcceptRequest = async () => {
-        setIsLinking(true);
-        setLinkMessage("");
-        try {
-            const res = await api.post('/auth/partner/accept');
-            setLinkMessage(res.data.message || "Linked successfully!");
-            setCredentials({ ...user, partner: res.data.partner, incomingPartnerRequest: null });
-            setTimeout(() => setLinkMessage(""), 3000);
-        } catch (error) {
-            setLinkMessage(error.response?.data?.message || "Failed to accept request");
-        } finally {
-            setIsLinking(false);
-        }
-    };
-
-    const handleRejectRequest = async () => {
-        setIsLinking(true);
-        setLinkMessage("");
-        try {
-            await api.post('/auth/partner/reject');
-            setLinkMessage("Request rejected");
-            setCredentials({ ...user, incomingPartnerRequest: null });
-            setTimeout(() => setLinkMessage(""), 3000);
-        } catch (error) {
-            setLinkMessage(error.response?.data?.message || "Failed to reject request");
-        } finally {
-            setIsLinking(false);
-        }
-    };
-
-    const handleCancelRequest = async () => {
-        setIsLinking(true);
-        setLinkMessage("");
-        try {
-            await api.post('/auth/partner/cancel');
-            setLinkMessage("Request canceled");
-            setCredentials({ ...user, outgoingPartnerRequest: null });
-            setTimeout(() => setLinkMessage(""), 3000);
-        } catch (error) {
-            setLinkMessage(error.response?.data?.message || "Failed to cancel request");
-        } finally {
-            setIsLinking(false);
-        }
-    };
-
-    const handleUnlinkPartner = async () => {
-        setIsLinking(true);
-        setLinkMessage("");
-        try {
-            await api.post('/auth/partner/unlink');
-            setLinkMessage("Unlinked successfully!");
-            setCredentials({ ...user, partner: null });
-            setTimeout(() => setLinkMessage(""), 3000);
-        } catch (error) {
-            setLinkMessage(error.response?.data?.message || "Failed to unlink partner");
-        } finally {
-            setIsLinking(false);
-        }
-    };
 
     const moodEmojis = {
         great: { emoji: "🤩", label: "Great" },
@@ -674,346 +576,18 @@ function Profile() {
         </motion.div>
 
         {/* Connections Modal */}
-        <AnimatePresence>
-            {isConnectionsModalOpen && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
-                >
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setIsConnectionsModalOpen(false)}
-                        className="fixed inset-0 bg-[#121212]/60 dark:bg-black/80 backdrop-blur-sm"
-                    />
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="relative w-full max-w-md bg-white dark:bg-[#121212] rounded-[32px] shadow-2xl overflow-hidden border border-slate-200 dark:border-white/10 flex flex-col max-h-[85vh]"
-                    >
-                        <div className="p-6 border-b border-slate-100 dark:border-white/10 flex items-center justify-between bg-slate-50 dark:bg-[#000000]/20">
-                            <div>
-                                <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-primary">group</span>
-                                    Connections
-                                </h2>
-                                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">Manage your network</p>
-                            </div>
-                            <button
-                                onClick={() => setIsConnectionsModalOpen(false)}
-                                className="size-10 flex items-center justify-center rounded-2xl bg-slate-100 dark:bg-[#000000] text-slate-500 hover:text-rose-500 transition-colors"
-                            >
-                                <span className="material-symbols-outlined">close</span>
-                            </button>
-                        </div>
-
-                        {/* Tabs */}
-                        <div className="flex p-1.5 bg-slate-100 dark:bg-[#121212]/50 m-4 rounded-2xl shrink-0">
-                            {[
-                                { id: 'connections', label: 'Network', icon: 'hub', count: connectionsData.connections.length },
-                                { id: 'incoming', label: 'Requests', icon: 'inbox', count: connectionsData.incoming.length },
-                                { id: 'outgoing', label: 'Pending', icon: 'outgoing_mail', count: connectionsData.outgoing.length }
-                            ].map((tab) => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveConnectionsTab(tab.id)}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-[14px] text-xs font-black uppercase tracking-tighter transition-all relative ${
-                                        activeConnectionsTab === tab.id
-                                            ? 'bg-white dark:bg-[#000000] text-primary shadow-none'
-                                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                                    }`}
-                                >
-                                    <span className="material-symbols-outlined text-[16px]">{tab.icon}</span>
-                                    {tab.label}
-                                    {tab.count > 0 && (
-                                        <span className={`size-4 flex items-center justify-center rounded-full text-[9px] font-black ${
-                                            activeConnectionsTab === tab.id ? 'bg-primary text-white' : 'bg-slate-300 dark:bg-[#121212] text-slate-600 dark:text-slate-400'
-                                        }`}>
-                                            {tab.count}
-                                        </span>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto px-4 pb-6 custom-scrollbar">
-                            {isFetchingConnections ? (
-                                <div className="py-20 flex flex-col items-center justify-center gap-4">
-                                    <div className="size-8 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading network...</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    {activeConnectionsTab === 'connections' && (
-                                        connectionsData.connections.length > 0 ? connectionsData.connections.map(u => (
-                                             <div key={u._id} className={`p-3 border rounded-2xl flex items-center justify-between group ${user?.partner?._id === u._id ? 'bg-rose-50/50 border-rose-200 dark:bg-rose-500/5 dark:border-rose-500/20 shadow-none' : 'bg-slate-50 dark:bg-[#121212]/40 border-slate-100 dark:border-white/10'}`}>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="size-11 rounded-full bg-white dark:bg-[#000000] overflow-hidden border border-slate-200 dark:border-white/10 shadow-none flex items-center justify-center">
-                                                        <Avatar config={u.avatar} scale={0.8} />
-                                                    </div>
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <p className="text-sm font-black text-slate-900 dark:text-white leading-tight">{u.name}</p>
-                                                            {user?.partner?._id === u._id && (
-                                                                <span className="px-1.5 py-0.5 rounded-md bg-rose-500 text-white text-[8px] font-black uppercase tracking-widest leading-none shadow-none">Shared</span>
-                                                            )}
-                                                        </div>
-                                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">@{u.username}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => { setProfileModalUser(u.username); setIsConnectionsModalOpen(false); }} className="size-9 flex items-center justify-center rounded-xl bg-white dark:bg-[#000000] border border-slate-200 dark:border-white/10 text-slate-400 hover:text-primary transition-all active:scale-95" title="View Profile">
-                                                        <span className="material-symbols-outlined text-[18px]">person</span>
-                                                    </button>
-                                                    {user?.partner?._id !== u._id && (
-                                                        <button
-                                                            onClick={() => {
-                                                                if(window.confirm(`Disconnect from ${u.name}?`)) {
-                                                                    handleConnectionAction('disconnect', u._id);
-                                                                }
-                                                            }}
-                                                            className="size-9 flex items-center justify-center rounded-xl bg-white dark:bg-[#000000] border border-slate-200 dark:border-white/10 text-slate-400 hover:text-rose-500 transition-all active:scale-95"
-                                                            title="Disconnect"
-                                                        >
-                                                            <span className="material-symbols-outlined text-[18px]">link_off</span>
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )) : (
-                                            <div className="py-12 text-center opacity-40">
-                                                <span className="material-symbols-outlined text-4xl mb-2">person_off</span>
-                                                <p className="text-xs font-black uppercase tracking-widest">Network empty</p>
-                                            </div>
-                                        )
-                                    )}
-
-                                    {activeConnectionsTab === 'incoming' && (
-                                        connectionsData.incoming.length > 0 ? connectionsData.incoming.map(u => (
-                                            <div key={u._id} className="p-3 bg-slate-50 dark:bg-[#121212]/40 border border-slate-100 dark:border-white/10 rounded-2xl flex items-center justify-between animate-in slide-in-from-right duration-300">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="size-11 rounded-full bg-white dark:bg-[#000000] overflow-hidden border border-slate-200 dark:border-white/10 shadow-none flex items-center justify-center">
-                                                        <Avatar config={u.avatar} scale={0.8} />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-black text-slate-900 dark:text-white leading-tight">{u.name}</p>
-                                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">@{u.username}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <button onClick={() => handleConnectionAction('reject', u._id)} className="size-9 flex items-center justify-center rounded-xl bg-white dark:bg-[#000000] border border-slate-200 dark:border-white/10 text-slate-400 hover:text-rose-500 transition-all active:scale-95" title="Reject">
-                                                        <span className="material-symbols-outlined text-[18px]">close</span>
-                                                    </button>
-                                                    <button onClick={() => handleConnectionAction('accept', u._id)} className="size-9 flex items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20 hover:scale-110 active:scale-90 transition-all" title="Accept">
-                                                        <span className="material-symbols-outlined text-[18px]">check</span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        )) : (
-                                            <div className="py-12 text-center opacity-40">
-                                                <span className="material-symbols-outlined text-4xl mb-2">inbox</span>
-                                                <p className="text-xs font-black uppercase tracking-widest">No pending requests</p>
-                                            </div>
-                                        )
-                                    )}
-
-                                    {activeConnectionsTab === 'outgoing' && (
-                                        connectionsData.outgoing.length > 0 ? connectionsData.outgoing.map(u => (
-                                            <div key={u._id} className="p-3 bg-slate-50 dark:bg-[#121212]/40 border border-slate-100 dark:border-white/10 rounded-2xl flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="size-11 rounded-full bg-white dark:bg-[#000000] overflow-hidden border border-slate-200 dark:border-white/10 shadow-none flex items-center justify-center">
-                                                        <Avatar config={u.avatar} scale={0.8} />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-black text-slate-900 dark:text-white leading-tight">{u.name}</p>
-                                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">@{u.username}</p>
-                                                    </div>
-                                                </div>
-                                                <button onClick={() => handleConnectionAction('cancel', u._id)} className="px-3 py-1.5 bg-slate-100 dark:bg-[#000000] rounded-xl text-[10px] font-black uppercase text-slate-400 hover:text-rose-500 transition-colors" title="Cancel Request">
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        )) : (
-                                            <div className="py-12 text-center opacity-40">
-                                                <span className="material-symbols-outlined text-4xl mb-2">send</span>
-                                                <p className="text-xs font-black uppercase tracking-widest">No sent requests</p>
-                                            </div>
-                                        )
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </motion.div>
-                </motion.div>
-            )}
-        </AnimatePresence>
+        <ConnectionsModal
+            isOpen={isConnectionsModalOpen}
+            onClose={() => setIsConnectionsModalOpen(false)}
+            onProfileClick={(username) => { setProfileModalUser(username); setIsConnectionsModalOpen(false); }}
+        />
 
         {/* Shared Account Modal */}
-        <AnimatePresence>
-            {isPartnerModalOpen && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[200] flex items-center justify-center p-4"
-                    onClick={() => { setIsPartnerModalOpen(false); setLinkMessage(''); }}
-                >
-                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-sm" />
-                    <motion.div
-                        initial={{ scale: 0.95, opacity: 0, y: 10 }}
-                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.95, opacity: 0, y: 10 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                        onClick={(e) => e.stopPropagation()}
-                        className="relative z-10 w-full max-w-md bg-white dark:bg-[#121212] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 p-8"
-                    >
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-3">
-                                <div className="size-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-primary text-xl">{user?.partner ? 'favorite' : 'link'}</span>
-                                </div>
-                                <div>
-                                    <h2 className="text-lg font-black text-slate-900 dark:text-white">Shared Account</h2>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">View each other's Habits &amp; Planner</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => { setIsPartnerModalOpen(false); setLinkMessage(''); }}
-                                className="size-8 rounded-xl bg-slate-100 dark:bg-[#000000] hover:bg-slate-200 dark:hover:bg-[#121212] flex items-center justify-center transition-colors"
-                            >
-                                <span className="material-symbols-outlined text-[18px] text-slate-500">close</span>
-                            </button>
-                        </div>
-
-                        {user?.partner ? (
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-4 p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
-                                    <div className="size-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-xl font-black text-emerald-600 shrink-0">
-                                        {user.partner.name?.charAt(0).toUpperCase()}
-                                    </div>
-                                    <div className="flex-1 min-w-0 flex items-center justify-between gap-3">
-                                        <div>
-                                            <p className="text-sm font-black text-slate-900 dark:text-white leading-tight">{user.partner.name}</p>
-                                            <p className="text-xs text-emerald-500 font-bold flex items-center gap-1">
-                                                <span className="material-symbols-outlined text-[14px]">check_circle</span> Shared
-                                            </p>
-                                        </div>
-                                        <button
-                                            onClick={() => { setProfileModalUser(user.partner.username); setIsPartnerModalOpen(false); }}
-                                            className="size-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-[#000000] border border-slate-200 dark:border-white/10 text-slate-400 hover:text-primary hover:border-primary/30 transition-all active:scale-95"
-                                            title={`Visit ${user.partner.name}'s Profile`}
-                                        >
-                                            <span className="material-symbols-outlined text-[18px]">person</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                {linkMessage && (
-                                    <p className={`text-xs font-bold ${linkMessage.includes('Failed') || linkMessage.includes('rejected') || linkMessage.includes('canceled') ? 'text-rose-500' : 'text-emerald-500'}`}>{linkMessage}</p>
-                                )}
-                                <button
-                                    onClick={handleUnlinkPartner}
-                                    disabled={isLinking}
-                                    className="w-full py-3 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 rounded-2xl font-black text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">link_off</span>
-                                    {isLinking ? 'Unlinking...' : 'Unlink Shared User'}
-                                </button>
-                            </div>
-                        ) : user?.incomingPartnerRequest ? (
-                            <div className="space-y-4">
-                                <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 space-y-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="size-10 rounded-full bg-primary/20 flex items-center justify-center text-lg font-black text-primary uppercase">
-                                            {user.incomingPartnerRequest.name?.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-black text-slate-900 dark:text-white text-wrap pr-1">{user.incomingPartnerRequest.name} wants to share!</p>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Incoming Request</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-2 pt-1">
-                                        <button
-                                            onClick={handleAcceptRequest}
-                                            disabled={isLinking}
-                                            className="flex-1 py-2 bg-primary text-white rounded-xl font-black text-xs hover:opacity-90 transition-opacity disabled:opacity-50"
-                                        >
-                                            {isLinking ? '...' : 'Accept'}
-                                        </button>
-                                        <button
-                                            onClick={handleRejectRequest}
-                                            disabled={isLinking}
-                                            className="flex-1 py-2 bg-slate-200 dark:bg-[#000000] text-slate-700 dark:text-slate-300 rounded-xl font-black text-xs hover:bg-slate-300 dark:hover:bg-[#121212] transition-colors disabled:opacity-50"
-                                        >
-                                            Reject
-                                        </button>
-                                    </div>
-                                </div>
-                                {linkMessage && (
-                                    <p className={`text-xs font-bold ${linkMessage.includes('Failed') || linkMessage.includes('rejected') ? 'text-rose-500' : 'text-emerald-500'}`}>{linkMessage}</p>
-                                )}
-                            </div>
-                        ) : user?.outgoingPartnerRequest ? (
-                            <div className="space-y-4">
-                                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 space-y-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="size-10 rounded-full bg-slate-200 dark:bg-[#000000] flex items-center justify-center text-lg font-black text-slate-400 uppercase">
-                                            {user.outgoingPartnerRequest.name?.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-black text-slate-900 dark:text-white text-wrap pr-1">Share request sent to {user.outgoingPartnerRequest.name}</p>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Waiting for approval...</p>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={handleCancelRequest}
-                                        disabled={isLinking}
-                                        className="w-full py-2 bg-slate-100 dark:bg-[#000000] text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl font-black text-xs transition-all disabled:opacity-50"
-                                    >
-                                        Cancel Request
-                                    </button>
-                                </div>
-                                {linkMessage && (
-                                    <p className={`text-xs font-bold ${linkMessage.includes('Failed') || linkMessage.includes('canceled') ? 'text-rose-500' : 'text-emerald-500'}`}>{linkMessage}</p>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                                    Enter an email address to share your progress and collaborate on habits.
-                                </p>
-                                <form onSubmit={handleLinkPartner} className="space-y-3">
-                                    <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px]">mail</span>
-                                        <input
-                                            type="email"
-                                            value={partnerEmail}
-                                            onChange={(e) => setPartnerEmail(e.target.value)}
-                                            placeholder="user@email.com"
-                                            className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 text-sm font-medium rounded-2xl outline-none focus:border-primary transition-colors"
-                                        />
-                                    </div>
-                                    {linkMessage && (
-                                        <p className={`text-xs font-bold ${linkMessage.includes('Failed') ? 'text-rose-500' : 'text-emerald-500'}`}>{linkMessage}</p>
-                                    )}
-                                    <button
-                                        type="submit"
-                                        disabled={isLinking || !partnerEmail.trim()}
-                                        className="w-full py-3 bg-primary text-white rounded-2xl font-black text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 disabled:opacity-40 flex items-center justify-center gap-2"
-                                    >
-                                        <span className="material-symbols-outlined text-[18px]">send</span>
-                                        {isLinking ? 'Sending...' : 'Send Share Request'}
-                                    </button>
-                                </form>
-                            </div>
-                        )}
-                    </motion.div>
-                </motion.div>
-            )}
-        </AnimatePresence>
+        <PartnerModal
+            isOpen={isPartnerModalOpen}
+            onClose={() => setIsPartnerModalOpen(false)}
+            onProfileClick={(username) => { setProfileModalUser(username); setIsPartnerModalOpen(false); }}
+        />
 
         {/* Avatar Editor Modal */}
         {isAvatarEditorOpen && (
