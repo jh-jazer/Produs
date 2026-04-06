@@ -102,6 +102,9 @@ function Layout() {
         });
     };
 
+    const currentNavItem = navItems.find(item => item.path === location.pathname);
+    const pageTitle = (currentNavItem && !isOverview) ? currentNavItem.name : 'PRODUS';
+
     return (
         <DashboardContext.Provider value={{ 
             setIsSearchModalOpen, 
@@ -119,10 +122,10 @@ function Layout() {
                 <div className={`md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-[135] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03] ${isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
                     <div
                         className="flex items-center gap-3 group cursor-pointer relative"
-                        onClick={() => navigate('/dashboard')}
+                        onClick={() => setIsMobileMenuOpen(true)}
                     >
                             <Logo glow className="size-10 md:size-11" color="currentColor" />
-
+                            <span className="font-black text-[11px] uppercase tracking-[0.6em] leading-none text-black dark:text-white mt-1">{pageTitle}</span>
                     </div>
 
                     {/* Tactical Tools Right */}
