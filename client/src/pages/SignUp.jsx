@@ -62,8 +62,8 @@ function SignUp() {
 
                     {/* Logo */}
                     <div className="flex items-center justify-center gap-2.5 mb-8">
-                        <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg ring-1 ring-slate-900/10 bg-white">
-                            <img src="/produs-logo.png" alt="Produs Logo" className="w-full h-full object-cover" />
+                        <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg ring-1 ring-slate-900/10 dark:ring-white/10 bg-white dark:bg-white/5 p-1.5 flex items-center justify-center">
+                            <img src="/produs-logo.png" alt="Produs Logo" className="w-full h-full object-contain" />
                         </div>
                         <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">Produs</span>
                     </div>

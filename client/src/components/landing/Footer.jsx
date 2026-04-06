@@ -17,7 +17,11 @@ export default function Footer() {
         
         {/* Left: Original Logo & Name */}
         <div className="flex items-center gap-3 group cursor-default">
-          <div className="size-3 bg-white rotate-45 transition-all group-hover:rotate-0" />
+          <img 
+            src="/produs-logo.png" 
+            alt="Produs" 
+            className="size-4 md:size-5 object-contain transition-all group-hover:scale-110" 
+          />
           <span className="font-normal text-[10px] uppercase tracking-[0.5em] text-white/80">
             Produs
           </span>

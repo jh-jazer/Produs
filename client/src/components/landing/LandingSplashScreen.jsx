@@ -62,14 +62,15 @@ const LandingSplashScreen = ({ onComplete }) => {
                             />
                             
                             <motion.div
-                                initial={{ rotate: 0, scale: 0.8, opacity: 0 }}
-                                animate={{ rotate: 45, scale: 1, opacity: 1 }}
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
                                 transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                                className="size-20 bg-white flex items-center justify-center relative z-10 shadow-[0_0_40px_rgba(255,255,255,0.4)]"
+                                className="size-28 flex items-center justify-center relative z-10"
                             >
-                                <motion.div
-                                    initial={{ rotate: -45 }}
-                                    className="size-10 bg-black shadow-[inset_0_0_20px_rgba(255,255,255,0.2)]"
+                                <img 
+                                    src="/produs-logo.png" 
+                                    alt="Produs" 
+                                    className="w-full h-full object-contain drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]" 
                                 />
                             </motion.div>
                         </div>

@@ -61,7 +61,7 @@ export default function PatchNotes() {
           <span className="hidden md:inline-block font-normal text-[10px] uppercase tracking-[0.5em] text-white/80 group-hover:text-current transition-colors">Return</span>
         </Link>
         <div className="mx-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
-          <div className="size-4 bg-electric-blue flex items-center justify-center rotate-45" />
+          <img src="/produs-logo.png" alt="Produs" className="size-5 md:size-6 object-contain" />
           <span className="font-normal text-[11px] md:text-xs uppercase tracking-[0.8em] text-white">Changelog</span>
         </div>
       </nav>

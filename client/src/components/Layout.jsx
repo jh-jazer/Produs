@@ -118,12 +118,14 @@ function Layout() {
                 <div className={`md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-[135] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03] ${isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
                     <div
                         className="flex items-center gap-3 group cursor-pointer relative"
+                        onClick={() => navigate('/dashboard')}
                     >
-                        <div 
-                            className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue ${isMobileMenuOpen ? 'rotate-0 scale-110 bg-electric-blue' : ''}`} 
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        <img 
+                            src="/produs-logo.png" 
+                            alt="Produs" 
+                            className={`size-7 object-contain transition-all duration-500 ${isMobileMenuOpen ? 'scale-110' : ''}`} 
                         />
-                        <span className="font-black text-[10px] uppercase tracking-[0.6em] text-black dark:text-white" onClick={() => navigate('/dashboard')}>
+                        <span className="font-black text-[10px] uppercase tracking-[0.6em] text-black dark:text-white">
                             Produs
                         </span>
                     </div>
@@ -191,7 +193,11 @@ function Layout() {
                     {/* 1. Sidebar Header: Logo */}
                     <div className="h-24 flex items-center px-6 shrink-0">
                         <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => isMobileMenuOpen ? setIsMobileMenuOpen(false) : navigate('/dashboard')}>
-                            <div className={`size-6 shrink-0 flex items-center justify-center bg-black dark:bg-white rotate-45 transition-all group-hover:bg-electric-blue group-hover:rotate-0 ${isMobileMenuOpen ? 'rotate-0 bg-electric-blue' : ''}`} />
+                            <img 
+                                src="/produs-logo.png" 
+                                alt="Produs" 
+                                className={`size-8 object-contain transition-all duration-500 group-hover:scale-110 ${isMobileMenuOpen ? 'scale-110' : ''}`} 
+                            />
                             <div className={`flex items-center overflow-hidden transition-all duration-500 ease-in-out
                                 ${(deferredPath === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden md:flex'}
                             `}>
