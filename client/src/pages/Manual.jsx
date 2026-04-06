@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Database, Shield, Server, User } from 'lucide-react';
 import Footer from '../components/landing/Footer';
+import Logo from '../components/brand/Logo';
 
 export default function Manual() {
   return (
@@ -15,10 +16,10 @@ export default function Manual() {
           </div>
           <span className="hidden md:inline-block font-normal text-[10px] uppercase tracking-[0.5em] text-white/80 group-hover:text-current transition-colors">Return</span>
         </Link>
-        <div className="mx-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
-          <img src="/produs-logo.png" alt="Produs" className="size-5 md:size-6 object-contain" />
-          <span className="font-normal text-[11px] md:text-xs uppercase tracking-[0.8em] text-white">System Manual</span>
-        </div>
+        <Link to="/dashboard" className="mx-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-4 group">
+            <Logo glow className="size-9 md:size-11" color="white" />
+
+        </Link>
       </nav>
 
       {/* Content */}

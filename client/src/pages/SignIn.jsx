@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
+import Logo from '../components/brand/Logo';
 
 function SignIn() {
     const [email, setEmail] = useState('');
@@ -55,11 +56,11 @@ function SignIn() {
                 <div className="px-6 py-8 sm:px-12 sm:py-12">
 
                     {/* Logo */}
-                    <div className="flex items-center justify-center gap-2.5 mb-8">
+                    <div className="flex items-center justify-center gap-2.5 mb-10">
                         <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg ring-1 ring-slate-900/10 dark:ring-white/10 bg-white dark:bg-white/5 p-1.5 flex items-center justify-center">
-                            <img src="/produs-logo.png" alt="Produs Logo" className="w-full h-full object-contain" />
+                            <Logo glow={false} className="w-full h-full" />
                         </div>
-                        <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">Produs</span>
+                        <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">Produs</span>
                     </div>
 
                     {/* Header */}

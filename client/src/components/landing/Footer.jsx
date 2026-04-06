@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import Logo from "../brand/Logo";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -12,16 +13,12 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="w-full py-4 border-t border-white/5 bg-black/50 backdrop-blur-sm transition-all">
-      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+    <footer className="relative z-10 w-full px-4 md:px-12 py-12 md:py-20 bg-black/80 backdrop-blur-md border-t border-white/5">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
         
         {/* Left: Original Logo & Name */}
         <div className="flex items-center gap-3 group cursor-default">
-          <img 
-            src="/produs-logo.png" 
-            alt="Produs" 
-            className="size-4 md:size-5 object-contain transition-all group-hover:scale-110" 
-          />
+          <Logo glow={false} className="size-6 md:size-7" color="white" />
           <span className="font-normal text-[10px] uppercase tracking-[0.5em] text-white/80">
             Produs
           </span>

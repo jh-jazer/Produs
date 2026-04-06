@@ -6,6 +6,7 @@ import {
   Heart, Coins, Zap, Dumbbell, Clock, Activity, Target, Network, BookOpen,
   Search, Filter, Info, ArrowRight, Lock, Eye
 } from 'lucide-react';
+import Logo from '../components/brand/Logo';
 import Footer from '../components/landing/Footer';
 
 const ARCHETYPES = [
@@ -338,9 +339,12 @@ export default function Classes() {
           </div>
           <span className="hidden md:inline-block text-[10px] uppercase tracking-[0.6em] text-white/40 group-hover:text-white transition-colors">Return</span>
         </Link>
-        <div className="mx-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-4">
-          <img src="/produs-logo.png" alt="Produs" className="size-5 md:size-6 object-contain" />
-          <h1 className="text-[11px] md:text-sm uppercase tracking-[0.8em] text-white font-outfit">The Archetypes</h1>
+        <div className="mx-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-4 group">
+          <div className="relative">
+            <div className="absolute inset-x-0 bottom-0 top-1/2 bg-white/5 blur-md rounded-full group-hover:bg-white/10 transition-colors duration-500 opacity-0 group-hover:opacity-100 scale-150" />
+            <Logo glow className="size-10 md:size-12" color="white" />
+
+          </div>
         </div>
         
       </nav>

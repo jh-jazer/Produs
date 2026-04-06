@@ -11,6 +11,8 @@ import {
   Calendar,
   Heart
 } from "lucide-react";
+import Logo from "../components/brand/Logo";
+
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
@@ -224,12 +226,7 @@ export default function Landing() {
         className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-6 md:py-10 flex justify-between items-center pointer-events-none"
       >
         <div className="flex items-center gap-3 md:gap-4 group cursor-pointer pointer-events-auto">
-          <img 
-            src="/produs-logo.png" 
-            alt="Produs" 
-            className="size-5 md:size-7 object-contain transition-all duration-500 group-hover:scale-110" 
-          />
-          <span className="font-normal text-[11px] md:text-xs uppercase tracking-[0.5em] md:tracking-[0.8em] text-white/80 group-hover:text-current transition-colors hidden sm:inline-block">Produs</span>
+          <Logo glow className="size-12" color="#3B82F6" />
         </div>
 
 

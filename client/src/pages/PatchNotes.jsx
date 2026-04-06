@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, GitCommit, Rocket, Wrench } from 'lucide-react';
+import Logo from '../components/brand/Logo';
 import Footer from '../components/landing/Footer';
 
 export default function PatchNotes() {
@@ -60,10 +61,13 @@ export default function PatchNotes() {
           </div>
           <span className="hidden md:inline-block font-normal text-[10px] uppercase tracking-[0.5em] text-white/80 group-hover:text-current transition-colors">Return</span>
         </Link>
-        <div className="mx-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
-          <img src="/produs-logo.png" alt="Produs" className="size-5 md:size-6 object-contain" />
-          <span className="font-normal text-[11px] md:text-xs uppercase tracking-[0.8em] text-white">Changelog</span>
-        </div>
+        <Link to="/manual" className="flex items-center gap-4 group mx-auto absolute left-1/2 -translate-x-1/2">
+          <div className="relative">
+            <div className="absolute inset-x-0 bottom-0 top-1/2 bg-white/5 blur-md rounded-full group-hover:bg-white/10 transition-colors duration-500 opacity-0 group-hover:opacity-100 scale-150" />
+            <Logo glow className="size-9 md:size-11" color="white" />
+
+          </div>
+        </Link>
       </nav>
 
       {/* Content */}

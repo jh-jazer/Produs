@@ -17,6 +17,7 @@ import UserMenuModal from "./ui/UserMenuModal";
 import LevelDisplay from './ui/LevelDisplay';
 import DashboardHeader from './dashboard/DashboardHeader';
 import { DashboardContext, FrozenRoute } from '../context/DashboardContext';
+import Logo from './brand/Logo';
 
 function Layout() {
     const { user, signOut } = useAuthStore();
@@ -120,14 +121,8 @@ function Layout() {
                         className="flex items-center gap-3 group cursor-pointer relative"
                         onClick={() => navigate('/dashboard')}
                     >
-                        <img 
-                            src="/produs-logo.png" 
-                            alt="Produs" 
-                            className={`size-7 object-contain transition-all duration-500 ${isMobileMenuOpen ? 'scale-110' : ''}`} 
-                        />
-                        <span className="font-black text-[10px] uppercase tracking-[0.6em] text-black dark:text-white">
-                            Produs
-                        </span>
+                            <Logo glow className="size-10 md:size-11" color="currentColor" />
+
                     </div>
 
                     {/* Tactical Tools Right */}
@@ -193,11 +188,8 @@ function Layout() {
                     {/* 1. Sidebar Header: Logo */}
                     <div className="h-24 flex items-center px-6 shrink-0">
                         <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => isMobileMenuOpen ? setIsMobileMenuOpen(false) : navigate('/dashboard')}>
-                            <img 
-                                src="/produs-logo.png" 
-                                alt="Produs" 
-                                className={`size-8 object-contain transition-all duration-500 group-hover:scale-110 ${isMobileMenuOpen ? 'scale-110' : ''}`} 
-                            />
+                            <Logo className="size-10" color="currentColor" glow={false} />
+
                             <div className={`flex items-center overflow-hidden transition-all duration-500 ease-in-out
                                 ${(deferredPath === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden md:flex'}
                             `}>

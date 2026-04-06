@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Logo from '../components/brand/Logo';
 import useAuthStore from '../store/useAuthStore';
 import api from '../services/api';
 
@@ -120,7 +121,7 @@ function Auth() {
                         <div className="w-full max-w-[300px]">
                             <div className="flex items-center gap-2 mb-6">
                                 <div className="w-8 h-8 rounded-lg overflow-hidden shadow-none ring-1 ring-slate-900/10 dark:ring-white/10 bg-white dark:bg-white/5 p-1 flex items-center justify-center">
-                                    <img src="/produs-logo.png" alt="Produs" className="w-full h-full object-contain" />
+                                    <Logo glow={false} className="w-full h-full" />
                                 </div>
                                 <span className="text-base font-black tracking-tight text-slate-900 dark:text-white">Produs</span>
                             </div>
@@ -189,7 +190,7 @@ function Auth() {
                         <div className="w-full max-w-[300px]">
                             <div className="flex items-center gap-2 mb-6">
                                 <div className="w-8 h-8 rounded-lg overflow-hidden shadow-none ring-1 ring-slate-900/10 dark:ring-white/10 bg-white dark:bg-white/5 p-1 flex items-center justify-center">
-                                    <img src="/produs-logo.png" alt="Produs" className="w-full h-full object-contain" />
+                                    <Logo glow={false} className="w-full h-full" />
                                 </div>
                                 <span className="text-base font-black tracking-tight text-slate-900 dark:text-white">Produs</span>
                             </div>
@@ -274,7 +275,7 @@ function Auth() {
 
                             <div className="relative z-10 flex flex-col items-center gap-6 max-w-[260px]">
                                 <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-white/5 p-2 flex items-center justify-center">
-                                    <img src="/produs-logo.png" alt="Produs" className="w-full h-full object-contain" />
+                                    <Logo glow={false} className="w-full h-full" />
                                 </div>
 
                                 <div>
