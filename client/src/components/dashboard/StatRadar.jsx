@@ -19,8 +19,8 @@ const StatRadar = ({ user }) => {
 
     return (
         <DashboardPanel
-            title="NEURAL_STAT_MATRIX"
-            subtitle="CURRENT_LINK_FREQUENCIES"
+            title="Stat Matrix"
+            subtitle="Current Stats"
             className="w-full"
             bodyClassName="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
         >
@@ -77,7 +77,7 @@ const StatRadar = ({ user }) => {
                                             {value}
                                         </span>
                                         <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest font-mono">
-                                            LEVEL_TOTAL
+                                            TOTAL
                                         </span>
                                     </div>
                                 </div>

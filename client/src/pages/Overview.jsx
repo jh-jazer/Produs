@@ -141,7 +141,7 @@ function Overview() {
             key="dashboard"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="w-full max-w-5xl mx-auto pt-8 md:pt-8 pb-32 px-4 md:px-0 space-y-12"
+            className="w-full max-w-5xl mx-auto pt-8 md:pt-8 pb-32 px-2 md:px-0 space-y-6 md:space-y-12"
           >
             {/* Header & Identity Section */}
             <IdentityHeader user={user} habits={habits} />
@@ -154,7 +154,7 @@ function Overview() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                  className="space-y-12"
+                  className="space-y-6 md:space-y-12"
                 >
 
 
@@ -166,16 +166,16 @@ function Overview() {
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 1.02 }}
-                        className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
+                        className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 items-start"
                       >
                         {/* RPG Side Column */}
-                        <div className="lg:col-span-4 space-y-8">
+                        <div className="lg:col-span-4 space-y-4 md:space-y-8">
                              <StatRadar stats={user.rpg?.stats} />
                              <EvolutionPreview user={user} />
                         </div>
                         
                         {/* RPG Main Column */}
-                        <div className="lg:col-span-8 space-y-8">
+                        <div className="lg:col-span-8 space-y-4 md:space-y-8">
                              <TodayActivity user={user} habits={habits} />
                              <StreakStatus habits={habits} />
                              <XpFeed />
@@ -187,12 +187,12 @@ function Overview() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="space-y-12"
+                        className="space-y-6 md:space-y-12"
                       >
 
 
                         {/* ZONE 1: Psychological Baseline */}
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8">
                           <div className="md:col-span-4">
                              <MoodTracker currentMood={user?.settings?.mood} onMoodSelect={updateMood} />
                           </div>
@@ -201,7 +201,6 @@ function Overview() {
                           </div>
                         </div>
 
-                        {/* ZONE 2: Narrative Milestones (Achievements) */}
                         <RealityAchievements user={user} />
 
                         {/* ZONE 5: Wishlist Preview (Finance) */}
@@ -234,16 +233,11 @@ function Overview() {
                           </div>
 
                           <div className="space-y-4">
-                            <div className="flex items-center justify-center gap-3">
-                               <div className="h-px w-8 bg-rose-500/40" />
-                               <span className="text-[10px] font-black text-rose-500 uppercase tracking-[0.4em] font-mono">ENCRYPTION_LOCKED</span>
-                               <div className="h-px w-8 bg-rose-500/40" />
-                            </div>
                             <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic font-exo">
-                              Neural_Link Required
+                              Partner Required
                             </h2>
                             <p className="text-sm font-medium text-slate-400 dark:text-slate-500 max-w-md mx-auto uppercase tracking-widest leading-loose">
-                              Collective synchronization is physically restricted until a dual-operator link is established.
+                              Dual-operator link required to access collective synchronization.
                             </p>
                           </div>
 
@@ -278,15 +272,7 @@ function Overview() {
                   ) : (
                     /* Active State: Collective Data Layer */
                     <div className="space-y-12">
-                      <div className="glass-panel p-10 rounded-[2.5rem] flex flex-col items-center text-center space-y-4">
-                        <div className="size-16 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-500">
-                          <Users size={32} />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic font-exo">Sync_Protocol_Active</h3>
-                          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest font-mono">Monitoring linked neural frequencies...</p>
-                        </div>
-                      </div>
+
 
                       <PartnerPanel user={user} />
                     </div>

@@ -60,7 +60,7 @@ const DataBits = () => (
  * - className: Additional classes for the outer container
  * - children: Window content
  */
-const SystemWindow = ({ children, title, subtitle, status = "STABLE", module = "SYSTEM_01", className = "", variant = "primary", onClose }) => {
+const SystemWindow = ({ children, title, subtitle, status = "Stable", module = "App_Module", className = "", variant = "primary", onClose }) => {
     const sessionId = useMemo(() => `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}`, []);
     const [time, setTime] = useState(new Date());
 
@@ -147,7 +147,7 @@ const SystemWindow = ({ children, title, subtitle, status = "STABLE", module = "
                                         <button 
                                             onClick={onClose}
                                             className="size-7 flex items-center justify-center rounded-lg bg-white/10 hover:bg-rose-500 text-white hover:text-white border border-white/20 hover:border-rose-500 transition-all group/close pointer-events-auto shadow-lg hover:shadow-rose-500/40"
-                                            title="CLOSE_UPLINK"
+                                            title="Close"
                                         >
                                             <span className="material-symbols-outlined text-[16px] font-black">close</span>
                                         </button>

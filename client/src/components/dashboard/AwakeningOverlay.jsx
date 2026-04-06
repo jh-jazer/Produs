@@ -13,9 +13,9 @@ const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading }) => {
             >
                 <SystemWindow 
                     variant="glass"
-                    subtitle="NEURAL_SYNC_REQUIRED"
-                    module="CORE_SYNC_00"
-                    status="GATED"
+                    subtitle="Assessment Required"
+                    module="Getting Started"
+                    status="Locked"
                 >
                     <div className="space-y-8 py-4">
                         <div className="flex flex-col items-center gap-6 text-center">
@@ -26,7 +26,7 @@ const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading }) => {
                                     System Access Suspended
                                 </p>
                                 <p className="text-[10px] text-slate-400 font-medium leading-relaxed uppercase tracking-[0.2em] max-w-sm mx-auto">
-                                    Your neural vectors are currently in a baseline state. Synchronization is required to map your archetype and unlock mission-critical dashboard zones.
+                                    You haven't completed the onboarding assessment yet. Complete the assessment to discover your productivity style and unlock the dashboard features.
                                 </p>
                             </div>
                         </div>
@@ -42,7 +42,7 @@ const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading }) => {
                                 className={`w-full py-4 bg-cyan-500 text-black font-black text-[11px] uppercase tracking-[0.4em] rounded-2xl shadow-lg flex items-center justify-center gap-3 group transition-all ${isLoading ? 'opacity-50 cursor-wait' : ''}`}
                             >
                                 <Sparkles size={10} className={`${isLoading ? 'animate-spin' : 'group-hover:rotate-12'} transition-transform`} />
-                                {isLoading ? 'SYNCHRONIZING...' : 'AWAKEN'}
+                                {isLoading ? 'LOADING...' : 'START ASSESSMENT'}
                             </motion.button>
 
                             <motion.button
@@ -51,7 +51,7 @@ const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading }) => {
                                 onClick={onBackToReality}
                                 className="w-full py-3 border border-black/10 dark:border-white/10 text-[var(--foreground)]/60 hover:text-[var(--foreground)] font-black text-[9px] uppercase tracking-[0.3em] rounded-2xl flex items-center justify-center gap-3 transition-all"
                             >
-                                RETURN_TO_REALITY
+                                GO BACK
                             </motion.button>
                         </div>
                         

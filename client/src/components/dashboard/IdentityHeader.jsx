@@ -72,7 +72,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     const progressData = getLevelProgress(user.exp || 0);
 
     return (
-        <div className="glass-panel w-full rounded-[2.5rem] mb-12 relative overflow-hidden flex flex-col">
+        <div className="glass-panel w-full rounded-[2.5rem] mb-6 md:mb-12 relative overflow-hidden flex flex-col">
             {/* 1. Tactical Banner Segment */}
             <div className="w-full h-32 md:h-40 relative group overflow-hidden">
                 {banner ? (
@@ -137,9 +137,9 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
             </div>
 
             {/* 2. Profile Overlay & Header Section */}
-            <div className="px-8 md:px-12 pb-10 -mt-10 md:-mt-12 relative z-10 space-y-10">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
-                    <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
+            <div className="px-4 md:px-12 pb-8 md:pb-10 -mt-10 md:-mt-12 relative z-10 space-y-6 md:space-y-10">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-10">
+                    <div className="flex flex-col md:flex-row items-center md:items-end gap-4 md:gap-8">
                         {/* Avatar */}
                         <motion.div 
                             initial={{ scale: 0.8, opacity: 0 }}
@@ -267,10 +267,10 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ delay: 0.2 }}
-                                className="flex items-center gap-3 md:self-end"
+                                className="flex justify-center items-center gap-3 w-full md:w-auto md:self-end"
                             >
                                 {isEditing ? (
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center justify-center gap-2 w-full md:w-auto">
                                         <button
                                             onClick={() => {
                                                 setIsEditing(false);
@@ -296,7 +296,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex justify-center items-center gap-3 w-full md:w-auto">
                                         <button
                                             onClick={() => setIsConnectionsModalOpen(true)}
                                             className="size-12 md:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all relative group shadow-sm"
@@ -319,10 +319,10 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                         </button>
                                         <button
                                             onClick={() => setIsEditing(true)}
-                                            className="px-6 py-3 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-2xl font-black text-xs hover:opacity-90 transition-all flex items-center gap-2 shadow-lg uppercase tracking-widest"
+                                            className="size-12 md:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all shadow-sm group"
+                                            title="Edit Profile"
                                         >
-                                            <Edit2 size={14} />
-                                            Edit
+                                            <Edit2 size={20} className="group-hover:scale-110 transition-transform" />
                                         </button>
                                     </div>
                                 )}
@@ -335,7 +335,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                 <div className="space-y-4"></div>
 
                 {/* 4. Lore / Bio Section */}
-                <div className="flex items-center gap-8 pt-8 border-t border-black/[0.05] dark:border-white/5">
+                <div className="flex items-center gap-4 md:gap-8 pt-4 md:pt-8 border-t border-black/[0.05] dark:border-white/5">
                     <div className="hidden md:flex size-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 items-center justify-center text-cyan-500 shrink-0">
                         <AnimatePresence mode="wait">
                             {protocolMode === 'rpg' ? (

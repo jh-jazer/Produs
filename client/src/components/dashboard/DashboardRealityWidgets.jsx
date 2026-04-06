@@ -20,7 +20,7 @@ export const MoodTracker = ({ user, updateMood }) => {
 
     return (
         <DashboardPanel 
-            title="NEURAL_AFFECT // MOOD" 
+            title="Mood Tracker" 
             icon={Heart}
             indicatorColor="rose"
         >
@@ -59,7 +59,7 @@ export const CoreStreaksList = ({ habits = [] }) => {
 
     return (
         <DashboardPanel 
-            title="CORE_STREAKS // SYSTEMS" 
+            title="Core Habits" 
             icon={Activity}
             indicatorColor="cyan"
         >
@@ -82,7 +82,7 @@ export const CoreStreaksList = ({ habits = [] }) => {
                     </div>
                 )) : (
                     <div className="col-span-2 py-12 text-center border-2 border-dashed border-slate-100 dark:border-white/5 rounded-[2rem]">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No core systems detected.</p>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No core habits established yet.</p>
                     </div>
                 )}
             </div>
@@ -96,15 +96,15 @@ export const CoreStreaksList = ({ habits = [] }) => {
  */
 export const RealityAchievements = ({ habits = [], wishlist = [] }) => {
     const milestones = [
-        { id: 'consistency', icon: <CheckCircle2 size={18} />, label: 'Neural Link', desc: 'Maintain 7d habit consistency', value: `${Math.min(100, Math.max(...habits.map(h => h.streak || 0), 0) * 14)}%`, color: 'blue' },
-        { id: 'finance', icon: <Star size={18} />, label: 'Capital Reserve', desc: 'Complete 1st wishlist item', value: wishlist.some(i => i.purchased) ? 'ACHIEVED' : 'UNLOCKED', color: 'amber' },
-        { id: 'focus', icon: <Zap size={18} />, label: 'Deep Protocol', desc: 'Log 5 focus sessions', value: '04/05', color: 'cyan' },
-        { id: 'growth', icon: <TrendingUp size={18} />, label: 'System Upgrade', desc: 'Reach 30d total activity', value: '12d_SYNC', color: 'purple' },
+        { id: 'consistency', icon: <CheckCircle2 size={18} />, label: 'Consistency', desc: 'Maintain 7d habit consistency', value: `${Math.min(100, Math.max(...habits.map(h => h.streak || 0), 0) * 14)}%`, color: 'blue' },
+        { id: 'finance', icon: <Star size={18} />, label: 'Wishlist Goal', desc: 'Complete 1st wishlist item', value: wishlist.some(i => i.purchased) ? 'ACHIEVED' : 'UNLOCKED', color: 'amber' },
+        { id: 'focus', icon: <Zap size={18} />, label: 'Deep Work', desc: 'Log 5 focus sessions', value: '04/05', color: 'cyan' },
+        { id: 'growth', icon: <TrendingUp size={18} />, label: 'Dedication', desc: 'Reach 30d total activity', value: '12 days', color: 'purple' },
     ];
 
     return (
         <DashboardPanel 
-            title="MILESTONES // REALITY" 
+            title="Recent Milestones" 
             icon={Trophy}
             indicatorColor="cyan"
         >
@@ -135,7 +135,7 @@ export const RealityAchievements = ({ habits = [], wishlist = [] }) => {
 export const WishlistPreview = ({ wishlist = [] }) => {
     return (
         <DashboardPanel 
-            title="ACQUISITION_LIST // FINANCE" 
+            title="Wishlist Preview" 
             icon={ShoppingBag}
             indicatorColor="amber"
         >
@@ -162,7 +162,7 @@ export const WishlistPreview = ({ wishlist = [] }) => {
                 )) : (
                     <div className="col-span-4 py-12 text-center opacity-40 border-2 border-dashed border-slate-100 dark:border-white/5 rounded-3xl">
                         <ShoppingBag size={24} className="mx-auto mb-2" />
-                        <p className="text-[10px] font-black uppercase tracking-widest">Finance pipeline empty</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest">Your wishlist is empty</p>
                     </div>
                 )}
             </div>

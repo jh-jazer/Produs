@@ -39,21 +39,7 @@ const Health = () => {
             {/* Mobile Navigation */}
             <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            {/* Tactical Page Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 md:px-0">
-                <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-3">
-                        <div className="size-2 bg-cyan-500 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.5)] animate-pulse" />
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] font-mono">HEALTH_PROTOCOL_ACTIVE</span>
-                    </div>
-                    <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic font-exo">
-                        Health
-                    </h1>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] max-w-md">
-                        Status Overview
-                    </p>
-                </div>
-            </div>
+
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 

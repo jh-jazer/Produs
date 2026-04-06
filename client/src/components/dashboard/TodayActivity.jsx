@@ -21,9 +21,9 @@ const TodayActivity = ({ user }) => {
 
     return (
         <DashboardPanel 
-            title="Tactical_Objectives_"
-            subtitle="Active_Mission_Parameters"
-            actionLabel="Management_Zone"
+            title="Today's Objectives"
+            subtitle="Active Habits"
+            actionLabel="Manage Habits"
             actionPath="/dashboard/habits"
             showZap={true}
             className="md:col-span-2"
@@ -68,7 +68,7 @@ const TodayActivity = ({ user }) => {
                                     </span>
                                     {habit.streak > 0 && (
                                         <span className="text-[8px] font-black text-orange-500/60 uppercase tracking-widest flex items-center gap-0.5">
-                                            <Flame size={8} /> {habit.streak}D_STREAK
+                                            <Flame size={8} /> {habit.streak} Day Streak
                                         </span>
                                     )}
                                 </div>
@@ -87,7 +87,7 @@ const TodayActivity = ({ user }) => {
                          <div className="size-12 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-600 mb-4">
                             <Plus size={24} />
                          </div>
-                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No Tactical Objectives Slotted</p>
+                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No Active Habits Today</p>
                     </div>
                 )}
             </div>

@@ -57,31 +57,17 @@ const Finance = () => {
     if (isLoading && transactions.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-8 pb-28 md:pb-8 mx-auto">
+        <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-4 md:gap-8 pb-28 md:pb-8 mx-auto">
             
             {/* Mobile Navigation */}
             <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            {/* Tactical Page Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 md:px-0">
-                <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-3">
-                        <div className="size-2 bg-cyan-500 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.5)] animate-pulse" />
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] font-mono">FINANCE_PROTOCOL_ACTIVE</span>
-                    </div>
-                    <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic font-exo">
-                        Finance
-                    </h1>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] max-w-md">
-                        Status Overview
-                    </p>
-                </div>
-            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 items-start">
                 
                 {/* Secondary Column (Left) */}
-                <div className={`lg:col-span-4 flex flex-col gap-6 ${activeTab !== 'budget' && activeTab !== 'debts' ? 'hidden lg:flex' : ''}`}>
+                <div className={`lg:col-span-4 flex flex-col gap-4 md:gap-6 ${activeTab !== 'budget' && activeTab !== 'debts' ? 'hidden lg:flex' : ''}`}>
                     
 
                     {/* 2. Transactions */}
@@ -122,7 +108,7 @@ const Finance = () => {
                 </div>
 
                 {/* Main Column (Right) */}
-                <div className={`lg:col-span-8 flex flex-col gap-6 ${activeTab !== 'summary' && activeTab !== 'savings' && activeTab !== 'wishlist' ? 'hidden lg:flex' : ''}`}>
+                <div className={`lg:col-span-8 flex flex-col gap-4 md:gap-6 ${activeTab !== 'summary' && activeTab !== 'savings' && activeTab !== 'wishlist' ? 'hidden lg:flex' : ''}`}>
                     
                     {/* 1. Overview */}
                     <div className={activeTab === 'summary' ? 'block' : 'hidden lg:block'}>

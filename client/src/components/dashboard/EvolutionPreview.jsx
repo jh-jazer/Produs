@@ -42,8 +42,8 @@ const EvolutionPreview = ({ user }) => {
 
     return (
         <DashboardPanel
-            title="ASCENSION_PATH_ACTIVE"
-            subtitle="NEURAL_EVOLUTION_COEFFICIENT"
+            title="Evolution Path"
+            subtitle="Progress to Next Tier"
             showZap={false}
             icon={Sparkles}
         >
@@ -60,7 +60,7 @@ const EvolutionPreview = ({ user }) => {
                     </div>
                     <div className="flex flex-col items-center">
                         <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">{currentArchetype}</span>
-                        <span className="text-[7px] font-black text-accent uppercase tracking-[0.2em] mt-1 font-mono">[ IDENTITY_LOCKED ]</span>
+                        <span className="text-[7px] font-black text-accent uppercase tracking-[0.2em] mt-1 font-mono">[ CURRENT ]</span>
                     </div>
                 </div>
 
@@ -101,7 +101,7 @@ const EvolutionPreview = ({ user }) => {
                     <div className="size-20 rounded-3xl border-2 border-dashed border-slate-300 dark:border-white/10 flex items-center justify-center text-slate-300 dark:text-white/20">
                         <Plus size={32} />
                     </div>
-                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">NEURAL_SYNC</span>
+                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">NEXT FORM</span>
                 </div>
             </div>
         </DashboardPanel>

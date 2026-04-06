@@ -48,8 +48,8 @@ const StreakStatus = ({ user }) => {
         <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Archetype Protocol Card */}
             <DashboardPanel
-                title="ARCHETYPE_PROTOCOL"
-                subtitle="SYSTEM_IDENTITY_PARAMETERS"
+                title="Current Identity"
+                subtitle="Identity Parameters"
                 className="md:col-span-2"
                 showZap={false}
             >
@@ -78,12 +78,12 @@ const StreakStatus = ({ user }) => {
                     <div className="flex items-center gap-10 mt-8 pt-8 border-t border-cyan-500/20 dark:border-white/5 overflow-x-auto no-scrollbar">
                         {Object.entries(protocol.multipliers).map(([stat, val]) => (
                             <div key={stat} className="flex flex-col min-w-fit">
-                                <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">{stat}_MULT</span>
+                                <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">{stat} Multiplier</span>
                                 <span className={`text-xl font-black ${val >= 1 ? 'text-emerald-500' : 'text-orange-500'} font-exo italic tracking-tighter`}>{val}x</span>
                             </div>
                         ))}
                         <div className="flex flex-col ml-auto">
-                            <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">STAGE_INDEX</span>
+                            <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Current Stage</span>
                             <span className="text-xl font-black text-white font-exo italic uppercase tracking-tighter">{user?.rpg?.archetype?.stage || 'BASELINE'}</span>
                         </div>
                     </div>
@@ -92,8 +92,8 @@ const StreakStatus = ({ user }) => {
 
             {/* Critical Streaks Sidebar */}
             <DashboardPanel
-                title="URGENT_STREAKS"
-                subtitle="ACTIVE_CHAIN_RISK"
+                title="Urgent Streaks"
+                subtitle="At Risk Habits"
                 className="flex flex-col"
             >
                 <div className="space-y-3">
@@ -112,13 +112,13 @@ const StreakStatus = ({ user }) => {
                             <div className="size-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                                 <CheckCircle2 size={20} />
                             </div>
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-tight">STREAKS_STABILIZED</span>
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-tight">All Streaks Safe</span>
                         </div>
                     )}
                 </div>
 
                 <div className="pt-8 mt-auto">
-                    <div className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">NEURAL_CHAINS_ACTIVE</div>
+                    <div className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Active Chains</div>
                     <div className="flex flex-wrap gap-2">
                         {activeStreaks.slice(0, 4).map(h => (
                             <div key={h._id} className="flex items-center gap-1.5 px-3 py-2 rounded-xl glass-card hover:border-orange-500/50 transition-colors">
