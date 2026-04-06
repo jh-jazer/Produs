@@ -404,7 +404,7 @@ const NeuralSyncPage = () => {
                 />
             </motion.div>
 
-            <div className="max-w-3xl mx-auto px-6 relative z-10" ref={scrollContainerRef}>
+            <div className="max-w-3xl mx-auto px-2 md:px-2 relative z-10" ref={scrollContainerRef}>
                 <AnimatePresence mode="wait">
                     {successData ? (
                         <motion.div

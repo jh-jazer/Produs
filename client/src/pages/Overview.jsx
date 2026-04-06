@@ -141,7 +141,7 @@ function Overview() {
             key="dashboard"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="w-full max-w-5xl mx-auto pt-8 md:pt-8 pb-32 px-4 md:px-0 space-y-12"
+            className="w-full max-w-5xl mx-auto pt-8 md:pt-8 pb-32 px-0 md:px-8 space-y-12"
           >
             {/* Header & Identity Section */}
             <IdentityHeader user={user} habits={habits} />

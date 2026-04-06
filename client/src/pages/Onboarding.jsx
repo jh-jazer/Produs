@@ -87,7 +87,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="w-full max-w-[1200px] flex flex-col gap-6">
+    <div className="w-full max-w-[1200px] flex flex-col gap-6 px-2 md:px-0">
       <div className="flex flex-col md:flex-row gap-4 min-h-[calc(100vh-140px)] pt-4 pb-12">
         {/* LEFT COLUMN */}
         <div className="w-full md:w-2/3 flex flex-col gap-4">

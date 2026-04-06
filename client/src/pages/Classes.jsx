@@ -349,7 +349,7 @@ export default function Classes() {
         
       </nav>
 
-      <main className="max-w-7xl mx-auto px-6 pt-48 pb-32 relative z-10">
+      <main className="max-w-7xl mx-auto px-2 md:px-2 pt-48 pb-32 relative z-10">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

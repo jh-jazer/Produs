@@ -71,7 +71,7 @@ export default function PatchNotes() {
       </nav>
 
       {/* Content */}
-      <main className="max-w-4xl mx-auto px-6 pt-40 pb-32">
+      <main className="max-w-4xl mx-auto px-2 md:px-2 pt-40 pb-32">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

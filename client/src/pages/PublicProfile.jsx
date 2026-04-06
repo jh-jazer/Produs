@@ -122,7 +122,7 @@ function PublicProfile() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-100 dark:bg-[#1e1f22] flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-slate-100 dark:bg-[#1e1f22] flex items-center justify-center p-2 md:p-4 relative overflow-hidden">
             {/* Navigation / Header Area */}
             <div className="absolute top-4 left-4 z-20">
                 <button 

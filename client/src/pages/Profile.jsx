@@ -169,7 +169,7 @@ function Profile() {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-5xl mx-auto pb-12"
+            className="w-full max-w-5xl mx-auto pb-12 px-0 md:px-0"
         >
             {/* Discord-style Header Card */}
         <div className="bg-white dark:bg-[#121212] rounded-[24px] shadow-none border border-slate-200 dark:border-white/10 overflow-hidden mb-8 relative">
@@ -196,8 +196,8 @@ function Profile() {
                 </div>
 
                 {/* Avatar and Welcome Row */}
-                <div className="px-6 sm:px-8 pb-8 relative">
-                    <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-8 mt-[-40px] px-8 relative z-10">
+                <div className="px-2 sm:px-8 pb-8 relative">
+                    <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-8 mt-[-40px] px-4 md:px-8 relative z-10">
                         {/* Avatar Column */}
                         <div className="relative group">
                             <div className="size-32 rounded-full border-[6px] border-white dark:border-[#1e293b] bg-slate-100 dark:bg-[#000000] overflow-hidden shadow-xl ring-2 ring-primary/5">

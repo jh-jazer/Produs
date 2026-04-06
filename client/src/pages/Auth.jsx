@@ -88,7 +88,7 @@ function Auth() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="min-h-screen relative flex items-center justify-center p-4 bg-[#121212] overflow-hidden"
+            className="min-h-screen relative flex items-center justify-center p-2 md:p-4 bg-[#121212] overflow-hidden"
         >
 
             {/* Background blobs */}

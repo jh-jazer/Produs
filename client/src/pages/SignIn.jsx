@@ -36,7 +36,7 @@ function SignIn() {
     };
 
     return (
-        <div className="min-h-screen relative flex items-center justify-center p-4 bg-[#121212] overflow-hidden">
+        <div className="min-h-screen relative flex items-center justify-center p-2 md:p-4 bg-[#121212] overflow-hidden">
 
             {/* Background */}
             <div className="absolute inset-0">

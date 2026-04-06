@@ -55,7 +55,7 @@ const Admin = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-transparent text-slate-900 dark:text-slate-100 p-4 md:p-8 w-full">
+        <div className="min-h-screen bg-transparent text-slate-900 dark:text-slate-100 p-0 md:p-8 w-full">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

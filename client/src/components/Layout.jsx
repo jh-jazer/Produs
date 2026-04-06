@@ -116,7 +116,7 @@ function Layout() {
             className="bg-transparent font-display text-[#111111] dark:text-slate-100 h-screen flex flex-row overflow-hidden"
             >
                 {/* Mobile Top Bar */}
-                <div className={`md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-[135] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03] ${isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+                <div className={`md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-2 z-[135] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03] ${isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
                     <div
                         className="flex items-center gap-3 group cursor-pointer relative"
                         onClick={() => navigate('/dashboard')}
@@ -367,7 +367,7 @@ function Layout() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: "-10%", opacity: 0, scale: 0.96, filter: "blur(12px)" }}
                                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                className="flex-1 flex justify-start pb-32 md:pb-12 px-4 md:pl-8 md:pr-24 lg:pl-12 lg:pr-32 w-full"
+                                    className="flex-1 flex justify-start pb-32 md:pb-12 px-2 md:pl-8 md:pr-24 lg:pl-12 lg:pr-32 w-full"
                             >
                                 <FrozenRoute context={{ setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, viewMode, setViewMode, protocolMode, setProtocolMode }} />
                             </motion.main>
@@ -377,7 +377,7 @@ function Layout() {
 
                 <AnimatePresence>
                     {isSearchModalOpen && (
-                        <div className="fixed inset-0 z-[300] flex items-start justify-center pt-[10vw] px-4">
+                        <div className="fixed inset-0 z-[300] flex items-start justify-center pt-[10vw] px-2">
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSearchModalOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-md" />
                             <motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="relative w-full max-w-lg bg-white dark:bg-[#121212] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 overflow-hidden flex flex-col max-h-[80vh] ar-corners">
                                 <div className="flex items-center justify-between p-4 border-b border-black/[0.06] dark:border-white/[0.06] bg-black/[0.02] dark:bg-white/[0.02]">
