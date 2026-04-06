@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Logo from "../brand/Logo";
+import usePWAInstall from "../../hooks/usePWAInstall";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const [time, setTime] = useState(new Date());
   const location = useLocation();
+  const { installable, installApp } = usePWAInstall();
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -38,6 +40,14 @@ export default function Footer() {
           )}
           {location.pathname !== "/updates" && (
             <Link to="/updates" className="hover:text-white transition-all hover:tracking-[0.6em]">Patch Notes</Link>
+          )}
+          {installable && (
+            <button 
+              onClick={installApp}
+              className="hover:text-white transition-all hover:tracking-[0.6em] cursor-pointer outline-none border-none bg-transparent p-0 text-[9px] uppercase font-normal tracking-[0.4em]"
+            >
+              Install App
+            </button>
           )}
         </nav>
 
