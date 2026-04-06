@@ -1,15 +1,52 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check, Lock } from 'lucide-react';
+import { Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check, Lock, Edit2, Save, X, Share2, Users } from 'lucide-react';
 import { getLevelProgress } from '../../utils/rpgHelpers';
 import { ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
 import Avatar from '../ui/Avatar';
+import AvatarEditor from '../ui/AvatarEditor';
+import ConnectionsModal from '../ui/ConnectionsModal';
+import PartnerModal from '../ui/PartnerModal';
+import ProfileModal from '../ui/ProfileModal';
 import { DashboardContext } from '../../context/DashboardContext';
+import useAuthStore from '../../store/useAuthStore';
 
-const IdentityHeader = ({ user, habits = [] }) => {
+const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     const { protocolMode, setProtocolMode } = useContext(DashboardContext);
+    const { updateSettings } = useAuthStore();
+    const [user, setUser] = useState(initialUser);
     const [isIdVisible, setIsIdVisible] = useState(false);
     const [hasCopiedId, setHasCopiedId] = useState(false);
+
+    // Edit State
+    const [isEditing, setIsEditing] = useState(false);
+    const [banner, setBanner] = useState(user?.banner || "");
+    const [avatar, setAvatar] = useState(user?.avatar || "");
+    const [isSaving, setIsSaving] = useState(false);
+
+    // Modals State
+    const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
+    const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
+    const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
+    const [profileModalUser, setProfileModalUser] = useState(null);
+
+    useEffect(() => {
+        setUser(initialUser);
+        setBanner(initialUser?.banner || "");
+        setAvatar(initialUser?.avatar || "");
+    }, [initialUser]);
+
+    const handleSaveProfile = async () => {
+        setIsSaving(true);
+        try {
+            await updateSettings({ banner, avatar });
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Failed to update profile", error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const handleCopyId = async () => {
         try {
@@ -38,9 +75,9 @@ const IdentityHeader = ({ user, habits = [] }) => {
         <div className="glass-panel w-full rounded-[2.5rem] mb-12 relative overflow-hidden flex flex-col">
             {/* 1. Tactical Banner Segment */}
             <div className="w-full h-32 md:h-40 relative group overflow-hidden">
-                {user.banner ? (
+                {banner ? (
                     <img 
-                        src={user.banner} 
+                        src={banner}
                         alt="Profile Banner" 
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                     />
@@ -49,6 +86,19 @@ const IdentityHeader = ({ user, habits = [] }) => {
                         {/* Abstract tactical grid over empty banner */}
                         <div className="absolute inset-0 bg-grid-light dark:bg-grid opacity-20" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    </div>
+                )}
+
+                {isEditing && (
+                    <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-4 z-20">
+                        <span className="material-symbols-outlined text-white text-3xl mb-2">image</span>
+                        <input
+                            type="text"
+                            value={banner}
+                            onChange={(e) => setBanner(e.target.value)}
+                            placeholder="Banner Image URL..."
+                            className="w-full max-w-md bg-white/10 border border-white/20 text-white placeholder-white/50 text-sm font-medium rounded-xl px-4 py-2 outline-none focus:border-white focus:bg-white/20 transition-all text-center backdrop-blur-sm"
+                        />
                     </div>
                 )}
                 
@@ -94,11 +144,20 @@ const IdentityHeader = ({ user, habits = [] }) => {
                         <motion.div 
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="size-24 md:size-32 rounded-3xl md:rounded-[2.5rem] bg-white dark:bg-[#121212] p-1 shadow-2xl border-4 border-white/80 dark:border-white/10 ring-8 ring-black/5 dark:ring-white/[0.02]"
+                            className="size-24 md:size-32 rounded-3xl md:rounded-[2.5rem] bg-white dark:bg-[#121212] p-1 shadow-2xl border-4 border-white/80 dark:border-white/10 ring-8 ring-black/5 dark:ring-white/[0.02] relative group"
                         >
                             <div className="w-full h-full rounded-2xl md:rounded-[2rem] overflow-hidden bg-slate-100 dark:bg-white/5">
-                                <Avatar config={user.avatar} className="size-full" />
+                                <Avatar config={avatar || user.avatar} className="size-full" />
                             </div>
+                            {isEditing && (
+                                <button
+                                    onClick={() => setIsAvatarEditorOpen(true)}
+                                    className="absolute inset-0 bg-black/60 rounded-2xl md:rounded-[2rem] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                                >
+                                    <Edit2 size={24} className="text-white" />
+                                    <span className="text-white text-[8px] font-black uppercase tracking-widest mt-1">Change</span>
+                                </button>
+                            )}
                         </motion.div>
 
                         {/* User Identity Info */}
@@ -203,40 +262,70 @@ const IdentityHeader = ({ user, habits = [] }) => {
                             </motion.div>
                         ) : (
                             <motion.div 
-                                key="reality-metric"
+                                key="reality-actions"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ delay: 0.2 }}
-                                className="glass-card flex items-center gap-5 p-4 md:p-5 rounded-3xl md:self-end"
+                                className="flex items-center gap-3 md:self-end"
                             >
-                                {/* Account Status Badge */}
-                                <div className="size-12 md:size-14 rounded-2xl bg-cyan-500 flex flex-col items-center justify-center shrink-0 border border-cyan-500/10 shadow-none">
-                                    <Shield size={20} className="text-white" />
-                                </div>
-
-                                <div className="flex flex-col min-w-[200px] md:min-w-[240px]">
-                                    <div className="flex justify-between items-end mb-1.5 px-1">
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white font-exo italic leading-none">
-                                                {completedToday}
-                                            </span>
-                                            <span className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
-                                                / {totalHabits - completedToday} HABITS_LEFT_TO_SYNC
-                                            </span>
-                                        </div>
-                                        <span className="text-[9px] md:text-[10px] font-black text-cyan-500 uppercase tracking-widest font-mono italic">{Math.round(habitProgress)}%</span>
+                                {isEditing ? (
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setIsEditing(false);
+                                                setBanner(user?.banner || "");
+                                                setAvatar(user?.avatar || "");
+                                            }}
+                                            className="px-6 py-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 rounded-2xl text-slate-700 dark:text-slate-200 font-bold text-xs transition-all flex items-center gap-2 uppercase tracking-widest"
+                                        >
+                                            <X size={14} />
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={handleSaveProfile}
+                                            disabled={isSaving}
+                                            className="px-6 py-3 bg-cyan-500 text-white rounded-2xl font-black text-xs hover:bg-cyan-600 transition-all shadow-lg shadow-cyan-500/20 disabled:opacity-50 flex items-center gap-2 uppercase tracking-widest"
+                                        >
+                                            {isSaving ? (
+                                                <div className="size-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            ) : (
+                                                <Save size={14} />
+                                            )}
+                                            Save
+                                        </button>
                                     </div>
-                                    
-                                    <div className="h-2 w-full bg-black/[0.04] dark:bg-white/5 rounded-full overflow-hidden relative">
-                                        <motion.div 
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${habitProgress}%` }}
-                                            transition={{ duration: 1.2, ease: "circOut" }}
-                                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-600 to-cyan-400"
-                                        />
+                                ) : (
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => setIsConnectionsModalOpen(true)}
+                                            className="size-12 md:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all relative group shadow-sm"
+                                            title="Network"
+                                        >
+                                            <Users size={20} className="group-hover:scale-110 transition-transform" />
+                                            {user?.incomingConnectionRequests?.length > 0 && (
+                                                <span className="absolute -top-1 -right-1 size-3 bg-rose-500 rounded-full border-2 border-white dark:border-[#0a0a0a] animate-pulse" />
+                                            )}
+                                        </button>
+                                        <button
+                                            onClick={() => setIsPartnerModalOpen(true)}
+                                            className={`size-12 md:size-14 flex items-center justify-center rounded-2xl border transition-all shadow-sm group ${user?.partner
+                                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
+                                                : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 hover:text-cyan-500'
+                                                }`}
+                                            title="Shared Account"
+                                        >
+                                            <Share2 size={20} className="group-hover:scale-110 transition-transform" />
+                                        </button>
+                                        <button
+                                            onClick={() => setIsEditing(true)}
+                                            className="px-6 py-3 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-2xl font-black text-xs hover:opacity-90 transition-all flex items-center gap-2 shadow-lg uppercase tracking-widest"
+                                        >
+                                            <Edit2 size={14} />
+                                            Edit
+                                        </button>
                                     </div>
-                                </div>
+                                )}
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -299,6 +388,39 @@ const IdentityHeader = ({ user, habits = [] }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Modals */}
+            <ConnectionsModal
+                isOpen={isConnectionsModalOpen}
+                onClose={() => setIsConnectionsModalOpen(false)}
+                onProfileClick={(username) => { setProfileModalUser(username); setIsConnectionsModalOpen(false); }}
+            />
+
+            <PartnerModal
+                isOpen={isPartnerModalOpen}
+                onClose={() => setIsPartnerModalOpen(false)}
+                onProfileClick={(username) => { setProfileModalUser(username); setIsPartnerModalOpen(false); }}
+            />
+
+            {isAvatarEditorOpen && (
+                <AvatarEditor
+                    initialConfig={avatar}
+                    onClose={() => setIsAvatarEditorOpen(false)}
+                    onSave={(newConfig) => {
+                        setAvatar(newConfig);
+                        setIsAvatarEditorOpen(false);
+                    }}
+                />
+            )}
+
+            <AnimatePresence>
+                {profileModalUser && (
+                    <ProfileModal
+                        username={profileModalUser}
+                        onClose={() => setProfileModalUser(null)}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };
