@@ -81,15 +81,10 @@ export default function ScrollIndicator({ progress, onNavigate }) {
       </div>
 
       {/* Vertical Progress Track & Section Dots */}
-      <div className="relative flex flex-col items-center group/track pointer-events-auto">
-        {/* Wider hit area for better UX */}
-        <div 
-          ref={trackRef}
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
-          className="absolute inset-y-0 -left-6 -right-6 cursor-ns-resize z-20"
-        />
-        
+      <div 
+        ref={trackRef}
+        className="relative flex flex-col items-center group/track pointer-events-none"
+      >
         <div className="relative flex flex-col items-center py-2 h-40 md:h-56">
           <div className="relative w-[1px] h-full bg-white/10 overflow-hidden rounded-full">
             <motion.div 
@@ -100,8 +95,24 @@ export default function ScrollIndicator({ progress, onNavigate }) {
             />
           </div>
 
+          {/* Draggable Glowing Circle Handle */}
+          <motion.div 
+            className="absolute left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
+            initial={false}
+            animate={{ top: `${progress * 100}%` }}
+            transition={{ duration: 0.1, ease: "linear" }}
+            style={{ y: "-50%" }}
+            onMouseDown={(e) => { e.preventDefault(); handleMouseDown(e); }}
+            onTouchStart={(e) => { e.preventDefault(); handleTouchStart(e); }}
+          >
+            {/* Extended invisible 40x40 hit area */}
+            <div className={`w-10 h-10 flex items-center justify-center transition-colors ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}>
+                <div className={`size-3 bg-white border border-white/50 rounded-full shadow-[0_0_15px_rgba(255,255,255,1)] transition-transform ${isDragging ? 'scale-150' : 'group-hover/track:scale-125'}`} />
+            </div>
+          </motion.div>
+
           {/* Interactive Dots */}
-          <div className="absolute inset-y-0 -left-6 flex flex-col justify-between items-end pointer-events-auto z-30">
+          <div className="absolute inset-y-0 -left-8 flex flex-col justify-between items-end pointer-events-none z-30">
             {SECTIONS.map((section) => {
               const isActive = progress >= section.progress - 0.05 && progress <= section.progress + 0.05;
               return (
@@ -111,7 +122,7 @@ export default function ScrollIndicator({ progress, onNavigate }) {
                     e.stopPropagation();
                     onNavigate(section.progress);
                   }}
-                  className="group relative flex items-center justify-center size-8 outline-none"
+                  className="group relative flex items-center justify-center size-8 outline-none pointer-events-auto"
                   title={section.label}
                 >
                   {/* Active Indicator Line */}

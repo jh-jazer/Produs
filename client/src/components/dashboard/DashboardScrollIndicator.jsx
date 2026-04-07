@@ -108,7 +108,7 @@ export default function DashboardScrollIndicator({ progress, onNavigate }) {
 
           {/* Minimal Draggable Circle (Landing Page Style) */}
           <motion.div 
-            className="absolute left-1/2 -translate-x-1/2 z-30"
+            className="absolute left-1/2 -translate-x-1/2 z-30 pointer-events-none"
             style={{ 
               top: `calc(${progress.get() * 100}% + 8px)`,
               y: "-50%" 

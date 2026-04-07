@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Logo from '../brand/Logo';
+import staticLogo from '../brand/produs-logo.png';
 
 const LandingSplashScreen = ({ onComplete }) => {
     const [progress, setProgress] = useState(0);
@@ -52,7 +53,7 @@ const LandingSplashScreen = ({ onComplete }) => {
 
                     <div className="relative flex flex-col items-center gap-12">
                         {/* Logo Container */}
-                        <div className="relative">
+                        <div className="relative" style={{ perspective: '1000px' }}>
                             <motion.div
                                 animate={{ 
                                     opacity: [0.4, 0.7, 0.4],
@@ -63,13 +64,41 @@ const LandingSplashScreen = ({ onComplete }) => {
                             />
                             
                             <motion.div
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                                className="size-28 flex items-center justify-center relative z-10"
+                                initial={{ scale: 0, y: 0, rotateY: 0, rotateX: -15 }}
+                                animate={{ 
+                                    scale: 1, 
+                                    y: [0, -15, 0],
+                                    rotateY: 360,
+                                    rotateX: -15
+                                }}
+                                transition={{ 
+                                    scale: { type: 'spring', damping: 15, stiffness: 100 },
+                                    y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                                    rotateY: { duration: 4, repeat: Infinity, ease: "linear" }
+                                }}
+                                className="size-32 flex items-center justify-center relative z-10"
+                                style={{ transformStyle: 'preserve-3d' }}
                             >
-                                <Logo className="w-full h-full" color="white" glow />
+                                {/* Front Face (Coin Surface) */}
+                                <div style={{ transform: 'translateZ(4.5px)' }} className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-800 to-slate-900 border-[3px] border-cyan-400 flex items-center justify-center shadow-[inset_0_0_20px_rgba(6,182,212,0.5),0_0_15px_cyan]">
+                                    <div className="absolute inset-0 bg-cyan-500/30 blur-md rounded-full" />
+                                    <img src={staticLogo} alt="Produs" className="w-full h-full z-10 relative object-contain" />
+                                </div>
 
+                                {/* 3D Thickness Extrusion Layers (Coin Edges) */}
+                                {[...Array(20)].map((_, i) => (
+                                    <div 
+                                        key={i} 
+                                        style={{ transform: `translateZ(${-i * 0.5 + 4}px)` }} 
+                                        className="absolute inset-0 rounded-full bg-cyan-900 border-[2px] border-slate-950 pointer-events-none"
+                                    />
+                                ))}
+
+                                {/* Back Face (Coin Surface) */}
+                                <div style={{ transform: 'translateZ(-5.5px) rotateY(180deg)' }} className="absolute inset-0 rounded-full bg-gradient-to-b from-slate-900 to-slate-800 border-[3px] border-cyan-400 flex items-center justify-center shadow-[inset_0_0_20px_rgba(6,182,212,0.5),0_0_15px_cyan]">
+                                    <div className="absolute inset-0 bg-cyan-500/30 blur-md rounded-full" />
+                                    <img src={staticLogo} alt="Produs" className="w-full h-full z-10 relative object-contain" />
+                                </div>
                             </motion.div>
                         </div>
 
