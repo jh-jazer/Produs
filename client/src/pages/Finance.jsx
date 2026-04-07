@@ -11,6 +11,8 @@ import BalanceHistory from '../components/finance_components/BalanceHistory';
 import SavingsPanel from '../components/finance_components/SavingsPanel';
 import MobileTabNav from '../components/ui/MobileTabNav';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
+import DashboardPanel from '../components/ui/DashboardPanel';
+import { Wallet, List, PieChart, TrendingUp, ShieldCheck, ShoppingCart, Activity } from 'lucide-react';
 
 const Finance = () => {
     const { user } = useAuthStore();
@@ -72,38 +74,44 @@ const Finance = () => {
 
                     {/* 2. Transactions */}
                     <div className={activeTab === 'budget' ? 'block' : 'hidden lg:block'}>
-                        <RecentTransactions
-                            transactions={transactions}
-                            budgets={budgets}
-                            currencySymbol={currencySymbol}
-                            onAction={handleAction}
-                            addFinanceItem={addFinanceItem}
-                            deleteFinanceItem={deleteFinanceItem}
-                        />
+                        <DashboardPanel title="Ledger Log" subtitle="Recent Transactions" icon={List} showZap>
+                            <RecentTransactions
+                                transactions={transactions}
+                                budgets={budgets}
+                                currencySymbol={currencySymbol}
+                                onAction={handleAction}
+                                addFinanceItem={addFinanceItem}
+                                deleteFinanceItem={deleteFinanceItem}
+                            />
+                        </DashboardPanel>
                     </div>
 
                     {/* 4. Budget */}
                     <div className={activeTab === 'budget' ? 'block' : 'hidden lg:block'}>
-                        <MonthlyBudget
-                            budgets={budgets}
-                            transactions={transactions}
-                            currencySymbol={currencySymbol}
-                            onAction={handleAction}
-                            addFinanceItem={addFinanceItem}
-                            deleteFinanceItem={deleteFinanceItem}
-                        />
+                        <DashboardPanel title="Budget Matrix" subtitle="Monthly Allocation" icon={PieChart}>
+                            <MonthlyBudget
+                                budgets={budgets}
+                                transactions={transactions}
+                                currencySymbol={currencySymbol}
+                                onAction={handleAction}
+                                addFinanceItem={addFinanceItem}
+                                deleteFinanceItem={deleteFinanceItem}
+                            />
+                        </DashboardPanel>
                     </div>
 
                     {/* 6. Debt / Cash Flow */}
                     <div className={activeTab === 'debts' ? 'block' : 'hidden lg:block'}>
-                        <DebtManager
-                            debts={debts}
-                            currencySymbol={currencySymbol}
-                            onAction={handleAction}
-                            addFinanceItem={addFinanceItem}
-                            updateFinanceItem={updateFinanceItem}
-                            deleteFinanceItem={deleteFinanceItem}
-                        />
+                        <DashboardPanel title="Cash Flow" subtitle="Debt & Income Streams" icon={TrendingUp}>
+                            <DebtManager
+                                debts={debts}
+                                currencySymbol={currencySymbol}
+                                onAction={handleAction}
+                                addFinanceItem={addFinanceItem}
+                                updateFinanceItem={updateFinanceItem}
+                                deleteFinanceItem={deleteFinanceItem}
+                            />
+                        </DashboardPanel>
                     </div>
                 </div>
 
@@ -112,42 +120,50 @@ const Finance = () => {
                     
                     {/* 1. Overview */}
                     <div className={activeTab === 'summary' ? 'block' : 'hidden lg:block'}>
-                        <FinancialOverview
-                            transactions={transactions}
-                            currencySymbol={currencySymbol}
-                            netBalance={netBalance}
-                            totalSavings={totalSavings}
-                            totalDebt={totalDebt}
-                            totalUpcomingIncome={totalUpcomingIncome}
-                        />
+                        <DashboardPanel title="Asset Overview" subtitle="Net Valuation" icon={Wallet} showZap>
+                            <FinancialOverview
+                                transactions={transactions}
+                                currencySymbol={currencySymbol}
+                                netBalance={netBalance}
+                                totalSavings={totalSavings}
+                                totalDebt={totalDebt}
+                                totalUpcomingIncome={totalUpcomingIncome}
+                            />
+                        </DashboardPanel>
                     </div>
 
                     {/* 3. Savings */}
                     <div className={activeTab === 'savings' ? 'block' : 'hidden lg:block'}>
-                        <SavingsPanel
-                            savings={savings}
-                            currencySymbol={currencySymbol}
-                            onAction={handleAction}
-                            addFinanceItem={addFinanceItem}
-                            deleteFinanceItem={deleteFinanceItem}
-                        />
+                        <DashboardPanel title="Vault Reserves" subtitle="Liquid Assets" icon={ShieldCheck}>
+                            <SavingsPanel
+                                savings={savings}
+                                currencySymbol={currencySymbol}
+                                onAction={handleAction}
+                                addFinanceItem={addFinanceItem}
+                                deleteFinanceItem={deleteFinanceItem}
+                            />
+                        </DashboardPanel>
                     </div>
 
                     {/* 5. Wishlist */}
                     <div className={activeTab === 'wishlist' ? 'block' : 'hidden lg:block'}>
-                        <Wishlist
-                            items={wishlist}
-                            budgets={budgets}
-                            currencySymbol={currencySymbol}
-                            onAction={handleAction}
-                            addFinanceItem={addFinanceItem}
-                            deleteFinanceItem={deleteFinanceItem}
-                        />
+                        <DashboardPanel title="Acquisition Targets" subtitle="Desired Assets" icon={ShoppingCart}>
+                            <Wishlist
+                                items={wishlist}
+                                budgets={budgets}
+                                currencySymbol={currencySymbol}
+                                onAction={handleAction}
+                                addFinanceItem={addFinanceItem}
+                                deleteFinanceItem={deleteFinanceItem}
+                            />
+                        </DashboardPanel>
                     </div>
 
                     {/* 7. Balance History */}
                     <div className={activeTab === 'summary' ? 'block' : 'hidden lg:block'}>
-                        <BalanceHistory />
+                        <DashboardPanel title="Balance History" subtitle="Fiscal Trajectory" icon={Activity}>
+                            <BalanceHistory />
+                        </DashboardPanel>
                     </div>
                 </div>
 

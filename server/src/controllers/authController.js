@@ -674,6 +674,21 @@ export const updateSubscriptions = async (req, res) => {
     }
 };
 
+// @desc    Upload Banner Image to Cloudinary
+// @route   POST /api/auth/upload/banner
+// @access  Private
+export const uploadBannerImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No image file provided' });
+        }
+        // req.file.path contains the secure Cloudinary URL returned by multer-storage-cloudinary
+        res.status(200).json({ url: req.file.path });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Update user settings
 // @route   PUT /api/auth/settings
 // @access  Private

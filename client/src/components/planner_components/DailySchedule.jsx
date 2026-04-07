@@ -188,8 +188,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                 onConfirm={() => { handleDeleteTask(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] flex flex-col shadow-xl transition-all hover:shadow-2xl">
-                <div className="p-6 border-b border-slate-200 dark:border-white/10 flex justify-between items-start bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md z-30 sticky top-0">
+            <div className="flex flex-col transition-all">
                     <div className="flex items-center gap-3 mt-0.5">
                         <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                             <span className="material-symbols-outlined text-primary">calendar_month</span>
@@ -240,7 +239,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                         <span className="material-symbols-outlined text-[20px]">close_fullscreen</span>
                     </button>
                 </div>
-            </div>
+            
 
             <div className="flex-1 overflow-y-auto custom-scrollbar relative font-inter bg-slate-50/30 dark:bg-transparent">
                 {isSettingsOpen && createPortal(

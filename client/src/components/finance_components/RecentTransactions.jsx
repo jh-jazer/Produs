@@ -64,7 +64,7 @@ const RecentTransactions = ({ transactions = [], budgets = [], currencySymbol = 
                 onCancel={() => setConfirmDelete(null)}
             />
 
-      <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex flex-col min-h-[350px] relative overflow-hidden group">
+      <div className="flex flex-col min-h-[350px] relative overflow-hidden group">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">Recent Transactions</h3>

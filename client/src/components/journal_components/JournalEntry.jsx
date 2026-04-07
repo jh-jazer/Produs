@@ -16,9 +16,8 @@ const JOURNAL_PROMPTS = [
     "What is something you are grateful for right now?"
 ];
 
-const JournalEntry = ({ onAction }) => {
+const JournalEntry = ({ onAction, mood, setMood }) => {
     const [content, setContent] = useState('');
-    const [mood, setMood] = useState('😊');
     const [loading, setLoading] = useState(false);
     const [promptIndex, setPromptIndex] = useState(Math.floor(Math.random() * JOURNAL_PROMPTS.length));
     const [activeFormats, setActiveFormats] = useState({});
@@ -107,127 +106,83 @@ const JournalEntry = ({ onAction }) => {
     };
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none relative overflow-hidden">
-            <div className="relative z-10 flex flex-col gap-6">
-                <div className="flex flex-col gap-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">New Entry</h2>
-                        <div className="flex items-center gap-4">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Mood</p>
-                            <div className="flex gap-2">
-                                {moods.map(m => (
-                                    <button 
-                                        key={m}
-                                        onClick={() => setMood(m)}
-                                        className={`text-xl hover:scale-110 transition-transform ${mood === m ? 'scale-125 grayscale-0 ring-2 ring-primary/20 rounded-full p-0.5' : 'grayscale hover:grayscale-0'}`}
-                                    >
-                                        {m}
-                                    </button>
-                                ))}
+        <div className="border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden flex flex-col bg-slate-50 dark:bg-[#1f293a] transition-shadow shadow-none focus-within:shadow-none focus-within:border-slate-300 dark:focus-within:border-slate-600">
+            {/* Prompt Banner inside input box */}
+            <div className="bg-primary/5 px-4 py-3 flex justify-between items-center group">
+                <p className="text-sm text-slate-700 dark:text-slate-300 italic font-medium">"{JOURNAL_PROMPTS[promptIndex]}"</p>
+                <button 
+                    onClick={handleRefreshPrompt}
+                    title="Refresh Prompt"
+                    className="p-1 rounded-full text-primary opacity-50 hover:opacity-100 hover:bg-primary/10 transition-all ml-4 flex-shrink-0"
+                >
+                    <span className="material-symbols-outlined text-md">refresh</span>
+                </button>
+            </div>
+
+            <div 
+                ref={textareaRef}
+                className="w-full bg-white dark:bg-[#121212] border-none focus:ring-0 px-4 py-5 min-h-[220px] text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1 [&_blockquote]:border-l-[3px] [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:my-2 [&_blockquote]:bg-primary/5 [&_blockquote]:py-1 [&_blockquote]:rounded-r-md [&_a]:text-primary [&_a]:underline [&_h1]:text-2xl [&_h1]:font-black [&_h1]:my-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:my-2"
+                data-placeholder="Start typing your thoughts..."
+                contentEditable="true"
+                suppressContentEditableWarning={true}
+                onInput={(e) => {
+                    setContent(e.currentTarget.innerHTML);
+                    checkFormatting();
+                }}
+                onKeyUp={checkFormatting}
+                onMouseUp={checkFormatting}
+            />
+
+            {/* Google Keep Style Bottom Toolbar */}
+            <div className="bg-white dark:bg-[#121212] p-1 px-3 border-t border-slate-100 dark:border-white/10/50 flex items-start sm:items-center justify-between pb-2 relative">
+                {/* Formatting Row */}
+                <div className="flex flex-wrap gap-0.5 items-center pr-2">
+                    <div className="relative flex-shrink-0">
+                        <button 
+                            onMouseDown={(e) => { e.preventDefault(); setShowSizeMenu(!showSizeMenu); }} 
+                            title="Text Size" 
+                            type="button" 
+                            className="p-1 px-2 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex items-center gap-1"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">format_size</span>
+                            <span className="material-symbols-outlined text-[14px]">expand_more</span>
+                        </button>
+                        
+                        {showSizeMenu && (
+                            <div className="absolute bottom-full mb-1 left-0 bg-white dark:bg-[#000000] border border-slate-100 dark:border-white/10 rounded-lg shadow-xl p-1.5 z-50 flex flex-col min-w-[120px]">
+                                <button onMouseDown={(e) => { handleFormat(e, 'fontSize', '2'); setShowSizeMenu(false); }} className="px-3 py-1.5 text-xs text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded font-medium">Small</button>
+                                <button onMouseDown={(e) => { handleFormat(e, 'fontSize', '3'); setShowSizeMenu(false); }} className="px-3 py-1.5 text-sm text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded font-medium">Normal</button>
+                                <button onMouseDown={(e) => { handleFormat(e, 'fontSize', '5'); setShowSizeMenu(false); }} className="px-3 py-1.5 text-lg text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded font-medium">Large</button>
+                                <button onMouseDown={(e) => { handleFormat(e, 'fontSize', '6'); setShowSizeMenu(false); }} className="px-3 py-1.5 text-xl font-bold text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded">Huge</button>
                             </div>
-                        </div>
+                        )}
                     </div>
-
-                    <div className="border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden flex flex-col bg-slate-50 dark:bg-[#1f293a] transition-shadow shadow-none focus-within:shadow-none focus-within:border-slate-300 dark:focus-within:border-slate-600">
-                        {/* Prompt Banner inside input box */}
-                        <div className="bg-primary/5 px-4 py-3 flex justify-between items-center group">
-                            <p className="text-sm text-slate-700 dark:text-slate-300 italic font-medium">"{JOURNAL_PROMPTS[promptIndex]}"</p>
-                            <button 
-                                onClick={handleRefreshPrompt}
-                                title="Refresh Prompt"
-                                className="p-1 rounded-full text-primary opacity-50 hover:opacity-100 hover:bg-primary/10 transition-all ml-4 flex-shrink-0"
-                            >
-                                <span className="material-symbols-outlined text-md">refresh</span>
-                            </button>
-                        </div>
-
-                        <div 
-                            ref={textareaRef}
-                            className="w-full bg-white dark:bg-[#121212] border-none focus:ring-0 px-4 py-5 min-h-[220px] text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1 [&_blockquote]:border-l-[3px] [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:my-2 [&_blockquote]:bg-primary/5 [&_blockquote]:py-1 [&_blockquote]:rounded-r-md [&_a]:text-primary [&_a]:underline [&_h1]:text-2xl [&_h1]:font-black [&_h1]:my-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:my-2"
-                            data-placeholder="Start typing your thoughts..."
-                            contentEditable="true"
-                            suppressContentEditableWarning={true}
-                            onInput={(e) => {
-                                setContent(e.currentTarget.innerHTML);
-                                checkFormatting();
-                            }}
-                            onKeyUp={checkFormatting}
-                            onMouseUp={checkFormatting}
-                        />
-
-                        {/* Google Keep Style Bottom Toolbar */}
-                        <div className="bg-white dark:bg-[#121212] p-1 px-3 border-t border-slate-100 dark:border-white/10/50 flex items-start sm:items-center justify-between pb-2 relative">
-                            {/* Formatting Row */}
-                            <div className="flex flex-wrap gap-0.5 items-center pr-2">
-                                <div className="relative flex-shrink-0">
-                                    <button 
-                                        onMouseDown={(e) => { e.preventDefault(); setShowSizeMenu(!showSizeMenu); }} 
-                                        title="Text Size" 
-                                        type="button" 
-                                        className="p-1 px-2 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex items-center gap-1"
-                                    >
-                                        <span className="material-symbols-outlined text-[20px]">format_size</span>
-                                        <span className="material-symbols-outlined text-[14px]">expand_more</span>
-                                    </button>
-                                    
-                                    {showSizeMenu && (
-                                        <div className="absolute bottom-full mb-1 left-0 bg-white dark:bg-[#000000] border border-slate-100 dark:border-white/10 rounded-lg shadow-xl p-1.5 z-50 flex flex-col min-w-[120px]">
-                                            <button 
-                                                onMouseDown={(e) => { handleFormat(e, 'fontSize', '2'); setShowSizeMenu(false); }} 
-                                                className="px-3 py-1.5 text-xs text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded font-medium"
-                                            >
-                                                Small
-                                            </button>
-                                            <button 
-                                                onMouseDown={(e) => { handleFormat(e, 'fontSize', '3'); setShowSizeMenu(false); }} 
-                                                className="px-3 py-1.5 text-sm text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded font-medium"
-                                            >
-                                                Normal
-                                            </button>
-                                            <button 
-                                                onMouseDown={(e) => { handleFormat(e, 'fontSize', '5'); setShowSizeMenu(false); }} 
-                                                className="px-3 py-1.5 text-lg text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded font-medium"
-                                            >
-                                                Large
-                                            </button>
-                                            <button 
-                                                onMouseDown={(e) => { handleFormat(e, 'fontSize', '6'); setShowSizeMenu(false); }} 
-                                                className="px-3 py-1.5 text-xl font-bold text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded"
-                                            >
-                                                Huge
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
-                                <button onMouseDown={(e) => handleFormat(e, 'bold')} title="Bold (Ctrl+B)" type="button" className={getBtnClass('bold')}><span className="material-symbols-outlined text-[20px]">format_bold</span></button>
-                                <button onMouseDown={(e) => handleFormat(e, 'italic')} title="Italic (Ctrl+I)" type="button" className={getBtnClass('italic')}><span className="material-symbols-outlined text-[20px]">format_italic</span></button>
-                                <button onMouseDown={(e) => handleFormat(e, 'underline')} title="Underline (Ctrl+U)" type="button" className={getBtnClass('underline')}><span className="material-symbols-outlined text-[20px]">format_underlined</span></button>
-                                <button onMouseDown={(e) => handleFormat(e, 'strikeThrough')} title="Strikethrough" type="button" className={getBtnClass('strikeThrough')}><span className="material-symbols-outlined text-[20px]">format_strikethrough</span></button>
-                                <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
-                                <button onMouseDown={(e) => handleFormat(e, 'insertUnorderedList')} title="Bullet List" type="button" className={getBtnClass('insertUnorderedList')}><span className="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
-                                <button onMouseDown={(e) => handleFormat(e, 'checkbox')} title="Task List" type="button" className="p-1.5 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex-shrink-0"><span className="material-symbols-outlined text-[20px]">check_box</span></button>
-                                <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
-                                <button onMouseDown={(e) => handleFormat(e, 'link')} title="Insert Link" type="button" className="p-1.5 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex-shrink-0"><span className="material-symbols-outlined text-[20px]">link</span></button>
-                            </div>
-                            
-                            <div className="flex gap-2 flex-shrink-0">
-                                <button 
-                                    onClick={handleClear}
-                                    className="px-4 py-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-[#000000] text-[11px] font-bold uppercase tracking-widest transition-colors"
-                                >
-                                    Clear
-                                </button>
-                                <button 
-                                    onClick={onSaveWrapper}
-                                    disabled={loading || !content.trim()}
-                                    className="px-5 py-1.5 rounded-lg bg-[#000000] dark:bg-white text-white dark:text-slate-900 text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all disabled:opacity-30 disabled:hidden"
-                                >
-                                    {loading ? 'Saving...' : 'Save'}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
+                    <button onMouseDown={(e) => handleFormat(e, 'bold')} title="Bold (Ctrl+B)" type="button" className={getBtnClass('bold')}><span className="material-symbols-outlined text-[20px]">format_bold</span></button>
+                    <button onMouseDown={(e) => handleFormat(e, 'italic')} title="Italic (Ctrl+I)" type="button" className={getBtnClass('italic')}><span className="material-symbols-outlined text-[20px]">format_italic</span></button>
+                    <button onMouseDown={(e) => handleFormat(e, 'underline')} title="Underline (Ctrl+U)" type="button" className={getBtnClass('underline')}><span className="material-symbols-outlined text-[20px]">format_underlined</span></button>
+                    <button onMouseDown={(e) => handleFormat(e, 'strikeThrough')} title="Strikethrough" type="button" className={getBtnClass('strikeThrough')}><span className="material-symbols-outlined text-[20px]">format_strikethrough</span></button>
+                    <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
+                    <button onMouseDown={(e) => handleFormat(e, 'insertUnorderedList')} title="Bullet List" type="button" className={getBtnClass('insertUnorderedList')}><span className="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
+                    <button onMouseDown={(e) => handleFormat(e, 'checkbox')} title="Task List" type="button" className="p-1.5 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex-shrink-0"><span className="material-symbols-outlined text-[20px]">check_box</span></button>
+                    <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
+                    <button onMouseDown={(e) => handleFormat(e, 'link')} title="Insert Link" type="button" className="p-1.5 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex-shrink-0"><span className="material-symbols-outlined text-[20px]">link</span></button>
+                </div>
+                
+                <div className="flex gap-2 flex-shrink-0">
+                    <button 
+                        onClick={handleClear}
+                        className="px-4 py-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-[#000000] text-[11px] font-bold uppercase tracking-widest transition-colors"
+                    >
+                        Clear
+                    </button>
+                    <button 
+                        onClick={onSaveWrapper}
+                        disabled={loading || !content.trim()}
+                        className="px-5 py-1.5 rounded-lg bg-[#000000] dark:bg-white text-white dark:text-slate-900 text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all disabled:opacity-30 disabled:hidden"
+                    >
+                        {loading ? 'Saving...' : 'Save'}
+                    </button>
                 </div>
             </div>
         </div>

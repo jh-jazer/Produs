@@ -47,7 +47,7 @@ const BugReportModal = ({ isOpen, onClose }) => {
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative z-10 w-full max-w-lg bg-white dark:bg-[#121212] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 p-8"
+                        className="relative z-10 w-full max-w-lg bg-slate-50/90 dark:bg-[#080808]/90 backdrop-blur-2xl border border-cyan-500/30 dark:border-white/10 rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.5)] p-8"
                     >
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">

@@ -129,7 +129,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                 onConfirm={() => { deleteTask(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex flex-col font-inter relative min-h-[500px]">
+            <div className="flex flex-col font-inter relative min-h-[500px]">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-4">
                     <h2 className="text-lg font-bold text-slate-900 dark:text-white shrink-0">{months[month]} {year}</h2>

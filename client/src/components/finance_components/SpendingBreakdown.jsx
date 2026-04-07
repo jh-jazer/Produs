@@ -30,7 +30,7 @@ const SpendingBreakdown = ({ transactions, currencySymbol }) => {
     });
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none min-h-[300px]">
+        <div className="min-h-[300px]">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Spending Breakdown</h3>
 
             <div className="relative flex items-center justify-center mb-6">

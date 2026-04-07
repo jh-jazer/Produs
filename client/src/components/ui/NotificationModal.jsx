@@ -87,9 +87,9 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative z-10 w-full max-w-md bg-white dark:bg-[#121212] rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 overflow-hidden ar-corners flex flex-col max-h-[70vh]"
+                        className="relative z-10 w-full max-w-md bg-slate-50/90 dark:bg-[#080808]/90 backdrop-blur-2xl border border-cyan-500/30 dark:border-white/10 rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[70vh]"
                     >
-                        <div className="px-6 py-4 border-b border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02]">
+                        <div className="px-6 py-4 border-b border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between">
                             <div>
                                 <h3 className="text-xl font-black text-black dark:text-white uppercase tracking-tighter italic font-exo">Intelligence_Hub</h3>
                                 <div className="flex items-center gap-2 mt-0.5">
@@ -210,7 +210,7 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                             </AnimatePresence>
                         </div>
 
-                        <div className="p-6 border-t border-black/[0.06] dark:border-white/[0.06] bg-black/[0.01] dark:bg-white/[0.01]">
+                        <div className="p-6 border-t border-black/[0.06] dark:border-white/[0.06]">
                             <button
                                 onClick={onClose}
                                 className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-black rounded-[24px] font-black text-[10px] uppercase tracking-[0.4em] hover:opacity-90 transition-all active:scale-[0.98] italic font-exo shadow-lg"

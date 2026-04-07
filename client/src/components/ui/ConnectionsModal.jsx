@@ -67,26 +67,26 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative w-full max-w-md bg-white dark:bg-[#121212] rounded-[32px] shadow-2xl overflow-hidden border border-slate-200 dark:border-white/10 flex flex-col max-h-[85vh]"
+                    className="relative w-full max-w-md bg-slate-50/90 dark:bg-[#080808]/90 backdrop-blur-2xl border border-cyan-500/30 dark:border-white/10 rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col max-h-[85vh]"
                 >
-                    <div className="p-6 border-b border-slate-100 dark:border-white/10 flex items-center justify-between bg-slate-50 dark:bg-[#000000]/20">
+                    <div className="p-6 border-b border-black/[0.05] dark:border-white/10 flex items-center justify-between">
                         <div>
-                            <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                <span className="material-symbols-outlined text-primary">group</span>
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-500 dark:text-white/40 mb-2 flex items-center gap-2">
+                                <span className="size-1.5 rounded-full bg-cyan-500 animate-pulse" />
                                 Connections
                             </h2>
-                            <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">Manage your network</p>
+                            <p className="text-xl font-black text-slate-900 dark:text-white">Manage your network</p>
                         </div>
                         <button
                             onClick={onClose}
-                            className="size-10 flex items-center justify-center rounded-2xl bg-slate-100 dark:bg-[#000000] text-slate-500 hover:text-rose-500 transition-colors"
+                            className="size-10 flex items-center justify-center rounded-2xl bg-black/5 dark:bg-white/5 text-slate-500 hover:text-rose-500 transition-colors"
                         >
                             <span className="material-symbols-outlined">close</span>
                         </button>
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex p-1.5 bg-slate-100 dark:bg-[#121212]/50 m-4 rounded-2xl shrink-0">
+                    <div className="flex p-1.5 bg-black/5 dark:bg-white/5 m-4 rounded-2xl shrink-0">
                         {[
                             { id: 'connections', label: 'Network', icon: 'hub', count: connectionsData.connections.length },
                             { id: 'incoming', label: 'Requests', icon: 'inbox', count: connectionsData.incoming.length },
@@ -97,7 +97,7 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
                                 onClick={() => setActiveConnectionsTab(tab.id)}
                                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-[14px] text-xs font-black uppercase tracking-tighter transition-all relative ${
                                     activeConnectionsTab === tab.id
-                                        ? 'bg-white dark:bg-[#000000] text-primary shadow-none'
+                                        ? 'bg-white dark:bg-[#121212] text-cyan-500 shadow-none'
                                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                                 }`}
                             >
@@ -105,7 +105,7 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
                                 {tab.label}
                                 {tab.count > 0 && (
                                     <span className={`size-4 flex items-center justify-center rounded-full text-[9px] font-black ${
-                                        activeConnectionsTab === tab.id ? 'bg-primary text-white' : 'bg-slate-300 dark:bg-[#121212] text-slate-600 dark:text-slate-400'
+                                        activeConnectionsTab === tab.id ? 'bg-cyan-500 text-white' : 'bg-slate-300 dark:bg-[#121212] text-slate-600 dark:text-slate-400'
                                     }`}>
                                         {tab.count}
                                     </span>

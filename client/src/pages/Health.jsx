@@ -10,6 +10,8 @@ import WorkoutTracker from '../components/health_components/WorkoutTracker';
 import NutritionLog from '../components/health_components/NutritionLog';
 import MobileTabNav from '../components/ui/MobileTabNav';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
+import DashboardPanel from '../components/ui/DashboardPanel';
+import { Activity, Dumbbell, Apple } from 'lucide-react';
 
 const Health = () => {
 
@@ -47,22 +49,26 @@ const Health = () => {
                 <div className={`lg:col-span-4 flex flex-col gap-6 ${activeTab !== 'metrics' ? 'hidden lg:flex' : ''}`}>
 
                     <div className={`flex flex-col gap-6 ${activeTab === 'metrics' ? 'block' : 'hidden lg:block'}`}>
-                         <BMITracker
-                            metrics={metrics}
-                            addHealthLog={addHealthLog}
-                        />
-                         <WaterTracker
-                            metrics={metrics}
-                            addHealthLog={addHealthLog}
-                        />
-                         <SleepTracker
-                            metrics={metrics}
-                            addHealthLog={addHealthLog}
-                        />
-                         <RecentHealthLogs
-                            metrics={metrics}
-                            deleteHealthLog={deleteHealthLog}
-                        />
+                        <DashboardPanel title="Vital Metrics" subtitle="Biometric Analysis" icon={Activity} showZap>
+                            <div className="flex flex-col gap-6">
+                                <BMITracker
+                                    metrics={metrics}
+                                    addHealthLog={addHealthLog}
+                                />
+                                <WaterTracker
+                                    metrics={metrics}
+                                    addHealthLog={addHealthLog}
+                                />
+                                <SleepTracker
+                                    metrics={metrics}
+                                    addHealthLog={addHealthLog}
+                                />
+                                <RecentHealthLogs
+                                    metrics={metrics}
+                                    deleteHealthLog={deleteHealthLog}
+                                />
+                            </div>
+                        </DashboardPanel>
                     </div>
                 </div>
 
@@ -70,19 +76,23 @@ const Health = () => {
                 <div className={`lg:col-span-8 flex flex-col gap-6 ${activeTab !== 'workout' && activeTab !== 'nutrition' ? 'hidden lg:flex' : ''}`}>
 
                     <div className={activeTab === 'workout' ? 'block' : 'hidden lg:block'}>
-                        <WorkoutTracker
-                            workouts={workouts}
-                            addHealthLog={addHealthLog}
-                            deleteHealthLog={deleteHealthLog}
-                        />
+                        <DashboardPanel title="Physical Conditioning" subtitle="Workout Logs" icon={Dumbbell} showZap>
+                            <WorkoutTracker
+                                workouts={workouts}
+                                addHealthLog={addHealthLog}
+                                deleteHealthLog={deleteHealthLog}
+                            />
+                        </DashboardPanel>
                     </div>
 
                     <div className={activeTab === 'nutrition' ? 'block' : 'hidden lg:block'}>
-                        <NutritionLog
-                            nutrition={nutrition}
-                            addHealthLog={addHealthLog}
-                            deleteHealthLog={deleteHealthLog}
-                        />
+                        <DashboardPanel title="Nutritional Intake" subtitle="Caloric Tracking" icon={Apple}>
+                            <NutritionLog
+                                nutrition={nutrition}
+                                addHealthLog={addHealthLog}
+                                deleteHealthLog={deleteHealthLog}
+                            />
+                        </DashboardPanel>
                     </div>
                 </div>
 

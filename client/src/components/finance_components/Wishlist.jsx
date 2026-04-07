@@ -127,7 +127,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
                 onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none min-h-[350px]">
+            <div className="min-h-[350px]">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">shopping_bag</span>

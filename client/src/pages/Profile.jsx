@@ -46,6 +46,7 @@ function Profile() {
     const [banner, setBanner] = useState(user?.banner || "");
     const [isSaving, setIsSaving] = useState(false);
     const [saveMessage, setSaveMessage] = useState("");
+    const [isUploadingBanner, setIsUploadingBanner] = useState(false);
 
     const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -152,6 +153,27 @@ function Profile() {
         }
     };
 
+    const handleBannerUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsUploadingBanner(true);
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const res = await api.post('/auth/upload/banner', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setBanner(res.data.url);
+        } catch (error) {
+            console.error("Failed to upload banner", error);
+            setSaveMessage("Failed to upload image. Please try again.");
+        } finally {
+            setIsUploadingBanner(false);
+        }
+    };
+
 
     const moodEmojis = {
         great: { emoji: "🤩", label: "Great" },
@@ -182,16 +204,24 @@ function Profile() {
                         <div className="w-full h-full bg-gradient-to-br from-primary/20 to-purple-500/20"></div>
                     )}
                     {isEditing && (
-                        <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-4">
-                            <span className="material-symbols-outlined text-white text-3xl mb-2">image</span>
+                        <label className={`absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-4 cursor-pointer transition-colors ${isUploadingBanner ? 'opacity-100' : 'hover:bg-black/40'}`}>
+                            {isUploadingBanner ? (
+                                <div className="size-8 border-4 border-white/30 border-t-white rounded-full animate-spin mb-2" />
+                            ) : (
+                                <>
+                                    <span className="material-symbols-outlined text-white text-3xl mb-2">add_photo_alternate</span>
+                                    <span className="text-white text-sm font-bold uppercase tracking-widest">Upload Banner</span>
+                                    <span className="text-white/60 text-[10px] uppercase font-black tracking-widest mt-1">16:9 Recommended</span>
+                                </>
+                            )}
                             <input
-                                type="text"
-                                value={banner}
-                                onChange={(e) => setBanner(e.target.value)}
-                                placeholder="Banner Image URL..."
-                                className="w-full max-w-md bg-white/10 border border-white/20 text-white placeholder-white/50 text-sm font-medium rounded-xl px-4 py-2 outline-none focus:border-white focus:bg-white/20 transition-all text-center backdrop-blur-sm"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleBannerUpload}
+                                disabled={isUploadingBanner}
+                                className="hidden"
                             />
-                        </div>
+                        </label>
                     )}
                 </div>
 
@@ -277,7 +307,7 @@ function Profile() {
                                     </button>
                                     <button
                                         onClick={handleSaveProfile}
-                                        disabled={isSaving || isUsernameAvailable === false || isCheckingUsername}
+                                        disabled={isSaving || isUsernameAvailable === false || isCheckingUsername || isUploadingBanner}
                                         className="px-4 py-2 bg-primary text-white rounded-xl font-bold text-xs hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50"
                                     >
                                         {isSaving ? '...' : 'Save'}

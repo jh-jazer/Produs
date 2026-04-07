@@ -21,7 +21,7 @@ function FinancialStats({ transactions = [], currencySymbol = '$' }) {
     const trend = currentMonthTotal >= 0 ? '+5.2%' : '-2.1%'; // Mock trend for now but dynamic based on sign
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex flex-col flex-1 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 ease-in-out font-inter">
+        <div className="flex flex-col flex-1 font-inter">
             <div className="flex justify-between items-start mb-4">
                 <div>
                     <h3 className="text-base font-bold text-slate-900 dark:text-white leading-none">Net Balance</h3>

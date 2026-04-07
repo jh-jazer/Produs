@@ -10,6 +10,7 @@ import PartnerModal from '../ui/PartnerModal';
 import ProfileModal from '../ui/ProfileModal';
 import { DashboardContext } from '../../context/DashboardContext';
 import useAuthStore from '../../store/useAuthStore';
+import api from '../../services/api';
 
 const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     const { protocolMode, setProtocolMode } = useContext(DashboardContext);
@@ -23,6 +24,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     const [banner, setBanner] = useState(user?.banner || "");
     const [avatar, setAvatar] = useState(user?.avatar || "");
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploadingBanner, setIsUploadingBanner] = useState(false);
 
     // Modals State
     const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
@@ -45,6 +47,26 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
             console.error("Failed to update profile", error);
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleBannerUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsUploadingBanner(true);
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const res = await api.post('/auth/upload/banner', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setBanner(res.data.url);
+        } catch (error) {
+            console.error("Failed to upload banner", error);
+        } finally {
+            setIsUploadingBanner(false);
         }
     };
 
@@ -90,16 +112,24 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                 )}
 
                 {isEditing && (
-                    <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-4 z-20">
-                        <span className="material-symbols-outlined text-white text-3xl mb-2">image</span>
+                    <label className={`absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-4 z-20 cursor-pointer transition-colors ${isUploadingBanner ? 'opacity-100' : 'hover:bg-black/40'}`}>
+                        {isUploadingBanner ? (
+                            <div className="size-8 border-4 border-white/30 border-t-white rounded-full animate-spin mb-2" />
+                        ) : (
+                            <>
+                                <span className="material-symbols-outlined text-white text-3xl mb-2">add_photo_alternate</span>
+                                <span className="text-white text-sm font-bold uppercase tracking-widest">Upload Banner</span>
+                                <span className="text-white/60 text-[10px] uppercase font-black tracking-widest mt-1">16:9 Recommended</span>
+                            </>
+                        )}
                         <input
-                            type="text"
-                            value={banner}
-                            onChange={(e) => setBanner(e.target.value)}
-                            placeholder="Banner Image URL..."
-                            className="w-full max-w-md bg-white/10 border border-white/20 text-white placeholder-white/50 text-sm font-medium rounded-xl px-4 py-2 outline-none focus:border-white focus:bg-white/20 transition-all text-center backdrop-blur-sm"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleBannerUpload}
+                            disabled={isUploadingBanner}
+                            className="hidden"
                         />
-                    </div>
+                    </label>
                 )}
                 
                 {/* 1.1 Tactical Toggles Area */}
@@ -284,7 +314,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                         </button>
                                         <button
                                             onClick={handleSaveProfile}
-                                            disabled={isSaving}
+                                            disabled={isSaving || isUploadingBanner}
                                             className="px-6 py-3 bg-cyan-500 text-white rounded-2xl font-black text-xs hover:bg-cyan-600 transition-all shadow-lg shadow-cyan-500/20 disabled:opacity-50 flex items-center gap-2 uppercase tracking-widest"
                                         >
                                             {isSaving ? (

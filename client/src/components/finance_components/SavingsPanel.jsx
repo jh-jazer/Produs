@@ -60,7 +60,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                 onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-8 shadow-none overflow-hidden relative">
+            <div className="w-full overflow-hidden relative">
             <div className="absolute -right-24 -top-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
 
             <div className="relative z-10">

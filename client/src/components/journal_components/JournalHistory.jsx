@@ -48,7 +48,7 @@ const JournalHistory = ({ entries = [], onAction }) => {
                 onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="flex-1 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex flex-col min-h-[500px]">
+            <div className="flex-1 flex flex-col min-h-[500px]">
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Journal History</h3>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-[#000000] px-2 py-1 rounded border border-slate-100 dark:border-white/10">

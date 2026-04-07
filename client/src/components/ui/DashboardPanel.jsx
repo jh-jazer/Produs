@@ -26,7 +26,8 @@ const DashboardPanel = ({
     className = "",
     bodyClassName = "",
     noPadding = false,
-    icon: Icon
+    icon: Icon,
+    headerExtra
 }) => {
     const navigate = useNavigate();
 
@@ -54,19 +55,22 @@ const DashboardPanel = ({
                             <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest leading-none">{subtitle}</p>
                         )}
                     </div>
-                    {actionLabel && actionPath && (
-                        <button 
-                            onClick={() => navigate(actionPath)}
-                            className="text-[9px] font-black text-cyan-500 uppercase tracking-widest hover:text-cyan-400 transition-colors flex items-center gap-2 group/action"
-                        >
-                            {actionLabel} <ChevronRight size={10} className="group-hover/action:translate-x-1 transition-transform" />
-                        </button>
-                    )}
-                    {Icon && !actionLabel && (
-                        <div className="opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Icon size={24} className="text-white" />
-                        </div>
-                    )}
+                    <div className="flex items-center gap-3">
+                        {headerExtra && headerExtra}
+                        {actionLabel && actionPath && (
+                            <button 
+                                onClick={() => navigate(actionPath)}
+                                className="text-[9px] font-black text-cyan-500 uppercase tracking-widest hover:text-cyan-400 transition-colors flex items-center gap-2 group/action"
+                            >
+                                {actionLabel} <ChevronRight size={10} className="group-hover/action:translate-x-1 transition-transform" />
+                            </button>
+                        )}
+                        {Icon && !actionLabel && !headerExtra && (
+                            <div className="opacity-10 group-hover:opacity-20 transition-opacity">
+                                <Icon size={24} className="text-white" />
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
 

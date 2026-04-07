@@ -486,10 +486,10 @@ function HabitTracker({
                                         setNewHabit({ name: '', icon: 'local_drink', color: 'emerald', isShared: isPartnerView, category: 'Productivity' });
                                         setAddModalOpen(true);
                                     }}
-                                    className="px-4 py-2 rounded-xl bg-cyan-500 text-slate-900 text-[9px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.3)] font-inter"
+                                    className="p-2 rounded-xl border border-white/5 text-slate-500 hover:border-white/10 hover:bg-white/5 hover:text-cyan-500 transition-all duration-300"
                                     title={isPartnerView ? 'Add Team Habit' : 'Add Habit'}
                                 >
-                                    <Plus size={14} strokeWidth={3} /> ADD_HABIT
+                                    <Plus size={14} />
                                 </button>
                             )}
 

@@ -2,7 +2,7 @@ import React from 'react';
 
 const BalanceHistory = () => {
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none min-h-[400px]">
+        <div className="min-h-[400px]">
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">Balance History</h3>

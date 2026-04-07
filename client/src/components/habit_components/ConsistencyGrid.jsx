@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, partnerUserId = null }) => {
     const today = new Date();
@@ -6,6 +7,7 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
 
     const [selectedYear, setSelectedYear] = React.useState(today.getFullYear());
     const [isYearOpen, setIsYearOpen] = React.useState(false);
+    const [tooltip, setTooltip] = React.useState(null); // { x, y, date, statusText }
 
     const totalWeeks = 53;
     const totalCells = totalWeeks * 7;
@@ -93,6 +95,7 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
     };
 
     return (
+        <>
         <div className="font-inter flex flex-col h-[500px] md:h-auto relative">
 
             {/* ── Legend & Year Selector (Integrated Header) ── */}
@@ -179,24 +182,15 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
                             const { date, isFuture, isWrongYear, myCount, partnerCount } = getCellData(i);
                             const cellClass = getCellClass(myCount, partnerCount, isFuture, isWrongYear);
                             const statusText = getStatusText(myCount, partnerCount, isFuture);
-                            const rowIndex = Math.floor(i / 7);
-                            const colIndex = i % 7;
-                            const xAlign = colIndex < 3 ? 'left-0' : colIndex > 3 ? 'right-0' : 'left-1/2 -translate-x-1/2';
-                            const yAlign = rowIndex < 4 ? 'top-full mt-2' : 'bottom-full mb-2';
 
                             return (
                                 <div
                                     key={i}
-                                    className={`w-full aspect-square min-h-[20px] max-h-[36px] rounded-md border-[0.5px] ${cellClass} transition-all duration-200 relative group cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : isFuture ? 'opacity-20 cursor-not-allowed' : ''}`}
-                                >
-                                    {!isWrongYear && (
-                                        <div className={`absolute ${yAlign} ${xAlign} px-2 py-1 bg-[#121212] dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-bold shadow-xl`}>
-                                            <div className="font-black">{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                                            {!isFuture && <div className="text-slate-400 dark:text-slate-500">{statusText}</div>}
-                                            {isFuture && <div className="text-slate-400 italic">Future</div>}
-                                        </div>
-                                    )}
-                                </div>
+                                    className={`w-full aspect-square min-h-[20px] max-h-[36px] rounded-md border-[0.5px] ${cellClass} transition-all duration-200 relative cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : isFuture ? 'opacity-20 cursor-not-allowed' : 'hover:scale-[1.15] hover:z-10'}`}
+                                    onMouseEnter={(e) => !isWrongYear && setTooltip({ x: e.clientX, y: e.clientY, date, statusText, isFuture })}
+                                    onMouseMove={(e) => tooltip && setTooltip(t => t ? { ...t, x: e.clientX, y: e.clientY } : t)}
+                                    onMouseLeave={() => setTooltip(null)}
+                                />
                             );
                         })}
                     </div>
@@ -232,23 +226,18 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
                         {/* Cells */}
                         <div className="grid grid-rows-7 grid-flow-col gap-[3px]">
                             {[...Array(totalCells)].map((_, i) => {
-                                const { date, isFuture, isWrongYear, myCount, partnerCount, colIndex } = getCellData(i);
+                                const { date, isFuture, isWrongYear, myCount, partnerCount } = getCellData(i);
                                 const cellClass = getCellClass(myCount, partnerCount, isFuture, isWrongYear);
                                 const statusText = getStatusText(myCount, partnerCount, isFuture);
-                                const tooltipLeft = colIndex < totalWeeks - 6 ? 'left-0' : 'right-0';
 
                                 return (
                                     <div
                                         key={i}
-                                        className={`w-3 h-3 rounded-sm border-[0.5px] ${cellClass} transition-all duration-200 relative group cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : isFuture ? 'opacity-20 cursor-default' : 'hover:scale-125 hover:z-10'}`}
-                                    >
-                                        {!isWrongYear && (
-                                            <div className={`absolute bottom-full mb-2 ${tooltipLeft} px-2 py-1 bg-[#121212] dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-bold shadow-xl`}>
-                                                <div className="font-black">{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                                                <div className="text-slate-400 dark:text-slate-500">{statusText}</div>
-                                            </div>
-                                        )}
-                                    </div>
+                                        className={`w-3 h-3 rounded-sm border-[0.5px] ${cellClass} transition-all duration-200 relative cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : isFuture ? 'opacity-20 cursor-default' : 'hover:scale-125 hover:z-10'}`}
+                                        onMouseEnter={(e) => !isWrongYear && setTooltip({ x: e.clientX, y: e.clientY, date, statusText, isFuture })}
+                                        onMouseMove={(e) => tooltip && setTooltip(t => t ? { ...t, x: e.clientX, y: e.clientY } : t)}
+                                        onMouseLeave={() => setTooltip(null)}
+                                    />
                                 );
                             })}
                         </div>
@@ -256,6 +245,19 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
                 </div>
             </div>
         </div>
+
+        {/* Portal tooltip — always on top, never clipped */}
+        {tooltip && createPortal(
+            <div
+                className="fixed z-[99999] px-2.5 py-1.5 bg-[#121212] dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg pointer-events-none whitespace-nowrap font-bold shadow-xl"
+                style={{ left: tooltip.x + 12, top: tooltip.y - 40 }}
+            >
+                <div className="font-black">{tooltip.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                <div className="text-slate-400 dark:text-slate-500">{tooltip.statusText}</div>
+            </div>,
+            document.body
+        )}
+        </>
     );
 };
 

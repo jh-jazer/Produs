@@ -1,10 +1,12 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 const YearlyMoodBoard = ({ entries = [] }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const [selectedYear, setSelectedYear] = React.useState(today.getFullYear());
     const [isYearOpen, setIsYearOpen] = React.useState(false);
+    const [tooltip, setTooltip] = React.useState(null);
 
     const totalWeeks = 53;
     const totalCells = totalWeeks * 7;
@@ -83,7 +85,8 @@ const YearlyMoodBoard = ({ entries = [] }) => {
     const years = [2024, 2025, 2026];
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none font-inter flex flex-col h-[500px] md:h-auto">
+        <>
+        <div className="font-inter flex flex-col h-[500px] md:h-auto">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 shrink-0">
                 <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-none tracking-tight">Yearly Mood Board</h3>
@@ -160,22 +163,14 @@ const YearlyMoodBoard = ({ entries = [] }) => {
                             const { date, isFuture, isWrongYear, moodData } = getCellData(i);
                             let cellClass = moodColors[0];
                             if (!isWrongYear && !isFuture && moodData) cellClass = moodColors[moodData.level];
-                            const rowIndex = Math.floor(i / 7);
-                            const colIndex = i % 7;
-                            const xAlign = colIndex < 3 ? 'left-0' : colIndex > 3 ? 'right-0' : 'left-1/2 -translate-x-1/2';
-                            const yAlign = rowIndex < 4 ? 'top-full mt-2' : 'bottom-full mb-2';
                             return (
                                 <div
                                     key={i}
-                                    className={`w-full aspect-square sm:min-h-[24px] max-h-[36px] rounded-md border-[0.5px] ${cellClass} transition-all duration-300 relative group cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : (isFuture ? 'opacity-20 cursor-not-allowed' : '')}`}
-                                >
-                                    {!isWrongYear && (
-                                        <div className={`absolute ${yAlign} ${xAlign} px-2 py-1 bg-[#121212] dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-bold shadow-xl`}>
-                                            <div className="font-black">{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                                            {moodData ? <div className="text-primary">{moodData.mood} Mood</div> : <div className="text-slate-400 italic">No entry</div>}
-                                        </div>
-                                    )}
-                                </div>
+                                    className={`w-full aspect-square sm:min-h-[24px] max-h-[36px] rounded-md border-[0.5px] ${cellClass} transition-all duration-300 cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : (isFuture ? 'opacity-20 cursor-not-allowed' : 'hover:scale-[1.15] hover:z-10')}`}
+                                    onMouseEnter={(e) => !isWrongYear && setTooltip({ x: e.clientX, y: e.clientY, date, moodData, isFuture })}
+                                    onMouseMove={(e) => tooltip && setTooltip(t => t ? { ...t, x: e.clientX, y: e.clientY } : t)}
+                                    onMouseLeave={() => setTooltip(null)}
+                                />
                             );
                         })}
                     </div>
@@ -211,24 +206,17 @@ const YearlyMoodBoard = ({ entries = [] }) => {
                         {/* Cells */}
                         <div className="grid grid-rows-7 grid-flow-col gap-[3px]">
                             {[...Array(totalCells)].map((_, i) => {
-                                const { date, isFuture, isWrongYear, moodData, colIndex } = getCellData(i);
+                                const { date, isFuture, isWrongYear, moodData } = getCellData(i);
                                 let cellClass = moodColors[0];
                                 if (!isWrongYear && !isFuture && moodData) cellClass = moodColors[moodData.level];
-                                const tooltipLeft = colIndex < totalWeeks - 6 ? 'left-0' : 'right-0';
                                 return (
                                     <div
                                         key={i}
-                                        className={`w-3 h-3 rounded-sm border-[0.5px] ${cellClass} transition-all duration-200 relative group cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : isFuture ? 'opacity-20 cursor-default' : 'hover:scale-125 hover:z-10'}`}
-                                    >
-                                        {!isWrongYear && (
-                                            <div className={`absolute bottom-full mb-2 ${tooltipLeft} px-2 py-1 bg-[#121212] dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[100] whitespace-nowrap font-bold shadow-xl`}>
-                                                <div className="font-black">{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                                                <div className="text-slate-400 dark:text-slate-500">
-                                                    {isFuture ? 'Future' : moodData ? `${moodData.mood} Mood` : 'No entry'}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
+                                        className={`w-3 h-3 rounded-sm border-[0.5px] ${cellClass} transition-all duration-200 cursor-pointer ${isWrongYear ? 'opacity-0 pointer-events-none' : isFuture ? 'opacity-20 cursor-default' : 'hover:scale-125 hover:z-10'}`}
+                                        onMouseEnter={(e) => !isWrongYear && setTooltip({ x: e.clientX, y: e.clientY, date, moodData, isFuture })}
+                                        onMouseMove={(e) => tooltip && setTooltip(t => t ? { ...t, x: e.clientX, y: e.clientY } : t)}
+                                        onMouseLeave={() => setTooltip(null)}
+                                    />
                                 );
                             })}
                         </div>
@@ -236,6 +224,21 @@ const YearlyMoodBoard = ({ entries = [] }) => {
                 </div>
             </div>
         </div>
+
+        {/* Portal tooltip — always on top, never clipped */}
+        {tooltip && createPortal(
+            <div
+                className="fixed z-[99999] px-2.5 py-1.5 bg-[#121212] dark:bg-white text-white dark:text-slate-900 text-[10px] rounded-lg pointer-events-none whitespace-nowrap font-bold shadow-xl"
+                style={{ left: tooltip.x + 12, top: tooltip.y - 40 }}
+            >
+                <div className="font-black">{tooltip.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                <div className="text-slate-400 dark:text-slate-500">
+                    {tooltip.isFuture ? 'Future' : tooltip.moodData ? `${tooltip.moodData.mood} Mood` : 'No entry'}
+                </div>
+            </div>,
+            document.body
+        )}
+        </>
     );
 };
 

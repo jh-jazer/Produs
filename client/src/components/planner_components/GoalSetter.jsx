@@ -209,7 +209,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                 onConfirm={() => { deleteGoal(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] shadow-none flex flex-col gap-5 overflow-hidden">
+            <div className="flex flex-col gap-5 overflow-hidden">
 
             {/* Header */}
             <div className="px-6 pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

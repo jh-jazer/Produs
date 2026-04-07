@@ -25,9 +25,7 @@
     <div class="loader-content">
       <div class="loader-logo-container">
         <div class="logo-glow"></div>
-        <div class="loader-logo">
-          <div class="logo-inner"></div>
-        </div>
+        <img class="loader-logo-img" src="/src/components/brand/produs-logo.png" alt="Produs Logo" />
       </div>
       <div class="loader-text-container">
         <h1 class="loader-title">Produs</h1>
@@ -83,10 +81,10 @@
       position: absolute;
       inset: 0;
       background: rgba(0, 102, 255, 0.2);
-      filter: blur(25px);
+      filter: blur(35px);
       border-radius: 50%;
-      width: 100px;
-      height: 100px;
+      width: 150px;
+      height: 150px;
       transform: translateY(10px);
       animation: glowPulse 3s infinite ease-in-out;
     }
@@ -96,32 +94,19 @@
       50% { opacity: 0.8; transform: translateY(10px) scale(1.2); }
     }
 
-    .loader-logo {
-      width: 80px;
-      height: 80px;
-      background: #fff;
-      transform: rotate(45deg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(255,255,255,0.4);
-      box-shadow: 0 0 40px rgba(255,255,255,0.8);
+    .loader-logo-img {
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
       position: relative;
       z-index: 10;
-      animation: logoRotate 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      filter: drop-shadow(0 0 15px rgba(255,255,255,0.7));
+      animation: logoEntrance 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    @keyframes logoRotate {
-      from { transform: rotate(0deg) scale(0.8); opacity: 0; }
-      to { transform: rotate(45deg) scale(1); opacity: 1; }
-    }
-
-    .logo-inner {
-      width: 40px;
-      height: 40px;
-      background: #000;
-      transform: rotate(-45deg);
-      box-shadow: inset 0 0 20px rgba(255,255,255,0.5);
+    @keyframes logoEntrance {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
 
     .loader-text-container {

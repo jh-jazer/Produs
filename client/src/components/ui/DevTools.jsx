@@ -44,7 +44,14 @@ const DevTools = () => {
     const pointMagnitudes = [1, 3, 5, 10, 50];
 
     return (
-        <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3">
+        <>
+            {isOpen && (
+                <div 
+                    className="fixed inset-0 z-[9998]" 
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
+            <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -169,6 +176,7 @@ const DevTools = () => {
                 <span className="material-symbols-outlined font-black text-2xl">{isOpen ? 'close' : 'terminal'}</span>
             </button>
         </div>
+        </>
     );
 };
 

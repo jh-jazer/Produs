@@ -105,7 +105,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                     exit={{ scale: 0.95, opacity: 0, y: 10 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="relative z-10 w-full max-w-md bg-white dark:bg-[#121212] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 p-8"
+                    className="relative z-10 w-full max-w-md bg-slate-50/90 dark:bg-[#080808]/90 backdrop-blur-2xl border border-cyan-500/30 dark:border-white/10 rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.5)] p-8"
                 >
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">

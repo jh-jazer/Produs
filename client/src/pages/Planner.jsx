@@ -7,6 +7,8 @@ import useAuthStore from '../store/useAuthStore';
 import { motion } from 'framer-motion';
 import MobileTabNav from '../components/ui/MobileTabNav';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
+import DashboardPanel from '../components/ui/DashboardPanel';
+import { CalendarDays, Target, Clock, Star } from 'lucide-react';
 import { usePlanner } from '../hooks/usePlanner';
 
 const Planner = () => {
@@ -53,77 +55,64 @@ const Planner = () => {
 
                     {/* Mobile Only: Calendar */}
                     <div className={activeTab === 'calendar' ? 'block' : 'hidden lg:hidden'}>
-                        <FullCalendar onDateSelect={setSelectedDate} selectedDate={selectedDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                        <DashboardPanel title="Tactical Schedule" subtitle="Monthly Matrix" icon={CalendarDays} bodyClassName="p-0">
+                            <FullCalendar onDateSelect={setSelectedDate} selectedDate={selectedDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                        </DashboardPanel>
                     </div>
 
                     {/* Priority (Mobile Priority Tab) */}
                     <div className={`relative w-full ${activeTab === 'priority' ? 'block' : 'hidden'} lg:hidden`}>
-                        <Priority
-                            viewMode={viewMode}
-                            isReadOnly={viewMode === 'partner'}
-                            onFlip={() => {}} // Disabled on mobile
-                        />
+                        <DashboardPanel title="Priority Directives" subtitle="Top 3 Objectives" icon={Star} showZap>
+                            <Priority viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => {}} />
+                        </DashboardPanel>
                     </div>
 
                     {/* Daily Schedule (Mobile Planner Tab) */}
                     <div className={`relative w-full ${activeTab === 'planner' ? 'block' : 'hidden'} lg:hidden`}>
-                        <DailySchedule
-                            viewMode={viewMode}
-                            isReadOnly={viewMode === 'partner'}
-                            onFlip={() => {}} // Disabled on mobile
-                        />
+                        <DashboardPanel title="Daily Schedule" subtitle="Time Blocking" icon={Clock} showZap>
+                            <DailySchedule viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => {}} />
+                        </DashboardPanel>
                     </div>
 
                     {/* Desktop Priority / Daily Schedule Flip Card */}
-                    <div className={`relative w-full hidden lg:block`} style={{ perspective: '2000px' }}>
+                    <div className={`relative w-full hidden lg:block`} style={{ perspective: '2000px', flexShrink: 0 }}>
                         <motion.div
                             animate={{ rotateY: isFlipped ? 180 : 0 }}
                             transition={{ duration: 0.7, type: 'spring', stiffness: 100, damping: 20 }}
                             style={{ transformStyle: 'preserve-3d', position: 'relative' }}
                         >
                             {/* Front Side: Priority */}
-                            <div style={{ 
-                                backfaceVisibility: 'hidden',
-                                position: isFlipped ? 'absolute' : 'relative',
-                                top: 0,
-                                left: 0,
-                                width: '100%'
-                            }}>
-                                <Priority 
-                                    viewMode={viewMode} 
-                                    isReadOnly={viewMode === 'partner'} 
-                                    onFlip={() => setIsFlipped(true)}
-                                />
+                            <div style={{ backfaceVisibility: 'hidden', position: isFlipped ? 'absolute' : 'relative', top: 0, left: 0, width: '100%', height: '100%' }}>
+                                <DashboardPanel title="Priority Directives" subtitle="Top 3 Objectives" icon={Star} showZap className="h-full">
+                                    <Priority viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => setIsFlipped(true)} />
+                                </DashboardPanel>
                             </div>
 
                             {/* Back Side: Daily Planner */}
-                            <div style={{ 
-                                backfaceVisibility: 'hidden', 
-                                transform: 'rotateY(180deg)', 
-                                position: isFlipped ? 'relative' : 'absolute', 
-                                top: 0, 
-                                left: 0, 
-                                width: '100%'
-                            }}>
-                                <DailySchedule 
-                                    viewMode={viewMode} 
-                                    isReadOnly={viewMode === 'partner'} 
-                                    onFlip={() => setIsFlipped(false)}
-                                />
+                            <div style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', position: isFlipped ? 'relative' : 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+                                <DashboardPanel title="Daily Schedule" subtitle="Time Blocking" icon={Clock} showZap className="h-full">
+                                    <DailySchedule viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => setIsFlipped(false)} />
+                                </DashboardPanel>
                             </div>
                         </motion.div>
                     </div>
 
                     {/* Mobile Only: Goal Setter */}
                     <div className={activeTab === 'goals' ? 'block' : 'hidden'}>
-                        <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                        <DashboardPanel title="Strategic Objectives" subtitle="Mid-Term Planning" icon={Target}>
+                            <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                        </DashboardPanel>
                     </div>
                 </div>
 
                 {/* Right Column (Desktop Only Sidebar for Calendar/Goals) */}
                 <div className="lg:col-span-8 hidden lg:flex flex-col gap-4 md:gap-6">
-                    <FullCalendar onDateSelect={setSelectedDate} selectedDate={selectedDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
-                    <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                    <DashboardPanel title="Tactical Schedule" subtitle="Monthly Matrix" icon={CalendarDays} bodyClassName="p-0">
+                        <FullCalendar onDateSelect={setSelectedDate} selectedDate={selectedDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                    </DashboardPanel>
+                    <DashboardPanel title="Strategic Objectives" subtitle="Mid-Term Planning" icon={Target}>
+                        <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                    </DashboardPanel>
                 </div>
             </div>
         </div>

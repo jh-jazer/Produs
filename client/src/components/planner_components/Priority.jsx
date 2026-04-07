@@ -44,7 +44,7 @@ const Priority = ({
 
   return (
     <div
-      className={`rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] shadow-none flex flex-col transition-all min-h-[200px] ${isCompact ? "p-4 gap-4" : "p-6 gap-6"}`}
+      className={`flex flex-col transition-all min-h-[200px] ${isCompact ? "gap-4" : "gap-6"}`}
     >
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-3">

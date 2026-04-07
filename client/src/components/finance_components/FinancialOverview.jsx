@@ -72,7 +72,7 @@ const FinancialOverview = ({
     .sort((a, b) => b.amount - a.amount);
 
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none flex flex-col gap-6 min-h-[400px] relative overflow-hidden group">
+    <div className="flex flex-col gap-6 min-h-[400px] relative overflow-hidden group">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

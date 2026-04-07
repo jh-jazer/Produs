@@ -75,7 +75,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
     const remainingBudget = Math.max(0, totalBudget - totalSpentThisMonth);
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-6 shadow-none min-h-[300px] flex flex-col">
+        <div className="min-h-[300px] flex flex-col">
             <div className="flex items-center justify-between gap-2 mb-6">
                 <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">pie_chart</span>
