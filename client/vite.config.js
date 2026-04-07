@@ -9,6 +9,7 @@ export default defineConfig({
     react(), 
     tailwindcss(),
     VitePWA({
+      registerType: 'autoUpdate',
       injectRegister: 'auto',
       selfDestroying: false,
       includeAssets: ['produs-logo.png'],
@@ -16,28 +17,33 @@ export default defineConfig({
         name: 'Produs Productivity',
         short_name: 'Produs',
         description: 'The minimalist, high-contrast productivity tool for focused work.',
-        theme_color: '#0f172a',
-        background_color: '#0f172a',
+        theme_color: '#000000',
+        background_color: '#000000',
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
         icons: [
           {
-            src: 'produs-logo.png',
+            src: '/produs-logo.png',
+            sizes: '534x534',
+            type: 'image/png'
+          },
+          {
+            src: '/produs-logo.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'produs-logo.png',
+            src: '/produs-logo.png',
             sizes: '512x512',
             type: 'image/png'
           },
           {
-            src: 'produs-logo.png',
+            src: '/produs-logo.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'maskable'
           }
         ],
         categories: ['productivity', 'utilities'],
@@ -45,12 +51,12 @@ export default defineConfig({
           {
             name: 'Habits',
             url: '/dashboard/habits',
-            icons: [{ src: 'produs-logo.png', sizes: '192x192' }]
+            icons: [{ src: '/produs-logo.png', sizes: '192x192' }]
           },
           {
             name: 'Planner',
             url: '/dashboard/planner',
-            icons: [{ src: 'produs-logo.png', sizes: '192x192' }]
+            icons: [{ src: '/produs-logo.png', sizes: '192x192' }]
           }
         ]
       }
