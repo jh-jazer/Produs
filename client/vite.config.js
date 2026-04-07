@@ -25,22 +25,17 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/produs-logo.png',
-            sizes: '534x534',
-            type: 'image/png'
-          },
-          {
-            src: '/produs-logo.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: '/produs-logo.png',
+            src: '/produs-logo-512.png',
             sizes: '512x512',
             type: 'image/png'
           },
           {
-            src: '/produs-logo.png',
+            src: '/produs-logo-192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: '/produs-logo-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'
@@ -51,12 +46,12 @@ export default defineConfig({
           {
             name: 'Habits',
             url: '/dashboard/habits',
-            icons: [{ src: '/produs-logo.png', sizes: '192x192' }]
+            icons: [{ src: '/produs-logo-192.png', sizes: '192x192' }]
           },
           {
             name: 'Planner',
             url: '/dashboard/planner',
-            icons: [{ src: '/produs-logo.png', sizes: '192x192' }]
+            icons: [{ src: '/produs-logo-192.png', sizes: '192x192' }]
           }
         ]
       }
