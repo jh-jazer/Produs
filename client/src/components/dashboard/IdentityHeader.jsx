@@ -262,7 +262,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                 className="glass-card flex items-center gap-5 p-4 md:p-5 rounded-3xl md:self-end"
                             >
                                 {/* Level Icon Badge */}
-                                <div className="size-12 md:size-14 rounded-2xl bg-slate-900 dark:bg-white flex flex-col items-center justify-center shrink-0 border border-black/5 dark:border-white/5 shadow-none">
+                                <div className="size-12 lg:size-14 rounded-2xl bg-slate-900 dark:bg-white flex flex-col items-center justify-center shrink-0 border border-black/5 dark:border-white/5 shadow-none">
                                     <span className="text-[7px] md:text-[8px] font-black text-white/40 dark:text-black/40 uppercase tracking-tighter italic leading-none mb-0.5">LVL</span>
                                     <span className="text-xl md:text-2xl font-black text-white dark:text-black italic font-exo leading-none">{user.level || 1}</span>
                                 </div>
@@ -329,7 +329,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                     <div className="flex justify-center items-center gap-3 w-full md:w-auto">
                                         <button
                                             onClick={() => setIsConnectionsModalOpen(true)}
-                                            className="size-12 md:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all relative group shadow-sm"
+                                            className="size-12 lg:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all relative group shadow-sm"
                                             title="Network"
                                         >
                                             <Users size={20} className="group-hover:scale-110 transition-transform" />
@@ -339,7 +339,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                         </button>
                                         <button
                                             onClick={() => setIsPartnerModalOpen(true)}
-                                            className={`size-12 md:size-14 flex items-center justify-center rounded-2xl border transition-all shadow-sm group ${user?.partner
+                                            className={`size-12 lg:size-14 flex items-center justify-center rounded-2xl border transition-all shadow-sm group ${user?.partner
                                                 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
                                                 : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 hover:text-cyan-500'
                                                 }`}
@@ -349,7 +349,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                         </button>
                                         <button
                                             onClick={() => setIsEditing(true)}
-                                            className="size-12 md:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all shadow-sm group"
+                                            className="size-12 lg:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all shadow-sm group"
                                             title="Edit Profile"
                                         >
                                             <Edit2 size={20} className="group-hover:scale-110 transition-transform" />
