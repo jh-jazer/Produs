@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, Plus, Save, Trash2, Activity, Zap, MessageSquare, ChevronDown, ChevronUp, RefreshCw, FileJson } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../services/api';
+import DashboardPanel from './ui/DashboardPanel';
 
 const compareDecimalIds = (a, b) => {
     const partsA = a.split('.').map(Number);
@@ -188,20 +189,12 @@ const AdminNarrativeManager = () => {
     };
 
     return (
-        <div className="w-full space-y-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-100 dark:border-white/10">
-                <div className="flex items-center gap-4">
-                    <div className="size-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-[0_0_20px_rgba(var(--accent-rgb),0.2)]">
-                        <Brain size={24} />
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-black italic tracking-tighter uppercase font-exo">Narrative Manager</h2>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">
-                            {questions.length} Story Nodes Active
-                        </p>
-                    </div>
-                </div>
-                <div className="flex gap-3">
+        <>
+            <DashboardPanel
+                title="NARRATIVE_MANAGER_"
+                subtitle={`${questions.length} Story Nodes Active`}
+                headerExtra={
+                    <div className="flex gap-3">
                     <button 
                         onClick={() => setIsBulkModalOpen(true)}
                         className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
@@ -231,8 +224,8 @@ const AdminNarrativeManager = () => {
                         Create Node
                     </button>
                 </div>
-            </div>
-
+            }
+        >
             <div className="grid grid-cols-1 gap-4">
                 {/* New Node (Unsaved) Block */}
                 {editingNode && !questions.find(q => q.questionId === editingNode.questionId) && (
@@ -677,9 +670,11 @@ const AdminNarrativeManager = () => {
                         >
                             Restore Default Nodes
                         </button>
-                    </div>
-                )}
-            </div>
+                        </div>
+                    )}
+                </div>
+            </DashboardPanel>
+
             {/* Bulk Import Modal */}
             <AnimatePresence>
                 {isBulkModalOpen && (
@@ -803,7 +798,7 @@ const AdminNarrativeManager = () => {
                     </div>
                 )}
             </AnimatePresence>
-        </div>
+        </>
     );
 };
 

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, Clock, CheckCircle2, AlertCircle, ChevronDown, ChevronUp, Reply } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../services/api';
+import DashboardPanel from './ui/DashboardPanel';
 
 const AdminBugs = () => {
     const { data: bugs = [], mutate } = useSWR('/admin/bugs');
@@ -44,19 +45,7 @@ const AdminBugs = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-[#121212]/30 border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden backdrop-blur-md shadow-none">
-            <div className="p-6 border-b border-slate-100 dark:border-white/10 flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500">
-                        <MessageSquare size={20} />
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-black">Bug Reports</h2>
-                        <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{bugs.length} Issues Pending</p>
-                    </div>
-                </div>
-            </div>
-
+        <DashboardPanel title="BUG_REPORTS_" subtitle={`${bugs.length} Issues Pending`} noPadding>
             <div className="p-6 space-y-4 max-h-[600px] overflow-y-auto custom-scrollbar">
                 {bugs.length > 0 ? bugs.map((bug) => (
                     <div 
@@ -169,7 +158,7 @@ const AdminBugs = () => {
                     </div>
                 )}
             </div>
-        </div>
+        </DashboardPanel>
     );
 };
 
