@@ -16,10 +16,11 @@ const variants = {
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { user, setCredentials, updateSettings } = useAuthStore();
+  const { user, setCredentials } = useAuthStore();
 
   const [step, setStep] = useState(1);
   const [username, setUsername] = useState("");
+  const [gender, setGender] = useState("");
   const [usernameStatus, setUsernameStatus] = useState("idle");
   const [themeMode, setThemeMode] = useState(user?.settings?.themeMode || "system");
   const [loading, setLoading] = useState(false);
@@ -29,7 +30,7 @@ export default function Onboarding() {
   /* ---------------- USERNAME CHECK ---------------- */
 
   useEffect(() => {
-    if (!username || username.length < 3) {
+    if (!username || username.length < 4 || username.length > 12) {
       setUsernameStatus("idle");
       return;
     }
@@ -71,6 +72,7 @@ export default function Onboarding() {
     try {
       const { data } = await api.put("/auth/onboarding", {
         username,
+        gender,
         themeMode,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         currency: "USD" // Default currency
@@ -124,32 +126,47 @@ export default function Onboarding() {
                 >
                   <p className="text-sm font-bold text-slate-400 mb-8 uppercase tracking-[0.2em]">How shall you be recorded in the archives?</p>
                   
-                  <div className="flex items-center gap-3 relative w-full">
-                    <div className="absolute left-6 text-slate-400 font-black text-xl">@</div>
-                    <input
-                      value={username}
-                      onChange={(e) =>
-                        setUsername(
-                          e.target.value
-                            .toLowerCase()
-                            .replace(/[^a-z0-9_]/g, "")
-                        )
-                      }
-                      autoFocus
-                      placeholder="username"
-                      className="w-full bg-slate-50 dark:bg-[#121212] border-2 border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-14 py-4 font-bold outline-none ring-primary/20 focus:ring-4 transition-all"
-                    />
-                    <div className="absolute right-5">
-                      {usernameStatus === "checking" && (
-                        <div className="size-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                      )}
-                      {usernameStatus === "available" && (
-                        <span className="material-symbols-outlined text-emerald-500">check_circle</span>
-                      )}
-                      {usernameStatus === "taken" && (
-                        <span className="material-symbols-outlined text-rose-500">cancel</span>
-                      )}
+                  <div className="flex flex-col md:flex-row items-center gap-3 w-full">
+                    <div className="flex items-center gap-3 relative w-full md:w-2/3">
+                      <div className="absolute left-6 text-slate-400 font-black text-xl">@</div>
+                      <input
+                        value={username}
+                        onChange={(e) =>
+                          setUsername(
+                            e.target.value
+                              .toLowerCase()
+                              .replace(/[^a-z0-9_]/g, "")
+                          )
+                        }
+                        maxLength={12}
+                        autoFocus
+                        placeholder="username"
+                        className="w-full bg-slate-50 dark:bg-[#121212] border-2 border-slate-200 dark:border-white/10 rounded-2xl pl-12 pr-14 py-4 font-bold outline-none ring-primary/20 focus:ring-4 transition-all"
+                      />
+                      <div className="absolute right-5">
+                        {usernameStatus === "checking" && (
+                          <div className="size-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                        )}
+                        {usernameStatus === "available" && (
+                          <span className="material-symbols-outlined text-emerald-500">check_circle</span>
+                        )}
+                        {usernameStatus === "taken" && (
+                          <span className="material-symbols-outlined text-rose-500">cancel</span>
+                        )}
+                      </div>
                     </div>
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      className="w-full md:w-1/3 bg-slate-50 dark:bg-[#121212] border-2 border-slate-200 dark:border-white/10 rounded-2xl px-4 py-4 font-bold outline-none ring-primary/20 focus:ring-4 transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled>Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Non-binary">Non-binary</option>
+                      <option value="Other">Other</option>
+                      <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
                   </div>
 
                   <div className="h-4 mt-2 text-[10px] font-black uppercase tracking-widest text-center">
