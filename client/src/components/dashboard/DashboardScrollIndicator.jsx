@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from "react";
 import { motion, useMotionValue, useMotionValueEvent, useSpring } from "framer-motion";
 

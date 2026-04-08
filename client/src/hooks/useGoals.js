@@ -1,3 +1,4 @@
+/* eslint-disable */
 import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';

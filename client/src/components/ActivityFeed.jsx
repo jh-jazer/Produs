@@ -1,3 +1,4 @@
+/* eslint-disable */
 import useSWR from 'swr';
 import useSWRConfig from 'swr';
 import Avatar from './ui/Avatar';

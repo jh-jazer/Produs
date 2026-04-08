@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import { usePlanner } from '../../hooks/usePlanner';

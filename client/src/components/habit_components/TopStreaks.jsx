@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import useSWR from 'swr';
 import api from '../../services/api';

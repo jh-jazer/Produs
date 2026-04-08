@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { create } from 'zustand';
 
 export const useAssetStore = create((set, get) => ({

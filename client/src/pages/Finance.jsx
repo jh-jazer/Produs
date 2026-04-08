@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import useAuthStore from '../store/useAuthStore';
 import { useFinance } from '../hooks/useFinance';

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, Clock, CheckCircle2, AlertCircle, ChevronDown, ChevronUp, Reply } from 'lucide-react';

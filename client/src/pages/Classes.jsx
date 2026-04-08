@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';

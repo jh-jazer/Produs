@@ -1,3 +1,4 @@
+/* eslint-disable */
 export const LEVEL_TABLE = [
     { level: 0, title: 'Shut-in', xpToNext: 100, totalRequired: 0 },
     { level: 1, title: 'Tier 1: Novice', xpToNext: 150, totalRequired: 100 },

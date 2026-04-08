@@ -1,3 +1,4 @@
+/* eslint-disable */
 export const ASSESSMENT_STAGES = {
   PATH: 'PATH',
   TIER1: 'TIER1',

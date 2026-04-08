@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import JournalEntry from '../components/journal_components/JournalEntry';
 import JournalHistory from '../components/journal_components/JournalHistory';

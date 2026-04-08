@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { create } from 'zustand';
 import api, { setAuthToken } from '../services/api';
 

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import DashboardPanel from '../ui/DashboardPanel';

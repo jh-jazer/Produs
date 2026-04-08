@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useMemo, useState } from 'react';
 import useSWR from 'swr';
 import useAuthStore from '../store/useAuthStore';

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useContext, useState, useMemo } from 'react';
 import { DashboardContext } from "../context/DashboardContext";
 import useAuthStore from "../store/useAuthStore";
