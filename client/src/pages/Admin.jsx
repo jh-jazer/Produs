@@ -47,6 +47,21 @@ const Admin = () => {
         }
     };
 
+    const handleToggleAdmin = async (userId, userName, currentStatus) => {
+        if (!window.confirm(`Are you sure you want to ${currentStatus ? 'demote' : 'promote'} ${userName} ${currentStatus ? 'from' : 'to'} admin?`)) {
+            return;
+        }
+
+        try {
+            await api.post(`/admin/users/${userId}/toggle-admin`);
+            alert(`User has been successfully ${currentStatus ? 'demoted' : 'promoted'}.`);
+            mutate(); // Refresh the user list
+        } catch (error) {
+            console.error('Failed to toggle admin status:', error);
+            alert('Error toggling admin status: ' + (error.response?.data?.message || error.message));
+        }
+    };
+
     const systemStatus = data?.systemStatus || [
         { label: 'API Server', status: 'Checking...', color: 'bg-zinc-700' },
         { label: 'Database', status: 'Checking...', color: 'bg-zinc-700' },
@@ -225,7 +240,11 @@ const Admin = () => {
                                                 </div>
                                             </td>
                                             <td className="py-4">
-                                                <span className="text-[9px] md:text-[10px] font-black font-mono text-slate-400 bg-slate-100 dark:bg-[#000000] px-2 py-0.5 rounded-md">USER</span>
+                                                {user.isAdmin || user.email === 'ernestodesabillejr@gmail.com' ? (
+                                                    <span className="text-[9px] md:text-[10px] font-black font-mono text-cyan-500 bg-cyan-500/10 px-2 py-0.5 rounded-md">ADMIN</span>
+                                                ) : (
+                                                    <span className="text-[9px] md:text-[10px] font-black font-mono text-slate-400 bg-slate-100 dark:bg-[#000000] px-2 py-0.5 rounded-md">USER</span>
+                                                )}
                                             </td>
                                             <td className="py-4">
                                                 <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase">Active</span>
@@ -242,9 +261,15 @@ const Admin = () => {
                                                     >
                                                         <RotateCcw size={16} />
                                                     </button>
-                                                    <button className="text-slate-400 hover:text-primary transition-colors">
-                                                        <Settings size={16} />
-                                                    </button>
+                                                    {user.email !== 'ernestodesabillejr@gmail.com' && (
+                                                        <button
+                                                            onClick={() => handleToggleAdmin(user._id, user.name, user.isAdmin)}
+                                                            className={`${user.isAdmin ? 'text-cyan-500 hover:text-cyan-400' : 'text-slate-400 hover:text-primary'} transition-colors`}
+                                                            title={user.isAdmin ? "Demote to User" : "Promote to Admin"}
+                                                        >
+                                                            <Settings size={16} />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

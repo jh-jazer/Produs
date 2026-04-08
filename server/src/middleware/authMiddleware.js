@@ -35,7 +35,7 @@ const protect = async (req, res, next) => {
 };
 
 const adminOnly = (req, res, next) => {
-    if (req.user && req.user.email === 'ernestodesabillejr@gmail.com') {
+    if (req.user && (req.user.email === 'ernestodesabillejr@gmail.com' || req.user.isAdmin)) {
         next();
     } else {
         res.status(403).json({ message: 'Forbidden: Admin access only' });

@@ -52,7 +52,7 @@ const getSystemStats = async (req, res) => {
                 { label: 'Growth', value: '+12%', icon: 'BarChart3', color: 'text-orange-500' },
             ],
             archetypeStats,
-            recentUsers: await User.find().sort({ createdAt: -1 }).limit(10).select('name email username banner avatar settings createdAt'),
+            recentUsers: await User.find().sort({ createdAt: -1 }).limit(10).select('name email username banner avatar settings createdAt isAdmin'),
             systemStatus: [
                  { label: 'API Server', status: 'Healthy', color: 'bg-green-500' },
                  { label: 'Database', status: 'Healthy', color: 'bg-green-500' },
@@ -103,4 +103,25 @@ const resetUserOnboarding = async (req, res) => {
     }
 };
 
-export { getSystemStats, resetUserOnboarding };
+const toggleUserAdmin = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Prevent modifying the master admin
+        if (user.email === 'ernestodesabillejr@gmail.com') {
+            return res.status(403).json({ message: 'Cannot modify master admin status' });
+        }
+
+        user.isAdmin = !user.isAdmin;
+        await user.save();
+
+        res.json({ message: `User admin status set to ${user.isAdmin}` });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export { getSystemStats, resetUserOnboarding, toggleUserAdmin };

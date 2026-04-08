@@ -46,7 +46,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
                         <div className="p-4 flex flex-col gap-1">
 
 
-                            {user?.email === 'ernestodesabillejr@gmail.com' && (
+                            {(user?.email === 'ernestodesabillejr@gmail.com' || user?.isAdmin) && (
                                 <button onClick={() => { onClose(); navigate('/dashboard/admin'); }} className="w-full px-4 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-cyan-500/5 dark:hover:bg-white/5 rounded-[20px] transition-all flex items-center gap-4">
                                     <span className="material-symbols-outlined text-2xl">admin_panel_settings</span> Manage
                                 </button>
@@ -60,7 +60,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
 
 
 
-                            {user?.email !== 'ernestodesabillejr@gmail.com' && (
+                            {user?.email !== 'ernestodesabillejr@gmail.com' && !user?.isAdmin && (
                                 <button onClick={() => { onClose(); onOpenBugReport(); }} className="w-full px-4 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-cyan-500/5 dark:hover:bg-white/5 rounded-[20px] transition-all flex items-center gap-4">
                                     <span className="material-symbols-outlined text-2xl">bug_report</span> Bug Report
                                 </button>
