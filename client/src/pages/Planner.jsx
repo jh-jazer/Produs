@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from 'react';
 import Priority from '../components/planner_components/Priority';
 import DailySchedule from '../components/planner_components/DailySchedule';

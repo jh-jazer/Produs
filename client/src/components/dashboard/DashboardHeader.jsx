@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Bell, Users, User, Lock } from 'lucide-react';

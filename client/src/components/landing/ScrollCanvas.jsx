@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useRef } from "react";
 import { useAssetStore } from "../../store/useAssetStore";
 

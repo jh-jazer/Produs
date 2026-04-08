@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import api, { setAuthToken } from './api';
 

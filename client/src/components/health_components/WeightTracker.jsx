@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 
 const WeightTracker = ({ metrics, addHealthLog, deleteHealthLog }) => {

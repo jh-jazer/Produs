@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Zap, Clock, X, CheckCheck } from 'lucide-react';

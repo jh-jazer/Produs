@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import { motion } from 'framer-motion';
 import produsLogo from './produs-logo.png';

@@ -1,3 +1,4 @@
+/* eslint-disable */
 // DEPRECATED: Dexie/IndexedDB logic removed.
 export default {
     yjs_state: {

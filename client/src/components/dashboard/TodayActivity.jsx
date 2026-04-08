@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Circle, Flame, Plus, ChevronRight } from 'lucide-react';

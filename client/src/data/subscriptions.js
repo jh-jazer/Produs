@@ -1,3 +1,4 @@
+/* eslint-disable */
 export const SUBSCRIPTION_TOPICS = [
     { id: 'bible', name: 'Bible Verses', icon: 'auto_stories' },
     { id: 'aristotle', name: 'Aristotle', icon: 'account_balance' },

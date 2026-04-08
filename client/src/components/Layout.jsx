@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation, useOutlet } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';

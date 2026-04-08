@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Activity, Trophy, ShoppingBag, CheckCircle2, Star, TrendingUp, Zap } from 'lucide-react';

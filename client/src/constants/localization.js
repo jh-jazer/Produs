@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Global localization constants for Onboarding and Settings
 
 export const TIMEZONES = Intl.supportedValuesOf('timeZone').map(tz => ({

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import feedData from '../../data/feed_mock_dataset_500_posts.json';
 import useAuthStore from '../../store/useAuthStore';

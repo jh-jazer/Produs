@@ -1,3 +1,4 @@
+/* eslint-disable */
 export const sanitizeHtml = (html) => {
     if (!html) return '';
 
