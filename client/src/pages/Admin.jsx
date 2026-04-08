@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, Settings, BarChart3, ShieldCheck, Database, Search, RefreshCcw, RotateCcw, Brain } from 'lucide-react';
+import { Users, Settings, BarChart3, ShieldCheck, Database, Search, RefreshCcw, RotateCcw } from 'lucide-react';
 import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import AdminBugs from '../components/AdminBugs';
 import AdminNarrativeManager from '../components/AdminNarrativeManager';
 import ArchetypeChart from '../components/ArchetypeChart';
 import MobileTabNav from '../components/ui/MobileTabNav';
+import DashboardPanel from '../components/ui/DashboardPanel';
 
 const Admin = () => {
     const { mutate: globalMutate } = useSWRConfig();
@@ -16,7 +17,6 @@ const Admin = () => {
     const tabs = [
         { id: 'overview', label: 'Overview', icon: BarChart3 },
         { id: 'users', label: 'Users', icon: Users },
-        { id: 'narrative', label: 'Narrative', icon: Brain },
         { id: 'health', label: 'Health', icon: ShieldCheck },
         { id: 'bugs', label: 'Bugs', icon: Database },
     ];
@@ -157,9 +157,10 @@ const Admin = () => {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bg-white dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 p-6 rounded-[2.5rem] overflow-hidden"
                         >
-                            <ArchetypeChart data={archetypeStats} />
+                            <DashboardPanel title="ARCHETYPE_DISTRIBUTION_" subtitle="Current Population Vectors" noPadding className="p-6">
+                                <ArchetypeChart data={archetypeStats} />
+                            </DashboardPanel>
                         </motion.div>
                     </div>
                 )}
@@ -191,9 +192,11 @@ const Admin = () => {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-white dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 p-8 rounded-[2.5rem] mb-12 hidden md:block"
+                        className="mb-12 hidden md:block"
                     >
-                        <ArchetypeChart data={archetypeStats} />
+                        <DashboardPanel title="ARCHETYPE_DISTRIBUTION_" subtitle="Current Population Vectors">
+                            <ArchetypeChart data={archetypeStats} />
+                        </DashboardPanel>
                     </motion.div>
                 )}
 
@@ -201,8 +204,8 @@ const Admin = () => {
                 {(activeTab === 'overview' || activeTab === 'users' || activeTab === 'health' || activeTab === 'registry') && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                         {/* User Management */}
-                        <div className={`lg:col-span-2 bg-white dark:bg-[#121212]/30 border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden backdrop-blur-md shadow-none ${(activeTab !== 'users' && activeTab !== 'overview' && activeTab !== 'registry') ? 'hidden' : 'block'}`}>
-                            {/* ... User Management Content (Implicitly kept by keeping section intact) ... */}
+                        <div className={`lg:col-span-2 ${(activeTab !== 'users' && activeTab !== 'overview' && activeTab !== 'registry') ? 'hidden' : 'block'}`}>
+                            <DashboardPanel title="USER_REGISTRY_" subtitle="Active Neural Links" noPadding>
                         <div className="p-6 border-b border-slate-100 dark:border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <h2 className="text-xl font-black">Recent Users</h2>
                             <div className="relative w-full sm:w-auto">
@@ -282,12 +285,12 @@ const Admin = () => {
                                 </tbody>
                             </table>
                         </div>
+                        </DashboardPanel>
                     </div>
 
                     {/* System Health Section (Conditional visibility for tabs) */}
                     <div className={`space-y-6 ${activeTab !== 'health' && 'hidden lg:block'}`}>
-                        <div className="bg-white dark:bg-[#121212]/30 border border-slate-200 dark:border-white/10 rounded-3xl p-6 backdrop-blur-md shadow-none">
-                            <h2 className="text-lg font-black mb-4">System Health</h2>
+                        <DashboardPanel title="SYSTEM_HEALTH_" subtitle="Core Diagnostics">
                             <div className="space-y-3">
                                 {systemStatus.map((item, idx) => (
                                     <div key={idx} className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/10/50">
@@ -299,9 +302,9 @@ const Admin = () => {
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </DashboardPanel>
 
-                        <div className="bg-primary rounded-3xl p-6 text-white overflow-hidden relative shadow-lg shadow-primary/20">
+                        <div className="bg-primary rounded-[2.5rem] p-6 text-white overflow-hidden relative shadow-lg shadow-primary/20">
                             <div className="relative z-10">
                                 <span className="inline-block px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-black uppercase tracking-widest mb-3">System Alert</span>
                                 <h3 className="font-black text-xl mb-2">New Update Available</h3>
@@ -326,7 +329,7 @@ const Admin = () => {
                     )}
 
                     {/* Narrative Management Section */}
-                    {(activeTab === 'narrative' || activeTab === 'library') && (
+                    {(activeTab === 'overview') && (
                         <div className="w-full">
                             <AdminNarrativeManager />
                         </div>
