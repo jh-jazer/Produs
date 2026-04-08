@@ -201,10 +201,6 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                         exit={{ opacity: 0, y: -10 }}
                                         className="flex items-center gap-3 mb-1"
                                     >
-                                        <span className="text-sm md:text-base font-black text-cyan-500 uppercase tracking-tight font-exo italic">
-                                            {user.level === 0 ? 'IDENTITY_OFFLINE' : archeName} <span className="text-slate-400 dark:text-slate-500 ml-1">T{tier}</span>
-                                        </span>
-                                        <div className="size-1.5 rounded-full bg-cyan-500 animate-pulse shadow-[0_0_8px_var(--accent-glow)]" />
                                         <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
                                             {stage || 'UNMAPPED'}
                                         </span>
