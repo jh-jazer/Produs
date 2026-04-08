@@ -105,7 +105,7 @@ function Layout() {
             setProtocolMode 
         }}>
             <div
-            className="bg-transparent font-display text-[#111111] dark:text-slate-100 h-screen flex flex-row overflow-hidden"
+            className="bg-transparent font-display text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden"
             >
                 {/* Mobile Top Bar */}
                 {/* Mobile Top Bar */}
@@ -192,7 +192,7 @@ function Layout() {
                     </div>
 
                     {/* 2. Primary Navigation */}
-                    <div className="flex-1 px-4 py-8">
+                    <div className="flex-1 px-4 py-8 overflow-y-auto custom-scrollbar min-h-0">
                         <div className="flex flex-col gap-1.5">
                             {navItems.map((item, idx) => {
                                 const isOverview = deferredPath === '/dashboard';
@@ -255,7 +255,7 @@ function Layout() {
                     </div>
 
                     {/* 3. Sidebar Footer: System Actions & Identity HUD */}
-                    <div className={`mt-auto p-4 md:p-6 flex flex-col items-start gap-4 transition-all duration-[600ms] 
+                    <div className={`mt-auto p-4 md:p-6 flex flex-col items-start gap-4 transition-all duration-[600ms] shrink-0
                         ${(isOverview || isMobileMenuOpen) ? 'pl-[20px]' : 'pl-[16px]'}
                     `}>
 
