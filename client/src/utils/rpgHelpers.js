@@ -19,7 +19,52 @@ export const LEVEL_TABLE = [
     { level: 17, title: 'Tier 5: Legend', xpToNext: 57000, totalRequired: 193500 },
     { level: 18, title: 'Tier 5: Legend', xpToNext: 72000, totalRequired: 250500 },
     { level: 19, title: 'Tier 5: Legend', xpToNext: 90000, totalRequired: 322500 },
-    { level: 20, title: 'Tier 5: Legend', xpToNext: 0, totalRequired: 412500 },
+    { level: 20, title: 'Tier 5: Legend', xpToNext: 18000, totalRequired: 412500 },
+    { level: 21, title: 'Tier 5: Legend', xpToNext: 20000, totalRequired: 430500 },
+    { level: 22, title: 'Tier 5: Legend', xpToNext: 22500, totalRequired: 450500 },
+    { level: 23, title: 'Tier 5: Legend', xpToNext: 25000, totalRequired: 473000 },
+    { level: 24, title: 'Tier 5: Legend', xpToNext: 28000, totalRequired: 498000 },
+    { level: 25, title: 'Tier 5: Legend', xpToNext: 31000, totalRequired: 526000 },
+    { level: 26, title: 'Tier 5: Legend', xpToNext: 34500, totalRequired: 557000 },
+    { level: 27, title: 'Tier 5: Legend', xpToNext: 38000, totalRequired: 591500 },
+    { level: 28, title: 'Tier 5: Legend', xpToNext: 42000, totalRequired: 629500 },
+    { level: 29, title: 'Tier 5: Legend', xpToNext: 46000, totalRequired: 671500 },
+    { level: 30, title: 'Tier 5: Legend', xpToNext: 51000, totalRequired: 717500 },
+    { level: 31, title: 'Tier 5: Legend', xpToNext: 56000, totalRequired: 768500 },
+    { level: 32, title: 'Tier 5: Legend', xpToNext: 62000, totalRequired: 824500 },
+    { level: 33, title: 'Tier 5: Legend', xpToNext: 68000, totalRequired: 886500 },
+    { level: 34, title: 'Tier 5: Legend', xpToNext: 75000, totalRequired: 954500 },
+    { level: 35, title: 'Tier 5: Legend', xpToNext: 82000, totalRequired: 1029500 },
+    { level: 36, title: 'Tier 5: Legend', xpToNext: 90000, totalRequired: 1111500 },
+    { level: 37, title: 'Tier 5: Legend', xpToNext: 98000, totalRequired: 1201500 },
+    { level: 38, title: 'Tier 5: Legend', xpToNext: 107000, totalRequired: 1299500 },
+    { level: 39, title: 'Tier 5: Legend', xpToNext: 116000, totalRequired: 1406500 },
+    { level: 40, title: 'Tier 5: Legend', xpToNext: 126000, totalRequired: 1522500 },
+    { level: 41, title: 'Tier 5: Legend', xpToNext: 137000, totalRequired: 1648500 },
+    { level: 42, title: 'Tier 5: Legend', xpToNext: 148000, totalRequired: 1785500 },
+    { level: 43, title: 'Tier 5: Legend', xpToNext: 160000, totalRequired: 1933500 },
+    { level: 44, title: 'Tier 5: Legend', xpToNext: 172000, totalRequired: 2093500 },
+    { level: 45, title: 'Tier 5: Legend', xpToNext: 185000, totalRequired: 2265500 },
+    { level: 46, title: 'Tier 5: Legend', xpToNext: 198000, totalRequired: 2450500 },
+    { level: 47, title: 'Tier 5: Legend', xpToNext: 212000, totalRequired: 2648500 },
+    { level: 48, title: 'Tier 5: Legend', xpToNext: 227000, totalRequired: 2860500 },
+    { level: 49, title: 'Tier 5: Legend', xpToNext: 242000, totalRequired: 3087500 },
+    { level: 50, title: 'Tier 5: Legend', xpToNext: 260000, totalRequired: 3329500 },
+    { level: 51, title: 'Tier 5: Legend', xpToNext: 280000, totalRequired: 3589500 },
+    { level: 52, title: 'Tier 5: Legend', xpToNext: 300000, totalRequired: 3869500 },
+    { level: 53, title: 'Tier 5: Legend', xpToNext: 330000, totalRequired: 4169500 },
+    { level: 54, title: 'Tier 5: Legend', xpToNext: 360000, totalRequired: 4499500 },
+    { level: 55, title: 'Tier 5: Legend', xpToNext: 400000, totalRequired: 4859500 },
+    { level: 56, title: 'Tier 5: Legend', xpToNext: 440000, totalRequired: 5259500 },
+    { level: 57, title: 'Tier 5: Legend', xpToNext: 480000, totalRequired: 5699500 },
+    { level: 58, title: 'Tier 5: Legend', xpToNext: 530000, totalRequired: 6179500 },
+    { level: 59, title: 'Tier 5: Legend', xpToNext: 580000, totalRequired: 6709500 },
+    { level: 60, title: 'Tier 5: Legend', xpToNext: 640000, totalRequired: 7289500 },
+    { level: 61, title: 'Tier 5: Legend', xpToNext: 700000, totalRequired: 7929500 },
+    { level: 62, title: 'Tier 5: Legend', xpToNext: 770000, totalRequired: 8629500 },
+    { level: 63, title: 'Tier 5: Legend', xpToNext: 850000, totalRequired: 9399500 },
+    { level: 64, title: 'Tier 5: Legend', xpToNext: 940000, totalRequired: 10249500 },
+    { level: 65, title: 'Tier 5: Legend', xpToNext: 0, totalRequired: 11189500 }
 ];
 
 export const getLevelProgress = (totalXP) => {
@@ -36,7 +81,9 @@ export const getLevelProgress = (totalXP) => {
 
     const xpInCurrentLevel = totalXP - currentLevel.totalRequired;
     const xpNeededForNext = nextLevel.xpToNext;
-    const progress = (xpInCurrentLevel / xpNeededForNext) * 100;
+
+    // Explicitly handle max level where xpNeededForNext is 0 to avoid division by zero or NaN
+    const progress = xpNeededForNext === 0 ? 100 : (xpInCurrentLevel / xpNeededForNext) * 100;
 
     return {
         level: currentLevel.level,
