@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import { usePlanner } from '../../hooks/usePlanner';
+import DashboardPanel from '../ui/DashboardPanel';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
@@ -245,13 +246,16 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                 {isSettingsOpen && createPortal(
                     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                         <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md" onClick={() => setIsSettingsOpen(false)}></div>
-                        <div className="relative bg-white dark:bg-[#1e293b] w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-5">
-                            <div className="flex justify-between items-center">
-                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Sleep Settings</h4>
+                        <DashboardPanel
+                            className="w-full max-w-sm z-10 animate-in zoom-in-95 duration-200"
+                            title="Sleep Settings"
+                            headerExtra={
                                 <button onClick={() => setIsSettingsOpen(false)} className="text-slate-400 hover:text-slate-600">
                                     <span className="material-symbols-outlined text-xl">close</span>
                                 </button>
-                            </div>
+                            }
+                        >
+                            <div className="flex flex-col gap-5">
 
                             <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 dark:bg-[#000000]/50 border dark:border-white/10 group">
                                 <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -289,24 +293,28 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                             >
                                 Save Preferences
                             </button>
-                        </div>
+                            </div>
+                        </DashboardPanel>
                     </div>,
                     document.body
                 )}
                 {isAdding && createPortal(
                     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                         <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md" onClick={() => setIsAdding(false)}></div>
-                        <div className="relative bg-white dark:bg-[#1e293b] w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-4">
-                            <div className="flex justify-between items-center mb-1">
-                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">
-                                    {templateStep === 'add' ? 'Add Schedule Item' : 
-                                     templateStep === 'picker' ? 'Choose Template' : 
-                                     templateStep === 'save' ? 'Save as Template' : 'Careful!'}
-                                </h4>
+                        <DashboardPanel
+                            className="w-full max-w-sm z-10 animate-in zoom-in-95 duration-200"
+                            title={
+                                templateStep === 'add' ? 'Add Schedule Item' : 
+                                templateStep === 'picker' ? 'Choose Template' : 
+                                templateStep === 'save' ? 'Save as Template' : 'Careful!'
+                            }
+                            headerExtra={
                                 <button onClick={() => { setIsAdding(false); setTemplateStep('add'); }} className="text-slate-400 hover:text-slate-600">
                                     <span className="material-symbols-outlined text-xl">close</span>
                                 </button>
-                            </div>
+                            }
+                        >
+                            <div className="flex flex-col gap-4">
 
                             {templateStep === 'add' && (
                                 <div className="flex flex-col gap-4 mt-2">
@@ -482,7 +490,8 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                     </div>
                                 </div>
                             )}
-                        </div>
+                            </div>
+                        </DashboardPanel>
                     </div>,
                     document.body
                 )}

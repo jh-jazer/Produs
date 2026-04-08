@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { Plus } from 'lucide-react';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import DashboardPanel from '../ui/DashboardPanel';
 
 const RecentTransactions = ({ transactions = [], budgets = [], currencySymbol = '$', onAction, addFinanceItem, deleteFinanceItem }) => {
     const [showAdd, setShowAdd] = useState(false);
@@ -67,7 +69,6 @@ const RecentTransactions = ({ transactions = [], budgets = [], currencySymbol = 
       <div className="flex flex-col min-h-[350px] relative overflow-hidden group">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Recent Transactions</h3>
             <p className="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-bold tracking-widest mt-1">
               Financial Log • {currentTime.toLocaleDateString().toUpperCase()}
             </p>
@@ -76,11 +77,10 @@ const RecentTransactions = ({ transactions = [], budgets = [], currencySymbol = 
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowAdd(true)}
-              className="px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary/20 transition-all flex items-center gap-1.5"
+              className="p-2 rounded-xl border border-white/5 text-slate-500 hover:border-primary/20 hover:bg-primary/5 hover:text-primary transition-all duration-300 flex items-center justify-center"
               title="Add Transaction"
             >
-              <span className="material-symbols-outlined text-sm">add</span>
-              <span>Add Cash</span>
+              <Plus size={14} />
             </button>
           </div>
         </div>
@@ -172,19 +172,20 @@ const RecentTransactions = ({ transactions = [], budgets = [], currencySymbol = 
             {showAdd && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                     <div className="absolute inset-0 bg-[#000000]/80 backdrop-blur-sm" onClick={() => setShowAdd(false)}></div>
-                    <form
-                        onSubmit={handleAdd}
-                        className="relative w-full max-w-md bg-white dark:bg-[#121212] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 flex flex-col gap-5 ar-corners"
-                    >
-                        <div className="flex justify-between items-center mb-1">
-                            <div>
-                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Add Transaction</h4>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Track your flow</p>
-                            </div>
+                    <DashboardPanel
+                        className="w-full max-w-md z-10 animate-in zoom-in-95 duration-200"
+                        title="Add Transaction"
+                        subtitle="Track your flow"
+                        headerExtra={
                             <button type="button" onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
-                        </div>
+                        }
+                    >
+                    <form
+                        onSubmit={handleAdd}
+                        className="flex flex-col gap-5 ar-corners"
+                    >
 
                         <div className="grid grid-cols-1 gap-4">
                             <div className="flex flex-col gap-1.5">
@@ -251,6 +252,7 @@ const RecentTransactions = ({ transactions = [], budgets = [], currencySymbol = 
                             Save Transaction
                         </button>
                     </form>
+                    </DashboardPanel>
                 </div>,
                 document.body
             )}

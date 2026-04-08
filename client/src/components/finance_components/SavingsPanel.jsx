@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import DashboardPanel from '../ui/DashboardPanel';
 
 const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updateFinanceItem, deleteFinanceItem }) => {
     const [showAdd, setShowAdd] = useState(false);
@@ -167,19 +168,20 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
             {showAdd && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                     <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowAdd(false)}></div>
-                    <form 
-                        onSubmit={handleAdd} 
-                        className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
-                    >
-                        <div className="flex justify-between items-center mb-1">
-                            <div>
-                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">New Savings Goal</h4>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Plan for your future</p>
-                            </div>
+                    <DashboardPanel
+                        className="w-full max-w-md z-10 animate-in zoom-in-95 duration-200"
+                        title="New Savings Goal"
+                        subtitle="Plan for your future"
+                        headerExtra={
                             <button type="button" onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
-                        </div>
+                        }
+                    >
+                    <form 
+                        onSubmit={handleAdd} 
+                        className="flex flex-col gap-6"
+                    >
 
                         <div className="grid grid-cols-1 gap-4">
                             <div className="flex flex-col gap-1.5">
@@ -221,6 +223,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                             {loading ? 'Creating...' : 'Create Goal'}
                         </button>
                     </form>
+                    </DashboardPanel>
                 </div>,
                 document.body
             )}
@@ -228,20 +231,21 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
             {/* Fund Modal */}
             {fundingGoal && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowFundModal(null)}></div>
-                    <form 
-                        onSubmit={handleFund} 
-                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
-                    >
-                        <div className="flex justify-between items-center mb-1">
-                            <div>
-                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Add Savings</h4>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Focus: {fundingGoal.title}</p>
-                            </div>
+                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setFundingGoal(null)}></div>
+                    <DashboardPanel
+                        className="w-full max-w-sm z-10 animate-in zoom-in-95 duration-200"
+                        title="Add Savings"
+                        subtitle={`Focus: ${fundingGoal.title}`}
+                        headerExtra={
                             <button type="button" onClick={() => setFundingGoal(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
-                        </div>
+                        }
+                    >
+                    <form 
+                        onSubmit={handleFund} 
+                        className="flex flex-col gap-6"
+                    >
 
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Deposit Amount</label>
@@ -260,6 +264,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                             {loading ? 'Processing...' : 'Confirm Deposit'}
                         </button>
                     </form>
+                    </DashboardPanel>
                 </div>,
                 document.body
             )}

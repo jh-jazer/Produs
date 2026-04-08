@@ -1,20 +1,65 @@
-import React, { useState } from "react";
-import { motion, useMotionValueEvent, useSpring } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, useMotionValue, useMotionValueEvent, useSpring } from "framer-motion";
 
-export default function DashboardScrollIndicator({ progress, onNavigate }) {
+export default function DashboardScrollIndicator() {
   const [percentage, setPercentage] = useState(0);
   const trackRef = React.useRef(null);
   const [isDragging, setIsDragging] = React.useState(false);
+  const rawProgress = useMotionValue(0);
 
-  // Visual Smoothing: Create a spring for the HUD elements (weighted feel)
-  const springProgress = useSpring(progress, {
+  const getActiveContainer = () => {
+    // Topmost modal scroll container
+    const modalContainers = Array.from(document.querySelectorAll('.fixed .custom-scrollbar, .fixed [class*="overflow-y-auto"]'));
+    const visibleModalContainers = modalContainers.filter(el => el.clientHeight > 0 && el.scrollHeight > el.clientHeight);
+    if (visibleModalContainers.length > 0) {
+      return visibleModalContainers[visibleModalContainers.length - 1]; 
+    }
+    // Main layout container fallback
+    return Array.from(document.querySelectorAll('.custom-scrollbar')).find(el => !el.closest('.fixed'));
+  };
+
+  useEffect(() => {
+    const updateProgress = (target) => {
+       const maxScroll = target.scrollHeight - target.clientHeight;
+       if (maxScroll <= 0) {
+           rawProgress.set(0);
+       } else {
+           rawProgress.set(target.scrollTop / maxScroll);
+       }
+    };
+
+    const handleScroll = (e) => {
+       const active = getActiveContainer();
+       if (active && (e.target === active || active.contains(e.target))) {
+           updateProgress(active);
+       }
+    };
+    
+    document.addEventListener('scroll', handleScroll, true);
+    
+    const active = getActiveContainer();
+    if (active) updateProgress(active);
+
+    const observer = new MutationObserver(() => {
+        const active = getActiveContainer();
+        if (active) updateProgress(active);
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+       document.removeEventListener('scroll', handleScroll, true);
+       observer.disconnect();
+    };
+  }, [rawProgress]);
+
+  // Visual Smoothing
+  const springProgress = useSpring(rawProgress, {
     stiffness: 400,
     damping: 40,
     restDelta: 0.001
   });
 
-  // Fix NaN by correctly tracking the MotionValue
-  useMotionValueEvent(progress, "change", (latest) => {
+  useMotionValueEvent(rawProgress, "change", (latest) => {
     setPercentage(Math.round(latest * 100));
   });
 
@@ -24,8 +69,15 @@ export default function DashboardScrollIndicator({ progress, onNavigate }) {
     const relativeY = clientY - rect.top;
     const newProgress = Math.min(1, Math.max(0, relativeY / rect.height));
     
-    // During drag, use 'auto' (instant) for 1:1 response
-    onNavigate(newProgress, isDragging ? 'auto' : 'smooth');
+    const active = getActiveContainer();
+    if (active) {
+        const maxScroll = active.scrollHeight - active.clientHeight;
+        active.scrollTo({
+            top: newProgress * maxScroll,
+            behavior: isDragging ? 'auto' : 'smooth'
+        });
+        rawProgress.set(newProgress);
+    }
   };
 
   const handleMouseDown = (e) => {
@@ -101,8 +153,8 @@ export default function DashboardScrollIndicator({ progress, onNavigate }) {
           <div className="relative w-[1px] h-full bg-slate-200 dark:bg-white/10 overflow-hidden rounded-full font-mono">
             <motion.div 
               className="absolute top-0 left-0 w-full bg-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.8)]"
-              style={{ height: progress.get() * 100 + "%" }}
-              animate={{ height: `${progress.get() * 100}%` }}
+              style={{ height: rawProgress.get() * 100 + "%" }}
+              animate={{ height: `${percentage}%` }}
             />
           </div>
 
@@ -110,7 +162,7 @@ export default function DashboardScrollIndicator({ progress, onNavigate }) {
           <motion.div 
             className="absolute left-1/2 -translate-x-1/2 z-30 pointer-events-none"
             style={{ 
-              top: `calc(${progress.get() * 100}% + 8px)`,
+              top: `calc(${percentage}% + 8px)`,
               y: "-50%" 
             }}
           >
@@ -131,7 +183,7 @@ export default function DashboardScrollIndicator({ progress, onNavigate }) {
 
       {/* Rotating HUD Element */}
       <motion.div 
-        style={{ rotate: progress.get() * 360 }}
+        style={{ rotate: rawProgress.get() * 360 }}
         className="size-10 rounded-full border border-slate-200 dark:border-white/5 flex items-center justify-center relative opacity-40 group-hover/track:opacity-100 transition-opacity"
       >
         <div className="w-px h-full bg-slate-200 dark:bg-white/10 absolute top-0 left-1/2 -translate-x-1/2" />

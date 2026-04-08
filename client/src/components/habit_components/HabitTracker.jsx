@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { Plus, Edit2 } from 'lucide-react';
 import ConfirmDialog from '../ui/ConfirmDialog';
@@ -585,7 +586,7 @@ function HabitTracker({
             </div>
 
             {/* Simple Add Habit Modal */}
-            {addModalOpen && (
+            {addModalOpen && createPortal(
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     {/* Backdrop */}
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setAddModalOpen(false); setModalStep('suggestions'); }}></div>
@@ -745,7 +746,8 @@ function HabitTracker({
                             )}
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </React.Fragment>
     );

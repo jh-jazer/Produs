@@ -24,8 +24,6 @@ function Layout() {
     const [viewMode, setViewMode] = useState('personal'); // 'personal' | 'partner'
     const [protocolMode, setProtocolMode] = useState('reality'); // 'reality' | 'rpg'
     const mainRef = useRef(null);
-    const { scrollYProgress } = useScroll({ container: mainRef });
-    const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
     const navigate = useNavigate();
     const location = useLocation();
     const isOverview = location.pathname === '/dashboard';
@@ -92,15 +90,6 @@ function Layout() {
         { name: 'Health', path: '/dashboard/health', icon: 'monitor_heart' },
         { name: 'Journal', path: '/dashboard/journal', icon: 'book' },
     ];
-
-    const handleNavigate = (progress, behavior = 'smooth') => {
-        if (!mainRef.current) return;
-        const scrollHeight = mainRef.current.scrollHeight - mainRef.current.clientHeight;
-        mainRef.current.scrollTo({
-            top: progress * scrollHeight,
-            behavior: behavior
-        });
-    };
 
     const currentNavItem = navItems.find(item => item.path === location.pathname);
     const pageTitle = (currentNavItem && !isOverview) ? currentNavItem.name : 'PRODUS';
@@ -453,10 +442,7 @@ function Layout() {
                 {/* Neural Sync Modal Removed */}
 
                 {/* Global Cinematic Scroll HUD */}
-                <DashboardScrollIndicator 
-                    progress={scrollYProgress}
-                    onNavigate={handleNavigate}
-                />
+                <DashboardScrollIndicator />
             </div>
         </DashboardContext.Provider>
     );

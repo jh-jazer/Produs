@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import DashboardPanel from '../ui/DashboardPanel';
 
 const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFinanceItem, deleteFinanceItem }) => {
     const [showAdd, setShowAdd] = useState(false);
@@ -274,19 +275,20 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
             {showAdd && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                     <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowAdd(false)}></div>
-                    <form 
-                        onSubmit={handleAdd} 
-                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
-                    >
-                        <div className="flex justify-between items-center mb-1">
-                            <div>
-                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">New Cash Flow Record</h4>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Plan your upcoming finances</p>
-                            </div>
+                    <DashboardPanel
+                        className="w-full max-w-sm z-10 animate-in zoom-in-95 duration-200"
+                        title="New Cash Flow Record"
+                        subtitle="Plan your upcoming finances"
+                        headerExtra={
                             <button type="button" onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
-                        </div>
+                        }
+                    >
+                    <form 
+                        onSubmit={handleAdd} 
+                        className="flex flex-col gap-6"
+                    >
 
                         {/* Nature Toggle */}
                         <div className="flex bg-slate-100 dark:bg-[#000000] p-1 rounded-xl">
@@ -415,6 +417,7 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                             Save {newDebt.nature === 'income' ? 'Income' : 'Debt'}
                         </button>
                     </form>
+                    </DashboardPanel>
                 </div>,
                 document.body
             )}
@@ -423,19 +426,20 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
             {showPayModal && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                     <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowPayModal(null)}></div>
-                    <form 
-                        onSubmit={handlePayment} 
-                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
-                    >
-                        <div className="flex justify-between items-center mb-1">
-                            <div>
-                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Make Payment</h4>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Reducing {showPayModal.title}</p>
-                            </div>
+                    <DashboardPanel
+                        className="w-full max-w-sm z-10 animate-in zoom-in-95 duration-200"
+                        title="Make Payment"
+                        subtitle={`Reducing ${showPayModal.title}`}
+                        headerExtra={
                             <button type="button" onClick={() => setShowPayModal(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
-                        </div>
+                        }
+                    >
+                    <form 
+                        onSubmit={handlePayment} 
+                        className="flex flex-col gap-6"
+                    >
 
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Amount to Pay</label>
@@ -454,6 +458,7 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                             Confirm Payment
                         </button>
                     </form>
+                    </DashboardPanel>
                 </div>,
                 document.body
             )}

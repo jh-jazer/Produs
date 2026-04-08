@@ -16,18 +16,18 @@ export const usePlanner = (selectedDate) => {
     
     // Fetch tasks for the specific date
     const { data: tasks, error, isLoading } = useSWR(
-        userId ? `/tasks?date=${dateStr}` : null, 
+        userId ? `/planner/tasks?date=${dateStr}` : null, 
         fetcher
     );
 
     const addTask = async (taskData) => {
         if (!userId) return;
         try {
-            await api.post('/tasks', {
+            await api.post('/planner/tasks', {
                 ...taskData,
                 date: taskData.date || dateStr
             });
-            mutate(`/tasks?date=${dateStr}`);
+            mutate(`/planner/tasks?date=${dateStr}`);
         } catch (err) {
             console.error('Failed to add task:', err);
         }
@@ -36,8 +36,8 @@ export const usePlanner = (selectedDate) => {
     const updateTask = async (id, taskData) => {
         if (!userId) return;
         try {
-            await api.put(`/tasks/${id}`, taskData);
-            mutate(`/tasks?date=${dateStr}`);
+            await api.patch(`/planner/tasks/${id}`, taskData);
+            mutate(`/planner/tasks?date=${dateStr}`);
         } catch (err) {
             console.error('Failed to update task:', err);
         }
@@ -46,8 +46,8 @@ export const usePlanner = (selectedDate) => {
     const deleteTask = async (id) => {
         if (!userId) return;
         try {
-            await api.delete(`/tasks/${id}`);
-            mutate(`/tasks?date=${dateStr}`);
+            await api.delete(`/planner/tasks/${id}`);
+            mutate(`/planner/tasks?date=${dateStr}`);
         } catch (err) {
             console.error('Failed to delete task:', err);
         }
@@ -63,8 +63,8 @@ export const usePlanner = (selectedDate) => {
     const reorderTasks = async (taskIds) => {
         if (!userId) return;
         try {
-            await api.put('/tasks/reorder', { habitIds: taskIds }); 
-            mutate(`/tasks?date=${dateStr}`);
+            await api.put('/planner/tasks/reorder', { habitIds: taskIds }); 
+            mutate(`/planner/tasks?date=${dateStr}`);
         } catch (err) {
             console.error('Failed to reorder tasks:', err);
         }

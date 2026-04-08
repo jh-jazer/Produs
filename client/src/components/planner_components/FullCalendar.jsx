@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import { usePlanner } from '../../hooks/usePlanner';
+import DashboardPanel from '../ui/DashboardPanel';
 
 const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly = false }) => {
     const [viewDate, setViewDate] = useState(new Date());
@@ -225,22 +226,21 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
             {addModal && (
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                     <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md" onClick={() => setAddModal(null)}></div>
-                    <div className="relative bg-white dark:bg-[#1e293b] w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-4 max-h-[90%] overflow-hidden">
-                        <div className="flex justify-between items-start">
-                            <div>
-                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">
-                                    {addModal.startDate.toDateString() === addModal.endDate.toDateString()
-                                        ? `${months[addModal.startDate.getMonth()]} ${addModal.startDate.getDate()}, ${addModal.startDate.getFullYear()}`
-                                        : `${addModal.startDate.getDate()} - ${addModal.endDate.getDate()} ${months[addModal.endDate.getMonth()]}`
-                                    }
-                                </h4>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Daily Notes & Observations</p>
-                            </div>
+                    <DashboardPanel
+                        className="w-full max-w-sm z-10 animate-in zoom-in-95 duration-200"
+                        title={
+                            addModal.startDate.toDateString() === addModal.endDate.toDateString()
+                                ? `${months[addModal.startDate.getMonth()]} ${addModal.startDate.getDate()}, ${addModal.startDate.getFullYear()}`
+                                : `${addModal.startDate.getDate()} - ${addModal.endDate.getDate()} ${months[addModal.endDate.getMonth()]}`
+                        }
+                        subtitle="Daily Notes & Observations"
+                        headerExtra={
                             <button onClick={() => setAddModal(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
-                        </div>
-
+                        }
+                    >
+                        <div className="flex flex-col gap-4 max-h-[80vh] overflow-hidden">
                         {/* Existing Tasks in Modal */}
                         <div className="space-y-2 overflow-y-auto pr-2 custom-scrollbar min-h-0 flex-1">
                             {getTasksForRange(addModal.startDate, addModal.endDate).length > 0 ? (
@@ -317,8 +317,9 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                 </div>
                             )}
                         </div>
-                    </div>
-                )}
+                    </DashboardPanel>
+                </div>
+            )}
 
             <div className="mt-6 flex flex-wrap gap-4 text-[10px] font-black uppercase tracking-widest text-slate-500 justify-center">
                 <div className="flex items-center gap-2">

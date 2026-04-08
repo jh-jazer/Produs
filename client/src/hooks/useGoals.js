@@ -15,7 +15,7 @@ export const useGoals = (filters = {}) => {
     if (filters.week !== undefined) queryParams.append('week', filters.week);
     
     const queryString = queryParams.toString();
-    const fetchUrl = userId ? `/goals?${queryString}` : null;
+    const fetchUrl = userId ? `/planner/goals?${queryString}` : null;
 
     const fetcher = url => api.get(url).then(res => res.data);
     const { data: goals, error, isLoading } = useSWR(fetchUrl, fetcher);
@@ -23,7 +23,7 @@ export const useGoals = (filters = {}) => {
     const addGoal = async (goalData) => {
         if (!userId) return;
         try {
-            await api.post('/goals', goalData);
+            await api.post('/planner/goals', goalData);
             mutate(fetchUrl);
         } catch (err) {
             console.error('Failed to add goal:', err);
@@ -33,7 +33,7 @@ export const useGoals = (filters = {}) => {
     const updateGoal = async (id, goalData) => {
         if (!userId) return;
         try {
-            await api.put(`/goals/${id}`, goalData);
+            await api.patch(`/planner/goals/${id}`, goalData);
             mutate(fetchUrl);
         } catch (err) {
             console.error('Failed to update goal:', err);
@@ -43,7 +43,7 @@ export const useGoals = (filters = {}) => {
     const deleteGoal = async (id) => {
         if (!userId) return;
         try {
-            await api.delete(`/goals/${id}`);
+            await api.delete(`/planner/goals/${id}`);
             mutate(fetchUrl);
         } catch (err) {
             console.error('Failed to delete goal:', err);

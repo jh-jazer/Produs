@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import DashboardPanel from '../ui/DashboardPanel';
 
 const WISHLIST_CATEGORIES = [
     { label: 'General', color: 'bg-slate-100 text-slate-600 dark:bg-slate-500/10' },
@@ -306,19 +307,20 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
             {isAdding && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                     <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsAdding(false)}></div>
-                    <form 
-                        onSubmit={handleAdd} 
-                        className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
-                    >
-                        <div className="flex justify-between items-center mb-1">
-                            <div>
-                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">New Wishlist Item</h4>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">What are you dreaming of?</p>
-                            </div>
+                    <DashboardPanel
+                        className="w-full max-w-md z-10 animate-in zoom-in-95 duration-200"
+                        title="New Wishlist Item"
+                        subtitle="What are you dreaming of?"
+                        headerExtra={
                             <button type="button" onClick={() => setIsAdding(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
-                        </div>
+                        }
+                    >
+                    <form 
+                        onSubmit={handleAdd} 
+                        className="flex flex-col gap-6"
+                    >
 
                         <div className="grid grid-cols-1 gap-4">
                             <div className="flex flex-col gap-1.5">
@@ -381,6 +383,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
                             {loading ? 'Adding...' : 'Add to Wishlist'}
                         </button>
                     </form>
+                    </DashboardPanel>
                 </div>,
                 document.body
             )}
@@ -388,14 +391,15 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
             {buyingItem && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                     <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setBuyingItem(null)}></div>
+                    <DashboardPanel
+                        className="w-full max-w-sm z-10 animate-in zoom-in-95 duration-200 text-center"
+                        title="Complete Purchase"
+                        subtitle={`Confirming payment for ${buyingItem.title}`}
+                    >
                     <form 
                         onSubmit={handleBought} 
-                        className="relative w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6"
+                        className="flex flex-col gap-6"
                     >
-                        <div className="text-center">
-                            <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Complete Purchase</h4>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Confirming payment for {buyingItem.title}</p>
-                        </div>
 
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-center">Actual Price Paid</label>
@@ -418,6 +422,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
                             <button type="submit" className="flex-2 py-3 bg-emerald-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20">Confirm</button>
                         </div>
                     </form>
+                    </DashboardPanel>
                 </div>,
                 document.body
             )}

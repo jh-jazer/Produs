@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import DashboardPanel from '../ui/DashboardPanel';
 
 const PRESET_CATEGORIES = [
     'Food', 'Rent', 'Transport', 'Utilities', 'Health', 'Shopping',
@@ -144,16 +145,17 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
             {isEditing && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                     <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsEditing(false)}></div>
-                    <div className="relative w-full max-w-md bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-white/10 animate-in zoom-in-95 duration-200 flex flex-col gap-6">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h4 className="text-sm font-black dark:text-white uppercase tracking-wider">Budget Categories</h4>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Manage your monthly caps</p>
-                            </div>
+                    <DashboardPanel
+                        className="w-full max-w-md z-10 animate-in zoom-in-95 duration-200"
+                        title="Budget Categories"
+                        subtitle="Manage your monthly caps"
+                        headerExtra={
                             <button onClick={() => setIsEditing(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
-                        </div>
+                        }
+                    >
+                        <div className="flex flex-col gap-6">
 
                         {/* Category List */}
                         <div className="grid grid-cols-1 gap-3 max-h-[30vh] overflow-y-auto pr-2 custom-scrollbar">
@@ -245,7 +247,8 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
                         >
                             Save All Changes
                         </button>
-                    </div>
+                        </div>
+                    </DashboardPanel>
                 </div>,
                 document.body
             )}
