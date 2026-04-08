@@ -317,30 +317,30 @@ function Profile() {
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => setIsConnectionsModalOpen(true)}
-                                        className="size-10 flex items-center justify-center rounded-xl border bg-slate-100 dark:bg-[#000000] border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-primary hover:border-primary/30 transition-colors relative"
+                                        className="size-10 md:size-8 lg:size-10 flex items-center justify-center rounded-xl border bg-slate-100 dark:bg-[#000000] border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-primary hover:border-primary/30 transition-colors relative"
                                         title="Network"
                                     >
-                                        <span className="material-symbols-outlined text-[20px]">group</span>
+                                        <span className="material-symbols-outlined text-[20px] md:text-[16px] lg:text-[20px]">group</span>
                                         {user?.incomingConnectionRequests?.length > 0 && (
                                             <span className="absolute -top-1 -right-1 size-3 bg-rose-500 rounded-full border-2 border-white dark:border-[#192233] animate-pulse" />
                                         )}
                                     </button>
                                     <button
                                         onClick={() => setIsPartnerModalOpen(true)}
-                                        className={`size-10 flex items-center justify-center rounded-xl border transition-colors relative ${user?.partner
+                                        className={`size-10 md:size-8 lg:size-10 flex items-center justify-center rounded-xl border transition-colors relative ${user?.partner
                                             ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
                                             : 'bg-slate-100 dark:bg-[#000000] border-slate-200 dark:border-white/10 text-slate-500 hover:text-primary'
                                             }`}
                                         title="Shared Account"
                                     >
-                                        <span className="material-symbols-outlined text-[20px]">{user?.partner ? 'favorite' : 'link'}</span>
+                                        <span className="material-symbols-outlined text-[20px] md:text-[16px] lg:text-[20px]">{user?.partner ? 'favorite' : 'link'}</span>
                                     </button>
                                     {viewMode !== 'partner' && (
                                         <button
                                             onClick={() => setIsEditing(true)}
-                                            className="px-4 py-2 bg-[#121212] text-white dark:bg-white dark:text-slate-900 rounded-xl font-bold text-xs hover:opacity-90 transition-opacity flex items-center gap-2 shadow-lg shadow-black/10 dark:shadow-white/5"
+                                            className="px-4 py-2 md:px-3 md:py-1.5 lg:px-4 lg:py-2 bg-[#121212] text-white dark:bg-white dark:text-slate-900 rounded-xl font-bold text-xs md:text-[10px] lg:text-xs hover:opacity-90 transition-opacity flex items-center gap-2 shadow-lg shadow-black/10 dark:shadow-white/5"
                                         >
-                                            <span className="material-symbols-outlined text-base">edit</span>
+                                            <span className="material-symbols-outlined text-base md:text-sm lg:text-base">edit</span>
                                             Edit
                                         </button>
                                     )}
