@@ -34,7 +34,7 @@ const ProtectedRoute = ({ children }) => {
 
 const AdminRoute = ({ children }) => {
   const user = useAuthStore((state) => state.user);
-  if (!user || user.email !== 'ernestodesabillejr@gmail.com') {
+  if (!user || (user.email !== 'ernestodesabillejr@gmail.com' && !user.isAdmin)) {
     return <Navigate to="/dashboard" replace />;
   }
 
