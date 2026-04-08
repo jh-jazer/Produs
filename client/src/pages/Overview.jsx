@@ -166,16 +166,16 @@ function Overview() {
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 1.02 }}
-                        className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 items-start"
+                        className="flex flex-col space-y-4 md:space-y-8 w-full"
                       >
                         {/* RPG Side Column */}
-                        <div className="lg:col-span-4 space-y-4 md:space-y-8">
+                        <div className="w-full space-y-4 md:space-y-8">
                              <StatRadar stats={user.rpg?.stats} />
                              <EvolutionPreview user={user} />
                         </div>
                         
                         {/* RPG Main Column */}
-                        <div className="lg:col-span-8 space-y-4 md:space-y-8">
+                        <div className="w-full space-y-4 md:space-y-8">
                              <TodayActivity user={user} habits={habits} />
                              <StreakStatus habits={habits} />
                              <XpFeed />
@@ -192,11 +192,11 @@ function Overview() {
 
 
                         {/* ZONE 1: Psychological Baseline */}
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8">
-                          <div className="md:col-span-4">
+                        <div className="flex flex-col space-y-4 md:space-y-8 w-full">
+                          <div className="w-full">
                              <MoodTracker currentMood={user?.settings?.mood} onMoodSelect={updateMood} />
                           </div>
-                          <div className="md:col-span-8">
+                          <div className="w-full">
                              <CoreStreaksList habits={habits} />
                           </div>
                         </div>
