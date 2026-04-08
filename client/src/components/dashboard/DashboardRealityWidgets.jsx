@@ -56,6 +56,7 @@ export const MoodTracker = ({ user, updateMood }) => {
 export const CoreStreaksList = ({ habits = [] }) => {
     const coreIds = ['journal', 'finance', 'planner', 'workout'];
     const coreHabits = coreIds.map(id => habits.find(h => h.systemId === id)).filter(Boolean);
+    const todayStr = new Date().toISOString().split('T')[0];
 
     return (
         <DashboardPanel 
@@ -64,7 +65,9 @@ export const CoreStreaksList = ({ habits = [] }) => {
             indicatorColor="cyan"
         >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
-                {coreHabits.length > 0 ? coreHabits.map((habit) => (
+                {coreHabits.length > 0 ? coreHabits.map((habit) => {
+                    const isDoneToday = habit.checks?.some(c => c.date === todayStr && c.completed);
+                    return (
                     <div key={habit._id} className="group/streak relative p-6 rounded-[2rem] bg-slate-50 dark:bg-black/20 border border-cyan-500/20 dark:border-white/5 hover:border-cyan-500/40 transition-all duration-300">
                         <div className="flex items-center gap-5">
                             <div className="size-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-500 shrink-0 group-hover/streak:scale-110 transition-transform">
@@ -74,13 +77,16 @@ export const CoreStreaksList = ({ habits = [] }) => {
                                 <h4 className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white truncate">{habit.name}</h4>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-2xl font-black text-cyan-500 italic font-exo">{habit.streak}</span>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Day Streak</span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                        Day Streak
+                                        {isDoneToday && <CheckCircle2 size={12} className="text-emerald-500" />}
+                                    </span>
                                 </div>
                             </div>
                         </div>
                         <div className="absolute top-4 right-6 size-2 rounded-full bg-cyan-500 animate-pulse" />
                     </div>
-                )) : (
+                )}) : (
                     <div className="col-span-2 py-12 text-center border-2 border-dashed border-slate-100 dark:border-white/5 rounded-[2rem]">
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No core habits established yet.</p>
                     </div>
