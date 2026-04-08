@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, Settings, BarChart3, ShieldCheck, Database, Search, RefreshCcw, RotateCcw } from 'lucide-react';
+import { Users, Settings, BarChart3, ShieldCheck, Database, Search, RefreshCcw, RotateCcw, BookOpen } from 'lucide-react';
 import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import AdminBugs from '../components/AdminBugs';
@@ -19,6 +19,7 @@ const Admin = () => {
         { id: 'users', label: 'Users', icon: Users },
         { id: 'health', label: 'Health', icon: ShieldCheck },
         { id: 'bugs', label: 'Bugs', icon: Database },
+        { id: 'narrative', label: 'Narrative', icon: BookOpen },
     ];
 
     const stats = data?.stats || [
@@ -329,7 +330,7 @@ const Admin = () => {
                     )}
 
                     {/* Narrative Management Section */}
-                    {(activeTab === 'overview') && (
+                    {(activeTab === 'narrative') && (
                         <div className="w-full">
                             <AdminNarrativeManager />
                         </div>

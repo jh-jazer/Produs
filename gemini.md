@@ -7,8 +7,8 @@ Here is a breakdown of the architectural design and the preferred technology sta
 ## 🏛️ Architecture Design
 - **Architecture Pattern:** Client-Server Monorepo.
 - **Backend Pattern:** Active Record Pattern.
-- **Data Strategy:** **Local-First** — all core features (Habits, Journal, Planner, Finance) read and write to IndexedDB first via Dexie.js. Changes are synchronized to MongoDB in the background using Yjs CRDTs.
-- **Communication:** RESTful APIs for standard data fetching, WebSockets for real-time features, and a dedicated `/api/sync/:feature` CRDT sync endpoint for offline-first reconciliation.
+- **Data Strategy:** **Client-Server Data Fetching** — all core features (Habits, Journal, Planner, Finance) read and write directly to the MongoDB backend via REST APIs.
+- **Communication:** RESTful APIs for standard data fetching, WebSockets for real-time features.
 - **Design System:** A custom minimalist, high-contrast design system prioritizing black, white, and gray, using accent colors (Primary Blue) and category-specific colors for habits and metrics.
 
 ## 💻 Client (Frontend)
@@ -20,14 +20,8 @@ The frontend is built for high speed, interactive data visualization, real-time 
   - **Zustand:** For lightweight, global client-side state.
   - **SWR (Stale-While-Revalidate):** Specifically preferred for fetching, caching, and managing server state.
 - **Styling:** Tailwind CSS (configured with Prettier plugin `prettier-plugin-tailwindcss` for auto-sorting).
-- **Local-First Stack:**
-  - `dexie`: IndexedDB wrapper used as the client-side database for all feature data.
-  - `dexie-react-hooks`: `useLiveQuery` for reactive UI updates from IndexedDB.
-  - `yjs`: CRDT library for conflict-free data merging during sync.
-  - `vite-plugin-pwa` + `workbox-*`: PWA support with service worker for background sync.
-  - Feature hooks: `useHabitsLocal`, `useJournalLocal`, `usePlannerLocal`, `useFinanceLocal` — each manages its own Dexie table and Yjs CRDT state.
-  - `SyncService.js`: Singleton that manages all Yjs docs, registers background sync tags, and calls `/api/sync/:feature` for each feature.
 - **Key Packages:**
+  - `vite-plugin-pwa` + `workbox-*`: PWA support for caching static assets.
   - `axios`: For robust REST API requests.
   - `socket.io-client`: For real-time functionality.
   - `framer-motion`: For fluid UI micro-animations and page transitions.
@@ -45,11 +39,6 @@ The backend handles real-time communication, data persistence, CRDT synchronizat
   - `passport` & `passport-google-oauth20` for OAuth/social login.
   - `jsonwebtoken` (JWT) for session management.
   - `bcryptjs` for secure password hashing.
-- **Sync Architecture:**
-  - `YjsState` MongoDB model stores the binary Yjs document state per user per feature.
-  - `/api/sync/:feature` (POST): Receives a Yjs update from the client, merges it into the server CRDT, hydrates the Y.Map from MongoDB if empty, saves back to both `YjsState` and the legacy models (e.g. `Habit`, `Journal`, `Task`), and returns the merged state.
-  - `syncController.js`: Central CRDT sync controller. Contains `cleanPayload()` to strip `local-*` string IDs and malformed BSON objects before writing to Mongoose.
-  - System habits (`journal`, `finance`, `planner`) are force-hydrated into the Yjs map on every sync to ensure they always appear as locked rows in the Habits Tracker.
 - **Key Packages:**
   - `socket.io`: Establishing the WebSocket server for real-time client updates.
   - `posthog-node`: For server-side analytics tracking.
