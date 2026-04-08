@@ -3,6 +3,9 @@
  * Handles Leveling, XP awarding, Daily Caps, and Archetype Evolution.
  */
 
+import Activity from '../models/Activity.js';
+import User from '../models/User.js';
+
 export const LEVEL_TABLE = [
     { level: 0, title: 'Shut-in', xpToNext: 100, totalRequired: 0 },
     { level: 1, title: 'Tier 1', xpToNext: 150, totalRequired: 100 },
@@ -298,17 +301,19 @@ export const syncTerritoryOwnership = async (user) => {
         cha: 'Embers'
     };
 
-    let topStat = null;
-
-    for (const stat of stats) {
+    // Parallelize stat checks to avoid N+1 sequential queries
+    const results = await Promise.all(stats.map(async (stat) => {
         const userStat = user.rpg.stats[stat];
-        // Check if anyone has a higher stat
         const superior = await User.findOne({
             _id: { $ne: user._id },
             [`rpg.stats.${stat}`]: { $gt: userStat }
         });
+        return superior ? null : stat;
+    }));
 
-        if (!superior) {
+    let topStat = null;
+    for (const stat of results) {
+        if (stat) {
             topStat = statNames[stat];
             break; // Can only "own" one primary territory in the title
         }
@@ -319,8 +324,6 @@ export const syncTerritoryOwnership = async (user) => {
         user.markModified('rpg');
     }
 };
-
-import Activity from '../models/Activity.js';
 
 export const awardXP = async (user, stat, amount, streak = 1, activityType = 'system', action = 'Syncing data') => {
     const today = new Date().toISOString().split('T')[0];
