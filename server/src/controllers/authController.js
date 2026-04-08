@@ -487,6 +487,9 @@ export const completeOnboarding = async (req, res) => {
 
         if (user) {
             if (req.body.username) {
+                if (req.body.username.length < 4 || req.body.username.length > 12) {
+                    return res.status(400).json({ message: 'Username must be between 4 and 12 characters' });
+                }
                 const existingUser = await User.findOne({ username: req.body.username });
                 if (existingUser && existingUser.id !== user.id) {
                     return res.status(400).json({ message: 'Username is already taken' });
@@ -496,6 +499,7 @@ export const completeOnboarding = async (req, res) => {
 
             user.onboardingCompleted = true;
             user.timezone = req.body.timezone || user.timezone;
+            user.gender = req.body.gender || user.gender;
             user.currency = req.body.currency || user.currency;
             user.interests = req.body.interests || [];
 
@@ -636,6 +640,10 @@ export const checkUsername = async (req, res) => {
         const { username } = req.query;
         if (!username) {
             return res.status(400).json({ message: 'Username is required' });
+        }
+
+        if (username.length < 4 || username.length > 12) {
+            return res.status(400).json({ message: 'Username must be between 4 and 12 characters' });
         }
 
         const user = await User.findOne({ username: username.toLowerCase() });

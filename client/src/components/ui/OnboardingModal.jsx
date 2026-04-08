@@ -9,6 +9,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     const { mutate } = useSWRConfig();
     const [step, setStep] = useState(1);
     const [username, setUsername] = useState('');
+    const [gender, setGender] = useState('');
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
     const [themeMode, setThemeMode] = useState('system');
@@ -44,7 +45,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     }, [isOpen, isBooting]);
 
     const checkUsername = async (val) => {
-        if (val.length < 3) {
+        if (val.length < 4 || val.length > 12) {
             setIsUsernameAvailable(null);
             return;
         }
@@ -77,6 +78,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
             const store = useAuthStore.getState();
             await store.completeOnboarding({ 
                 username,
+                gender,
                 themeMode,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 currency: 'USD'
@@ -134,18 +136,33 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                         </p>
                                         
                                         <div className="space-y-4 max-w-sm mx-auto">
-                                            <input
-                                                type="text"
-                                                value={username}
-                                                onChange={(e) => {
-                                                    const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
-                                                    setUsername(val);
-                                                    checkUsername(val);
-                                                }}
-                                                autoFocus
-                                                placeholder="IDENT_REQUIRED"
-                                                className="w-full bg-transparent border-b-2 border-accent/30 px-0 py-4 text-xl font-black outline-none focus:border-accent transition-all text-accent placeholder:text-accent/10 tracking-[0.4em] font-mono text-center uppercase"
-                                            />
+                                            <div className="flex gap-4">
+                                                <input
+                                                    type="text"
+                                                    value={username}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+                                                        setUsername(val);
+                                                        checkUsername(val);
+                                                    }}
+                                                    maxLength={12}
+                                                    autoFocus
+                                                    placeholder="IDENT_REQUIRED"
+                                                    className="w-2/3 bg-transparent border-b-2 border-accent/30 px-0 py-4 text-xl font-black outline-none focus:border-accent transition-all text-accent placeholder:text-accent/10 tracking-[0.4em] font-mono text-center uppercase"
+                                                />
+                                                <select
+                                                    value={gender}
+                                                    onChange={(e) => setGender(e.target.value)}
+                                                    className="w-1/3 bg-transparent border-b-2 border-accent/30 px-0 py-4 text-sm font-black outline-none focus:border-accent transition-all text-accent tracking-[0.1em] font-mono text-center uppercase appearance-none cursor-pointer"
+                                                >
+                                                    <option value="" disabled className="bg-black">GENDER</option>
+                                                    <option value="Male" className="bg-black">MALE</option>
+                                                    <option value="Female" className="bg-black">FEMALE</option>
+                                                    <option value="Non-binary" className="bg-black">NON-BINARY</option>
+                                                    <option value="Other" className="bg-black">OTHER</option>
+                                                    <option value="Prefer not to say" className="bg-black">UNDISCLOSED</option>
+                                                </select>
+                                            </div>
                                             <div className="flex flex-col items-center gap-4">
                                                 <button
                                                     onClick={() => { 
