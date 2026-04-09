@@ -61,8 +61,8 @@ const AdminBugs = ({ previewMode = false }) => {
 
     return (
         <div ref={containerRef}>
-            <DashboardPanel title="BUG_REPORTS_" subtitle={`${bugs.length} Issues Pending`} noPadding>
-                <div className="p-6 space-y-4">
+            <DashboardPanel title="BUG_REPORTS_" subtitle={`${bugs.length} Issues Pending`}>
+                <div className="space-y-4">
                     {visibleBugs.length > 0 ? visibleBugs.map((bug) => (
                         <div 
                             key={bug._id} 

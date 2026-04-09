@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, BarChart3, ShieldCheck, Database, RefreshCcw, BookOpen } from 'lucide-react';
+import { Users, BarChart3, ShieldCheck, Database, RefreshCcw, BookOpen, FileDown, Zap, Activity } from 'lucide-react';
 import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import MobileTabNav from '../components/ui/MobileTabNav';
+import DashboardModal from '../components/ui/DashboardModal';
 
 import AdminStats from '../components/admin_components/AdminStats';
 import AdminUserRegistry from '../components/admin_components/AdminUserRegistry';
@@ -15,6 +16,8 @@ const Admin = () => {
     const { mutate: globalMutate } = useSWRConfig();
     const { data, mutate, isValidating } = useSWR('/admin/stats');
     const [activeTab, setActiveTab] = React.useState('overview');
+    const [isExportModalOpen, setIsExportModalOpen] = React.useState(false);
+    const [isExporting, setIsExporting] = React.useState(false);
 
     const tabs = [
         { id: 'overview', label: 'Overview', icon: BarChart3 },
@@ -64,6 +67,40 @@ const Admin = () => {
         }
     };
 
+    const handleExportLogs = (type = 'all') => {
+        setIsExporting(true);
+        
+        // Short delay to simulate synthesis aesthetic
+        setTimeout(() => {
+            const exportData = {
+                metadata: {
+                    version: "2.4.0-PROD",
+                    timestamp: new Date().toISOString(),
+                    origin: "SYSTEM_MANAGEMENT_OVERRIDE",
+                    scope: type.toUpperCase()
+                },
+                payload: {
+                    stats: type === 'all' || type === 'stats' ? stats : null,
+                    users: type === 'all' || type === 'users' ? recentUsers : null,
+                    systemStatus: type === 'all' || type === 'system' ? systemStatus : null,
+                    archetypes: type === 'all' || type === 'archetypes' ? archetypeStats : null
+                }
+            };
+
+            const dataStr = JSON.stringify(exportData, null, 4);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            const fileName = `produs_audit_trail_${new Date().toISOString().split('T')[0]}.json`;
+
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', fileName);
+            linkElement.click();
+            
+            setIsExporting(false);
+            setIsExportModalOpen(false);
+        }, 800);
+    };
+
     return (
         <div className="bg-transparent text-slate-900 dark:text-slate-100 p-4 md:p-8 w-full">
             <motion.div
@@ -77,13 +114,21 @@ const Admin = () => {
                         <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">System Management</h1>
                         <p className="text-slate-500 dark:text-slate-400 font-medium">Welcome back, Admin. Here's what's happening today.</p>
                     </div>
-                    <div className="flex gap-4 w-full md:w-auto">
-                        <button className="flex-1 md:flex-none bg-slate-200 dark:bg-[#000000] text-slate-900 dark:text-white px-6 py-2.5 rounded-2xl font-bold hover:bg-slate-300 dark:hover:bg-[#121212] transition-all active:scale-95">
-                            Export Logs
+                    <div className="flex flex-wrap md:flex-nowrap gap-4 w-full md:w-auto">
+                        <button 
+                            onClick={() => setIsExportModalOpen(true)}
+                            className="flex-1 md:flex-none bg-slate-100 dark:bg-white/5 text-slate-500 hover:text-slate-900 dark:hover:text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 flex items-center justify-center gap-3"
+                        >
+                            <FileDown size={18} />
+                            Export Audit Logs
                         </button>
-                        <button onClick={() => mutate()} className="flex-1 md:flex-none bg-primary text-white px-6 py-2.5 rounded-2xl font-bold hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
+                        <button 
+                            onClick={() => mutate()} 
+                            disabled={isValidating}
+                            className="flex-1 md:flex-none bg-primary text-white px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl shadow-primary/20 disabled:opacity-50"
+                        >
                             <RefreshCcw size={18} className={isValidating ? 'animate-spin' : ''} />
-                            Refresh Data
+                            {isValidating ? 'Syncing...' : 'Neural Sync'}
                         </button>
                     </div>
                 </header>
@@ -162,6 +207,66 @@ const Admin = () => {
                 )}
 
             </motion.div>
+
+            {/* Export Modal */}
+            <DashboardModal
+                isOpen={isExportModalOpen}
+                onClose={() => setIsExportModalOpen(false)}
+                title="LOG_EXPORT_SEQUENCE_"
+                subtitle="Generate Audit Trail"
+            >
+                <div className="space-y-8">
+                    <div className="bg-primary/5 border border-primary/20 rounded-[2rem] p-8">
+                        <div className="flex items-start gap-4 mb-6">
+                            <div className="size-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                                <Database size={24} />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-lg dark:text-white">System Snapshot Export</h4>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">Download a compiled JSON archive of current platform metrics and user telemetry.</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                                { id: 'all', label: 'Complete System Snapshot', icon: Zap, desc: 'Includes users, stats, & health' },
+                                { id: 'users', label: 'User Registry Only', icon: Users, desc: 'Current user data & archetype distribution' },
+                                { id: 'stats', label: 'Analytic Payload', icon: BarChart3, desc: 'Growth, sessions, & level distribution' },
+                                { id: 'system', label: 'Diagnostic Logs', icon: ShieldCheck, desc: 'API health & database metrics' },
+                            ].map((option) => (
+                                <button
+                                    key={option.id}
+                                    onClick={() => handleExportLogs(option.id)}
+                                    disabled={isExporting}
+                                    className="group p-5 rounded-2xl bg-white dark:bg-black/40 border border-slate-100 dark:border-white/5 hover:border-primary/50 transition-all text-left flex items-start gap-4 active:scale-[0.98]"
+                                >
+                                    <div className="size-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                                        <option.icon size={20} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-bold text-sm text-slate-900 dark:text-white">{option.label}</p>
+                                        <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">{option.desc}</p>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 px-2">
+                        <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Security Note: Data is exported in plain-text JSON format. Handle with caution.</span>
+                    </div>
+
+                    <div className="pt-4 flex justify-end">
+                        <button
+                            onClick={() => setIsExportModalOpen(false)}
+                            className="px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+                        >
+                            Cancel Override
+                        </button>
+                    </div>
+                </div>
+            </DashboardModal>
         </div>
     );
 };
