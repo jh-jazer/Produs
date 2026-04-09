@@ -12,6 +12,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteWord, setDeleteWord] = useState('');
     const [apiStatus, setApiStatus] = useState('checking');
+    const isAdmin = user?.isAdmin || user?.email === 'ernestodesabillejr@gmail.com';
 
     const themes = [
         { id: 'classic', name: 'Classic Blue', color: '#135bec' },
@@ -239,6 +240,32 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                     <span className="material-symbols-outlined text-black/20 dark:text-white/20">chevron_right</span>
                                 </button>
                             </div>
+
+                            {/* Developer - Admin Only */}
+                            {isAdmin && (
+                                <div className="space-y-4 pt-4">
+                                    <h4 className="text-[9px] font-semibold text-cyan-500 uppercase tracking-[0.4em] px-1">Developer</h4>
+                                    
+                                    <div className="flex items-center justify-between p-4 rounded-2xl bg-cyan-500/5 border border-cyan-500/20">
+                                        <div className="flex items-center gap-3">
+                                            <span className="material-symbols-outlined text-cyan-500">terminal</span>
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-semibold text-black/70 dark:text-white/70">RPG_Console_</span>
+                                                <span className="text-[8px] font-medium text-slate-500 uppercase tracking-wider">Dev_Tool_Overlay</span>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => handleToggle('showDevTools')}
+                                            className={`w-10 h-5 rounded-full transition-all relative flex items-center ${localSettings.showDevTools ? 'bg-cyan-500' : 'bg-black/10 dark:bg-white/10'}`}
+                                        >
+                                            <motion.div
+                                                animate={{ x: localSettings.showDevTools ? 22 : 3 }}
+                                                className="absolute size-3.5 bg-white rounded-full shadow-sm"
+                                            />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Danger Zone */}
                             <div className="space-y-4 pt-4">

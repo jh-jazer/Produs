@@ -1,15 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Check, Plus, ArrowRight, Zap, Target, Brain, Award, X, Search } from 'lucide-react';
 import api from '../../services/api';
+import useAuthStore from '../../store/useAuthStore';
+import { DashboardContext } from '../../context/DashboardContext';
 import DashboardPanel from '../ui/DashboardPanel';
 import DashboardModal from '../ui/DashboardModal';
 
 const FeaturedGoals = ({ onHabitAdded }) => {
+    const { user } = useAuthStore();
+    const { viewMode } = useContext(DashboardContext);
     const [challenges, setChallenges] = useState([]);
     const [loading, setLoading] = useState(true);
     const [joiningId, setJoiningId] = useState(null);
     const [isDiscoveryOpen, setIsDiscoveryOpen] = useState(false);
+
+    // Hide challenges if in partner view but not linked yet
+    if (viewMode === 'partner' && !user?.partner) return null;
 
     useEffect(() => {
         fetchChallenges();

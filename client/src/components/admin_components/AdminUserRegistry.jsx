@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Settings, RotateCcw } from 'lucide-react';
+import { Search, Settings, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
 import DashboardPanel from '../ui/DashboardPanel';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
-const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onToggleAdmin, activeTab, previewMode = false }) => {
+const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onToggleAdmin, onBulkPurge, activeTab, previewMode = false }) => {
     const [showAll, setShowAll] = useState(false);
+    const [isPurgeConfirmOpen, setIsPurgeConfirmOpen] = useState(false);
     const containerRef = useRef(null);
     const visibleUsers = previewMode && !showAll ? recentUsers.slice(0, 10) : recentUsers;
 
@@ -25,13 +27,24 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                 title="USER_REGISTRY_"
                 subtitle={`${recentUsers.length} Active Neural Links`}
                 headerExtra={
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                        <input
-                            type="text"
-                            placeholder="Search users..."
-                            className="bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-primary transition-colors w-48"
-                        />
+                    <div className="flex items-center gap-3">
+                        {recentUsers.length > 1 && (
+                            <button 
+                                onClick={() => setIsPurgeConfirmOpen(true)}
+                                className="size-8 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-lg shadow-rose-500/10 group"
+                                title="Purge Non-Admins"
+                            >
+                                <Trash2 size={14} className="group-hover:scale-110 transition-transform" />
+                            </button>
+                        )}
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                            <input
+                                type="text"
+                                placeholder="Search users..."
+                                className="bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-primary transition-colors w-40"
+                            />
+                        </div>
                     </div>
                 }
             >
@@ -106,6 +119,19 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                     )}
                 </div>
             </DashboardPanel>
+
+            <ConfirmDialog
+                isOpen={isPurgeConfirmOpen}
+                onClose={() => setIsPurgeConfirmOpen(false)}
+                onConfirm={() => {
+                    setIsPurgeConfirmOpen(false);
+                    onBulkPurge();
+                }}
+                title="INITIATE_SYSTEM_PURGE_"
+                message={`This will permanently delete all ${recentUsers.length - 1} users and all their associated data. Only you and the developer will remain. This action is irreversible.`}
+                confirmText="CONFIRM_PURGE_"
+                type="danger"
+            />
         </div>
     );
 };

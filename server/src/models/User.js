@@ -173,6 +173,10 @@ const userSchema = new mongoose.Schema({
         bannerPosition: {
             type: Number,
             default: 50
+        },
+        showDevTools: {
+            type: Boolean,
+            default: false
         }
     },
     currency: {

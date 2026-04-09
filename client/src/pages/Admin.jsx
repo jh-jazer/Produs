@@ -67,6 +67,17 @@ const Admin = () => {
         }
     };
 
+    const handleBulkPurge = async () => {
+        try {
+            const { data } = await api.delete('/admin/users');
+            alert(data.message || 'System purge completed successfully.');
+            mutate();
+            globalMutate('/auth/me');
+        } catch (error) {
+            alert('Error performing system purge: ' + (error.response?.data?.message || error.message));
+        }
+    };
+
     const handleExportLogs = (type = 'all') => {
         setIsExporting(true);
         
@@ -181,6 +192,7 @@ const Admin = () => {
                                 isValidating={isValidating}
                                 onResetOnboarding={handleResetOnboarding}
                                 onToggleAdmin={handleToggleAdmin}
+                                onBulkPurge={handleBulkPurge}
                                 activeTab={activeTab}
                                 previewMode={activeTab === 'overview'}
                             />

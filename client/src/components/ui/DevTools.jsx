@@ -12,7 +12,7 @@ const DevTools = () => {
 
     const [isTucked, setIsTucked] = useState(false);
 
-    if (!user || (user.email !== 'ernestodesabillejr@gmail.com' && !user.isAdmin)) return null;
+    if (!user || (user.email !== 'ernestodesabillejr@gmail.com' && !user.isAdmin) || !user.settings?.showDevTools) return null;
 
     const handleAction = async (action, stat = null, amount = null) => {
         setLoading(stat ? `${action}-${stat}` : action);

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import DashboardScrollIndicator from './dashboard/DashboardScrollIndicator';
-import { Search, Bell, Users, User, Lock, Zap, Cpu } from 'lucide-react';
+import { Search, Bell, Users, User, Lock, Zap, Cpu, Handshake } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
@@ -29,6 +29,7 @@ function Layout() {
     const navigate = useNavigate();
     const location = useLocation();
     const isOverview = location.pathname === '/dashboard';
+    const isAdminPage = location.pathname === '/dashboard/admin';
     const isOnline = true; // navigator.onLine (Offline features removed)
     const profileRef = useRef(null);
 
@@ -141,24 +142,40 @@ function Layout() {
 
                     {/* Tactical Tools Right */}
                     <div className="ml-auto flex items-center gap-2">
-                        {/* 1. Command Console (Operation Mode Toggle) */}
-                        <button
-                            onClick={() => setProtocolMode(protocolMode === 'rpg' ? 'reality' : 'rpg')}
-                            onContextMenu={(e) => {
-                                e.preventDefault();
-                                setIsOperationModalOpen(true);
-                            }}
-                            className={`size-9 rounded-xl flex items-center justify-center relative transition-all active:scale-95 ${
-                                protocolMode === 'rpg' 
-                                    ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' 
-                                    : 'bg-black/5 dark:bg-white/5 text-slate-500 hover:text-cyan-500'
-                            }`}
-                        >
-                            <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
-                            {viewMode === 'partner' && (
-                                <span className="absolute top-2 right-2 size-1.5 bg-emerald-500 rounded-full border border-white dark:border-[#0a0a0a]" />
+                        {/* 1. Tactical Toggles (RPG & Link) */}
+                        <div className="flex items-center gap-1.5 bg-black/[0.03] dark:bg-white/[0.03] p-1 rounded-2xl border border-black/[0.03] dark:border-white/[0.03]">
+                            {/* RPG Toggle - Dashboard Only */}
+                            {isOverview && (
+                                <button
+                                    onClick={() => setProtocolMode(protocolMode === 'rpg' ? 'reality' : 'rpg')}
+                                    onContextMenu={(e) => {
+                                        e.preventDefault();
+                                        setIsOperationModalOpen(true);
+                                    }}
+                                    className={`size-9 rounded-xl flex items-center justify-center relative transition-all active:scale-95 ${
+                                        protocolMode === 'rpg' 
+                                            ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' 
+                                            : 'text-slate-500 hover:text-cyan-500'
+                                    }`}
+                                >
+                                    <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
+                                </button>
                             )}
-                        </button>
+
+                            {/* Partner View Toggle - All except Admin */}
+                            {!isAdminPage && (
+                                <button
+                                    onClick={() => setViewMode(viewMode === 'partner' ? 'personal' : 'partner')}
+                                    className={`size-9 rounded-xl flex items-center justify-center relative transition-all active:scale-95 ${
+                                        viewMode === 'partner' 
+                                            ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' 
+                                            : 'text-slate-500 hover:text-emerald-500'
+                                    }`}
+                                >
+                                    {viewMode === 'partner' ? <Handshake size={14} /> : <User size={14} />}
+                                </button>
+                            )}
+                        </div>
 
                         {/* 2. Search Icon (Overview Only) */}
                         {isOverview && (
@@ -347,12 +364,14 @@ function Layout() {
                 <div className={`flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]
                     ${isMobileMenuOpen ? 'blur-md' : ''}
                 `}>
-                    <div className="hidden md:block absolute top-0 left-0 right-0 z-40 h-40 pointer-events-none">
-                        <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)] via-[var(--background)]/95 to-transparent backdrop-blur-xl [mask-image:linear-gradient(to_bottom,black_20%,transparent),linear-gradient(to_right,transparent,black_10%,black_75%,transparent)] [-webkit-mask-composite:source-in] [mask-composite:intersect]" />
-                        <div className="relative pl-8 lg:pl-12 pr-24 lg:pr-32 pt-8 pb-4 pointer-events-auto">
-                            <DashboardHeader user={user} />
+                    {!isAdminPage && (
+                        <div className="hidden md:block absolute top-0 left-0 right-0 z-40 h-40 pointer-events-none">
+                            <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)] via-[var(--background)]/95 to-transparent backdrop-blur-xl [mask-image:linear-gradient(to_bottom,black_20%,transparent),linear-gradient(to_right,transparent,black_10%,black_75%,transparent)] [-webkit-mask-composite:source-in] [mask-composite:intersect]" />
+                            <div className="relative pl-8 lg:pl-12 pr-24 lg:pr-32 pt-8 pb-4 pointer-events-auto">
+                                <DashboardHeader user={user} />
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     <div 
                         ref={mainRef}

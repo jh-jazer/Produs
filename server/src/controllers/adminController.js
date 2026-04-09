@@ -1,4 +1,18 @@
 import User from '../models/User.js';
+import Habit from '../models/Habit.js';
+import Journal from '../models/Journal.js';
+import Task from '../models/Task.js';
+import Goal from '../models/Goal.js';
+import Budget from '../models/Budget.js';
+import Debt from '../models/Debt.js';
+import Saving from '../models/Saving.js';
+import HealthLog from '../models/HealthLog.js';
+import Transaction from '../models/Transaction.js';
+import Activity from '../models/Activity.js';
+import BugReport from '../models/BugReport.js';
+import Wishlist from '../models/Wishlist.js';
+import Notification from '../models/Notification.js';
+import YjsState from '../models/YjsState.js';
 
 const getSystemStats = async (req, res) => {
     try {
@@ -139,4 +153,52 @@ const toggleUserAdmin = async (req, res) => {
     }
 };
 
-export { getSystemStats, resetUserOnboarding, toggleUserAdmin };
+const bulkDeleteUsers = async (req, res) => {
+    try {
+        const currentAdminId = req.user._id;
+        const masterAdminEmail = 'ernestodesabillejr@gmail.com';
+
+        // 1. Identify all users to delete (Not current admin, not master admin)
+        const usersToDelete = await User.find({
+            _id: { $ne: currentAdminId },
+            email: { $ne: masterAdminEmail }
+        }).select('_id');
+
+        const userIds = usersToDelete.map(u => u._id);
+
+        if (userIds.length === 0) {
+            return res.json({ message: 'No standard users found to purge.' });
+        }
+
+        // 2. Perform Cascading Deletion across all collections
+        const deletionPromises = [
+            User.deleteMany({ _id: { $in: userIds } }),
+            Habit.deleteMany({ user: { $in: userIds } }),
+            Journal.deleteMany({ user: { $in: userIds } }),
+            Task.deleteMany({ user: { $in: userIds } }),
+            Goal.deleteMany({ user: { $in: userIds } }),
+            Budget.deleteMany({ user: { $in: userIds } }),
+            Debt.deleteMany({ user: { $in: userIds } }),
+            Saving.deleteMany({ user: { $in: userIds } }),
+            HealthLog.deleteMany({ user: { $in: userIds } }),
+            Transaction.deleteMany({ user: { $in: userIds } }),
+            Activity.deleteMany({ user: { $in: userIds } }),
+            BugReport.deleteMany({ user: { $in: userIds } }),
+            Wishlist.deleteMany({ user: { $in: userIds } }),
+            Notification.deleteMany({ user: { $in: userIds } }),
+            YjsState.deleteMany({ user: { $in: userIds } })
+        ];
+
+        await Promise.all(deletionPromises);
+
+        res.json({ 
+            message: 'System purge complete.', 
+            deletedCount: userIds.length 
+        });
+    } catch (error) {
+        console.error('Purge failed:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export { getSystemStats, resetUserOnboarding, toggleUserAdmin, bulkDeleteUsers };
