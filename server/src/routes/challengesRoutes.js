@@ -7,6 +7,7 @@ const router = express.Router();
 router.use(protect);
 
 router.get('/', challengesController.getChallenges);
+router.post('/:id/install', challengesController.installChallengeHabit);
 router.post('/:id/toggle', challengesController.toggleChallengeJoin);
 router.post('/:id/progress', challengesController.updateChallengeProgress);
 

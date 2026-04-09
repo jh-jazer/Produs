@@ -1,12 +1,28 @@
 import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Bell, Users, User, Lock, Zap, Cpu } from 'lucide-react';
+import { Search, Bell, Handshake, User, Lock, Zap, Cpu } from 'lucide-react';
 import { DashboardContext } from '../../context/DashboardContext';
 
-const DashboardHeader = ({ viewMode, setViewMode, user }) => {
-    const { setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, setIsOperationModalOpen, protocolMode } = useContext(DashboardContext);
+const DashboardHeader = ({ user }) => {
+    const { 
+        setIsSearchModalOpen, 
+        setIsNotificationModalOpen, 
+        unreadCount, 
+        setIsOperationModalOpen, 
+        protocolMode, 
+        setProtocolMode,
+        viewMode,
+        setViewMode
+    } = useContext(DashboardContext);
 
-    const isPartnerLocked = !user?.partner;
+    const toggleProtocol = () => {
+        setProtocolMode(protocolMode === 'rpg' ? 'reality' : 'rpg');
+    };
+
+    const toggleView = () => {
+        setViewMode(viewMode === 'personal' ? 'partner' : 'personal');
+    };
+
     return (
         <div className="w-full flex items-center justify-between gap-2 md:gap-6 md:mb-8">
             {/* 1. Explore Bar (Tactical Search) */}
@@ -28,38 +44,35 @@ const DashboardHeader = ({ viewMode, setViewMode, user }) => {
                 </motion.button>
             </div>
 
-            {/* 2. Controls Group (Toggle + Notifications) */}
+            {/* 2. Controls Group (Direct Toggles) */}
             <div className="flex items-center gap-2 md:gap-3 order-2">
-                {/* Centralized Operation Trigger */}
-                <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsOperationModalOpen(true)}
-                    className="h-12 glass-panel rounded-2xl px-5 flex items-center gap-4 group transition-all hover:border-cyan-500/30 overflow-hidden relative"
-                >
-                    <div className="relative flex items-center justify-center">
-                        <Cpu size={18} className={`text-slate-400 group-hover:text-cyan-500 transition-colors ${protocolMode === 'rpg' ? 'animate-pulse text-cyan-500' : ''}`} />
-                        {viewMode === 'partner' && (
-                            <span className="absolute -top-1 -right-1 size-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                        )}
-                    </div>
-                    <div className="flex flex-col items-start">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] font-mono group-hover:text-slate-300 transition-colors">
-                            DASHBOARD_MODES_
-                        </span>
-                        <div className="flex gap-2 mt-0.5">
-                            <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest leading-none">
-                                Mode: {protocolMode === 'rpg' ? 'RPG' : 'PRODUCTIVITY'}
-                            </span>
-                            <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest leading-none">
-                                View: {viewMode === 'personal' ? 'PERSONAL' : 'PARTNER'}
-                            </span>
-                        </div>
-                    </div>
+                <div className="flex items-center gap-1 p-1 glass-panel rounded-2xl">
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={toggleProtocol}
+                        className={`px-3 md:px-5 py-2.5 rounded-xl flex items-center gap-3 transition-all duration-300 ${
+                            protocolMode === 'rpg' 
+                                ? 'bg-cyan-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)]' 
+                                : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                        }`}
+                    >
+                        <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
+                        <span className="text-[10px] font-black uppercase tracking-widest font-mono">RPG_</span>
+                    </motion.button>
 
-                    {/* Subtle grid backdrop */}
-                    <div className="absolute inset-0 bg-grid-light opacity-0 group-hover:opacity-5 pointer-events-none transition-opacity" />
-                </motion.button>
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={toggleView}
+                        className={`px-3 md:px-5 py-2.5 rounded-xl flex items-center gap-3 transition-all duration-300 ${
+                            viewMode === 'partner' 
+                                ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]' 
+                                : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                        }`}
+                    >
+                        {viewMode === 'partner' ? <Handshake size={14} /> : <User size={14} />}
+                        <span className="text-[10px] font-black uppercase tracking-widest font-mono">LINK_</span>
+                    </motion.button>
+                </div>
 
                 {/* 3. Notification Hub */}
                 <motion.button

@@ -4,6 +4,7 @@ import { Brain, Plus, Save, Trash2, Activity, Zap, MessageSquare, ChevronDown, C
 import useSWR from 'swr';
 import api from '../../services/api';
 import DashboardPanel from '../ui/DashboardPanel';
+import DashboardModal from '../ui/DashboardModal';
 
 const compareDecimalIds = (a, b) => {
     const partsA = a.split('.').map(Number);
@@ -724,136 +725,130 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
             </DashboardPanel>
 
             {/* Bulk Import Modal */}
-            <AnimatePresence>
-                {isBulkModalOpen && (
-                    <div className="fixed inset-0 z-[150] flex items-start justify-center p-4 sm:p-8 pt-20 md:pt-32 overflow-hidden">
+            {/* Bulk Import Modal */}
+            <DashboardModal
+                isOpen={isBulkModalOpen}
+                onClose={() => setIsBulkModalOpen(false)}
+                title="PROMPT_IMPORT_SEQUENCE_"
+                subtitle="Bulk Neural Import"
+                headerExtra={
+                    validationErrors.length > 0 && (
                         <motion.div 
-                            initial={{ opacity: 0 }} 
-                            animate={{ opacity: 1 }} 
-                            exit={{ opacity: 0 }} 
-                            onClick={() => setIsBulkModalOpen(false)}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-md" 
-                        />
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-4xl bg-white dark:bg-[#121212] rounded-[2.5rem] shadow-[0_20px_80px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 overflow-hidden flex flex-col max-h-[90vh]"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="hidden lg:flex items-center gap-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl p-3"
                         >
-                            <div className="p-8 border-b border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between bg-white/50 dark:bg-white/[0.01]">
-                                <div className="flex items-center gap-4">
-                                    <div className="size-10 rounded-2xl bg-accent/20 flex items-center justify-center text-accent">
-                                        <FileJson size={20} />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-xl uppercase tracking-tighter italic font-exo">Bulk Neural Import</h3>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">JSON Batch Processing_</p>
-                                    </div>
+                            <div className="flex flex-col">
+                                <div className="flex items-center gap-2 text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">
+                                    <Activity size={10} className="animate-pulse" />
+                                    <span>Integrity Failure_</span>
                                 </div>
-
-                                {validationErrors.length > 0 && (
-                                    <motion.div 
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        className="flex items-center gap-4 max-w-[50%] bg-rose-500/10 border border-rose-500/20 rounded-2xl p-3"
+                                <div className="max-h-[40px] overflow-y-auto pr-2 custom-scrollbar-mini">
+                                    {validationErrors.map((err, i) => (
+                                        <p key={i} className="text-[9px] font-bold text-rose-500/80 font-mono leading-tight truncate max-w-[200px]" title={err}>
+                                            {err}
+                                        </p>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )
+                }
+            >
+                <div className="space-y-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between px-1">
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Neural Payload_</h4>
+                                <span className="text-[9px] font-mono text-cyan-500/60 uppercase">Ready for synthesis</span>
+                            </div>
+                            <textarea 
+                                value={bulkJson}
+                                onChange={(e) => setBulkJson(e.target.value)}
+                                placeholder="Paste your JSON array of nodes here..."
+                                className="w-full h-[320px] bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-3xl p-6 text-xs font-mono focus:outline-none focus:border-cyan-500/40 transition-all resize-none leading-relaxed"
+                            />
+                        </div>
+                        
+                        <div className="space-y-6">
+                            <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-3xl p-6 space-y-4">
+                                <h4 className="text-[10px] font-black text-cyan-500 uppercase tracking-widest">Neural Matrix Guide_</h4>
+                                <div className="text-[11px] text-slate-500 dark:text-slate-400 space-y-3 leading-relaxed">
+                                    <p>1. Must be a valid <b>JSON Array</b> `[...]`</p>
+                                    <p>2. `questionId` is the unique sync key (upserts matches)</p>
+                                    <p>3. Section must be: `PATH`, `TIER1`, `STYLE`, `ALIGNMENT`</p>
+                                </div>
+                                <div className="pt-4 border-t border-cyan-500/10">
+                                    <button 
+                                        onClick={() => setBulkJson(JSON.stringify([
+                                            {
+                                                questionId: "1.0",
+                                                title: "Sample Node",
+                                                section: "PATH",
+                                                type: "WHY",
+                                                weight: 1,
+                                                story: "Once upon a time...",
+                                                question: "What is your essence?",
+                                                options: [
+                                                    { text: "Option A", value: "Value", postText: "Feedback", nextId: "1.1" }
+                                                ]
+                                            }
+                                        ], null, 4))}
+                                        className="text-[10px] font-black text-cyan-500 hover:text-cyan-400 uppercase tracking-widest transition-colors flex items-center gap-2"
                                     >
-                                        <div className="flex flex-col">
-                                            <div className="flex items-center gap-2 text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">
-                                                <Activity size={10} className="animate-pulse" />
-                                                <span>Integrity Failure_</span>
-                                            </div>
-                                            <div className="max-h-[60px] overflow-y-auto pr-2 custom-scrollbar-mini">
-                                                {validationErrors.map((err, i) => (
-                                                    <p key={i} className="text-[9px] font-bold text-rose-500/80 font-mono leading-tight truncate max-w-[300px]" title={err}>
-                                                        {err}
-                                                    </p>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </div>
-
-                            <div className="p-8 flex-1 overflow-y-auto space-y-8 custom-scrollbar">
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    <div className="space-y-4">
-
-                                        <textarea 
-                                            value={bulkJson}
-                                            onChange={(e) => setBulkJson(e.target.value)}
-                                            placeholder="Paste your JSON array of nodes here..."
-                                            className="w-full h-[220px] bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-3xl p-6 text-xs font-mono focus:outline-none focus:border-accent transition-all resize-none leading-relaxed"
-                                        />
-                                    </div>
-                                    <div className="space-y-6">
-                                        <div className="bg-accent/5 border border-accent/20 rounded-3xl p-6 space-y-4">
-                                            <h4 className="text-[10px] font-black text-accent uppercase tracking-widest">Neural Matrix Guide_</h4>
-                                            <div className="text-[11px] text-slate-500 dark:text-slate-400 space-y-3 leading-relaxed">
-                                                <p>1. Must be a valid <b>JSON Array</b> `[...]`</p>
-                                                <p>2. `questionId` is the unique sync key (upserts matches)</p>
-                                                <p>3. Section must be: `PATH`, `TIER1`, `STYLE`, `ALIGNMENT`</p>
-                                            </div>
-                                            <div className="pt-4 border-t border-accent/10">
-                                                <button 
-                                                    onClick={() => setBulkJson(JSON.stringify([
-                                                        {
-                                                            questionId: "1.0",
-                                                            title: "Sample Node",
-                                                            section: "PATH",
-                                                            type: "WHY",
-                                                            weight: 1,
-                                                            story: "Once upon a time...",
-                                                            question: "What is your essence?",
-                                                            options: [
-                                                                { text: "Option A", value: "Value", postText: "Feedback", nextId: "1.1" }
-                                                            ]
-                                                        }
-                                                    ], null, 4))}
-                                                    className="text-[10px] font-black text-accent hover:underline uppercase tracking-widest"
-                                                >
-                                                    Load Example Template
-                                                </button>
-                                            </div>
-                                        </div>
-
-
-
-                                        {importStatus.message && (
-                                            <div className={`p-6 rounded-3xl border flex flex-col gap-2 ${
-                                                importStatus.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' :
-                                                importStatus.type === 'info' ? 'bg-blue-500/10 border-blue-500/20 text-blue-500' :
-                                                'bg-rose-500/10 border-rose-500/20 text-rose-500'
-                                            }`}>
-                                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
-                                                    <Activity size={12} className="animate-spin" />
-                                                    <span>System_Message_</span>
-                                                </div>
-                                                <p className="text-[10px] font-bold font-mono opacity-80">{importStatus.message}</p>
-                                            </div>
-                                        )}
-                                    </div>
+                                        <Plus size={10} />
+                                        Load Example Template
+                                    </button>
                                 </div>
                             </div>
 
-                            <div className="p-8 border-t border-black/[0.06] dark:border-white/[0.06] flex justify-end gap-4 bg-slate-50 dark:bg-black/20">
-                                <button
-                                    onClick={() => setIsBulkModalOpen(false)}
-                                    className="px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all"
+                            {importStatus.message && (
+                                <motion.div 
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className={`p-6 rounded-3xl border flex flex-col gap-2 ${
+                                        importStatus.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' :
+                                        importStatus.type === 'info' ? 'bg-cyan-500/10 border-cyan-500/20 text-cyan-500' :
+                                        'bg-rose-500/10 border-rose-500/20 text-rose-500'
+                                    }`}
                                 >
-                                    Dismiss Override
-                                </button>
+                                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                                        <Activity size={12} className={importStatus.type === 'info' ? 'animate-spin' : ''} />
+                                        <span>System_Message_</span>
+                                    </div>
+                                    <p className="text-[10px] font-bold font-mono opacity-80">{importStatus.message}</p>
+                                </motion.div>
+                            )}
+
+                            <div className="pt-4 space-y-3">
                                 <button
                                     disabled={isSaving || validationErrors.length > 0 || !bulkJson}
                                     onClick={handleBulkImport}
-                                    className="px-10 py-3 rounded-2xl bg-accent text-white font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] shadow-xl shadow-accent/20 disabled:opacity-50 transition-all font-mono"
+                                    className="w-full py-4 rounded-2xl bg-cyan-500 text-white font-black text-[11px] uppercase tracking-[0.2em] hover:scale-[1.02] shadow-xl shadow-cyan-500/20 disabled:opacity-50 disabled:grayscale transition-all flex items-center justify-center gap-3"
                                 >
-                                    {isSaving ? 'SYNTHESIZING...' : 'FINALIZE_IMPORT_'}
+                                    {isSaving ? (
+                                        <>
+                                            <div className="size-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            SYNTHESIZING...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Zap size={14} />
+                                            FINALIZE_IMPORT_
+                                        </>
+                                    )}
+                                </button>
+                                <button
+                                    onClick={() => setIsBulkModalOpen(false)}
+                                    className="w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all border border-transparent hover:border-black/5 dark:hover:border-white/5"
+                                >
+                                    Cancel Override
                                 </button>
                             </div>
-                        </motion.div>
+                        </div>
                     </div>
-                )}
-            </AnimatePresence>
+                </div>
+            </DashboardModal>
         </div>
     );
 };

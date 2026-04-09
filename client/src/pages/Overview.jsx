@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // Dashboard Zones
 import IdentityHeader from '../components/dashboard/IdentityHeader';
+import FeaturedGoals from '../components/dashboard/FeaturedGoals';
 import TodayActivity from '../components/dashboard/TodayActivity';
 import StreakStatus from '../components/dashboard/StreakStatus';
 import StatRadar from '../components/dashboard/StatRadar';
@@ -13,7 +14,7 @@ import EvolutionPreview from '../components/dashboard/EvolutionPreview';
 import PartnerPanel from '../components/dashboard/PartnerPanel';
 import XpFeed from '../components/dashboard/XpFeed';
 import AwakeningOverlay from '../components/dashboard/AwakeningOverlay';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import { useHabits } from '../hooks/useHabits';
 
@@ -29,6 +30,7 @@ import { Users, Link as LinkIcon, ShieldAlert, Zap } from 'lucide-react';
 
 function Overview() {
   const navigate = useNavigate();
+  const { mutate } = useSWRConfig();
   const { setIsSearchModalOpen, viewMode, setViewMode, protocolMode, setProtocolMode } = useContext(DashboardContext);
   const user = useAuthStore((state) => state.user);
   const syncUser = useAuthStore((state) => state.syncUser);
@@ -147,6 +149,10 @@ function Overview() {
           >
             {/* Header & Identity Section */}
             <IdentityHeader user={user} habits={habits} />
+
+            {/* Featured Goals / Active Challenges Section */}
+            <FeaturedGoals onHabitAdded={() => mutate('/habits')} />
+
             
             <AnimatePresence mode="wait">
               {viewMode === 'personal' ? (
@@ -226,7 +232,7 @@ function Overview() {
                 >
                   {!user?.partner ? (
                     /* Locked State: Collective Mode Restriction */
-                    <div className="w-full max-w-3xl mx-auto">
+                    <div className="w-full max-w-5xl mx-auto">
                       <div className="glass-panel p-12 md:p-20 rounded-[3rem] relative overflow-hidden border border-cyan-500/30 dark:border-white/10 shadow-hud group">
                         {/* Tactical Backdrop */}
                         <div className="absolute top-0 right-0 p-8 opacity-[0.03] dark:opacity-[0.05] pointer-events-none group-hover:scale-110 transition-transform duration-1000">

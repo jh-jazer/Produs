@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check, Lock, Edit2, Save, X, Share2, Users } from 'lucide-react';
+import { Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check, Lock, Edit2, Save, X, Handshake, Users } from 'lucide-react';
 import { getLevelProgress } from '../../utils/rpgHelpers';
 import { ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
 import Avatar from '../ui/Avatar';
@@ -358,7 +358,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                         }`}
                                     title="Shared Account"
                                 >
-                                    <Share2 size={20} className="group-hover:scale-110 transition-transform" />
+                                    <Handshake size={20} className="group-hover:scale-110 transition-transform" />
                                 </button>
                                 <button
                                     onClick={() => setIsEditing(true)}

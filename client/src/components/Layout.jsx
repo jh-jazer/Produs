@@ -62,6 +62,21 @@ function Layout() {
     const { data: freshUser } = useSWR(user ? '/auth/me' : null);
     const syncUser = useAuthStore((state) => state.syncUser);
 
+    // Keyboard Shortcut for Mode Switching
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            // Only trigger if not typing in an input/textarea
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.isContentEditable) return;
+            
+            if (e.key.toLowerCase() === 'm') {
+                setProtocolMode(prev => prev === 'rpg' ? 'reality' : 'rpg');
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
     // Sync fresh server data into the in-memory store whenever it arrives
     useEffect(() => {
         if (freshUser) syncUser(freshUser);
@@ -126,14 +141,22 @@ function Layout() {
 
                     {/* Tactical Tools Right */}
                     <div className="ml-auto flex items-center gap-2">
-                        {/* 1. Command Console (Operation Modes) */}
+                        {/* 1. Command Console (Operation Mode Toggle) */}
                         <button
-                            onClick={() => setIsOperationModalOpen(true)}
-                            className="size-9 glass-panel rounded-xl flex items-center justify-center relative bg-black/5 dark:bg-white/5 active:scale-95 transition-all"
+                            onClick={() => setProtocolMode(protocolMode === 'rpg' ? 'reality' : 'rpg')}
+                            onContextMenu={(e) => {
+                                e.preventDefault();
+                                setIsOperationModalOpen(true);
+                            }}
+                            className={`size-9 rounded-xl flex items-center justify-center relative transition-all active:scale-95 ${
+                                protocolMode === 'rpg' 
+                                    ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' 
+                                    : 'bg-black/5 dark:bg-white/5 text-slate-500 hover:text-cyan-500'
+                            }`}
                         >
-                            <Cpu size={14} className={`text-slate-500 ${protocolMode === 'rpg' ? 'text-cyan-500 animate-pulse' : ''}`} />
+                            <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
                             {viewMode === 'partner' && (
-                                <span className="absolute top-2 right-2 size-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                                <span className="absolute top-2 right-2 size-1.5 bg-emerald-500 rounded-full border border-white dark:border-[#0a0a0a]" />
                             )}
                         </button>
 
@@ -284,7 +307,7 @@ function Layout() {
                                             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                                             className={`${isMobileMenuOpen ? 'flex' : 'hidden md:flex'} flex-col whitespace-nowrap overflow-hidden max-w-[140px]`}
                                         >
-                                            <div className="flex flex-col gap-1 w-full">
+                                            <div className="flex flex-col gap-0 w-full">
                                                 {/* ROW 1: Username & XP Status */}
                                                 <div className="flex items-end justify-between w-full pr-1">
                                                     <p className="text-[8px] font-black text-black dark:text-white leading-none uppercase tracking-[0.2em]">
@@ -327,7 +350,7 @@ function Layout() {
                     <div className="hidden md:block absolute top-0 left-0 right-0 z-40 h-40 pointer-events-none">
                         <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)] via-[var(--background)]/95 to-transparent backdrop-blur-xl [mask-image:linear-gradient(to_bottom,black_20%,transparent),linear-gradient(to_right,transparent,black_10%,black_75%,transparent)] [-webkit-mask-composite:source-in] [mask-composite:intersect]" />
                         <div className="relative pl-8 lg:pl-12 pr-24 lg:pr-32 pt-8 pb-4 pointer-events-auto">
-                            <DashboardHeader viewMode={viewMode} setViewMode={setViewMode} user={user} />
+                            <DashboardHeader user={user} />
                         </div>
                     </div>
 

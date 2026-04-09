@@ -180,12 +180,91 @@ export const getChallenges = async (req, res) => {
                 daysLeft: Math.max(0, 31 - new Date().getDate()),
                 color: "blue",
                 icon: "groups",
-                category: "March Special",
+                category: "CHA",
                 isJoined: joinedChallenges.includes(9)
+            },
+            {
+                id: 10,
+                name: "The Digital Sundown",
+                description: "No blue light or digital screens 2 hours before bed.",
+                progress: user.challengeProgress?.get('10') || 0,
+                target: 21,
+                daysLeft: Math.max(0, 31 - new Date().getDate()),
+                color: "indigo",
+                icon: "bedtime",
+                category: "WIS",
+                isJoined: joinedChallenges.includes(10)
             }
         ];
 
         res.json(challenges);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const installChallengeHabit = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { id } = req.params;
+        const challengeId = parseInt(id);
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Get the challenge template (mocking the list here to find the matching one)
+        // In a real app, these might be in a separate collection.
+        const templates = [
+            { id: 1, name: "The Deep Work 50", icon: "bolt", color: "blue", category: "INT" },
+            { id: 2, name: "Inbox Zero Hero", icon: "inbox", color: "slate", category: "WIS" },
+            { id: 3, name: "The Rule of Three", icon: "format_list_numbered", color: "blue", category: "INT" },
+            { id: 4, name: "The Pomodoro Master", icon: "timer", color: "rose", category: "END" },
+            { id: 5, name: "Analog Morning", icon: "bedtime_off", color: "amber", category: "WIS" },
+            { id: 6, name: "The Shutdown Ritual", icon: "event_repeat", color: "slate", category: "DEX" },
+            { id: 7, name: "Digital Declutter", icon: "cleaning_services", color: "cyan", category: "INT" },
+            { id: 8, name: "March Momentum", icon: "trending_up", color: "emerald", category: "STR" },
+            { id: 9, name: "Flow State", icon: "groups", color: "blue", category: "CHA" },
+            { id: 10, name: "The Digital Sundown", icon: "bedtime", color: "indigo", category: "WIS" }
+        ];
+
+        const template = templates.find(t => t.id === challengeId);
+        if (!template) return res.status(404).json({ message: 'Challenge template not found' });
+
+        // Enforce MAX 2 Challenges limit
+        const activeChallengeHabits = await Habit.countDocuments({ 
+            user: userId, 
+            systemId: { $regex: /^challenge-/ } 
+        });
+        
+        if (activeChallengeHabits >= 2) {
+            return res.status(400).json({ 
+                message: 'Neural Capacity Reached. You can only maintain 2 active synchronization protocols at a time. Decommission an existing protocol to link a new one.' 
+            });
+        }
+
+        // Check if habit already exists
+        const existingHabit = await Habit.findOne({ user: userId, name: template.name });
+        if (existingHabit) {
+            return res.status(400).json({ message: 'This protocol is already active in your tracker.' });
+        }
+
+        // Create the habit
+        await Habit.create({
+            user: userId,
+            name: template.name,
+            icon: template.icon,
+            color: template.color,
+            category: template.category,
+            systemId: `challenge-${challengeId}`
+        });
+
+        // Mark as joined
+        if (!user.joinedChallenges.includes(challengeId)) {
+            user.joinedChallenges.push(challengeId);
+            await user.save();
+        }
+
+        res.status(201).json({ message: 'Protocol successfully injected into neural tracker.', joined: true });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
