@@ -32,7 +32,7 @@ const DashboardPanel = ({
     const navigate = useNavigate();
 
     return (
-        <div className={`relative z-0 bg-slate-50/80 dark:bg-[#080808]/80 backdrop-blur-2xl border border-cyan-500/40 dark:border-white/5 rounded-[2.5rem] overflow-hidden group shadow-none ${noPadding ? '' : 'px-3 py-8 md:p-8'} ${className}`}>
+        <div className={`relative z-0 bg-slate-50/80 dark:bg-[#080808]/80 backdrop-blur-2xl border border-primary/40 dark:border-white/5 rounded-[2.5rem] overflow-hidden group shadow-none ${noPadding ? '' : 'px-3 py-8 md:p-8'} ${className}`}>
             
             {/* Tactical Backdrop Decoration */}
             {showZap && (
@@ -47,7 +47,7 @@ const DashboardPanel = ({
                     <div className="flex flex-col">
                         {title && (
                             <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] font-mono flex items-center gap-2 mb-1">
-                                <span className="size-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                                <span className="size-1.5 rounded-full bg-primary animate-pulse" />
                                 {title}
                             </h2>
                         )}
@@ -60,7 +60,7 @@ const DashboardPanel = ({
                         {actionLabel && actionPath && (
                             <button 
                                 onClick={() => navigate(actionPath)}
-                                className="text-[9px] font-black text-cyan-500 uppercase tracking-widest hover:text-cyan-400 transition-colors flex items-center gap-2 group/action"
+                                className="text-[9px] font-black text-primary uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-2 group/action"
                             >
                                 {actionLabel} <ChevronRight size={10} className="group-hover/action:translate-x-1 transition-transform" />
                             </button>

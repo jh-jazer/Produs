@@ -154,8 +154,8 @@ function Layout() {
                                     }}
                                     className={`size-9 rounded-xl flex items-center justify-center relative transition-all active:scale-95 ${
                                         protocolMode === 'rpg' 
-                                            ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' 
-                                            : 'text-slate-500 hover:text-cyan-500'
+                                            ? 'bg-primary text-white shadow-[0_0_15px_color-mix(in srgb, var(--primary) 40%, transparent)]' 
+                                            : 'text-slate-500 hover:text-primary'
                                     }`}
                                 >
                                     <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
@@ -168,8 +168,8 @@ function Layout() {
                                     onClick={() => setViewMode(viewMode === 'partner' ? 'personal' : 'partner')}
                                     className={`size-9 rounded-xl flex items-center justify-center relative transition-all active:scale-95 ${
                                         viewMode === 'partner' 
-                                            ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' 
-                                            : 'text-slate-500 hover:text-emerald-500'
+                                            ? 'bg-primary text-white shadow-[0_0_15px_color-mix(in srgb, var(--primary) 40%, transparent)]' 
+                                            : 'text-slate-500 hover:text-primary'
                                     }`}
                                 >
                                     {viewMode === 'partner' ? <Handshake size={14} /> : <User size={14} />}
@@ -261,11 +261,11 @@ function Layout() {
                                         <div className="relative flex items-center w-full h-full">
                                             <div className={`absolute flex items-center justify-center size-[18px] z-50 transition-all duration-500 ${isMobileMenuOpen ? 'left-[36px]' : 'left-[31px]'}`}>
                                                 <div className={`absolute inset-[-8px] rounded-full transition-all duration-500
-                                                    ${isActive ? 'bg-electric-blue/20 ring-1 ring-electric-blue/30 scale-110 shadow-[0_0_15px_rgba(0,183,255,0.2)]' : 'bg-electric-blue/0 group-hover/nav:bg-electric-blue/10'}
+                                                    ${isActive ? 'bg-primary/20 ring-1 ring-primary/30 scale-110 shadow-[0_0_15px_color-mix(in srgb, var(--primary), transparent)]' : 'bg-primary/0 group-hover/nav:bg-primary/10'}
                                                 `} />
                                                 <span className={`material-symbols-outlined transition-all duration-500 relative z-10
                                                     ${isMobileMenuOpen ? 'text-[24px]' : 'text-[19px]'}
-                                                    ${isActive ? 'text-electric-blue scale-110' : 'text-slate-400 group-hover/nav:text-electric-blue group-hover/nav:scale-110'}
+                                                    ${isActive ? 'text-primary scale-110' : 'text-slate-400 group-hover/nav:text-primary group-hover/nav:scale-110'}
                                                 `}>
                                                     {item.icon}
                                                 </span>
@@ -277,7 +277,7 @@ function Layout() {
                                                     : 'hidden md:flex left-[60px] bg-black dark:bg-white px-3.5 py-2.5 rounded shadow-xl opacity-0 -translate-x-2 group-hover/nav:opacity-100 group-hover/nav:translate-x-0 w-max border border-white/10 dark:border-black/10'}
                                             `}>
                                                 <div className={`flex items-center ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'gap-4' : 'gap-0'}`}>
-                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${(location.pathname === '/dashboard' && !isMobileMenuOpen) ? 'w-4' : 'w-0 hidden'}`} />
+                                                <div className={`h-px bg-primary transition-all duration-300 ${(location.pathname === '/dashboard' && !isMobileMenuOpen) ? 'w-4' : 'w-0 hidden'}`} />
                                                     <span className={`font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300 mt-[1px]
                                                         ${isMobileMenuOpen ? 'text-[11px]' : 'text-[10px]'}
                                                         ${(location.pathname === '/dashboard' || isMobileMenuOpen)
@@ -305,7 +305,7 @@ function Layout() {
                         <div className="relative flex items-center gap-4 group" ref={profileRef}>
                             <button
                                 onClick={() => setIsUserMenuOpen(true)}
-                                className="size-10 rounded-full ring-2 ring-electric-blue/10 hover:ring-electric-blue/40 overflow-hidden transition-all active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0 relative group/avatar"
+                                className="size-10 rounded-full ring-2 ring-primary/10 hover:ring-primary/40 overflow-hidden transition-all active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0 relative group/avatar"
                             >
                                 {user?.avatar?.url ? (
                                     <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover" />
@@ -331,7 +331,7 @@ function Layout() {
                                                         @{user.username || 'OPERATOR'}
                                                     </p>
                                                     {user.level > 0 && (
-                                                        <span className="text-[8px] font-black text-electric-blue uppercase tracking-[0.2em] leading-none">
+                                                        <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] leading-none">
                                                             {user.exp - (user.totalRequired || 0)}/{user.nextLevelExp || 100}XP
                                                         </span>
                                                     )}

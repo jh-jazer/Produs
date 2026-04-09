@@ -12,11 +12,11 @@
     --font-comic: "Comic Neue", cursive;
     --font-kalam: "Kalam", cursive;
 
-    --color-primary: #0066ff;
+    --color-primary: var(--primary);
     --color-deep-space: #000000;
     --color-neural-black: #050505;
     --color-obsidian: #121212;
-    --color-electric-blue: #0066ff;
+    --color-electric-blue: var(--primary);
     --color-titanium-white: #ffffff;
     --color-muted-slate: #888888;
     --color-signal-orange: #ff4d00;
@@ -40,16 +40,16 @@
     --background: #f0fdfa;
     --foreground: #0f172a;
     --card: #ccfbf1;
-    --border: rgba(34, 211, 238, 0.2);
-    --accent: #22d3ee;
-    --accent-bg: rgba(34, 211, 238, 0.1);
-    --accent-border: rgba(34, 211, 238, 0.2);
-    --accent-glow: rgba(34, 211, 238, 0.3);
+    --border: color-mix(in srgb, var(--primary) 20%, transparent);
+    --accent: var(--primary);
+    --accent-bg: color-mix(in srgb, var(--primary) 10%, transparent);
+    --accent-border: color-mix(in srgb, var(--primary) 20%, transparent);
+    --accent-glow: color-mix(in srgb, var(--primary) 30%, transparent);
     --bg-image: 
-        linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px),
-        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(34, 211, 238, 0.08) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 40% at 0% 100%, rgba(34, 211, 238, 0.04) 0%, transparent 60%),
+        linear-gradient(color-mix(in srgb, var(--primary) 5%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--primary) 5%, transparent) 1px, transparent 1px),
+        radial-gradient(ellipse 70% 50% at 50% 0%, color-mix(in srgb, var(--primary) 8%, transparent) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 0% 100%, color-mix(in srgb, var(--primary) 4%, transparent) 0%, transparent 60%),
         linear-gradient(135deg, #f0fdfa 0%, #e0f2f1 100%);
     --bg-size: 24px 24px, 24px 24px, 100% 100%, 100% 100%, 100% 100%;
 }
@@ -75,16 +75,16 @@
     --background: #000510;
     --foreground: #f8fafc;
     --card: #0a1628;
-    --border: #ffffff1a;
-    --accent: #22d3ee;
-    --accent-bg: rgba(34, 211, 238, 0.15);
-    --accent-border: rgba(34, 211, 238, 0.3);
-    --accent-glow: rgba(34, 211, 238, 0.5);
+    --border: rgba(255, 255, 255, 0.1);
+    --accent: var(--primary);
+    --accent-bg: color-mix(in srgb, var(--primary) 15%, transparent);
+    --accent-border: color-mix(in srgb, var(--primary) 30%, transparent);
+    --accent-glow: color-mix(in srgb, var(--primary) 50%, transparent);
     --bg-image:
-        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(6, 182, 212, 0.18) 0%, transparent 70%),
-        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0, 102, 255, 0.12) 0%, transparent 60%),
-        linear-gradient(rgba(34, 211, 238, 0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(34, 211, 238, 0.06) 1px, transparent 1px);
+        radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in srgb, var(--primary) 18%, transparent) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, color-mix(in srgb, var(--primary) 12%, transparent) 0%, transparent 60%),
+        linear-gradient(color-mix(in srgb, var(--primary) 6%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--primary) 6%, transparent) 1px, transparent 1px);
     --bg-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
 }
 
@@ -162,10 +162,10 @@ button:disabled {
     .bg-grid {
         background-color: #000510;
         background-image:
-            radial-gradient(ellipse 80% 50% at 50% 0%, rgba(6, 182, 212, 0.18) 0%, transparent 70%),
-            radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0, 102, 255, 0.12) 0%, transparent 60%),
-            linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+            radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in srgb, var(--primary) 18%, transparent) 0%, transparent 70%),
+            radial-gradient(ellipse 60% 40% at 80% 100%, color-mix(in srgb, var(--primary) 12%, transparent) 0%, transparent 60%),
+            linear-gradient(color-mix(in srgb, var(--primary) 5%, transparent) 1px, transparent 1px),
+            linear-gradient(90deg, color-mix(in srgb, var(--primary) 5%, transparent) 1px, transparent 1px);
         background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
     }
 
@@ -177,17 +177,17 @@ button:disabled {
             linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
     }
 
-    /* Glassmorphism Utilities - Mint Light Aesthetic (Minimal Blur) */
+    /* Glassmorphism Utilities - Dynamic Accent Aesthetic */
     .glass-panel {
-        @apply bg-white dark:bg-black/40 backdrop-blur-none dark:backdrop-blur-xl border border-cyan-400 dark:border-white/10 shadow-sm;
+        @apply bg-white dark:bg-black/40 backdrop-blur-none dark:backdrop-blur-xl border border-primary/20 dark:border-white/10 shadow-sm;
     }
 
     .glass-card {
-        @apply bg-white dark:bg-white/[0.03] backdrop-blur-none dark:backdrop-blur-md border border-cyan-400/60 dark:border-white/10 shadow-none;
+        @apply bg-white dark:bg-white/[0.03] backdrop-blur-none dark:backdrop-blur-md border border-primary/30 dark:border-white/10 shadow-none;
     }
 
     .glow-active {
-        box-shadow: 0 0 20px -5px rgba(0, 102, 255, 0.3);
+        box-shadow: 0 0 20px -5px color-mix(in srgb, var(--primary) 30%, transparent);
     }
 
     /* HUD card — high-depth shadow (brand spec) */

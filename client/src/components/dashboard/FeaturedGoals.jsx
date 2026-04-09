@@ -58,7 +58,7 @@ const FeaturedGoals = ({ onHabitAdded }) => {
 
     if (loading) return (
         <div className="w-full h-40 flex items-center justify-center">
-            <div className="size-8 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin" />
+            <div className="size-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
         </div>
     );
 
@@ -105,18 +105,18 @@ const FeaturedGoals = ({ onHabitAdded }) => {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 onClick={() => setIsDiscoveryOpen(true)}
-                                className="h-40 rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-white/10 hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all flex flex-col items-center justify-center gap-3 group relative overflow-hidden"
+                                className="h-40 rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-white/10 hover:border-primary/40 hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-3 group relative overflow-hidden"
                             >
-                                <div className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-cyan-500 group-hover:text-white transition-all shadow-sm">
+                                <div className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
                                     <Plus className="group-hover:rotate-90 transition-transform duration-500" />
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em] group-hover:text-cyan-500 transition-colors">LINK_NEW_PROTOCOL_</p>
+                                    <p className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em] group-hover:text-primary transition-colors">LINK_NEW_PROTOCOL_</p>
                                     <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest opacity-60">System Capacity Available</p>
                                 </div>
                                 
                                 {/* Decoration */}
-                                <div className="absolute -bottom-4 -right-4 size-16 border-2 border-cyan-500/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-x-4 translate-y-4" />
+                                <div className="absolute -bottom-4 -right-4 size-16 border-2 border-primary/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-x-4 translate-y-4" />
                             </motion.button>
                         )}
                     </AnimatePresence>
@@ -137,7 +137,7 @@ const FeaturedGoals = ({ onHabitAdded }) => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.05 }}
-                            className="glass-panel p-6 flex items-start gap-6 hover:border-cyan-500/40 transition-all group"
+                            className="glass-panel p-6 flex items-start gap-6 hover:border-primary/40 transition-all group"
                         >
                             <div className={`size-14 shrink-0 rounded-2xl flex items-center justify-center bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 text-${challenge.color || 'slate'}-500 shadow-sm group-hover:scale-110 transition-transform`}>
                                 <span className="material-symbols-outlined text-2xl">{challenge.icon}</span>
@@ -146,14 +146,14 @@ const FeaturedGoals = ({ onHabitAdded }) => {
                                 <div className="space-y-1">
                                     <div className="flex items-center justify-between">
                                         <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider font-exo">{challenge.name}</h3>
-                                        <span className="text-[8px] font-black text-cyan-500 uppercase font-mono italic">{challenge.category}</span>
+                                        <span className="text-[8px] font-black text-primary uppercase font-mono italic">{challenge.category}</span>
                                     </div>
                                     <p className="text-[9px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-relaxed">{challenge.description}</p>
                                 </div>
                                 <button
                                     onClick={() => handleJoin(challenge.id)}
                                     disabled={joiningId === challenge.id}
-                                    className="w-full h-10 bg-slate-900 dark:bg-white text-white dark:text-black rounded-xl font-black text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-cyan-500 transition-colors shadow-lg shadow-black/20"
+                                    className="w-full h-10 bg-slate-900 dark:bg-white text-white dark:text-black rounded-xl font-black text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-primary transition-colors shadow-lg shadow-black/20"
                                 >
                                     {joiningId === challenge.id ? (
                                         <div className="size-3 border-2 border-white/30 border-t-white dark:border-black/30 dark:border-t-black rounded-full animate-spin" />

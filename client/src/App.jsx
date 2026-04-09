@@ -111,7 +111,20 @@ function App() {
   useEffect(() => {
     // Theme Management logic
     const themeMode = user?.settings?.themeMode || 'system';
-    const isDark = user?.settings?.darkMode;
+    const themeId = user?.settings?.theme || 'classic';
+
+    const themes = {
+      classic: '#135bec',
+      rose: '#ec4899',
+      forest: '#10b981',
+      amber: '#f59e0b',
+      midnight: '#6366f1'
+    };
+
+    // Apply Accent Color
+    const accentColor = themes[themeId] || themes.classic;
+    document.documentElement.style.setProperty('--primary', accentColor);
+    document.documentElement.setAttribute('data-theme', themeId);
 
     const applyTheme = (mode) => {
       if (mode === 'dark') {
@@ -141,7 +154,7 @@ function App() {
       mq.addEventListener('change', listener);
       return () => mq.removeEventListener('change', listener);
     }
-  }, [user?.settings?.themeMode]);
+  }, [user?.settings?.themeMode, user?.settings?.theme]);
 
   useEffect(() => {
     // Hide the initial loader once auth state is settled.

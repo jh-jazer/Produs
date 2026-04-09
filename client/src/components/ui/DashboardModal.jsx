@@ -44,7 +44,7 @@ const DashboardModal = ({
                         initial={{ scale: 0.9, y: 20, opacity: 0 }}
                         animate={{ scale: 1, y: 0, opacity: 1 }}
                         exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                        className={`relative w-full ${maxWidth} bg-slate-50 dark:bg-[#0a0a0a] rounded-[3rem] border border-cyan-500/30 overflow-hidden flex flex-col max-h-[85vh] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] z-[1001]`}
+                        className={`relative w-full ${maxWidth} bg-slate-50 dark:bg-[#0a0a0a] rounded-[3rem] border border-primary/30 overflow-hidden flex flex-col max-h-[85vh] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] z-[1001]`}
                         onClick={e => e.stopPropagation()}
                     >
                         {/* Header Section */}
@@ -54,8 +54,8 @@ const DashboardModal = ({
                                     <>
                                         {title && (
                                             <div className="flex items-center gap-2">
-                                                <div className="size-1.5 rounded-full bg-cyan-500 animate-pulse" />
-                                                <h2 className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em] font-mono leading-none">{title}</h2>
+                                                <div className="size-1.5 rounded-full bg-primary animate-pulse" />
+                                                <h2 className="text-[10px] font-black text-primary uppercase tracking-[0.4em] font-mono leading-none">{title}</h2>
                                             </div>
                                         )}
                                         {subtitle && (

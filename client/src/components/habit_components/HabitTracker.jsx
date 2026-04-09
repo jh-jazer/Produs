@@ -315,21 +315,21 @@ function HabitTracker({
                             <div className="relative shrink-0 flex items-center justify-center">
                                 <span className={`material-symbols-outlined ${colors.text} text-lg shrink-0 transition-transform group-hover/row:scale-110`}>{habit.icon}</span>
                                 {isSystemHabit && (
-                                    <div className="absolute -top-1 -right-1 size-2.5 bg-cyan-500 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-[#0a0a0a]">
+                                    <div className="absolute -top-1 -right-1 size-2.5 bg-primary rounded-full flex items-center justify-center ring-2 ring-white dark:ring-[#0a0a0a]">
                                         <div className="size-1 bg-white rounded-full animate-pulse" />
                                     </div>
                                 )}
                             </div>
                             <div className="flex flex-col min-w-0 flex-1">
                                 <div className="flex items-center gap-1.5 group/label">
-                                    <span className="truncate group-hover/row:text-cyan-500 transition-colors">{habit.name}</span>
+                                    <span className="truncate group-hover/row:text-primary transition-colors">{habit.name}</span>
                                     {isSystemHabit && (
-                                        <ArrowUpRight size={10} className="text-cyan-500 opacity-0 group-hover/row:opacity-100 transition-all translate-y-0.5" />
+                                        <ArrowUpRight size={10} className="text-primary opacity-0 group-hover/row:opacity-100 transition-all translate-y-0.5" />
                                     )}
                                 </div>
                                 <span className={`text-[10px] font-bold uppercase tracking-wide truncate ${habit.streak > 0 ? colors.text : 'text-slate-400'}`}>
                                     {isSystemHabit 
-                                        ? <span className="flex items-center gap-1"><span className="size-1 bg-cyan-500 rounded-full" /> Auto-Sync Active</span>
+                                        ? <span className="flex items-center gap-1"><span className="size-1 bg-primary rounded-full" /> Auto-Sync Active</span>
                                         : (habit.streak > 0 ? `${habit.streak}d streak 🔥` : 'No streak')
                                     }
                                 </span>
@@ -411,7 +411,7 @@ function HabitTracker({
                                             } ${!editMode && !isLocked && !isSystemHabit ? 'hover:scale-110 active:scale-95' : (isSystemHabit ? 'cursor-default opacity-80' : '')}`}
                                     >
                                         {isSystemHabit && (
-                                            <div className="absolute inset-0 bg-cyan-500/5 backdrop-blur-[1px]" />
+                                            <div className="absolute inset-0 bg-primary/5 backdrop-blur-[1px]" />
                                         )}
                                         <AnimatePresence>
                                             {myChecked && (
@@ -497,7 +497,7 @@ function HabitTracker({
                             <div className="hidden md:flex items-center gap-1 p-0.5">
                                 <button
                                     onClick={() => onDateChange(-1)}
-                                    className="p-1 px-1.5 hover:bg-white dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-cyan-500 transition-all font-inter"
+                                    className="p-1 px-1.5 hover:bg-white dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all font-inter"
                                 >
                                     <span className="material-symbols-outlined text-sm font-inter">chevron_left</span>
                                 </button>
@@ -506,7 +506,7 @@ function HabitTracker({
                                 </div>
                                 <button
                                     onClick={() => onDateChange(1)}
-                                    className="p-1 px-1.5 hover:bg-white dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-cyan-500 transition-all font-inter"
+                                    className="p-1 px-1.5 hover:bg-white dark:hover:bg-white/5 rounded-lg text-slate-400 hover:text-primary transition-all font-inter"
                                 >
                                     <span className="material-symbols-outlined text-sm font-inter">chevron_right</span>
                                 </button>
@@ -522,7 +522,7 @@ function HabitTracker({
                                         setNewHabit({ name: '', icon: 'local_drink', color: 'emerald', isShared: isPartnerView, category: 'Productivity' });
                                         setAddModalOpen(true);
                                     }}
-                                    className="p-2 rounded-xl border border-white/5 text-slate-500 hover:border-white/10 hover:bg-white/5 hover:text-cyan-500 transition-all duration-300"
+                                    className="p-2 rounded-xl border border-white/5 text-slate-500 hover:border-white/10 hover:bg-white/5 hover:text-primary transition-all duration-300"
                                     title={isPartnerView ? 'Add Team Habit' : 'Add Habit'}
                                 >
                                     <Plus size={14} />
@@ -532,7 +532,7 @@ function HabitTracker({
                             {!isReadOnly && !isDashboard && (
                                 <button
                                     onClick={() => { setEditMode(!editMode); setEditingHabit(null); }}
-                                    className={`p-2 rounded-xl border transition-all duration-300 ${editMode ? 'text-cyan-500 bg-cyan-500/10 border-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.2)]' : 'text-slate-500 border-white/5 hover:border-white/10 hover:bg-white/5'}`}
+                                    className={`p-2 rounded-xl border transition-all duration-300 ${editMode ? 'text-primary bg-primary/10 border-primary/50 shadow-[0_0_10px_color-mix(in srgb, var(--primary) 20%, transparent)]' : 'text-slate-500 border-white/5 hover:border-white/10 hover:bg-white/5'}`}
                                     title={editMode ? 'Stop Editing' : 'Edit Habits'}
                                 >
                                     <Edit2 size={14} />

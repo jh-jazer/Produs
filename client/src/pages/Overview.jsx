@@ -120,10 +120,10 @@ function Overview() {
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="size-32 rounded-full border-b-2 border-cyan-500/30"
+                className="size-32 rounded-full border-b-2 border-primary/30"
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <Zap size={32} className="text-cyan-500 animate-pulse" />
+                <Zap size={32} className="text-primary animate-pulse" />
               </div>
             </div>
             <div className="space-y-2 text-center font-mono">
@@ -133,7 +133,7 @@ function Overview() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em]"
+                    className="text-[10px] font-black text-primary uppercase tracking-[0.4em]"
                   >
                     {initLogs[Math.floor(Date.now() / 1000) % initLogs.length]}
                   </motion.p>

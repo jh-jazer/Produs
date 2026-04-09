@@ -14,7 +14,7 @@ const TodayActivity = ({ user }) => {
         str: 'rose-500',
         dex: 'orange-400',
         end: 'emerald-500',
-        int: 'cyan-400',
+        int: 'primary',
         wis: 'purple-500',
         cha: 'pink-500'
     };
@@ -44,13 +44,13 @@ const TodayActivity = ({ user }) => {
                             className={`flex items-center gap-4 p-4 rounded-[2rem] border transition-all duration-300 group/item ${
                                 isCompleted 
                                 ? 'bg-white/5 border-white/5 border-transparent' 
-                                : 'bg-transparent border-cyan-500/40 dark:border-slate-800 hover:border-cyan-500/60'
+                                : 'bg-transparent border-primary/40 dark:border-slate-800 hover:border-primary/60'
                             }`}
                         >
                             {/* Check Status (Read-Only on Dashboard) */}
                             <div className={`size-10 rounded-2xl flex items-center justify-center transition-all ${
                                 isCompleted 
-                                ? `bg-${colorClass}/20 text-${colorClass} shadow-[0_0_15px_rgba(34,211,238,0.2)]` 
+                                ? `bg-${colorClass}/20 text-${colorClass} shadow-[0_0_15px_color-mix(in srgb, var(--primary) 20%, transparent)]` 
                                 : 'bg-slate-800/50 text-slate-600 group-hover/item:text-slate-400'
                             }`}>
                                 {isCompleted ? <CheckCircle2 size={24} /> : <Circle size={24} />}
@@ -75,7 +75,7 @@ const TodayActivity = ({ user }) => {
                             </div>
 
                             {/* Navigation Indicator */}
-                            <div className="opacity-0 group-hover/item:opacity-100 transition-opacity pr-2 text-cyan-500">
+                            <div className="opacity-0 group-hover/item:opacity-100 transition-opacity pr-2 text-primary">
                                 <ChevronRight size={14} />
                             </div>
                         </motion.button>

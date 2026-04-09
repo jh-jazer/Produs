@@ -156,7 +156,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                         <button
                                             key={mode}
                                             onClick={() => handleThemeModeChange(mode)}
-                                            className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${localSettings.themeMode === mode ? 'bg-white dark:bg-[#121212] text-electric-blue shadow-sm ring-1 ring-black/[0.05] dark:ring-white/10' : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'}`}
+                                            className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${localSettings.themeMode === mode ? 'bg-white dark:bg-[#121212] text-primary shadow-sm ring-1 ring-black/[0.05] dark:ring-white/10' : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'}`}
                                         >
                                             {mode}
                                         </button>
@@ -165,12 +165,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
                                 <div className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.03] dark:bg-[#000000]/40 border border-black/[0.05] dark:border-white/10">
                                     <div className="flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-electric-blue">notifications</span>
+                                        <span className="material-symbols-outlined text-primary">notifications</span>
                                         <span className="text-xs font-semibold text-black/70 dark:text-white/70">Push Notifications</span>
                                     </div>
                                     <button
                                         onClick={() => handleToggle('notificationsEnabled')}
-                                        className={`w-10 h-5 rounded-full transition-all relative flex items-center ${localSettings.notificationsEnabled ? 'bg-electric-blue' : 'bg-black/10 dark:bg-white/10'}`}
+                                        className={`w-10 h-5 rounded-full transition-all relative flex items-center ${localSettings.notificationsEnabled ? 'bg-primary' : 'bg-black/10 dark:bg-white/10'}`}
                                     >
                                         <motion.div
                                             animate={{ x: localSettings.notificationsEnabled ? 22 : 3 }}
@@ -181,7 +181,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
                                 <div className="flex items-center justify-between p-4 rounded-2xl bg-black/[0.03] dark:bg-[#000000]/40 border border-black/[0.05] dark:border-white/10">
                                      <div className="flex items-center gap-3">
-                                         <span className="material-symbols-outlined text-electric-blue">payments</span>
+                                         <span className="material-symbols-outlined text-primary">payments</span>
                                          <span className="text-xs font-semibold text-black/70 dark:text-white/70">Currency</span>
                                      </div>
                                      <select
@@ -194,7 +194,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                  console.error('Failed to sync currency:', err);
                                              }
                                          }}
-                                         className="bg-white dark:bg-[#121212] border border-black/[0.08] dark:border-white/10 rounded-xl px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider outline-none text-black/70 dark:text-white/70 focus:border-electric-blue transition-colors"
+                                         className="bg-white dark:bg-[#121212] border border-black/[0.08] dark:border-white/10 rounded-xl px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider outline-none text-black/70 dark:text-white/70 focus:border-primary transition-colors"
                                      >
                                          <option value="USD">USD ($)</option>
                                          <option value="PHP">PHP (₱)</option>
@@ -210,7 +210,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                         <button
                                             key={t.id}
                                             onClick={() => handleThemeChange(t.id)}
-                                            className={`group relative flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${localSettings.theme === t.id ? 'border-electric-blue bg-electric-blue/5' : 'border-black/[0.05] dark:border-white/5 hover:border-black/10 dark:hover:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}`}
+                                            className={`group relative flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${localSettings.theme === t.id ? 'border-primary bg-primary/5' : 'border-black/[0.05] dark:border-white/5 hover:border-black/10 dark:hover:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}`}
                                             title={t.name}
                                         >
                                             <div 
@@ -218,7 +218,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                 style={{ backgroundColor: t.color }}
                                             />
                                             {localSettings.theme === t.id && (
-                                                <motion.span layoutId="theme-check" className="absolute -top-1.5 -right-1.5 size-5 bg-electric-blue text-white rounded-full flex items-center justify-center border-2 border-white dark:border-[#121212]">
+                                                <motion.span layoutId="theme-check" className="absolute -top-1.5 -right-1.5 size-5 bg-primary text-white rounded-full flex items-center justify-center border-2 border-white dark:border-[#121212]">
                                                     <span className="material-symbols-outlined text-[10px] font-bold">check</span>
                                                 </motion.span>
                                             )}
@@ -244,11 +244,11 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             {/* Developer - Admin Only */}
                             {isAdmin && (
                                 <div className="space-y-4 pt-4">
-                                    <h4 className="text-[9px] font-semibold text-cyan-500 uppercase tracking-[0.4em] px-1">Developer</h4>
+                                    <h4 className="text-[9px] font-semibold text-primary uppercase tracking-[0.4em] px-1">Developer</h4>
                                     
-                                    <div className="flex items-center justify-between p-4 rounded-2xl bg-cyan-500/5 border border-cyan-500/20">
+                                    <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/5 border border-primary/20">
                                         <div className="flex items-center gap-3">
-                                            <span className="material-symbols-outlined text-cyan-500">terminal</span>
+                                            <span className="material-symbols-outlined text-primary">terminal</span>
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-semibold text-black/70 dark:text-white/70">RPG_Console_</span>
                                                 <span className="text-[8px] font-medium text-slate-500 uppercase tracking-wider">Dev_Tool_Overlay</span>
@@ -256,7 +256,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                         </div>
                                         <button
                                             onClick={() => handleToggle('showDevTools')}
-                                            className={`w-10 h-5 rounded-full transition-all relative flex items-center ${localSettings.showDevTools ? 'bg-cyan-500' : 'bg-black/10 dark:bg-white/10'}`}
+                                            className={`w-10 h-5 rounded-full transition-all relative flex items-center ${localSettings.showDevTools ? 'bg-primary' : 'bg-black/10 dark:bg-white/10'}`}
                                         >
                                             <motion.div
                                                 animate={{ x: localSettings.showDevTools ? 22 : 3 }}
