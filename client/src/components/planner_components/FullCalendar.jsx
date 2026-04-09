@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import { usePlanner } from '../../hooks/usePlanner';
 import DashboardPanel from '../ui/DashboardPanel';
@@ -22,7 +23,10 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
         { name: 'Slate', value: '#64748b' }
     ];
 
-    const { tasks, addTask: addTaskLocal, deleteTask: deleteTaskLocal } = usePlanner(null);
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+
+    const { tasks, addTask: addTaskLocal, deleteTask: deleteTaskLocal } = usePlanner({ year, month: month + 1 });
 
     const months = [
         "January", "February", "March", "April", "May", "June",
@@ -31,9 +35,6 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
-    const year = viewDate.getFullYear();
-    const month = viewDate.getMonth();
 
     const firstDayOfMonth = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -122,14 +123,22 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
 
     return (
         <>
-            <ConfirmDialog
-                isOpen={!!confirmDelete}
-                title="Delete Event"
-                message="Are you sure you want to delete this calendar event?"
-                confirmLabel="Delete"
-                onConfirm={() => { deleteTask(confirmDelete); setConfirmDelete(null); }}
-                onCancel={() => setConfirmDelete(null)}
-            />
+            {createPortal(
+                <ConfirmDialog
+                    isOpen={!!confirmDelete}
+                    title="Delete Event"
+                    message="Are you sure you want to delete this calendar event?"
+                    confirmLabel="Delete"
+                    onConfirm={async () => { 
+                        if (confirmDelete) {
+                            await deleteTask(confirmDelete); 
+                            setConfirmDelete(null); 
+                        }
+                    }}
+                    onCancel={() => setConfirmDelete(null)}
+                />,
+                document.body
+            )}
             <div className="flex flex-col font-inter relative min-h-[500px]">
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-4">
@@ -174,6 +183,8 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                     const isSelected = date.toDateString() === selectedDate.toDateString();
                     const isLastInCol = (firstDayOfMonth + i + 1) % 7 === 0;
                     const dayTasks = getTasksForDay(d);
+                    const events = dayTasks.filter(t => t.type === 'event');
+                    const firstEvent = events[0];
                     const multiDayTask = dayTasks.find(t => t.endDate);
                     const bgColor = multiDayTask ? (multiDayTask.color || (multiDayTask.type === 'event' ? '#a855f7' : '#3b82f6')) : '';
 
@@ -194,19 +205,30 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                             className={`border-b ${isLastInCol ? '' : 'border-r'} border-slate-100 dark:border-white/10/50 p-2 transition-all cursor-pointer group relative hover:opacity-90 ${isSelected || isInSelection ? 'ring-2 ring-inset ring-primary/40 z-10' : ''}`}
                             style={{ backgroundColor: multiDayTask ? `${bgColor}20` : '' }}
                         >
-                            <span className={`size-6 rounded-full flex items-center justify-center text-xs font-black transition-all ${isToday ? 'bg-primary text-white shadow-lg' : isSelected ? 'text-primary' : (multiDayTask ? 'text-slate-900 dark:text-white' : 'text-slate-900 dark:text-slate-300')
+                            <span className={`size-6 rounded-full border border-transparent flex items-center justify-center text-xs font-black transition-all ${isToday ? 'bg-primary text-white shadow-lg' : isSelected ? 'text-primary' : (multiDayTask ? 'text-slate-900 dark:text-white' : 'text-slate-900 dark:text-slate-300')
                                 }`}
-                                style={!isToday && !isSelected && multiDayTask ? { color: bgColor } : {}}
+                                style={{
+                                    ...(!isToday && !isSelected && multiDayTask ? { color: bgColor } : {}),
+                                    ...(!isToday && !isSelected && !multiDayTask && firstEvent ? { borderColor: firstEvent.color || '#a855f7', color: firstEvent.color || '#a855f7' } : {})
+                                }}
                             >
                                 {d}
                             </span>
 
-                            <div className="mt-1 flex justify-center h-4">
-                                {dayTasks.some(t => t.type === 'note') ? (
+                            <div className="mt-1 flex justify-center h-4 gap-0.5">
+                                {dayTasks.some(t => t.type === 'note') && (
                                     <span className="material-symbols-outlined text-[10px] text-slate-400">description</span>
-                                ) : dayTasks.length > 0 ? (
-                                    <div className="size-1 rounded-full bg-slate-300 dark:bg-[#121212]"></div>
-                                ) : null}
+                                )}
+                                {events.slice(0, 3).map((ev, idx) => (
+                                    <div 
+                                        key={idx} 
+                                        className="size-1 rounded-full animate-in fade-in zoom-in duration-300"
+                                        style={{ backgroundColor: ev.color || '#a855f7' }}
+                                    ></div>
+                                ))}
+                                {!events.length && dayTasks.length > 0 && (
+                                     <div className="size-1 rounded-full bg-slate-300 dark:bg-[#121212]"></div>
+                                )}
                             </div>
                         </div>
                     );
@@ -223,7 +245,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
             </div>
 
             {/* Quick Add Modal */}
-            {addModal && (
+            {addModal && createPortal(
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                     <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md" onClick={() => setAddModal(null)}></div>
                     <DashboardPanel
@@ -318,7 +340,8 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                             )}
                         </div>
                     </DashboardPanel>
-                </div>
+                </div>,
+                document.body
             )}
 
             <div className="mt-6 flex flex-wrap gap-4 text-[10px] font-black uppercase tracking-widest text-slate-500 justify-center">

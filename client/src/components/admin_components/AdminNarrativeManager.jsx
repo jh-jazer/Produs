@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, Plus, Save, Trash2, Activity, Zap, MessageSquare, ChevronDown, ChevronUp, RefreshCw, FileJson } from 'lucide-react';
 import useSWR from 'swr';
-import api from '../services/api';
-import DashboardPanel from './ui/DashboardPanel';
+import api from '../../services/api';
+import DashboardPanel from '../ui/DashboardPanel';
 
 const compareDecimalIds = (a, b) => {
     const partsA = a.split('.').map(Number);
@@ -16,9 +16,26 @@ const compareDecimalIds = (a, b) => {
     return 0;
 };
 
-const AdminNarrativeManager = () => {
+const AdminNarrativeManager = ({ previewMode = false }) => {
     const { data: rawQuestions = [], mutate, isValidating } = useSWR('/admin/narrative');
-    const questions = [...rawQuestions].sort((a, b) => compareDecimalIds(a.questionId, b.questionId));
+    const questions = React.useMemo(() => {
+        return [...rawQuestions].sort((a, b) => compareDecimalIds(a.questionId, b.questionId));
+    }, [rawQuestions]);
+    const [showAll, setShowAll] = useState(false);
+    const visibleQuestions = previewMode && !showAll ? questions.slice(0, 3) : questions;
+    const containerRef = useRef(null);
+
+    // Collapse back to preview when clicking outside the panel
+    useEffect(() => {
+        if (!previewMode || !showAll) return;
+        const handler = (e) => {
+            if (containerRef.current && !containerRef.current.contains(e.target)) {
+                setShowAll(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [previewMode, showAll]);
     
     const [expandedId, setExpandedId] = useState(null);
     const [editingNode, setEditingNode] = useState(null);
@@ -189,7 +206,7 @@ const AdminNarrativeManager = () => {
     };
 
     return (
-        <>
+        <div ref={containerRef}>
             <DashboardPanel
                 title="NARRATIVE_MANAGER_"
                 subtitle={`${questions.length} Story Nodes Active`}
@@ -391,7 +408,7 @@ const AdminNarrativeManager = () => {
                     </div>
                 )}
 
-                {questions.map((q) => (
+                {visibleQuestions.map((q) => (
                     <div 
                         key={q.questionId}
                         className={`group border rounded-[2rem] transition-all bg-white dark:bg-[#121212]/30 backdrop-blur-md overflow-hidden ${expandedId === q.questionId ? 'border-accent shadow-[0_0_30px_rgba(var(--accent-rgb),0.1)]' : 'border-slate-100 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'}`}
@@ -664,14 +681,19 @@ const AdminNarrativeManager = () => {
                     <div className="py-20 text-center border-2 border-dashed border-slate-200 dark:border-white/10 rounded-[3rem]">
                         <Brain size={48} className="mx-auto mb-4 text-slate-200 dark:text-white/10" />
                         <p className="text-slate-500 font-bold italic mb-6">The narrative repository is currently offline.</p>
-                        <button 
-                            onClick={handleSeed}
-                            className="bg-primary text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all"
-                        >
-                            Restore Default Nodes
-                        </button>
-                        </div>
-                    )}
+                        <button onClick={handleSeed} className="bg-primary text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all">Restore Default Nodes</button>
+                    </div>
+                )}
+
+                {/* Expand / Collapse for preview mode */}
+                {previewMode && questions.length > 3 && (
+                    <button
+                        onClick={() => setShowAll(v => !v)}
+                        className="w-full mt-2 py-3 rounded-2xl border border-dashed border-slate-200 dark:border-white/10 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all"
+                    >
+                        {showAll ? `Show Less` : `Show All ${questions.length} Nodes`}
+                    </button>
+                )}
                 </div>
             </DashboardPanel>
 
@@ -798,7 +820,7 @@ const AdminNarrativeManager = () => {
                     </div>
                 )}
             </AnimatePresence>
-        </>
+        </div>
     );
 };
 

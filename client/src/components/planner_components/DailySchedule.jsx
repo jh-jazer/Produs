@@ -538,7 +538,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                         const newStartTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
                                         if (newStartTime !== task.startTime) await moveTaskAtTime(task, newStartTime);
                                     }}
-                                    className={`absolute left-[5rem] right-6 rounded-xl border-l-4 ${task.priority ? 'border-emerald-500 bg-emerald-500/10' : 'border-primary bg-primary/10'} p-2 group overflow-hidden flex flex-col justify-center items-center text-center`}
+                                    className={`absolute left-[5rem] right-6 rounded-xl border-l-4 ${task.priority ? 'border-emerald-500 bg-emerald-500/10' : 'border-primary bg-primary/10'} p-2 group overflow-hidden flex flex-col justify-center items-center text-center cursor-grab active:cursor-grabbing`}
                                     style={{ top: `${top}px`, height: `${height}px` }}
                                 >
                                     <p className="text-xs font-black truncate">{task.title}</p>

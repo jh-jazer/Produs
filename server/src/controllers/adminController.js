@@ -42,6 +42,20 @@ const getSystemStats = async (req, res) => {
             { $sort: { total: -1 } }
         ]);
         
+        // Level distribution: count users per level 1-65
+        const rawLevelDist = await User.aggregate([
+            { $match: { level: { $gte: 1, $lte: 65 } } },
+            { $group: { _id: '$level', count: { $sum: 1 } } },
+            { $sort: { _id: 1 } }
+        ]);
+
+        // Build a full 1-65 array (sparse levels default to 0)
+        const levelMap = Object.fromEntries(rawLevelDist.map(d => [d._id, d.count]));
+        const levelDistribution = Array.from({ length: 65 }, (_, i) => ({
+            level: i + 1,
+            count: levelMap[i + 1] ?? 0
+        }));
+
         // Return dummy data for things that aren't fully tracked yet
         // but provide some structure for the dashboard
         res.json({
@@ -52,7 +66,8 @@ const getSystemStats = async (req, res) => {
                 { label: 'Growth', value: '+12%', icon: 'BarChart3', color: 'text-orange-500' },
             ],
             archetypeStats,
-            recentUsers: await User.find().sort({ createdAt: -1 }).limit(10).select('name email username banner avatar settings createdAt isAdmin'),
+            levelDistribution,
+            recentUsers: await User.find().sort({ createdAt: -1 }).select('name email username banner avatar settings createdAt isAdmin'),
             systemStatus: [
                  { label: 'API Server', status: 'Healthy', color: 'bg-green-500' },
                  { label: 'Database', status: 'Healthy', color: 'bg-green-500' },

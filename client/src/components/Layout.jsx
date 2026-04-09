@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { NavLink, Outlet, useNavigate, useLocation, useOutlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import DashboardScrollIndicator from './dashboard/DashboardScrollIndicator';
 import { Search, Bell, Users, User, Lock } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
+
 import ProfileModal from './ui/ProfileModal';
 import SettingsModal from './ui/SettingsModal';
 import OnboardingModal from './ui/OnboardingModal';
@@ -16,7 +17,7 @@ import NotificationModal from './ui/NotificationModal';
 import UserMenuModal from "./ui/UserMenuModal";
 import LevelDisplay from './ui/LevelDisplay';
 import DashboardHeader from './dashboard/DashboardHeader';
-import { DashboardContext, FrozenRoute } from '../context/DashboardContext';
+import { DashboardContext } from '../context/DashboardContext';
 import Logo from './brand/Logo';
 
 function Layout() {
@@ -31,15 +32,6 @@ function Layout() {
     const profileRef = useRef(null);
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [deferredPath, setDeferredPath] = useState(location.pathname);
-
-    useEffect(() => {
-        // Handle subtle navigation delay for premium feel
-        const timeout = setTimeout(() => {
-            setDeferredPath(location.pathname);
-        }, 100);
-        return () => clearTimeout(timeout);
-    }, [location.pathname]);
 
     useEffect(() => {
         // Close mobile menu on route change
@@ -63,17 +55,29 @@ function Layout() {
     const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
     const isNeuralSyncDismissed = useAuthStore((state) => state.isNeuralSyncDismissed);
 
+    // Fetch fresh profile from server — this is the authoritative source of truth.
+    // We use it (not localStorage) to decide whether to show onboarding.
+    const { data: freshUser } = useSWR(user ? '/auth/me' : null);
+    const syncUser = useAuthStore((state) => state.syncUser);
+
+    // Sync fresh server data into the in-memory store whenever it arrives
+    useEffect(() => {
+        if (freshUser) syncUser(freshUser);
+    }, [freshUser]);
+
     // Fetch notifications
     const { data: notifications = [] } = useSWR('/notifications', (url) => api.get(url).then(res => res.data), {
         refreshInterval: 30000
     });
     const unreadCount = notifications.filter(n => !n.read).length;
 
+    // Only open onboarding once we have verified server data confirming it's incomplete.
+    // This prevents false positives when freshUser hasn't loaded yet (localStorage has no onboardingCompleted).
     useEffect(() => {
-        if (user && !user.onboardingCompleted) {
+        if (freshUser && !freshUser.onboardingCompleted) {
             setIsOnboardingOpen(true);
         }
-    }, [user]);
+    }, [freshUser]);
 
 
     const handleSignOut = async () => {
@@ -107,7 +111,6 @@ function Layout() {
             <div
             className="bg-transparent font-display text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden"
             >
-                {/* Mobile Top Bar */}
                 {/* Mobile Top Bar */}
                 <div className={`md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-[135] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03] ${isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
                     <div
@@ -154,8 +157,6 @@ function Layout() {
                     </div>
                 </div>
 
-                {/* Mobile Sub-Header Row 2 Removed */}
-
                 {/* Sidebar Backdrop Mobile */}
                 <AnimatePresence>
                     {isMobileMenuOpen && (
@@ -174,7 +175,7 @@ function Layout() {
                     className={`
                         fixed md:relative z-[150] h-full flex flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1]
                         ${isMobileMenuOpen ? 'translate-x-0 w-[75vw]' : '-translate-x-full md:translate-x-0'}
-                        ${!isMobileMenuOpen ? (deferredPath === '/dashboard' ? 'md:w-72' : 'md:w-20') : ''}
+                        ${!isMobileMenuOpen ? (location.pathname === '/dashboard' ? 'md:w-72' : 'md:w-20') : ''}
                         ${isMobileMenuOpen ? 'bg-white/[0.99] dark:bg-black/[0.99] backdrop-blur-3xl shadow-[40px_0_80px_rgba(0,0,0,0.3)]' : ''}
                     `}
                 >
@@ -184,7 +185,7 @@ function Layout() {
                             <Logo className="size-8" color="currentColor" glow={false} />
 
                             <div className={`flex items-center overflow-hidden transition-all duration-500 ease-in-out
-                                ${(deferredPath === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden md:flex'}
+                                ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden md:flex'}
                             `}>
                                 <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-black dark:text-white">Produs</span>
                             </div>
@@ -192,11 +193,11 @@ function Layout() {
                     </div>
 
                     {/* 2. Primary Navigation */}
-                    <div className="flex-1 px-4 py-8 overflow-y-auto custom-scrollbar min-h-0">
+                    <div className="flex-1 px-4 py-8 overflow-visible min-h-0">
                         <div className="flex flex-col gap-1.5">
                             {navItems.map((item, idx) => {
-                                const isOverview = deferredPath === '/dashboard';
-                                const isActive = deferredPath === item.path || (item.path === '/dashboard' && deferredPath === '/dashboard');
+                                const isOverview = location.pathname === '/dashboard';
+                                const isActive = location.pathname === item.path || (item.path === '/dashboard' && location.pathname === '/dashboard');
                                 
                                 return (
                                     <motion.button
@@ -208,14 +209,12 @@ function Layout() {
                                             ${(!isOverview && !isMobileMenuOpen) ? 'w-12' : 'w-full'}
                                         `}
                                     >
-                                        {/* Active Indicator Line */}
                                         {!isMobileMenuOpen && (
                                             <div className={`absolute left-0 top-[calc(50%-12px)] w-[2px] transition-colors duration-500 bg-slate-200 dark:bg-white/10
                                                 ${idx === navItems.length - 1 ? 'bg-gradient-to-b !from-current !to-transparent opacity-40' : ''}
                                             `} />
                                         )}
 
-                                        {/* Icon Node */}
                                         <div className="relative flex items-center w-full h-full">
                                             <div className={`absolute flex items-center justify-center size-[18px] z-50 transition-all duration-500 ${isMobileMenuOpen ? 'left-[36px]' : 'left-[31px]'}`}>
                                                 <div className={`absolute inset-[-8px] rounded-full transition-all duration-500
@@ -229,17 +228,16 @@ function Layout() {
                                                 </span>
                                             </div>
 
-                                            {/* Labels */}
                                             <div className={`flex items-center absolute pointer-events-none transition-all duration-[400ms] ease-[0.16,1,0.3,1] z-50
-                                                ${(isOverview || isMobileMenuOpen)
+                                                ${(location.pathname === '/dashboard' || isMobileMenuOpen)
                                                     ? `left-0 relative ${isMobileMenuOpen ? 'pl-20' : 'pl-14 md:pl-16'} opacity-100 translate-x-0 w-max`
                                                     : 'hidden md:flex left-[60px] bg-black dark:bg-white px-3.5 py-2.5 rounded shadow-xl opacity-0 -translate-x-2 group-hover/nav:opacity-100 group-hover/nav:translate-x-0 w-max border border-white/10 dark:border-black/10'}
                                             `}>
-                                                <div className={`flex items-center ${(isOverview || isMobileMenuOpen) ? 'gap-4' : 'gap-0'}`}>
-                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${(isOverview && !isMobileMenuOpen) ? 'w-4' : 'w-0 hidden'}`} />
+                                                <div className={`flex items-center ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'gap-4' : 'gap-0'}`}>
+                                                <div className={`h-px bg-electric-blue transition-all duration-300 ${(location.pathname === '/dashboard' && !isMobileMenuOpen) ? 'w-4' : 'w-0 hidden'}`} />
                                                     <span className={`font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300 mt-[1px]
                                                         ${isMobileMenuOpen ? 'text-[11px]' : 'text-[10px]'}
-                                                        ${(isOverview || isMobileMenuOpen)
+                                                        ${(location.pathname === '/dashboard' || isMobileMenuOpen)
                                                             ? (isActive ? 'text-black dark:text-white' : 'text-slate-500 dark:text-slate-400 group-hover/nav:text-black dark:group-hover:text-white')
                                                             : 'text-white dark:text-black'}
                                                     `}>
@@ -254,12 +252,11 @@ function Layout() {
                         </div>
                     </div>
 
-                    {/* 3. Sidebar Footer: System Actions & Identity HUD */}
+                    {/* 3. Sidebar Footer: Identity HUD */}
                     <div className={`mt-auto p-4 md:p-6 flex flex-col items-start gap-4 transition-all duration-[600ms] shrink-0
-                        ${(isOverview || isMobileMenuOpen) ? 'pl-[20px]' : 'pl-[16px]'}
+                        ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'pl-[20px]' : 'pl-[16px]'}
                     `}>
 
-                        {/* Unified Level HUD: Persistent Icon + Conditional Progress Bar */}
                         {user?.level > 0 && (
                             <div className="flex items-center gap-4 w-full h-10">
                                 <div
@@ -270,7 +267,7 @@ function Layout() {
                                 </div>
 
                                 <AnimatePresence>
-                                    {(deferredPath === '/dashboard' || isMobileMenuOpen) && (
+                                    {(location.pathname === '/dashboard' || isMobileMenuOpen) && (
                                         <motion.div 
                                             key="prog-bar"
                                             initial={{ opacity: 0, x: -10 }}
@@ -291,7 +288,6 @@ function Layout() {
                             </div>
                         )}
 
-                        {/* Profile & Name Identity */}
                         <div className="relative flex items-center gap-4 group" ref={profileRef}>
                             <button
                                 onClick={() => setIsUserMenuOpen(true)}
@@ -305,7 +301,7 @@ function Layout() {
                             </button>
 
                             <AnimatePresence mode="wait">
-                                {(deferredPath === '/dashboard' || isMobileMenuOpen) && (
+                                {(location.pathname === '/dashboard' || isMobileMenuOpen) && (
                                     <motion.div 
                                         key="profile-greeting"
                                         initial={{ opacity: 0, x: -10 }}
@@ -318,26 +314,19 @@ function Layout() {
                                             <p className="text-[10px] font-black text-black dark:text-white leading-none uppercase tracking-[0.2em]">{user?.username ? `@${user.username}` : user?.name}</p>
                                             <div className="flex items-center gap-2 mt-1">
                                                 {user?.username && <span className="text-[8px] font-bold text-electric-blue uppercase">{user.name}</span>}
-                                                {user?.rpg?.archetype?.stage && (
-                                                    <span className="text-[8px] font-medium text-black/30 dark:text-white/30 uppercase tracking-tighter italic">
-                                                        // {user.rpg.archetype.stage}
-                                                    </span>
-                                                )}
                                             </div>
                                         </div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
                         </div>
-
                     </div>
                 </aside>
 
                 {/* Main Application Interface */}
                 <div className={`flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]
-                    ${isMobileMenuOpen ? 'blur-md' : 'blur-0'}
+                    ${isMobileMenuOpen ? 'blur-md' : ''}
                 `}>
-                    {/* Desktop Persistent Header with Cinematic Fade */}
                     <div className="hidden md:block absolute top-0 left-0 right-0 z-40 h-40 pointer-events-none">
                         <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)] via-[var(--background)]/95 to-transparent backdrop-blur-xl [mask-image:linear-gradient(to_bottom,black_20%,transparent),linear-gradient(to_right,transparent,black_10%,black_75%,transparent)] [-webkit-mask-composite:source-in] [mask-composite:intersect]" />
                         <div className="relative pl-8 lg:pl-12 pr-24 lg:pr-32 pt-8 pb-4 pointer-events-auto">
@@ -349,16 +338,16 @@ function Layout() {
                         ref={mainRef}
                         className="flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar flex flex-col relative md:pt-24 mt-16 md:mt-0"
                     >
-                        <AnimatePresence mode="wait">
+                        <AnimatePresence mode="wait" initial={false}>
                             <motion.main 
                                 key={location.pathname}
                                 initial={{ x: "100%", opacity: 1 }}
                                 animate={{ x: 0, opacity: 1 }}
-                                exit={{ x: "-10%", opacity: 0, scale: 0.96, filter: "blur(12px)" }}
+                                exit={{ x: "-10%", opacity: 0, scale: 0.96, pointerEvents: 'none' }}
                                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                className={`flex-1 flex justify-start pb-32 md:pb-12 px-4 md:pl-8 md:pr-24 lg:pl-12 lg:pr-32 w-full ${isOverview ? '' : 'pt-6 md:pt-0'}`}
+                                className={`relative z-0 flex-1 flex justify-start pb-32 md:pb-12 px-4 md:pl-8 md:pr-24 lg:pl-12 lg:pr-32 w-full ${isOverview ? '' : 'pt-6 md:pt-0'}`}
                             >
-                                <FrozenRoute context={{ setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, viewMode, setViewMode, protocolMode, setProtocolMode }} />
+                                <Outlet context={{ setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, viewMode, setViewMode, protocolMode, setProtocolMode }} />
                             </motion.main>
                         </AnimatePresence>
                     </div>
@@ -422,15 +411,13 @@ function Layout() {
                     />
                 )}
                 
-                <AnimatePresence>
-                    {isStatsModalOpen && (
-                        <StatsModal 
-                            isOpen={isStatsModalOpen} 
-                            onClose={() => setIsStatsModalOpen(false)} 
-                            user={user}
-                        />
-                    )}
-                </AnimatePresence>
+                {isStatsModalOpen && (
+                    <StatsModal 
+                        isOpen={isStatsModalOpen} 
+                        onClose={() => setIsStatsModalOpen(false)} 
+                        user={user}
+                    />
+                )}
                 
                 {isOnboardingOpen && (
                     <OnboardingModal 
@@ -439,9 +426,6 @@ function Layout() {
                     />
                 )}
 
-                {/* Neural Sync Modal Removed */}
-
-                {/* Global Cinematic Scroll HUD */}
                 <DashboardScrollIndicator />
             </div>
         </DashboardContext.Provider>

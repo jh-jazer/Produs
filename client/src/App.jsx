@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Layout from './components/Layout';
+import { useRegisterSW } from 'virtual:pwa-register/react';
 import Habits from './pages/Habits';
 import Overview from './pages/Overview';
 import Planner from './pages/Planner';
@@ -47,8 +48,8 @@ function AnimatedRoutes() {
   const transitionKey = location.pathname.startsWith('/auth') ? 'auth' : 'app';
 
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={transitionKey}>
+    <AnimatePresence initial={false}>
+      <Routes>
         {/* Public Landing Page */}
         <Route path="/" element={<Landing />} />
 
@@ -85,10 +86,27 @@ import api from './services/api';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
+// Global SWR config: always fetch fresh data from the server on mount/focus/reconnect.
+const swrGlobalConfig = {
+    fetcher,
+    revalidateOnMount: true,
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true,
+    dedupingInterval: 2000,  // 2 s — prevent duplicate requests in quick succession
+};
+
 import DevTools from './components/ui/DevTools';
 
 function App() {
   const user = useAuthStore((state) => state.user);
+
+  // Auto-reload when a new service-worker version is waiting.
+  // This ensures users always run the latest deployed code.
+  useRegisterSW({
+    onNeedRefresh(updateSW) {
+      updateSW(true); // skip waiting and reload all tabs immediately
+    },
+  });
 
   useEffect(() => {
     // Theme Management logic
@@ -135,7 +153,7 @@ function App() {
 
 
   return (
-    <SWRConfig value={{ fetcher }}>
+    <SWRConfig value={swrGlobalConfig}>
       <BrowserRouter>
         <AnimatedRoutes />
         <DevTools />

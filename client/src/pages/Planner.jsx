@@ -15,11 +15,6 @@ const Planner = () => {
     const { user, viewMode, setViewMode } = useAuthStore();
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [isFlipped, setIsFlipped] = useState(false);
-    const { 
-        tasks = [], 
-        isLoading
-    } = usePlanner(selectedDate);
-
     const [activeTab, setActiveTab] = React.useState('priority');
 
     // Force 'me' view if partner not available
@@ -29,15 +24,12 @@ const Planner = () => {
         }
     }, [viewMode, setViewMode, user?.partner]);
 
-
     const tabs = [
         { id: 'priority', label: 'Priority', icon: 'stars' },
         { id: 'planner', label: 'Planner', icon: 'schedule' },
         { id: 'calendar', label: 'Calendar', icon: 'calendar_today' },
         { id: 'goals', label: 'Goals', icon: 'flag' },
     ];
-
-    if (isLoading && tasks.length === 0) return <WorkspaceSkeleton />;
 
     return (
         <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-4 md:gap-8 pb-28 md:pb-8 mx-auto">
@@ -51,31 +43,37 @@ const Planner = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
 
                 {/* Main Column */}
-                <div className={`lg:col-span-4 flex flex-col gap-4 md:gap-6 ${activeTab !== 'priority' && activeTab !== 'planner' && activeTab !== 'calendar' && activeTab !== 'goals' ? 'hidden lg:flex' : ''}`}>
+                <div className="lg:col-span-4 flex flex-col gap-4 md:gap-6">
 
                     {/* Mobile Only: Calendar */}
-                    <div className={activeTab === 'calendar' ? 'block' : 'hidden lg:hidden'}>
-                        <DashboardPanel title="Tactical Schedule" subtitle="Monthly Matrix" icon={CalendarDays} bodyClassName="p-0">
-                            <FullCalendar onDateSelect={setSelectedDate} selectedDate={selectedDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
-                        </DashboardPanel>
-                    </div>
+                    {activeTab === 'calendar' && (
+                        <div className="lg:hidden">
+                            <DashboardPanel title="Tactical Schedule" subtitle="Monthly Matrix" icon={CalendarDays} bodyClassName="p-0">
+                                <FullCalendar onDateSelect={setSelectedDate} selectedDate={selectedDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                            </DashboardPanel>
+                        </div>
+                    )}
 
                     {/* Priority (Mobile Priority Tab) */}
-                    <div className={`relative w-full ${activeTab === 'priority' ? 'block' : 'hidden'} lg:hidden`}>
-                        <DashboardPanel title="Priority Directives" subtitle="Top 3 Objectives" icon={Star} showZap>
-                            <Priority viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => {}} />
-                        </DashboardPanel>
-                    </div>
+                    {activeTab === 'priority' && (
+                        <div className="relative w-full lg:hidden">
+                            <DashboardPanel title="Priority Directives" subtitle="Top 3 Objectives" icon={Star} showZap>
+                                <Priority viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => {}} />
+                            </DashboardPanel>
+                        </div>
+                    )}
 
                     {/* Daily Schedule (Mobile Planner Tab) */}
-                    <div className={`relative w-full ${activeTab === 'planner' ? 'block' : 'hidden'} lg:hidden`}>
-                        <DashboardPanel title="Daily Schedule" subtitle="Time Blocking" icon={Clock} showZap>
-                            <DailySchedule viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => {}} />
-                        </DashboardPanel>
-                    </div>
+                    {activeTab === 'planner' && (
+                        <div className="relative w-full lg:hidden">
+                            <DashboardPanel title="Daily Schedule" subtitle="Time Blocking" icon={Clock} showZap>
+                                <DailySchedule viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => {}} />
+                            </DashboardPanel>
+                        </div>
+                    )}
 
                     {/* Desktop Priority / Daily Schedule Flip Card */}
-                    <div className={`relative w-full hidden lg:block`} style={{ perspective: '2000px', flexShrink: 0 }}>
+                    <div className="relative w-full hidden lg:block" style={{ perspective: '2000px', flexShrink: 0 }}>
                         <motion.div
                             animate={{ rotateY: isFlipped ? 180 : 0 }}
                             transition={{ duration: 0.7, type: 'spring', stiffness: 100, damping: 20 }}
@@ -98,11 +96,13 @@ const Planner = () => {
                     </div>
 
                     {/* Mobile Only: Goal Setter */}
-                    <div className={activeTab === 'goals' ? 'block' : 'hidden'}>
-                        <DashboardPanel title="Strategic Objectives" subtitle="Mid-Term Planning" icon={Target}>
-                            <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
-                        </DashboardPanel>
-                    </div>
+                    {activeTab === 'goals' && (
+                        <div className="lg:hidden">
+                            <DashboardPanel title="Strategic Objectives" subtitle="Mid-Term Planning" icon={Target}>
+                                <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                            </DashboardPanel>
+                        </div>
+                    )}
                 </div>
 
                 {/* Right Column (Desktop Only Sidebar for Calendar/Goals) */}

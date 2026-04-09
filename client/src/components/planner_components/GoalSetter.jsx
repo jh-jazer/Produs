@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import useSWR from 'swr';
+import { createPortal } from 'react-dom';
 import api from '../../services/api';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import DashboardPanel from '../ui/DashboardPanel';
 import { useGoals } from '../../hooks/useGoals';
 
 const fetcher = url => api.get(url).then(res => res.data);
@@ -73,6 +74,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
     const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
     const [selectedWeekIdx, setSelectedWeekIdx] = useState(0);   // index into weeksInMonth
     const [newGoalTitle, setNewGoalTitle] = useState('');
+    const [isAdding, setIsAdding] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     const upcomingYears = Array.from({ length: 10 }, (_, i) => now.getFullYear() + i);
@@ -108,6 +110,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
 
         await addGoalLocal(payload);
         setNewGoalTitle('');
+        setIsAdding(false);
     };
 
     const toggleGoal = async (goal) => {
@@ -201,14 +204,53 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
 
     return (
         <>
-            <ConfirmDialog
-                isOpen={!!confirmDelete}
-                title="Delete Goal"
-                message="Are you sure you want to delete this goal?"
-                confirmLabel="Delete"
-                onConfirm={() => { deleteGoal(confirmDelete); setConfirmDelete(null); }}
-                onCancel={() => setConfirmDelete(null)}
-            />
+            {createPortal(
+                <ConfirmDialog
+                    isOpen={!!confirmDelete}
+                    title="Delete Goal"
+                    message="Are you sure you want to delete this goal?"
+                    confirmLabel="Delete"
+                    onConfirm={() => { deleteGoal(confirmDelete); setConfirmDelete(null); }}
+                    onCancel={() => setConfirmDelete(null)}
+                />,
+                document.body
+            )}
+
+            {isAdding && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md" onClick={() => setIsAdding(false)}></div>
+                    <DashboardPanel
+                        className="w-full max-w-sm z-10 animate-in zoom-in-95 duration-200"
+                        title={`Quick Add ${view.charAt(0).toUpperCase() + view.slice(1)} Goal`}
+                        subtitle="Define your target"
+                        headerExtra={
+                            <button onClick={() => setIsAdding(false)} className="text-slate-400 hover:text-slate-600">
+                                <span className="material-symbols-outlined text-xl">close</span>
+                            </button>
+                        }
+                    >
+                        <div className="flex flex-col gap-4 mt-2">
+                             <input
+                                type="text"
+                                value={newGoalTitle}
+                                onChange={e => setNewGoalTitle(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && addGoal()}
+                                placeholder={`What must be done this ${view === 'weekly' ? 'week' : view === 'monthly' ? 'month' : 'year'}?`}
+                                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#000000] border border-slate-200 dark:border-white/10 text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none"
+                                autoFocus
+                            />
+                            <button
+                                onClick={addGoal}
+                                disabled={!newGoalTitle.trim()}
+                                className="w-full py-3 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+                            >
+                                Create Objective
+                            </button>
+                        </div>
+                    </DashboardPanel>
+                </div>,
+                document.body
+            )}
             <div className="flex flex-col gap-5 overflow-hidden">
 
             {/* Header */}
@@ -218,22 +260,33 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{viewDesc}</p>
                 </div>
 
-                {/* Period tabs */}
-                <div className="flex bg-slate-100 dark:bg-[#000000] p-1 rounded-xl shrink-0">
-                    {PERIODS.map(p => (
+                {/* Period tabs & Add button */}
+                <div className="flex items-center gap-2">
+                    <div className="flex bg-slate-100 dark:bg-[#000000] p-1 rounded-xl shrink-0">
+                        {PERIODS.map(p => (
+                            <button
+                                key={p.id}
+                                onClick={() => setView(p.id)}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                                    view === p.id
+                                        ? 'bg-white dark:bg-[#121212] text-primary shadow-none'
+                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                }`}
+                            >
+                                <span className="material-symbols-outlined text-sm">{p.icon}</span>
+                                {p.label}
+                            </button>
+                        ))}
+                    </div>
+                    {!isReadOnly && (
                         <button
-                            key={p.id}
-                            onClick={() => setView(p.id)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
-                                view === p.id
-                                    ? 'bg-white dark:bg-[#121212] text-primary shadow-none'
-                                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                            }`}
+                            onClick={() => setIsAdding(true)}
+                            className="p-1.5 rounded-lg bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.05] active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+                            title="Add New Objective"
                         >
-                            <span className="material-symbols-outlined text-sm">{p.icon}</span>
-                            {p.label}
+                            <span className="material-symbols-outlined text-[20px]">add</span>
                         </button>
-                    ))}
+                    )}
                 </div>
             </div>
 
@@ -258,28 +311,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                 </div>
             )}
 
-            {/* Add input */}
-            {!isReadOnly && (
-                <div className="px-6">
-                    <div className="flex gap-2">
-                        <input
-                            type="text"
-                            value={newGoalTitle}
-                            onChange={e => setNewGoalTitle(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && addGoal()}
-                            placeholder={`Add a ${view} must-do…`}
-                            className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-[#000000]/50 border border-slate-200 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        />
-                        <button
-                            onClick={addGoal}
-                            disabled={!newGoalTitle.trim()}
-                            className="p-2.5 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl hover:opacity-90 transition-all active:scale-95 shadow-none flex items-center justify-center min-w-[44px] disabled:opacity-30"
-                        >
-                            <span className="material-symbols-outlined">add</span>
-                        </button>
-                    </div>
-                </div>
-            )}
+
 
             {/* Goal list */}
             <div className="px-6 pb-6 flex flex-col gap-2">
