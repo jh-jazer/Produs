@@ -3,19 +3,15 @@ import React from 'react';
 const BalanceHistory = () => {
     return (
         <div className="min-h-[400px]">
-            <div className="flex justify-between items-center mb-8">
-                <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Balance History</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">Last 6 months performance</p>
-                </div>
+            <div className="flex justify-end items-center mb-8">
                 <div className="flex gap-4">
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-                        <span className="text-xs text-slate-500 dark:text-slate-400">Income</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-[10px]">Income</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                        <span className="text-xs text-slate-500 dark:text-slate-400">Outcome</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-[10px]">Outcome</span>
                     </div>
                 </div>
             </div>

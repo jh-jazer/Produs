@@ -4,10 +4,10 @@ import { useFinance } from '../hooks/useFinance';
 
 import FinancialOverview from '../components/finance_components/FinancialOverview';
 import DebtManager from '../components/finance_components/DebtManager';
-import RecentTransactions from '../components/finance_components/RecentTransactions';
+
 import MonthlyBudget from '../components/finance_components/MonthlyBudget';
 import Wishlist from '../components/finance_components/Wishlist';
-import BalanceHistory from '../components/finance_components/BalanceHistory';
+
 import SavingsPanel from '../components/finance_components/SavingsPanel';
 import MobileTabNav from '../components/ui/MobileTabNav';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
@@ -72,19 +72,7 @@ const Finance = () => {
                 <div className={`lg:col-span-4 flex flex-col gap-4 md:gap-6 ${activeTab !== 'budget' && activeTab !== 'debts' ? 'hidden lg:flex' : ''}`}>
                     
 
-                    {/* 2. Transactions */}
-                    <div className={activeTab === 'budget' ? 'block' : 'hidden lg:block'}>
-                        <DashboardPanel title="Ledger Log" subtitle="Recent Transactions" icon={List} showZap>
-                            <RecentTransactions
-                                transactions={transactions}
-                                budgets={budgets}
-                                currencySymbol={currencySymbol}
-                                onAction={handleAction}
-                                addFinanceItem={addFinanceItem}
-                                deleteFinanceItem={deleteFinanceItem}
-                            />
-                        </DashboardPanel>
-                    </div>
+
 
                     {/* 4. Budget */}
                     <div className={activeTab === 'budget' ? 'block' : 'hidden lg:block'}>
@@ -123,11 +111,14 @@ const Finance = () => {
                         <DashboardPanel title="Asset Overview" subtitle="Net Valuation" icon={Wallet} showZap>
                             <FinancialOverview
                                 transactions={transactions}
+                                budgets={budgets}
                                 currencySymbol={currencySymbol}
                                 netBalance={netBalance}
                                 totalSavings={totalSavings}
                                 totalDebt={totalDebt}
                                 totalUpcomingIncome={totalUpcomingIncome}
+                                addFinanceItem={addFinanceItem}
+                                deleteFinanceItem={deleteFinanceItem}
                             />
                         </DashboardPanel>
                     </div>
@@ -159,12 +150,7 @@ const Finance = () => {
                         </DashboardPanel>
                     </div>
 
-                    {/* 7. Balance History */}
-                    <div className={activeTab === 'summary' ? 'block' : 'hidden lg:block'}>
-                        <DashboardPanel title="Balance History" subtitle="Fiscal Trajectory" icon={Activity}>
-                            <BalanceHistory />
-                        </DashboardPanel>
-                    </div>
+
                 </div>
 
             </div>

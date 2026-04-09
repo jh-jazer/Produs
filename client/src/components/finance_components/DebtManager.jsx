@@ -78,19 +78,13 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                 onCancel={() => setConfirmDelete(null)}
             />
             <div className="min-h-[300px] flex flex-col">
-            <div className="flex items-center justify-between gap-2 mb-6">
-                <div className="flex flex-col">
-                    <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary">account_balance</span>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Upcoming Cash Flow</h3>
-                    </div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Debts & Expected Income</p>
-                </div>
+            <div className="flex items-center justify-end mb-6">
                 <button
                     onClick={() => setShowAdd(true)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-[#000000] transition-colors"
+                    className="size-8 rounded-lg bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-none"
+                    title="Add Record"
                 >
-                    <span className="material-symbols-outlined text-xl">add_circle</span>
+                    <span className="material-symbols-outlined text-lg">add</span>
                 </button>
             </div>
             {/* Summary Totals */}

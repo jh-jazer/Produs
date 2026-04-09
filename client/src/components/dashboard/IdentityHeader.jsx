@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check, Lock, Edit2, Save, X, Share2, Users } from 'lucide-react';
 import { getLevelProgress } from '../../utils/rpgHelpers';
@@ -13,7 +13,7 @@ import useAuthStore from '../../store/useAuthStore';
 import api from '../../services/api';
 
 const IdentityHeader = ({ user: initialUser, habits = [] }) => {
-    const { protocolMode, setProtocolMode } = useContext(DashboardContext);
+    const { protocolMode } = useContext(DashboardContext);
     const { updateSettings } = useAuthStore();
     const [user, setUser] = useState(initialUser);
     const [isIdVisible, setIsIdVisible] = useState(false);
@@ -25,6 +25,9 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     const [avatar, setAvatar] = useState(user?.avatar || "");
     const [isSaving, setIsSaving] = useState(false);
     const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+    const [bannerPosition, setBannerPosition] = useState(user?.settings?.bannerPosition || 50);
+    const [isDragging, setIsDragging] = useState(false);
+    const bannerRef = useRef(null);
 
     // Modals State
     const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
@@ -32,16 +35,25 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
     const [profileModalUser, setProfileModalUser] = useState(null);
 
+    // Live Clock State
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
     useEffect(() => {
         setUser(initialUser);
         setBanner(initialUser?.banner || "");
         setAvatar(initialUser?.avatar || "");
+        setBannerPosition(initialUser?.settings?.bannerPosition || 50);
     }, [initialUser]);
 
     const handleSaveProfile = async () => {
         setIsSaving(true);
         try {
-            await updateSettings({ banner, avatar });
+            await updateSettings({ banner, avatar, bannerPosition });
             setIsEditing(false);
         } catch (error) {
             console.error("Failed to update profile", error);
@@ -70,6 +82,27 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
         }
     };
 
+    const handlePointerDown = (e) => {
+        if (!isEditing || !banner) return;
+        setIsDragging(true);
+        e.currentTarget.setPointerCapture(e.pointerId);
+    };
+
+    const handlePointerMove = (e) => {
+        if (!isDragging || !bannerRef.current) return;
+        
+        const rect = bannerRef.current.getBoundingClientRect();
+        const y = e.clientY - rect.top;
+        const percentage = Math.max(0, Math.min(100, (y / rect.height) * 100));
+        setBannerPosition(Math.round(percentage));
+    };
+
+    const handlePointerUp = (e) => {
+        if (!isDragging) return;
+        setIsDragging(false);
+        e.currentTarget.releasePointerCapture(e.pointerId);
+    };
+
     const handleCopyId = async () => {
         try {
             await navigator.clipboard.writeText(user._id);
@@ -96,12 +129,19 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     return (
         <div className="glass-panel w-full rounded-[2.5rem] mb-6 md:mb-12 relative overflow-hidden flex flex-col">
             {/* 1. Tactical Banner Segment */}
-            <div className="w-full h-32 md:h-40 relative group overflow-hidden">
+            <div 
+                ref={bannerRef}
+                className={`w-full h-32 md:h-40 relative group overflow-hidden ${isEditing ? 'cursor-ns-resize active:cursor-grabbing' : ''}`}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+            >
                 {banner ? (
                     <img 
                         src={banner}
                         alt="Profile Banner" 
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                        style={{ objectPosition: `center ${bannerPosition}%` }}
+                        className="w-full h-full object-cover pointer-events-none transition-[transform,object-position] duration-200 group-hover:scale-105" 
                     />
                 ) : (
                     <div className="w-full h-full bg-gradient-to-r from-slate-200 to-slate-100 dark:from-slate-900 dark:to-[#0a0a0a] transition-all duration-700">
@@ -112,57 +152,81 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                 )}
 
                 {isEditing && (
-                    <label className={`absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-4 z-20 cursor-pointer transition-colors ${isUploadingBanner ? 'opacity-100' : 'hover:bg-black/40'}`}>
-                        {isUploadingBanner ? (
-                            <div className="size-8 border-4 border-white/30 border-t-white rounded-full animate-spin mb-2" />
-                        ) : (
+                    <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+                        {/* 1. Drag Hint Overlay */}
+                        <div className={`absolute inset-0 bg-black/40 flex flex-col items-center justify-center p-4 transition-opacity duration-300 ${isDragging ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            <div className="flex flex-col items-center gap-2">
+                                <span className="material-symbols-outlined text-white text-3xl animate-bounce">drag_pan</span>
+                                <span className="text-white text-[10px] font-black uppercase tracking-[0.4em] leading-none mb-4">DRAG_TO_FRAME_</span>
+                                
+                                {isDragging && (
+                                    <div className="px-3 py-1 bg-cyan-500 rounded-lg shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                                        <span className="text-[10px] font-black text-white font-mono leading-none">Y: {bannerPosition}%</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* 2. Tactical Crosshair markers while dragging */}
+                        {isDragging && (
                             <>
-                                <span className="material-symbols-outlined text-white text-3xl mb-2">add_photo_alternate</span>
-                                <span className="text-white text-sm font-bold uppercase tracking-widest">Upload Banner</span>
-                                <span className="text-white/60 text-[10px] uppercase font-black tracking-widest mt-1">16:9 Recommended</span>
+                                <div className="absolute inset-x-0 h-px bg-cyan-500/50 shadow-[0_0_8px_rgba(6,182,212,0.3)] transition-all duration-75" style={{ top: `${bannerPosition}%` }} />
+                                <div className="absolute left-6 top-1/2 -translate-y-1/2 h-8 w-px bg-cyan-500" />
+                                <div className="absolute right-6 top-1/2 -translate-y-1/2 h-8 w-px bg-cyan-500" />
                             </>
                         )}
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleBannerUpload}
-                            disabled={isUploadingBanner}
-                            className="hidden"
-                        />
-                    </label>
+                        
+                        {/* Upload trigger area (Small corner button since main area is for dragging) */}
+                        <label className="absolute top-4 left-4 size-10 bg-black/60 backdrop-blur-md rounded-xl border border-white/10 flex items-center justify-center text-white cursor-pointer hover:bg-black/80 hover:border-cyan-500/50 transition-all pointer-events-auto" title="Upload New Image">
+                            {isUploadingBanner ? (
+                                <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <span className="material-symbols-outlined text-xl">upload</span>
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleBannerUpload}
+                                disabled={isUploadingBanner}
+                                className="hidden"
+                            />
+                        </label>
+                    </div>
                 )}
                 
-                {/* 1.1 Tactical Toggles Area */}
-                <div className="absolute top-4 right-6 flex flex-col md:flex-row items-end md:items-center gap-4">
-                    {/* Protocol Selector Toggle */}
-                    <div className="flex bg-black/40 dark:bg-black/60 backdrop-blur-md rounded-2xl p-1 border border-white/10 shadow-2xl">
-                        <button
-                            onClick={() => setProtocolMode('reality')}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${protocolMode === 'reality' ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'text-white/40 hover:text-white/70'}`}
-                        >
-                            <User size={10} />
-                            <span className="hidden md:block">REALITY</span>
-                        </button>
-                        <button
-                            onClick={() => (user.rpg?.path || user.rpg?.pendingQuestions?.length > 0 || user.level === 0) && setProtocolMode('rpg')}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
-                                protocolMode === 'rpg' 
-                                ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' 
-                                : (!user.rpg?.path && !user.rpg?.pendingQuestions?.length && user.level > 0) 
-                                    ? 'text-white/20 cursor-not-allowed' 
-                                    : 'text-white/40 hover:text-white/70'
-                            }`}
-                        >
-                            {(user.rpg?.path || user.rpg?.pendingQuestions?.length > 0 || user.level === 0) ? (
-                                <Zap size={10} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
-                            ) : (
-                                <Lock size={10} className="text-white/20" />
-                            )}
-                            <span className="hidden md:block">ISEKAI</span>
-                        </button>
+                <div className="absolute top-4 right-6 flex items-center gap-3 px-3 py-1.5 bg-black/40 backdrop-blur-md rounded-xl border border-white/10 shadow-xl">
+                    {/* Vertical Day Marker */}
+                    <div className="flex flex-col items-center justify-center leading-[0.85] text-[8px] font-black text-cyan-500/60 font-mono uppercase tracking-tighter">
+                        {currentTime.toLocaleDateString([], { weekday: 'short' }).toUpperCase().split('').map((char, i) => (
+                            <span key={i}>{char}</span>
+                        ))}
                     </div>
 
-                    
+                    {/* Structural Divider */}
+                    <div className="w-px h-6 bg-white/10" />
+
+                    {/* Time & Date Cluster */}
+                    <div className="flex flex-col items-end gap-0.5">
+                        <div className="flex items-center gap-1.5 text-white">
+                            {/* Desktop Time (with seconds) */}
+                            <span className="hidden md:inline text-[11px] font-black tracking-[0.2em] font-mono leading-none">
+                                {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+                            </span>
+                            {/* Mobile Time (no seconds) */}
+                            <span className="inline md:hidden text-[11px] font-black tracking-[0.2em] font-mono leading-none">
+                                {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                            </span>
+                        </div>
+                        
+                        {/* Desktop Date (with year) */}
+                        <span className="hidden md:inline text-[7px] font-bold text-white/40 uppercase tracking-[0.3em] font-mono leading-none">
+                            {currentTime.toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase()}
+                        </span>
+                        {/* Mobile Date (no year) */}
+                        <span className="inline md:hidden text-[7px] font-bold text-white/40 uppercase tracking-[0.3em] font-mono leading-none">
+                            {currentTime.toLocaleDateString([], { month: 'short', day: '2-digit' }).toUpperCase()}
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -246,115 +310,66 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                         </div>
                     </div>
 
-                    {/* Metric Card (Level or Reality) */}
-                    <AnimatePresence mode="wait">
-                        {protocolMode === 'rpg' ? (
-                            <motion.div 
-                                key="rpg-metric"
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ delay: 0.2 }}
-                                className="glass-card flex items-center gap-5 p-4 md:p-5 rounded-3xl md:self-end"
-                            >
-                                {/* Level Icon Badge */}
-                                <div className="size-12 lg:size-14 rounded-2xl bg-slate-900 dark:bg-white flex flex-col items-center justify-center shrink-0 border border-black/5 dark:border-white/5 shadow-none">
-                                    <span className="text-[7px] md:text-[8px] font-black text-white/40 dark:text-black/40 uppercase tracking-tighter italic leading-none mb-0.5">LVL</span>
-                                    <span className="text-xl md:text-2xl font-black text-white dark:text-black italic font-exo leading-none">{user.level || 1}</span>
-                                </div>
-
-                                <div className="flex flex-col min-w-[200px] md:min-w-[240px]">
-                                <div className="flex justify-between items-end mb-1.5 px-1">
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white font-exo italic leading-none">
-                                                {progressData.xpInLevel}
-                                            </span>
-                                            <span className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
-                                                / {progressData.xpRequired} XP TO LVL UP
-                                            </span>
-                                        </div>
-                                        <span className="text-[9px] md:text-[10px] font-black text-cyan-500 uppercase tracking-widest font-mono italic">{Math.round(progressData.progress)}%_SYNC</span>
-                                    </div>
-                                    
-                                    <div className="h-2 w-full bg-black/[0.04] dark:bg-white/5 rounded-full overflow-hidden relative">
-                                        <motion.div 
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${progressData.progress}%` }}
-                                            transition={{ duration: 1.2, ease: "circOut" }}
-                                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-600 to-cyan-400"
-                                        />
-                                    </div>
-                                </div>
-                            </motion.div>
+                    {/* Profile Actions HUB (Connections, Partner, Edit) */}
+                    <div className="flex justify-center items-center gap-3 w-full md:w-auto md:self-end">
+                        {isEditing ? (
+                            <div className="flex items-center justify-center gap-2 w-full md:w-auto">
+                                <button
+                                    onClick={() => {
+                                        setIsEditing(false);
+                                        setBanner(user?.banner || "");
+                                        setAvatar(user?.avatar || "");
+                                    }}
+                                    className="px-6 py-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 rounded-2xl text-slate-700 dark:text-slate-200 font-bold text-xs transition-all flex items-center gap-2 uppercase tracking-widest"
+                                >
+                                    <X size={14} />
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSaveProfile}
+                                    disabled={isSaving || isUploadingBanner}
+                                    className="px-6 py-3 bg-cyan-500 text-white rounded-2xl font-black text-xs hover:bg-cyan-600 transition-all shadow-lg shadow-cyan-500/20 disabled:opacity-50 flex items-center gap-2 uppercase tracking-widest"
+                                >
+                                    {isSaving ? (
+                                        <div className="size-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    ) : (
+                                        <Save size={14} />
+                                    )}
+                                    Save
+                                </button>
+                            </div>
                         ) : (
-                            <motion.div 
-                                key="reality-actions"
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ delay: 0.2 }}
-                                className="flex justify-center items-center gap-3 w-full md:w-auto md:self-end"
-                            >
-                                {isEditing ? (
-                                    <div className="flex items-center justify-center gap-2 w-full md:w-auto">
-                                        <button
-                                            onClick={() => {
-                                                setIsEditing(false);
-                                                setBanner(user?.banner || "");
-                                                setAvatar(user?.avatar || "");
-                                            }}
-                                            className="px-6 py-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 rounded-2xl text-slate-700 dark:text-slate-200 font-bold text-xs transition-all flex items-center gap-2 uppercase tracking-widest"
-                                        >
-                                            <X size={14} />
-                                            Cancel
-                                        </button>
-                                        <button
-                                            onClick={handleSaveProfile}
-                                            disabled={isSaving || isUploadingBanner}
-                                            className="px-6 py-3 bg-cyan-500 text-white rounded-2xl font-black text-xs hover:bg-cyan-600 transition-all shadow-lg shadow-cyan-500/20 disabled:opacity-50 flex items-center gap-2 uppercase tracking-widest"
-                                        >
-                                            {isSaving ? (
-                                                <div className="size-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            ) : (
-                                                <Save size={14} />
-                                            )}
-                                            Save
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="flex justify-center items-center gap-3 w-full md:w-auto">
-                                        <button
-                                            onClick={() => setIsConnectionsModalOpen(true)}
-                                            className="size-12 lg:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all relative group shadow-sm"
-                                            title="Network"
-                                        >
-                                            <Users size={20} className="group-hover:scale-110 transition-transform" />
-                                            {user?.incomingConnectionRequests?.length > 0 && (
-                                                <span className="absolute -top-1 -right-1 size-3 bg-rose-500 rounded-full border-2 border-white dark:border-[#0a0a0a] animate-pulse" />
-                                            )}
-                                        </button>
-                                        <button
-                                            onClick={() => setIsPartnerModalOpen(true)}
-                                            className={`size-12 lg:size-14 flex items-center justify-center rounded-2xl border transition-all shadow-sm group ${user?.partner
-                                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
-                                                : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 hover:text-cyan-500'
-                                                }`}
-                                            title="Shared Account"
-                                        >
-                                            <Share2 size={20} className="group-hover:scale-110 transition-transform" />
-                                        </button>
-                                        <button
-                                            onClick={() => setIsEditing(true)}
-                                            className="size-12 lg:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all shadow-sm group"
-                                            title="Edit Profile"
-                                        >
-                                            <Edit2 size={20} className="group-hover:scale-110 transition-transform" />
-                                        </button>
-                                    </div>
-                                )}
-                            </motion.div>
+                            <div className="flex justify-center items-center gap-3 w-full md:w-auto">
+                                <button
+                                    onClick={() => setIsConnectionsModalOpen(true)}
+                                    className="size-12 lg:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all relative group shadow-sm"
+                                    title="Network"
+                                >
+                                    <Users size={20} className="group-hover:scale-110 transition-transform" />
+                                    {user?.incomingConnectionRequests?.length > 0 && (
+                                        <span className="absolute -top-1 -right-1 size-3 bg-rose-500 rounded-full border-2 border-white dark:border-[#0a0a0a] animate-pulse" />
+                                    )}
+                                </button>
+                                <button
+                                    onClick={() => setIsPartnerModalOpen(true)}
+                                    className={`size-12 lg:size-14 flex items-center justify-center rounded-2xl border transition-all shadow-sm group ${user?.partner
+                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
+                                        : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 hover:text-cyan-500'
+                                        }`}
+                                    title="Shared Account"
+                                >
+                                    <Share2 size={20} className="group-hover:scale-110 transition-transform" />
+                                </button>
+                                <button
+                                    onClick={() => setIsEditing(true)}
+                                    className="size-12 lg:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all shadow-sm group"
+                                    title="Edit Profile"
+                                >
+                                    <Edit2 size={20} className="group-hover:scale-110 transition-transform" />
+                                </button>
+                            </div>
                         )}
-                    </AnimatePresence>
+                    </div>
                 </div>
 
                 {/* 3. XP Progress Tracker (Space Reserved) */}

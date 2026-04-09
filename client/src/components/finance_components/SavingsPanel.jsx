@@ -10,21 +10,27 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
     const [fundingGoal, setFundingGoal] = useState(null); // stores saving object
     const [fundAmount, setFundAmount] = useState('');
     const [newGoal, setNewGoal] = useState({ title: '', target: '', initialAmount: '' });
+    const [loading, setLoading] = useState(false);
 
     const handleAdd = async (e) => {
         e.preventDefault();
-        const goalData = {
-            ...newGoal,
-            target: parseFloat(newGoal.target),
-            initialAmount: parseFloat(newGoal.initialAmount) || 0,
-            amount: parseFloat(newGoal.initialAmount) || 0,
-            type: 'new'
-        };
+        setLoading(true);
+        try {
+            const goalData = {
+                ...newGoal,
+                target: parseFloat(newGoal.target),
+                initialAmount: parseFloat(newGoal.initialAmount) || 0,
+                amount: parseFloat(newGoal.initialAmount) || 0,
+                type: 'new'
+            };
 
-        await addFinanceItem('saving', goalData);
-        if (onAction) onAction();
-        setShowAdd(false);
-        setNewGoal({ title: '', target: '', initialAmount: '' });
+            await addFinanceItem('saving', goalData);
+            if (onAction) onAction();
+            setShowAdd(false);
+            setNewGoal({ title: '', target: '', initialAmount: '' });
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleFund = async (e) => {
@@ -33,11 +39,16 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
         const amount = parseFloat(fundAmount);
         if (isNaN(amount) || amount <= 0) return;
 
-        const newAmount = fundingGoal.amount + amount;
-        await updateFinanceItem(fundingGoal._id, 'saving', { amount: newAmount });
-        if (onAction) onAction();
-        setFundingGoal(null);
-        setFundAmount('');
+        setLoading(true);
+        try {
+            const newAmount = (fundingGoal.amount || 0) + amount;
+            await updateFinanceItem(fundingGoal._id, 'saving', { amount: newAmount });
+            if (onAction) onAction();
+            setFundingGoal(null);
+            setFundAmount('');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const [confirmDelete, setConfirmDelete] = useState(null);
@@ -65,25 +76,21 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
             <div className="absolute -right-24 -top-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
 
             <div className="relative z-10">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-                    <div>
-                        <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                            <span className="material-symbols-outlined text-primary">savings</span>
-                            Savings Allotment
-                        </h3>
-                        <p className="text-sm text-slate-500 font-medium">Grow your wealth and reach your financial targets.</p>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <div className="text-right">
+                <div className="flex items-center justify-between gap-6 mb-8">
+                    <div className="flex items-center gap-6">
+                        <div className="flex flex-col">
                             <p className="text-2xl font-black text-slate-900 dark:text-white">{currencySymbol}{totalSavings.toLocaleString()}</p>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Saved</p>
                         </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
                         <button
                             onClick={() => setShowAdd(true)}
-                            className="size-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-all"
+                            className="size-8 rounded-lg bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-none"
+                            title="New Goal"
                         >
-                            <span className="material-symbols-outlined">add</span>
+                            <span className="material-symbols-outlined text-lg">add</span>
                         </button>
                     </div>
                 </div>

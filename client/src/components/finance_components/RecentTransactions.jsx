@@ -67,20 +67,14 @@ const RecentTransactions = ({ transactions = [], budgets = [], currencySymbol = 
             />
 
       <div className="flex flex-col min-h-[350px] relative overflow-hidden group">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <p className="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-bold tracking-widest mt-1">
-              Financial Log • {currentTime.toLocaleDateString().toUpperCase()}
-            </p>
-          </div>
-
+        <div className="flex justify-end items-center mb-6">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowAdd(true)}
-              className="p-2 rounded-xl border border-white/5 text-slate-500 hover:border-primary/20 hover:bg-primary/5 hover:text-primary transition-all duration-300 flex items-center justify-center"
+              className="size-8 rounded-lg bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-none"
               title="Add Transaction"
             >
-              <Plus size={14} />
+              <span className="material-symbols-outlined text-lg">add</span>
             </button>
           </div>
         </div>

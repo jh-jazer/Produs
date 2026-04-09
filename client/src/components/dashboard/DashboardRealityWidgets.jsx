@@ -1,7 +1,9 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Heart, Activity, Trophy, ShoppingBag, CheckCircle2, Star, TrendingUp, Zap } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Heart, Activity, Trophy, ShoppingBag, CheckCircle2, Star, TrendingUp, Zap, Target, Flame, ArrowUpRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import DashboardPanel from '../ui/DashboardPanel';
+import { useGoals } from '../../hooks/useGoals';
 
 /**
  * 1. MoodTracker (Feelings)
@@ -85,6 +87,197 @@ export const CoreStreaksList = ({ habits = [] }) => {
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No core habits established yet.</p>
                     </div>
                 )}
+            </div>
+        </DashboardPanel>
+    );
+};
+ 
+/**
+* 2.5 TodayObjectivesList (Strategic Focus)
+* Replaces CoreStreaksList in Reality Mode
+*/
+export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, toggleHabitCheck }) => {
+    const navigate = useNavigate();
+    const now = new Date();
+    
+    const CORE_REDIRECTS = {
+        'planner': '/dashboard/planner',
+        'finance': '/dashboard/finance',
+        'journal': '/dashboard/journal',
+        'workout': '/dashboard/health'
+    };
+    const [activeTab, setActiveTab] = useState('habits'); // 'habits' | 'objectives'
+    
+    // ISO Week Calculation consistent with GoalSetter
+    const getISOWeek = (date) => {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+        const yearStart = new Date(d.getFullYear(), 0, 1);
+        return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    };
+ 
+    const filters = useMemo(() => ({
+        period: 'weekly',
+        year: now.getFullYear(),
+        week: getISOWeek(now)
+    }), []);
+ 
+    const { goals, toggleGoal, isLoading: isLoadingGoals } = useGoals(filters);
+
+    const todayIso = now.toISOString().split('T')[0];
+
+    return (
+        <DashboardPanel 
+            title={activeTab === 'objectives' ? "Today's Objectives" : "Daily Habits"} 
+            subtitle={activeTab === 'objectives' ? "Strategic Focus" : "Behavioral Sync"}
+            icon={activeTab === 'objectives' ? Target : Activity}
+            indicatorColor={activeTab === 'objectives' ? "primary" : "emerald"}
+        >
+            <div className="flex flex-col gap-4 py-2">
+                {/* Toggle Switch */}
+                <div className="flex bg-slate-100 dark:bg-white/[0.03] p-1 rounded-2xl w-full">
+                    {['habits', 'objectives'].map(tab => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all
+                                ${activeTab === tab 
+                                    ? 'bg-white dark:bg-[#121212] text-primary shadow-sm' 
+                                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                        >
+                            {tab}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="space-y-3 min-h-[200px]">
+                    {activeTab === 'objectives' ? (
+                        isLoadingGoals ? (
+                            <div className="py-20 flex flex-col items-center justify-center gap-3 animate-pulse">
+                                <div className="size-8 rounded-full bg-slate-100 dark:bg-white/5" />
+                                <div className="h-2 w-24 bg-slate-100 dark:bg-white/5 rounded" />
+                            </div>
+                        ) : goals.length > 0 ? (
+                            goals.map((goal) => (
+                                <motion.div 
+                                    key={goal._id} 
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    onClick={() => toggleGoal(goal._id)}
+                                    className={`group flex items-center gap-4 p-5 rounded-[2rem] border transition-all duration-300 cursor-pointer
+                                        ${goal.completed 
+                                            ? 'bg-slate-50/50 dark:bg-white/5 border-transparent opacity-50' 
+                                            : 'bg-white dark:bg-white/[0.03] border-cyan-500/20 dark:border-white/10 hover:border-primary/50'}`}
+                                >
+                                    <div className={`size-10 rounded-xl border-2 flex items-center justify-center shrink-0 transition-all
+                                        ${goal.completed 
+                                            ? 'bg-primary border-primary text-white' 
+                                            : 'border-slate-200 dark:border-white/10 group-hover:border-primary/50'}`}
+                                    >
+                                        {goal.completed && <CheckCircle2 size={16} />}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className={`text-sm font-black uppercase tracking-tight truncate transition-all
+                                            ${goal.completed ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
+                                            {goal.title}
+                                        </h4>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                                            {goal.completed ? 'Objective Secured' : 'Active Priority'}
+                                        </p>
+                                    </div>
+                                    <Zap size={14} className={`${goal.completed ? 'text-slate-300' : 'text-primary opacity-0 group-hover:opacity-100'} transition-all`} />
+                                </motion.div>
+                            ))
+                        ) : (
+                            <div className="py-20 text-center border-2 border-dashed border-slate-100 dark:border-white/5 rounded-[2.5rem] flex flex-col items-center gap-3">
+                                <Target size={32} className="text-slate-200 dark:text-white/5" />
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] italic">No missions defined for this period.</p>
+                            </div>
+                        )
+                    ) : (
+                        isLoadingHabits ? (
+                             <div className="py-20 flex flex-col items-center justify-center gap-3 animate-pulse">
+                                <div className="size-8 rounded-full bg-slate-100 dark:bg-white/5" />
+                                <div className="h-2 w-24 bg-slate-100 dark:bg-white/5 rounded" />
+                            </div>
+                        ) : habits.length > 0 ? (
+                            habits.map((habit) => {
+                                const isCompleted = habit.checks?.some(c => c.date === todayIso && c.completed);
+                                const isSystemHabit = !!habit.systemId;
+                                
+                                return (
+                                    <motion.div 
+                                        key={habit._id} 
+                                        initial={{ opacity: 0, x: 10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        onClick={() => {
+                                            if (isSystemHabit) {
+                                                const path = CORE_REDIRECTS[habit.systemId];
+                                                if (path) navigate(path);
+                                            } else {
+                                                toggleHabitCheck(habit._id, todayIso);
+                                            }
+                                        }}
+                                        className={`group flex items-center gap-4 p-5 rounded-[2rem] border transition-all duration-300 cursor-pointer
+                                            ${isCompleted 
+                                                ? 'bg-emerald-500/5 dark:bg-emerald-500/10 border-transparent opacity-60' 
+                                                : isSystemHabit
+                                                    ? 'bg-slate-50 dark:bg-white/[0.03] border-cyan-500/20 dark:border-white/10 hover:border-cyan-500/50 hover:bg-cyan-500/[0.02]'
+                                                    : 'bg-white dark:bg-white/[0.03] border-emerald-500/10 dark:border-white/10 hover:border-emerald-500/50'}`}
+                                    >
+                                        <div className={`size-10 rounded-xl border-2 flex items-center justify-center shrink-0 transition-all
+                                            ${isCompleted 
+                                                ? 'bg-emerald-500 border-emerald-500 text-white' 
+                                                : isSystemHabit
+                                                    ? 'border-cyan-500/30 dark:border-white/10 group-hover:border-cyan-500 shadow-[inset_0_0_10px_rgba(6,182,212,0.05)]'
+                                                    : 'border-slate-200 dark:border-white/10 group-hover:border-emerald-500/50'}`}
+                                        >
+                                            {isCompleted ? (
+                                                <CheckCircle2 size={16} />
+                                            ) : isSystemHabit ? (
+                                                <span className="material-symbols-outlined text-lg text-cyan-500">{habit.icon}</span>
+                                            ) : null}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-0.5">
+                                                <h4 className={`text-sm font-black uppercase tracking-tight truncate transition-all flex items-center gap-1.5
+                                                    ${isCompleted ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
+                                                    {habit.name}
+                                                    {isSystemHabit && !isCompleted && (
+                                                        <ArrowUpRight size={10} className="text-cyan-500 opacity-40 group-hover:opacity-100 transition-opacity" />
+                                                    )}
+                                                </h4>
+                                                {!isCompleted && !isSystemHabit && habit.streak > 0 && (
+                                                    <span className="text-[11px] font-black text-emerald-500 italic font-exo">
+                                                        {habit.streak}d
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                                {isCompleted 
+                                                    ? 'Habit Stabilized' 
+                                                    : isSystemHabit 
+                                                        ? 'Portal Active • Auto-Sync' 
+                                                        : 'Daily Requirement'}
+                                            </p>
+                                        </div>
+                                        {isSystemHabit ? (
+                                            <Zap size={14} className={`${isCompleted ? 'text-emerald-500' : 'text-cyan-500 opacity-20 group-hover:opacity-100 animate-pulse'} transition-all`} />
+                                        ) : (
+                                            <Flame size={14} className={`${isCompleted ? 'text-emerald-500' : 'text-slate-300 opacity-0 group-hover:opacity-100'} transition-all`} />
+                                        )}
+                                    </motion.div>
+                                );
+                            })
+                        ) : (
+                            <div className="py-20 text-center border-2 border-dashed border-slate-100 dark:border-white/5 rounded-[2.5rem] flex flex-col items-center gap-3">
+                                <Activity size={32} className="text-slate-200 dark:text-white/5" />
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] italic">No active habits found.</p>
+                            </div>
+                        )
+                    )}
+                </div>
             </div>
         </DashboardPanel>
     );

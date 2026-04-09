@@ -10,6 +10,8 @@ const DevTools = () => {
     const [view, setView] = useState('main'); // main, exp, stats, points
     const [selectedStat, setSelectedStat] = useState(null);
 
+    const [isTucked, setIsTucked] = useState(false);
+
     if (!user || (user.email !== 'ernestodesabillejr@gmail.com' && !user.isAdmin)) return null;
 
     const handleAction = async (action, stat = null, amount = null) => {
@@ -51,7 +53,15 @@ const DevTools = () => {
                     onClick={() => setIsOpen(false)}
                 />
             )}
-            <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3">
+            <motion.div 
+                animate={{ 
+                    x: isTucked ? 48 : 0,
+                    opacity: isTucked ? 0.4 : 1
+                }}
+                whileHover={{ opacity: 1, x: isTucked ? 40 : 0 }}
+                transition={{ type: "spring", damping: 20, stiffness: 100 }}
+                className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3"
+            >
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -64,7 +74,16 @@ const DevTools = () => {
                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                                 {view === 'main' ? 'RPG Console' : view === 'exp' ? 'Select EXP Amount' : view === 'stats' ? 'Select Stat' : `Boost ${selectedStat}`}
                             </span>
-                            <div className="size-2 rounded-full bg-emerald-500" />
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={() => setIsTucked(true)}
+                                    className="p-1 hover:text-cyan-500 transition-colors"
+                                    title="Dock to edge"
+                                >
+                                    <span className="material-symbols-outlined text-xs">last_page</span>
+                                </button>
+                                <div className="size-2 rounded-full bg-emerald-500 self-center" />
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-2">
@@ -168,14 +187,22 @@ const DevTools = () => {
             </AnimatePresence>
             
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => {
+                    if (isTucked) {
+                        setIsTucked(false);
+                    } else {
+                        setIsOpen(!isOpen);
+                    }
+                }}
                 className={`size-14 rounded-full flex items-center justify-center shadow-xl transition-all ${
                     isOpen ? 'bg-black dark:bg-white text-white dark:text-black rotate-90' : 'bg-black dark:bg-white text-white dark:text-black scale-110'
-                }`}
+                } ${isTucked ? 'rounded-r-none pr-3' : ''}`}
             >
-                <span className="material-symbols-outlined font-black text-2xl">{isOpen ? 'close' : 'terminal'}</span>
+                <span className="material-symbols-outlined font-black text-2xl">
+                    {isTucked ? 'chevron_left' : (isOpen ? 'close' : 'terminal')}
+                </span>
             </button>
-        </div>
+            </motion.div>
         </>
     );
 };

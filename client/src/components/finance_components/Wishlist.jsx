@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
@@ -37,6 +37,29 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
     });
     const [buyingItem, setBuyingItem] = useState(null);
     const [actualPrice, setActualPrice] = useState('');
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef(null);
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        setUploading(true);
+        try {
+            const { data } = await api.post('/finance/wishlist/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setNewItem(prev => ({ ...prev, imageUrl: data.url }));
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert('Failed to upload image. Please try again.');
+        } finally {
+            setUploading(false);
+        }
+    };
 
     const handleAdd = async (e) => {
         e.preventDefault();
@@ -129,11 +152,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
                 onCancel={() => setConfirmDelete(null)}
             />
             <div className="min-h-[350px]">
-            <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">shopping_bag</span>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Wishlist</h3>
-                </div>
+            <div className="flex justify-end items-center mb-6">
                 <button
                     onClick={() => setIsAdding(true)}
                     className="size-8 rounded-lg bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all"
@@ -358,12 +377,59 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Image URL</label>
-                                <input
-                                    type="text" placeholder="https://image-link.com/..."
-                                    className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                    value={newItem.imageUrl} onChange={e => setNewItem({ ...newItem, imageUrl: e.target.value })}
-                                />
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Item Image</label>
+                                <div className="grid grid-cols-1 gap-3">
+                                    {/* Upload Area */}
+                                    <div 
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className={`relative h-32 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden ${
+                                            newItem.imageUrl ? 'border-primary/50' : 'border-slate-200 dark:border-white/10 hover:border-primary/50 bg-slate-50/50 dark:bg-white/5'
+                                        }`}
+                                    >
+                                        {newItem.imageUrl ? (
+                                            <>
+                                                <img src={newItem.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-40" alt="Preview" />
+                                                <div className="relative z-10 flex flex-col items-center gap-2">
+                                                    <span className="material-symbols-outlined text-primary">check_circle</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-primary bg-white dark:bg-black px-3 py-1 rounded-full shadow-sm">Change Image</span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                {uploading ? (
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <div className="size-6 border-2 border-primary border-t-transparent animate-spin rounded-full" />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 animate-pulse">Uploading...</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <span className="material-symbols-outlined text-slate-400">upload_file</span>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Upload Image</span>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                        <input 
+                                            type="file" 
+                                            ref={fileInputRef} 
+                                            onChange={handleImageUpload} 
+                                            className="hidden" 
+                                            accept="image/*" 
+                                        />
+                                    </div>
+
+                                    {/* URL Fallback */}
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                                            <span className="material-symbols-outlined text-slate-400 text-sm">link</span>
+                                        </div>
+                                        <input
+                                            type="text" placeholder="Or paste image URL..."
+                                            className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-[10px] focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
+                                            value={newItem.imageUrl} onChange={e => setNewItem({ ...newItem, imageUrl: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="flex flex-col gap-1.5">

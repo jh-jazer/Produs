@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Bell, Users, User, Lock } from 'lucide-react';
+import { Search, Bell, Users, User, Lock, Zap, Cpu } from 'lucide-react';
 import { DashboardContext } from '../../context/DashboardContext';
 
 const DashboardHeader = ({ viewMode, setViewMode, user }) => {
-    const { setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount } = useContext(DashboardContext);
+    const { setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, setIsOperationModalOpen, protocolMode } = useContext(DashboardContext);
 
     const isPartnerLocked = !user?.partner;
     return (
@@ -30,34 +30,36 @@ const DashboardHeader = ({ viewMode, setViewMode, user }) => {
 
             {/* 2. Controls Group (Toggle + Notifications) */}
             <div className="flex items-center gap-2 md:gap-3 order-2">
-                {/* Partner View Toggle */}
-                <div className="glass-panel p-1 md:p-1.5 rounded-2xl flex items-center gap-1">
-                    <button
-                        onClick={() => setViewMode('personal')}
-                        className={`h-9 px-3 md:px-6 rounded-xl flex items-center gap-2 md:gap-3 transition-all duration-500 ${
-                            viewMode === 'personal' 
-                            ? 'bg-slate-900 text-white shadow-xl translate-z-10' 
-                            : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-                        }`}
-                    >
-                        <User size={14} className={viewMode === 'personal' ? 'text-cyan-400' : ''} />
-                        <span className="hidden md:block text-[10px] font-black uppercase tracking-widest font-exo italic">Identity</span>
-                    </button>
-                    <button
-                        onClick={() => setViewMode('partner')}
-                        className={`h-9 px-3 md:px-6 rounded-xl flex items-center gap-2 md:gap-3 transition-all duration-500 relative ${
-                            viewMode === 'partner' 
-                            ? 'bg-slate-900 text-white shadow-xl' 
-                            : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-                        }`}
-                    >
-                        <Users size={14} className={viewMode === 'partner' ? 'text-cyan-400' : ''} />
-                        <span className="hidden md:block text-[10px] font-black uppercase tracking-widest font-exo italic">Collective</span>
-                        {isPartnerLocked && (
-                            <Lock size={10} className="text-slate-500 ml-1" />
+                {/* Centralized Operation Trigger */}
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsOperationModalOpen(true)}
+                    className="h-12 glass-panel rounded-2xl px-5 flex items-center gap-4 group transition-all hover:border-cyan-500/30 overflow-hidden relative"
+                >
+                    <div className="relative flex items-center justify-center">
+                        <Cpu size={18} className={`text-slate-400 group-hover:text-cyan-500 transition-colors ${protocolMode === 'rpg' ? 'animate-pulse text-cyan-500' : ''}`} />
+                        {viewMode === 'partner' && (
+                            <span className="absolute -top-1 -right-1 size-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                         )}
-                    </button>
-                </div>
+                    </div>
+                    <div className="flex flex-col items-start">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] font-mono group-hover:text-slate-300 transition-colors">
+                            DASHBOARD_MODES_
+                        </span>
+                        <div className="flex gap-2 mt-0.5">
+                            <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest leading-none">
+                                Mode: {protocolMode === 'rpg' ? 'RPG' : 'PRODUCTIVITY'}
+                            </span>
+                            <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest leading-none">
+                                View: {viewMode === 'personal' ? 'PERSONAL' : 'PARTNER'}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Subtle grid backdrop */}
+                    <div className="absolute inset-0 bg-grid-light opacity-0 group-hover:opacity-5 pointer-events-none transition-opacity" />
+                </motion.button>
 
                 {/* 3. Notification Hub */}
                 <motion.button

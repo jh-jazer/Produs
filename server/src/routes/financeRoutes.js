@@ -17,9 +17,11 @@ import {
     deleteDebt,
     getSavings,
     updateSaving,
-    deleteSaving
+    deleteSaving,
+    uploadWishlistImage
 } from '../controllers/financeController.js';
 import { protect } from '../middleware/authMiddleware.js';
+import { uploadWishlist } from '../config/cloudinary.js';
 
 const router = express.Router();
 
@@ -60,5 +62,7 @@ router.route('/wishlist')
 router.route('/wishlist/:id')
     .patch(protect, updateWishlistItem)
     .delete(protect, deleteWishlistItem);
+
+router.post('/wishlist/upload', protect, uploadWishlist.single('image'), uploadWishlistImage);
 
 export default router;

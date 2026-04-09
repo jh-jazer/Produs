@@ -18,4 +18,14 @@ const storage = new CloudinaryStorage({
   },
 });
 
+const wishlistStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'produs_wishlist',
+    allowedFormats: ['jpg', 'png', 'jpeg', 'webp'],
+    transformation: [{ width: 800, height: 800, crop: 'limit' }]
+  },
+});
+
 export const uploadBanner = multer({ storage: storage });
+export const uploadWishlist = multer({ storage: wishlistStorage });

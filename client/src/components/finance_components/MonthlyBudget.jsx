@@ -77,19 +77,16 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
 
     return (
         <div className="min-h-[300px] flex flex-col">
-            <div className="flex items-center justify-between gap-2 mb-6">
-                <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">pie_chart</span>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Monthly Budget</h3>
-                </div>
+            <div className="flex items-center justify-end mb-6">
                 <button
                     onClick={() => {
                         setEditBudgets(budgetList.map(b => ({ ...b })));
                         setIsEditing(true);
                     }}
-                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-[#000000] transition-colors"
+                    className="size-8 rounded-lg bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-none"
+                    title="Budget Settings"
                 >
-                    <span className="material-symbols-outlined text-xl">settings</span>
+                    <span className="material-symbols-outlined text-lg">settings</span>
                 </button>
             </div>
 
@@ -233,7 +230,8 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
                                     </div>
                                     <button 
                                         onClick={addCategory}
-                                        className="p-2 bg-primary text-white rounded-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-lg shadow-primary/20"
+                                        className="size-8 rounded-lg bg-primary text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                                        title="Add Category"
                                     >
                                         <span className="material-symbols-outlined text-lg">add</span>
                                     </button>

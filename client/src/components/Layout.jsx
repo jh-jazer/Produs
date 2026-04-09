@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import DashboardScrollIndicator from './dashboard/DashboardScrollIndicator';
-import { Search, Bell, Users, User, Lock } from 'lucide-react';
+import { Search, Bell, Users, User, Lock, Zap, Cpu } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
@@ -15,6 +15,7 @@ import UserSearch from './ui/UserSearch';
 import BugReportModal from './ui/BugReportModal';
 import NotificationModal from './ui/NotificationModal';
 import UserMenuModal from "./ui/UserMenuModal";
+import OperationModeModal from './ui/OperationModeModal';
 import LevelDisplay from './ui/LevelDisplay';
 import DashboardHeader from './dashboard/DashboardHeader';
 import { DashboardContext } from '../context/DashboardContext';
@@ -53,6 +54,7 @@ function Layout() {
     const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
     const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+    const [isOperationModalOpen, setIsOperationModalOpen] = useState(false);
     const isNeuralSyncDismissed = useAuthStore((state) => state.isNeuralSyncDismissed);
 
     // Fetch fresh profile from server — this is the authoritative source of truth.
@@ -106,7 +108,8 @@ function Layout() {
             viewMode, 
             setViewMode, 
             protocolMode, 
-            setProtocolMode 
+            setProtocolMode,
+            setIsOperationModalOpen
         }}>
             <div
             className="bg-transparent font-display text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden"
@@ -123,14 +126,14 @@ function Layout() {
 
                     {/* Tactical Tools Right */}
                     <div className="ml-auto flex items-center gap-2">
-                        {/* 1. Partner Toggle */}
+                        {/* 1. Command Console (Operation Modes) */}
                         <button
-                            onClick={() => setViewMode(viewMode === 'personal' ? 'partner' : 'personal')}
+                            onClick={() => setIsOperationModalOpen(true)}
                             className="size-9 glass-panel rounded-xl flex items-center justify-center relative bg-black/5 dark:bg-white/5 active:scale-95 transition-all"
                         >
-                            {viewMode === 'personal' ? <User size={14} className="text-slate-500" /> : <Users size={14} className="text-cyan-500" />}
-                            {!user?.partner && (
-                                <Lock size={8} className="absolute bottom-1.5 right-1.5 text-slate-400" />
+                            <Cpu size={14} className={`text-slate-500 ${protocolMode === 'rpg' ? 'text-cyan-500 animate-pulse' : ''}`} />
+                            {viewMode === 'partner' && (
+                                <span className="absolute top-2 right-2 size-1.5 bg-emerald-500 rounded-full animate-pulse" />
                             )}
                         </button>
 
@@ -257,41 +260,12 @@ function Layout() {
                         ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'pl-[20px]' : 'pl-[16px]'}
                     `}>
 
-                        {user?.level > 0 && (
-                            <div className="flex items-center gap-4 w-full h-10">
-                                <div
-                                    className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/[0.05] dark:border-white/10 flex flex-col items-center justify-center gap-0.5 shrink-0"
-                                >
-                                    <span className="text-[7px] font-black text-black/30 dark:text-white/30 uppercase tracking-tighter italic leading-none">LVL</span>
-                                    <span className="text-sm font-black text-black dark:text-white leading-none">{user?.level || 1}</span>
-                                </div>
 
-                                <AnimatePresence>
-                                    {(location.pathname === '/dashboard' || isMobileMenuOpen) && (
-                                        <motion.div 
-                                            key="prog-bar"
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -10 }}
-                                            className={`${isMobileMenuOpen ? 'flex' : 'hidden md:flex'} flex-1 min-w-0`}
-                                        >
-                                            <LevelDisplay 
-                                                level={user?.level} 
-                                                exp={user?.exp} 
-                                                totalRequired={user?.totalRequired}
-                                                nextLevelExp={user?.nextLevelExp}
-                                                className="w-full" 
-                                            />
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        )}
 
                         <div className="relative flex items-center gap-4 group" ref={profileRef}>
                             <button
                                 onClick={() => setIsUserMenuOpen(true)}
-                                className="size-10 rounded-full ring-2 ring-electric-blue/10 hover:ring-electric-blue/40 overflow-hidden transition-all active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0 relative"
+                                className="size-10 rounded-full ring-2 ring-electric-blue/10 hover:ring-electric-blue/40 overflow-hidden transition-all active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0 relative group/avatar"
                             >
                                 {user?.avatar?.url ? (
                                     <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover" />
@@ -300,25 +274,48 @@ function Layout() {
                                 )}
                             </button>
 
-                            <AnimatePresence mode="wait">
-                                {(location.pathname === '/dashboard' || isMobileMenuOpen) && (
-                                    <motion.div 
-                                        key="profile-greeting"
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -10 }}
-                                        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                        className={`${isMobileMenuOpen ? 'flex' : 'hidden md:flex'} flex-col whitespace-nowrap overflow-hidden`}
-                                    >
-                                        <div className="flex flex-col">
-                                            <p className="text-[10px] font-black text-black dark:text-white leading-none uppercase tracking-[0.2em]">{user?.username ? `@${user.username}` : user?.name}</p>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                {user?.username && <span className="text-[8px] font-bold text-electric-blue uppercase">{user.name}</span>}
+                                <AnimatePresence mode="wait">
+                                    {(location.pathname === '/dashboard' || isMobileMenuOpen) && (
+                                        <motion.div 
+                                            key="profile-greeting"
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -10 }}
+                                            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                            className={`${isMobileMenuOpen ? 'flex' : 'hidden md:flex'} flex-col whitespace-nowrap overflow-hidden max-w-[140px]`}
+                                        >
+                                            <div className="flex flex-col gap-1 w-full">
+                                                {/* ROW 1: Username & XP Status */}
+                                                <div className="flex items-end justify-between w-full pr-1">
+                                                    <p className="text-[8px] font-black text-black dark:text-white leading-none uppercase tracking-[0.2em]">
+                                                        @{user.username || 'OPERATOR'}
+                                                    </p>
+                                                    {user.level > 0 && (
+                                                        <span className="text-[8px] font-black text-electric-blue uppercase tracking-[0.2em] leading-none">
+                                                            {user.exp - (user.totalRequired || 0)}/{user.nextLevelExp || 100}XP
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                
+                                                {/* ROW 2: Level & Progress Bar */}
+                                                <div className="w-full">
+                                                    {user?.level === 0 ? (
+                                                        <span className="text-[8px] font-black text-rose-500 uppercase tracking-[0.3em] animate-pulse">SHUT-IN_STATUS</span>
+                                                    ) : (
+                                                        <LevelDisplay 
+                                                            level={user?.level} 
+                                                            exp={user?.exp} 
+                                                            totalRequired={user?.totalRequired}
+                                                            nextLevelExp={user?.nextLevelExp}
+                                                            showXP={false}
+                                                            className="w-full" 
+                                                        />
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                         </div>
                     </div>
                 </aside>
@@ -425,6 +422,11 @@ function Layout() {
                         onClose={() => setIsOnboardingOpen(false)} 
                     />
                 )}
+
+                <OperationModeModal 
+                    isOpen={isOperationModalOpen} 
+                    onClose={() => setIsOperationModalOpen(false)} 
+                />
 
                 <DashboardScrollIndicator />
             </div>

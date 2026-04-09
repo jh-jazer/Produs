@@ -15,11 +15,12 @@ import XpFeed from '../components/dashboard/XpFeed';
 import AwakeningOverlay from '../components/dashboard/AwakeningOverlay';
 import useSWR from 'swr';
 import api from '../services/api';
+import { useHabits } from '../hooks/useHabits';
 
 // Reality Mode Widgets
 import { 
   MoodTracker, 
-  CoreStreaksList, 
+  TodayObjectivesList, 
   RealityAchievements, 
   WishlistPreview 
 } from '../components/dashboard/DashboardRealityWidgets';
@@ -38,7 +39,7 @@ function Overview() {
   const [isAwaking, setIsAwaking] = useState(false);
   
   // Data Fetching for Reality Widgets
-  const { data: habits = [] } = useSWR('/habits', (url) => api.get(url).then(res => res.data));
+  const { habits, isLoading: isLoadingHabits, toggleCheck: toggleHabitCheck } = useHabits();
   const { data: wishlist = [] } = useSWR('/finance/wishlist', (url) => api.get(url).then(res => res.data));
 
 
@@ -197,7 +198,11 @@ function Overview() {
                              <MoodTracker currentMood={user?.settings?.mood} onMoodSelect={updateMood} />
                           </div>
                           <div className="w-full">
-                             <CoreStreaksList habits={habits} />
+                             <TodayObjectivesList 
+                               habits={habits} 
+                               isLoadingHabits={isLoadingHabits} 
+                               toggleHabitCheck={toggleHabitCheck} 
+                             />
                           </div>
                         </div>
 

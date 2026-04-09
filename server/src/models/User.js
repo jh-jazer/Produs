@@ -169,6 +169,10 @@ const userSchema = new mongoose.Schema({
         subscriptions: {
             type: [String],
             default: []
+        },
+        bannerPosition: {
+            type: Number,
+            default: 50
         }
     },
     currency: {

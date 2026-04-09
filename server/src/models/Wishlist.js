@@ -40,6 +40,10 @@ const wishlistSchema = new mongoose.Schema({
     savings: {
         type: Number,
         default: 0
+    },
+    imageUrl: {
+        type: String,
+        trim: true
     }
 }, {
     timestamps: true

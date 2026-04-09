@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, Plus, Save, Trash2, Activity, Zap, MessageSquare, ChevronDown, ChevronUp, RefreshCw, FileJson } from 'lucide-react';
+import { Brain, Plus, Save, Trash2, Activity, Zap, MessageSquare, ChevronDown, ChevronUp, RefreshCw, FileJson, Download, X } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../../services/api';
 import DashboardPanel from '../ui/DashboardPanel';
@@ -98,6 +98,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
         try {
             await api.delete(`/admin/narrative/${questionId}`);
             mutate();
+            setExpandedId(null);
         } catch (error) {
             console.error('Delete failed:', error);
         }
@@ -150,6 +151,17 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleDownloadJson = () => {
+        const dataStr = JSON.stringify(questions, null, 4);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        const exportFileDefaultName = 'narrative_nodes.json';
+
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
     };
 
     const startEditing = (q) => {
@@ -206,18 +218,25 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
     };
 
     return (
-        <div ref={containerRef}>
+        <div ref={containerRef} className="relative space-y-4">
             <DashboardPanel
                 title="NARRATIVE_MANAGER_"
                 subtitle={`${questions.length} Story Nodes Active`}
                 headerExtra={
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 relative z-[70]">
                     <button 
                         onClick={() => setIsBulkModalOpen(true)}
-                        className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
+                        className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10 cursor-pointer active:scale-95"
                         title="Bulk JSON Import"
                     >
                         <FileJson size={20} />
+                    </button>
+                    <button 
+                        onClick={handleDownloadJson}
+                        className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
+                        title="Export JSON"
+                    >
+                        <Download size={20} />
                     </button>
                     <button 
                         onClick={handleSeed}
@@ -425,7 +444,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                     {q.questionId}
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-slate-900 dark:text-white uppercase tracking-tight font-exo italic">
+                                    <h3 className="font-bold text-slate-900 dark:text-white uppercase tracking-tight font-exo italic text-lg">
                                         {q.title || q.question}
                                         {q.questionId.split('.').length > 1 && (
                                             <span className="ml-2 px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 text-[8px] opacity-70">
@@ -661,7 +680,14 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                 </div>
                                             </div>
 
-                                            <div className="flex justify-end pt-4">
+                                            <div className="flex justify-end gap-3 pt-4">
+                                                    <button 
+                                                        onClick={() => handleDelete(q.questionId)}
+                                                        className="p-2.5 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center gap-2 font-black text-[10px] uppercase tracking-widest"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                        Delete Node
+                                                    </button>
                                                     <button 
                                                         onClick={() => startEditing(q)}
                                                         className="px-6 py-2.5 rounded-xl bg-slate-100 dark:bg-[#000000] text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/10"
@@ -700,7 +726,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
             {/* Bulk Import Modal */}
             <AnimatePresence>
                 {isBulkModalOpen && (
-                    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+                    <div className="fixed inset-0 z-[150] flex items-start justify-center p-4 sm:p-8 pt-20 md:pt-32 overflow-hidden">
                         <motion.div 
                             initial={{ opacity: 0 }} 
                             animate={{ opacity: 1 }} 
@@ -714,7 +740,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             className="relative w-full max-w-4xl bg-white dark:bg-[#121212] rounded-[2.5rem] shadow-[0_20px_80px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 overflow-hidden flex flex-col max-h-[90vh]"
                         >
-                            <div className="p-8 border-b border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between">
+                            <div className="p-8 border-b border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between bg-white/50 dark:bg-white/[0.01]">
                                 <div className="flex items-center gap-4">
                                     <div className="size-10 rounded-2xl bg-accent/20 flex items-center justify-center text-accent">
                                         <FileJson size={20} />
@@ -724,18 +750,39 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">JSON Batch Processing_</p>
                                     </div>
                                 </div>
-                                <button onClick={() => setIsBulkModalOpen(false)} className="size-10 flex items-center justify-center rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 text-slate-400 transition-colors"><Trash2 size={20} /></button>
+
+                                {validationErrors.length > 0 && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        className="flex items-center gap-4 max-w-[50%] bg-rose-500/10 border border-rose-500/20 rounded-2xl p-3"
+                                    >
+                                        <div className="flex flex-col">
+                                            <div className="flex items-center gap-2 text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">
+                                                <Activity size={10} className="animate-pulse" />
+                                                <span>Integrity Failure_</span>
+                                            </div>
+                                            <div className="max-h-[60px] overflow-y-auto pr-2 custom-scrollbar-mini">
+                                                {validationErrors.map((err, i) => (
+                                                    <p key={i} className="text-[9px] font-bold text-rose-500/80 font-mono leading-tight truncate max-w-[300px]" title={err}>
+                                                        {err}
+                                                    </p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
                             </div>
 
                             <div className="p-8 flex-1 overflow-y-auto space-y-8 custom-scrollbar">
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                     <div className="space-y-4">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">JSON Payload</label>
+
                                         <textarea 
                                             value={bulkJson}
                                             onChange={(e) => setBulkJson(e.target.value)}
                                             placeholder="Paste your JSON array of nodes here..."
-                                            className="w-full h-[400px] bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-3xl p-6 text-xs font-mono focus:outline-none focus:border-accent transition-all resize-none leading-relaxed"
+                                            className="w-full h-[220px] bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-3xl p-6 text-xs font-mono focus:outline-none focus:border-accent transition-all resize-none leading-relaxed"
                                         />
                                     </div>
                                     <div className="space-y-6">
@@ -769,28 +816,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                             </div>
                                         </div>
 
-                                        {validationErrors.length > 0 ? (
-                                            <div className="p-6 rounded-3xl bg-rose-500/10 border border-rose-500/20 text-rose-500 space-y-3">
-                                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
-                                                    <Activity size={12} className="animate-pulse" />
-                                                    <span>Critical Integrity Failure_</span>
-                                                </div>
-                                                <div className="space-y-1 max-h-[150px] overflow-y-auto pr-2 custom-scrollbar">
-                                                    {validationErrors.map((err, i) => (
-                                                        <p key={i} className="text-[10px] font-bold font-mono opacity-80 leading-relaxed">• {err}</p>
-                                                    ))}
-                                                </div>
-                                                <p className="pt-2 text-[9px] font-black italic uppercase tracking-tighter opacity-50 border-t border-rose-500/10">Neural synthesis suspended until links are stabilized.</p>
-                                            </div>
-                                        ) : bulkJson && (
-                                            <div className="p-6 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex flex-col gap-2">
-                                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
-                                                    <Zap size={12} />
-                                                    <span>Neural Logic Stabilized_</span>
-                                                </div>
-                                                <p className="text-[10px] font-bold font-mono opacity-80">All narrative links confirmed. Ready for synthesis.</p>
-                                            </div>
-                                        )}
+
 
                                         {importStatus.message && (
                                             <div className={`p-6 rounded-3xl border flex flex-col gap-2 ${
@@ -798,22 +824,30 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                 importStatus.type === 'info' ? 'bg-blue-500/10 border-blue-500/20 text-blue-500' :
                                                 'bg-rose-500/10 border-rose-500/20 text-rose-500'
                                             }`}>
-                                                <span className="text-[10px] font-black uppercase tracking-widest">{importStatus.type}_REPORT</span>
-                                                <p className="text-xs font-bold font-mono">{importStatus.message}</p>
+                                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                                                    <Activity size={12} className="animate-spin" />
+                                                    <span>System_Message_</span>
+                                                </div>
+                                                <p className="text-[10px] font-bold font-mono opacity-80">{importStatus.message}</p>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="p-8 border-t border-black/[0.06] dark:border-white/[0.06] flex justify-end gap-4 bg-black/[0.01] dark:bg-white/[0.01]">
-                                <button 
-                                    onClick={handleBulkImport}
-                                    disabled={!bulkJson || isSaving || validationErrors.length > 0}
-                                    className="bg-accent text-white px-10 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-accent/20 disabled:opacity-50 flex items-center gap-2"
+                            <div className="p-8 border-t border-black/[0.06] dark:border-white/[0.06] flex justify-end gap-4 bg-slate-50 dark:bg-black/20">
+                                <button
+                                    onClick={() => setIsBulkModalOpen(false)}
+                                    className="px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all"
                                 >
-                                    <FileJson size={18} />
-                                    Synthesize JSON
+                                    Dismiss Override
+                                </button>
+                                <button
+                                    disabled={isSaving || validationErrors.length > 0 || !bulkJson}
+                                    onClick={handleBulkImport}
+                                    className="px-10 py-3 rounded-2xl bg-accent text-white font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] shadow-xl shadow-accent/20 disabled:opacity-50 transition-all font-mono"
+                                >
+                                    {isSaving ? 'SYNTHESIZING...' : 'FINALIZE_IMPORT_'}
                                 </button>
                             </div>
                         </motion.div>

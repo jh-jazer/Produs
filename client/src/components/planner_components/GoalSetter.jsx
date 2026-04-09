@@ -129,7 +129,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
     }[view];
 
     const viewDesc = {
-        weekly:  'Tasks you must get done this week.',
+        weekly:  'Strategic objectives for the current period.',
         monthly: 'Things you must accomplish this month.',
         yearly:  'Your primary objectives for the year.',
     }[view];

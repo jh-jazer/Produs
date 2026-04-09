@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
-import { Plus, Edit2 } from 'lucide-react';
+import { Plus, Edit2, ExternalLink, ArrowUpRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../ui/ConfirmDialog';
 
 const ICON_OPTIONS = [
@@ -105,6 +106,7 @@ function HabitTracker({
     reorderHabits,
     myUserId
 }) {
+    const navigate = useNavigate();
     const [editMode, setEditMode] = useState(false);
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [modalStep, setModalStep] = useState('suggestions');
@@ -112,6 +114,13 @@ function HabitTracker({
     const [newHabit, setNewHabit] = useState({ name: '', icon: 'local_drink', color: 'emerald', isShared: false, category: 'DEX' });
     const [localTeamHabits, setLocalTeamHabits] = useState([]);
     const [confirmDelete, setConfirmDelete] = useState(null);
+
+    const CORE_REDIRECTS = {
+        'planner': '/dashboard/planner',
+        'finance': '/dashboard/finance',
+        'journal': '/dashboard/journal',
+        'workout': '/dashboard/health'
+    };
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -261,7 +270,6 @@ function HabitTracker({
                 )}
 
                 {/* Habit Name (or edit form) */}
-                <div className={`${isDashboard ? 'flex-1 min-w-0' : 'w-1/3 min-w-[150px]'} flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 overflow-visible`}>
                     {isEditing ? (
                         <div className="flex flex-col gap-2 w-full p-1 bg-white dark:bg-[#000000] rounded-lg shadow-none border border-primary/20">
                             <div className="flex items-center gap-2">
@@ -293,17 +301,41 @@ function HabitTracker({
                             </div>
                         </div>
                     ) : (
-                        <>
-                            <span className={`material-symbols-outlined ${colors.text} text-lg shrink-0`}>{habit.icon}</span>
-                            <div className="flex flex-col min-w-0">
-                                <span className="truncate">{habit.name}</span>
+                        <div 
+                            className={`flex items-center gap-2 flex-1 min-w-0 transition-all duration-300
+                                ${isSystemHabit ? 'cursor-pointer hover:translate-x-1' : ''}`}
+                            onClick={() => {
+                                if (isSystemHabit && !editMode) {
+                                    const sysId = habit.myPart ? habit.myPart.systemId : habit.systemId;
+                                    const path = CORE_REDIRECTS[sysId];
+                                    if (path) navigate(path);
+                                }
+                            }}
+                        >
+                            <div className="relative shrink-0 flex items-center justify-center">
+                                <span className={`material-symbols-outlined ${colors.text} text-lg shrink-0 transition-transform group-hover/row:scale-110`}>{habit.icon}</span>
+                                {isSystemHabit && (
+                                    <div className="absolute -top-1 -right-1 size-2.5 bg-cyan-500 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-[#0a0a0a]">
+                                        <div className="size-1 bg-white rounded-full animate-pulse" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex flex-col min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5 group/label">
+                                    <span className="truncate group-hover/row:text-cyan-500 transition-colors">{habit.name}</span>
+                                    {isSystemHabit && (
+                                        <ArrowUpRight size={10} className="text-cyan-500 opacity-0 group-hover/row:opacity-100 transition-all translate-y-0.5" />
+                                    )}
+                                </div>
                                 <span className={`text-[10px] font-bold uppercase tracking-wide truncate ${habit.streak > 0 ? colors.text : 'text-slate-400'}`}>
-                                    {habit.streak > 0 ? `${habit.streak}d streak 🔥` : 'No streak'}
+                                    {isSystemHabit 
+                                        ? <span className="flex items-center gap-1"><span className="size-1 bg-cyan-500 rounded-full" /> Auto-Sync Active</span>
+                                        : (habit.streak > 0 ? `${habit.streak}d streak 🔥` : 'No streak')
+                                    }
                                 </span>
                             </div>
-                        </>
+                        </div>
                     )}
-                </div>
 
                 <div className={`flex-1 flex ${isDashboard ? 'justify-end' : 'justify-between'} items-center`}>
                     {daysToDisplay.map((date, dayIdx) => {
@@ -378,6 +410,9 @@ function HabitTracker({
                                                     : 'border border-slate-200 dark:border-white/10 hover:border-slate-400'
                                             } ${!editMode && !isLocked && !isSystemHabit ? 'hover:scale-110 active:scale-95' : (isSystemHabit ? 'cursor-default opacity-80' : '')}`}
                                     >
+                                        {isSystemHabit && (
+                                            <div className="absolute inset-0 bg-cyan-500/5 backdrop-blur-[1px]" />
+                                        )}
                                         <AnimatePresence>
                                             {myChecked && (
                                                 <motion.div
