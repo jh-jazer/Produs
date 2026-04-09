@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import api from '../services/api';
-import { Zap, Shield, Database, Cpu, Activity, LogOut, ChevronDown, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Zap, Shield, Database, Cpu, Activity, LogOut, ChevronDown, AlertTriangle, RefreshCw, Brain } from 'lucide-react';
 
 /**
  * Typewriter Component - Animates text character by character for cinematic feel.
@@ -63,6 +63,10 @@ const NeuralSyncPage = () => {
     const [isTypingComplete, setIsTypingComplete] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successData, setSuccessData] = useState(null);
+    const [isHandshaking, setIsHandshaking] = useState(false);
+    const [handshakeLog, setHandshakeLog] = useState([]);
+    const [handshakeComplete, setHandshakeComplete] = useState(false);
+    const [finalPathData, setFinalPathData] = useState(null);
     const [logs, setLogs] = useState([]);
     const [selectedOption, setSelectedOption] = useState(null);
     const [pendingSyncData, setPendingSyncData] = useState(null);
@@ -286,7 +290,11 @@ const NeuralSyncPage = () => {
 
         // If actual final question (legit completion)
         if (!hasPending && !cleanNextId) {
-            setSuccessData(pendingSyncData);
+            if (user?.level === 0) {
+                setIsHandshaking(true);
+            } else {
+                setSuccessData(pendingSyncData);
+            }
             setSelectedOption(null);
             setPendingSyncData(null);
             setIsPostTypingComplete(false);
@@ -318,6 +326,36 @@ const NeuralSyncPage = () => {
             }
         };
     }, [isPostTypingComplete, selectedOption, pendingSyncData, handleProceed]);
+
+    const handleHandshake = async () => {
+        setIsSubmitting(true);
+        const logs = [
+            "INITIATING_FINAL_SYNERGY...",
+            "BYPASSING_IDENTITY_ENCRYPTION...",
+            "SYNCHRONIZING_CORE_INSTINCTS...",
+            "NEURAL_HANDSHAKE_ESTABLISHED.",
+            "UPLINK_STABILIZED.",
+            "ASSIGNING_PATH_VECTORS...",
+            "GRANTING_LEVEL_1_CLEARANCE."
+        ];
+        
+        // Play out the logs
+        for(let i = 0; i < logs.length; i++) {
+            setHandshakeLog(prev => [...prev, logs[i]]);
+            await new Promise(r => setTimeout(r, 400));
+        }
+
+        try {
+            const { data } = await api.post('/auth/finalize-awakening');
+            setFinalPathData(data);
+            syncUser(data);
+            setHandshakeComplete(true);
+            setIsSubmitting(false);
+        } catch (error) {
+            console.error("Handshake failed", error);
+            setIsSubmitting(false);
+        }
+    };
 
     const handleTerminate = () => {
         setNeuralSyncDismissed(true);
@@ -406,7 +444,79 @@ const NeuralSyncPage = () => {
 
             <div className="max-w-3xl mx-auto px-6 relative z-10" ref={scrollContainerRef}>
                 <AnimatePresence mode="wait">
-                    {successData ? (
+                    {isHandshaking ? (
+                        <motion.div
+                            key="handshake"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="flex flex-col items-center text-center space-y-12 py-20"
+                        >
+                            {!handshakeComplete ? (
+                                <div className="space-y-12 w-full max-w-md">
+                                    <div className="size-24 rounded-full border-4 border-rose-500/20 flex items-center justify-center mx-auto relative">
+                                        <Brain size={40} className="text-rose-500 animate-pulse" />
+                                        <div className="absolute inset-0 size-24 rounded-full border-t-4 border-rose-500 animate-spin" />
+                                    </div>
+                                    
+                                    <div className="text-left bg-black/40 p-6 rounded-[2rem] border border-white/5 font-mono text-[10px] text-rose-500/80 space-y-2 min-h-[160px] backdrop-blur-xl">
+                                        {handshakeLog.map((log, idx) => (
+                                            <div key={idx} className="flex gap-3">
+                                                <span className="opacity-40">&gt;&gt;</span>
+                                                <span className={idx === handshakeLog.length - 1 ? "text-rose-500 font-bold animate-pulse" : ""}>{log}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {!isSubmitting && handshakeLog.length === 0 && (
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={handleHandshake}
+                                            className="w-full py-6 rounded-[2rem] bg-rose-500 text-white font-black text-xs uppercase tracking-[0.5em] shadow-[0_0_50px_rgba(244,63,94,0.3)]"
+                                        >
+                                            ESTABLISH_NEURAL_HANDSHAKE
+                                        </motion.button>
+                                    )}
+                                </div>
+                            ) : (
+                                <motion.div 
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="space-y-12 w-full"
+                                >
+                                    <div className="space-y-4">
+                                        <div className="text-emerald-500 font-mono text-[10px] font-black uppercase tracking-[0.6em]">AWAKENING_CONFIRMED</div>
+                                        <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter italic text-white font-exo">
+                                            {finalPathData?.rpg?.path}
+                                        </h1>
+                                        <p className="text-slate-400 font-medium uppercase tracking-[0.2em] text-[10px] max-w-sm mx-auto leading-loose">
+                                            Your core identity has been stabilized. You are now officially recognized at Level 1.
+                                        </p>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 space-y-1">
+                                            <span className="text-[9px] font-black text-emerald-500/40 uppercase tracking-widest block">Clearance</span>
+                                            <span className="text-2xl font-black italic text-emerald-500 font-exo">LEVEL 1</span>
+                                        </div>
+                                        <div className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 space-y-1">
+                                            <span className="text-[9px] font-black text-emerald-500/40 uppercase tracking-widest block">Neural State</span>
+                                            <span className="text-xl font-black italic text-emerald-500 font-exo">STABLE</span>
+                                        </div>
+                                    </div>
+
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={handleTerminate}
+                                        className="w-full py-6 rounded-[2rem] bg-white text-black font-black text-xs uppercase tracking-[0.4em] shadow-2xl"
+                                    >
+                                        BEGIN_JOURNEY
+                                    </motion.button>
+                                </motion.div>
+                            )}
+                        </motion.div>
+                    ) : successData ? (
                         <motion.div
                             key="success"
                             initial={{ opacity: 0, y: 30 }}

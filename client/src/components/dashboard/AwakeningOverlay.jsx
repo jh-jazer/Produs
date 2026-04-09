@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Target, Zap, Shield, Sparkles } from 'lucide-react';
 import SystemWindow from '../ui/SystemWindow';
 
-const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading }) => {
+const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading, hasStarted = false }) => {
     return (
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
             <motion.div 
@@ -42,7 +42,7 @@ const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading }) => {
                                 className={`w-full py-4 bg-cyan-500 text-black font-black text-[11px] uppercase tracking-[0.4em] rounded-2xl shadow-lg flex items-center justify-center gap-3 group transition-all ${isLoading ? 'opacity-50 cursor-wait' : ''}`}
                             >
                                 <Sparkles size={10} className={`${isLoading ? 'animate-spin' : 'group-hover:rotate-12'} transition-transform`} />
-                                {isLoading ? 'LOADING...' : 'START ASSESSMENT'}
+                                {isLoading ? 'LOADING...' : (hasStarted ? 'CONTINUE ASSESSMENT' : 'START ASSESSMENT')}
                             </motion.button>
 
                             <motion.button

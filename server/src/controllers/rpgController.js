@@ -139,39 +139,29 @@ export const syncNeural = async (req, res) => {
         }
         const results = calculateScores(user.rpg.completedAnswers);
         
-        // 4. Update Identity Slices
-        user.rpg.path = results.path;
-        user.rpg.tier1 = results.tier1;
-        user.rpg.style = results.style;
-        user.rpg.alignment = results.alignment;
-        user.rpg.styleLabel = results.styleLabel;
-        user.rpg.finalLabel = results.finalLabel || results.styleLabel || results.tier1 || results.path;
-        
-        // 5. Handle Mastery & Ranks
-        const oldRank = user.rpg.specialistRank;
-        user.rpg.masteryPoints = results.masteryPoints;
-        const newRank = calculateMasteryRank(user.rpg.masteryPoints);
-        user.rpg.specialistRank = newRank;
-
-        // 6. Record Speed Records (SSS)
-        if (newRank === 'SSS' && !user.rpg.levelReachedSSS) {
-            user.rpg.levelReachedSSS = user.level;
-        }
-
-        // 7. Handle Initial Awakening (Level 0 -> 1)
-        if (user.level === 0) {
-            user.level = 1;
-            user.exp = 100; // Baseline Level 1 XP
+        // 4. Update Identity Slices (Only if already awakened, otherwise wait for Handshake)
+        if (user.level > 0) {
+            user.rpg.path = results.path;
+            user.rpg.tier1 = results.tier1;
+            user.rpg.style = results.style;
+            user.rpg.alignment = results.alignment;
+            user.rpg.styleLabel = results.styleLabel;
+            user.rpg.finalLabel = results.finalLabel || results.styleLabel || results.tier1 || results.path;
             
-            // Assign some starter Archetype flags if they don't exist
-            if (!user.rpg.archetype || !user.rpg.archetype.name) {
-                user.rpg.archetype = {
-                    name: 'Initiate',
-                    tier: 1,
-                    stage: 'Awakened'
-                };
+            // 5. Handle Mastery & Ranks
+            const oldRank = user.rpg.specialistRank;
+            user.rpg.masteryPoints = results.masteryPoints;
+            const newRank = calculateMasteryRank(user.rpg.masteryPoints);
+            user.rpg.specialistRank = newRank;
+
+            // 6. Record Speed Records (SSS)
+            if (newRank === 'SSS' && !user.rpg.levelReachedSSS) {
+                user.rpg.levelReachedSSS = user.level;
             }
         }
+
+        // 7. Handle Initial Awakening (Handled via Handshake now)
+        // Level 1 transformation and Path assignment are triggered by the NEURAL_HANDSHAKE ceremony.
 
         user.markModified('rpg');
         await user.save();

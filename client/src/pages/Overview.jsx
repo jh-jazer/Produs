@@ -103,6 +103,7 @@ function Overview() {
               onAwaken={handleInitiateAwakening} 
               onBackToReality={() => setProtocolMode('reality')}
               isLoading={isAwaking}
+              hasStarted={user?.rpg?.completedAnswers?.length > 0}
             />
           </motion.div>
         ) : isInitializing ? (

@@ -7,6 +7,7 @@ import Joi from 'joi';
 import mongoose from 'mongoose';
 import generateToken from '../utils/generateToken.js';
 import { calculateLevel, awardXP, determineArchetype } from '../utils/rpgUtils.js';
+import { calculateScores } from '../shared/assessment.js';
 const registerSchema = Joi.object({
     name: Joi.string().min(2).max(50).required(),
     email: Joi.string().email().required(),
@@ -592,25 +593,54 @@ export const awakenUser = async (req, res) => {
         const { result } = req.body;
         if (!result) return res.status(400).json({ message: 'Assessment result required' });
 
-        // Update Stats and Profile
-        user.rpg.stats = result.stats;
-        user.rpg.path = result.path;
-        user.rpg.tier1 = result.tier1;
-        user.rpg.style = result.style;
-        user.rpg.alignment = result.alignment;
-        user.rpg.finalLabel = result.finalArchetype;
-        user.rpg.confidence = result.consistency;
+        // Update Stats and Profile (Temporary storage in rpg.assessmentResults)
+        user.rpg.assessmentResults = result;
+        user.markModified('rpg');
+        await user.save();
+
+        res.json({
+            message: 'Assessment results archived. Pending NEURAL_HANDSHAKE.',
+            rpg: user.rpg
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const finalizeAwakening = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        if (user.level !== 0) {
+            return res.status(400).json({ message: 'User is already awakened' });
+        }
+
+        // Calculate final results from complete history
+        const results = calculateScores(user.rpg.completedAnswers);
         
-        // Update Level and XP to Level 1 baseline
+        // Finalize Stats and Profile
+        user.rpg.stats = results.stats;
+        user.rpg.path = results.path;
+        user.rpg.tier1 = results.tier1;
+        user.rpg.style = results.style;
+        user.rpg.alignment = results.alignment;
+        user.rpg.finalLabel = results.finalLabel;
+        
+        // Grant Level 1
         user.level = 1;
         user.exp = 100;
 
         // Finalize Archetype Identity
         user.rpg.archetype = {
-            name: result.finalArchetype,
+            name: results.finalLabel || 'Initiate',
             tier: 1,
-            stage: result.tier1
+            stage: results.tier1 || 'Awakened'
         };
+
+        // Clear assessment buffer
+        user.rpg.assessmentResults = undefined;
+        user.rpg.pendingQuestions = []; // Ensure all questions are cleared
         
         user.markModified('rpg');
         await user.save();

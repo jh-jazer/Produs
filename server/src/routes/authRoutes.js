@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import { registerUser, loginUser, getMe, getPartner, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, sendPartnerRequest, acceptPartnerRequest, rejectPartnerRequest, cancelPartnerRequest, unlinkPartner, searchUsers, checkUsername, updateSubscriptions, sendConnectionRequest, acceptConnectionRequest, rejectConnectionRequest, cancelConnectionRequest, disconnectConnection, getConnections, getStats, devRPGTest, awakenUser, uploadBannerImage } from '../controllers/authController.js';
+import { registerUser, loginUser, getMe, getPartner, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, sendPartnerRequest, acceptPartnerRequest, rejectPartnerRequest, cancelPartnerRequest, unlinkPartner, searchUsers, checkUsername, updateSubscriptions, sendConnectionRequest, acceptConnectionRequest, rejectConnectionRequest, cancelConnectionRequest, disconnectConnection, getConnections, getStats, devRPGTest, awakenUser, finalizeAwakening, uploadBannerImage } from '../controllers/authController.js';
 import { protect, optionalProtect } from '../middleware/authMiddleware.js';
 import { uploadBanner } from '../config/cloudinary.js';
 
@@ -15,6 +15,7 @@ router.get('/search', protect, searchUsers);
 router.get('/connections', protect, getConnections);
 router.put('/onboarding', protect, completeOnboarding);
 router.post('/awaken', protect, awakenUser);
+router.post('/finalize-awakening', protect, finalizeAwakening);
 router.put('/settings', protect, updateSettings);
 router.post('/upload/banner', protect, uploadBanner.single('image'), uploadBannerImage);
 router.delete('/me', protect, deleteUser);

@@ -18,6 +18,10 @@ const NeuralSyncModal = ({ isOpen, onClose }) => {
     const [showFeedback, setShowFeedback] = useState(false);
     const [isInitializing, setIsInitializing] = useState(true);
     const [diagnosticLogs, setDiagnosticLogs] = useState([]);
+    const [isHandshaking, setIsHandshaking] = useState(false);
+    const [handshakeLog, setHandshakeLog] = useState([]);
+    const [handshakeComplete, setHandshakeComplete] = useState(false);
+    const [finalData, setFinalData] = useState(null);
 
     const pendingIds = user?.rpg?.pendingQuestions || [];
 
@@ -107,6 +111,10 @@ const NeuralSyncModal = ({ isOpen, onClose }) => {
                 if (data.pendingQuestions && data.pendingQuestions.length > 0) {
                     setSyncComplete(false);
                     setCurrentQuestion(null);
+                } else if (user.level === 0) {
+                    // Start handshake instead of closing
+                    setSyncComplete(false);
+                    setIsHandshaking(true);
                 } else {
                     onClose();
                 }
@@ -116,6 +124,34 @@ const NeuralSyncModal = ({ isOpen, onClose }) => {
 
         } catch (error) {
             console.error('Neural Sync failed:', error);
+            setIsSyncing(false);
+        }
+    };
+
+    const finalizeHandshake = async () => {
+        setIsSyncing(true);
+        const logs = [
+            "INITIATING_FINAL_SYNERGY...",
+            "NEURAL_HANDSHAKE_ESTABLISHED.",
+            "UPLINK_STABILIZED.",
+            "ASSIGNING_PATH_VECTORS...",
+            "GRANTING_LEVEL_1_CLEARANCE."
+        ];
+        
+        for(let i = 0; i < logs.length; i++) {
+            setHandshakeLog(prev => [...prev, logs[i]]);
+            await new Promise(r => setTimeout(r, 400));
+        }
+
+        try {
+            const { data } = await api.post('/auth/finalize-awakening');
+            setFinalData(data);
+            syncUser(data);
+            setHandshakeComplete(true);
+            setIsSyncing(false);
+            mutate('/auth/me');
+        } catch (error) {
+            console.error("Handshake failed", error);
             setIsSyncing(false);
         }
     };
@@ -272,6 +308,55 @@ const NeuralSyncModal = ({ isOpen, onClose }) => {
                                         <span className="material-symbols-outlined text-[16px]">power_settings_new</span>
                                     </button>
                                 </div>
+                            </motion.div>
+                        ) : isHandshaking ? (
+                            <motion.div
+                                key="handshake"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="py-12 space-y-8"
+                            >
+                                {!handshakeComplete ? (
+                                    <>
+                                        <div className="size-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto text-rose-500 animate-pulse">
+                                            <Brain size={32} />
+                                        </div>
+                                        <div className="bg-black/20 p-4 rounded-xl border border-white/5 font-mono text-[9px] text-rose-500/60 space-y-1 text-left max-w-xs mx-auto">
+                                            {handshakeLog.map((log, idx) => (
+                                                <div key={idx} className="flex gap-2">
+                                                    <span>&gt;&gt;</span>
+                                                    <span>{log}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {handshakeLog.length === 0 && (
+                                            <button 
+                                                onClick={finalizeHandshake}
+                                                className="w-full py-4 rounded-2xl bg-rose-500 text-white font-black text-xs uppercase tracking-widest shadow-xl"
+                                            >
+                                                ESTABLISH_HANDSHAKE
+                                            </button>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="space-y-6">
+                                        <div className="size-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-500">
+                                            <Sparkles size={32} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <h2 className="text-3xl font-black italic text-white uppercase font-exo">
+                                                {finalData?.rpg?.path}
+                                            </h2>
+                                            <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">IDENTITY_STABILIZED // LEVEL 1</p>
+                                        </div>
+                                        <button 
+                                            onClick={onClose}
+                                            className="w-full py-4 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest"
+                                        >
+                                            BEGIN_JOURNEY
+                                        </button>
+                                    </div>
+                                )}
                             </motion.div>
                         ) : (
                             <motion.div

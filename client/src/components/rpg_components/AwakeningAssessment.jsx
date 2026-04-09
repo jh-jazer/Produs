@@ -70,6 +70,10 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
     const [results, setResults] = useState(null);
     const [activeIndex, setActiveIndex] = useState(null);
 
+    const [isHandshaking, setIsHandshaking] = useState(false);
+    const [handshakeComplete, setHandshakeComplete] = useState(false);
+    const [handshakeLog, setHandshakeLog] = useState([]);
+    
     const PATH_QUESTIONS = useMemo(() => ARCHETYPE_QUIZ.slice(0, 15), []);
 
     const handleAnswer = (value) => {
@@ -91,16 +95,43 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
         
         try {
             await new Promise(resolve => setTimeout(resolve, 2000));
+            // Record the results but don't finalize level 1 yet
             const { data } = await api.post('/auth/awaken', { result });
             setResults(data);
-            setStep(4);
-            
-            syncUser(data);
-            mutate('/auth/me');
+            setIsSyncing(false);
+            setStep(4); // Move to Handshake step
         } catch (error) {
-            console.error('Awakening failed:', error);
+            console.error('Awakening calculation failed:', error);
             setIsSyncing(false);
             setStep(2);
+        }
+    };
+
+    const handleHandshake = async () => {
+        setIsSyncing(true);
+        const logs = [
+            "INITIATING_FINAL_SYNERGY...",
+            "NEURAL_HANDSHAKE_ESTABLISHED.",
+            "UPLINK_STABILIZED.",
+            "ASSIGNING_PATH_VECTORS...",
+            "GRANTING_LEVEL_1_CLEARANCE."
+        ];
+        
+        for(let i = 0; i < logs.length; i++) {
+            setHandshakeLog(prev => [...prev, logs[i]]);
+            await new Promise(r => setTimeout(r, 400));
+        }
+
+        try {
+            const { data } = await api.post('/auth/finalize-awakening');
+            setResults(data);
+            syncUser(data);
+            setHandshakeComplete(true);
+            setIsSyncing(false);
+            mutate('/auth/me');
+        } catch (error) {
+            console.error("Handshake failed", error);
+            setIsSyncing(false);
         }
     };
 
@@ -191,44 +222,77 @@ const AwakeningAssessment = ({ isOpen, onClose, isInline = false }) => {
                     </motion.div>
                 )}
 
-                {/* Step 4: Revealed */}
+                {/* Step 4: Handshake / Final Reveal */}
                 {step === 4 && (
                     <motion.div
-                        key="revealed-step"
-                        className="text-center space-y-8"
+                        key="handshake-step"
+                        className="text-center space-y-8 py-10"
                     >
-                        <div className="space-y-4">
-                            <div className="text-[9px] font-black text-accent uppercase tracking-[0.4em] font-mono">NEURAL_FOUNDATION_ACTIVE</div>
-                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Your Core Path Is:</div>
-                            <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-slate-900 dark:text-white font-exo italic">
-                                {results?.rpg?.path}
-                            </h2>
-                        </div>
+                        {!handshakeComplete ? (
+                            <div className="space-y-8 max-w-sm mx-auto">
+                                <div className="size-20 bg-accent/5 rounded-full flex items-center justify-center mx-auto text-accent border border-accent/20 animate-pulse relative">
+                                    <Brain size={32} />
+                                    <div className="absolute inset-0 size-20 rounded-full border-t-2 border-accent animate-spin" />
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="text-[10px] font-black text-accent uppercase tracking-[0.4em] font-mono animate-pulse">Ready_For_Handshake</div>
+                                    <h2 className="text-2xl font-black italic tracking-tighter text-slate-900 dark:text-white uppercase font-exo">Establish Neural Synergy</h2>
+                                    <p className="text-[9px] text-slate-400 tracking-[0.2em] font-mono leading-relaxed uppercase">The archetype foundation is ready. Finalize your link to unlock Level 1 clearance.</p>
+                                </div>
 
-                        <div className="max-w-xl mx-auto border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] rounded-[2.5rem] p-8 space-y-6">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Neural Sync Status</span>
-                                <span className="text-[10px] font-black text-accent font-mono">1/5 Tiers</span>
-                            </div>
-                            <div className="h-1.5 w-full bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden">
-                                <motion.div 
-                                    className="h-full bg-accent"
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `20%` }}
-                                    transition={{ duration: 1 }}
-                                />
-                            </div>
-                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-[0.1em] italic text-center">
-                                You have successfully Awakened. As you level up and gain power, you will unlock further "Neural Syncs" to determine your Archetype, Style, Alignment, and Specialist Rank.
-                            </p>
-                        </div>
+                                <div className="bg-black/20 p-4 rounded-xl border border-white/5 font-mono text-[8px] text-accent/60 space-y-1 text-left min-h-[100px]">
+                                    {handshakeLog.map((log, idx) => (
+                                        <div key={idx} className="flex gap-2">
+                                            <span>&gt;&gt;</span>
+                                            <span>{log}</span>
+                                        </div>
+                                    ))}
+                                </div>
 
-                        <button
-                            onClick={onClose}
-                            className="w-full py-5 bg-slate-900 dark:bg-white text-white dark:text-black rounded-[2rem] font-black text-xs uppercase tracking-[0.5em] transition-transform hover:scale-[1.02] shadow-xl"
-                        >
-                            BEGIN_JOURNEY
-                        </button>
+                                {!isSyncing && handshakeLog.length === 0 && (
+                                    <button 
+                                        onClick={handleHandshake}
+                                        className="w-full py-5 rounded-[2rem] bg-accent text-white font-black text-[10px] uppercase tracking-[0.5em] shadow-[0_0_30px_rgba(var(--accent-rgb),0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                    >
+                                        INITIALIZE_HANDSHAKE
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="space-y-10"
+                            >
+                                <div className="space-y-4">
+                                    <div className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.6em] font-mono">SYSTEM_AWAKENED</div>
+                                    <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-slate-900 dark:text-white font-exo italic">
+                                        {results?.rpg?.path}
+                                    </h1>
+                                    <p className="max-w-md mx-auto text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-[0.1em] italic">
+                                        Your core path has been stabilized. You are officially recognized as a specialist with Level 1 clearance within the Produs collective.
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
+                                    <div className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 space-y-1">
+                                        <span className="text-[9px] font-black text-emerald-500/40 uppercase tracking-widest block">Status</span>
+                                        <span className="text-xl font-black italic text-emerald-500 font-exo">LEVEL 1</span>
+                                    </div>
+                                    <div className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 space-y-1">
+                                        <span className="text-[9px] font-black text-emerald-500/40 uppercase tracking-widest block">Clearance</span>
+                                        <span className="text-xl font-black italic text-emerald-500 font-exo">ACTIVE</span>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={onClose}
+                                    className="w-full max-w-sm py-6 rounded-[2.5rem] bg-slate-900 dark:bg-white text-white dark:text-black font-black text-[10px] uppercase tracking-[0.5em] shadow-2xl hover:bg-emerald-500 hover:text-white transition-all group"
+                                >
+                                    BEGIN_JOURNEY
+                                </button>
+                            </motion.div>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
