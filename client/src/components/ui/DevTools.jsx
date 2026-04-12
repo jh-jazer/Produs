@@ -54,6 +54,9 @@ const DevTools = () => {
                 />
             )}
             <motion.div 
+                drag
+                dragMomentum={false}
+                dragConstraints={{ left: -window.innerWidth + 100, right: 0, top: -window.innerHeight + 100, bottom: 0 }}
                 animate={{ 
                     x: isTucked ? 48 : 0,
                     opacity: isTucked ? 0.4 : 1
@@ -68,10 +71,10 @@ const DevTools = () => {
                         initial={{ opacity: 0, scale: 0.9, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                        className="bg-white/80 dark:bg-black/80 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-[32px] shadow-2xl p-4 flex flex-col gap-3 min-w-[260px]"
+                        className="bg-white/80 dark:bg-black/80 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-[24px] md:rounded-[32px] p-3 md:p-4 flex flex-col gap-3 w-[85vw] max-w-[280px] md:min-w-[260px] shadow-2xl"
                     >
-                        <div className="px-3 py-1 mb-1 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        <div className="px-2 md:px-3 py-1 mb-1 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
+                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400">
                                 {view === 'main' ? 'RPG Console' : view === 'exp' ? 'Select EXP Amount' : view === 'stats' ? 'Select Stat' : `Boost ${selectedStat}`}
                             </span>
                             <div className="flex gap-2">
@@ -86,49 +89,69 @@ const DevTools = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-2">
+                        <div className="grid grid-cols-1 gap-1.5 md:gap-2">
                             {view === 'main' && (
                                 <>
-                                    <button onClick={() => setView('exp')} className="group flex items-center gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
-                                        <div className="size-10 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
-                                            <span className="material-symbols-outlined text-xl text-white dark:text-black">keyboard_double_arrow_up</span>
+                                    <button onClick={() => setView('exp')} className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                                        <div className="size-9 md:size-10 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
+                                            <span className="material-symbols-outlined text-lg md:text-xl text-white dark:text-black">keyboard_double_arrow_up</span>
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">+ Add EXP</span>
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">+ Add EXP</span>
                                     </button>
-                                    <button onClick={() => setView('stats')} className="group flex items-center gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
-                                        <div className="size-10 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
-                                            <span className="material-symbols-outlined text-xl text-white dark:text-black">military_tech</span>
+                                    <button onClick={() => setView('coins')} className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                                        <div className="size-9 md:size-10 rounded-full bg-[#FFD700] flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
+                                            <span className="material-symbols-outlined text-lg md:text-xl text-black font-black">currency_bitcoin</span>
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">+ Boost Points</span>
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#B8860B] dark:text-[#FFD700]">Coins</span>
                                     </button>
-                                    <button onClick={() => handleAction('removeDailyLimit')} className="group flex items-center gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
-                                        <div className="size-10 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
-                                            <span className="material-symbols-outlined text-xl text-white dark:text-black">lock_open</span>
+                                    <button onClick={() => setView('stats')} className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                                        <div className="size-9 md:size-10 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
+                                            <span className="material-symbols-outlined text-lg md:text-xl text-white dark:text-black">military_tech</span>
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Clear Cap</span>
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">+ Boost Points</span>
                                     </button>
-                                    <button onClick={() => handleAction('resetOnboarding')} className="group flex items-center gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
-                                        <div className="size-10 rounded-full bg-indigo-500 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
-                                            <span className="material-symbols-outlined text-xl text-white">school</span>
+                                    <button onClick={() => handleAction('removeDailyLimit')} className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                                        <div className="size-9 md:size-10 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
+                                            <span className="material-symbols-outlined text-lg md:text-xl text-white dark:text-black">lock_open</span>
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500">Reset Onboarding</span>
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Clear Cap</span>
                                     </button>
-                                    <button onClick={() => handleAction('resetPath')} className="group flex items-center gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
-                                        <div className="size-10 rounded-full bg-rose-600 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
-                                            <span className="material-symbols-outlined text-xl text-white">restart_alt</span>
+                                    <button onClick={() => handleAction('resetOnboarding')} className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                                        <div className="size-9 md:size-10 rounded-full bg-indigo-500 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
+                                            <span className="material-symbols-outlined text-lg md:text-xl text-white">school</span>
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-rose-500">Reset Path</span>
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-indigo-500">Reset Tutorial</span>
+                                    </button>
+                                    <button onClick={() => handleAction('resetPath')} className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                                        <div className="size-9 md:size-10 rounded-full bg-rose-600 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
+                                            <span className="material-symbols-outlined text-lg md:text-xl text-white">restart_alt</span>
+                                        </div>
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-rose-500">Reset Path</span>
                                     </button>
                                 </>
                             )}
 
+                            {view === 'coins' && (
+                                <div className="grid grid-cols-3 gap-2 py-1 md:py-2">
+                                    {[100, 500, 1000, 2000, 5000, 10000].map(amt => (
+                                        <button 
+                                            key={amt}
+                                            onClick={() => handleAction('giveProdCoins', null, amt)}
+                                            className="h-10 md:h-12 rounded-xl md:rounded-2xl bg-[#FFD700] text-black text-[10px] md:text-xs font-black hover:scale-105 transition-transform"
+                                        >
+                                            +{amt.toLocaleString()}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
                             {view === 'exp' && (
-                                <div className="grid grid-cols-3 gap-2 py-2">
+                                <div className="grid grid-cols-3 gap-2 py-1 md:py-2">
                                     {expMagnitudes.map(amt => (
                                         <button 
                                             key={amt}
                                             onClick={() => handleAction('giveXP', null, amt)}
-                                            className="h-12 rounded-2xl bg-black dark:bg-white text-white dark:text-black text-xs font-black hover:scale-105 transition-transform"
+                                            className="h-10 md:h-12 rounded-xl md:rounded-2xl bg-black dark:bg-white text-white dark:text-black text-[10px] md:text-xs font-black hover:scale-105 transition-transform"
                                         >
                                             +{amt}
                                         </button>
@@ -147,8 +170,8 @@ const DevTools = () => {
                                             }}
                                             className="flex flex-col items-center gap-1 group"
                                         >
-                                            <div className="size-10 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
-                                                <span className={`material-symbols-outlined text-xl text-white dark:text-black ${s.color}`}>{s.icon}</span>
+                                            <div className="size-9 md:size-10 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
+                                                <span className={`material-symbols-outlined text-lg md:text-xl text-white dark:text-black ${s.color}`}>{s.icon}</span>
                                             </div>
                                             <span className="text-[8px] font-black text-slate-400">{s.id}</span>
                                         </button>
@@ -157,12 +180,12 @@ const DevTools = () => {
                             )}
 
                             {view === 'points' && (
-                                <div className="grid grid-cols-5 gap-1.5 py-2">
+                                <div className="grid grid-cols-5 gap-1.5 py-1 md:py-2">
                                     {pointMagnitudes.map(amt => (
                                         <button 
                                             key={amt}
                                             onClick={() => handleAction('giveStats', selectedStat === 'ALL' ? null : selectedStat, amt)}
-                                            className="h-10 rounded-xl bg-black dark:bg-white text-white dark:text-black text-[10px] font-black hover:scale-105 transition-transform"
+                                            className="h-8 md:h-10 rounded-lg md:rounded-xl bg-black dark:bg-white text-white dark:text-black text-[9px] md:text-[10px] font-black hover:scale-105 transition-transform"
                                         >
                                             +{amt}
                                         </button>
@@ -176,7 +199,7 @@ const DevTools = () => {
                                         if (view === 'points') setView('stats');
                                         else setView('main');
                                     }}
-                                    className="w-full mt-2 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                                    className="w-full mt-1 md:mt-2 py-1 md:py-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                                 >
                                     Back
                                 </button>
@@ -194,11 +217,11 @@ const DevTools = () => {
                         setIsOpen(!isOpen);
                     }
                 }}
-                className={`size-14 rounded-full flex items-center justify-center shadow-xl transition-all ${
+                className={`size-11 md:size-14 rounded-full flex items-center justify-center shadow-xl transition-all cursor-grab active:cursor-grabbing ${
                     isOpen ? 'bg-black dark:bg-white text-white dark:text-black rotate-90' : 'bg-black dark:bg-white text-white dark:text-black scale-110'
                 } ${isTucked ? 'rounded-r-none pr-3' : ''}`}
             >
-                <span className="material-symbols-outlined font-black text-2xl">
+                <span className="material-symbols-outlined font-black text-xl md:text-2xl">
                     {isTucked ? 'chevron_left' : (isOpen ? 'close' : 'terminal')}
                 </span>
             </button>

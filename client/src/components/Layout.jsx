@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import DashboardScrollIndicator from './dashboard/DashboardScrollIndicator';
-import { Search, Bell, Users, User, Lock, Zap, Cpu, Handshake } from 'lucide-react';
+import { Search, Handshake, User, Lock, Zap, Cpu } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
@@ -14,12 +14,15 @@ import Avatar from './ui/Avatar';
 import UserSearch from './ui/UserSearch';
 import BugReportModal from './ui/BugReportModal';
 import NotificationModal from './ui/NotificationModal';
+import Logo from './brand/Logo';
+import MobileBottomNav from './ui/MobileBottomNav';
+import MobileTabNav from './ui/MobileTabNav';
 import UserMenuModal from "./ui/UserMenuModal";
 import OperationModeModal from './ui/OperationModeModal';
 import LevelDisplay from './ui/LevelDisplay';
 import DashboardHeader from './dashboard/DashboardHeader';
 import { DashboardContext } from '../context/DashboardContext';
-import Logo from './brand/Logo';
+import StatsModal from './ui/StatsModal';
 
 function Layout() {
     const { user, signOut } = useAuthStore();
@@ -56,6 +59,7 @@ function Layout() {
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
     const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
     const [isOperationModalOpen, setIsOperationModalOpen] = useState(false);
+    const [mobileTabs, setMobileTabs] = useState(null); // { tabs, activeTab, setActiveTab }
     const isNeuralSyncDismissed = useAuthStore((state) => state.isNeuralSyncDismissed);
 
     // Fetch fresh profile from server — this is the authoritative source of truth.
@@ -105,12 +109,11 @@ function Layout() {
     };
 
     const navItems = [
-        { name: 'Overview', path: '/dashboard', icon: 'dashboard' },
-        { name: 'Habits', path: '/dashboard/habits', icon: 'check_circle' },
-        { name: 'Planner', path: '/dashboard/planner', icon: 'event' },
-        { name: 'Finance', path: '/dashboard/finance', icon: 'payments' },
-        { name: 'Health', path: '/dashboard/health', icon: 'monitor_heart' },
-        { name: 'Journal', path: '/dashboard/journal', icon: 'book' },
+        { name: 'Home', path: '/dashboard', icon: 'home' },
+        { name: 'Intellectual', path: '/dashboard/intellectual', icon: 'psychology' },
+        { name: 'Financial', path: '/dashboard/financial', icon: 'payments' },
+        { name: 'Physical', path: '/dashboard/physical', icon: 'monitor_heart' },
+        { name: 'Spiritual', path: '/dashboard/spiritual', icon: 'auto_awesome' },
     ];
 
     const currentNavItem = navItems.find(item => item.path === location.pathname);
@@ -125,79 +128,112 @@ function Layout() {
             setViewMode, 
             protocolMode, 
             setProtocolMode,
-            setIsOperationModalOpen
+            setIsOperationModalOpen,
+            mobileTabs,
+            setMobileTabs
         }}>
             <div
             className="bg-transparent font-display text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden"
             >
                 {/* Mobile Top Bar */}
-                <div className={`md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-[135] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03] ${isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
-                    <div
-                        className="flex items-center gap-3 group cursor-pointer relative"
-                        onClick={() => setIsMobileMenuOpen(true)}
-                    >
-                            <Logo glow className="size-8" color="currentColor" />
-                            <span className="font-black text-[11px] uppercase tracking-[0.6em] leading-none text-black dark:text-white mt-1">{pageTitle}</span>
-                    </div>
+                <div className="md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-[135] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03]">
+                    {isOverview && (
+                        <div
+                            className="flex items-center gap-2 active:scale-95 transition-all"
+                            onClick={() => navigate('/dashboard')}
+                        >
+                            <Logo className="size-5" color="currentColor" glow={false} />
+                            <span className="font-black text-[13px] tracking-tight text-black dark:text-white leading-none">
+                                {(user?.rpg?.prodCoins || 0).toLocaleString()}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Integrated Mobile Tabs (Sub-pillars only) */}
+                    {!isOverview && mobileTabs && (
+                        <div className="flex-1 flex justify-start pl-2">
+                            <MobileTabNav 
+                                variant="header"
+                                tabs={mobileTabs.tabs}
+                                activeTab={mobileTabs.activeTab}
+                                setActiveTab={mobileTabs.setActiveTab}
+                            />
+                        </div>
+                    )}
 
                     {/* Tactical Tools Right */}
-                    <div className="ml-auto flex items-center gap-2">
+                    <div className="ml-auto flex items-center gap-3">
                         {/* 1. Tactical Toggles (RPG & Link) */}
-                        <div className="flex items-center gap-1.5 bg-black/[0.03] dark:bg-white/[0.03] p-1 rounded-2xl border border-black/[0.03] dark:border-white/[0.03]">
+                        <div className="flex items-center gap-1.5 p-1 rounded-2xl">
                             {/* RPG Toggle - Dashboard Only */}
                             {isOverview && (
                                 <button
                                     onClick={() => setProtocolMode(protocolMode === 'rpg' ? 'reality' : 'rpg')}
-                                    onContextMenu={(e) => {
-                                        e.preventDefault();
-                                        setIsOperationModalOpen(true);
-                                    }}
                                     className={`size-9 rounded-xl flex items-center justify-center relative transition-all active:scale-95 ${
                                         protocolMode === 'rpg' 
-                                            ? 'bg-primary text-white shadow-[0_0_15px_color-mix(in srgb, var(--primary) 40%, transparent)]' 
-                                            : 'text-slate-500 hover:text-primary'
+                                            ? 'bg-primary text-white' 
+                                            : 'text-slate-500 bg-black/5 dark:bg-white/5'
                                     }`}
                                 >
                                     <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
                                 </button>
                             )}
 
-                            {/* Partner View Toggle - All except Admin */}
-                            {!isAdminPage && (
+                            {/* Partner Link Toggle */}
+                            {isOverview && (
                                 <button
-                                    onClick={() => setViewMode(viewMode === 'partner' ? 'personal' : 'partner')}
-                                    className={`size-9 rounded-xl flex items-center justify-center relative transition-all active:scale-95 ${
-                                        viewMode === 'partner' 
-                                            ? 'bg-primary text-white shadow-[0_0_15px_color-mix(in srgb, var(--primary) 40%, transparent)]' 
-                                            : 'text-slate-500 hover:text-primary'
-                                    }`}
+                                    onClick={() => setIsOperationModalOpen(true)}
+                                    className="size-9 rounded-xl flex items-center justify-center bg-black/5 dark:bg-white/5 active:scale-95 transition-all text-slate-500"
                                 >
-                                    {viewMode === 'partner' ? <Handshake size={14} /> : <User size={14} />}
+                                    <Handshake size={14} />
                                 </button>
                             )}
+
+                            {/* Search Icon (Overview Only) */}
+                            {isOverview && (
+                                <button
+                                    onClick={() => setIsSearchModalOpen(true)}
+                                    className="size-9 rounded-xl flex items-center justify-center bg-black/5 dark:bg-white/5 active:scale-95 transition-all text-slate-500"
+                                >
+                                    <Search size={14} />
+                                </button>
+                            )}
+
                         </div>
 
-                        {/* 2. Search Icon (Overview Only) */}
-                        {isOverview && (
-                            <button
-                                onClick={() => setIsSearchModalOpen(true)}
-                                className="size-9 glass-panel rounded-xl flex items-center justify-center bg-black/5 dark:bg-white/5 active:scale-95 transition-all"
-                            >
-                                <Search size={14} className="text-slate-500" />
-                            </button>
-                        )}
-
-                        {/* 3. Notification Hub */}
+                        {/* Profile Avatar + LVL Badge (Very Right) */}
                         <button
-                            onClick={() => setIsNotificationModalOpen(true)}
-                            className="size-9 glass-panel rounded-xl flex items-center justify-center relative bg-black/5 dark:bg-white/5 active:scale-95 transition-all"
+                            className="relative flex items-center active:scale-95 transition-all"
+                            onClick={() => setIsUserMenuOpen(true)}
                         >
-                            <Bell size={14} className="text-slate-500" />
-                            {unreadCount > 0 && (
-                                <span className="absolute top-2 right-2 size-2 bg-rose-500 rounded-full ring-2 ring-rose-500/20 animate-pulse" />
+                            <div className="size-9 rounded-full ring-2 ring-primary/10 overflow-hidden bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0">
+                                {user?.avatar?.url ? (
+                                    <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-[10px] font-black uppercase">{user?.name?.charAt(0)}</span>
+                                )}
+                            </div>
+                            {user?.level > 0 && (
+                                <div className="absolute -bottom-1 -right-1 bg-primary text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-lg border border-primary/20 scale-110">
+                                    {user.level}
+                                </div>
                             )}
                         </button>
                     </div>
+
+                    {/* XP Progress Line at the very bottom edge */}
+                    {user?.level > 0 && (
+                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-200 dark:bg-white/10 overflow-hidden">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ 
+                                    width: `${Math.min(100, Math.max(0, (((user.exp || 0) - (user.totalRequired || 0)) / (user.nextLevelExp || 100)) * 100))}%` 
+                                }}
+                                transition={{ duration: 1, ease: 'easeOut' }}
+                                className="h-full bg-primary shadow-[0_0_8px_var(--primary-glow)]"
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Sidebar Backdrop Mobile */}
@@ -216,10 +252,8 @@ function Layout() {
                 {/* Main Side Navigation */}
                 <aside
                     className={`
-                        fixed md:relative z-[150] h-full flex flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1]
-                        ${isMobileMenuOpen ? 'translate-x-0 w-[75vw]' : '-translate-x-full md:translate-x-0'}
-                        ${!isMobileMenuOpen ? (location.pathname === '/dashboard' ? 'md:w-72' : 'md:w-20') : ''}
-                        ${isMobileMenuOpen ? 'bg-white/[0.99] dark:bg-black/[0.99] backdrop-blur-3xl shadow-[40px_0_80px_rgba(0,0,0,0.3)]' : ''}
+                        hidden md:flex relative z-[150] h-full flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1]
+                        ${location.pathname === '/dashboard' ? 'md:w-72' : 'md:w-20'}
                     `}
                 >
                     {/* 1. Sidebar Header: Logo */}
@@ -302,6 +336,31 @@ function Layout() {
 
 
 
+                        {/* 2.5 Currency Display (Desktop) */}
+                        <div className={`mb-2 flex items-center gap-4 transition-all duration-500
+                            ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'opacity-100' : 'opacity-100'}
+                        `}>
+                            <div className="size-10 flex items-center justify-center">
+                                <Logo className="size-5 text-black dark:text-white" color="currentColor" glow={false} />
+                            </div>
+                            
+                            <AnimatePresence>
+                                {(location.pathname === '/dashboard' || isMobileMenuOpen) && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -10 }}
+                                        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                                        className="flex flex-col"
+                                    >
+                                        <span className="font-black text-[13px] tracking-tight text-black dark:text-white leading-none">
+                                            {(user?.rpg?.prodCoins || 0).toLocaleString()}
+                                        </span>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
                         <div className="relative flex items-center gap-4 group" ref={profileRef}>
                             <button
                                 onClick={() => setIsUserMenuOpen(true)}
@@ -361,10 +420,8 @@ function Layout() {
                 </aside>
 
                 {/* Main Application Interface */}
-                <div className={`flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]
-                    ${isMobileMenuOpen ? 'blur-md' : ''}
-                `}>
-                    {!isAdminPage && (
+                <div className={`flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]`}>
+                    {isOverview && !isAdminPage && (
                         <div className="hidden md:block absolute top-0 left-0 right-0 z-40 h-40 pointer-events-none">
                             <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)] via-[var(--background)]/95 to-transparent backdrop-blur-xl [mask-image:linear-gradient(to_bottom,black_20%,transparent),linear-gradient(to_right,transparent,black_10%,black_75%,transparent)] [-webkit-mask-composite:source-in] [mask-composite:intersect]" />
                             <div className="relative pl-8 lg:pl-12 pr-24 lg:pr-32 pt-8 pb-4 pointer-events-auto">
@@ -375,7 +432,7 @@ function Layout() {
 
                     <div 
                         ref={mainRef}
-                        className="flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar flex flex-col relative md:pt-24 mt-16 md:mt-0"
+                        className={`flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar flex flex-col relative mt-16 md:mt-0 ${isOverview ? 'md:pt-24' : 'md:pt-0'}`}
                     >
                         <AnimatePresence mode="wait" initial={false}>
                             <motion.main 
@@ -424,6 +481,7 @@ function Layout() {
                     onOpenSettings={() => setIsSettingsModalOpen(true)}
                     onOpenNotifications={() => setIsNotificationModalOpen(true)}
                     onOpenBugReport={() => setIsBugModalOpen(true)}
+                    onOpenStats={() => setIsStatsModalOpen(true)}
                     onSignOut={handleSignOut}
                 />
 
@@ -471,6 +529,7 @@ function Layout() {
                 />
 
                 <DashboardScrollIndicator />
+                <MobileBottomNav />
             </div>
         </DashboardContext.Provider>
     );

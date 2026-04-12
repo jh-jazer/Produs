@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import ConfirmDialog from '../ui/ConfirmDialog';
-import { usePlanner } from '../../hooks/usePlanner';
-import DashboardPanel from '../ui/DashboardPanel';
+import ConfirmDialog from '../../ui/ConfirmDialog';
+import { usePlanner } from '../../../hooks/usePlanner';
+import DashboardPanel from '../../ui/DashboardPanel';
 
 const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly = false }) => {
     const [viewDate, setViewDate] = useState(new Date());
@@ -356,3 +356,4 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
 };
 
 export default FullCalendar;
+

@@ -22,19 +22,50 @@
 
 <body>
   <div id="initial-loader" class="initial-loader">
-    <div class="loader-content">
-      <div class="loader-logo-container">
-        <div class="logo-glow"></div>
-        <img class="loader-logo-img" src="/produs-logo.png" alt="Produs Logo" />
+    <!-- HUD Layer -->
+    <div class="hud-layer">
+      <div class="hud-top-left">
+        SYS_INIT_SEQUENCE // P.001A<br />
+        MEMORY_ALLOC // OK<br />
+        GRAPH_ENGINE // ACTIVE
       </div>
+      <div class="hud-bottom-right" id="hud-stats">
+        COORDINATES: 0, 0<br />
+        LATENCY: 14MS<br />
+        STATUS: CALIBRATING
+      </div>
+    </div>
+
+    <!-- Scanner Effect -->
+    <div class="scanline"></div>
+
+    <div class="loader-content">
+      <!-- 3D Coin Container -->
+      <div class="coin-wrapper">
+        <div class="coin-glow"></div>
+        <div class="coin" id="coin-3d">
+          <div class="face front">
+            <img src="/produs-logo.png" alt="Produs" />
+          </div>
+          <div id="coin-extrusion"></div>
+          <div class="face back">
+            <img src="/produs-logo.png" alt="Produs" />
+          </div>
+        </div>
+      </div>
+
       <div class="loader-text-container">
         <h1 class="loader-title">Produs</h1>
         <div class="loader-line"></div>
-        <span class="loader-text">INITIALIZING SYSTEM</span>
+        <span class="loader-status" id="loader-status">INITIALIZING SYSTEM</span>
+        <div class="progress-info">
+          <span class="progress-percent" id="progress-percent">0%</span>
+        </div>
       </div>
     </div>
+
     <div class="loader-progress-container">
-      <div class="loader-progress-bar"></div>
+      <div class="loader-progress-bar" id="progress-bar"></div>
     </div>
   </div>
 
@@ -43,6 +74,7 @@
   <style>
     :root {
       --electric-blue: #0066FF;
+      --cyan: #06b6d4;
     }
 
     .initial-loader {
@@ -55,58 +87,146 @@
       justify-content: center;
       z-index: 99999;
       transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s;
+      overflow: hidden;
+      font-family: "Manrope", sans-serif;
     }
 
-    .loader-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3rem;
-      animation: contentEntrance 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    @keyframes contentEntrance {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .loader-logo-container {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .logo-glow {
+    /* HUD Decorations */
+    .hud-layer {
       position: absolute;
       inset: 0;
-      background: rgba(0, 102, 255, 0.2);
-      filter: blur(35px);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .hud-top-left {
+      position: absolute;
+      top: 40px;
+      left: 40px;
+      font-family: monospace;
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.2);
+      letter-spacing: 1px;
+      line-height: 1.5;
+    }
+
+    .hud-bottom-right {
+      position: absolute;
+      bottom: 40px;
+      right: 40px;
+      font-family: monospace;
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.2);
+      text-align: right;
+      letter-spacing: 1px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+      .hud-layer { display: none; }
+    }
+
+    /* Scanline Effect */
+    .scanline {
+      position: absolute;
+      inset: 0;
+      height: 40vh;
+      background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.04), transparent);
+      pointer-events: none;
+      z-index: 5;
+      animation: scanline 8s linear infinite;
+    }
+
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(200%); }
+    }
+
+    /* 3D Coin Animation */
+    .coin-wrapper {
+      position: relative;
+      perspective: 1000px;
+      margin-bottom: 3rem;
+    }
+
+    .coin-glow {
+      position: absolute;
+      inset: -50px;
+      background: var(--electric-blue);
+      filter: blur(40px);
       border-radius: 50%;
-      width: 150px;
-      height: 150px;
-      transform: translateY(10px);
+      opacity: 0.15;
       animation: glowPulse 3s infinite ease-in-out;
     }
 
     @keyframes glowPulse {
-      0%, 100% { opacity: 0.5; transform: translateY(10px) scale(1); }
-      50% { opacity: 0.8; transform: translateY(10px) scale(1.2); }
+      0%, 100% { transform: scale(1); opacity: 0.15; }
+      50% { transform: scale(1.2); opacity: 0.25; }
     }
 
-    .loader-logo-img {
-      width: 140px;
-      height: 140px;
-      object-fit: contain;
+    .coin {
+      width: 120px;
+      height: 120px;
       position: relative;
-      z-index: 10;
-      filter: drop-shadow(0 0 15px rgba(255,255,255,0.7));
-      animation: logoEntrance 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transform-style: preserve-3d;
+      animation: coinRotate 4s linear infinite, coinFloat 2s infinite ease-in-out;
     }
 
-    @keyframes logoEntrance {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+    @keyframes coinRotate {
+      0% { transform: rotateY(0deg) rotateX(-15deg); }
+      100% { transform: rotateY(360deg) rotateX(-15deg); }
+    }
+
+    @keyframes coinFloat {
+      0%, 100% { margin-top: 0; }
+      50% { margin-top: -15px; }
+    }
+
+    .face {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: linear-gradient(to bottom, #1e293b, #0f172a);
+      border: 3px solid var(--cyan);
+      box-shadow: inset 0 0 20px rgba(6, 182, 212, 0.5), 0 0 15px var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .face img {
+      width: 70%;
+      height: 70%;
+      object-fit: contain;
+      z-index: 2;
+    }
+
+    .face::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(6, 182, 212, 0.2);
+      filter: blur(8px);
+    }
+
+    .front { transform: translateZ(5px); }
+    .back { transform: translateZ(-5px) rotateY(180deg); }
+
+    .extrusion-layer {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: #083344;
+      border: 2px solid #020617;
+    }
+
+    /* Loader Content styling */
+    .loader-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
     }
 
     .loader-text-container {
@@ -114,19 +234,11 @@
       flex-direction: column;
       align-items: center;
       gap: 1rem;
-      opacity: 0;
-      animation: textReveal 1s 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    @keyframes textReveal {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     .loader-title {
-      font-family: "Inter", "Manrope", sans-serif;
       font-size: 24px;
-      font-weight: 600;
+      font-weight: 800;
       letter-spacing: 0.8em;
       text-transform: uppercase;
       color: #fff;
@@ -134,33 +246,43 @@
     }
 
     .loader-line {
-      width: 128px;
+      width: 200px;
       height: 1px;
-      background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
+      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent);
     }
 
-    .loader-text {
-      font-family: inherit;
-      font-size: 12px;
-      font-weight: 600;
+    .loader-status {
+      font-size: 10px;
+      font-weight: 900;
       letter-spacing: 0.4em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.7);
-      animation: pulse 2s infinite ease-in-out;
+      color: rgba(255, 255, 255, 0.6);
+      animation: textPulse 2s infinite;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 0.7; }
-      50% { opacity: 0.3; }
+    @keyframes textPulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
     }
 
+    .progress-info {
+      margin-top: 1rem;
+    }
+
+    .progress-percent {
+      font-family: monospace;
+      font-size: 10px;
+      color: var(--electric-blue);
+      letter-spacing: 0.2em;
+    }
+
+    /* Progress Bar */
     .loader-progress-container {
       position: absolute;
-      bottom: 3rem;
-      width: 192px;
-      height: 2px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 999px;
+      bottom: 80px;
+      width: 256px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.05);
       overflow: hidden;
     }
 
@@ -168,15 +290,7 @@
       height: 100%;
       width: 0%;
       background: #fff;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-      animation: progressFill 3.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-    }
-
-    @keyframes progressFill {
-      0% { width: 0%; }
-      30% { width: 20%; }
-      60% { width: 70%; }
-      100% { width: 100%; }
+      box-shadow: 0 0 15px rgba(255, 255, 255, 1);
     }
 
     .initial-loader.fade-out {
@@ -185,6 +299,87 @@
       pointer-events: none;
     }
   </style>
+
+  <script>
+    (function() {
+      // Inject extrusion layers for 3D coin
+      const extrusion = document.getElementById('coin-extrusion');
+      for (let i = 0; i < 20; i++) {
+        const layer = document.createElement('div');
+        layer.className = 'extrusion-layer';
+        layer.style.transform = `translateZ(${4 - i * 0.5}px)`;
+        extrusion.appendChild(layer);
+      }
+
+      const progressBar = document.getElementById('progress-bar');
+      const progressPercent = document.getElementById('progress-percent');
+      const loaderStatus = document.getElementById('loader-status');
+      const stats = document.getElementById('hud-stats');
+      
+      let progress = 0;
+      let isAppReady = false;
+      let isAnimationComplete = false;
+
+      const labels = [
+        { threshold: 0, text: 'INITIALIZING LOGIC' },
+        { threshold: 30, text: 'CALIBRATING MATRIX' },
+        { threshold: 60, text: 'OPTIMIZING INTERFACE' },
+        { threshold: 90, text: 'SYSTEM READY' }
+      ];
+
+      function updateLoader() {
+        if (progress >= 100) {
+          progress = 100;
+          isAnimationComplete = true;
+          checkAndHide();
+          return;
+        }
+
+        const step = progress < 30 ? 1.5 : progress < 70 ? 0.8 : 0.4;
+        progress = Math.min(100, progress + step);
+
+        progressBar.style.width = progress + '%';
+        progressPercent.textContent = Math.floor(progress) + '%';
+
+        // Update Text
+        const currentLabel = labels.filter(l => progress >= l.threshold).pop();
+        if (currentLabel && loaderStatus.textContent !== currentLabel.text) {
+          loaderStatus.textContent = currentLabel.text;
+        }
+
+        // Update HUD Stats
+        if (stats) {
+          stats.innerHTML = `COORDINATES: ${Math.floor(progress * 7.2)}, ${Math.floor(progress * 13.4)}<br />LATENCY: 14MS<br />STATUS: ${progress < 100 ? 'CALIBRATING' : 'READY'}`;
+        }
+
+        requestAnimationFrame(updateLoader);
+      }
+
+      function checkAndHide() {
+        if (isAnimationComplete && isAppReady) {
+          const loader = document.getElementById('initial-loader');
+          if (!loader) return;
+          
+          setTimeout(() => {
+            if (!loader) return;
+            loader.classList.add('fade-out');
+            setTimeout(() => {
+              if (loader.parentNode) loader.remove();
+            }, 1200);
+          }, 800);
+        }
+      }
+
+      window.hideInitialLoader = () => {
+        isAppReady = true;
+        checkAndHide();
+      };
+
+      // Start the animation
+      requestAnimationFrame(updateLoader);
+    })();
+  </script>
+
 </body>
 
 </html>

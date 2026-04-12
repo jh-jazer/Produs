@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import api from '../../services/api';
-import ConfirmDialog from '../ui/ConfirmDialog';
-import DashboardPanel from '../ui/DashboardPanel';
-import { useGoals } from '../../hooks/useGoals';
+import api from '../../../services/api';
+import ConfirmDialog from '../../ui/ConfirmDialog';
+import DashboardPanel from '../../ui/DashboardPanel';
+import { useGoals } from '../../../hooks/useGoals';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
@@ -388,3 +388,4 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
 };
 
 export default GoalSetter;
+

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Bell, Handshake, User, Lock, Zap, Cpu } from 'lucide-react';
+import { Search, Handshake, User, Lock, Zap, Cpu } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { DashboardContext } from '../../context/DashboardContext';
 
@@ -82,22 +82,6 @@ const DashboardHeader = ({ user }) => {
                     </motion.button>
                 </div>
 
-                {/* 3. Notification Hub */}
-                <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsNotificationModalOpen(true)}
-                    className="size-10 md:size-12 glass-panel rounded-2xl flex items-center justify-center relative group overflow-hidden shrink-0"
-                >
-                    <Bell size={18} className="text-slate-400 group-hover:text-cyan-500 transition-colors" />
-                    
-                    {unreadCount > 0 && (
-                        <span className="absolute top-2 right-2 md:top-3 md:right-3 size-2 bg-rose-500 rounded-full ring-4 ring-rose-500/20 animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.6)]" />
-                    )}
-
-                    {/* Tactical grid overlay on hover */}
-                    <div className="absolute inset-0 bg-grid-light opacity-0 group-hover:opacity-10 pointer-events-none transition-opacity" />
-                </motion.button>
             </div>
         </div>
     );

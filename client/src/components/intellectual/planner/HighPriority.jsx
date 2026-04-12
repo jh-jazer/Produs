@@ -31,3 +31,4 @@ const HighPriority = () => {
 };
 
 export default HighPriority;
+

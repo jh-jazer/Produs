@@ -15,8 +15,7 @@ const FeaturedGoals = ({ onHabitAdded }) => {
     const [joiningId, setJoiningId] = useState(null);
     const [isDiscoveryOpen, setIsDiscoveryOpen] = useState(false);
 
-    // Hide challenges if in partner view but not linked yet
-    if (viewMode === 'partner' && !user?.partner) return null;
+    // move early return below hooks
 
     useEffect(() => {
         fetchChallenges();
@@ -55,6 +54,8 @@ const FeaturedGoals = ({ onHabitAdded }) => {
 
     const joinedChallenges = challenges.filter(c => c.isJoined);
     const unjoinedChallenges = challenges.filter(c => !c.isJoined);
+
+    if (viewMode === 'partner' && !user?.partner) return null;
 
     if (loading) return (
         <div className="w-full h-40 flex items-center justify-center">

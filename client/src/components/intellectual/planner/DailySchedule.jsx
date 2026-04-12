@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import useSWR from 'swr';
 import { motion } from 'framer-motion';
-import api from '../../services/api';
-import ConfirmDialog from '../ui/ConfirmDialog';
-import { usePlanner } from '../../hooks/usePlanner';
-import DashboardPanel from '../ui/DashboardPanel';
+import api from '../../../services/api';
+import ConfirmDialog from '../../ui/ConfirmDialog';
+import { usePlanner } from '../../../hooks/usePlanner';
+import DashboardPanel from '../../ui/DashboardPanel';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
@@ -555,3 +555,4 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
 };
 
 export default DailySchedule;
+

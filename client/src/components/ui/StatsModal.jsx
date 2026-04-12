@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
+import { useHabits } from '../../hooks/useHabits';
+import ConsistencyGrid from '../intellectual/habits/ConsistencyGrid';
 
 const ARCHETYPES = [
   { name: 'Blade Dancer', icon: '⚔️', stats: ['dex'], tiers: ['Street Brawler', 'Blade Dancer', 'Phantom Edge', 'Death\'s Silhouette', 'The Undying Blade'] },
@@ -41,9 +43,26 @@ const getArchetypeDisplay = (user) => {
 };
 
 export default function StatsModal({ isOpen, onClose, user }) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
   const stats = user?.rpg?.stats || {};
   const display = getArchetypeDisplay(user);
+
+  const { habits, isLoading: habitsLoading } = useHabits();
+
+  // Compute checks dictionary for ConsistencyGrid
+  const checks = React.useMemo(() => {
+    const dict = {};
+    if (!habits) return dict;
+    habits.forEach(habit => {
+      dict[habit._id] = { completed: {}, user: habit.userId };
+      if (habit.checks && Array.isArray(habit.checks)) {
+        habit.checks.forEach(check => {
+          dict[habit._id].completed[check.date] = check.completed;
+        });
+      }
+    });
+    return dict;
+  }, [habits]);
 
   if (!isOpen) return null;
 
@@ -68,7 +87,7 @@ export default function StatsModal({ isOpen, onClose, user }) {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-[440px] max-h-[90vh] bg-white dark:bg-[#0a0a0a] rounded-[32px] shadow-2xl overflow-hidden border border-black/[0.08] dark:border-white/10 ar-corners flex flex-col"
+        className="relative w-full max-w-[480px] max-h-[90vh] bg-white dark:bg-[#0a0a0a] rounded-[32px] shadow-2xl overflow-hidden border border-black/[0.08] dark:border-white/10 ar-corners flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Scrollable Content Container */}
@@ -144,8 +163,25 @@ export default function StatsModal({ isOpen, onClose, user }) {
         )}
 
         {/* Circular Radar Stats */}
-        <div className="flex justify-center pb-1 relative transition-all duration-1000">
-             <RadarChart stats={stats} isLoading={isLoading} isUnawakened={display.isUnawakened} userLevel={user?.level} />
+        <div className="flex justify-center pb-1 relative transition-all duration-1000 overflow-hidden">
+             <RadarChart stats={stats} isLoading={isLoadingStats} isUnawakened={display.isUnawakened} userLevel={user?.level} />
+        </div>
+
+        {/* Consistency Grid Section */}
+        <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 dark:text-white/40">Consistency Matrix</h3>
+                <span className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 uppercase tracking-widest">Live_</span>
+            </div>
+            
+            <div className="p-4 rounded-[24px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/[0.05]">
+                <ConsistencyGrid
+                    checks={checks}
+                    isPartnerView={false}
+                    myUserId={user?._id}
+                    partnerUserId={user?.partner?._id}
+                />
+            </div>
         </div>
 
         </div>

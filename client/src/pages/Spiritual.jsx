@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 import JournalEntry from '../components/journal_components/JournalEntry';
 import JournalHistory from '../components/journal_components/JournalHistory';
 import YearlyMoodBoard from '../components/journal_components/YearlyMoodBoard';
@@ -7,12 +7,20 @@ import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 import DashboardPanel from '../components/ui/DashboardPanel';
 import { PenTool, Database, LayoutGrid } from 'lucide-react';
 import { useJournal } from '../hooks/useJournal';
+import { DashboardContext } from '../context/DashboardContext';
 
 const MOODS = ['😠', '🙁', '😐', '🙂', '😊'];
 
-function Journal() {
+const Spiritual = () => {
+    const { setMobileTabs } = useContext(DashboardContext);
     const { entries, isLoading } = useJournal();
     const [activeTab, setActiveTab] = React.useState('new');
+
+    useEffect(() => {
+        setMobileTabs({ tabs, activeTab, setActiveTab });
+        return () => setMobileTabs(null);
+    }, [activeTab, setMobileTabs]);
+
     const [mood, setMood] = React.useState('😊');
 
     const tabs = [
@@ -45,9 +53,8 @@ function Journal() {
     );
 
     return (
-        <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-4 md:gap-8 pb-28 md:pb-8 mx-auto">
-            {/* Mobile Navigation */}
-            <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+        <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-4 md:gap-8 pb-48 md:pb-8 mx-auto">
+            {/* Mobile Navigation - Registered via Context */}
 
 
 
@@ -86,5 +93,5 @@ function Journal() {
     );
 }
 
-export default Journal;
+export default Spiritual;
 

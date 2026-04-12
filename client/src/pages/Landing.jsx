@@ -23,7 +23,7 @@ import Features from "../components/landing/Features";
 import Testimonials from "../components/landing/Testimonials";
 import CTA from "../components/landing/CTA";
 import ScrollIndicator from "../components/landing/ScrollIndicator";
-import LandingSplashScreen from "../components/landing/LandingSplashScreen";
+// removed LandingSplashScreen import
 
 import Lenis from "lenis";
 
@@ -66,9 +66,8 @@ export default function Landing() {
   const { user } = useAuthStore();
   const containerRef = useRef(null);
   const [progress, setProgress] = useState(0);
-  const [showSplash, setShowSplash] = useState(true);
 
-  // GSAP Scrollytelling Timeline
+  // 1. GSAP Scrollytelling Timeline
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -83,71 +82,37 @@ export default function Landing() {
         }
       });
 
-      // Scene 1: Initial Reveal (0% - 3%)
       tl.to(".scene-awakening", { opacity: 1, duration: 3 }, 0);
-
-      // Scene 1: Multi-Layer Awakening Exit (5% - 7%)
       tl.to(".parallax-line-1", { y: -30, opacity: 0, duration: 2 }, 5);
       tl.to(".parallax-line-2", { y: -50, opacity: 0, duration: 2 }, 5.5);
       tl.to(".parallax-line-3", { y: -70, opacity: 0, duration: 2, scale: 1.02 }, 6);
-
-      // Text: "will you let it pass" (9% - 13%)
       tl.fromTo(".text-let-it-pass", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 2 }, 9);
       tl.to(".text-let-it-pass", { opacity: 0, y: -20, duration: 2 }, 13);
-
-      // Text: "or take back control" (15% - 19%)
       tl.fromTo(".text-take-control", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 2 }, 15);
       tl.to(".text-take-control", { opacity: 0, y: -20, duration: 2 }, 19);
-
-      // Text: "Let me help you" (21% - 25%)
       tl.fromTo(".text-let-me-help", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 2 }, 21);
       tl.to(".text-let-me-help", { opacity: 0, y: -20, duration: 2 }, 25);
-
       tl.to(".scene-dimmer", { opacity: 0, duration: 5 }, 28);
       tl.to(".scene-awakening", { opacity: 0, duration: 2 }, 32);
 
-      // Scene 2: Tech Detail Nodes (HUD Fragments 30% - 85%)
       SCENES_FEATURES.forEach((feature, idx) => {
-          const start = 30 + (idx * 10); // Start at 30%, 10% spread
+          const start = 30 + (idx * 10);
           const nodeClass = `.detail-${feature.id}`;
-          
-          tl.fromTo(nodeClass, 
-            { opacity: 0, scale: 0.8, y: 150 },
-            { opacity: 1, scale: 1, y: 0, duration: 8, ease: "power2.out" },
-            start
-          );
-
+          tl.fromTo(nodeClass, { opacity: 0, scale: 0.8, y: 150 }, { opacity: 1, scale: 1, y: 0, duration: 8, ease: "power2.out" }, start);
           tl.to(`${nodeClass} .hud-icon`, { y: -40, duration: 8 }, start + 2);
           tl.to(`${nodeClass} .hud-title`, { y: -80, duration: 8 }, start + 3);
-          
-          tl.to(nodeClass, 
-            { opacity: 0, scale: 1.2, y: -150, duration: 6, ease: "power2.in" },
-            start + 8
-          );
+          tl.to(nodeClass, { opacity: 0, scale: 1.2, y: -150, duration: 6, ease: "power2.in" }, start + 8);
       });
 
-      // Scene 3: Testimonials (90% - 97%)
-      tl.fromTo(".scene-testimonials", 
-        { opacity: 0, y: 100 },
-        { opacity: 1, y: 0, duration: 6, ease: "power2.out" },
-        90
-      );
+      tl.fromTo(".scene-testimonials", { opacity: 0, y: 100 }, { opacity: 1, y: 0, duration: 6, ease: "power2.out" }, 90);
       tl.to(".scene-testimonials", { opacity: 0, y: -50, duration: 2 }, 96);
-
-      // Scene 4: Final CTA (97% - 100%)
-      tl.fromTo(".scene-cta", 
-        { opacity: 0, y: 100 },
-        { opacity: 1, y: 0, duration: 3, ease: "power2.out" },
-        97
-      );
+      tl.fromTo(".scene-cta", { opacity: 0, y: 100 }, { opacity: 1, y: 0, duration: 3, ease: "power2.out" }, 97);
       tl.to(".scene-cta", { pointerEvents: "auto", duration: 0.1 }, 97.5);
-
     }, containerRef);
-
     return () => ctx.revert();
   }, []);
 
-  // Glow Cursor Logic
+  // 2. Glow Cursor Logic
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   useEffect(() => {
     const handleMouseMove = (e) => setMousePosition({ x: e.clientX, y: e.clientY });
@@ -155,65 +120,49 @@ export default function Landing() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Cinematic Progress Mapping
-  // 0-30% scroll = Sequence 1
+  // 3. Lenis Scrolling Initialization
   const mappedProgress = Math.min(1, progress / 0.3);
-  
-  // Section 2 Background Color Logic (Black by 30%)
   const section2BgOpacity = progress > 0.2 ? Math.min(1, (progress - 0.2) / 0.1) : 0;
 
   const handleNavigate = (targetProgress) => {
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
     const target = targetProgress * scrollHeight;
-    if (window.lenis) {
-      window.lenis.scrollTo(target, { immediate: true });
-    } else {
-      window.scrollTo(0, target);
-    }
+    if (window.lenis) window.lenis.scrollTo(target, { immediate: true });
+    else window.scrollTo(0, target);
   };
 
   useEffect(() => {
-    if (window.lenis) {
-      if (showSplash) window.lenis.stop();
-      else window.lenis.start();
-    }
-  }, [showSplash]);
-
-  useEffect(() => {
     document.documentElement.classList.add("no-scrollbar");
-
     const lenis = new Lenis({
       duration: 1.5,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
-    
-    // Store lenis for navigation
     window.lenis = lenis;
-    if (showSplash) lenis.stop();
-    else lenis.start();
+    lenis.start();
 
-    lenis.on('scroll', ScrollTrigger.update);
-
-    const tickerRAF = (time) => {
-      lenis.raf(time * 1000);
-    };
-
+    const updateScrollTrigger = () => ScrollTrigger.update();
+    lenis.on('scroll', updateScrollTrigger);
+    
+    const tickerRAF = (time) => lenis.raf(time * 1000);
     gsap.ticker.add(tickerRAF);
     gsap.ticker.lagSmoothing(0);
 
+    // Initial refresh to sync positions
+    setTimeout(() => ScrollTrigger.refresh(), 100);
+
     return () => {
       document.documentElement.classList.remove("no-scrollbar");
+      lenis.off('scroll', updateScrollTrigger);
       lenis.destroy();
       window.lenis = null;
       gsap.ticker.remove(tickerRAF);
+      ScrollTrigger.getAll().forEach(t => t.kill());
     };
   }, []);
 
   return (
     <div ref={containerRef} className="relative bg-black text-white selection:bg-electric-blue/30 font-sans h-[1200vh]">
-
-      {/* Dynamic Cursor Background */}
       <div
         className="fixed pointer-events-none z-[9999] size-[600px] rounded-full blur-[150px] transition-all duration-300 transform -translate-x-1/2 -translate-y-1/2 opacity-[0.07] bg-electric-blue"
         style={{ top: mousePosition.y, left: mousePosition.x }}
@@ -230,7 +179,6 @@ export default function Landing() {
           <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-white mt-1">Produs</span>
         </div>
 
-
         <Link to={user ? "/dashboard" : "/auth"} className="pointer-events-auto group flex items-center gap-3 md:gap-6">
           <span className="font-normal text-[9px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.5em] text-white/80 group-hover:text-current transition-colors text-right max-w-[100px] md:max-w-none">The Vault</span>
           <div className="size-8 md:size-10 shrink-0 rounded-full border border-white/30 flex items-center justify-center group-hover:border-current transition-all">
@@ -239,20 +187,14 @@ export default function Landing() {
         </Link>
       </motion.nav>
 
-      {/* Pinned Background - The Cinematic Scrub */}
       <div className="pin-background w-full h-screen overflow-hidden relative">
         <ScrollCanvas progress={mappedProgress} />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-90 pointer-events-none" />
         <div className="absolute -left-[20%] top-1/3 size-[100vw] bg-electric-blue/5 blur-[250px] rounded-full pointer-events-none" />
         <div className="absolute -right-[20%] bottom-1/3 size-[80vw] bg-white/[0.02] blur-[200px] rounded-full pointer-events-none" />
-        {/* Section 2 solid background overlay that fades in */}
-        <div 
-          className="absolute inset-0 bg-[#050505] z-10 pointer-events-none" 
-          style={{ opacity: section2BgOpacity }}
-        />
+        <div className="absolute inset-0 bg-[#050505] z-10 pointer-events-none" style={{ opacity: section2BgOpacity }} />
       </div>
 
-      {/* Cinematic Scenes Content */}
       <div className="relative z-20 -mt-[100vh]">
         <Hero />
         <Features features={SCENES_FEATURES} />
@@ -260,10 +202,7 @@ export default function Landing() {
         <CTA user={user} />
       </div>
 
-      {/* Scroll Progress Indicator */}
       <ScrollIndicator progress={progress} onNavigate={handleNavigate} />
-
-      <LandingSplashScreen onComplete={() => setShowSplash(false)} />
     </div>
   );
 }

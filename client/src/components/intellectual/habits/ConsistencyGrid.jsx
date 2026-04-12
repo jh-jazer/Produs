@@ -262,3 +262,4 @@ const ConsistencyGrid = ({ checks = {}, isPartnerView = false, myUserId = null, 
 };
 
 export default ConsistencyGrid;
+

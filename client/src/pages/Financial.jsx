@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 import useAuthStore from '../store/useAuthStore';
 import { useFinance } from '../hooks/useFinance';
 
@@ -13,8 +13,9 @@ import MobileTabNav from '../components/ui/MobileTabNav';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 import DashboardPanel from '../components/ui/DashboardPanel';
 import { Wallet, List, PieChart, TrendingUp, ShieldCheck, ShoppingCart, Activity } from 'lucide-react';
+import { DashboardContext } from '../context/DashboardContext';
 
-const Finance = () => {
+const Financial = () => {
     const { user } = useAuthStore();
     const currencySymbol = user?.currency === 'PHP' ? '₱' : '$';
 
@@ -31,8 +32,15 @@ const Finance = () => {
         isLoading 
     } = useFinance();
 
+    const { setMobileTabs } = useContext(DashboardContext);
+
     // Mobile Navigation State
     const [activeTab, setActiveTab] = React.useState('summary');
+
+    useEffect(() => {
+        setMobileTabs({ tabs, activeTab, setActiveTab });
+        return () => setMobileTabs(null);
+    }, [activeTab, setMobileTabs]);
 
     const handleAction = () => {
         // useFinanceLocal uses useLiveQuery, so it auto-refreshes
@@ -59,10 +67,9 @@ const Finance = () => {
     if (isLoading && transactions.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-4 md:gap-8 pb-28 md:pb-8 mx-auto">
+        <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-4 md:gap-8 pb-48 md:pb-8 mx-auto">
             
-            {/* Mobile Navigation */}
-            <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+            {/* Mobile Navigation - Registered via Context */}
 
 
 
@@ -158,4 +165,4 @@ const Finance = () => {
     );
 };
 
-export default Finance;
+export default Financial;

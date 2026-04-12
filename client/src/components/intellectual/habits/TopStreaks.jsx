@@ -1,6 +1,6 @@
 import React from 'react';
 import useSWR from 'swr';
-import api from '../../services/api';
+import api from '../../../services/api';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
@@ -133,3 +133,4 @@ const TopStreaks = ({ habits, isSharedView = false }) => {
 };
 
 export default TopStreaks;
+

@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onOpenNotifications, onOpenBugReport, onSignOut }) => {
+const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onOpenNotifications, onOpenBugReport, onOpenStats, onSignOut }) => {
     const navigate = useNavigate();
 
     return (
@@ -55,12 +55,30 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
 
 
 
+                            <button onClick={() => { onClose(); onOpenNotifications(); }} className="w-full px-4 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-primary/5 dark:hover:bg-white/5 rounded-[20px] transition-all flex items-center justify-between group">
+                                <div className="flex items-center gap-4">
+                                    <span className="material-symbols-outlined text-lg opacity-40 group-hover:opacity-100 transition-opacity">notifications</span>
+                                    <span>Notifications_</span>
+                                </div>
+                                {unreadCount > 0 && (
+                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 text-[8px] animate-in fade-in slide-in-from-right-2 duration-500">
+                                        <span className="size-1 rounded-full bg-rose-500 animate-pulse" />
+                                        {unreadCount}
+                                    </div>
+                                )}
+                            </button>
+
                             <button onClick={() => { onClose(); onOpenSettings(); }} className="w-full px-4 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-primary/5 dark:hover:bg-white/5 rounded-[20px] transition-all flex items-center gap-4">
                                 <span className="material-symbols-outlined text-lg opacity-40">settings</span>
                                 <span>Settings_</span>
                             </button>
 
 
+
+                            <button onClick={() => { onClose(); onOpenStats(); }} className="w-full px-4 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-primary/5 dark:hover:bg-white/5 rounded-[20px] transition-all flex items-center gap-4">
+                                <span className="material-symbols-outlined text-lg opacity-40">bar_chart</span>
+                                <span>Statistics_</span>
+                            </button>
 
                             <button onClick={() => { onClose(); onOpenBugReport(); }} className="w-full px-4 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-primary/5 dark:hover:bg-white/5 rounded-[20px] transition-all flex items-center gap-4">
                                 <span className="material-symbols-outlined text-lg opacity-40">bug_report</span>

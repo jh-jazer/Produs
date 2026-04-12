@@ -1097,6 +1097,12 @@ export const devRPGTest = async (req, res) => {
                 user.markModified('rpg');
                 await user.save();
                 break;
+            case 'giveProdCoins':
+                const coinAmount = parseInt(req.body.amount) || 1000;
+                user.rpg.prodCoins = (user.rpg.prodCoins || 0) + coinAmount;
+                user.markModified('rpg');
+                await user.save();
+                break;
             case 'resetPath':
                 // Full Reversion: Return user to Level 0 (Unawakened)
                 user.exp = 0;

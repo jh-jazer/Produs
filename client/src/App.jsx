@@ -3,12 +3,11 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AnimatePresence } from 'framer-motion';
 import Layout from './components/Layout';
 import { useRegisterSW } from 'virtual:pwa-register/react';
-import Habits from './pages/Habits';
-import Overview from './pages/Overview';
-import Planner from './pages/Planner';
-import Finance from './pages/Finance';
-import Health from './pages/Health';
-import Journal from './pages/Journal';
+import Intellectual from './pages/Intellectual';
+import Home from './pages/Home';
+import Financial from './pages/Financial';
+import Physical from './pages/Physical';
+import Spiritual from './pages/Spiritual';
 import Auth from './pages/Auth';
 import AuthCallback from './pages/AuthCallback';
 import Landing from './pages/Landing';
@@ -65,12 +64,20 @@ function AnimatedRoutes() {
 
         {/* Protected Dashboard Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-          <Route index element={<Overview />} />
-          <Route path="habits" element={<Habits />} />
-          <Route path="planner" element={<Planner />} />
-          <Route path="finance" element={<Finance />} />
-          <Route path="health" element={<Health />} />
-          <Route path="journal" element={<Journal />} />
+          <Route index element={<Home />} />
+          <Route path="intellectual" element={<Intellectual />} />
+          {/* Redirects for the old routes */}
+          <Route path="mental" element={<Navigate to="/dashboard/intellectual" replace />} />
+          {/* Redirects for the old routes */}
+          <Route path="habits" element={<Navigate to="/dashboard/mental" replace />} />
+          <Route path="planner" element={<Navigate to="/dashboard/mental" replace />} />
+          <Route path="financial" element={<Financial />} />
+          <Route path="physical" element={<Physical />} />
+          <Route path="spiritual" element={<Spiritual />} />
+          {/* Redirects for the old routes */}
+          <Route path="finance" element={<Navigate to="/dashboard/financial" replace />} />
+          <Route path="health" element={<Navigate to="/dashboard/physical" replace />} />
+          <Route path="journal" element={<Navigate to="/dashboard/spiritual" replace />} />
           <Route path="profile" element={<Profile />} />
           <Route path="admin" element={<AdminRoute><Admin /></AdminRoute>} />
         </Route>
@@ -158,7 +165,7 @@ function App() {
 
   useEffect(() => {
     // Hide the initial loader once auth state is settled.
-    // We give it a small extra buffer to ensure the first mount is stable.
+    // Syncing with cinematic global loader in index.html.
     if (typeof window.hideInitialLoader === 'function') {
       window.hideInitialLoader();
     }

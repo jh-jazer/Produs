@@ -28,7 +28,7 @@ import {
 
 import { Users, Link as LinkIcon, ShieldAlert, Zap } from 'lucide-react';
 
-function Overview() {
+function Home() {
   const navigate = useNavigate();
   const { mutate } = useSWRConfig();
   const { setIsSearchModalOpen, viewMode, setViewMode, protocolMode, setProtocolMode } = useContext(DashboardContext);
@@ -215,7 +215,7 @@ function Overview() {
 
                         <RealityAchievements user={user} />
 
-                        {/* ZONE 5: Wishlist Preview (Finance) */}
+                        {/* ZONE 5: Wishlist Preview (Financial) */}
                         <WishlistPreview wishlist={wishlist} />
                       </motion.div>
                     )}
@@ -300,4 +300,4 @@ function Overview() {
   );
 }
 
-export default Overview;
+export default Home;

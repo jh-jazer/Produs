@@ -117,6 +117,10 @@ const userSchema = new mongoose.Schema({
             type: Number,
             default: 0
         },
+        prodCoins: {
+            type: Number,
+            default: 2000
+        },
         specialistRank: {
             type: String,
             default: 'F'

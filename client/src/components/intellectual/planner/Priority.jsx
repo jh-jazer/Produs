@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { usePlanner } from "../../hooks/usePlanner";
+import { usePlanner } from '../../../hooks/usePlanner';
 
 const Priority = ({
   isCompact = false,
@@ -206,3 +206,4 @@ const Priority = ({
 };
 
 export default Priority;
+

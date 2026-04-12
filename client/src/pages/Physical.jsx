@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useHealth } from '../hooks/useHealth';
 
 import WaterTracker from '../components/health_components/WaterTracker';
@@ -12,8 +12,9 @@ import MobileTabNav from '../components/ui/MobileTabNav';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 import DashboardPanel from '../components/ui/DashboardPanel';
 import { Activity, Dumbbell, Apple } from 'lucide-react';
+import { DashboardContext } from '../context/DashboardContext';
 
-const Health = () => {
+const Physical = () => {
 
     const {
         workouts,
@@ -24,8 +25,15 @@ const Health = () => {
         isLoading
     } = useHealth();
 
+    const { setMobileTabs } = useContext(DashboardContext);
+
     // Mobile Navigation State
     const [activeTab, setActiveTab] = React.useState('metrics');
+
+    useEffect(() => {
+        setMobileTabs({ tabs, activeTab, setActiveTab });
+        return () => setMobileTabs(null);
+    }, [activeTab, setMobileTabs]);
 
     const tabs = [
         { id: 'metrics', label: 'Metrics', icon: 'monitor_heart' },
@@ -36,10 +44,9 @@ const Health = () => {
     if (isLoading && workouts.length === 0 && metrics.length === 0 && nutrition.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-8 pb-28 md:pb-8 mx-auto">
+        <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-8 pb-48 md:pb-8 mx-auto">
 
-            {/* Mobile Navigation */}
-            <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+            {/* Mobile Navigation - Registered via Context */}
 
 
 
@@ -101,4 +108,4 @@ const Health = () => {
     );
 };
 
-export default Health;
+export default Physical;

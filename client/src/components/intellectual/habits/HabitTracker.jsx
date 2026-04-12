@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { Plus, Edit2, ExternalLink, ArrowUpRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import ConfirmDialog from '../ui/ConfirmDialog';
+import ConfirmDialog from '../../ui/ConfirmDialog';
 
 const ICON_OPTIONS = [
     { icon: 'local_drink', color: 'emerald', label: 'Water' },
@@ -559,7 +559,7 @@ function HabitTracker({
                     </div>
 
                     {/* Habit Rows */}
-                    <div className={`flex flex-col overflow-y-auto pr-1 custom-scrollbar hover-scrollbar ${isDashboard ? 'max-h-[240px]' : 'max-h-[500px]'}`}>
+                    <div className={`flex flex-col pr-1 custom-scrollbar hover-scrollbar ${isDashboard ? 'max-h-[240px]' : 'max-h-[500px]'}`}>
                         {isLoading ? (
                             Array(5).fill(0).map((_, i) => (
                                 <div key={i} className="flex items-center gap-4 py-3 border-b border-slate-100 dark:border-white/10/50 animate-pulse">
@@ -617,6 +617,49 @@ function HabitTracker({
                             </React.Fragment>
                         )}
                     </div>
+
+                    {/* Momentum Section - Unified Streaks */}
+                    {!isDashboard && !isLoading && habits.some(h => h.streak > 0) && (
+                        <div className="mt-8 pt-6 border-t border-slate-200 dark:border-white/10">
+                            <div className="flex items-center gap-2 mb-4 px-1">
+                                <span className="material-symbols-outlined text-amber-500 text-lg">local_fire_department</span>
+                                <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Current Momentum</h4>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {habits
+                                    .filter(h => h.streak > 0)
+                                    .sort((a, b) => b.streak - a.streak)
+                                    .slice(0, 6)
+                                    .map((s) => {
+                                        const target = s.streak <= 7 ? 7 : s.streak <= 14 ? 14 : s.streak <= 30 ? 30 : s.streak + 7;
+                                        const progress = Math.min((s.streak / target) * 100, 100);
+                                        const colors = COLOR_MAP[s.color] || COLOR_MAP.emerald;
+                                        
+                                        return (
+                                            <div key={s._id} className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50/50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/[0.05]">
+                                                <div className={`size-9 rounded-xl flex items-center justify-center border ${colors.bg} ${colors.text} border-transparent`}>
+                                                    <span className="material-symbols-outlined text-base">{s.icon}</span>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex justify-between items-center mb-1.5">
+                                                        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate">{s.name}</span>
+                                                        <span className="text-[10px] font-black text-amber-500 flex items-center gap-0.5">{s.streak}d 🔥</span>
+                                                    </div>
+                                                    <div className="h-1 w-full bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden">
+                                                        <motion.div 
+                                                            initial={{ width: 0 }}
+                                                            animate={{ width: `${progress}%` }}
+                                                            className={`h-full ${colors.solid} rounded-full opacity-80`}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                }
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -789,3 +832,4 @@ function HabitTracker({
 }
 
 export default HabitTracker;
+
