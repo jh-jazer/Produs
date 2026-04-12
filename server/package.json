@@ -30,5 +30,8 @@
     "posthog-node": "^5.27.1",
     "socket.io": "^4.8.3",
     "yjs": "^13.6.30"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }

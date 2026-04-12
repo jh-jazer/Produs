@@ -487,12 +487,28 @@ export const completeOnboarding = async (req, res) => {
         const user = await User.findById(req.user.id);
 
         if (user) {
-            if (req.body.username) {
-                const existingUser = await User.findOne({ username: req.body.username });
-                if (existingUser && existingUser.id !== user.id) {
-                    return res.status(400).json({ message: 'Username is already taken' });
+        if (req.body.username) {
+                const base = req.body.username.toLowerCase().trim();
+                if (base.length < 3 || base.length > 8) {
+                    return res.status(400).json({ message: 'Username must be 3–8 characters long' });
                 }
-                user.username = req.body.username.toLowerCase();
+
+                // Append a unique 4-digit numeric ID to guarantee uniqueness
+                let finalUsername;
+                let attempts = 0;
+                do {
+                    const suffix = Math.floor(1000 + Math.random() * 9000);
+                    finalUsername = `${base}#${suffix}`;
+                    const taken = await User.findOne({ username: finalUsername });
+                    if (!taken || taken.id === user.id) break;
+                    attempts++;
+                } while (attempts < 20);
+
+                user.username = finalUsername;
+            }
+
+            if (req.body.gender) {
+                user.gender = req.body.gender;
             }
 
             user.onboardingCompleted = true;
@@ -668,12 +684,15 @@ export const checkUsername = async (req, res) => {
             return res.status(400).json({ message: 'Username is required' });
         }
 
-        const user = await User.findOne({ username: username.toLowerCase() });
-        if (user) {
-            return res.json({ available: false, message: 'Username is already taken' });
+        if (username.length < 3 || username.length > 8) {
+            return res.status(400).json({ message: 'Username must be 3–8 characters long' });
         }
 
-        res.json({ available: true, message: 'Username is available' });
+        // Check if ANY existing username starts with this base (collision check on base only)
+        const user = await User.findOne({ username: { $regex: `^${username.toLowerCase()}#`, $options: 'i' } });
+        // Base is available as long as there are fewer than 9000 combos taken — effectively always true.
+        // We just confirm the base format is valid and not entirely blocked.
+        res.json({ available: true, message: 'Username base is available' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

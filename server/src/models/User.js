@@ -43,6 +43,11 @@ const userSchema = new mongoose.Schema({
         sparse: true,
         trim: true,
     },
+    gender: {
+        type: String,
+        enum: ['male', 'female'],
+        default: null
+    },
     bio: {
         type: String,
         maxLength: 160

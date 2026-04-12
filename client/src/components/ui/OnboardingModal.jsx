@@ -11,9 +11,10 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     const [username, setUsername] = useState('');
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
+    const [gender, setGender] = useState('');
     const [themeMode, setThemeMode] = useState('system');
     const [loading, setLoading] = useState(false);
-    
+
     // Neural Link States
     const [isBooting, setIsBooting] = useState(true);
     const [bootTextIndex, setBootTextIndex] = useState(0);
@@ -29,7 +30,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
 
     useEffect(() => {
         if (!isOpen) return;
-        
+
         let timer;
         if (isBooting) {
             timer = setInterval(() => {
@@ -38,13 +39,13 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                     clearInterval(timer);
                     return prev;
                 });
-            }, 2000); 
+            }, 2000);
         }
         return () => clearInterval(timer);
     }, [isOpen, isBooting]);
 
     const checkUsername = async (val) => {
-        if (val.length < 3) {
+        if (val.length < 3 || val.length > 8) {
             setIsUsernameAvailable(null);
             return;
         }
@@ -75,13 +76,14 @@ const OnboardingModal = ({ isOpen, onClose }) => {
         setLoading(true);
         try {
             const store = useAuthStore.getState();
-            await store.completeOnboarding({ 
+            await store.completeOnboarding({
                 username,
+                gender,
                 themeMode,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 currency: 'USD'
             });
-            
+
             mutate('/auth/me');
             if (onClose) onClose();
         } catch (error) {
@@ -96,7 +98,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     if (isBooting) {
         return (
             <div className="fixed inset-0 z-[250] flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden font-outfit"
-                style={{ 
+                style={{
                     backgroundColor: 'var(--background)',
                     backgroundImage: 'var(--bg-image)',
                     backgroundSize: 'var(--bg-size)'
@@ -104,7 +106,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
             >
                 <div className="w-full max-w-4xl text-center relative flex justify-center">
                     <AnimatePresence mode="wait">
-                        <SystemWindow 
+                        <SystemWindow
                             key={bootTextIndex}
                             status={bootTextIndex < bootLines.length - 1 ? "ANALYZING" : "ID_CORE"}
                             module={bootTextIndex < bootLines.length - 1 ? "SYS_BOOT" : "ID_SIG"}
@@ -132,35 +134,100 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                         <p className="text-xl md:text-2xl font-black text-[var(--foreground)] tracking-tighter font-exo italic">
                                             {bootLines[bootLines.length - 1]}
                                         </p>
-                                        
+
                                         <div className="space-y-4 max-w-sm mx-auto">
-                                            <input
-                                                type="text"
-                                                value={username}
-                                                onChange={(e) => {
-                                                    const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
-                                                    setUsername(val);
-                                                    checkUsername(val);
-                                                }}
-                                                autoFocus
-                                                placeholder="IDENT_REQUIRED"
-                                                className="w-full bg-transparent border-b-2 border-accent/30 px-0 py-4 text-xl font-black outline-none focus:border-accent transition-all text-accent placeholder:text-accent/10 tracking-[0.4em] font-mono text-center uppercase"
-                                            />
-                                            <div className="flex flex-col items-center gap-4">
+
+                                            {/* Gender / Role selector */}
+                                            <div className="flex gap-3">
+                                                {[
+                                                    { id: 'male', label: 'Male', icon: 'male' },
+                                                    { id: 'female', label: 'Female', icon: 'female' },
+                                                ].map((g) => (
+                                                    <button
+                                                        key={g.id}
+                                                        type="button"
+                                                        onClick={() => setGender(g.id)}
+                                                        className={`flex-1 flex items-center justify-center gap-2 py-3 border-2 font-black text-[10px] uppercase tracking-widest transition-all font-exo ${
+                                                            gender === g.id
+                                                                ? 'border-accent bg-accent/10 text-accent shadow-[0_0_12px_var(--accent-glow)]'
+                                                                : 'border-white/10 text-white/30 hover:border-white/20 hover:text-white/50'
+                                                        }`}
+                                                    >
+                                                        <span className="material-symbols-outlined text-base">{g.icon}</span>
+                                                        {g.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            {/* Username input */}
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    value={username}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 8);
+                                                        setUsername(val);
+                                                        checkUsername(val);
+                                                    }}
+                                                    autoFocus
+                                                    placeholder="USERNAME"
+                                                    maxLength={8}
+                                                    className="w-full bg-transparent border-b-2 border-accent/30 px-0 py-4 text-xl font-black outline-none focus:border-accent transition-all text-accent placeholder:text-accent/10 tracking-[0.4em] font-mono text-center uppercase"
+                                                />
+                                                {/* Char counter */}
+                                                <div className="flex justify-between mt-1 px-0.5">
+                                                    <span className={`text-[9px] font-black uppercase tracking-widest font-mono ${
+                                                        username.length > 0 && username.length < 3 ? 'text-rose-400' : 'text-accent/40'
+                                                    }`}>
+                                                        {username.length < 3 && username.length > 0
+                                                            ? `min 3 chars`
+                                                            : `${username.length}/8`}
+                                                    </span>
+                                                    {isCheckingUsername && (
+                                                        <span className="text-[9px] font-mono text-accent/50 uppercase tracking-widest animate-pulse">Checking...</span>
+                                                    )}
+                                                    {isUsernameAvailable === false && (
+                                                        <span className="text-[9px] font-mono text-rose-500 uppercase tracking-widest">Conflict</span>
+                                                    )}
+                                                    {isUsernameAvailable === true && (
+                                                        <span className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest">Available</span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Unique handle preview */}
+                                            {isUsernameAvailable === true && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 6 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="px-4 py-3 border border-accent/20 bg-accent/5 text-left"
+                                                >
+                                                    <p className="text-[9px] font-mono text-accent/50 uppercase tracking-widest mb-1">Your unique handle:</p>
+                                                    <p className="font-black font-mono text-sm text-accent tracking-widest">
+                                                        @{username}<span className="text-white/40">#????</span>
+                                                    </p>
+                                                    <p className="text-[8px] font-mono text-white/20 mt-1 uppercase tracking-widest">A unique 4-digit ID will be assigned on save</p>
+                                                </motion.div>
+                                            )}
+
+                                            <div className="flex flex-col items-center gap-2">
                                                 <button
-                                                    onClick={() => { 
+                                                    onClick={() => {
                                                         setIsAuthorizing(true);
                                                         setTimeout(() => {
                                                             setIsAuthorizing(false);
-                                                            setIsBooting(false); 
-                                                            setStep(2); 
+                                                            setIsBooting(false);
+                                                            setStep(2);
                                                         }, 1200);
                                                     }}
-                                                    disabled={!isUsernameAvailable || isCheckingUsername || isAuthorizing}
+                                                    disabled={!isUsernameAvailable || !gender || isCheckingUsername || isAuthorizing}
                                                     className="w-full py-4 bg-gradient-to-r from-accent to-blue-600 disabled:from-neutral-800 disabled:to-neutral-900 text-white font-black uppercase tracking-[1em] text-[10px] hover:scale-[1.02] transition-all shadow-[0_0_30px_var(--accent-glow)] font-exo"
                                                 >
                                                     {isAuthorizing ? 'Authorizing...' : 'Enter'}
                                                 </button>
+                                                {!gender && isUsernameAvailable && (
+                                                    <p className="text-[9px] font-mono text-rose-400 uppercase tracking-widest animate-pulse">[ SELECT ROLE TO CONTINUE ]</p>
+                                                )}
                                                 {isUsernameAvailable === false && (
                                                     <p className="text-[9px] font-black uppercase tracking-widest text-rose-500 animate-pulse font-mono">[ ERROR: IDENT_UNAVAILABLE ]</p>
                                                 )}
@@ -179,7 +246,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
 
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto font-outfit transition-colors duration-500"
-            style={{ 
+            style={{
                 backgroundColor: 'var(--background)',
                 backgroundImage: 'var(--bg-image)',
                 backgroundSize: 'var(--bg-size)'
@@ -189,7 +256,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                 <AnimatePresence mode="wait">
                     {step === 2 && (
                         <div key="step2" className="w-full flex justify-center">
-                            <SystemWindow 
+                            <SystemWindow
                                 title="VISUAL_CALIBRATION"
                                 subtitle="INTERFACE PREFERENCE"
                                 status="USER_CONFIG"
@@ -223,13 +290,13 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                     </div>
 
                                     <div className="flex gap-4">
-                                        <button 
+                                        <button
                                             onClick={() => { setIsBooting(true); setStep(1); }}
                                             className="px-8 py-4 border border-black/[0.05] dark:border-white/10 text-[var(--foreground)]/40 font-black text-[10px] uppercase tracking-widest hover:text-[var(--foreground)] transition-all font-exo"
                                         >
                                             RE_IDENTIFY
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => setStep(3)}
                                             className="flex-1 py-4 bg-gradient-to-r from-accent to-blue-600 text-white font-black text-[10px] uppercase tracking-[0.4em] hover:scale-[1.02] transition-all font-exo"
                                         >
@@ -243,7 +310,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
 
                     {step === 3 && (
                         <div key="step3" className="w-full flex justify-center">
-                            <SystemWindow 
+                            <SystemWindow
                                 title=""
                                 subtitle="FINALIZING NEURAL SYNC"
                                 status="READY"
