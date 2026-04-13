@@ -128,7 +128,6 @@ export default function DashboardScrollIndicator() {
     <div className="fixed right-6 md:right-12 top-1/2 -translate-y-1/2 z-[100] hidden lg:flex flex-col items-center gap-6 pointer-events-none select-none text-slate-900 dark:text-white">
       {/* Percentage Text */}
       <div className="flex flex-col items-center gap-1">
-        <span className="text-[11px] font-mono font-black tracking-widest text-slate-400 dark:text-white/40 uppercase">Sync</span>
         <div className="relative">
           <span className="text-xl md:text-2xl font-mono font-bold text-slate-900 dark:text-white tracking-tighter w-12 text-center block">
             {percentage.toString().padStart(3, '0')}

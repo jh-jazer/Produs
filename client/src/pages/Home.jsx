@@ -36,13 +36,24 @@ function Home() {
   const syncUser = useAuthStore((state) => state.syncUser);
   const setNeuralSyncDismissed = useAuthStore((state) => state.setNeuralSyncDismissed);
   const updateSettings = useAuthStore((state) => state.updateSettings);
-  const [isInitializing, setIsInitializing] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [hasAwakened, setHasAwakened] = useState(false);
   const [isAwaking, setIsAwaking] = useState(false);
   
   // Data Fetching for Reality Widgets
   const { habits, isLoading: isLoadingHabits, toggleCheck: toggleHabitCheck } = useHabits();
   const { data: wishlist = [] } = useSWR('/finance/wishlist', (url) => api.get(url).then(res => res.data));
+
+  // Handle cinematic initialization clearing
+  React.useEffect(() => {
+    if (user && user.username) {
+      // Small delay to let the cinematic logs feel "premium"
+      const timer = setTimeout(() => {
+        setIsInitializing(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
 
 
 
@@ -145,7 +156,7 @@ function Home() {
             key="dashboard"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="w-full max-w-5xl mx-auto pt-8 md:pt-8 pb-32 px-2 md:px-0 space-y-6 md:space-y-12"
+            className="w-full max-w-5xl mx-auto pt-8 md:pt-8 pb-32 px-0 md:px-0 space-y-6 md:space-y-12"
           >
             {/* Header & Identity Section */}
             <IdentityHeader user={user} habits={habits} />

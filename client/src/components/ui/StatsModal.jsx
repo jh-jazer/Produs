@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import { useHabits } from '../../hooks/useHabits';
 import ConsistencyGrid from '../intellectual/habits/ConsistencyGrid';
+import YearlyMoodBoard from '../journal_components/YearlyMoodBoard';
+import { useJournal } from '../../hooks/useJournal';
 
 const ARCHETYPES = [
   { name: 'Blade Dancer', icon: '⚔️', stats: ['dex'], tiers: ['Street Brawler', 'Blade Dancer', 'Phantom Edge', 'Death\'s Silhouette', 'The Undying Blade'] },
@@ -48,6 +50,7 @@ export default function StatsModal({ isOpen, onClose, user }) {
   const display = getArchetypeDisplay(user);
 
   const { habits, isLoading: habitsLoading } = useHabits();
+  const { entries = [], isLoading: journalLoading } = useJournal();
 
   // Compute checks dictionary for ConsistencyGrid
   const checks = React.useMemo(() => {
@@ -182,6 +185,22 @@ export default function StatsModal({ isOpen, onClose, user }) {
                     partnerUserId={user?.partner?._id}
                 />
             </div>
+        </div>
+        
+        {/* Yearly Moodboard Section */}
+        <div className="flex flex-col gap-4 mt-4">
+            <div className="flex items-center justify-between">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 dark:text-white/40">Yearly Sentiments</h3>
+                <span className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-widest">Active_</span>
+            </div>
+            
+            <div className="p-4 rounded-[24px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/[0.05]">
+                <YearlyMoodBoard entries={entries} hideTitle={true} />
+            </div>
+            
+            <p className="text-[9px] font-medium text-black/30 dark:text-white/30 text-center uppercase tracking-widest mb-4">
+                Historical biometric data synchronization complete.
+            </p>
         </div>
 
         </div>

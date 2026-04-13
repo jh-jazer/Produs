@@ -10,10 +10,10 @@ export const useJournal = () => {
     const fetcher = url => api.get(url).then(res => res.data);
     const { data: entries, error, isLoading } = useSWR(userId ? '/journal' : null, fetcher);
 
-    const addEntry = async (content, mood) => {
+    const addEntry = async (content, mood, title, imageUrl) => {
         if (!userId) return;
         try {
-            await api.post('/journal', { content, mood });
+            await api.post('/journal', { content, mood, title, imageUrl });
             mutate('/journal');
         } catch (err) {
             console.error('Failed to add journal entry:', err);
@@ -30,9 +30,20 @@ export const useJournal = () => {
         }
     };
 
+    const updateEntry = async (id, content, mood, title, imageUrl) => {
+        if (!userId) return;
+        try {
+            await api.patch(`/journal/${id}`, { content, mood, title, imageUrl });
+            mutate('/journal');
+        } catch (err) {
+            console.error('Failed to update journal entry:', err);
+        }
+    };
+
     return {
         entries: entries || [],
         addEntry,
+        updateEntry,
         deleteEntry,
         isLoading,
         error

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import DashboardScrollIndicator from './dashboard/DashboardScrollIndicator';
-import { Search, Handshake, User, Lock, Zap, Cpu } from 'lucide-react';
+import { Search, Handshake, User, Lock, Zap, Cpu, ShoppingBag } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
@@ -96,7 +96,7 @@ function Layout() {
     // Only open onboarding once we have verified server data confirming it's incomplete.
     // This prevents false positives when freshUser hasn't loaded yet (localStorage has no onboardingCompleted).
     useEffect(() => {
-        if (freshUser && !freshUser.onboardingCompleted) {
+        if (freshUser && !freshUser.username) {
             setIsOnboardingOpen(true);
         }
     }, [freshUser]);
@@ -340,8 +340,19 @@ function Layout() {
                         <div className={`mb-2 flex items-center gap-4 transition-all duration-500
                             ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'opacity-100' : 'opacity-100'}
                         `}>
-                            <div className="size-10 flex items-center justify-center">
-                                <Logo className="size-5 text-black dark:text-white" color="currentColor" glow={false} />
+                            <div 
+                                className="size-10 flex items-center justify-center cursor-pointer group/shop"
+                                onClick={() => navigate('/dashboard/shop')} // Store navigation
+                                title="Open Terminal Shop"
+                            >
+                                {(location.pathname === '/dashboard' || isMobileMenuOpen) ? (
+                                    <Logo className="size-5 text-black dark:text-white" color="currentColor" glow={false} />
+                                ) : (
+                                    <div className="relative">
+                                        <ShoppingBag size={18} className="text-slate-400 group-hover/shop:text-primary transition-colors" />
+                                        <div className="absolute -top-1 -right-1 size-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_var(--primary-glow)]" />
+                                    </div>
+                                )}
                             </div>
                             
                             <AnimatePresence>
@@ -351,7 +362,8 @@ function Layout() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -10 }}
                                         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                                        className="flex flex-col"
+                                        className="flex flex-col cursor-pointer"
+                                        onClick={() => navigate('/dashboard/shop')}
                                     >
                                         <span className="font-black text-[13px] tracking-tight text-black dark:text-white leading-none">
                                             {(user?.rpg?.prodCoins || 0).toLocaleString()}
@@ -441,7 +453,7 @@ function Layout() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: "-10%", opacity: 0, scale: 0.96, pointerEvents: 'none' }}
                                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                className={`relative z-0 flex-1 flex justify-start pb-32 md:pb-12 px-4 md:pl-8 md:pr-24 lg:pl-12 lg:pr-32 w-full ${isOverview ? '' : 'pt-6 md:pt-0'}`}
+                                className={`relative z-0 flex-1 flex justify-start pb-32 md:pb-12 px-0 md:pl-8 md:pr-24 lg:pl-12 lg:pr-32 w-full ${isOverview ? '' : 'pt-6 md:pt-0'}`}
                             >
                                 <Outlet context={{ setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, viewMode, setViewMode, protocolMode, setProtocolMode }} />
                             </motion.main>

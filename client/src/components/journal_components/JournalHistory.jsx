@@ -25,7 +25,7 @@ const parseMarkdown = (text) => {
     return { __html: sanitizedHtml };
 };
 
-const JournalHistory = ({ entries = [], onAction }) => {
+const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => {
     const [confirmDelete, setConfirmDelete] = useState(null);
     const { deleteEntry } = useJournal();
 
@@ -49,14 +49,8 @@ const JournalHistory = ({ entries = [], onAction }) => {
                 onCancel={() => setConfirmDelete(null)}
             />
             <div className="flex-1 flex flex-col min-h-[500px]">
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Journal History</h3>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-[#000000] px-2 py-1 rounded border border-slate-100 dark:border-white/10">
-                    {entries.length} Entries
-                </span>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4">
+            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4 pt-2">
+                {children}
                 {entries.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-slate-400 py-10 opacity-50">
                         <span className="material-symbols-outlined text-4xl mb-2">history_edu</span>
@@ -71,41 +65,71 @@ const JournalHistory = ({ entries = [], onAction }) => {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 transition={{ duration: 0.8, delay: Math.min(idx * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
-                                className="group relative p-4 rounded-xl bg-white dark:bg-[#121212]/40 border border-slate-100 dark:border-white/10 hover:border-primary/30 transition-all shadow-none hover:shadow-none"
+                                onClick={() => onSelectEntry && onSelectEntry(entry)}
+                                className="group relative rounded-3xl bg-white dark:bg-[#121212]/40 border border-slate-100 dark:border-white/10 hover:border-primary/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[160px]"
                             >
-                            <div className="flex justify-between items-start mb-2">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-2xl">{entry.mood}</span>
+                                {/* Left Side: Image (1/4) */}
+                                <div className="w-1/4 relative shrink-0 overflow-hidden bg-slate-100 dark:bg-white/5 border-r border-slate-100 dark:border-white/5">
+                                    <img 
+                                        src={entry.imageUrl || '/assets/journal_default_cover.png'} 
+                                        alt="Journal" 
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" 
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10 dark:to-black/30 pointer-events-none" />
+                                </div>
+
+                                {/* Right Side: Content (3/4) */}
+                                <div className="flex-1 p-5 flex flex-col justify-between">
                                     <div>
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-sm font-black text-slate-900 dark:text-white">
-                                                {new Date(entry.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                                            </p>
-                                            {entry.isPending && (
-                                                <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-widest border border-amber-500/20 animate-pulse">
-                                                    <span className="material-symbols-outlined text-[10px]">sync</span>
-                                                    Pending
-                                                </span>
-                                            )}
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-xl md:text-2xl">{entry.mood}</span>
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-[10px] md:text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                                                            {new Date(entry.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                                                        </p>
+                                                        {entry.isPending && (
+                                                            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-widest border border-amber-500/20 animate-pulse">
+                                                                <span className="material-symbols-outlined text-[10px]">sync</span>
+                                                                Syncing
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none">
+                                                        {new Date(entry.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); setConfirmDelete(entry._id); }}
+                                                className="opacity-0 group-hover:opacity-100 p-2 rounded-xl bg-orange-500/10 hover:bg-rose-500 text-orange-500 hover:text-white transition-all shadow-lg shadow-orange-500/20"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">delete</span>
+                                            </button>
                                         </div>
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                                            {new Date(entry.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </p>
+
+                                        {/* Entry Title */}
+                                        {entry.title && (
+                                            <h4 className="text-sm font-black text-primary dark:text-white uppercase tracking-tight mb-1 line-clamp-1">
+                                                {entry.title}
+                                            </h4>
+                                        )}
+
+                                        {/* Entry Content Snippet */}
+                                        <div 
+                                            className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium mt-1"
+                                            dangerouslySetInnerHTML={parseMarkdown(entry.content)}
+                                        />
+                                    </div>
+
+                                    {/* Footer Decor */}
+                                    <div className="flex items-center justify-end mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
+                                        <div className="h-0.5 w-8 bg-primary rounded-full" />
                                     </div>
                                 </div>
-                                <button 
-                                    onClick={() => setConfirmDelete(entry._id)}
-                                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 text-slate-300 hover:text-rose-500 transition-all"
-                                >
-                                    <span className="material-symbols-outlined text-lg">delete</span>
-                                </button>
-                            </div>
-                            <div 
-                                className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed font-medium"
-                                dangerouslySetInnerHTML={parseMarkdown(entry.content)}
-                            />
-                        </motion.div>
-                    ))}
+                            </motion.div>
+                        ))}
                     </AnimatePresence>
                 )}
             </div>

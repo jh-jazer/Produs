@@ -147,7 +147,20 @@ const SettingsModal = ({ isOpen, onClose }) => {
                         </div>
 
                         <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                            {/* General */}
+                            {/* Profile Identity (Quick View) */}
+                            <div className="flex items-center gap-4 p-4 rounded-2xl bg-primary/5 border border-primary/20">
+                                <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                    <span className="material-symbols-outlined">person</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] font-black text-primary uppercase tracking-[0.3em]">Identity Core</span>
+                                    <span className="text-sm font-black text-black dark:text-white uppercase tracking-tighter italic font-exo">
+                                        @{user?.username || 'NOT_FOUND'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Appearance */}
                             <div className="space-y-4">
                                 <h4 className="text-[9px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-[0.4em] px-1">Appearance</h4>
 

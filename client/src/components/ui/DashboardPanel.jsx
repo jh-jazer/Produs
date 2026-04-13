@@ -32,7 +32,7 @@ const DashboardPanel = ({
     const navigate = useNavigate();
 
     return (
-        <div className={`relative z-0 bg-slate-50/80 dark:bg-[#080808]/80 backdrop-blur-2xl border border-primary/40 dark:border-white/5 rounded-[2.5rem] overflow-hidden group shadow-none ${noPadding ? '' : 'px-3 py-8 md:p-8'} ${className}`}>
+        <div className={`relative z-0 bg-slate-50/80 dark:bg-[#080808]/80 backdrop-blur-2xl border-y md:border border-primary/40 dark:border-white/5 rounded-none md:rounded-[2.5rem] overflow-hidden group shadow-none ${noPadding ? '' : 'px-4 py-8 md:p-8'} ${className}`}>
             
             {/* Tactical Backdrop Decoration */}
             {showZap && (
@@ -43,7 +43,7 @@ const DashboardPanel = ({
 
             {/* Header Section */}
             {(title || subtitle || actionLabel) && (
-                <div className="flex items-center justify-between px-1 mb-4 md:mb-6 relative z-10">
+                <div className="flex items-center justify-between px-4 md:px-1 mb-4 md:mb-6 relative z-10">
                     <div className="flex flex-col">
                         {title && (
                             <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] font-mono flex items-center gap-2 mb-1">

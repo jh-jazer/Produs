@@ -23,6 +23,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [banner, setBanner] = useState(user?.banner || "");
     const [avatar, setAvatar] = useState(user?.avatar || "");
+    const [usernameBase, setUsernameBase] = useState(user?.username ? user.username.split('#')[0] : "");
     const [isSaving, setIsSaving] = useState(false);
     const [isUploadingBanner, setIsUploadingBanner] = useState(false);
     const [bannerPosition, setBannerPosition] = useState(user?.settings?.bannerPosition || 50);
@@ -47,13 +48,19 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
         setUser(initialUser);
         setBanner(initialUser?.banner || "");
         setAvatar(initialUser?.avatar || "");
+        setUsernameBase(initialUser?.username ? initialUser.username.split('#')[0] : "");
         setBannerPosition(initialUser?.settings?.bannerPosition || 50);
     }, [initialUser]);
 
     const handleSaveProfile = async () => {
         setIsSaving(true);
         try {
-            await updateSettings({ banner, avatar, bannerPosition });
+            await updateSettings({ 
+                banner, 
+                avatar, 
+                bannerPosition,
+                username: usernameBase
+            });
             setIsEditing(false);
         } catch (error) {
             console.error("Failed to update profile", error);
@@ -299,14 +306,30 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                 )}
                             </AnimatePresence>
                             
-                            <motion.h1 
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.1 }}
-                                className="text-2xl md:text-3xl font-black uppercase tracking-tighter italic text-slate-900 dark:text-white font-exo leading-none"
-                            >
-                                @{user.username || user.name || 'USER_LINK_LOST'}
-                            </motion.h1>
+                            {isEditing ? (
+                                <div className="flex items-center gap-1 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-3 py-1 mt-1">
+                                    <span className="text-xl font-black text-slate-400">@</span>
+                                    <input
+                                        type="text"
+                                        value={usernameBase}
+                                        onChange={(e) => setUsernameBase(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 8))}
+                                        className="bg-transparent text-xl md:text-2xl font-black uppercase tracking-tighter italic text-slate-900 dark:text-white font-exo outline-none w-32"
+                                        placeholder="Username"
+                                    />
+                                    <span className="text-xl font-black text-slate-400 italic">
+                                        #{user?.username?.split('#')[1] || '0000'}
+                                    </span>
+                                </div>
+                            ) : (
+                                <motion.h1 
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                    className="text-2xl md:text-3xl font-black uppercase tracking-tighter italic text-slate-900 dark:text-white font-exo leading-none"
+                                >
+                                    @{user.username || user.name || 'USER_LINK_LOST'}
+                                </motion.h1>
+                            )}
                         </div>
                     </div>
 

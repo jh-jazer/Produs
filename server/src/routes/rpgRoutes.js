@@ -1,4 +1,4 @@
-import { completeDailyQuiz, getActivityHistory, syncNeural, getSSSLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening } from '../controllers/rpgController.js';
+import { completeDailyQuiz, getActivityHistory, syncNeural, getSSSLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening, purchaseItem } from '../controllers/rpgController.js';
 import { getQuestionById } from '../controllers/narrativeController.js';
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
@@ -37,5 +37,9 @@ router.get('/territory-lords', protect, getTerritoryLords);
 // @route   GET /api/rpg/narrative-history
 // @desc    Get the full chronological story log for the user
 router.get('/narrative-history', protect, getNarrativeHistory);
+
+// @route   POST /api/rpg/purchase
+// @desc    Acquire tactical assets or themes
+router.post('/purchase', protect, purchaseItem);
 
 export default router;

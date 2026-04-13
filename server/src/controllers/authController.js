@@ -753,14 +753,35 @@ export const updateSettings = async (req, res) => {
                 }
             });
 
-            // If updating username, ensure it's unique
+            // If updating username, handle suffix preservation and uniqueness
             if (req.body.username) {
-                const normalizedUsername = req.body.username.toLowerCase();
-                const existingUser = await User.findOne({ username: normalizedUsername });
-                if (existingUser && existingUser.id !== user.id) {
-                    return res.status(400).json({ message: 'Username is already taken' });
+                const newBase = req.body.username.toLowerCase().trim().split('#')[0];
+                if (newBase.length < 3 || newBase.length > 8) {
+                    return res.status(400).json({ message: 'Username base must be 3–8 characters long' });
                 }
-                user.username = normalizedUsername;
+
+                const currentSuffix = user.username ? user.username.split('#')[1] : null;
+                const suffix = currentSuffix || Math.floor(1000 + Math.random() * 9000).toString();
+                let finalUsername = `${newBase}#${suffix}`;
+
+                // Verify uniqueness
+                const existingUser = await User.findOne({ username: finalUsername });
+                if (existingUser && existingUser.id !== user.id) {
+                    // If base#currentSuffix is taken, generate a new suffix
+                    let attempts = 0;
+                    do {
+                        const newSuffix = Math.floor(1000 + Math.random() * 9000);
+                        finalUsername = `${newBase}#${newSuffix}`;
+                        const taken = await User.findOne({ username: finalUsername });
+                        if (!taken || taken.id === user.id) break;
+                        attempts++;
+                    } while (attempts < 20);
+
+                    if (attempts >= 20) {
+                        return res.status(400).json({ message: 'Failed to generate a unique username. Try a different base.' });
+                    }
+                }
+                user.username = finalUsername;
             }
 
             // Update settings - merge instead of overwrite to preserve sub-objects like sleepMode

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useJournal } from '../../hooks/useJournal';
+import { Image as ImageIcon, Type, X } from 'lucide-react';
 
 const JOURNAL_PROMPTS = [
     "What is one small victory you achieved today, and how did it make you feel?",
@@ -16,15 +17,42 @@ const JOURNAL_PROMPTS = [
     "What is something you are grateful for right now?"
 ];
 
-const JournalEntry = ({ onAction, mood, setMood }) => {
+const JournalEntry = ({ onAction, mood, setMood, initialEntry }) => {
     const [content, setContent] = useState('');
+    const [title, setTitle] = useState('');
+    const [imageUrl, setImageUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [promptIndex, setPromptIndex] = useState(Math.floor(Math.random() * JOURNAL_PROMPTS.length));
+    const [activePrompt, setActivePrompt] = useState(null);
     const [activeFormats, setActiveFormats] = useState({});
     const [showSizeMenu, setShowSizeMenu] = useState(false);
     const textareaRef = useRef(null);
+    const fileInputRef = useRef(null);
 
-    const { addEntry } = useJournal();
+    const { addEntry, updateEntry } = useJournal();
+
+    // Populate editor if editing an existing entry
+    React.useEffect(() => {
+        if (initialEntry) {
+            setContent(initialEntry.content);
+            setMood(initialEntry.mood);
+            setTitle(initialEntry.title || '');
+            setImageUrl(initialEntry.imageUrl || '');
+            if (textareaRef.current) {
+                textareaRef.current.innerHTML = initialEntry.content;
+            }
+        } else {
+            // Reset for new entry
+            setContent('');
+            setTitle('');
+            setImageUrl('');
+            setMood('😊');
+            setActivePrompt(null);
+            if (textareaRef.current) {
+                textareaRef.current.innerHTML = '';
+            }
+        }
+    }, [initialEntry, setMood]);
 
     const checkFormatting = () => {
         if (!textareaRef.current) return;
@@ -38,16 +66,21 @@ const JournalEntry = ({ onAction, mood, setMood }) => {
         });
     };
 
-    const moods = ['😠', '🙁', '😐', '🙂', '😊'];
-
     const handleSave = async () => {
         if (!content.trim()) return;
         
         setLoading(true);
         try {
-            await addEntry(content, mood);
+            if (initialEntry?._id) {
+                await updateEntry(initialEntry._id, content, mood, title, imageUrl);
+            } else {
+                await addEntry(content, mood, title, imageUrl);
+            }
             setContent('');
+            setTitle('');
+            setImageUrl('');
             setMood('😊');
+            setActivePrompt(null);
             if (onAction) onAction();
         } catch (error) {
             console.error('Failed to save journal entry:', error);
@@ -62,6 +95,29 @@ const JournalEntry = ({ onAction, mood, setMood }) => {
             newIndex = Math.floor(Math.random() * JOURNAL_PROMPTS.length);
         } while (newIndex === promptIndex && JOURNAL_PROMPTS.length > 1);
         setPromptIndex(newIndex);
+        return JOURNAL_PROMPTS[newIndex];
+    };
+
+    const handleApplyPrompt = () => {
+        const prompt = handleRefreshPrompt();
+        const editor = textareaRef.current;
+        if (!editor) return;
+
+        const formattedPrompt = `<p class="prompt-layer"><strong>${prompt}</strong></p><br class="prompt-br"/>`;
+        
+        // Check if there's already a prompt layer
+        const existingPrompt = editor.querySelector('.prompt-layer');
+        const existingBr = editor.querySelector('.prompt-br');
+        
+        if (existingPrompt) {
+            existingPrompt.innerHTML = `<strong>${prompt}</strong>`;
+        } else {
+            editor.innerHTML = formattedPrompt + editor.innerHTML;
+        }
+
+        setContent(editor.innerHTML);
+        setActivePrompt(prompt);
+        editor.focus();
     };
 
     const handleFormat = (e, command, value = null) => {
@@ -87,8 +143,54 @@ const JournalEntry = ({ onAction, mood, setMood }) => {
         checkFormatting();
     };
 
+    const handleFileUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+        const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+        if (cloudName === 'your_cloud_name' || !cloudName) {
+            alert('Cloudinary configuration missing. Please update .env file.');
+            return;
+        }
+
+        setLoading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', uploadPreset);
+
+        try {
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (data.secure_url) {
+                setImageUrl(data.secure_url);
+            } else {
+                console.error('Cloudinary upload error:', data);
+                alert('Upload failed: ' + (data.error?.message || 'Check Cloudinary settings'));
+            }
+        } catch (error) {
+            console.error('Failed to upload image:', error);
+            alert('Critical communication error with Cloudinary.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddImage = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
     const handleClear = () => {
         setContent('');
+        setTitle('');
+        setImageUrl('');
         if (textareaRef.current) textareaRef.current.innerHTML = '';
     };
 
@@ -106,23 +208,68 @@ const JournalEntry = ({ onAction, mood, setMood }) => {
     };
 
     return (
-        <div className="border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden flex flex-col bg-slate-50 dark:bg-[#1f293a] transition-shadow shadow-none focus-within:shadow-none focus-within:border-slate-300 dark:focus-within:border-slate-600">
-            {/* Prompt Banner inside input box */}
-            <div className="bg-primary/5 px-4 py-3 flex justify-between items-center group">
-                <p className="text-sm text-slate-700 dark:text-slate-300 italic font-medium">"{JOURNAL_PROMPTS[promptIndex]}"</p>
+        <div className="border border-slate-200 dark:border-white/10 rounded-[2rem] overflow-hidden flex flex-col bg-slate-50 dark:bg-[#1f293a] transition-shadow shadow-none focus-within:shadow-none focus-within:border-slate-300 dark:focus-within:border-slate-600">
+            {/* Hidden File Input */}
+            <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileUpload} 
+                className="hidden" 
+                accept="image/*" 
+            />
+
+            {/* Image Preview at Top */}
+            {imageUrl ? (
+                <div className="relative w-full h-48 md:h-64 bg-slate-900 overflow-hidden">
+                    <img src={imageUrl} alt="Journal visuals" className="w-full h-full object-cover opacity-80" />
+                    <button 
+                        onClick={() => setImageUrl('')}
+                        className="absolute top-4 right-4 size-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-rose-500 transition-colors z-20"
+                    >
+                        <X size={16} />
+                    </button>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                </div>
+            ) : (
                 <button 
-                    onClick={handleRefreshPrompt}
-                    title="Refresh Prompt"
-                    className="p-1 rounded-full text-primary opacity-50 hover:opacity-100 hover:bg-primary/10 transition-all ml-4 flex-shrink-0"
+                    onClick={handleAddImage}
+                    disabled={loading}
+                    className="w-full py-8 border-b border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-primary hover:bg-primary/5 transition-all group disabled:opacity-50"
                 >
-                    <span className="material-symbols-outlined text-md">refresh</span>
+                    <div className="size-12 rounded-full border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all">
+                        {loading ? (
+                            <div className="size-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                        ) : (
+                            <ImageIcon size={20} className="group-hover:scale-110 transition-transform" />
+                        )}
+                    </div>
+                    <div className="text-center">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] block">
+                            {loading ? 'MODULATING_UPLINK...' : 'Attach Visual Record'}
+                        </span>
+                        <span className="text-[8px] font-bold text-slate-400 tracking-widest opacity-60">System Optimized Upload</span>
+                    </div>
                 </button>
+            )}
+
+            {/* Title Input Area */}
+            <div className="bg-white dark:bg-[#121212] px-6 pt-6 flex items-center gap-3">
+                <div className="size-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 shrink-0">
+                    <Type size={16} />
+                </div>
+                <input 
+                    type="text" 
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Subject Heading..."
+                    className="bg-transparent border-none focus:ring-0 text-lg md:text-xl font-black text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 w-full p-0 tracking-tight"
+                />
             </div>
 
             <div 
                 ref={textareaRef}
-                className="w-full bg-white dark:bg-[#121212] border-none focus:ring-0 px-4 py-5 min-h-[220px] text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1 [&_blockquote]:border-l-[3px] [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:my-2 [&_blockquote]:bg-primary/5 [&_blockquote]:py-1 [&_blockquote]:rounded-r-md [&_a]:text-primary [&_a]:underline [&_h1]:text-2xl [&_h1]:font-black [&_h1]:my-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:my-2"
-                data-placeholder="Start typing your thoughts..."
+                className="w-full bg-white dark:bg-[#121212] border-none focus:ring-0 px-6 py-5 min-h-[260px] text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1 [&_blockquote]:border-l-[3px] [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:my-2 [&_blockquote]:bg-primary/5 [&_blockquote]:py-1 [&_blockquote]:rounded-r-md [&_a]:text-primary [&_a]:underline [&_h1]:text-2xl [&_h1]:font-black [&_h1]:my-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:my-2"
+                data-placeholder="Start typing your tactical reflection..."
                 contentEditable="true"
                 suppressContentEditableWarning={true}
                 onInput={(e) => {
@@ -134,9 +281,18 @@ const JournalEntry = ({ onAction, mood, setMood }) => {
             />
 
             {/* Google Keep Style Bottom Toolbar */}
-            <div className="bg-white dark:bg-[#121212] p-1 px-3 border-t border-slate-100 dark:border-white/10/50 flex items-start sm:items-center justify-between pb-2 relative">
+            <div className="bg-white dark:bg-[#121212] p-2 px-6 border-t border-slate-100 dark:border-white/10 flex items-start sm:items-center justify-between pb-4 relative">
                 {/* Formatting Row */}
-                <div className="flex flex-wrap gap-0.5 items-center pr-2">
+                <div className="flex flex-wrap gap-1 items-center pr-2">
+                    <button 
+                        onClick={handleAddImage}
+                        title="Add Image"
+                        className="p-2 hover:bg-slate-200 dark:hover:bg-white/5 rounded text-slate-600 dark:text-slate-400 shrink-0"
+                    >
+                        <ImageIcon size={20} />
+                    </button>
+                    <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
+                    
                     <div className="relative flex-shrink-0">
                         <button 
                             onMouseDown={(e) => { e.preventDefault(); setShowSizeMenu(!showSizeMenu); }} 
@@ -158,15 +314,18 @@ const JournalEntry = ({ onAction, mood, setMood }) => {
                         )}
                     </div>
                     <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
-                    <button onMouseDown={(e) => handleFormat(e, 'bold')} title="Bold (Ctrl+B)" type="button" className={getBtnClass('bold')}><span className="material-symbols-outlined text-[20px]">format_bold</span></button>
-                    <button onMouseDown={(e) => handleFormat(e, 'italic')} title="Italic (Ctrl+I)" type="button" className={getBtnClass('italic')}><span className="material-symbols-outlined text-[20px]">format_italic</span></button>
-                    <button onMouseDown={(e) => handleFormat(e, 'underline')} title="Underline (Ctrl+U)" type="button" className={getBtnClass('underline')}><span className="material-symbols-outlined text-[20px]">format_underlined</span></button>
-                    <button onMouseDown={(e) => handleFormat(e, 'strikeThrough')} title="Strikethrough" type="button" className={getBtnClass('strikeThrough')}><span className="material-symbols-outlined text-[20px]">format_strikethrough</span></button>
-                    <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
+                    <button onMouseDown={(e) => handleFormat(e, 'bold')} title="Bold" type="button" className={getBtnClass('bold')}><span className="material-symbols-outlined text-[20px]">format_bold</span></button>
+                    <button onMouseDown={(e) => handleFormat(e, 'italic')} title="Italic" type="button" className={getBtnClass('italic')}><span className="material-symbols-outlined text-[20px]">format_italic</span></button>
                     <button onMouseDown={(e) => handleFormat(e, 'insertUnorderedList')} title="Bullet List" type="button" className={getBtnClass('insertUnorderedList')}><span className="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
                     <button onMouseDown={(e) => handleFormat(e, 'checkbox')} title="Task List" type="button" className="p-1.5 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex-shrink-0"><span className="material-symbols-outlined text-[20px]">check_box</span></button>
                     <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
-                    <button onMouseDown={(e) => handleFormat(e, 'link')} title="Insert Link" type="button" className="p-1.5 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex-shrink-0"><span className="material-symbols-outlined text-[20px]">link</span></button>
+                    <button 
+                        onClick={handleApplyPrompt} 
+                        title="Prompt Bowl - Insert Reflection" 
+                        className="p-1.5 hover:bg-primary/20 hover:text-primary rounded text-slate-600 dark:text-slate-400 flex-shrink-0 transition-all active:scale-90"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">soup_kitchen</span>
+                    </button>
                 </div>
                 
                 <div className="flex gap-2 flex-shrink-0">
@@ -179,9 +338,9 @@ const JournalEntry = ({ onAction, mood, setMood }) => {
                     <button 
                         onClick={onSaveWrapper}
                         disabled={loading || !content.trim()}
-                        className="px-5 py-1.5 rounded-lg bg-[#000000] dark:bg-white text-white dark:text-slate-900 text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all disabled:opacity-30 disabled:hidden"
+                        className="px-5 py-1.5 rounded-lg bg-[#000000] dark:bg-white text-white dark:text-slate-900 text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-all disabled:opacity-30 disabled:hidden shadow-lg shadow-black/10"
                     >
-                        {loading ? 'Saving...' : 'Save'}
+                        {loading ? 'Saving...' : 'Confirm'}
                     </button>
                 </div>
             </div>

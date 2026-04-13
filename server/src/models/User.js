@@ -135,6 +135,10 @@ const userSchema = new mongoose.Schema({
         },
         dailyQuiz: {
             lastCompleted: { type: String, default: null }
+        },
+        inventory: {
+            themes: { type: [String], default: ['classic'] },
+            items: { type: [Object], default: [] }
         }
     },
     timezone: {

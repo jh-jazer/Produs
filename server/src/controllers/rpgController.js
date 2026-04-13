@@ -331,3 +331,75 @@ export const getTerritoryLords = async (req, res) => {
     }
 };
 
+
+// --- TACTICAL SHOP LOGIC ---
+
+const SHOP_CATALOG = {
+    'theme_midnight': { id: 'theme_midnight', name: 'Midnight Protocol', category: 'theme', themeId: 'midnight', price: 500, description: 'High-contrast nocturnal interface for elite operators.' },
+    'theme_forest': { id: 'theme_forest', name: 'Forest Protocol', category: 'theme', themeId: 'forest', price: 500, description: 'Organic verdant aesthetics for focused growth.' },
+    'theme_rose': { id: 'theme_rose', name: 'Rose Protocol', category: 'theme', themeId: 'rose', price: 500, description: 'Vibrant frequency for high-velocity activity.' },
+    'theme_amber': { id: 'theme_amber', name: 'Amber Protocol', category: 'theme', themeId: 'amber', price: 500, description: 'Warm industrial glow for deep engineering sessions.' },
+    'booster_xp_2x': { id: 'booster_xp_2x', name: 'Metabolic Override (2x XP)', category: 'booster', price: 1000, duration: 86400000, description: 'Double experience gain from all tactical syncs for 24 hours.' }
+};
+
+// @route   POST /api/rpg/purchase
+// @desc    Acquire tactical assets or themes
+// @access  Private
+export const purchaseItem = async (req, res) => {
+    try {
+        const { itemId } = req.body;
+        const item = SHOP_CATALOG[itemId];
+
+        if (!item) return res.status(404).json({ message: 'Item Not Found in Tactical Database' });
+
+        const user = await User.findById(req.user._id);
+
+        if (user.rpg.prodCoins < item.price) {
+            return res.status(400).json({ message: 'Insufficient Capital for Acquisition.' });
+        }
+
+        // Initialize inventory if missing (safety check for legacy users)
+        if (!user.rpg.inventory) {
+            user.rpg.inventory = { themes: ['classic'], items: [] };
+        }
+
+        // Check if theme is already owned
+        if (item.category === 'theme' && user.rpg.inventory.themes.includes(item.themeId)) {
+            return res.status(400).json({ message: 'Frequency Already Synchronized (Owned).' });
+        }
+
+        // Deduct Capital
+        user.rpg.prodCoins -= item.price;
+
+        // Process Acquisition
+        if (item.category === 'theme') {
+            user.rpg.inventory.themes.push(item.themeId);
+        } else {
+            user.rpg.inventory.items.push({
+                itemId: item.id,
+                name: item.name,
+                category: item.category,
+                purchasedAt: new Date(),
+                expiresAt: item.duration ? new Date(Date.now() + item.duration) : null
+            });
+        }
+
+        user.markModified('rpg');
+        await user.save();
+
+        res.json({
+            message: `${item.name.toUpperCase()} ACQUIRED.`,
+            prodCoins: user.rpg.prodCoins,
+            inventory: user.rpg.inventory,
+            user: {
+                level: user.level,
+                exp: user.exp,
+                rpg: user.rpg
+            }
+        });
+
+    } catch (error) {
+        console.error('Acquisition failure:', error);
+        res.status(500).json({ message: 'Operational failure during acquisition sequence.' });
+    }
+};

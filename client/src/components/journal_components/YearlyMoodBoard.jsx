@@ -1,7 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 
-const YearlyMoodBoard = ({ entries = [] }) => {
+const YearlyMoodBoard = ({ entries = [], hideTitle = false }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const [selectedYear, setSelectedYear] = React.useState(today.getFullYear());
@@ -87,50 +87,52 @@ const YearlyMoodBoard = ({ entries = [] }) => {
     return (
         <>
         <div className="font-inter flex flex-col h-[500px] md:h-auto">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 shrink-0">
-                <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-none tracking-tight">Yearly Mood Board</h3>
-                    <p className="text-xs text-slate-500 mt-1">Consistency tracking of your emotional wellbeing</p>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <div className="relative z-30">
-                        <button
-                            onClick={() => setIsYearOpen(!isYearOpen)}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-[#000000] text-[10px] font-black rounded-lg border border-slate-200 dark:border-white/10 transition-all hover:bg-slate-100"
-                        >
-                            <span>{selectedYear}</span>
-                            <span className={`material-symbols-outlined text-xs transition-transform ${isYearOpen ? 'rotate-180' : ''}`}>expand_more</span>
-                        </button>
-                        
-                        {isYearOpen && (
-                            <div className="absolute top-full right-0 mt-2 w-24 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl z-[60] overflow-hidden animate-in zoom-in-95 duration-200">
-                                {years.map(y => (
-                                    <button
-                                        key={y}
-                                        onClick={() => { setSelectedYear(y); setIsYearOpen(false); }}
-                                        className={`w-full px-4 py-2 text-[10px] font-bold text-left hover:bg-slate-50 dark:hover:bg-[#000000] transition-colors ${selectedYear === y ? 'text-primary' : 'text-slate-500'}`}
-                                    >
-                                        {y}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+            {!hideTitle && (
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 shrink-0">
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-none tracking-tight">Yearly Mood Board</h3>
+                        <p className="text-xs text-slate-500 mt-1">Consistency tracking of your emotional wellbeing</p>
                     </div>
 
-                    <div className="hidden sm:flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-[#000000]/30 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-white/10/50">
-                        <span>Low</span>
-                        <div className="flex gap-1">
-                            <div className="w-2 h-2 rounded-sm bg-rose-500/60"></div>
-                            <div className="w-2 h-2 rounded-sm bg-amber-500/60"></div>
-                            <div className="w-2 h-2 rounded-sm bg-slate-300 dark:bg-slate-600"></div>
-                            <div className="w-2 h-2 rounded-sm bg-emerald-500/60"></div>
-                            <div className="w-2 h-2 rounded-sm bg-primary"></div>
+                    <div className="flex items-center gap-4">
+                        <div className="relative z-30">
+                            <button
+                                onClick={() => setIsYearOpen(!isYearOpen)}
+                                className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-[#000000] text-[10px] font-black rounded-lg border border-slate-200 dark:border-white/10 transition-all hover:bg-slate-100"
+                            >
+                                <span>{selectedYear}</span>
+                                <span className={`material-symbols-outlined text-xs transition-transform ${isYearOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                            </button>
+                            
+                            {isYearOpen && (
+                                <div className="absolute top-full right-0 mt-2 w-24 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl z-[60] overflow-hidden animate-in zoom-in-95 duration-200">
+                                    {years.map(y => (
+                                        <button
+                                            key={y}
+                                            onClick={() => { setSelectedYear(y); setIsYearOpen(false); }}
+                                            className={`w-full px-4 py-2 text-[10px] font-bold text-left hover:bg-slate-50 dark:hover:bg-[#000000] transition-colors ${selectedYear === y ? 'text-primary' : 'text-slate-500'}`}
+                                        >
+                                            {y}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                        <span>High</span>
+
+                        <div className="hidden sm:flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-[#000000]/30 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-white/10/50">
+                            <span>Low</span>
+                            <div className="flex gap-1">
+                                <div className="w-2 h-2 rounded-sm bg-rose-500/60"></div>
+                                <div className="w-2 h-2 rounded-sm bg-amber-500/60"></div>
+                                <div className="w-2 h-2 rounded-sm bg-slate-300 dark:bg-slate-600"></div>
+                                <div className="w-2 h-2 rounded-sm bg-emerald-500/60"></div>
+                                <div className="w-2 h-2 rounded-sm bg-primary"></div>
+                            </div>
+                            <span>High</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* ══ MOBILE: Portrait scrollable grid ══ */}
             <div className="flex-1 overflow-y-auto custom-scrollbar relative md:hidden">

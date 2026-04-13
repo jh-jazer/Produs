@@ -25,6 +25,10 @@ const journalSchema = new mongoose.Schema({
     date: {
         type: Date,
         default: Date.now
+    },
+    imageUrl: {
+        type: String,
+        trim: true
     }
 }, {
     timestamps: true
