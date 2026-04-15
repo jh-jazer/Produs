@@ -185,8 +185,8 @@ const JournalHub = ({ entries = [], onAction }) => {
                                 initialEntry={editingEntry}
                             />
                             
-                            <div className="p-2 pl-2 pr-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
+                            <div className="p-4 px-4 md:px-6 rounded-[2rem] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-between">
+                                <div className="flex items-center gap-3 -ml-2">
                                     <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                                         <span className="material-symbols-outlined">sentiment_satisfied</span>
                                     </div>
