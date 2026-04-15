@@ -143,7 +143,7 @@ function Layout() {
                             className="flex items-center gap-2 active:scale-95 transition-all"
                             onClick={() => navigate('/dashboard/shop')}
                         >
-                            <CoinDisplay amount={user?.rpg?.prodCoins || 0} variant="minimal" className="scale-75 origin-left" />
+                            <CoinDisplay amount={user?.rpg?.prodCoins || 0} variant="vault" />
                         </div>
                     )}
 
@@ -363,7 +363,7 @@ function Layout() {
                                         className="flex flex-col cursor-pointer"
                                         onClick={() => navigate('/dashboard/shop')}
                                     >
-                                        <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="scale-90 origin-left sidebar-coin-display" />
+                                        <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display" />
                                     </motion.div>
                                 )}
                             </AnimatePresence>
