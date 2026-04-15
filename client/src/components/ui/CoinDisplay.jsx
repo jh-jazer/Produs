@@ -113,7 +113,7 @@ const CoinDisplay = ({ amount = 0, className = "", variant = "vault" }) => {
                     >
                         {displayAmount.toLocaleString()}
                     </motion.span>
-                    {isVault && <span className="text-[9px] font-black text-primary/60 uppercase">Cr</span>}
+                    {isVault && <span className="text-[9px] font-black text-primary/60 uppercase">PC</span>}
                 </div>
             </div>
         </div>
