@@ -23,6 +23,7 @@ import LevelDisplay from './ui/LevelDisplay';
 import DashboardHeader from './dashboard/DashboardHeader';
 import { DashboardContext } from '../context/DashboardContext';
 import StatsModal from './ui/StatsModal';
+import CoinDisplay from './ui/CoinDisplay';
 
 function Layout() {
     const { user, signOut } = useAuthStore();
@@ -142,10 +143,7 @@ function Layout() {
                             className="flex items-center gap-2 active:scale-95 transition-all"
                             onClick={() => navigate('/dashboard/shop')}
                         >
-                            <Logo className="size-5" color="currentColor" glow={false} />
-                            <span className="font-black text-[13px] tracking-tight text-black dark:text-white leading-none">
-                                {(user?.rpg?.prodCoins || 0).toLocaleString()}
-                            </span>
+                            <CoinDisplay amount={user?.rpg?.prodCoins || 0} variant="minimal" className="scale-75 origin-left" />
                         </div>
                     )}
 
@@ -341,7 +339,7 @@ function Layout() {
                             ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'opacity-100' : 'opacity-100'}
                         `}>
                             <div 
-                                className="size-10 flex items-center justify-center cursor-pointer group/shop"
+                                className="size-10 flex items-center justify-center cursor-pointer group/shop shrink-0"
                                 onClick={() => navigate('/dashboard/shop')} // Store navigation
                                 title="Open Terminal Shop"
                             >
@@ -365,9 +363,7 @@ function Layout() {
                                         className="flex flex-col cursor-pointer"
                                         onClick={() => navigate('/dashboard/shop')}
                                     >
-                                        <span className="font-black text-[13px] tracking-tight text-black dark:text-white leading-none">
-                                            {(user?.rpg?.prodCoins || 0).toLocaleString()}
-                                        </span>
+                                        <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="scale-90 origin-left sidebar-coin-display" />
                                     </motion.div>
                                 )}
                             </AnimatePresence>

@@ -5,6 +5,7 @@ import useAuthStore from '../store/useAuthStore';
 import api from '../services/api';
 import DashboardPanel from '../components/ui/DashboardPanel';
 import Logo from '../components/brand/Logo';
+import CoinDisplay from '../components/ui/CoinDisplay';
 
 const Shop = () => {
     const { user, syncUser } = useAuthStore();
@@ -97,13 +98,8 @@ const Shop = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     <div className="p-6 rounded-3xl bg-black/[0.03] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex items-center justify-between group overflow-hidden relative">
                         <div className="relative z-10">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Available Capital</p>
-                            <div className="flex items-center gap-3">
-                                <Logo className="size-6 text-black dark:text-white" glow={false} />
-                                <span className="text-3xl font-black tracking-tighter text-black dark:text-white">
-                                    {(user?.rpg?.prodCoins || 0).toLocaleString()}
-                                </span>
-                            </div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Available Capital</p>
+                            <CoinDisplay amount={user?.rpg?.prodCoins || 0} />
                         </div>
                         <div className="absolute right-0 top-0 size-32 bg-primary/5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-1000" />
                     </div>
