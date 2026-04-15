@@ -140,7 +140,7 @@ function Layout() {
                     {isOverview && (
                         <div
                             className="flex items-center gap-2 active:scale-95 transition-all"
-                            onClick={() => navigate('/dashboard')}
+                            onClick={() => navigate('/dashboard/shop')}
                         >
                             <Logo className="size-5" color="currentColor" glow={false} />
                             <span className="font-black text-[13px] tracking-tight text-black dark:text-white leading-none">
