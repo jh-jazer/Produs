@@ -102,6 +102,7 @@ const JournalHub = ({ entries = [], onAction }) => {
                 icon={isWriting ? PenTool : Database} 
                 showZap 
                 headerExtra={backButton}
+                noPadding
             >
                 <AnimatePresence mode="wait">
                     {!isWriting ? (
@@ -111,7 +112,7 @@ const JournalHub = ({ entries = [], onAction }) => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, x: -10 }}
                             transition={{ duration: 0.3 }}
-                            className="space-y-6"
+                            className="space-y-6 px-4 md:px-8 py-8"
                         >
                             <JournalHistory 
                                 entries={recentEntries} 
@@ -176,7 +177,7 @@ const JournalHub = ({ entries = [], onAction }) => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, x: -10 }}
                             transition={{ duration: 0.3 }}
-                            className="space-y-6"
+                            className="space-y-0 md:space-y-6 md:p-8 px-0"
                         >
                             <JournalEntry 
                                 onAction={handleAction} 
@@ -185,7 +186,7 @@ const JournalHub = ({ entries = [], onAction }) => {
                                 initialEntry={editingEntry}
                             />
                             
-                            <div className="p-4 px-4 md:px-6 rounded-[2rem] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-between">
+                            <div className="p-6 px-2 md:px-6 md:rounded-[2rem] bg-white dark:bg-[#121212] md:bg-black/5 md:dark:bg-white/5 border-t md:border border-black/10 dark:border-white/10 flex items-center justify-between">
                                 <div className="flex items-center gap-3 -ml-2">
                                     <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                                         <span className="material-symbols-outlined">sentiment_satisfied</span>

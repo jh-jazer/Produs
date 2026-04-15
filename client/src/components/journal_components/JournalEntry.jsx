@@ -208,7 +208,7 @@ const JournalEntry = ({ onAction, mood, setMood, initialEntry }) => {
     };
 
     return (
-        <div className="border border-slate-200 dark:border-white/10 rounded-[2rem] overflow-hidden flex flex-col bg-slate-50 dark:bg-[#1f293a] transition-shadow shadow-none focus-within:shadow-none focus-within:border-slate-300 dark:focus-within:border-slate-600">
+        <div className="border-0 md:border border-slate-200 dark:border-white/10 rounded-none md:rounded-[2rem] overflow-hidden flex flex-col bg-slate-50 dark:bg-[#1f293a] transition-shadow shadow-none focus-within:shadow-none md:focus-within:border-slate-300 dark:md:focus-within:border-slate-600">
             {/* Hidden File Input */}
             <input 
                 type="file" 
@@ -253,7 +253,7 @@ const JournalEntry = ({ onAction, mood, setMood, initialEntry }) => {
             )}
 
             {/* Title Input Area */}
-            <div className="bg-white dark:bg-[#121212] px-4 md:px-6 pt-6 flex items-center">
+            <div className="bg-white dark:bg-[#121212] px-2 md:px-6 pt-6 flex items-center">
                 <input 
                     type="text" 
                     value={title}
@@ -265,7 +265,7 @@ const JournalEntry = ({ onAction, mood, setMood, initialEntry }) => {
 
             <div 
                 ref={textareaRef}
-                className="w-full bg-white dark:bg-[#121212] border-none focus:ring-0 px-4 md:px-6 py-5 min-h-[260px] text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1 [&_blockquote]:border-l-[3px] [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:my-2 [&_blockquote]:bg-primary/5 [&_blockquote]:py-1 [&_blockquote]:rounded-r-md [&_a]:text-primary [&_a]:underline [&_h1]:text-2xl [&_h1]:font-black [&_h1]:my-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:my-2"
+                className="w-full bg-white dark:bg-[#121212] border-none focus:ring-0 px-2 md:px-6 py-5 min-h-[260px] text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1 [&_blockquote]:border-l-[3px] [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:my-2 [&_blockquote]:bg-primary/5 [&_blockquote]:py-1 [&_blockquote]:rounded-r-md [&_a]:text-primary [&_a]:underline [&_h1]:text-2xl [&_h1]:font-black [&_h1]:my-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:my-2"
                 data-placeholder="Start typing your tactical reflection..."
                 contentEditable="true"
                 suppressContentEditableWarning={true}
@@ -278,7 +278,7 @@ const JournalEntry = ({ onAction, mood, setMood, initialEntry }) => {
             />
 
             {/* Google Keep Style Bottom Toolbar */}
-            <div className="bg-white dark:bg-[#121212] p-2 px-4 md:px-6 border-t border-slate-100 dark:border-white/10 flex items-start sm:items-center justify-between pb-4 relative">
+            <div className="bg-white dark:bg-[#121212] p-2 px-2 md:px-6 border-t border-slate-100 dark:border-white/10 flex items-start sm:items-center justify-between pb-4 relative">
                 {/* Formatting Row */}
                 <div className="flex flex-wrap gap-1 items-center pr-0 -ml-2">
                     <button 
@@ -325,7 +325,7 @@ const JournalEntry = ({ onAction, mood, setMood, initialEntry }) => {
                     </button>
                 </div>
                 
-                <div className="flex gap-2 flex-shrink-0 -mr-2">
+                <div className="flex gap-2 flex-shrink-0">
                     <button 
                         onClick={handleClear}
                         className="px-2 py-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-[#000000] text-[11px] font-bold uppercase tracking-widest transition-colors"

@@ -25,7 +25,7 @@ const Spiritual = () => {
     if (isLoading && entries.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-4 md:gap-8 pb-48 md:pb-8 mx-auto">
+        <div className="w-full max-w-[1400px] lg:pt-8 flex flex-col gap-4 md:gap-8 pb-48 md:pb-8 mx-auto px-0">
             <div className="flex justify-center">
                 <div className="w-full lg:max-w-4xl">
                     <JournalHub entries={entries} onAction={handleAction} />
