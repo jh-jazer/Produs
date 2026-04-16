@@ -293,7 +293,10 @@ const NeuralSyncPage = () => {
             if (user?.level === 0) {
                 setIsHandshaking(true);
             } else {
-                setSuccessData(pendingSyncData);
+                // For specialization nodes (16.0+), bypass the Success screen
+                // and return to dashboard automatically to maintain "don't show them yet" request
+                syncUser(pendingSyncData);
+                navigate('/dashboard');
             }
             setSelectedOption(null);
             setPendingSyncData(null);

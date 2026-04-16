@@ -255,8 +255,8 @@ export const checkNeuralSync = (user, currentLevel, prevLevel = null) => {
     let unlockedAny = false;
 
     for (let level = startLvl; level <= currentLevel; level++) {
-        // Tier 1: Archetype (Q16-Q23) - 1 per level L2-L9
-        if (level >= 2 && level <= 9) unlockedAny = tryUnlock(14 + level) || unlockedAny; // L2=16, L9=23
+        // Tier 1: Archetype (Q16-Q23) - 1 per level L1-L8
+        if (level >= 1 && level <= 8) unlockedAny = tryUnlock(`${15 + level}.0`) || unlockedAny; // L1=16.0, L8=23.0
 
         // Tier 2: Style (Q24-Q28) - 1 per 2 levels L11-L19
         if (level >= 11 && level <= 19) {

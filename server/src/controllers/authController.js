@@ -6,7 +6,7 @@ import Wishlist from '../models/Wishlist.js';
 import Joi from 'joi';
 import mongoose from 'mongoose';
 import generateToken from '../utils/generateToken.js';
-import { calculateLevel, awardXP, determineArchetype } from '../utils/rpgUtils.js';
+import { calculateLevel, awardXP, determineArchetype, checkNeuralSync } from '../utils/rpgUtils.js';
 import { calculateScores } from '../shared/assessment.js';
 const registerSchema = Joi.object({
     name: Joi.string().min(2).max(50).required(),
@@ -658,6 +658,9 @@ export const finalizeAwakening = async (req, res) => {
         user.rpg.assessmentResults = undefined;
         user.rpg.pendingQuestions = []; // Ensure all questions are cleared
         
+        // Trigger immediate unlock of Level 1 Node (16.0)
+        checkNeuralSync(user, user.level, 0);
+
         user.markModified('rpg');
         await user.save();
 
