@@ -44,7 +44,7 @@ const CoinDisplay = ({ amount = 0, className = "", variant = "vault" }) => {
     return (
         <div className={`relative flex items-center gap-3 transition-all duration-300 ${
             isVault
-                ? 'px-3.5 py-2 rounded-xl bg-slate-950 border border-white/10 shadow-2xl overflow-hidden'
+                ? 'px-3.5 py-2 overflow-hidden'
                 : 'px-0 py-0 bg-transparent border-none'
         } group ${className}`}>
 
@@ -106,9 +106,7 @@ const CoinDisplay = ({ amount = 0, className = "", variant = "vault" }) => {
                 <div className="flex items-baseline gap-1">
                     <motion.span
                         className={`font-black tracking-tight leading-none transition-colors duration-300 ${
-                            isVault
-                                ? (isPopping ? 'text-primary' : 'text-white')
-                                : 'text-black dark:text-white'
+                            isPopping ? 'text-primary' : 'text-black dark:text-white'
                         } ${isVault ? 'text-[13px]' : 'text-sm'}`}
                     >
                         {displayAmount.toLocaleString()}

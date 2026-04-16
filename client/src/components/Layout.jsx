@@ -335,23 +335,19 @@ function Layout() {
 
 
                         {/* 2.5 Currency Display (Desktop) */}
-                        <div className={`mb-2 flex items-center gap-4 transition-all duration-500
-                            ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'opacity-100' : 'opacity-100'}
-                        `}>
-                            <div 
-                                className="size-10 flex items-center justify-center cursor-pointer group/shop shrink-0"
-                                onClick={() => navigate('/dashboard/shop')} // Store navigation
-                                title="Open Terminal Shop"
-                            >
-                                {(location.pathname === '/dashboard' || isMobileMenuOpen) ? (
-                                    <Logo className="size-5 text-black dark:text-white" color="currentColor" glow={false} />
-                                ) : (
+                        <div className="mb-2 flex items-center transition-all duration-500">
+                            {!(location.pathname === '/dashboard' || isMobileMenuOpen) && (
+                                <div 
+                                    className="size-10 flex items-center justify-center cursor-pointer group/shop shrink-0"
+                                    onClick={() => navigate('/dashboard/shop')} // Store navigation
+                                    title="Open Terminal Shop"
+                                >
                                     <div className="relative">
                                         <ShoppingBag size={18} className="text-slate-400 group-hover/shop:text-primary transition-colors" />
                                         <div className="absolute -top-1 -right-1 size-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_var(--primary-glow)]" />
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
                             
                             <AnimatePresence>
                                 {(location.pathname === '/dashboard' || isMobileMenuOpen) && (
@@ -362,6 +358,7 @@ function Layout() {
                                         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                                         className="flex flex-col cursor-pointer"
                                         onClick={() => navigate('/dashboard/shop')}
+                                        title="Open Terminal Shop"
                                     >
                                         <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display" />
                                     </motion.div>
@@ -449,7 +446,7 @@ function Layout() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: "-10%", opacity: 0, scale: 0.96, pointerEvents: 'none' }}
                                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                className={`relative z-0 flex-1 flex justify-start pb-32 md:pb-12 px-0 md:pl-8 md:pr-24 lg:pl-12 lg:pr-32 w-full ${isOverview ? '' : 'pt-6 md:pt-0'}`}
+                                className={`relative z-0 flex-1 flex justify-start pb-32 md:pb-12 px-0 md:px-12 lg:px-20 w-full ${isOverview ? '' : 'pt-6 md:pt-0'}`}
                             >
                                 <Outlet context={{ setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, viewMode, setViewMode, protocolMode, setProtocolMode }} />
                             </motion.main>

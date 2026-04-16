@@ -277,14 +277,6 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 ml-4 leading-relaxed">{t.description}</p>
                                             )}
                                         </div>
-                                        {!isReadOnly && (
-                                            <button
-                                                onClick={() => setConfirmDelete(t._id)}
-                                                className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-red-500/10 text-red-500 transition-all"
-                                            >
-                                                <span className="material-symbols-outlined text-sm">delete</span>
-                                            </button>
-                                        )}
                                     </div>
                                 ))
                             ) : (

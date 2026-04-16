@@ -369,15 +369,6 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                                 {goal.period === 'weekly' ? 'W' : goal.period === 'monthly' ? 'M' : 'Y'}
                             </span>
 
-                            {/* Delete */}
-                            {!isReadOnly && (
-                                <button
-                                onClick={() => setConfirmDelete(goal._id)}
-                                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-rose-500 transition-all"
-                                >
-                                    <span className="material-symbols-outlined text-sm">delete</span>
-                                </button>
-                            )}
                         </div>
                     ))
                 )}

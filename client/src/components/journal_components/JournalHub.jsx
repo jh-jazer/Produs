@@ -151,14 +151,9 @@ const JournalHub = ({ entries = [], onAction }) => {
                                             </div>
 
                                             {/* Entry Title */}
-                                            <h4 className="text-sm font-black text-primary dark:text-blue-400 uppercase tracking-tight mb-1">
+                                            <h4 className="text-sm font-black text-primary dark:text-blue-400 uppercase tracking-tight mt-10 mb-1">
                                                 New Field Note: Today
                                             </h4>
-
-                                            {/* Entry Content Snippet */}
-                                            <div className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium mt-1">
-                                                The current operational window is active. Record your high-fidelity observations before the deadline.
-                                            </div>
                                         </div>
 
                                         {/* Footer Decor */}
@@ -173,7 +168,7 @@ const JournalHub = ({ entries = [], onAction }) => {
                         <motion.div
                             key="editor"
                             initial={{ opacity: 0, x: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -10 }}
                             transition={{ duration: 0.3 }}
                             className="space-y-6"

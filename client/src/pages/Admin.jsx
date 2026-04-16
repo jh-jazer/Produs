@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState, useMemo, useEffect, useContext } from 'react';
 import { motion } from 'framer-motion';
 import { Users, BarChart3, ShieldCheck, Database, RefreshCcw, BookOpen, FileDown, Zap, Activity } from 'lucide-react';
 import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
-import MobileTabNav from '../components/ui/MobileTabNav';
+import { DashboardContext } from '../context/DashboardContext';
 import DashboardModal from '../components/ui/DashboardModal';
 
 import AdminStats from '../components/admin_components/AdminStats';
@@ -18,6 +18,12 @@ const Admin = () => {
     const [activeTab, setActiveTab] = React.useState('overview');
     const [isExportModalOpen, setIsExportModalOpen] = React.useState(false);
     const [isExporting, setIsExporting] = React.useState(false);
+    const { setMobileTabs } = useContext(DashboardContext);
+
+    useEffect(() => {
+        setMobileTabs({ tabs, activeTab, setActiveTab });
+        return () => setMobileTabs(null);
+    }, [activeTab, setMobileTabs]);
 
     const tabs = [
         { id: 'overview', label: 'Overview', icon: BarChart3 },
@@ -120,27 +126,45 @@ const Admin = () => {
                 className="w-full max-w-none relative z-0"
             >
                 {/* Desktop Header */}
-                <header className="hidden md:flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-                    <div>
-                        <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">System Management</h1>
-                        <p className="text-slate-500 dark:text-slate-400 font-medium">Welcome back, Admin. Here's what's happening today.</p>
+                <header className="hidden md:flex flex-col gap-8 mb-12">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">System Management</h1>
+                            <p className="text-slate-500 dark:text-slate-400 font-medium">Welcome back, Admin. Here's what's happening today.</p>
+                        </div>
+                        <div className="flex flex-wrap md:flex-nowrap gap-4 w-full md:w-auto">
+                            <button 
+                                onClick={() => setIsExportModalOpen(true)}
+                                className="flex-1 md:flex-none bg-slate-100 dark:bg-white/5 text-slate-500 hover:text-slate-900 dark:hover:text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 flex items-center justify-center gap-3"
+                            >
+                                <FileDown size={18} />
+                                Export Audit Logs
+                            </button>
+                            <button 
+                                onClick={() => mutate()} 
+                                disabled={isValidating}
+                                className="flex-1 md:flex-none bg-primary text-white px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl shadow-primary/20 disabled:opacity-50"
+                            >
+                                <RefreshCcw size={18} className={isValidating ? 'animate-spin' : ''} />
+                                {isValidating ? 'Syncing...' : 'Neural Sync'}
+                            </button>
+                        </div>
                     </div>
-                    <div className="flex flex-wrap md:flex-nowrap gap-4 w-full md:w-auto">
-                        <button 
-                            onClick={() => setIsExportModalOpen(true)}
-                            className="flex-1 md:flex-none bg-slate-100 dark:bg-white/5 text-slate-500 hover:text-slate-900 dark:hover:text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 flex items-center justify-center gap-3"
-                        >
-                            <FileDown size={18} />
-                            Export Audit Logs
-                        </button>
-                        <button 
-                            onClick={() => mutate()} 
-                            disabled={isValidating}
-                            className="flex-1 md:flex-none bg-primary text-white px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl shadow-primary/20 disabled:opacity-50"
-                        >
-                            <RefreshCcw size={18} className={isValidating ? 'animate-spin' : ''} />
-                            {isValidating ? 'Syncing...' : 'Neural Sync'}
-                        </button>
+
+                    {/* Desktop Tab Navigation (Integrated into Header) */}
+                    <div className="flex items-center gap-1.5 bg-black/[0.03] dark:bg-white/[0.03] p-1.5 rounded-2xl w-fit border border-black/[0.05] dark:border-white/5">
+                        {tabs.map((tab) => {
+                            const Icon = tab.icon;
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                                    className={`flex items-center gap-2.5 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${isActive ? 'bg-white dark:bg-zinc-800 text-primary shadow-sm ring-1 ring-black/5 dark:ring-white/10' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5'}`}
+                                >
+                                    <Icon size={14} strokeWidth={isActive ? 3 : 2} />
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
                     </div>
                 </header>
 
@@ -152,24 +176,6 @@ const Admin = () => {
                     </div>
                 )}
 
-                {/* Mobile Navigation */}
-                <MobileTabNav tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
-
-                {/* Desktop Tab Navigation */}
-                <div className="hidden md:flex items-center gap-1 mb-8 bg-zinc-100 dark:bg-zinc-900/50 p-1.5 rounded-2xl w-fit border border-zinc-200 dark:border-white/5">
-                    {tabs.map((tab) => {
-                        const Icon = tab.icon;
-                        const isActive = activeTab === tab.id;
-                        return (
-                            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${isActive ? 'bg-white dark:bg-zinc-800 text-primary shadow-sm ring-1 ring-black/5 dark:ring-white/10' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5'}`}
-                            >
-                                <Icon size={16} strokeWidth={isActive ? 3 : 2} />
-                                {tab.label}
-                            </button>
-                        );
-                    })}
-                </div>
 
                 {/* ── Content Sections: Use conditional rendering to prevent hidden-chart errors ── */}
 

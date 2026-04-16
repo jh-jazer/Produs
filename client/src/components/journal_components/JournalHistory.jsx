@@ -101,12 +101,6 @@ const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => 
                                                     </p>
                                                 </div>
                                             </div>
-                                            <button 
-                                                onClick={(e) => { e.stopPropagation(); setConfirmDelete(entry._id); }}
-                                                className="opacity-0 group-hover:opacity-100 p-2 rounded-xl bg-orange-500/10 hover:bg-rose-500 text-orange-500 hover:text-white transition-all shadow-lg shadow-orange-500/20"
-                                            >
-                                                <span className="material-symbols-outlined text-sm">delete</span>
-                                            </button>
                                         </div>
 
                                         {/* Entry Title */}

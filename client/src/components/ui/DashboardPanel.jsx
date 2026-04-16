@@ -43,7 +43,7 @@ const DashboardPanel = ({
 
             {/* Header Section */}
             {(title || subtitle || actionLabel) && (
-                <div className="flex items-center justify-between px-4 md:px-1 mb-4 md:mb-6 relative z-10">
+                <div className="flex items-center justify-between px-4 md:px-0 mb-4 md:mb-6 relative z-10">
                     <div className="flex flex-col">
                         {title && (
                             <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] font-mono flex items-center gap-2 mb-1">

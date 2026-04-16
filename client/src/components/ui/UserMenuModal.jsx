@@ -49,7 +49,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
                             {(user?.email === 'ernestodesabillejr@gmail.com' || user?.isAdmin) && (
                                 <button onClick={() => { onClose(); navigate('/dashboard/admin'); }} className="w-full px-4 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-primary/5 dark:hover:bg-white/5 rounded-[20px] transition-all flex items-center gap-4">
                                     <span className="material-symbols-outlined text-lg opacity-40">admin_panel_settings</span>
-                                    <span>System_Control_</span>
+                                    <span>Manage_</span>
                                 </button>
                             )}
 

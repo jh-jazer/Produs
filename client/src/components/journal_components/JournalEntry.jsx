@@ -245,7 +245,7 @@ const JournalEntry = ({ onAction, mood, setMood, initialEntry }) => {
                     </div>
                     <div className="text-center">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] block">
-                            {loading ? 'MODULATING_UPLINK...' : 'Attach Visual Record'}
+                            {loading ? 'MODULATING_UPLINK...' : 'Attach image'}
                         </span>
                         <span className="text-[8px] font-bold text-slate-400 tracking-widest opacity-60">System Optimized Upload</span>
                     </div>
@@ -254,14 +254,11 @@ const JournalEntry = ({ onAction, mood, setMood, initialEntry }) => {
 
             {/* Title Input Area */}
             <div className="bg-white dark:bg-[#121212] px-6 pt-6 flex items-center gap-3">
-                <div className="size-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 shrink-0">
-                    <Type size={16} />
-                </div>
                 <input 
                     type="text" 
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Subject Heading..."
+                    placeholder="Title"
                     className="bg-transparent border-none focus:ring-0 text-lg md:text-xl font-black text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 w-full p-0 tracking-tight"
                 />
             </div>
@@ -269,7 +266,7 @@ const JournalEntry = ({ onAction, mood, setMood, initialEntry }) => {
             <div 
                 ref={textareaRef}
                 className="w-full bg-white dark:bg-[#121212] border-none focus:ring-0 px-6 py-5 min-h-[260px] text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1 [&_blockquote]:border-l-[3px] [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:my-2 [&_blockquote]:bg-primary/5 [&_blockquote]:py-1 [&_blockquote]:rounded-r-md [&_a]:text-primary [&_a]:underline [&_h1]:text-2xl [&_h1]:font-black [&_h1]:my-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:my-2"
-                data-placeholder="Start typing your tactical reflection..."
+                data-placeholder="Input text"
                 contentEditable="true"
                 suppressContentEditableWarning={true}
                 onInput={(e) => {
