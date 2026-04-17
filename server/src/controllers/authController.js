@@ -7,7 +7,7 @@ import Joi from 'joi';
 import mongoose from 'mongoose';
 import generateToken from '../utils/generateToken.js';
 import { calculateLevel, awardXP, determineArchetype, checkNeuralSync } from '../utils/rpgUtils.js';
-import { calculateScores } from '../shared/assessment.js';
+import { calculateScores, ARCHETYPE_PROTOCOLS } from '../shared/assessment.js';
 const registerSchema = Joi.object({
     name: Joi.string().min(2).max(50).required(),
     email: Joi.string().email().required(),
@@ -611,6 +611,12 @@ export const awakenUser = async (req, res) => {
 
         // Update Stats and Profile (Temporary storage in rpg.assessmentResults)
         user.rpg.assessmentResults = result;
+        
+        // Store the raw answers for finalizeAwakening to process
+        if (req.body.answers) {
+            user.rpg.completedAnswers = req.body.answers;
+        }
+        
         user.markModified('rpg');
         await user.save();
 
@@ -653,6 +659,13 @@ export const finalizeAwakening = async (req, res) => {
             tier: 1,
             stage: results.tier1 || 'Awakened'
         };
+
+        // Assign Perk and Multipliers from Protocol
+        const protocol = ARCHETYPE_PROTOCOLS[results.path];
+        if (protocol) {
+            user.rpg.perk = protocol.perk;
+            user.rpg.statMultipliers = protocol.multipliers;
+        }
 
         // Clear assessment buffer
         user.rpg.assessmentResults = undefined;

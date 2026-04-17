@@ -8,9 +8,15 @@ import { Zap, Shield, Database, Cpu, Activity, LogOut, ChevronDown, AlertTriangl
 /**
  * Typewriter Component - Animates text character by character for cinematic feel.
  */
-const Typewriter = ({ text, speed = 25, onComplete }) => {
+const Typewriter = ({ text, speed = 25, onComplete, multiplier = 1 }) => {
     const [displayedText, setDisplayedText] = useState("");
     const [isComplete, setIsComplete] = useState(false);
+    const speedRef = useRef(speed / multiplier);
+
+    // Sync ref with current speed/multiplier
+    useEffect(() => {
+        speedRef.current = Math.max(2, speed / multiplier);
+    }, [speed, multiplier]);
 
     useEffect(() => {
         setDisplayedText("");
@@ -22,16 +28,16 @@ const Typewriter = ({ text, speed = 25, onComplete }) => {
             if (i < text.length) {
                 setDisplayedText(text.slice(0, i + 1));
                 i++;
-                timeoutId = setTimeout(type, speed);
+                timeoutId = setTimeout(type, speedRef.current);
             } else {
                 setIsComplete(true);
                 if (onComplete) onComplete();
             }
         };
 
-        timeoutId = setTimeout(type, speed);
+        timeoutId = setTimeout(type, speedRef.current);
         return () => clearTimeout(timeoutId);
-    }, [text, speed]);
+    }, [text]); // ONLY restart when text content changes
 
     return (
         <span className="leading-relaxed whitespace-pre-wrap">
@@ -54,7 +60,6 @@ const NeuralSyncPage = () => {
     // Refs (Top Level)
     const scrollContainerRef = useRef(null);
     const interactionTimeoutRef = useRef(null);
-    const autoProceedTimeoutRef = useRef(null);
 
     // State
     const [isInitializing, setIsInitializing] = useState(true);
@@ -71,13 +76,17 @@ const NeuralSyncPage = () => {
     const [selectedOption, setSelectedOption] = useState(null);
     const [pendingSyncData, setPendingSyncData] = useState(null);
     const [isPostTypingComplete, setIsPostTypingComplete] = useState(false);
+    const [areOptionsTypingComplete, setAreOptionsTypingComplete] = useState(false);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [isUserInteracting, setIsUserInteracting] = useState(false);
     const [syncError, setSyncError] = useState(null);
     const [showHUD, setShowHUD] = useState(true);
+    const [prefetchedNode, setPrefetchedNode] = useState(null);
+    const [isFastForwarding, setIsFastForwarding] = useState(false);
     const lastScrollY = useRef(0);
+    const hasScrolledToBottomRef = useRef(false);
 
-    // 1. Initial Diagnostic Boot Sequence
+    // 1. Initial Diagnostic Boot Sequence & History Retrieval
     useEffect(() => {
         const diagnosticLogs = [
             "INITIALIZING_UPLINK...",
@@ -85,29 +94,57 @@ const NeuralSyncPage = () => {
             "CALIBRATING_NEURAL_FREQUENCY...",
             "STABILIZING_SYNAPTIC_STREAM...",
             "MAPPING_DASHBOARD_VECTORS...",
+            "RECOVERING_NEURAL_ARCHIVES...",
             "READY_FOR_SYNCHRONIZATION"
         ];
 
-        let i = 0;
-        const interval = setInterval(() => {
-            if (i < diagnosticLogs.length) {
+        const bootSequence = async () => {
+            // Speed diagnostic logs
+            for (let i = 0; i < diagnosticLogs.length; i++) {
                 setLogs(prev => [...prev, diagnosticLogs[i]]);
-                i++;
-            } else {
-                clearInterval(interval);
-                setTimeout(() => setIsInitializing(false), 1200);
+                await new Promise(r => setTimeout(r, 200));
             }
-        }, 300);
 
-        return () => clearInterval(interval);
+            // Fetch History to enable the 'Previous' button
+            try {
+                const { data: history } = await api.get('/rpg/narrative-history');
+                const historicalNodes = history.map(h => ({
+                    questionId: h.questionId,
+                    story: h.story,
+                    question: h.question,
+                    options: h.options || [], // Ensure options exist for lookup
+                    section: h.section
+                }));
+                if (historicalNodes.length > 0) {
+                    setSessionHistory(historicalNodes);
+                    setHistoryIndex(historicalNodes.length - 1);
+                }
+            } catch (err) {
+                console.warn("Failed to recover narrative archives", err);
+            }
+
+            setIsInitializing(false);
+        };
+
+        bootSequence();
     }, [user?._id]);
 
     // 2. Load Question Data & Update History
     useEffect(() => {
         if (!isInitializing && user?.rpg?.pendingQuestions?.length > 0) {
             const fetchQuestion = async () => {
+                const qId = user.rpg.pendingQuestions[0];
+                
+                // --- OPTIMIZATION: Avoid fetching if already in history (from pre-fetch) ---
+                const existsInHistory = sessionHistory.find(q => String(q.questionId) === String(qId));
+                if (existsInHistory) {
+                    const idx = sessionHistory.findIndex(q => String(q.questionId) === String(qId));
+                    if (historyIndex !== idx) setHistoryIndex(idx);
+                    setIsTransitioning(false);
+                    return;
+                }
+
                 try {
-                    const qId = user.rpg.pendingQuestions[0];
                     const { data } = await api.get(`/rpg/narrative/${qId}`);
                     
                     setSessionHistory(prev => {
@@ -136,13 +173,16 @@ const NeuralSyncPage = () => {
     const currentQuestion = sessionHistory[historyIndex];
     const archivedAnswer = user?.rpg?.completedAnswers?.find(ans => ans.id === currentQuestion?.questionId);
 
-    // 3. Reset all interaction states when switching questions
+    // 4. Reset all interaction states when switching questions
     useEffect(() => {
         setSelectedOption(null);
         setPendingSyncData(null);
         setIsTypingComplete(false);
         setIsPostTypingComplete(false);
+        setAreOptionsTypingComplete(false);
         setSyncError(null);
+        hasScrolledToBottomRef.current = false; // Reset for new question
+        // Do NOT clear prefetchedNode here, handleProceed will manage it
     }, [currentQuestion?.questionId]);
 
     // 4. Restore state for archived nodes
@@ -156,6 +196,10 @@ const NeuralSyncPage = () => {
             }
         }
     }, [currentQuestion, archivedAnswer]);
+
+
+    const startFF = () => setIsFastForwarding(true);
+    const stopFF = () => setIsFastForwarding(false);
 
     // 3. User Interaction Monitoring & HUD Visibility
     useEffect(() => {
@@ -175,57 +219,77 @@ const NeuralSyncPage = () => {
             if (interactionTimeoutRef.current) clearTimeout(interactionTimeoutRef.current);
             interactionTimeoutRef.current = setTimeout(() => {
                 setIsUserInteracting(false);
-            }, 3000); // 3 seconds of peace before resuming auto-scroll
+            }, 3000); 
         };
 
         window.addEventListener('scroll', handleScroll, { passive: true });
-        window.addEventListener('scroll', handleInteraction, { passive: true });
         window.addEventListener('wheel', handleInteraction, { passive: true });
         window.addEventListener('touchmove', handleInteraction, { passive: true });
-        window.addEventListener('mousedown', handleInteraction, { passive: true });
+        window.addEventListener('keydown', handleInteraction, { passive: true });
 
         return () => {
             window.removeEventListener('scroll', handleScroll);
-            window.removeEventListener('scroll', handleInteraction);
             window.removeEventListener('wheel', handleInteraction);
             window.removeEventListener('touchmove', handleInteraction);
-            window.removeEventListener('mousedown', handleInteraction);
+            window.removeEventListener('keydown', handleInteraction);
             if (interactionTimeoutRef.current) clearTimeout(interactionTimeoutRef.current);
         };
     }, []);
 
-    // 4. Auto-Scroll Logic during Typing
+    // 4. Auto-Scroll Logic during Typing & Reveal
     useEffect(() => {
-        if (!isTypingComplete && !isInitializing && currentQuestion && !isUserInteracting) {
-            const scrollInterval = setInterval(() => {
-                window.scrollTo({
-                    top: document.documentElement.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 200);
+        if (!isInitializing && currentQuestion && !isUserInteracting) {
+            // Scroll during: 
+            // 1. Initial story reveal
+            // 2. Options reveal (simultaneous typing)
+            // 3. Post-choice feedback reveal
+            // 4. Briefly after typing completes to ensure options are visible
+            const isAnyTyping = !isTypingComplete || (!areOptionsTypingComplete && !selectedOption) || (selectedOption && !isPostTypingComplete);
             
-            return () => clearInterval(scrollInterval);
+            if (isAnyTyping) {
+                const scrollInterval = setInterval(() => {
+                    const scrollTarget = document.documentElement.scrollHeight - window.innerHeight + 100;
+                    window.scrollTo({
+                        top: scrollTarget,
+                        behavior: isFastForwarding ? 'auto' : 'smooth'
+                    });
+                }, isFastForwarding ? 25 : 100);
+                return () => clearInterval(scrollInterval);
+            }
+
+            // One final scroll check when story typing completes to ensure options are seen
+            // ONLY RUN ONCE per question reveal to avoid fighting user manual scroll
+            if (isTypingComplete && !selectedOption && !hasScrolledToBottomRef.current) {
+                const timer = setTimeout(() => {
+                    if (hasScrolledToBottomRef.current) return;
+                    window.scrollTo({
+                        top: document.documentElement.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                    hasScrolledToBottomRef.current = true;
+                }, 100);
+                return () => clearTimeout(timer);
+            }
         }
-    }, [isTypingComplete, isInitializing, currentQuestion, isUserInteracting]);
+    }, [isTypingComplete, isInitializing, currentQuestion, isUserInteracting, selectedOption, isPostTypingComplete]);
 
     const handlePrev = () => {
         if (historyIndex > 0) {
             setHistoryIndex(prev => prev - 1);
             // State will be restored by the useEffect
             setSelectedOption(null);
-            setPendingSyncData(null);
-            setIsTypingComplete(false); 
             setIsPostTypingComplete(false);
+            setAreOptionsTypingComplete(false);
+            setIsFastForwarding(false); // Reset overclock on transition
         }
     };
 
     const handleNext = () => {
         if (historyIndex < sessionHistory.length - 1) {
             setHistoryIndex(prev => prev + 1);
-            setSelectedOption(null);
-            setPendingSyncData(null);
-            setIsTypingComplete(false);
             setIsPostTypingComplete(false);
+            setAreOptionsTypingComplete(false);
+            setIsFastForwarding(false); // Reset overclock on transition
         }
     };
 
@@ -245,6 +309,14 @@ const NeuralSyncPage = () => {
             setSelectedOption(choice);
             setIsPostTypingComplete(false);
             setIsSubmitting(false);
+
+            // Pre-fetch next node immediately in background
+            const nextId = data.rpg?.pendingQuestions?.[0];
+            if (nextId) {
+                api.get(`/rpg/narrative/${nextId}`)
+                    .then(res => setPrefetchedNode(res.data))
+                    .catch(err => console.warn("Background pre-fetch failed", err));
+            }
         } catch (error) {
             console.error("Neural sync selection failed", error);
             setIsSubmitting(false);
@@ -272,9 +344,7 @@ const NeuralSyncPage = () => {
             autoProceedTimeoutRef.current = null;
         }
 
-        // Check for "Neural Fracture" (Orphaned Link)
-        // If there's no pendingQuestions, and the server says it didn't find the next node
-        // but a nextId was calculated/attempted, it's an orphan bug, not completion.
+        const nextId = pendingSyncData.rpg?.pendingQuestions?.[0];
         const cleanNextId = pendingSyncData.debug?.cleanNextId;
         const foundNext = pendingSyncData.debug?.foundNext;
         const hasPending = pendingSyncData.rpg?.pendingQuestions?.length > 0;
@@ -293,8 +363,6 @@ const NeuralSyncPage = () => {
             if (user?.level === 0) {
                 setIsHandshaking(true);
             } else {
-                // For specialization nodes (16.0+), bypass the Success screen
-                // and return to dashboard automatically to maintain "don't show them yet" request
                 syncUser(pendingSyncData);
                 navigate('/dashboard');
             }
@@ -304,33 +372,39 @@ const NeuralSyncPage = () => {
             return;
         }
 
-        setIsTransitioning(true); // Initiate transition
+        // --- OPTIMIZED TRANSITION ---
+        // If we already have the pre-fetched data, push it to history instantly bypass re-fetch
+        if (prefetchedNode && String(prefetchedNode.questionId) === String(nextId)) {
+            setSessionHistory(prev => {
+                const exists = prev.find(q => q.questionId === prefetchedNode.questionId);
+                if (!exists) return [...prev, prefetchedNode];
+                return prev;
+            });
+            setHistoryIndex(sessionHistory.length); // Next index will be length
+            setPrefetchedNode(null); // Clear buffer
+            setIsTypingComplete(false);
+            setIsPostTypingComplete(false);
+            setAreOptionsTypingComplete(false);
+            setIsFastForwarding(false); // Reset overclock on transition
+            setSelectedOption(null);
+            setPendingSyncData(null);
+            syncUser(pendingSyncData);
+            // No need for isTransitioning(true) as it's instant
+            return;
+        }
+
+        setIsFastForwarding(false); // Reset overclock on transition
+        setIsTransitioning(true); // Fallback to normal fetch if pre-fetch isn't ready
         syncUser(pendingSyncData);
         
         // Clear reveal states
         setSelectedOption(null);
         setPendingSyncData(null);
         setIsPostTypingComplete(false);
-    }, [pendingSyncData, syncUser]);
-
-    // 5. Automatic Transition after Post-Choice Typing
-    useEffect(() => {
-        if (isPostTypingComplete && selectedOption && pendingSyncData) {
-            // Set 3 second timer for automatic proceed
-            autoProceedTimeoutRef.current = setTimeout(() => {
-                handleProceed();
-            }, 3000);
-        }
-
-        return () => {
-            if (autoProceedTimeoutRef.current) {
-                clearTimeout(autoProceedTimeoutRef.current);
-                autoProceedTimeoutRef.current = null;
-            }
-        };
-    }, [isPostTypingComplete, selectedOption, pendingSyncData, handleProceed]);
+    }, [pendingSyncData, syncUser, prefetchedNode, sessionHistory.length, navigate, user?.level]);
 
     const handleHandshake = async () => {
+        setIsHandshaking(true);
         setIsSubmitting(true);
         const logs = [
             "INITIATING_FINAL_SYNERGY...",
@@ -416,34 +490,6 @@ const NeuralSyncPage = () => {
                 <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
             </div>
 
-            {/* Neural Progress HUD (Floating) */}
-            <motion.div
-                initial={{ y: 0, opacity: 1, x: "-50%" }}
-                animate={{
-                    y: showHUD ? 0 : -100,
-                    opacity: showHUD ? 1 : 0
-                }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="fixed top-8 left-1/2 z-50 flex flex-col items-center gap-2"
-            >
-                <div className="flex items-center gap-4 px-6 py-3 bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl">
-                    <div className="flex items-center gap-3 pr-4 border-r border-white/10">
-                        <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 font-mono">UPLINK_STABLE</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 font-mono">SYNC_DEPTH:</span>
-                        <span className="text-[10px] font-black text-rose-500 font-mono italic">
-                            {(user?.rpg?.completedAnswers?.length || 0) * 5}%
-                        </span>
-                    </div>
-                </div>
-                <motion.div 
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    className="h-px w-32 bg-gradient-to-r from-transparent via-rose-500/50 to-transparent"
-                />
-            </motion.div>
 
             <div className="max-w-3xl mx-auto px-6 relative z-10" ref={scrollContainerRef}>
                 <AnimatePresence mode="wait">
@@ -613,6 +659,7 @@ const NeuralSyncPage = () => {
                                         <Typewriter 
                                             text={currentQuestion?.story || ""} 
                                             speed={12}
+                                            multiplier={isFastForwarding ? 4 : 1}
                                             onComplete={() => setIsTypingComplete(true)} 
                                         />
                                     )}
@@ -638,6 +685,7 @@ const NeuralSyncPage = () => {
                                                         <Typewriter 
                                                             text={selectedOption.postText} 
                                                             speed={15}
+                                                            multiplier={isFastForwarding ? 4 : 1}
                                                             onComplete={() => setIsPostTypingComplete(true)}
                                                         />
                                                     )
@@ -718,10 +766,14 @@ const NeuralSyncPage = () => {
                                                     {/* Show NXT if not archived, OR if archived but there are more questions in history */}
                                                     {(!archivedAnswer || historyIndex < sessionHistory.length - 1) && (
                                                         <button 
-                                                            onClick={archivedAnswer ? handleNext : handleProceed}
+                                                            onClick={
+                                                                archivedAnswer 
+                                                                    ? handleNext 
+                                                                    : (currentQuestion?.questionId?.startsWith('4.') ? handleHandshake : handleProceed)
+                                                            }
                                                             className="w-fit text-lg md:text-xl font-black text-white hover:text-rose-500 transition-all font-display italic uppercase tracking-tighter flex items-center gap-4 group"
                                                         >
-                                                            <span>NXT</span>
+                                                            <span>{(!archivedAnswer && currentQuestion?.questionId?.startsWith('4.')) ? 'FINISH' : 'NXT'}</span>
                                                             <div className="size-6 rounded-full border border-white/20 flex items-center justify-center group-hover:border-rose-500 group-hover:translate-x-2 transition-all">
                                                                 <span className="text-xs">&gt;</span>
                                                             </div>
@@ -739,19 +791,49 @@ const NeuralSyncPage = () => {
                                                     </div>
                                                 </div>
                                             ) : (
-                                                currentQuestion.options.map((option, index) => (
-                                                    <motion.button
-                                                        key={index}
-                                                        whileHover={{ x: 5 }}
-                                                        whileTap={{ scale: 0.98 }}
-                                                        onClick={() => handleChoice(option)}
-                                                        disabled={isSubmitting}
-                                                        className="relative w-fit text-left text-lg md:text-xl font-medium text-slate-400 hover:text-white transition-all font-display flex items-center group"
-                                                    >
-                                                        <span className="absolute -left-8 opacity-0 group-hover:opacity-100 transition-all text-rose-500 font-mono text-sm group-hover:translate-x-2">/</span>
-                                                        {option.text}
-                                                    </motion.button>
-                                                ))
+                                                <AnimatePresence>
+                                                    {isTypingComplete && (
+                                                        <motion.div 
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            transition={{ duration: 0.8, ease: "easeOut" }}
+                                                            className="flex flex-col gap-4"
+                                                        >
+                                                            <div className="text-[10px] font-black text-rose-500/60 uppercase tracking-[0.4em] mb-2 font-mono ml-1 underline decoration-rose-500/20 underline-offset-8">CHOOSE</div>
+                                                            <div className="flex flex-col gap-6">
+                                                                {currentQuestion.options.map((option, index) => (
+                                                                    <motion.button
+                                                                        key={index}
+                                                                        whileHover={{ x: 5 }}
+                                                                        whileTap={{ scale: 0.98 }}
+                                                                        onClick={() => handleChoice(option)}
+                                                                        disabled={isSubmitting}
+                                                                        className="relative w-fit text-left text-lg md:text-xl font-medium text-slate-400 hover:text-white transition-all font-display flex items-center group"
+                                                                    >
+                                                                        <span className="absolute -left-8 opacity-0 group-hover:opacity-100 transition-all text-rose-500 font-mono text-sm group-hover:translate-x-2">/</span>
+                                                                        {archivedAnswer ? (
+                                                                            <span>{option.text}</span>
+                                                                        ) : (
+                                                                            <Typewriter 
+                                                                                text={option.text} 
+                                                                                speed={15}
+                                                                                multiplier={isFastForwarding ? 4 : 1}
+                                                                                onComplete={() => {
+                                                                                    // Since they type simultaneously, we only care when the last one finishes
+                                                                                    // but for simplicity, the autoscroll logic uses areOptionsTypingComplete.
+                                                                                    // We'll set it here; multiple calls won't hurt.
+                                                                                    if (index === currentQuestion.options.length - 1) {
+                                                                                        setAreOptionsTypingComplete(true);
+                                                                                    }
+                                                                                }}
+                                                                            />
+                                                                        )}
+                                                                    </motion.button>
+                                                                ))}
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
                                             )}
                                         </div>
 
@@ -788,6 +870,55 @@ const NeuralSyncPage = () => {
             <div className="fixed inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-white/5 to-transparent" />
             <div className="fixed inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-white/5 to-transparent" />
             <div className="fixed bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+
+            {/* Fast Forward Controls & HUD */}
+            <AnimatePresence>
+                {(isFastForwarding || (!isTypingComplete || (selectedOption && !isPostTypingComplete))) && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className="fixed bottom-8 right-8 z-[110] flex flex-col items-end gap-4"
+                    >
+                        {/* Overclock Button acting as the primary indicator */}
+                        {!isTypingComplete || (selectedOption && !isPostTypingComplete) ? (
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onMouseDown={startFF}
+                                onMouseUp={stopFF}
+                                onTouchStart={startFF}
+                                onTouchEnd={stopFF}
+                                onMouseLeave={stopFF}
+                                className={`px-6 py-3 rounded-2xl border font-black text-[10px] uppercase tracking-[0.3em] transition-all flex items-center gap-4 shadow-2xl backdrop-blur-xl group ${
+                                    isFastForwarding 
+                                    ? 'bg-rose-500 border-rose-400 text-white shadow-[0_0_50px_rgba(244,63,94,0.4)]' 
+                                    : 'bg-black/40 border-white/10 text-white/40 hover:text-white hover:border-white/20'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Cpu size={14} className={isFastForwarding ? 'animate-spin' : ''} />
+                                    {isFastForwarding && (
+                                        <div className="flex gap-0.5">
+                                            {[1, 2, 3].map(i => (
+                                                <motion.div 
+                                                    key={i}
+                                                    animate={{ opacity: [0.2, 1, 0.2] }}
+                                                    transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.1 }}
+                                                    className="w-1 h-2 bg-white rounded-full"
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                <span className="font-mono">
+                                    {isFastForwarding ? '4X_OVERCLOCK_ACTIVE' : 'HOLD_TO_OVERCLOCK'}
+                                </span>
+                            </motion.button>
+                        ) : null}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

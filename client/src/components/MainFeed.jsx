@@ -7,7 +7,6 @@ import feedData from '../data/feed_mock_dataset_500_posts.json';
 import Avatar from './ui/Avatar';
 import ChannelModal from './ui/ChannelModal';
 import DailyQuiz from './rpg_components/DailyQuiz';
-import AwakeningAssessment from './rpg_components/AwakeningAssessment';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, CheckCircle2 } from 'lucide-react';
 
@@ -69,9 +68,33 @@ const AssessmentPanel = ({ isLevel0, isDailyQuizCompleted, setIsAwakeningModalOp
     return (
         <AnimatePresence mode="wait">
             {isLevel0 ? (
-                <div className="mb-4">
-                    <AwakeningAssessment isInline={true} />
-                </div>
+                <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    onClick={() => window.location.href = '/dashboard/neural-sync'}
+                    className="group bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 flex items-center justify-between border-l-4 border-l-rose-500 shadow-xl shadow-rose-500/5 mb-4 cursor-pointer hover:border-rose-500 transition-all"
+                >
+                    <div className="flex items-center gap-6">
+                        <div className="size-14 rounded-[1.5rem] bg-rose-500/10 flex items-center justify-center text-rose-500 group-hover:scale-110 transition-transform">
+                            <Zap size={28} className="animate-pulse" />
+                        </div>
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2">
+                                <span className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight font-exo italic">Identity Required</span>
+                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-500 border border-rose-500/20 uppercase tracking-widest font-mono">UPLINK_PENDING</span>
+                            </div>
+                            <p className="text-xs text-slate-400 font-medium uppercase tracking-widest leading-relaxed">System offline. Establish neural sync to unlock full protocol functionality.</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="hidden sm:block text-right">
+                            <div className="text-[10px] font-black text-rose-500 uppercase tracking-[0.3em] font-mono group-hover:translate-x-[-10px] transition-transform">INITIATE_LINK</div>
+                        </div>
+                        <div className="size-10 rounded-full border border-rose-500/20 flex items-center justify-center text-rose-500 group-hover:bg-rose-500 group-hover:text-white transition-all">
+                            <span className="mb-0.5 ml-0.5">→</span>
+                        </div>
+                    </div>
+                </motion.div>
             ) : !isDailyQuizCompleted ? (
                 <div className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-2 overflow-hidden border-l-4 border-l-emerald-500 shadow-xl shadow-emerald-500/5 mb-4">
                     <DailyQuiz />

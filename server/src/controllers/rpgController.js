@@ -140,6 +140,9 @@ export const syncNeural = async (req, res) => {
         const results = calculateScores(user.rpg.completedAnswers);
         
         // 4. Update Identity Slices (Only if already awakened, otherwise wait for Handshake)
+        let oldRank = user.rpg.specialistRank || 'F';
+        let newRank = oldRank;
+
         if (user.level > 0) {
             user.rpg.path = results.path;
             user.rpg.tier1 = results.tier1;
@@ -149,9 +152,9 @@ export const syncNeural = async (req, res) => {
             user.rpg.finalLabel = results.finalLabel || results.styleLabel || results.tier1 || results.path;
             
             // 5. Handle Mastery & Ranks
-            const oldRank = user.rpg.specialistRank;
+            oldRank = user.rpg.specialistRank || 'F';
             user.rpg.masteryPoints = results.masteryPoints;
-            const newRank = calculateMasteryRank(user.rpg.masteryPoints);
+            newRank = calculateMasteryRank(user.rpg.masteryPoints);
             user.rpg.specialistRank = newRank;
 
             // 6. Record Speed Records (SSS)
@@ -209,10 +212,14 @@ export const initiateAwakening = async (req, res) => {
             return res.status(400).json({ message: 'User is already awakened.' });
         }
 
-        // Initialize with the root Node 1.0
-        user.rpg.pendingQuestions = [String("1.0")];
-        user.markModified('rpg');
-        await user.save();
+        // Initialize with the root Node 1.0 ONLY if they have no progress at all
+        const hasProgress = (user.rpg.pendingQuestions?.length > 0) || (user.rpg.completedAnswers?.length > 0);
+        
+        if (!hasProgress) {
+            user.rpg.pendingQuestions = [String("1.0")];
+            user.markModified('rpg');
+            await user.save();
+        }
 
         res.json({
             message: "Awakening Sequence Initiated.",
@@ -252,6 +259,7 @@ export const getNarrativeHistory = async (req, res) => {
                 timestamp: ans.timestamp,
                 story: node.story,
                 question: node.question,
+                options: node.options, // Added options for frontend lookup
                 choiceText: selectedOption?.text || "Unknown Choice",
                 postText: selectedOption?.postText || ""
             };

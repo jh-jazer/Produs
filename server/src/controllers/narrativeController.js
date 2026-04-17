@@ -184,31 +184,35 @@ export const seedNarrative = async (req, res) => {
         const results = [];
         for (const q of ARCHETYPE_QUIZ) {
             const narrativeQ = {
-                questionId: `${q.id}.0`,
-                title: "Narrative Synthesis",
+                questionId: String(q.id),
+                title: q.title || "Neural Synthesis",
                 section: q.section,
-                type: q.weight >= 2.0 ? 'ACTION' : 'WHY',
-                weight: q.weight,
+                type: q.type || (q.weight >= 4.0 ? 'ACTION' : 'WHY'),
+                weight: q.weight || 1.0,
+                story: q.story || "",
                 question: q.question,
-                story: "", // Placeholder for story beats to be added manually
                 options: q.options.map(opt => ({
                     text: opt.text,
                     value: opt.value,
-                    nextId: q.id < 32 ? `${q.id + 1}.0` : null // Decimal defaults
+                    postText: opt.postText || "",
+                    nextId: opt.nextId || null
                 }))
             };
 
             const updated = await NarrativeQuestion.findOneAndUpdate(
                 { questionId: narrativeQ.questionId },
-                narrativeQ,
+                { $set: narrativeQ },
                 { new: true, upsert: true }
             );
             results.push(updated);
         }
 
-        res.json({ message: `Successfully seeded ${results.length} questions.`, count: results.length });
+        res.json({ 
+            message: `Neural synchronization complete. ${results.length} narrative nodes established.`, 
+            count: results.length 
+        });
     } catch (error) {
-        console.error('Seed failed:', error);
+        console.error('Seed synchronization failed:', error);
         res.status(500).json({ message: error.message });
     }
 };

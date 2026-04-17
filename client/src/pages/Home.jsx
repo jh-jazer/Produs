@@ -70,8 +70,11 @@ function Home() {
   const isLevel0Active = isUnawakened && protocolMode === 'rpg';
 
   const handleInitiateAwakening = async () => {
-    // If user is already initiated (Level > 0) but returning, just navigate
-    if (user.level > 0 && user.rpg?.pendingQuestions?.length > 0) {
+    // If user has any progress (even at Level 0), just navigate
+    const hasProgress = (user.rpg?.pendingQuestions?.length > 0) || (user.rpg?.completedAnswers?.length > 0);
+    
+    if (hasProgress) {
+      setNeuralSyncDismissed(false);
       navigate('/dashboard/neural-sync');
       return;
     }

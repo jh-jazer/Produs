@@ -7,130 +7,219 @@ export const ASSESSMENT_STAGES = {
 
 export const ARCHETYPE_QUIZ = [
   // ==================== SECTION 1: PATH (Q1-Q15) ====================
-  { id: 1, section: 'PATH', weight: 2.0, question: "A distant fire is spreading slowly toward your area. You:", 
+  // ==================== SECTION 1: PATH (NARRATIVE) ====================
+  {
+    id: "1.0",
+    title: "The Man in the Suit",
+    section: "PATH",
+    type: "WHY",
+    weight: 1,
+    story: "The air is still here. Not quiet — still. Like the world forgot to breathe. You are standing in a place that feels like somewhere you've been before, but the details won't hold. Walls that might be walls. A floor that might be ground. A light with no source, pale and flat, casting no shadows. And then you notice the fog — low, slow, curling at your ankles like it's been waiting for you. You are not alone. Across from you stands a man. He is tall. Composed. Dressed in a black formal suit that fits him too perfectly, like it was made for this exact moment. On his chest, a small white tag — the kind you'd find at a conference, or a hospital. It reads, in clean plain letters: DEATH. He doesn't smile. He doesn't threaten. He simply looks at you the way someone looks at a file they already know the ending of. When he speaks, his voice is low and unhurried, like he has said this ten thousand times and will say it ten thousand more. 'Before we continue,' he says, adjusting his cuff, 'I find it helps to start with something simple.' He tilts his head, almost gently. 'Do you remember how you died?'",
+    question: "Do you remember how you died?",
     options: [
-      { text: "Study wind and terrain to predict its path", value: "Strategist" },
-      { text: "Warn others and organize a response", value: "Visionary" },
-      { text: "Establish barriers and controlled zones", value: "Warden" },
-      { text: "Move early before it becomes a threat", value: "Scout" }
+      {
+        text: "I think… I just came from work… or school.",
+        value: "Strategist",
+        postText: "You do remember. Good. Now hold still — I have to clean your memory fresh.",
+        nextId: "2.0"
+      },
+      {
+        text: "I think I was… about to meet someone.",
+        value: "Visionary",
+        postText: "You do remember. Good. Now hold still — I have to clean your memory fresh.",
+        nextId: "2.0"
+      },
+      {
+        text: "I was… going to buy something important, I think.",
+        value: "Warden",
+        postText: "You do remember. Good. Now hold still — I have to clean your memory fresh.",
+        nextId: "2.0"
+      },
+      {
+        text: "I think I was… heading out on a trip.",
+        value: "Scout",
+        postText: "You do remember. Good. Now hold still — I have to clean your memory fresh.",
+        nextId: "2.0"
+      }
     ]
   },
-  { id: 2, section: 'PATH', weight: 1.5, question: "A stranger arrives with unclear intentions. You:", 
+  {
+    id: "2.0",
+    title: "The Room You Don't Remember",
+    section: "PATH",
+    type: "WHY",
+    weight: 1,
+    story: "Then — white. A blinding flash that swallows everything. The man, the fog, the stillness — all of it, gone. You open your eyes. The ceiling above you is unfamiliar. The sheets beneath you are unfamiliar. The smell of the room, the angle of the light bleeding through the curtains, the weight of the pillow under your head — none of it yours, and yet your body doesn't seem to care. Before your mind can ask a single question, your legs are already moving. You're standing. Walking. Your feet find the hallway without hesitation, then the kitchen. Your hands reach for the coffee maker like they've done it a thousand times. Water. Grounds. The quiet mechanical click of a button. You're making coffee. You don't know why. Or maybe — somewhere underneath all this forgetting — you do.",
+    question: "Why did you make coffee?",
     options: [
-      { text: "Observe behavior before acting", value: "Strategist" },
-      { text: "Welcome them cautiously", value: "Visionary" },
-      { text: "Set strict boundaries immediately", value: "Warden" },
-      { text: "Stay mobile and avoid dependence", value: "Scout" }
+      {
+        text: "I needed to think. Coffee helps me think.",
+        value: "Strategist",
+        postText: "Of course. First the cup, then the plan. Some things don't change no matter where you wake up.",
+        nextId: "3.0"
+      },
+      {
+        text: "I wanted to smell something real. The aroma just… grounded me.",
+        value: "Visionary",
+        postText: "Not the coffee itself — just the proof that something warm and real still existed. That was enough to begin.",
+        nextId: "3.0"
+      },
+      {
+        text: "I needed to wake myself up. Get my head straight before anything else.",
+        value: "Warden",
+        postText: "Clarity before action. You've never trusted yourself half-awake. You needed to be fully present before you could face whatever this was.",
+        nextId: "3.0"
+      },
+      {
+        text: "I looked outside and it just… felt like a coffee kind of morning.",
+        value: "Scout",
+        postText: "You read the world before you read yourself. The light, the mood, the scene — and you matched it without thinking twice.",
+        nextId: "3.0"
+      }
     ]
   },
-  { id: 3, section: 'PATH', weight: 2.0, question: "Supplies are inconsistent week to week. You:", 
+  {
+    id: "3.0",
+    title: "6AM",
+    section: "PATH",
+    type: "WHY",
+    weight: 1,
+    story: "You finish the last sip and set the cup down. The kitchen is quiet except for the faint hum of the refrigerator. You reach for your phone out of habit — 6:00 AM, the screen reads. A notification blinks at the top. A news alert. You tap it without thinking. The headline is vague but the tone is not — reports of chaos, scattered across different parts of the world. Unverified causes. Conflicting sources. The kind of story that wants you to panic before it gives you a reason to. You stare at it for a moment, then close it. Not your problem. Not yet. You scroll to your emails instead — the usual noise, nothing urgent — and by the time you set the phone face-down on the counter, something else has taken over. A pull. Quiet but insistent. Your legs want to move. You glance toward the door. You don't remember packing running shoes, but there they are, sitting by the entrance like they were always meant to be there. You're going to jog. You're already sure of it.",
+    question: "Why are you going to jog?",
     options: [
-      { text: "Analyze patterns in shortages", value: "Strategist" },
-      { text: "Keep morale steady despite uncertainty", value: "Visionary" },
-      { text: "Tighten control over distribution", value: "Warden" },
-      { text: "Continuously search for new sources", value: "Scout" }
+      {
+        text: "I want to map out the area. Get a feel for where I am.",
+        value: "Strategist",
+        postText: "You can't plan what you don't understand. The jog was never about the body — it was reconnaissance.",
+        nextId: "4.0"
+      },
+      {
+        text: "I need open air. Something about being outside feels important right now.",
+        value: "Visionary",
+        postText: "Walls have never been where your best thoughts live. You needed the sky above you before anything else could make sense.",
+        nextId: "4.0"
+      },
+      {
+        text: "Movement clears my head. I jog when something feels off.",
+        value: "Warden",
+        postText: "You felt it — that quiet wrongness underneath the morning. Your body knew before your mind did. Move first, worry after.",
+        nextId: "4.0"
+      },
+      {
+        text: "I just want to see what's out there.",
+        value: "Scout",
+        postText: "Simple as that. The world was right outside the door and you were never going to stay inside and wonder.",
+        nextId: "4.0"
+      }
     ]
   },
-  { id: 4, section: 'PATH', weight: 1.5, question: "You discover a partially ruined facility. You focus on:", 
+  {
+    id: "4.0",
+    title: "The Park",
+    section: "PATH",
+    type: "DECISION",
+    weight: 4.0,
+    story: "You lace up the shoes by the door. They fit perfectly — of course they do. You find a water bottle on the counter, already filled, as if someone knew. You grab it without questioning. Outside, the morning air hits you first — cool, carrying the faint smell of damp grass and something distant you can't name. The streets are calm. A few early risers, heads down, moving with purpose. You follow a pull you can't explain and end up at the park. The path curves through a stretch of trees, opens into a wide field, then loops back. You run it. Then again. Your breath finds a rhythm. Your legs stop complaining. For a while, there is nothing but the sound of your feet and the slow brightening of the sky above you. Then the rhythm breaks. Your lungs are burning. Your legs feel like concrete. You slow to a stop near a bench, hands on your knees, chest heaving. The park hums around you — birds, distant voices, the rustle of leaves. And now, with your body finally quiet, your mind starts to speak. You have to decide what comes next.",
+    question: "What do you do after your run?",
     options: [
-      { text: "Understanding how it was used", value: "Strategist" },
-      { text: "Whether people can safely live there", value: "Visionary" },
-      { text: "Securing and organizing the space", value: "Warden" },
-      { text: "Entry/exit routes and escape options", value: "Scout" }
+      {
+        text: "That news alert is still nagging at me. I need to go home and look into it properly.",
+        value: "Strategist",
+        postText: "You couldn't let it go. You never can. An unanswered question is just a problem waiting to be solved.",
+        nextId: "4.1"
+      },
+      {
+        text: "I want to stay here a little longer. Watch the people. Maybe something will come back to me.",
+        value: "Visionary",
+        postText: "You turned outward instead of inward. Somewhere in the faces and the motion of strangers, you believed there was a mirror.",
+        nextId: "4.2"
+      },
+      {
+        text: "I should stop by the mall. Stock up. Something tells me I should be prepared.",
+        value: "Warden",
+        postText: "The instinct was quiet but certain. Before anything else — before answers, before rest — you needed to know you were ready.",
+        nextId: "4.3"
+      },
+      {
+        text: "I'm exhausted. But I want to go for another round anyway.",
+        value: "Scout",
+        postText: "Tired was never a good enough reason to stop. There was more path ahead and you were going to run it.",
+        nextId: "4.4"
+      }
     ]
   },
-  { id: 5, section: 'PATH', weight: 2.0, question: "Conflict breaks out in your group. You:", 
+  {
+    id: "4.1",
+    title: "The Research",
+    section: "PATH",
+    type: "WHY",
+    weight: 1,
+    story: "You push through the door and drop onto the chair in front of your desk. Your legs are still burning. You don't care. You open the laptop and go straight for it — the news alert from this morning, the one you dismissed over coffee. It pulls up fast. Too fast. There is more now. Much more. Videos, posts, live streams, shaky phone footage uploaded minutes ago from cities you recognize and cities you don't. You watch. A man in a grocery store parking lot, moving wrong — too stiff, too direct, jaw working at nothing. Then he's on someone. A woman screaming. People running. Another clip — a street corner somewhere, three of them, clothes torn and dark with old blood, red streaming from their eyes like something ruptured deep inside. They look human. That's the part that keeps catching you. They look completely human except for the blood and the way they move, like they've forgotten what hesitation is. You replay a clip. A policeman, hands steady, fires twice into the chest of one of them. It stumbles. Keeps coming. He fires again. The shoulder. It doesn't stop. Then — the head. It drops. Immediately. No stagger, no slow fall. Just done. You rewind. Watch it again. And again. You sit back in your chair. The room is very quiet.",
+    question: "Why does it have to be the head?",
     options: [
-      { text: "Identify root causes", value: "Strategist" },
-      { text: "Calm both sides", value: "Visionary" },
-      { text: "Enforce order", value: "Warden" },
-      { text: "Step away and reassess options", value: "Scout" }
+      {
+        text: "Nothing else stopped them. Every shot to the body failed. The head was the only thing that worked every single time.",
+        value: "Strategist",
+        postText: "You didn't panic. You observed, you tested the pattern, and you found the rule. That is what you do. That is what will keep you alive.",
+        nextId: null
+      }
     ]
   },
-  { id: 6, section: 'PATH', weight: 1.0, question: "You hear unusual sounds at night. You:", 
+  {
+    id: "4.2",
+    title: "The Park",
+    section: "PATH",
+    type: "WHY",
+    weight: 1,
+    story: "You sit on the bench and watch. Not out of sentiment — out of habit. The park, the people, the patterns of how strangers move around each other. Children are running between the play structures, shouting and laughing. A man passes by with a golden retriever on a leash, coughing — rough and wet. You track him without thinking. He walks toward the play area. Something about the way he moves catches your eye. Too rigid. Too fixed. Then he's at the kiddie house, fingers gripping the window frame, trying to force his way through. The children inside start screaming. You are already moving. You close the distance fast, eyes scanning the ground, and your hand finds a rock before your mind finishes the thought. The retriever has torn free of its leash and is barking furiously at its owner — and the man turns toward the sound. Toward the dog. You throw the rock hard. It connects with the side of his head. He turns. Now he sees you. The children's screaming fades as they scramble out and run. Good. The man starts toward you. You back up, keeping the distance, buying time — but your legs have nothing left in them. The morning's run catches up all at once and your knees buckle. The ground comes up fast. You look up and the man is right there, and you cannot move. Then a figure in a jacket steps in from the side — full gear, no hesitation — and smashes its head like it was nothing more than something in the way. The man drops. The figure is already walking away. The retriever stands over its owner, leash dragging in the dirt, barking now turned to a low confused whine. It looks at you. Still on the ground. Catching your breath. The leash is right there.",
+    question: "Why did you take the leash?",
     options: [
-      { text: "Track patterns over time", value: "Strategist" },
-      { text: "Check on others’ reactions", value: "Visionary" },
-      { text: "Increase security measures", value: "Warden" },
-      { text: "Relocate if needed", value: "Scout" }
+      {
+        text: "I understood what was happening. And I wasn't going to leave it standing there alone in the middle of it.",
+        value: "Visionary",
+        postText: "You saw the whole picture before most people would have blinked. The chaos coming, the dog with nowhere to go, and the one small decisive thing still in your hands.",
+        nextId: null
+      }
     ]
   },
-  { id: 7, section: 'PATH', weight: 1.5, question: "A risky opportunity appears. You:", 
+  {
+    id: "4.3",
+    title: "The Mall",
+    section: "PATH",
+    type: "WHY",
+    weight: 1,
+    story: "The mall is already stirring when you arrive. Not busy — just the early kind of crowded, the kind that belongs to people with nowhere urgent to be. You nod at the security guard by the entrance. He nods back. You grab two carts without breaking stride and head straight for the non-perishables. You move with a list that exists only in your head — efficient, deliberate, no doubling back. Canned goods, dry staples, sealed containers. You check each one before it goes in. Dates, condition, packaging integrity. A cluster of items near the front of the shelf are close to expiration. You leave them and reach further back. A couple beside you picks up the ones you passed over. You watch them for a second. You can't help it. 'If I were you I would choose the ones on this section rather than those,' you say, keeping your voice even. 'Those are close to expiration.' They check. Their expressions shift. They thank you. You say you're welcome and keep moving. Both carts are nearly full by the time you reach the cashier. You set the first items on the belt and then it occurs to you — how exactly are you getting all of this home? You are still turning that problem over when the gunshots crack through the mall. Sharp. Loud. Close. Your head snaps toward the entrance. The security guard is firing at something in the doorway. Something large. A figure — if it can be called that — almost eight feet tall, muscle swollen past anything natural, arms raised and crossed over its head like a shield as it absorbs every shot to the chest without slowing. The guard empties into it. Nothing. The creature's left arm swings and connects. The guard's weapon spins through the air and skids across the floor. Directly toward you. You pick it up. No deliberation. No pause. The creature's arms are still raised, still guarding its head, and that tells you everything you need to know. You raise the gun. The first shot grazes its face — too low. You adjust. Three shots, tight, to the head. It goes down like a building coming apart. The mall goes completely silent. Dozens of eyes on you. Then, from outside — distant, layered, growing — a sound like nothing that belongs in a city morning.",
+    question: "What do you do?",
     options: [
-      { text: "Evaluate long-term consequences", value: "Strategist" },
-      { text: "Consider group impact", value: "Visionary" },
-      { text: "Control how it’s handled", value: "Warden" },
-      { text: "Act quickly before it disappears", value: "Scout" }
+      {
+        text: "More are coming. We need to blockade this place. Now.",
+        value: "Warden",
+        postText: "Probably the respect from taking it down — everyone just listened without question. And at least now I don't have to worry about getting my groceries home.",
+        nextId: null
+      }
     ]
   },
-  { id: 8, section: 'PATH', weight: 1.0, question: "A system fails unexpectedly. You:", 
+  {
+    id: "4.4",
+    title: "One More Round",
+    section: "PATH",
+    type: "WHY",
+    weight: 1,
+    story: "Your legs are done. Your lungs already made their case a loop ago. But the path is still there and so are you, so you run it again. And again. By the time you finally let yourself stop you are barely jogging — more like a controlled fall forward. Enough. You turn toward the park benches to sit down and that is when the children start screaming. Not playing. Not laughing too loud. Screaming and running, a wave of small bodies pouring away from the far end of the park, faces white, not looking back. You look where they came from. A man is crouched over a dog on the ground. The dog is not moving. The man is — his jaw, his hands, pulling. The dizziness from the run is already behind your eyes and what you are seeing pushes it forward fast. Your stomach turns. You plant your feet and breathe through it. Then a figure cuts across the park — jacket, full gear, moving with the kind of purpose that has no hesitation in it. One strike to the man's head. He drops. The figure doesn't slow down. Doesn't look at the dog. Doesn't look at anything except the park exit. Where you are standing. Still stunned. Still processing. 'Why did you kill that man?' The words are out before you decide to say them. The figure doesn't answer. Doesn't even glance at you. Just moves to pass. Your hand shoots out and grabs the jacket. It pulls back. A face turns toward you — and then a fist finds yours before you can read it. The ground comes up hard. You try to get up. Your arms push. Your head has other plans. The dizziness that's been waiting since the last loop closes in all at once and the world goes dark and quiet.",
+    question: "...",
     options: [
-      { text: "Diagnose the failure", value: "Strategist" },
-      { text: "Support affected people", value: "Visionary" },
-      { text: "Restore structure and rules", value: "Warden" },
-      { text: "Adapt and move forward", value: "Scout" }
-    ]
-  },
-  { id: 9, section: 'PATH', weight: 2.0, question: "You enter unfamiliar territory. You:", 
-    options: [
-      { text: "Observe and gather data", value: "Strategist" },
-      { text: "Stay close to others", value: "Visionary" },
-      { text: "Establish control points", value: "Warden" },
-      { text: "Explore freely", value: "Scout" }
-    ]
-  },
-  { id: 10, section: 'PATH', weight: 1.0, question: "A plan goes wrong. You:", 
-    options: [
-      { text: "Adjust the strategy", value: "Strategist" },
-      { text: "Keep people focused", value: "Visionary" },
-      { text: "Reassert control", value: "Warden" },
-      { text: "Change direction quickly", value: "Scout" }
-    ]
-  },
-  { id: 11, section: 'PATH', weight: 1.5, question: "Resources are abundant temporarily. You:", 
-    options: [
-      { text: "Plan long-term use", value: "Strategist" },
-      { text: "Share to strengthen unity", value: "Visionary" },
-      { text: "Store and regulate strictly", value: "Warden" },
-      { text: "Use it while available", value: "Scout" }
-    ]
-  },
-  { id: 12, section: 'PATH', weight: 1.0, question: "You notice inefficiencies. You:", 
-    options: [
-      { text: "Redesign the system", value: "Strategist" },
-      { text: "Help others cope", value: "Visionary" },
-      { text: "Enforce better structure", value: "Warden" },
-      { text: "Work around them", value: "Scout" }
-    ]
-  },
-  { id: 13, section: 'PATH', weight: 1.5, question: "A new group approaches. You:", 
-    options: [
-      { text: "Assess intentions carefully", value: "Strategist" },
-      { text: "Seek cooperation", value: "Visionary" },
-      { text: "Prepare defenses", value: "Warden" },
-      { text: "Stay ready to leave", value: "Scout" }
-    ]
-  },
-  { id: 14, section: 'PATH', weight: 2.0, question: "Time pressure increases. You:", 
-    options: [
-      { text: "Prioritize critical decisions", value: "Strategist" },
-      { text: "Keep people steady", value: "Visionary" },
-      { text: "Maintain order", value: "Warden" },
-      { text: "Act immediately", value: "Scout" }
-    ]
-  },
-  { id: 15, section: 'PATH', weight: 1.0, question: "You succeed in a task. You:", 
-    options: [
-      { text: "Refine the method", value: "Strategist" },
-      { text: "Share the success", value: "Visionary" },
-      { text: "Standardize the process", value: "Warden" },
-      { text: "Move to the next opportunity", value: "Scout" }
+      {
+        text: "Wake up.",
+        value: "Scout",
+        postText: "You are inside a vehicle. The road is rough and loud and every bump pulls you back from the edge of sleep. You catch a glimpse of trees through the window moving fast. Your head throbs. Your eyes are already closing again.",
+        nextId: null
+      }
     ]
   },
 
   // ==================== SECTION 2: TIER 1 (Q16-Q23) ====================
   // Values: A, B, C, D (map to index 0, 1, 2, 3 in Path's Tier 1 list)
-  { id: 16, section: 'TIER1', weight: 2.0, question: "Faced with a complex issue, you:", 
+  { id: "16.0", section: 'TIER1', weight: 2.0, question: "Faced with a complex issue, you:", 
     options: [
       { text: "Plan multiple steps ahead", value: 0 },
       { text: "Build or modify something", value: 1 },
@@ -138,7 +227,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Organize structure and layout", value: 3 }
     ]
   },
-  { id: 17, section: 'TIER1', weight: 1.5, question: "Your strength is:", 
+  { id: "17.0", section: 'TIER1', weight: 1.5, question: "Your strength is:", 
     options: [
       { text: "Strategy", value: 0 },
       { text: "Creation", value: 1 },
@@ -146,7 +235,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Structure", value: 3 }
     ]
   },
-  { id: 18, section: 'TIER1', weight: 1.0, question: "You prefer to:", 
+  { id: "18.0", section: 'TIER1', weight: 1.0, question: "You prefer to:", 
     options: [
       { text: "Direct outcomes", value: 0 },
       { text: "Improve tools", value: 1 },
@@ -154,7 +243,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Build stability", value: 3 }
     ]
   },
-  { id: 19, section: 'TIER1', weight: 1.5, question: "In preparation, you:", 
+  { id: "19.0", section: 'TIER1', weight: 1.5, question: "In preparation, you:", 
     options: [
       { text: "Map scenarios", value: 0 },
       { text: "Prepare equipment", value: 1 },
@@ -162,7 +251,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Reinforce systems", value: 3 }
     ]
   },
-  { id: 20, section: 'TIER1', weight: 2.0, question: "Others rely on you for:", 
+  { id: "20.0", section: 'TIER1', weight: 2.0, question: "Others rely on you for:", 
     options: [
       { text: "Plans", value: 0 },
       { text: "Fixes", value: 1 },
@@ -170,7 +259,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Organization", value: 3 }
     ]
   },
-  { id: 21, section: 'TIER1', weight: 1.5, question: "You approach problems by:", 
+  { id: "21.0", section: 'TIER1', weight: 1.5, question: "You approach problems by:", 
     options: [
       { text: "Anticipating outcomes", value: 0 },
       { text: "Creating solutions", value: 1 },
@@ -178,7 +267,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Structuring environments", value: 3 }
     ]
   },
-  { id: 22, section: 'TIER1', weight: 1.0, question: "You value:", 
+  { id: "22.0", section: 'TIER1', weight: 1.0, question: "You value:", 
     options: [
       { text: "Control of direction", value: 0 },
       { text: "Practical capability", value: 1 },
@@ -186,7 +275,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Stability", value: 3 }
     ]
   },
-  { id: 23, section: 'TIER1', weight: 1.0, question: "You improve survival by:", 
+  { id: "23.0", section: 'TIER1', weight: 1.0, question: "You improve survival by:", 
     options: [
       { text: "Planning ahead", value: 0 },
       { text: "Building tools", value: 1 },
@@ -196,35 +285,35 @@ export const ARCHETYPE_QUIZ = [
   },
 
   // ==================== SECTION 3: STYLE (Q24-Q28) ====================
-  { id: 24, section: 'STYLE', weight: 2.0, question: "Entering danger, you:", 
+  { id: "24.0", section: 'STYLE', weight: 2.0, question: "Entering danger, you:", 
     options: [
       { text: "Move first to gain advantage", value: "Aggressive" },
       { text: "Secure position before acting", value: "Defensive" },
       { text: "Wait for the right moment", value: "Opportunist" }
     ]
   },
-  { id: 25, section: 'STYLE', weight: 1.5, question: "When uncertain, you:", 
+  { id: "25.0", section: 'STYLE', weight: 1.5, question: "When uncertain, you:", 
     options: [
       { text: "Take initiative", value: "Aggressive" },
       { text: "Reduce exposure", value: "Defensive" },
       { text: "Stay flexible", value: "Opportunist" }
     ]
   },
-  { id: 26, section: 'STYLE', weight: 1.0, question: "Facing resistance, you:", 
+  { id: "26.0", section: 'STYLE', weight: 1.0, question: "Facing resistance, you:", 
     options: [
       { text: "Push through", value: "Aggressive" },
       { text: "Hold ground", value: "Defensive" },
       { text: "Redirect approach", value: "Opportunist" }
     ]
   },
-  { id: 27, section: 'STYLE', weight: 2.0, question: "In conflict, you:", 
+  { id: "27.0", section: 'STYLE', weight: 2.0, question: "In conflict, you:", 
     options: [
       { text: "Engage quickly", value: "Aggressive" },
       { text: "Defend carefully", value: "Defensive" },
       { text: "Adapt continuously", value: "Opportunist" }
     ]
   },
-  { id: 28, section: 'STYLE', weight: 1.5, question: "Under pressure, you:", 
+  { id: "28.0", section: 'STYLE', weight: 1.5, question: "Under pressure, you:", 
     options: [
       { text: "Act decisively", value: "Aggressive" },
       { text: "Stabilize the situation", value: "Defensive" },
@@ -233,32 +322,32 @@ export const ARCHETYPE_QUIZ = [
   },
 
   // ==================== SECTION 4: ALIGNMENT (Q29-Q32) ====================
-  { id: 29, section: 'ALIGNMENT', weight: 1.5, question: "You find hidden resources. You:", 
+  { id: "29.0", section: 'ALIGNMENT', weight: 1.5, question: "You find hidden resources. You:", 
     options: [
       { text: "Use them for group benefit", value: "Good" },
       { text: "Keep them for controlled use", value: "Evil" }
     ]
   },
-  { id: 30, section: 'ALIGNMENT', weight: 1.5, question: "Leadership should:", 
+  { id: "30.0", section: 'ALIGNMENT', weight: 1.5, question: "Leadership should:", 
     options: [
       { text: "Serve the group", value: "Good" },
       { text: "Maintain control", value: "Evil" }
     ]
   },
-  { id: 31, section: 'ALIGNMENT', weight: 2.0, question: "In scarcity, you:", 
+  { id: "31.0", section: 'ALIGNMENT', weight: 2.0, question: "In scarcity, you:", 
     options: [
       { text: "Distribute fairly", value: "Good" },
       { text: "Prioritize strategically", value: "Evil" }
     ]
   },
-  { id: 32, section: 'ALIGNMENT', weight: 1.0, question: "Trust is:", 
+  { id: "32.0", section: 'ALIGNMENT', weight: 1.0, question: "Trust is:", 
     options: [
       { text: "Built and shared", value: "Good" },
       { text: "Limited and managed", value: "Evil" }
     ]
   },
   // ==================== SECTION 5: SPECIALIST TRIALS (Q33+) ====================
-  { id: 33, section: 'TRIAL', weight: 1.0, question: "A structural collapse is imminent in a sector you don't control. You:", 
+  { id: "33.0", section: 'TRIAL', weight: 1.0, question: "A structural collapse is imminent in a sector you don't control. You:", 
     options: [
       { text: "Divert resources to shore up the foundation immediately", value: 150 },
       { text: "Evacuate the sector and salvage materials", value: 100 },
@@ -266,7 +355,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Ignore it and focus on your own borders", value: 0 }
     ]
   },
-  { id: 34, section: 'TRIAL', weight: 1.0, question: "A rogue AI signal is interfering with your communications. Your move:", 
+  { id: "34.0", section: 'TRIAL', weight: 1.0, question: "A rogue AI signal is interfering with your communications. Your move:", 
     options: [
       { text: "Isolate the frequency and trace it back to its source", value: 150 },
       { text: "Encrypt all outgoing transmissions", value: 100 },
@@ -274,7 +363,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Abandon the frequency and use manual couriers", value: 0 }
     ]
   },
-  { id: 35, section: 'TRIAL', weight: 1.0, question: "A hostile group offers a trade that is clearly a trap. You:", 
+  { id: "35.0", section: 'TRIAL', weight: 1.0, question: "A hostile group offers a trade that is clearly a trap. You:", 
     options: [
       { text: "Accept, but set a counter-ambush at the trade site", value: 150 },
       { text: "Decline and prepare for their inevitable assault", value: 100 },
@@ -282,7 +371,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Block all contact with them", value: 0 }
     ]
   },
-  { id: 36, section: 'TRIAL', weight: 1.0, question: "Your primary energy source is failing. You must choose:", 
+  { id: "36.0", section: 'TRIAL', weight: 1.0, question: "Your primary energy source is failing. You must choose:", 
     options: [
       { text: "Overclock the core while researching a backup", value: 150 },
       { text: "Ration power across all non-essential systems", value: 100 },
@@ -290,7 +379,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Let it burn out and adapt to the dark", value: 0 }
     ]
   },
-  { id: 37, section: 'TRIAL', weight: 1.0, question: "An unknown plague is spreading at your borders. You:", 
+  { id: "37.0", section: 'TRIAL', weight: 1.0, question: "An unknown plague is spreading at your borders. You:", 
     options: [
       { text: "Establish a strict quarantine and research a cure", value: 150 },
       { text: "Burn the affected areas to stop the spread", value: 100 },
@@ -298,7 +387,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Do nothing and hope for natural immunity", value: 0 }
     ]
   },
-  { id: 38, section: 'TRIAL', weight: 1.0, question: "A deep-cover agent has been discovered in your inner circle. You:", 
+  { id: "38.0", section: 'TRIAL', weight: 1.0, question: "A deep-cover agent has been discovered in your inner circle. You:", 
     options: [
       { text: "Feed them false data to map their entire network", value: 150 },
       { text: "Publicly execute them as a warning to others", value: 100 },
@@ -306,7 +395,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Pretend you didn't notice to avoid conflict", value: 0 }
     ]
   },
-  { id: 39, section: 'TRIAL', weight: 1.0, question: "A massive storm is approaching your farms. You decide to:", 
+  { id: "39.0", section: 'TRIAL', weight: 1.0, question: "A massive storm is approaching your farms. You decide to:", 
     options: [
       { text: "Deploy atmospheric stabilizers to divert the front", value: 150 },
       { text: "Harvest everything early and store in bunkers", value: 100 },
@@ -314,7 +403,7 @@ export const ARCHETYPE_QUIZ = [
       { text: "Abandon the harvest and flee to higher ground", value: 0 }
     ]
   },
-  { id: 40, section: 'TRIAL', weight: 1.0, question: "Two allied groups are on the brink of war. Your intervention:", 
+  { id: "40.0", section: 'TRIAL', weight: 1.0, question: "Two allied groups are on the brink of war. Your intervention:", 
     options: [
       { text: "Forge a new treaty based on a common external threat", value: 150 },
       { text: "Act as a neutral mediator to reach a compromise", value: 100 },
@@ -450,22 +539,22 @@ export const ARCHETYPE_MATRIX = {
 export const ARCHETYPE_PROTOCOLS = {
     'Strategist': {
         flavor: "Cognitive optimization protocol initiated. Analysis of complex variables prioritized for maximum strategic leverage.",
-        perk: "Neural Insight (+15% XP from Planning) | Logic Buffer (Resist Stress) | System Architect (+10% Focus Multiplier)",
+        perk: "Path to the Cure",
         multipliers: { int: 1.5, wis: 1.5, str: 0.8, agi: 0.8, vit: 1.0, luk: 1.0 }
     },
     'Visionary': {
         flavor: "Inspiration broadcast active. Aligning group purpose with future-state projections. The mission is the message.",
-        perk: "Charisma Pulse (+20% Group XP) | Ideological Shield (High Morale) | Future-Proof (+10% Innovation Rate)",
+        perk: "Unlocking the Golden Retriever Pet",
         multipliers: { int: 1.1, wis: 1.3, str: 0.7, agi: 1.0, vit: 0.9, luk: 1.5 }
     },
     'Warden': {
         flavor: "Defense protocols stabilized. Fortifying boundaries and ensuring structural integrity of the collective ecosystem.",
-        perk: "Absolute Guard (+20% Resilience) | Supply Chain Logic (Resource Bonus) | Tactical Wall (+15% System Stability)",
+        perk: "People Respect",
         multipliers: { int: 0.8, wis: 1.0, str: 1.5, agi: 0.7, vit: 1.5, luk: 0.8 }
     },
     'Scout': {
         flavor: "Reconnaissance sequence engaged. Mapping unexplored vectors and identifying high-value opportunities at the edge.",
-        perk: "Ghost Step (Reduced Energy Cost) | Fortune Scanner (+20% Luck on Trials) | Rapid Response (+15% Agility Multiplier)",
+        perk: "Unlocking the Mysterious Ally",
         multipliers: { int: 1.0, wis: 0.8, str: 0.9, agi: 1.5, vit: 1.0, luk: 1.5 }
     },
     'None': {

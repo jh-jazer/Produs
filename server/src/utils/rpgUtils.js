@@ -261,20 +261,20 @@ export const checkNeuralSync = (user, currentLevel, prevLevel = null) => {
         // Tier 2: Style (Q24-Q28) - 1 per 2 levels L11-L19
         if (level >= 11 && level <= 19) {
             const styleIdx = Math.floor((level - 11) / 2);
-            if (styleIdx >= 0 && styleIdx < 5) unlockedAny = tryUnlock(24 + styleIdx) || unlockedAny;
+            if (styleIdx >= 0 && styleIdx < 5) unlockedAny = tryUnlock(`${24 + styleIdx}.0`) || unlockedAny;
         }
 
         // Tier 3: Alignment (Q29-Q32) - 1 per 3 levels L24-L33
         if (level >= 24 && level <= 33) {
             const alignIdx = Math.floor((level - 24) / 3);
-            if (alignIdx >= 0 && alignIdx < 4) unlockedAny = tryUnlock(29 + alignIdx) || unlockedAny;
+            if (alignIdx >= 0 && alignIdx < 4) unlockedAny = tryUnlock(`${29 + alignIdx}.0`) || unlockedAny;
         }
 
         // Tier 4: Specialist Trials (Q33+) - 1 per 2 levels L36+
         if (level >= 36) {
             const TRIAL_POOL_SIZE = 8; 
             const trialIdx = Math.floor((level - 36) / 2);
-            const questionId = 33 + (trialIdx % TRIAL_POOL_SIZE);
+            const questionId = `${33 + (trialIdx % TRIAL_POOL_SIZE)}.0`;
             unlockedAny = tryUnlock(questionId) || unlockedAny;
         }
     }
