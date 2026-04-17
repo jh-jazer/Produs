@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import api from '../services/api';
-import { Zap, Shield, Database, Cpu, Activity, LogOut, ChevronDown, AlertTriangle, RefreshCw, Brain } from 'lucide-react';
+import { Zap, Shield, Database, Cpu, Activity, LogOut, ChevronDown, AlertTriangle, RefreshCw, Brain, Sword, Heart, Sparkles, Target, Dna, TrendingUp } from 'lucide-react';
 
 /**
  * Typewriter Component - Animates text character by character for cinematic feel.
@@ -238,7 +238,7 @@ const NeuralSyncPage = () => {
 
     // 4. Auto-Scroll Logic during Typing & Reveal
     useEffect(() => {
-        if (!isInitializing && currentQuestion && !isUserInteracting) {
+        if (!isInitializing && currentQuestion && !isUserInteracting && !isHandshaking) {
             // Scroll during: 
             // 1. Initial story reveal
             // 2. Options reveal (simultaneous typing)
@@ -338,12 +338,6 @@ const NeuralSyncPage = () => {
     const handleProceed = useCallback(() => {
         if (!pendingSyncData) return;
         
-        // Clear any automatic timers
-        if (autoProceedTimeoutRef.current) {
-            clearTimeout(autoProceedTimeoutRef.current);
-            autoProceedTimeoutRef.current = null;
-        }
-
         const nextId = pendingSyncData.rpg?.pendingQuestions?.[0];
         const cleanNextId = pendingSyncData.debug?.cleanNextId;
         const foundNext = pendingSyncData.debug?.foundNext;
@@ -533,35 +527,116 @@ const NeuralSyncPage = () => {
                                     animate={{ opacity: 1 }}
                                     className="space-y-12 w-full"
                                 >
-                                    <div className="space-y-4">
-                                        <div className="text-emerald-500 font-mono text-[10px] font-black uppercase tracking-[0.6em]">AWAKENING_CONFIRMED</div>
-                                        <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter italic text-white font-exo">
-                                            {finalPathData?.rpg?.path}
-                                        </h1>
-                                        <p className="text-slate-400 font-medium uppercase tracking-[0.2em] text-[10px] max-w-sm mx-auto leading-loose">
-                                            Your core identity has been stabilized. You are now officially recognized at Level 1.
-                                        </p>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 space-y-1">
-                                            <span className="text-[9px] font-black text-emerald-500/40 uppercase tracking-widest block">Clearance</span>
-                                            <span className="text-2xl font-black italic text-emerald-500 font-exo">LEVEL 1</span>
+                                    <div className="space-y-12 w-full max-w-2xl px-4 pb-20">
+                                        {/* Archetype Header */}
+                                        <div className="space-y-4">
+                                            <div className="text-emerald-500 font-mono text-[10px] font-black uppercase tracking-[0.6em] animate-pulse">IDENTITY_STABILIZED</div>
+                                            <div className="space-y-1">
+                                                {finalPathData?.rpg?.archetype?.name !== finalPathData?.rpg?.path && finalPathData?.rpg?.archetype?.name !== "Initiate" && (
+                                                    <div className="text-white/40 font-mono text-[10px] uppercase tracking-widest">{finalPathData?.rpg?.path} // CLASS_VECTOR</div>
+                                                )}
+                                                <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter italic text-white font-exo leading-none">
+                                                    {(finalPathData?.rpg?.archetype?.name === "Initiate" || !finalPathData?.rpg?.archetype?.name) 
+                                                        ? finalPathData?.rpg?.path 
+                                                        : finalPathData?.rpg?.archetype?.name}
+                                                </h1>
+                                            </div>
+                                            <div className="flex items-center gap-3 justify-center text-white/40 font-mono text-[10px] uppercase tracking-widest">
+                                                <span className="flex items-center gap-1"><Dna size={10} /> GEN_1_AWAKENED</span>
+                                                <div className="size-1 rounded-full bg-white/20" />
+                                                <span>CLEARANCE_LVL_1</span>
+                                            </div>
                                         </div>
-                                        <div className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 space-y-1">
-                                            <span className="text-[9px] font-black text-emerald-500/40 uppercase tracking-widest block">Neural State</span>
-                                            <span className="text-xl font-black italic text-emerald-500 font-exo">STABLE</span>
+
+                                        {/* Character Summary */}
+                                        <div className="relative p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 backdrop-blur-3xl overflow-hidden group">
+                                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
+                                                <Activity size={80} />
+                                            </div>
+                                            <div className="relative space-y-4">
+                                                <div className="flex items-center gap-3 text-emerald-500/60 font-black text-[10px] uppercase tracking-widest">
+                                                    <div className="h-[1px] w-8 bg-emerald-500/20" />
+                                                    NEURAL_PROFILE_SUMMARY
+                                                </div>
+                                                <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed italic text-left">
+                                                    "{finalPathData?.rpg?.flavor || "The resonance of your choices has carved a unique path into the digital void. Your neural patterns are now synchronized with the core architecture."}"
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Stats Grid */}
+                                        <div className="space-y-6">
+                                            <div className="flex items-center justify-between px-2">
+                                                <div className="text-white/40 font-black text-[10px] uppercase tracking-[0.4em]">ATTRIBUTE_VECTORS</div>
+                                                <div className="h-[1px] flex-1 mx-6 bg-white/[0.03]" />
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                {[
+                                                    { label: 'STR', val: finalPathData?.rpg?.stats?.str, icon: Sword, color: 'text-rose-500', bg: 'bg-rose-500/5', border: 'border-rose-500/10' },
+                                                    { label: 'VIT', val: finalPathData?.rpg?.stats?.vit, icon: Heart, color: 'text-emerald-500', bg: 'bg-emerald-500/5', border: 'border-emerald-500/10' },
+                                                    { label: 'AGI', val: finalPathData?.rpg?.stats?.agi, icon: Zap, color: 'text-yellow-500', bg: 'bg-yellow-500/5', border: 'border-yellow-500/10' },
+                                                    { label: 'INT', val: finalPathData?.rpg?.stats?.int, icon: Brain, color: 'text-blue-500', bg: 'bg-blue-500/5', border: 'border-blue-500/10' },
+                                                    { label: 'WIS', val: finalPathData?.rpg?.stats?.wis, icon: Shield, color: 'text-indigo-500', bg: 'bg-indigo-500/5', border: 'border-indigo-500/10' },
+                                                    { label: 'LUK', val: finalPathData?.rpg?.stats?.luk, icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-500/5', border: 'border-amber-500/10' },
+                                                ].map((stat, i) => (
+                                                    <motion.div 
+                                                        key={stat.label}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: 0.1 + (i * 0.05) }}
+                                                        className={`p-5 rounded-3xl ${stat.bg} border ${stat.border} flex flex-col items-center gap-3 group/stat hover:scale-105 transition-all duration-300`}
+                                                    >
+                                                        <stat.icon size={18} className={`${stat.color} opacity-40 group-hover/stat:opacity-100 transition-opacity`} />
+                                                        <div className="flex flex-col items-center">
+                                                            <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{stat.label}</span>
+                                                            <span className="text-2xl font-black italic text-white font-exo">{stat.val || 10}</span>
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Perks Card */}
+                                        <div className="space-y-6">
+                                            <div className="flex items-center justify-between px-2">
+                                                <div className="text-white/40 font-black text-[10px] uppercase tracking-[0.4em]">TACTICAL_PERKS</div>
+                                                <div className="h-[1px] flex-1 mx-6 bg-white/[0.03]" />
+                                            </div>
+                                            
+                                            <motion.div 
+                                                initial={{ opacity: 0, scale: 0.95 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                transition={{ delay: 0.5 }}
+                                                className="p-8 rounded-[2rem] bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 flex items-center gap-6 group relative overflow-hidden"
+                                            >
+                                                <div className="size-16 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                                                    <Target size={32} />
+                                                </div>
+                                                <div className="text-left space-y-1">
+                                                    <div className="text-emerald-500 font-black text-xs uppercase tracking-[0.3em]">PRIMARY_UNLATCH</div>
+                                                    <div className="text-2xl font-black text-white italic uppercase tracking-tighter font-exo">
+                                                        {finalPathData?.rpg?.perk || "Latent Potential"}
+                                                    </div>
+                                                </div>
+                                                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                                                    <TrendingUp size={48} />
+                                                </div>
+                                            </motion.div>
+                                        </div>
+
+                                        <div className="pt-8">
+                                            <motion.button
+                                                whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(16,185,129,0.2)' }}
+                                                whileTap={{ scale: 0.98 }}
+                                                onClick={handleTerminate}
+                                                className="w-full py-8 rounded-[2.5rem] bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.5em] shadow-2xl transition-all relative overflow-hidden group"
+                                            >
+                                                <span className="relative z-10">BEGIN_JOURNEY</span>
+                                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                            </motion.button>
                                         </div>
                                     </div>
-
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={handleTerminate}
-                                        className="w-full py-6 rounded-[2rem] bg-white text-black font-black text-xs uppercase tracking-[0.4em] shadow-2xl"
-                                    >
-                                        BEGIN_JOURNEY
-                                    </motion.button>
                                 </motion.div>
                             )}
                         </motion.div>

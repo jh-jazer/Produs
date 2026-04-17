@@ -655,7 +655,7 @@ export const finalizeAwakening = async (req, res) => {
 
         // Finalize Archetype Identity
         user.rpg.archetype = {
-            name: results.finalLabel || 'Initiate',
+            name: results.finalLabel || results.path || 'Initiate',
             tier: 1,
             stage: results.tier1 || 'Awakened'
         };
@@ -681,7 +681,10 @@ export const finalizeAwakening = async (req, res) => {
         res.json({
             level: user.level,
             exp: user.exp,
-            rpg: user.rpg,
+            rpg: {
+                ...user.rpg.toObject(),
+                flavor: protocol?.flavor || ""
+            },
             totalRequired: levelInfo.totalRequired,
             nextLevelExp: levelInfo.xpToNext,
         });

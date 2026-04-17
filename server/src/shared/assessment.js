@@ -621,7 +621,11 @@ export function calculateScores(answers) {
       styleLabel = config.label;
       if (alignment) {
           finalLabel = alignment === "Good" ? config.good : config.evil;
+      } else {
+          finalLabel = styleLabel; // Fallback to style label if alignment is missing
       }
+  } else {
+      finalLabel = path; // Minimum fallback to the base Path name (e.g. Scout)
   }
 
   return {
