@@ -1,9 +1,13 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import NarrativeQuestion from '../src/models/NarrativeQuestion.js';
 import { ARCHETYPE_QUIZ } from '../src/shared/assessment.js';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const seedNarrative = async () => {
     try {
@@ -15,25 +19,27 @@ const seedNarrative = async () => {
         
         for (const q of ARCHETYPE_QUIZ) {
             const narrativeQ = {
-                questionId: `${q.id}.0`,
+                questionId: String(q.id),
+                title: q.title || "Neural Synthesis",
                 section: q.section,
-                type: q.weight >= 2.0 ? 'ACTION' : 'WHY',
-                weight: q.weight,
+                type: q.type || (q.weight >= 4.0 ? 'ACTION' : 'WHY'),
+                weight: q.weight || 1.0,
+                story: q.story || "",
                 question: q.question,
-                story: "", // Placeholder
                 options: q.options.map(opt => ({
                     text: opt.text,
                     value: opt.value,
-                    nextId: q.id < 32 ? `${q.id + 1}.0` : null // Decimal defaults
+                    postText: opt.postText || "",
+                    nextId: opt.nextId || null
                 }))
             };
 
             await NarrativeQuestion.findOneAndUpdate(
                 { questionId: narrativeQ.questionId },
-                narrativeQ,
+                { $set: narrativeQ },
                 { new: true, upsert: true }
             );
-            console.log(`- Seeded Q#${q.id}`);
+            console.log(`- Seeded Q#${narrativeQ.questionId}`);
         }
 
         console.log('Seed completed successfully.');
