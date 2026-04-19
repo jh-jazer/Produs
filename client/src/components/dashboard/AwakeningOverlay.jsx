@@ -17,16 +17,15 @@ const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading, hasStarted = f
                     module="Getting Started"
                     status="Locked"
                 >
-                    <div className="space-y-8 py-4">
+                    <div className="space-y-4 py-2">
                         <div className="flex flex-col items-center gap-6 text-center">
                             
                             
                             <div className="space-y-3">
                                 <p className="text-sm font-black text-[var(--foreground)] uppercase tracking-widest italic font-exo">
-                                    System Access Suspended
+                                    Complete the assessment to synchronize your profile and unlock full system access.
                                 </p>
                                 <p className="text-[10px] text-slate-400 font-medium leading-relaxed uppercase tracking-[0.2em] max-w-sm mx-auto">
-                                    You haven't completed the onboarding assessment yet. Complete the assessment to discover your productivity style and unlock the dashboard features.
                                 </p>
                             </div>
                         </div>

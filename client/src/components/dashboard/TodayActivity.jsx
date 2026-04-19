@@ -12,11 +12,11 @@ const TodayActivity = ({ user }) => {
 
     const statColors = {
         str: 'rose-500',
-        dex: 'orange-400',
-        end: 'emerald-500',
+        agi: 'orange-400',
+        vit: 'emerald-500',
         int: 'primary',
         wis: 'purple-500',
-        cha: 'pink-500'
+        luk: 'pink-500'
     };
 
     return (
@@ -32,7 +32,11 @@ const TodayActivity = ({ user }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {habits.slice(0, 6).map((habit) => {
                     const isCompleted = habit.checks?.some(c => c.date === today && c.completed);
-                    const statKey = habit.category?.toLowerCase() || 'int';
+                    let statKey = habit.category?.toLowerCase() || 'int';
+                    // Map legacy categories to new stat keys for display if needed
+                    if (statKey === 'dex') statKey = 'agi';
+                    if (statKey === 'end') statKey = 'vit';
+                    if (statKey === 'cha') statKey = 'luk';
                     const colorClass = statColors[statKey] || 'slate-400';
 
                     return (

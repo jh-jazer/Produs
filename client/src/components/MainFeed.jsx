@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import useSWR from 'swr';
+import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import api from '../services/api';
 
@@ -65,13 +66,22 @@ function timeAgo(date) {
 /* ─── Item Components ─── */
 
 const AssessmentPanel = ({ isLevel0, isDailyQuizCompleted, setIsAwakeningModalOpen, user }) => {
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleInitiateAwakening = async (e) => {
+        e.stopPropagation();
+        // Immediate SPA Navigation - No waiting for backend
+        navigate('/dashboard/neural-sync');
+    };
+
     return (
         <AnimatePresence mode="wait">
             {isLevel0 ? (
                 <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    onClick={() => window.location.href = '/dashboard/neural-sync'}
+                    onClick={handleInitiateAwakening}
                     className="group bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 flex items-center justify-between border-l-4 border-l-rose-500 shadow-xl shadow-rose-500/5 mb-4 cursor-pointer hover:border-rose-500 transition-all"
                 >
                     <div className="flex items-center gap-6">

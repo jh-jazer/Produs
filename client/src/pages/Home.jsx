@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // Dashboard Zones
 import IdentityHeader from '../components/dashboard/IdentityHeader';
-import FeaturedGoals from '../components/dashboard/FeaturedGoals';
 import TodayActivity from '../components/dashboard/TodayActivity';
 import StreakStatus from '../components/dashboard/StreakStatus';
 import StatRadar from '../components/dashboard/StatRadar';
@@ -20,10 +19,7 @@ import { useHabits } from '../hooks/useHabits';
 
 // Reality Mode Widgets
 import { 
-  MoodTracker, 
-  TodayObjectivesList, 
-  RealityAchievements, 
-  WishlistPreview 
+  TodayObjectivesList
 } from '../components/dashboard/DashboardRealityWidgets';
 
 import { Users, Link as LinkIcon, ShieldAlert, Zap } from 'lucide-react';
@@ -35,19 +31,15 @@ function Home() {
   const user = useAuthStore((state) => state.user);
   const syncUser = useAuthStore((state) => state.syncUser);
   const setNeuralSyncDismissed = useAuthStore((state) => state.setNeuralSyncDismissed);
-  const updateSettings = useAuthStore((state) => state.updateSettings);
   const [isInitializing, setIsInitializing] = useState(true);
-  const [hasAwakened, setHasAwakened] = useState(false);
   const [isAwaking, setIsAwaking] = useState(false);
-  
+
   // Data Fetching for Reality Widgets
   const { habits, isLoading: isLoadingHabits, toggleCheck: toggleHabitCheck } = useHabits();
-  const { data: wishlist = [] } = useSWR('/finance/wishlist', (url) => api.get(url).then(res => res.data));
 
   // Handle cinematic initialization clearing
   React.useEffect(() => {
     if (user && user.username) {
-      // Small delay to let the cinematic logs feel "premium"
       const timer = setTimeout(() => {
         setIsInitializing(false);
       }, 1500);
@@ -55,56 +47,19 @@ function Home() {
     }
   }, [user]);
 
-
-
-  const updateMood = async (newMood) => {
-    try {
-      await updateSettings({ mood: newMood });
-    } catch (error) {
-      console.error("Failed to update mood", error);
-    }
-  };
-  
   const today = new Date().toISOString().split('T')[0];
   const isUnawakened = !user?.rpg?.path;
   const isLevel0Active = isUnawakened && protocolMode === 'rpg';
 
   const handleInitiateAwakening = async () => {
-    // If user has any progress (even at Level 0), just navigate
-    const hasProgress = (user.rpg?.pendingQuestions?.length > 0) || (user.rpg?.completedAnswers?.length > 0);
-    
-    if (hasProgress) {
-      setNeuralSyncDismissed(false);
-      navigate('/dashboard/neural-sync');
-      return;
-    }
-
-    setIsAwaking(true);
-    try {
-      const { data } = await api.post('/rpg/initiate-awakening');
-      setNeuralSyncDismissed(false); // Reset the gate when user clicks Awaken
-      syncUser(data.rpg);
-      setHasAwakened(true); 
-      navigate('/dashboard/neural-sync');
-    } catch (error) {
-      console.error("Failed to initiate awakening", error);
-      alert(error.response?.data?.message || "Critical Synchronization Failure: Establish server link manually.");
-    } finally {
-      setIsAwaking(false);
-    }
+    // Immediate SPA Navigation - No waiting for backend
+    setNeuralSyncDismissed(false);
+    navigate('/dashboard/neural-sync');
   };
 
-  const initLogs = [
-    "ATTACHING_NEURAL_LINK...",
-    "CALIBRATING_SYNERGY_MATRICES...",
-    "HYDRATING_DASHBOARD_ZONES...",
-    "LINKING_ISEKAI_VECTORS...",
-    "SYNCHRONIZING_STAT_RADAR...",
-    "ESTABLISHING_PARTNER_ENCRYPTION..."
-  ];
 
   return (
-    <div className={`relative w-full ${isLevel0Active ? 'h-[calc(100vh-64px)]' : 'min-h-[calc(100vh-64px)]'} flex flex-col overflow-hidden`}>
+    <div className={`relative w-full ${isLevel0Active ? 'h-[calc(100svh-130px)] md:h-[calc(100vh-64px)]' : 'min-h-[calc(100vh-64px)]'} flex flex-col overflow-hidden`}>
 
       <AnimatePresence mode="wait">
         {isLevel0Active && !isInitializing ? (
@@ -113,7 +68,7 @@ function Home() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
-            className="flex-1 h-full flex items-center justify-center px-6"
+            className="flex-1 h-full flex items-center justify-center px-4 overflow-hidden"
           >
             <AwakeningOverlay 
               onAwaken={handleInitiateAwakening} 
@@ -128,30 +83,30 @@ function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex-1 flex flex-col items-center justify-center space-y-8"
+            className="w-full max-w-5xl mx-auto pt-8 md:pt-8 pb-32 px-4 md:px-0 space-y-12"
           >
-            <div className="relative">
-              <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="size-32 rounded-full border-b-2 border-primary/30"
-              />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Zap size={32} className="text-primary animate-pulse" />
-              </div>
+            {/* Header Skeleton */}
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 border-b border-black/[0.03] dark:border-white/[0.03] pb-12">
+               <div className="size-32 md:size-48 rounded-[3rem] bg-black/5 dark:bg-white/5 animate-pulse shrink-0" />
+               <div className="flex-1 space-y-6 w-full">
+                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                     <div className="space-y-4 flex-1">
+                        <div className="h-4 w-32 bg-black/5 dark:bg-white/5 rounded-full animate-pulse" />
+                        <div className="h-12 w-64 bg-black/10 dark:bg-white/10 rounded-2xl animate-pulse" />
+                     </div>
+                     <div className="flex gap-2">
+                        <div className="size-12 rounded-2xl bg-black/5 dark:bg-white/5 animate-pulse" />
+                        <div className="size-12 rounded-2xl bg-black/5 dark:bg-white/5 animate-pulse" />
+                     </div>
+                  </div>
+                  <div className="h-24 w-full bg-black/5 dark:bg-white/5 rounded-[2rem] animate-pulse" />
+               </div>
             </div>
-            <div className="space-y-2 text-center font-mono">
-               <AnimatePresence mode="popLayout">
-                  <motion.p
-                    key={Math.floor(Date.now() / 1000) % initLogs.length}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="text-[10px] font-black text-primary uppercase tracking-[0.4em]"
-                  >
-                    {initLogs[Math.floor(Date.now() / 1000) % initLogs.length]}
-                  </motion.p>
-               </AnimatePresence>
+
+            {/* Content Skeleton */}
+            <div className="space-y-8">
+               <div className="h-64 w-full bg-black/5 dark:border-white/5 rounded-[3rem] animate-pulse" />
+               <div className="h-96 w-full bg-black/5 dark:border-white/5 rounded-[3rem] animate-pulse" />
             </div>
           </motion.div>
         ) : (
@@ -164,8 +119,6 @@ function Home() {
             {/* Header & Identity Section */}
             <IdentityHeader user={user} habits={habits} />
 
-            {/* Featured Goals / Active Challenges Section */}
-            <FeaturedGoals onHabitAdded={() => mutate('/habits')} />
 
             
             <AnimatePresence mode="wait">
@@ -215,11 +168,8 @@ function Home() {
 
                         {/* ZONE 1: Psychological Baseline */}
                         <div className="flex flex-col space-y-4 md:space-y-8 w-full">
-                          <div className="w-full">
-                             <MoodTracker currentMood={user?.settings?.mood} onMoodSelect={updateMood} />
-                          </div>
-                          <div className="w-full">
-                             <TodayObjectivesList 
+                           <div className="w-full">
+                              <TodayObjectivesList 
                                habits={habits} 
                                isLoadingHabits={isLoadingHabits} 
                                toggleHabitCheck={toggleHabitCheck} 
@@ -227,10 +177,6 @@ function Home() {
                           </div>
                         </div>
 
-                        <RealityAchievements user={user} />
-
-                        {/* ZONE 5: Wishlist Preview (Financial) */}
-                        <WishlistPreview wishlist={wishlist} />
                       </motion.div>
                     )}
                   </AnimatePresence>

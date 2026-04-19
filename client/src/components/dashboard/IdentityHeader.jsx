@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check, Lock, Edit2, Save, X, Handshake, Users } from 'lucide-react';
+import QRModal from '../ui/QRModal';
+import { QrCode, Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check, Lock, Edit2, Save, X, Handshake, Users } from 'lucide-react';
 import { getLevelProgress } from '../../utils/rpgHelpers';
 import { ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
 import Avatar from '../ui/Avatar';
@@ -11,10 +12,15 @@ import ProfileModal from '../ui/ProfileModal';
 import { DashboardContext } from '../../context/DashboardContext';
 import useAuthStore from '../../store/useAuthStore';
 import api from '../../services/api';
+import { MoodTracker } from './DashboardRealityWidgets';
 
 const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     const { protocolMode } = useContext(DashboardContext);
     const { updateSettings } = useAuthStore();
+
+    const updateMood = async (newMood) => {
+        try { await updateSettings({ mood: newMood }); } catch (e) { console.error('Failed to update mood', e); }
+    };
     const [user, setUser] = useState(initialUser);
     const [isIdVisible, setIsIdVisible] = useState(false);
     const [hasCopiedId, setHasCopiedId] = useState(false);
@@ -23,6 +29,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [banner, setBanner] = useState(user?.banner || "");
     const [avatar, setAvatar] = useState(user?.avatar || "");
+    const [bio, setBio] = useState(user?.bio || "");
     const [usernameBase, setUsernameBase] = useState(user?.username ? user.username.split('#')[0] : "");
     const [isSaving, setIsSaving] = useState(false);
     const [isUploadingBanner, setIsUploadingBanner] = useState(false);
@@ -32,6 +39,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
 
     // Modals State
     const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
+    const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
     const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
     const [profileModalUser, setProfileModalUser] = useState(null);
@@ -48,6 +56,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
         setUser(initialUser);
         setBanner(initialUser?.banner || "");
         setAvatar(initialUser?.avatar || "");
+        setBio(initialUser?.bio || "");
         setUsernameBase(initialUser?.username ? initialUser.username.split('#')[0] : "");
         setBannerPosition(initialUser?.settings?.bannerPosition || 50);
     }, [initialUser]);
@@ -58,6 +67,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
             await updateSettings({ 
                 banner, 
                 avatar, 
+                bio,
                 bannerPosition,
                 username: usernameBase
             });
@@ -200,40 +210,40 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                         </label>
                     </div>
                 )}
-                
-                <div className="absolute top-4 right-6 flex items-center gap-3 px-3 py-1.5 bg-black/40 backdrop-blur-md rounded-xl border border-white/10 shadow-xl">
-                    {/* Vertical Day Marker */}
-                    <div className="flex flex-col items-center justify-center leading-[0.85] text-[8px] font-black text-cyan-500/60 font-mono uppercase tracking-tighter">
-                        {currentTime.toLocaleDateString([], { weekday: 'short' }).toUpperCase().split('').map((char, i) => (
-                            <span key={i}>{char}</span>
-                        ))}
-                    </div>
+            </div>
 
-                    {/* Structural Divider */}
-                    <div className="w-px h-6 bg-white/10" />
+            {/* Mood Indicator — Left Side (Outside banner to avoid clipping) */}
+            <div className="absolute top-4 left-6 z-30">
+                <MoodTracker user={user} updateMood={updateMood} standalone />
+            </div>
 
-                    {/* Time & Date Cluster */}
-                    <div className="flex flex-col items-end gap-0.5">
-                        <div className="flex items-center gap-1.5 text-white">
-                            {/* Desktop Time (with seconds) */}
-                            <span className="hidden md:inline text-[11px] font-black tracking-[0.2em] font-mono leading-none">
-                                {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
-                            </span>
-                            {/* Mobile Time (no seconds) */}
-                            <span className="inline md:hidden text-[11px] font-black tracking-[0.2em] font-mono leading-none">
-                                {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
-                            </span>
-                        </div>
-                        
-                        {/* Desktop Date (with year) */}
-                        <span className="hidden md:inline text-[7px] font-bold text-white/40 uppercase tracking-[0.3em] font-mono leading-none">
-                            {currentTime.toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase()}
+            {/* Time & Date Cluster — Right Side */}
+            <div className="absolute top-4 right-6 flex items-center gap-3 px-3 py-1.5 bg-black/40 backdrop-blur-md rounded-xl border border-white/10 shadow-xl z-20">
+                {/* Vertical Day Marker */}
+                <div className="flex flex-col items-center justify-center leading-[0.85] text-[8px] font-black text-cyan-500/60 font-mono uppercase tracking-tighter">
+                    {currentTime.toLocaleDateString([], { weekday: 'short' }).toUpperCase().split('').map((char, i) => (
+                        <span key={i}>{char}</span>
+                    ))}
+                </div>
+
+                {/* Structural Divider */}
+                <div className="w-px h-6 bg-white/10" />
+
+                <div className="flex flex-col items-end gap-0.5">
+                    <div className="flex items-center gap-1.5 text-white">
+                        <span className="hidden md:inline text-[11px] font-black tracking-[0.2em] font-mono leading-none">
+                            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
                         </span>
-                        {/* Mobile Date (no year) */}
-                        <span className="inline md:hidden text-[7px] font-bold text-white/40 uppercase tracking-[0.3em] font-mono leading-none">
-                            {currentTime.toLocaleDateString([], { month: 'short', day: '2-digit' }).toUpperCase()}
+                        <span className="inline md:hidden text-[11px] font-black tracking-[0.2em] font-mono leading-none">
+                            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
                         </span>
                     </div>
+                    <span className="hidden md:inline text-[7px] font-bold text-white/40 uppercase tracking-[0.3em] font-mono leading-none">
+                        {currentTime.toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase()}
+                    </span>
+                    <span className="inline md:hidden text-[7px] font-bold text-white/40 uppercase tracking-[0.3em] font-mono leading-none">
+                        {currentTime.toLocaleDateString([], { month: 'short', day: '2-digit' }).toUpperCase()}
+                    </span>
                 </div>
             </div>
 
@@ -328,6 +338,13 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                     className="text-2xl md:text-3xl font-black uppercase tracking-tighter italic text-slate-900 dark:text-white font-exo leading-none"
                                 >
                                     @{user.username || user.name || 'USER_LINK_LOST'}
+                                    <button
+                                        onClick={() => setIsQrModalOpen(true)}
+                                        className="ml-2 p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-500 transition-all active:scale-95 group"
+                                        title="QR Connection Protocol"
+                                    >
+                                        <QrCode size={16} className="group-hover:rotate-12 transition-transform" />
+                                    </button>
                                 </motion.h1>
                             )}
                         </div>
@@ -342,6 +359,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                         setIsEditing(false);
                                         setBanner(user?.banner || "");
                                         setAvatar(user?.avatar || "");
+                                        setBio(user?.bio || "");
                                     }}
                                     className="px-6 py-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 rounded-2xl text-slate-700 dark:text-slate-200 font-bold text-xs transition-all flex items-center gap-2 uppercase tracking-widest"
                                 >
@@ -372,16 +390,6 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                     {user?.incomingConnectionRequests?.length > 0 && (
                                         <span className="absolute -top-1 -right-1 size-3 bg-rose-500 rounded-full border-2 border-white dark:border-[#0a0a0a] animate-pulse" />
                                     )}
-                                </button>
-                                <button
-                                    onClick={() => setIsPartnerModalOpen(true)}
-                                    className={`size-12 lg:size-14 flex items-center justify-center rounded-2xl border transition-all shadow-sm group ${user?.partner
-                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
-                                        : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 hover:text-cyan-500'
-                                        }`}
-                                    title="Shared Account"
-                                >
-                                    <Handshake size={20} className="group-hover:scale-110 transition-transform" />
                                 </button>
                                 <button
                                     onClick={() => setIsEditing(true)}
@@ -438,15 +446,27 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                     {protocol.flavor}
                                 </motion.p>
                             ) : (
-                                <motion.p 
+                                <motion.div
                                     key="reality-bio"
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -20, filter: 'blur(5px)' }}
-                                    className="text-[11px] md:text-xs font-bold text-slate-500 dark:text-slate-400 italic leading-relaxed tracking-[0.05em] px-4 max-w-4xl normal-case"
+                                    className="flex items-center gap-2 px-4 max-w-4xl w-full"
                                 >
-                                    {user.bio || "Operator objective undefined. Establishing focus protocols..."}
-                                </motion.p>
+                                    {isEditing ? (
+                                        <textarea
+                                            value={bio}
+                                            onChange={(e) => setBio(e.target.value.slice(0, 160))}
+                                            placeholder="Write your operator objective..."
+                                            rows={2}
+                                            className="flex-1 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-[11px] md:text-xs font-bold text-slate-700 dark:text-slate-300 italic leading-relaxed tracking-[0.05em] normal-case resize-none outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 placeholder:text-slate-400 dark:placeholder:text-slate-600 transition-all"
+                                        />
+                                    ) : (
+                                        <p className="text-[11px] md:text-xs font-bold text-slate-500 dark:text-slate-400 italic leading-relaxed tracking-[0.05em] normal-case">
+                                            {user.bio || "Operator objective undefined. Establishing focus protocols..."}
+                                        </p>
+                                    )}
+                                </motion.div>
                             )}
                         </AnimatePresence>
                     </div>
@@ -458,6 +478,12 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                 isOpen={isConnectionsModalOpen}
                 onClose={() => setIsConnectionsModalOpen(false)}
                 onProfileClick={(username) => { setProfileModalUser(username); setIsConnectionsModalOpen(false); }}
+            />
+
+            <QRModal 
+                isOpen={isQrModalOpen}
+                onClose={() => setIsQrModalOpen(false)}
+                userId={user._id}
             />
 
             <PartnerModal

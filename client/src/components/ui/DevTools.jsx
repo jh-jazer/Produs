@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import useAuthStore from '../../store/useAuthStore';
+import { useNavigate } from 'react-router-dom';
 
 const DevTools = () => {
-    const { user, syncUser } = useAuthStore();
+    const { user, syncUser, signOut } = useAuthStore();
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
+    const [isConfirmingRestart, setIsConfirmingRestart] = useState(false);
     const [loading, setLoading] = useState(null);
     const [view, setView] = useState('main'); // main, exp, stats, points
     const [selectedStat, setSelectedStat] = useState(null);
@@ -20,8 +23,10 @@ const DevTools = () => {
             const { data } = await api.post('/auth/dev/rpg-test', { action, stat, amount });
             syncUser(data);
             
-            if (action === 'resetOnboarding') {
-                window.location.reload(); 
+            if (action === 'restartAccount') {
+                signOut();
+                window.location.href = '/';
+                return;
             }
         } catch (error) {
             console.error(`Dev action ${action} failed:`, error);
@@ -116,19 +121,47 @@ const DevTools = () => {
                                         </div>
                                         <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Clear Cap</span>
                                     </button>
-                                    <button onClick={() => handleAction('resetOnboarding')} className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
-                                        <div className="size-9 md:size-10 rounded-full bg-indigo-500 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
-                                            <span className="material-symbols-outlined text-lg md:text-xl text-white">school</span>
-                                        </div>
-                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-indigo-500">Reset Tutorial</span>
-                                    </button>
-                                    <button onClick={() => handleAction('resetPath')} className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                                    <button 
+                                        onClick={() => setIsConfirmingRestart(true)} 
+                                        className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5"
+                                    >
                                         <div className="size-9 md:size-10 rounded-full bg-rose-600 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
                                             <span className="material-symbols-outlined text-lg md:text-xl text-white">restart_alt</span>
                                         </div>
-                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-rose-500">Reset Path</span>
+                                        <div className="flex flex-col items-start">
+                                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-rose-500">Restart Account</span>
+                                            <span className="text-[7px] font-bold text-rose-500/60 uppercase tracking-tighter">Wipe all data & relogin</span>
+                                        </div>
                                     </button>
                                 </>
+                            )}
+
+                            {view === 'main' && isConfirmingRestart && (
+                                <div className="absolute inset-x-3 bottom-16 bg-white dark:bg-black p-4 rounded-2xl border border-rose-500/20 shadow-2xl z-20 flex flex-col gap-3">
+                                    <div className="flex items-center gap-2 text-rose-600 mb-1">
+                                        <span className="material-symbols-outlined text-sm">warning</span>
+                                        <span className="text-[9px] font-black uppercase tracking-widest">Confirm Wipe</span>
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 font-medium">This will permanently delete all habits, journal entries, tasks, and RPG progress.</p>
+                                    <div className="flex gap-2">
+                                        <button 
+                                            onClick={() => setIsConfirmingRestart(false)}
+                                            className="flex-1 py-2 rounded-xl bg-slate-100 dark:bg-white/5 text-[9px] font-black uppercase text-slate-500"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button 
+                                            disabled={loading === 'restartAccount'}
+                                            onClick={() => {
+                                                handleAction('restartAccount');
+                                                setIsConfirmingRestart(false);
+                                            }}
+                                            className="flex-1 py-2 rounded-xl bg-rose-600 text-white text-[9px] font-black uppercase shadow-lg shadow-rose-600/20"
+                                        >
+                                            {loading === 'restartAccount' ? 'Wiping...' : 'Destroy All Data'}
+                                        </button>
+                                    </div>
+                                </div>
                             )}
 
                             {view === 'coins' && (

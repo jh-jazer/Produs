@@ -28,6 +28,7 @@ import ScrollIndicator from "../components/landing/ScrollIndicator";
 import Lenis from "lenis";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 const SCENES_FEATURES = [
   { id: "analytics", title: "REAL TIME ANALYTICS", label: "01 // SYSTEM METRICS", icon: Activity },
@@ -131,8 +132,12 @@ export default function Landing() {
     else window.scrollTo(0, target);
   };
 
+  const refreshTimeoutRef = useRef(null);
+
   useEffect(() => {
+    let isUnmounted = false;
     document.documentElement.classList.add("no-scrollbar");
+    
     const lenis = new Lenis({
       duration: 1.5,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -141,23 +146,45 @@ export default function Landing() {
     window.lenis = lenis;
     lenis.start();
 
-    const updateScrollTrigger = () => ScrollTrigger.update();
+    const updateScrollTrigger = () => {
+      if (!isUnmounted) ScrollTrigger.update();
+    };
     lenis.on('scroll', updateScrollTrigger);
     
-    const tickerRAF = (time) => lenis.raf(time * 1000);
+    const tickerRAF = (time) => {
+      if (!isUnmounted) lenis.raf(time * 1000);
+    };
     gsap.ticker.add(tickerRAF);
     gsap.ticker.lagSmoothing(0);
 
     // Initial refresh to sync positions
-    setTimeout(() => ScrollTrigger.refresh(), 100);
+    refreshTimeoutRef.current = setTimeout(() => {
+        if (!isUnmounted && typeof ScrollTrigger !== 'undefined') {
+            ScrollTrigger.refresh();
+        }
+    }, 150);
 
     return () => {
+      isUnmounted = true;
+      if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
       document.documentElement.classList.remove("no-scrollbar");
+      
+      // Stop ticker and scroll processing IMMEDIATELY
+      gsap.ticker.remove(tickerRAF);
       lenis.off('scroll', updateScrollTrigger);
+      
+      // Clear GSAP's internal refresh/scroll memory
+      ScrollTrigger.clearScrollMemory();
+      
+      // Kill all ScrollTrigger instances
+      ScrollTrigger.getAll().forEach(t => t.kill(true));
+      
+      // Force kill everything to prevent post-mortem refreshes or 100vh measurement removals
+      ScrollTrigger.killAll(); 
+      
+      // Destroy lenis
       lenis.destroy();
       window.lenis = null;
-      gsap.ticker.remove(tickerRAF);
-      ScrollTrigger.getAll().forEach(t => t.kill());
     };
   }, []);
 

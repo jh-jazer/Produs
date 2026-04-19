@@ -9,44 +9,158 @@ import { useGoals } from '../../hooks/useGoals';
  * 1. MoodTracker (Feelings)
  * Replaces TodayActivity in Reality Mode
  */
-export const MoodTracker = ({ user, updateMood }) => {
+export const MoodTracker = ({ user, updateMood, standalone = false }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    // Animated Noto Emoji GIF URLs (Google Fonts CDN)
     const moodEmojis = {
-        great: { emoji: "🤩", label: "Great", color: "text-cyan-500", bg: "bg-cyan-500/10" },
-        good: { emoji: "🙂", label: "Good", color: "text-blue-500", bg: "bg-blue-500/10" },
-        neutral: { emoji: "😐", label: "Neutral", color: "text-slate-400", bg: "bg-slate-500/10" },
-        bad: { emoji: "😔", label: "Bad", color: "text-orange-500", bg: "bg-orange-500/10" },
-        awful: { emoji: "😭", label: "Awful", color: "text-rose-500", bg: "bg-rose-500/10" },
+        great:   { gif: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f929/512.gif", label: "Great",   color: "cyan" },
+        good:    { gif: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f642/512.gif", label: "Good",    color: "blue" },
+        neutral: { gif: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f610/512.gif", label: "Neutral", color: "slate" },
+        bad:     { gif: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f614/512.gif", label: "Bad",     color: "orange" },
+        awful:   { gif: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif", label: "Awful",   color: "rose" },
     };
 
+    const today = new Date().toISOString().split('T')[0];
+    const moodSetDate = user?.settings?.moodSetAt;
+    const needsMoodUpdate = !user?.settings?.mood || !moodSetDate || moodSetDate !== today;
+
     const currentMood = user?.settings?.mood || "neutral";
+    const currentData = moodEmojis[currentMood];
+
+    const handleSelect = (key) => {
+        updateMood?.(key);
+        setIsExpanded(false);
+    };
+
+    const bounceAnimation = needsMoodUpdate && standalone ? {
+        animate: {
+            y: [0, -6, 0],
+            scale: [1, 1.1, 1],
+            opacity: 1,
+        },
+        transition: {
+            duration: 1.4,
+            repeat: Infinity,
+            repeatDelay: 2,
+            ease: "easeInOut",
+        }
+    } : {};
+
+    const content = (
+        <div className={`flex flex-col items-center justify-center ${standalone ? 'py-0 min-h-0 relative' : 'py-6 min-h-[140px]'}`}>
+            {/* Collapsed trigger — always in-flow */}
+            <motion.button
+                animate={bounceAnimation.animate ?? { opacity: 1, scale: 1 }}
+                transition={bounceAnimation.transition}
+                onClick={() => setIsExpanded(!isExpanded)}
+                className={`flex items-center gap-2 rounded-2xl transition-all hover:scale-105 shrink-0
+                    ${standalone 
+                        ? 'p-1 bg-transparent border-none' 
+                        : `p-6 bg-white dark:bg-[#121212] border-2 border-${currentData.color}-500/30 shadow-xl`}`}
+            >
+                <img
+                    src={currentData.gif}
+                    alt={currentData.label}
+                    className={standalone ? 'w-7 h-7 md:w-8 md:h-8' : 'w-14 h-14'}
+                />
+                {!standalone && (
+                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] text-${currentData.color}-500`}>
+                        {currentData.label}
+                    </span>
+                )}
+            </motion.button>
+
+            {/* Standalone: absolute floating picker that doesn't affect sibling layout */}
+            {standalone ? (
+                <AnimatePresence>
+                    {isExpanded && (
+                        <>
+                            {/* Backdrop to close on outside click */}
+                            <div
+                                className="fixed inset-0 z-40"
+                                onClick={() => setIsExpanded(false)}
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, x: -10, scale: 0.95 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, x: -10, scale: 0.95 }}
+                                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                                className="absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50 flex items-center gap-1.5 p-1.5 rounded-2xl bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 shadow-2xl shadow-black/40 min-w-max"
+                            >
+                                {Object.entries(moodEmojis).map(([key, data]) => (
+                                    <motion.button
+                                        key={key}
+                                        whileHover={{ scale: 1.15, y: -2 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => handleSelect(key)}
+                                        className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all border
+                                            ${currentMood === key 
+                                                ? `bg-${data.color}-500/10 border-${data.color}-500/40 shadow-sm` 
+                                                : 'border-transparent opacity-50 hover:opacity-100 hover:bg-slate-50 dark:hover:bg-white/5'}`}
+                                    >
+                                        <img src={data.gif} alt={data.label} className="w-7 h-7" />
+                                    </motion.button>
+                                ))}
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
+            ) : (
+                /* Non-standalone: inline expansion */
+                <AnimatePresence>
+                    {isExpanded && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="flex items-center justify-between gap-1.5 w-full mt-3 overflow-hidden"
+                        >
+                            {Object.entries(moodEmojis).map(([key, data]) => (
+                                <motion.button
+                                    key={key}
+                                    whileHover={{ scale: 1.05, y: -4 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => handleSelect(key)}
+                                    className={`flex flex-col items-center gap-2 p-4 rounded-3xl transition-all border flex-1 min-w-0
+                                        ${currentMood === key 
+                                            ? `${data.bg} border-${key === 'neutral' ? 'slate' : key}-500/40 shadow-lg` 
+                                            : 'bg-white dark:bg-black/20 border-transparent grayscale opacity-50 hover:grayscale-0 hover:opacity-100 dark:hover:bg-white/5'}`}
+                                >
+                                    <img src={data.gif} alt={data.label} className="w-10 h-10 md:w-12 md:h-12" />
+                                    <span className={`text-[8px] font-black uppercase tracking-widest truncate w-full text-center ${currentMood === key ? `text-${data.color}-500` : 'text-slate-400'}`}>
+                                        {data.label}
+                                    </span>
+                                </motion.button>
+                            ))}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            )}
+
+            {/* Tactical expansion prompt - Only show when NOT standalone */}
+            {!isExpanded && !standalone && (
+                <motion.p 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] mt-6 animate-pulse"
+                >
+                    // Click_to_Update_Status
+                </motion.p>
+            )}
+        </div>
+    );
+
+    if (standalone) return content;
 
     return (
         <DashboardPanel 
-            title="Mood Tracker" 
+            title="Psychological State" 
+            subtitle={isExpanded ? "Biological Feedback" : "System Baseline"}
             icon={Heart}
             indicatorColor="rose"
         >
-            <div className="flex flex-col items-center justify-center py-6 gap-8">
-                <div className="flex items-center justify-center gap-4 flex-wrap">
-                    {Object.entries(moodEmojis).map(([key, data]) => (
-                        <motion.button
-                            key={key}
-                            whileHover={{ scale: 1.1, y: -5 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => updateMood?.(key)}
-                            className={`group relative flex flex-col items-center gap-3 p-4 rounded-3xl transition-all duration-300 border
-                                ${currentMood === key 
-                                    ? `${data.bg} border-${key === 'neutral' ? 'slate' : key}-500/50 shadow-lg ring-2 ring-${key === 'neutral' ? 'slate' : key}-500/20` 
-                                    : 'bg-white dark:bg-white/[0.02] border-cyan-500/10 dark:border-white/5 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 dark:hover:bg-white/5'}`}
-                        >
-                            <span className="text-4xl">{data.emoji}</span>
-                            <span className={`text-[9px] font-black uppercase tracking-widest ${currentMood === key ? data.color : 'text-slate-400'}`}>
-                                {data.label}
-                            </span>
-                        </motion.button>
-                    ))}
-                </div>
-            </div>
+            {content}
         </DashboardPanel>
     );
 };

@@ -24,6 +24,7 @@ import DashboardHeader from './dashboard/DashboardHeader';
 import { DashboardContext } from '../context/DashboardContext';
 import StatsModal from './ui/StatsModal';
 import CoinDisplay from './ui/CoinDisplay';
+import CoreDisplay from './ui/CoreDisplay';
 
 function Layout() {
     const { user, signOut } = useAuthStore();
@@ -140,10 +141,13 @@ function Layout() {
                 <div className="md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-[135] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03]">
                     {isOverview && (
                         <div
-                            className="flex items-center gap-2 active:scale-95 transition-all"
-                            onClick={() => navigate('/dashboard/shop')}
+                            className="flex items-center gap-2.5 active:scale-95 transition-all cursor-pointer group"
+                            onClick={() => navigate('/dashboard')}
                         >
-                            <CoinDisplay amount={user?.rpg?.prodCoins || 0} variant="vault" />
+                            <Logo className="size-8" glow={false} />
+                            <span className="font-exo font-black text-lg tracking-tighter italic text-slate-800 dark:text-white mt-0.5">
+                                PRODUS
+                            </span>
                         </div>
                     )}
 
@@ -180,22 +184,17 @@ function Layout() {
                             {/* Partner Link Toggle */}
                             {isOverview && (
                                 <button
-                                    onClick={() => setIsOperationModalOpen(true)}
-                                    className="size-9 rounded-xl flex items-center justify-center bg-black/5 dark:bg-white/5 active:scale-95 transition-all text-slate-500"
+                                    onClick={() => setViewMode(viewMode === 'personal' ? 'partner' : 'personal')}
+                                    className={`size-9 rounded-xl flex items-center justify-center transition-all active:scale-95 ${
+                                        viewMode === 'partner'
+                                            ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                                            : 'text-slate-500 bg-black/5 dark:bg-white/5'
+                                    }`}
                                 >
-                                    <Handshake size={14} />
+                                    {viewMode === 'partner' ? <Handshake size={14} /> : <User size={14} />}
                                 </button>
                             )}
 
-                            {/* Search Icon (Overview Only) */}
-                            {isOverview && (
-                                <button
-                                    onClick={() => setIsSearchModalOpen(true)}
-                                    className="size-9 rounded-xl flex items-center justify-center bg-black/5 dark:bg-white/5 active:scale-95 transition-all text-slate-500"
-                                >
-                                    <Search size={14} />
-                                </button>
-                            )}
 
                         </div>
 
@@ -335,16 +334,23 @@ function Layout() {
 
 
                         {/* 2.5 Currency Display (Desktop) */}
-                        <div className="mb-2 flex items-center transition-all duration-500">
+                        <div className="mb-2 flex flex-col gap-3 transition-all duration-500">
                             {!(location.pathname === '/dashboard' || isMobileMenuOpen) && (
-                                <div 
-                                    className="size-10 flex items-center justify-center cursor-pointer group/shop shrink-0"
-                                    onClick={() => navigate('/dashboard/shop')} // Store navigation
-                                    title="Open Terminal Shop"
-                                >
-                                    <div className="relative">
-                                        <ShoppingBag size={18} className="text-slate-400 group-hover/shop:text-primary transition-colors" />
-                                        <div className="absolute -top-1 -right-1 size-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_var(--primary-glow)]" />
+                                <div className="flex flex-col gap-2">
+                                    <div 
+                                        className="size-10 flex items-center justify-center cursor-pointer group/shop shrink-0"
+                                        onClick={() => navigate('/dashboard/shop')}
+                                        title="Open Terminal Shop"
+                                    >
+                                        <div className="relative">
+                                            <ShoppingBag size={18} className="text-slate-400 group-hover/shop:text-primary transition-colors" />
+                                            <div className="absolute -top-1 -right-1 size-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_var(--primary-glow)]" />
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Mini Core Indicator when collapsed */}
+                                    <div className="size-10 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity">
+                                        <div className="size-2 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse" />
                                     </div>
                                 </div>
                             )}
@@ -356,11 +362,12 @@ function Layout() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -10 }}
                                         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                                        className="flex flex-col cursor-pointer"
+                                        className="flex flex-col gap-2 cursor-pointer"
                                         onClick={() => navigate('/dashboard/shop')}
                                         title="Open Terminal Shop"
                                     >
-                                        <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display" />
+                                        <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display" variant="minimal" />
+                                        <CoreDisplay amount={user?.rpg?.cores || 0} className="sidebar-core-display" variant="minimal" />
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -494,6 +501,7 @@ function Layout() {
                     <SettingsModal 
                         isOpen={isSettingsModalOpen} 
                         onClose={() => setIsSettingsModalOpen(false)} 
+                        onOpenBugReport={() => setIsBugModalOpen(true)}
                     />
                 )}
                 

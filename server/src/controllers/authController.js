@@ -3,6 +3,14 @@ import Habit from '../models/Habit.js';
 import Journal from '../models/Journal.js';
 import Task from '../models/Task.js';
 import Wishlist from '../models/Wishlist.js';
+import Notification from '../models/Notification.js';
+import Activity from '../models/Activity.js';
+import Budget from '../models/Budget.js';
+import Debt from '../models/Debt.js';
+import Goal from '../models/Goal.js';
+import Saving from '../models/Saving.js';
+import Transaction from '../models/Transaction.js';
+import HealthLog from '../models/HealthLog.js';
 import Joi from 'joi';
 import mongoose from 'mongoose';
 import generateToken from '../utils/generateToken.js';
@@ -209,7 +217,7 @@ export const getMe = async (req, res) => {
 export const getConnections = async (req, res) => {
     try {
         const user = await User.findById(req.user.id)
-            .populate('connections', 'name username avatar bio settings')
+            .populate('connections', 'name username email avatar bio settings partner')
             .populate('incomingConnectionRequests', 'name username avatar bio settings')
             .populate('outgoingConnectionRequests', 'name username avatar bio settings');
         
@@ -1059,12 +1067,12 @@ export const getStats = async (req, res) => {
         // 💪 STR: Physical/Health
         const str = getHabitImpact(['STR']);
  
-        // ⚡ DEX: Speed/Tasks
-        const dex = getHabitImpact(['DEX']) + (tasks.length * 2);
+        // ⚡ AGI: Speed/Tasks
+        const agi = getHabitImpact(['DEX']) + (tasks.length * 2);
  
-        // 🔥 END: Consistency (Total Streaks across all habits)
+        // 🔥 VIT: Consistency (Total Streaks across all habits)
         const totalStreaks = habits.reduce((acc, h) => acc + (h.streak || 0), 0);
-        const end = totalStreaks * 10; // High weight for streaks
+        const vit = totalStreaks * 10; // High weight for streaks
  
         // 🧠 INT: Knowledge + Journaling
         const journalWeight = journalEntriesCount * 5;
@@ -1073,17 +1081,17 @@ export const getStats = async (req, res) => {
         // 🌀 WIS: Reflection + Finance
         const wis = getHabitImpact(['WIS', 'PER']); // Include legacy PER for migration safety
  
-        // ✨ CHA: Relationships + Accountability
+        // ✨ LUK: Relationships + Accountability
         const sharedHabitsCount = habits.filter(h => h.isShared).length;
-        const cha = getHabitImpact(['CHA']) + (sharedHabitsCount * 10);
+        const luk = getHabitImpact(['CHA']) + (sharedHabitsCount * 10);
  
         res.json({
             str,
-            dex,
-            end,
+            agi,
+            vit,
             int,
             wis,
-            cha,
+            luk,
             raw: {
                 tasksCompleted: tasks.length,
                 habitsCount: habits.length,
@@ -1106,7 +1114,7 @@ export const devRPGTest = async (req, res) => {
 
         // Auto-reset daily limits for dev actions to ensure testing always works
         user.rpg.dailyXP.total = 0;
-        user.rpg.dailyXP.byStat = { str: 0, dex: 0, end: 0, int: 0, wis: 0, cha: 0 };
+        user.rpg.dailyXP.byStat = { str: 0, agi: 0, vit: 0, int: 0, wis: 0, luk: 0 };
         user.markModified('rpg');
 
         switch (action) {
@@ -1127,7 +1135,7 @@ export const devRPGTest = async (req, res) => {
                     const s = stat.toLowerCase();
                     user.rpg.stats[s] = (user.rpg.stats[s] || 0) + pointAmount;
                 } else {
-                    const stats = ['str', 'dex', 'end', 'int', 'wis', 'cha'];
+                    const stats = ['str', 'agi', 'vit', 'int', 'wis', 'luk'];
                     for (const s of stats) {
                         user.rpg.stats[s] = (user.rpg.stats[s] || 0) + pointAmount;
                     }
@@ -1147,7 +1155,7 @@ export const devRPGTest = async (req, res) => {
                 // Full Reversion: Return user to Level 0 (Unawakened)
                 user.exp = 0;
                 user.level = 0;
-                user.rpg.stats = { str: 0, dex: 0, end: 0, int: 0, wis: 0, cha: 0 };
+                user.rpg.stats = { str: 0, agi: 0, vit: 0, int: 0, wis: 0, luk: 0 };
                 user.rpg.path = null;
                 user.rpg.tier1 = null;
                 user.rpg.style = null;
@@ -1167,6 +1175,44 @@ export const devRPGTest = async (req, res) => {
                 break;
             case 'removeDailyLimit':
                 user.rpg.dailyXP = 0;
+                user.markModified('rpg');
+                await user.save();
+                break;
+            case 'restartAccount':
+                // 1. Wipe all associated data
+                const userId = user._id;
+                await Promise.all([
+                    Habit.deleteMany({ user: userId }),
+                    Journal.deleteMany({ user: userId }),
+                    Task.deleteMany({ user: userId }),
+                    Wishlist.deleteMany({ user: userId }),
+                    Notification.deleteMany({ user: userId }),
+                    Activity.deleteMany({ user: userId }),
+                    Budget.deleteMany({ user: userId }),
+                    Debt.deleteMany({ user: userId }),
+                    Goal.deleteMany({ user: userId }),
+                    Saving.deleteMany({ user: userId }),
+                    Transaction.deleteMany({ user: userId }),
+                    HealthLog.deleteMany({ user: userId })
+                ]);
+
+                // 2. Reset User progress and onboarding
+                user.exp = 0;
+                user.level = 0;
+                user.onboardingCompleted = false;
+                user.rpg = {
+                    stats: { str: 0, agi: 0, vit: 0, int: 0, wis: 0, luk: 0 },
+                    path: null,
+                    tier1: null,
+                    style: null,
+                    alignment: null,
+                    finalLabel: null,
+                    archetype: { name: 'None', tier: 1, stage: 'Unawakened' },
+                    pendingQuestions: ["1.0"],
+                    completedAnswers: [],
+                    dailyXP: { total: 0, byStat: { str: 0, agi: 0, vit: 0, int: 0, wis: 0, luk: 0 } },
+                    prodCoins: 0
+                };
                 user.markModified('rpg');
                 await user.save();
                 break;

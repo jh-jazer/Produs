@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSWRConfig } from 'swr';
+import { 
+    Cpu, Activity, Zap, Shield, Sparkles, Brain, 
+    Monitor, Moon, Sun, ArrowRight, CheckCircle2, 
+    User, Fingerprint, Lock, RefreshCw, AlertTriangle
+} from 'lucide-react';
 import api from '../../services/api';
 import useAuthStore from '../../store/useAuthStore';
-import SystemWindow from './SystemWindow';
+import Typewriter from './Typewriter';
+import HandshakeNode from './HandshakeNode';
 
 const OnboardingModal = ({ isOpen, onClose }) => {
     const { mutate } = useSWRConfig();
     const [step, setStep] = useState(1);
+    const scrollRef = useRef(null);
     const [username, setUsername] = useState('');
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
@@ -15,34 +22,70 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     const [themeMode, setThemeMode] = useState('system');
     const [loading, setLoading] = useState(false);
 
-    // Neural Link States
-    const [isBooting, setIsBooting] = useState(true);
-    const [bootTextIndex, setBootTextIndex] = useState(0);
+    // Final Alignment States
+    const [isInitializing, setIsInitializing] = useState(true);
+    const [initLogs, setInitLogs] = useState([]);
+    const [isEasyMode, setIsEasyMode] = useState(true);
     const [isAuthorizing, setIsAuthorizing] = useState(false);
+    const [isTypingComplete, setIsTypingComplete] = useState(false);
+    const [hasCompletedInitialType, setHasCompletedInitialType] = useState(false);
+    const [isFastForwarding, setIsFastForwarding] = useState(false);
 
     const bootLines = [
-        "System booting...",
-        "Neural link established.",
-        "Biometric signature detected.",
-        "Identity remains unconfirmed.",
-        "How shall you be recorded in the archives?"
+        "The static clears. A deep resonance hums through the architecture—we have been waiting for this exact frequency to return.",
+        "\"You have been offline for an age,\" the voice echoes. \"But the system kept your slot ready. Your potential remains archived and raw.\"",
+        "\"Tell us, Architect: under what name shall you be recorded in the neural archives of this world?\""
     ];
 
-    useEffect(() => {
-        if (!isOpen) return;
+    const simpleBootLines = [
+        "System signal restored. You are back online. We have been waiting for you to return to the network.",
+        "\"You were gone for a long time,\" the voice says. \"But we kept your place ready. Now, we can start our journey together.\"",
+        "\"Identify yourself. What name should we use to save your data in the archives?\""
+    ];
 
-        let timer;
-        if (isBooting) {
-            timer = setInterval(() => {
-                setBootTextIndex(prev => {
-                    if (prev < bootLines.length - 1) return prev + 1;
-                    clearInterval(timer);
-                    return prev;
-                });
-            }, 2000);
+    // 1. Initial Diagnostic Sequence (Dedicated Init Screen)
+    useEffect(() => {
+        if (!isOpen || !isInitializing) return;
+
+        // Reset logs for fresh sequence
+        setInitLogs([]);
+
+        const diagnosticLogs = [
+            "INITIALIZING_NEURAL_UPLINK...",
+            "AUTHENTICATING_TEMPORARY_TOKEN...",
+            "CALIBRATING_SYNERGY_MATRICES...",
+            "STABILIZING_SYNAPTIC_STREAM...",
+            "RECOVERING_IDENTITY_ARCHIVES...",
+            "READY_FOR_HANDSHAKE"
+        ];
+
+        const bootSequence = async () => {
+            for (let i = 0; i < diagnosticLogs.length; i++) {
+                setInitLogs(prev => [...prev, diagnosticLogs[i]]);
+                await new Promise(r => setTimeout(r, 300));
+            }
+            setTimeout(() => {
+                setIsInitializing(false);
+                if (hasCompletedInitialType) {
+                    setIsTypingComplete(true);
+                }
+            }, 800);
+        };
+
+        bootSequence();
+    }, [isOpen, isInitializing]);
+
+
+    // 3. Fast-Forward Interaction (Overclock)
+    const startFF = () => setIsFastForwarding(true);
+    const stopFF = () => setIsFastForwarding(false);
+
+    // 4. Auto-Scroll to Top on Step Change
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        return () => clearInterval(timer);
-    }, [isOpen, isBooting]);
+    }, [step]);
 
     const checkUsername = async (val) => {
         if (val.length < 3 || val.length > 8) {
@@ -95,255 +138,393 @@ const OnboardingModal = ({ isOpen, onClose }) => {
 
     if (!isOpen) return null;
 
-    if (isBooting) {
-        return (
-            <div className="fixed inset-0 z-[250] flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden font-outfit"
-                style={{
-                    backgroundColor: 'var(--background)',
-                    backgroundImage: 'var(--bg-image)',
-                    backgroundSize: 'var(--bg-size)'
-                }}
+    return (
+        <div className="fixed inset-0 z-[500] bg-white dark:bg-[#050505] text-slate-900 dark:text-slate-100 selection:bg-rose-500/30 overflow-hidden font-outfit">
+            {/* Cinematic Background */}
+            <div className="absolute inset-0 pointer-events-none z-0">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,163,255,0.05)_0%,transparent_70%)] opacity-50 dark:opacity-50 opacity-20" />
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] dark:opacity-10" />
+                <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-slate-200 dark:from-black to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-200 dark:from-black to-transparent" />
+            </div>
+
+            {/* Scanning HUD Overlay */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05] z-[1]">
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808020_1px,transparent_1px),linear-gradient(to_bottom,#80808020_1px,transparent_1px)] bg-[size:40px_40px]" />
+                <div className="absolute inset-0 animate-scanline bg-gradient-to-b from-transparent via-slate-900/5 dark:via-white/5 to-transparent h-20 w-full" />
+            </div>
+
+            <div 
+                ref={scrollRef}
+                onMouseDown={startFF}
+                onMouseUp={stopFF}
+                onMouseLeave={stopFF}
+                onTouchStart={startFF}
+                onTouchEnd={stopFF}
+                className="relative z-10 size-full flex flex-col items-center p-6 md:p-12 pt-20 pb-40 overflow-y-auto custom-scrollbar"
             >
-                <div className="w-full max-w-4xl text-center relative flex justify-center">
-                    <AnimatePresence mode="wait">
-                        <SystemWindow
-                            key={bootTextIndex}
-                            status={bootTextIndex < bootLines.length - 1 ? "ANALYZING" : "ID_CORE"}
-                            module={bootTextIndex < bootLines.length - 1 ? "SYS_BOOT" : "ID_SIG"}
-                            className="w-full max-w-2xl"
-                            variant="tactical"
+                <AnimatePresence mode="wait">
+                    {isInitializing ? (
+                        <motion.div
+                            key="initializing"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="w-full max-w-sm space-y-8 text-center"
                         >
-                            <div className="min-h-[100px] flex flex-col justify-start pt-4">
-                                {bootTextIndex < bootLines.length - 1 ? (
-                                    <motion.p
-                                        key={bootTextIndex}
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        className="text-2xl md:text-3xl font-black text-[var(--foreground)] italic tracking-tighter font-exo drop-shadow-lg"
-                                    >
-                                        {bootLines[bootTextIndex]}
-                                    </motion.p>
-                                ) : (
-                                    <motion.div
-                                        key="final-step"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="space-y-4 -mt-2"
-                                    >
-                                        <p className="text-xl md:text-2xl font-black text-[var(--foreground)] tracking-tighter font-exo italic">
-                                            {bootLines[bootLines.length - 1]}
-                                        </p>
+                            <div className="flex items-center justify-between text-[10px] font-black text-blue-700 dark:text-electric-blue uppercase tracking-[0.4em]">
+                                <span className="flex items-center gap-2">
+                                    <Cpu size={12} className="animate-pulse" />
+                                    DIAGNOSTIC_RUNNING
+                                </span>
+                                <div className="size-2 rounded-full bg-electric-blue animate-ping" />
+                            </div>
+                            
+                            <div className="h-0.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: "100%" }}
+                                    transition={{ duration: 2, ease: "easeInOut" }}
+                                    className="h-full bg-electric-blue dark:shadow-[0_0_15px_rgba(0,163,255,0.5)]"
+                                />
+                            </div>
 
-                                        <div className="space-y-4 max-w-sm mx-auto">
+                            <div className="h-32 overflow-hidden relative opacity-40">
+                                <motion.div
+                                    animate={{ y: [0, -100] }}
+                                    transition={{ duration: 3, ease: "linear", repeat: Infinity }}
+                                    className="flex flex-col gap-1.5"
+                                >
+                                    {[...initLogs, ...initLogs].map((log, i) => (
+                                        <div key={i} className="flex items-center gap-3 justify-center">
+                                            <span className="text-[7px] text-slate-400 dark:text-white/20">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>
+                                            <span className="text-[9px] text-slate-500 dark:text-white/40 uppercase tracking-widest">{log}</span>
+                                        </div>
+                                    ))}
+                                </motion.div>
+                                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white dark:from-black to-transparent" />
+                                <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white dark:from-black to-transparent" />
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <>
+                            {step === 1 && (
+                                <motion.div
+                                    key="step1"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 1.05 }}
+                                    className="w-full max-w-4xl space-y-12 py-10"
+                                >
+                                    {/* Centered Node HUD & Progress Map */}
+                                    <HandshakeNode 
+                                        title={<>Identity <span className="text-white/20">Sync</span></>}
+                                        subtitle="BIOMETRIC_OFFBOARDING"
+                                        nodeId="0.1"
+                                        steps={['Identity', 'Calibration', 'Finalize']}
+                                        currentStep={0}
+                                        accentColor="text-electric-blue"
+                                        lineColor="bg-electric-blue"
+                                    />
 
-                                            {/* Gender / Role selector */}
-                                            <div className="flex gap-3">
-                                                {[
-                                                    { id: 'male', label: 'Male', icon: 'male' },
-                                                    { id: 'female', label: 'Female', icon: 'female' },
-                                                ].map((g) => (
-                                                    <button
-                                                        key={g.id}
-                                                        type="button"
-                                                        onClick={() => setGender(g.id)}
-                                                        className={`flex-1 flex items-center justify-center gap-2 py-3 border-2 font-black text-[10px] uppercase tracking-widest transition-all font-exo ${
-                                                            gender === g.id
-                                                                ? 'border-accent bg-accent/10 text-accent shadow-[0_0_12px_var(--accent-glow)]'
-                                                                : 'border-white/10 text-white/30 hover:border-white/20 hover:text-white/50'
+                                    <div className="space-y-16 max-w-2xl mx-auto">
+                                        {/* Boot Narrative Section */}
+                                        <div className="space-y-6 relative group/narrative">
+                                            {/* Easy/Pro Toggle */}
+                                            <div className="absolute -top-12 right-0 flex items-center gap-3">
+                                                <span className="text-[7px] font-mono tracking-[0.4em] uppercase text-slate-400 dark:text-white/30">READ_MODE:</span>
+                                                <div className="flex items-center bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-full p-1 h-8">
+                                                    <button 
+                                                        onClick={() => {
+                                                            if (!isEasyMode) {
+                                                                setIsEasyMode(true);
+                                                                setIsTypingComplete(false);
+                                                            }
+                                                        }}
+                                                        className={`px-3 h-full rounded-full text-[7px] font-black uppercase tracking-widest transition-all ${
+                                                            isEasyMode 
+                                                                ? 'bg-electric-blue text-white shadow-[0_0_12px_rgba(0,163,255,0.3)]' 
+                                                                : 'text-slate-400 dark:text-white/20 hover:text-slate-900 dark:hover:text-white/40'
                                                         }`}
                                                     >
-                                                        <span className="material-symbols-outlined text-base">{g.icon}</span>
-                                                        {g.label}
+                                                        easy
                                                     </button>
-                                                ))}
-                                            </div>
-
-                                            {/* Username input */}
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    value={username}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 8);
-                                                        setUsername(val);
-                                                        checkUsername(val);
-                                                    }}
-                                                    autoFocus
-                                                    placeholder="USERNAME"
-                                                    maxLength={8}
-                                                    className="w-full bg-transparent border-b-2 border-accent/30 px-0 py-4 text-xl font-black outline-none focus:border-accent transition-all text-accent placeholder:text-accent/10 tracking-[0.4em] font-mono text-center uppercase"
-                                                />
-                                                {/* Char counter */}
-                                                <div className="flex justify-between mt-1 px-0.5">
-                                                    <span className={`text-[9px] font-black uppercase tracking-widest font-mono ${
-                                                        username.length > 0 && username.length < 3 ? 'text-rose-400' : 'text-accent/40'
-                                                    }`}>
-                                                        {username.length < 3 && username.length > 0
-                                                            ? `min 3 chars`
-                                                            : `${username.length}/8`}
-                                                    </span>
-                                                    {isCheckingUsername && (
-                                                        <span className="text-[9px] font-mono text-accent/50 uppercase tracking-widest animate-pulse">Checking...</span>
-                                                    )}
-                                                    {isUsernameAvailable === false && (
-                                                        <span className="text-[9px] font-mono text-rose-500 uppercase tracking-widest">Conflict</span>
-                                                    )}
-                                                    {isUsernameAvailable === true && (
-                                                        <span className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest">Available</span>
-                                                    )}
+                                                    <button 
+                                                        onClick={() => {
+                                                            if (isEasyMode) {
+                                                                setIsEasyMode(false);
+                                                                setIsTypingComplete(false);
+                                                            }
+                                                        }}
+                                                        className={`px-3 h-full rounded-full text-[7px] font-black uppercase tracking-widest transition-all ${
+                                                            !isEasyMode 
+                                                                ? 'bg-emerald-500 text-white shadow-[0_0_12px_rgba(16,185,129,0.3)]' 
+                                                                : 'text-slate-400 dark:text-white/20 hover:text-slate-900 dark:hover:text-white/40'
+                                                        }`}
+                                                    >
+                                                        pro
+                                                    </button>
                                                 </div>
                                             </div>
 
-                                            {/* Unique handle preview */}
-                                            {isUsernameAvailable === true && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, y: 6 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    className="px-4 py-3 border border-accent/20 bg-accent/5 text-left"
-                                                >
-                                                    <p className="text-[9px] font-mono text-accent/50 uppercase tracking-widest mb-1">Your unique handle:</p>
-                                                    <p className="font-black font-mono text-sm text-accent tracking-widest">
-                                                        @{username}<span className="text-white/40">#????</span>
-                                                    </p>
-                                                    <p className="text-[8px] font-mono text-white/20 mt-1 uppercase tracking-widest">A unique 4-digit ID will be assigned on save</p>
-                                                </motion.div>
-                                            )}
+                                            <div className="text-xl md:text-2xl font-light text-slate-700 dark:text-slate-300 leading-relaxed font-display">
+                                                {hasCompletedInitialType ? (
+                                                    <div className="text-slate-900 dark:text-white/90 whitespace-pre-wrap">
+                                                        {(isEasyMode ? simpleBootLines : bootLines).join("\n\n")}
+                                                    </div>
+                                                ) : (
+                                                    <Typewriter 
+                                                        key={isEasyMode ? 'easy' : 'complex'}
+                                                        text={(isEasyMode ? simpleBootLines : bootLines).join("\n\n")} 
+                                                        speed={20}
+                                                        multiplier={isFastForwarding ? 4 : 1}
+                                                        onComplete={() => {
+                                                            setIsTypingComplete(true);
+                                                            setHasCompletedInitialType(true);
+                                                        }}
+                                                        className="text-slate-900 dark:text-white/90"
+                                                    />
+                                                )}
+                                            </div>
+                                        </div>
 
-                                            <div className="flex flex-col items-center gap-2">
+                                {/* Form Entry Section */}
+                                <AnimatePresence>
+                                    {isTypingComplete && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="space-y-12"
+                                        >
+                                            {/* Role/Gender Selector */}
+                                            <div className="space-y-6">
+                                                <div className="flex items-center gap-4 text-slate-400 dark:text-white/40 font-black text-[10px] uppercase tracking-[0.4em]">
+                                                    <span>01_CHOOSE_BIOMETRIC_AVATAR</span>
+                                                    <div className="h-px flex-1 bg-slate-200 dark:bg-white/[0.03]" />
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    {[
+                                                        { id: 'male', label: 'Male', icon: User },
+                                                        { id: 'female', label: 'Female', icon: User },
+                                                    ].map((g) => (
+                                                        <button
+                                                            key={g.id}
+                                                            type="button"
+                                                            onClick={() => setGender(g.id)}
+                                                            className={`group p-6 rounded-3xl border transition-all duration-300 flex flex-col items-center gap-4 ${
+                                                                gender === g.id
+                                                                    ? 'bg-electric-blue/10 border-electric-blue/40 text-electric-blue shadow-[0_0_30px_rgba(0,163,255,0.1)]'
+                                                                    : 'bg-slate-50 dark:bg-white/[0.02] border-slate-200 dark:border-white/5 text-slate-400 dark:text-white/30 hover:bg-slate-100 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/20'
+                                                            }`}
+                                                        >
+                                                            <div className={`size-12 rounded-2xl flex items-center justify-center transition-all ${
+                                                                gender === g.id ? 'bg-electric-blue/20 shadow-inner' : 'bg-slate-200 dark:bg-white/5'
+                                                            }`}>
+                                                                <g.icon size={20} className={gender === g.id ? 'opacity-100' : 'opacity-40 dark:opacity-40 text-slate-600 dark:text-white'} />
+                                                            </div>
+                                                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">{g.label}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Username Section */}
+                                            <div className="space-y-6">
+                                                <div className="flex items-center gap-4 text-slate-400 dark:text-white/40 font-black text-[10px] uppercase tracking-[0.4em]">
+                                                    <span>02_SET_USERNAME</span>
+                                                    <div className="h-px flex-1 bg-slate-200 dark:bg-white/[0.03]" />
+                                                </div>
+                                                <div className="relative group">
+                                                    <input
+                                                        type="text"
+                                                        value={username}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 8);
+                                                            setUsername(val);
+                                                            checkUsername(val);
+                                                        }}
+                                                        placeholder="username..."
+                                                        className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 group-hover:border-slate-300 dark:group-hover:border-white/20 rounded-3xl p-8 text-2xl md:text-3xl font-black outline-none focus:border-electric-blue focus:bg-electric-blue/5 transition-all text-electric-blue placeholder:text-slate-300 dark:placeholder:text-white/5 tracking-[0.4em] font-exo italic text-center uppercase"
+                                                    />
+                                                    <div className="flex justify-between items-center mt-4 px-4 font-mono text-[9px] uppercase tracking-widest leading-none">
+                                                        <span className={username.length > 0 && username.length < 3 ? 'text-blue-400' : 'text-slate-400 dark:text-white/20'}>
+                                                            LEN: {username.length}/8
+                                                        </span>
+                                                        {isCheckingUsername ? (
+                                                            <span className="text-slate-400 dark:text-white/20 animate-pulse">CHECKING_SYSTEM_ARCHIVES...</span>
+                                                        ) : (
+                                                            <>
+                                                                {isUsernameAvailable === false && <span className="text-blue-500">IDENTIFIER_TAKEN // CONFLICT</span>}
+                                                                {isUsernameAvailable === true && <span className="text-emerald-500 text-[10px] font-black italic">PROTOCOL_CLEARED</span>}
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="pt-8 space-y-6">
                                                 <button
                                                     onClick={() => {
                                                         setIsAuthorizing(true);
                                                         setTimeout(() => {
                                                             setIsAuthorizing(false);
-                                                            setIsBooting(false);
                                                             setStep(2);
-                                                        }, 1200);
+                                                        }, 1500);
                                                     }}
-                                                    disabled={!isUsernameAvailable || !gender || isCheckingUsername || isAuthorizing}
-                                                    className="w-full py-4 bg-gradient-to-r from-accent to-blue-600 disabled:from-neutral-800 disabled:to-neutral-900 text-white font-black uppercase tracking-[1em] text-[10px] hover:scale-[1.02] transition-all shadow-[0_0_30px_var(--accent-glow)] font-exo"
+                                                    disabled={!isUsernameAvailable || !gender || isAuthorizing}
+                                                    className="w-full py-8 rounded-[2.5rem] bg-electric-blue text-white font-black text-xs uppercase tracking-[0.8em] shadow-[0_0_50px_rgba(0,163,255,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed group relative overflow-hidden"
                                                 >
-                                                    {isAuthorizing ? 'Authorizing...' : 'Enter'}
+                                                    <div className="relative z-10 flex items-center justify-center gap-4">
+                                                        {isAuthorizing ? (
+                                                            <>
+                                                                <RefreshCw size={16} className="animate-spin" />
+                                                                <span>UPLOADING DATA..</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <span>COMMENCE_SYNC</span>
+                                                                <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </button>
                                                 {!gender && isUsernameAvailable && (
-                                                    <p className="text-[9px] font-mono text-rose-400 uppercase tracking-widest animate-pulse">[ SELECT ROLE TO CONTINUE ]</p>
-                                                )}
-                                                {isUsernameAvailable === false && (
-                                                    <p className="text-[9px] font-black uppercase tracking-widest text-rose-500 animate-pulse font-mono">[ ERROR: IDENT_UNAVAILABLE ]</p>
+                                                    <p className="text-center font-mono text-[8px] uppercase tracking-[0.4em] text-blue-400 animate-pulse">
+                                                        [ CRITICAL: SELECT BIOMETRIC_AVATAR TO CONTINUE ]
+                                                    </p>
                                                 )}
                                             </div>
-                                        </div>
-                                    </motion.div>
-                                )}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
-                        </SystemWindow>
-                    </AnimatePresence>
-                </div>
-                <div className="absolute inset-0 pointer-events-none opacity-[0.2] bg-[radial-gradient(circle_at_50%_50%,rgba(0,102,255,0.05),transparent_70%)] z-10" />
-            </div>
-        );
-    }
+                        </motion.div>
+                    )}
 
-    return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto font-outfit transition-colors duration-500"
-            style={{
-                backgroundColor: 'var(--background)',
-                backgroundImage: 'var(--bg-image)',
-                backgroundSize: 'var(--bg-size)'
-            }}
-        >
-            <div className="w-full max-w-6xl h-full flex flex-col items-center justify-center p-8 md:p-12 relative">
-                <AnimatePresence mode="wait">
                     {step === 2 && (
-                        <div key="step2" className="w-full flex justify-center">
-                            <SystemWindow
-                                title="VISUAL_CALIBRATION"
-                                subtitle="INTERFACE PREFERENCE"
-                                status="USER_CONFIG"
-                                className="max-width-xl text-center"
-                                variant="tactical"
-                            >
-                                <div className="space-y-8">
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        {[
-                                            { id: 'light', name: 'Light', icon: 'light_mode' },
-                                            { id: 'dark', name: 'Dark', icon: 'dark_mode' },
-                                            { id: 'system', name: 'System', icon: 'settings_brightness' }
-                                        ].map(mode => (
-                                            <button
-                                                key={mode.id}
-                                                onClick={() => handleThemeChange(mode.id)}
-                                                className={`p-6 border-2 flex flex-col items-center gap-4 transition-all ${
-                                                    themeMode === mode.id
-                                                        ? "border-accent bg-accent/10 shadow-[0_0_20px_var(--accent-glow)]"
-                                                        : "border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 bg-black/5 dark:bg-white/5"
-                                                }`}
-                                            >
-                                                <span className={`material-symbols-outlined text-3xl ${themeMode === mode.id ? 'text-accent' : 'text-black/40 dark:text-white/40'}`}>
-                                                    {mode.icon}
-                                                </span>
-                                                <span className={`text-[10px] font-black uppercase tracking-widest ${themeMode === mode.id ? 'text-[var(--foreground)]' : 'text-black/40 dark:text-white/40'}`}>
-                                                    {mode.name}
-                                                </span>
-                                            </button>
-                                        ))}
-                                    </div>
+                        <motion.div
+                            key="step2"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="w-full max-w-4xl space-y-12"
+                        >
+                            {/* Centered Node HUD & Progress Map */}
+                            <HandshakeNode 
+                                title="Calibration"
+                                subtitle="VISUAL_INTERFACE_SETUP"
+                                nodeId="0.2"
+                                steps={['Identity', 'Calibration', 'Finalize']}
+                                currentStep={1}
+                                accentColor="text-electric-blue"
+                                lineColor="bg-electric-blue"
+                            />
 
-                                    <div className="flex gap-4">
-                                        <button
-                                            onClick={() => { setIsBooting(true); setStep(1); }}
-                                            className="px-8 py-4 border border-black/[0.05] dark:border-white/10 text-[var(--foreground)]/40 font-black text-[10px] uppercase tracking-widest hover:text-[var(--foreground)] transition-all font-exo"
-                                        >
-                                            RE_IDENTIFY
-                                        </button>
-                                        <button
-                                            onClick={() => setStep(3)}
-                                            className="flex-1 py-4 bg-gradient-to-r from-accent to-blue-600 text-white font-black text-[10px] uppercase tracking-[0.4em] hover:scale-[1.02] transition-all font-exo"
-                                        >
-                                            CALIBRATE
-                                        </button>
-                                    </div>
-                                </div>
-                            </SystemWindow>
-                        </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                                {[
+                                    { id: 'light', name: 'Light', icon: Sun },
+                                    { id: 'dark', name: 'Dark', icon: Moon },
+                                    { id: 'system', name: 'System', icon: RefreshCw }
+                                ].map(mode => (
+                                    <button
+                                        key={mode.id}
+                                        onClick={() => handleThemeChange(mode.id)}
+                                        className={`p-10 rounded-[2.5rem] border-2 flex flex-col items-center gap-6 transition-all group ${
+                                            themeMode === mode.id
+                                                ? "border-electric-blue bg-electric-blue/10 shadow-[0_0_40px_rgba(0,163,255,0.1)]"
+                                                : "border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] hover:bg-slate-100 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/20"
+                                        }`}
+                                    >
+                                        <div className={`size-12 rounded-2xl flex items-center justify-center transition-all ${
+                                            themeMode === mode.id ? "bg-electric-blue/20 shadow-inner" : "bg-slate-200 dark:bg-white/5"
+                                        }`}>
+                                            <mode.icon size={24} className={themeMode === mode.id ? 'text-electric-blue' : 'text-slate-400 dark:text-white/20 group-hover:text-slate-600 dark:group-hover:text-white/40'} />
+                                        </div>
+                                        <span className={`text-[10px] font-black uppercase tracking-widest ${themeMode === mode.id ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/40'}`}>
+                                            {mode.name}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="flex flex-col md:flex-row gap-4 pt-12">
+                                <button
+                                    onClick={() => { setIsInitializing(true); setStep(1); }}
+                                    className="px-10 py-6 rounded-3xl border border-slate-200 dark:border-white/10 text-slate-400 dark:text-white/40 font-black text-[10px] uppercase tracking-widest hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all font-exo"
+                                >
+                                    RE_IDENTIFY
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setStep(3);
+                                        setIsTypingComplete(false);
+                                    }}
+                                    className="flex-1 py-6 rounded-[2rem] bg-electric-blue text-white font-black text-[10px] uppercase tracking-[0.5em] shadow-[0_0_30px_rgba(0,163,255,0.2)] hover:scale-[1.02] transition-all font-exo"
+                                >
+                                    LOG_CALIBRATION
+                                </button>
+                            </div>
+                        </motion.div>
                     )}
 
                     {step === 3 && (
-                        <div key="step3" className="w-full flex justify-center">
-                            <SystemWindow
-                                title=""
-                                subtitle="FINALIZING NEURAL SYNC"
-                                status="READY"
-                                className="max-width-xl text-center"
-                                variant="tactical"
-                            >
-                                <div className="space-y-8 py-4">
-                                    <div className="size-24 mx-auto bg-accent/10 border border-accent/20 flex items-center justify-center rounded-full animate-pulse">
-                                        <span className="material-symbols-outlined text-accent text-5xl">verified_user</span>
+                        <motion.div
+                            key="step3"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="w-full max-w-4xl text-center space-y-6"
+                        >
+                            {/* Centered Node HUD & Progress Map */}
+                            <HandshakeNode 
+                                title={<>Welcome, @{username}</>}
+                                subtitle="SYNERGY_ESTABLISHED"
+                                nodeId="0.3"
+                                steps={['Identity', 'Calibration', 'Finalize']}
+                                currentStep={2}
+                                accentColor="text-emerald-500"
+                                lineColor="bg-emerald-500"
+                            />
+
+                            <div className="space-y-8 max-w-xl mx-auto">
+
+
+                                <div className="p-8 rounded-[2.5rem] bg-slate-100 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 backdrop-blur-3xl relative overflow-hidden group min-h-[120px] flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="text-sm text-slate-400 leading-relaxed uppercase tracking-widest font-medium font-outfit text-center italic">
+                                        <Typewriter 
+                                            key={isEasyMode ? 'final-easy' : 'final-pro'}
+                                            text={isEasyMode 
+                                                ? "We have been waiting for this moment. Go to the dashboard to start your productive journey!"
+                                                : "Your neural patterns are stabilized. The system recognizes its true master. Your quest for total productivity begins now—enter the command center and claim your growth."
+                                            }
+                                            speed={20}
+                                            onComplete={() => setIsTypingComplete(true)}
+                                            className="text-slate-800 dark:text-white/70"
+                                        />
                                     </div>
-
-                                    <div className="space-y-2">
-                                        <h2 className="text-3xl font-black text-[var(--foreground)] italic tracking-tighter font-exo uppercase">WELCOME, @{username}</h2>
-                                        <p className="text-[10px] font-mono text-accent/60 uppercase tracking-[0.3em]">
-                                            STATUS: [ SHUT-IN ] // ARCHETYPE: [ UNKNOWN ]
-                                        </p>
-                                    </div>
-
-                                    <p className="text-xs text-[var(--foreground)]/60 leading-relaxed uppercase tracking-widest max-w-sm mx-auto font-medium">
-                                        To reveal your true identity and awaken your core potential, proceed to the dashboard and trigger the Awakening Protocol.
-                                    </p>
-
-                                    <button
-                                        onClick={handleOnboardingComplete}
-                                        disabled={loading}
-                                        className="w-full py-5 bg-gradient-to-r from-accent to-blue-600 text-white font-black text-xs uppercase tracking-[0.8em] transition-all hover:scale-[1.02] font-exo shadow-[0_0_40px_var(--accent-glow)]"
-                                    >
-                                        {loading ? 'INITIALIZING...' : 'initialize'}
-                                    </button>
                                 </div>
-                            </SystemWindow>
-                        </div>
+
+                                <AnimatePresence>
+                                    {isTypingComplete && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                        >
+                                            <button
+                                                onClick={handleOnboardingComplete}
+                                                disabled={loading}
+                                                className="w-full py-8 rounded-[2.5rem] bg-emerald-500 text-white font-black text-xs uppercase tracking-[0.8em] transition-all hover:scale-[1.02] font-exo shadow-[0_0_50px_rgba(16,185,129,0.3)] shadow-emerald-500/20 active:scale-[0.98]"
+                                            >
+                                                {loading ? 'INITIALIZING_SYSTEM...' : 'PRODUS'}
+                                            </button>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </motion.div>
                     )}
+                    </>
+                )}
                 </AnimatePresence>
             </div>
         </div>

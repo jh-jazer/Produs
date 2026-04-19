@@ -70,7 +70,7 @@ const FeaturedGoals = ({ onHabitAdded }) => {
                 subtitle="Featured Goals"
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <AnimatePresence mode="popLayout">
+                    <AnimatePresence mode="sync">
                         {/* Display Joined Challenges (Max 2) */}
                         {joinedChallenges.slice(0, 2).map((challenge, index) => (
                             <motion.div
@@ -103,8 +103,10 @@ const FeaturedGoals = ({ onHabitAdded }) => {
                         {/* Plus Slot (Show if < 2 joined) */}
                         {joinedChallenges.length < 2 && (
                             <motion.button
+                                key="add-slot"
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
                                 onClick={() => setIsDiscoveryOpen(true)}
                                 className="h-40 rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-white/10 hover:border-primary/40 hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-3 group relative overflow-hidden"
                             >

@@ -1,61 +1,29 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import api from '../services/api';
-import { Zap, Shield, Database, Cpu, Activity, LogOut, ChevronDown, AlertTriangle, RefreshCw, Brain, Sword, Heart, Sparkles, Target, Dna, TrendingUp } from 'lucide-react';
+import { Activity, Cpu, Database } from 'lucide-react';
+import Typewriter from '../components/ui/Typewriter';
+
+// Modular Components
+import DiagnosticLoader from '../components/rpg/neural-sync/DiagnosticLoader';
+import HandshakeLoading from '../components/rpg/neural-sync/HandshakeLoading';
+import HandshakeResult from '../components/rpg/neural-sync/HandshakeResult';
+import SyncSuccessView from '../components/rpg/neural-sync/SyncSuccessView';
+import SyncErrorView from '../components/rpg/neural-sync/SyncErrorView';
+
 
 /**
- * Typewriter Component - Animates text character by character for cinematic feel.
+ * Removed local Typewriter - using shared component from ui/
  */
-const Typewriter = ({ text, speed = 25, onComplete, multiplier = 1 }) => {
-    const [displayedText, setDisplayedText] = useState("");
-    const [isComplete, setIsComplete] = useState(false);
-    const speedRef = useRef(speed / multiplier);
-
-    // Sync ref with current speed/multiplier
-    useEffect(() => {
-        speedRef.current = Math.max(2, speed / multiplier);
-    }, [speed, multiplier]);
-
-    useEffect(() => {
-        setDisplayedText("");
-        setIsComplete(false);
-        let i = 0;
-        let timeoutId;
-
-        const type = () => {
-            if (i < text.length) {
-                setDisplayedText(text.slice(0, i + 1));
-                i++;
-                timeoutId = setTimeout(type, speedRef.current);
-            } else {
-                setIsComplete(true);
-                if (onComplete) onComplete();
-            }
-        };
-
-        timeoutId = setTimeout(type, speedRef.current);
-        return () => clearTimeout(timeoutId);
-    }, [text]); // ONLY restart when text content changes
-
-    return (
-        <span className="leading-relaxed whitespace-pre-wrap">
-            {displayedText}
-            {!isComplete && (
-                <motion.span
-                    animate={{ opacity: [0, 1, 0] }}
-                    transition={{ duration: 0.8, repeat: Infinity }}
-                    className="inline-block w-1 h-4 ml-1 bg-electric-blue align-middle"
-                />
-            )}
-        </span>
-    );
-};
 
 const NeuralSyncPage = () => {
     const { user, syncUser, setNeuralSyncDismissed } = useAuthStore();
+
     const navigate = useNavigate();
+    const location = useLocation();
+
     
     // Refs (Top Level)
     const scrollContainerRef = useRef(null);
@@ -85,58 +53,99 @@ const NeuralSyncPage = () => {
     const [isFastForwarding, setIsFastForwarding] = useState(false);
     const lastScrollY = useRef(0);
     const hasScrolledToBottomRef = useRef(false);
+    const hasBootedRef = useRef(false);
 
     // 1. Initial Diagnostic Boot Sequence & History Retrieval
     useEffect(() => {
+        if (hasBootedRef.current) return;
+        hasBootedRef.current = true;
         const diagnosticLogs = [
             "INITIALIZING_UPLINK...",
             "AUTHENTICATING_USER_ID: " + user?._id?.slice(-8),
             "CALIBRATING_NEURAL_FREQUENCY...",
             "STABILIZING_SYNAPTIC_STREAM...",
             "MAPPING_DASHBOARD_VECTORS...",
-            "RECOVERING_NEURAL_ARCHIVES...",
             "READY_FOR_SYNCHRONIZATION"
         ];
+
+        const addLog = (text) => {
+            setLogs(prev => [...prev, { text, timestamp: new Date().toLocaleTimeString() }]);
+        };
 
         const bootSequence = async () => {
             // Speed diagnostic logs
             for (let i = 0; i < diagnosticLogs.length; i++) {
-                setLogs(prev => [...prev, diagnosticLogs[i]]);
+                addLog(diagnosticLogs[i]);
                 await new Promise(r => setTimeout(r, 200));
             }
 
-            // Fetch History to enable the 'Previous' button
+            // --- IMMEDIATE INITIALIZATION ---
+            if (!user?.rpg?.path) {
+                try {
+                    addLog("INITIALIZING_BACKEND_SESSION...");
+                    const { data } = await api.post('/rpg/initiate-awakening');
+                    syncUser(data.rpg);
+                    addLog("SESSION_ESTABLISHED");
+                } catch (err) {
+                    console.error("Backend initialization failed", err);
+                    addLog("ERROR: SESSION_FAILURE");
+                }
+            }
+
+            // Fetch History
+            let historicalNodes = [];
             try {
+                addLog("RECOVERING_NEURAL_ARCHIVES...");
                 const { data: history } = await api.get('/rpg/narrative-history');
-                const historicalNodes = history.map(h => ({
+                historicalNodes = history.map(h => ({
                     questionId: h.questionId,
                     story: h.story,
                     question: h.question,
-                    options: h.options || [], // Ensure options exist for lookup
+                    options: h.options || [], 
                     section: h.section
                 }));
-                if (historicalNodes.length > 0) {
-                    setSessionHistory(historicalNodes);
-                    setHistoryIndex(historicalNodes.length - 1);
-                }
             } catch (err) {
                 console.warn("Failed to recover narrative archives", err);
             }
 
-            setIsInitializing(false);
+            // --- CRITICAL: FETCH FIRST QUESTION BEFORE ENDING INITIALIZATION ---
+            // Re-check user state after potential syncUser
+            const currentUser = useAuthStore.getState().user;
+            if (currentUser?.rpg?.pendingQuestions?.length > 0) {
+                const qId = currentUser.rpg.pendingQuestions[0];
+                const alreadyFetched = historicalNodes.find(q => String(q.questionId) === String(qId));
+                
+                if (!alreadyFetched) {
+                    try {
+                        addLog("FETCHING_INITIAL_QUERY...");
+                        const { data } = await api.get(`/rpg/narrative/${qId}`);
+                        historicalNodes = [...historicalNodes, data];
+                    } catch (error) {
+                        console.error("Failed to fetch first narrative question", error);
+                    }
+                }
+            }
+
+            // Final State Sync
+            if (historicalNodes.length > 0) {
+                setSessionHistory(historicalNodes);
+                setHistoryIndex(historicalNodes.length - 1);
+            }
+
+            addLog("BOOT_COMPLETE // SYSTEM_READY");
+            setTimeout(() => setIsInitializing(false), 800);
         };
 
         bootSequence();
-    }, [user?._id]);
+    }, [user?._id, user?.rpg?.pendingQuestions]);
 
-    // 2. Load Question Data & Update History
+    // 2. Continuous Sync (for subsequent questions)
     useEffect(() => {
-        if (!isInitializing && user?.rpg?.pendingQuestions?.length > 0) {
-            const fetchQuestion = async () => {
+        if (!isInitializing && user?.rpg?.pendingQuestions?.length > 0 && !successData) {
+            const fetchNextQuestion = async () => {
                 const qId = user.rpg.pendingQuestions[0];
-                
-                // --- OPTIMIZATION: Avoid fetching if already in history (from pre-fetch) ---
                 const existsInHistory = sessionHistory.find(q => String(q.questionId) === String(qId));
+                
                 if (existsInHistory) {
                     const idx = sessionHistory.findIndex(q => String(q.questionId) === String(qId));
                     if (historyIndex !== idx) setHistoryIndex(idx);
@@ -146,29 +155,37 @@ const NeuralSyncPage = () => {
 
                 try {
                     const { data } = await api.get(`/rpg/narrative/${qId}`);
-                    
                     setSessionHistory(prev => {
                         const exists = prev.find(q => q.questionId === data.questionId);
                         if (!exists) {
                             const newHistory = [...prev, data];
                             setHistoryIndex(newHistory.length - 1);
-                            setIsTransitioning(false); // Clear transition when ready
+                            setIsTransitioning(false);
                             return newHistory;
                         }
                         return prev;
                     });
-                    
                     setIsTypingComplete(false);
                 } catch (error) {
                     console.error("Failed to fetch narrative question", error);
                     navigate('/dashboard');
                 }
             };
-            fetchQuestion();
-        } else if (!isInitializing && !user?.rpg?.pendingQuestions?.length && !successData) {
-            navigate('/dashboard');
+            fetchNextQuestion();
+        } else if (!isInitializing && !user?.rpg?.pendingQuestions?.length && !successData && !handshakeComplete) {
+            const hasAnyProgress = (user?.rpg?.completedAnswers?.length ?? 0) > 0;
+            if (hasAnyProgress) {
+                navigate('/dashboard');
+            } else {
+                const redirectTimer = setTimeout(() => {
+                    if (!useAuthStore.getState().user?.rpg?.pendingQuestions?.length) {
+                        navigate('/dashboard');
+                    }
+                }, 3000); 
+                return () => clearTimeout(redirectTimer);
+            }
         }
-    }, [isInitializing, user?.rpg?.pendingQuestions, navigate, successData]);
+    }, [isInitializing, user?.rpg?.pendingQuestions, navigate, successData, handshakeComplete, sessionHistory, historyIndex]);
 
     const currentQuestion = sessionHistory[historyIndex];
     const archivedAnswer = user?.rpg?.completedAnswers?.find(ans => ans.id === currentQuestion?.questionId);
@@ -329,7 +346,8 @@ const NeuralSyncPage = () => {
     const handleRecalibrate = async () => {
         try {
             await api.post('/rpg/initiate-awakening');
-            window.location.reload();
+            // Hard refresh removed - letting state re-sync naturally via navigation
+            navigate('/dashboard'); 
         } catch (err) {
             console.error("Failed to recalibrate", err);
         }
@@ -434,49 +452,11 @@ const NeuralSyncPage = () => {
     };
 
     if (isInitializing) {
-        return (
-            <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-[500] font-mono">
-                <div className="w-80 space-y-6">
-                    <div className="flex items-center justify-between text-[10px] font-black text-electric-blue uppercase tracking-[0.4em]">
-                        <span className="flex items-center gap-2">
-                            <Cpu size={12} className="animate-pulse" />
-                            DIAGNOSTIC_RUNNING
-                        </span>
-                        <div className="size-2 rounded-full bg-electric-blue animate-ping" />
-                    </div>
-                    
-                    <div className="h-0.5 w-full bg-white/5 rounded-full overflow-hidden">
-                        <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: "100%" }}
-                            transition={{ duration: 2, ease: "easeInOut" }}
-                            className="h-full bg-electric-blue shadow-[0_0_15px_rgba(0,163,255,0.5)]"
-                        />
-                    </div>
-
-                    <div className="h-32 overflow-hidden relative">
-                        <motion.div
-                            animate={{ y: [0, -100] }}
-                            transition={{ duration: 2, ease: "linear" }}
-                            className="flex flex-col gap-1.5"
-                        >
-                            {[...logs, ...logs].map((log, i) => (
-                                <div key={i} className="flex items-center gap-3">
-                                    <span className="text-[7px] text-white/20">[{new Date().toLocaleTimeString()}]</span>
-                                    <span className="text-[9px] text-white/40 uppercase tracking-widest">{log}</span>
-                                </div>
-                            ))}
-                        </motion.div>
-                        <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black to-transparent" />
-                        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-black to-transparent" />
-                    </div>
-                </div>
-            </div>
-        );
+        return <DiagnosticLoader logs={logs} />;
     }
 
     return (
-        <div className="min-h-screen w-screen bg-[#050505] text-slate-100 selection:bg-rose-500/30 overflow-x-hidden pt-20 pb-40 relative">
+        <div className="min-h-screen w-screen bg-black text-slate-100 selection:bg-rose-500/30 overflow-x-hidden pt-6 pb-20 relative">
             {/* Cinematic Overlay Background */}
             <div className="fixed inset-0 pointer-events-none z-0">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,163,255,0.05)_0%,transparent_70%)]" />
@@ -492,194 +472,26 @@ const NeuralSyncPage = () => {
                             key="handshake"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="flex flex-col items-center text-center space-y-12 py-20"
+                            className="flex flex-col items-center text-center space-y-12 pt-4"
                         >
                             {!handshakeComplete ? (
-                                <div className="space-y-12 w-full max-w-md">
-                                    <div className="size-24 rounded-full border-4 border-rose-500/20 flex items-center justify-center mx-auto relative">
-                                        <Brain size={40} className="text-rose-500 animate-pulse" />
-                                        <div className="absolute inset-0 size-24 rounded-full border-t-4 border-rose-500 animate-spin" />
-                                    </div>
-                                    
-                                    <div className="text-left bg-black/40 p-6 rounded-[2rem] border border-white/5 font-mono text-[10px] text-rose-500/80 space-y-2 min-h-[160px] backdrop-blur-xl">
-                                        {handshakeLog.map((log, idx) => (
-                                            <div key={idx} className="flex gap-3">
-                                                <span className="opacity-40">&gt;&gt;</span>
-                                                <span className={idx === handshakeLog.length - 1 ? "text-rose-500 font-bold animate-pulse" : ""}>{log}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {!isSubmitting && handshakeLog.length === 0 && (
-                                        <motion.button
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            onClick={handleHandshake}
-                                            className="w-full py-6 rounded-[2rem] bg-rose-500 text-white font-black text-xs uppercase tracking-[0.5em] shadow-[0_0_50px_rgba(244,63,94,0.3)]"
-                                        >
-                                            ESTABLISH_NEURAL_HANDSHAKE
-                                        </motion.button>
-                                    )}
-                                </div>
+                                <HandshakeLoading 
+                                    handshakeLog={handshakeLog}
+                                    isSubmitting={isSubmitting}
+                                    onHandshake={handleHandshake}
+                                />
                             ) : (
-                                <motion.div 
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="space-y-12 w-full"
-                                >
-                                    <div className="space-y-12 w-full max-w-2xl px-4 pb-20">
-                                        {/* Archetype Header */}
-                                        <div className="space-y-4">
-                                            <div className="text-emerald-500 font-mono text-[10px] font-black uppercase tracking-[0.6em] animate-pulse">IDENTITY_STABILIZED</div>
-                                            <div className="space-y-1">
-                                                {finalPathData?.rpg?.archetype?.name !== finalPathData?.rpg?.path && finalPathData?.rpg?.archetype?.name !== "Initiate" && (
-                                                    <div className="text-white/40 font-mono text-[10px] uppercase tracking-widest">{finalPathData?.rpg?.path} // CLASS_VECTOR</div>
-                                                )}
-                                                <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter italic text-white font-exo leading-none">
-                                                    {(finalPathData?.rpg?.archetype?.name === "Initiate" || !finalPathData?.rpg?.archetype?.name) 
-                                                        ? finalPathData?.rpg?.path 
-                                                        : finalPathData?.rpg?.archetype?.name}
-                                                </h1>
-                                            </div>
-                                            <div className="flex items-center gap-3 justify-center text-white/40 font-mono text-[10px] uppercase tracking-widest">
-                                                <span className="flex items-center gap-1"><Dna size={10} /> GEN_1_AWAKENED</span>
-                                                <div className="size-1 rounded-full bg-white/20" />
-                                                <span>CLEARANCE_LVL_1</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Character Summary */}
-                                        <div className="relative p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 backdrop-blur-3xl overflow-hidden group">
-                                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
-                                                <Activity size={80} />
-                                            </div>
-                                            <div className="relative space-y-4">
-                                                <div className="flex items-center gap-3 text-emerald-500/60 font-black text-[10px] uppercase tracking-widest">
-                                                    <div className="h-[1px] w-8 bg-emerald-500/20" />
-                                                    NEURAL_PROFILE_SUMMARY
-                                                </div>
-                                                <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed italic text-left">
-                                                    "{finalPathData?.rpg?.flavor || "The resonance of your choices has carved a unique path into the digital void. Your neural patterns are now synchronized with the core architecture."}"
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        {/* Stats Grid */}
-                                        <div className="space-y-6">
-                                            <div className="flex items-center justify-between px-2">
-                                                <div className="text-white/40 font-black text-[10px] uppercase tracking-[0.4em]">ATTRIBUTE_VECTORS</div>
-                                                <div className="h-[1px] flex-1 mx-6 bg-white/[0.03]" />
-                                            </div>
-                                            
-                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                                {[
-                                                    { label: 'STR', val: finalPathData?.rpg?.stats?.str, icon: Sword, color: 'text-rose-500', bg: 'bg-rose-500/5', border: 'border-rose-500/10' },
-                                                    { label: 'VIT', val: finalPathData?.rpg?.stats?.vit, icon: Heart, color: 'text-emerald-500', bg: 'bg-emerald-500/5', border: 'border-emerald-500/10' },
-                                                    { label: 'AGI', val: finalPathData?.rpg?.stats?.agi, icon: Zap, color: 'text-yellow-500', bg: 'bg-yellow-500/5', border: 'border-yellow-500/10' },
-                                                    { label: 'INT', val: finalPathData?.rpg?.stats?.int, icon: Brain, color: 'text-blue-500', bg: 'bg-blue-500/5', border: 'border-blue-500/10' },
-                                                    { label: 'WIS', val: finalPathData?.rpg?.stats?.wis, icon: Shield, color: 'text-indigo-500', bg: 'bg-indigo-500/5', border: 'border-indigo-500/10' },
-                                                    { label: 'LUK', val: finalPathData?.rpg?.stats?.luk, icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-500/5', border: 'border-amber-500/10' },
-                                                ].map((stat, i) => (
-                                                    <motion.div 
-                                                        key={stat.label}
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        transition={{ delay: 0.1 + (i * 0.05) }}
-                                                        className={`p-5 rounded-3xl ${stat.bg} border ${stat.border} flex flex-col items-center gap-3 group/stat hover:scale-105 transition-all duration-300`}
-                                                    >
-                                                        <stat.icon size={18} className={`${stat.color} opacity-40 group-hover/stat:opacity-100 transition-opacity`} />
-                                                        <div className="flex flex-col items-center">
-                                                            <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{stat.label}</span>
-                                                            <span className="text-2xl font-black italic text-white font-exo">{stat.val || 10}</span>
-                                                        </div>
-                                                    </motion.div>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        {/* Perks Card */}
-                                        <div className="space-y-6">
-                                            <div className="flex items-center justify-between px-2">
-                                                <div className="text-white/40 font-black text-[10px] uppercase tracking-[0.4em]">TACTICAL_PERKS</div>
-                                                <div className="h-[1px] flex-1 mx-6 bg-white/[0.03]" />
-                                            </div>
-                                            
-                                            <motion.div 
-                                                initial={{ opacity: 0, scale: 0.95 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                transition={{ delay: 0.5 }}
-                                                className="p-8 rounded-[2rem] bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 flex items-center gap-6 group relative overflow-hidden"
-                                            >
-                                                <div className="size-16 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                                                    <Target size={32} />
-                                                </div>
-                                                <div className="text-left space-y-1">
-                                                    <div className="text-emerald-500 font-black text-xs uppercase tracking-[0.3em]">PRIMARY_UNLATCH</div>
-                                                    <div className="text-2xl font-black text-white italic uppercase tracking-tighter font-exo">
-                                                        {finalPathData?.rpg?.perk || "Latent Potential"}
-                                                    </div>
-                                                </div>
-                                                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                                                    <TrendingUp size={48} />
-                                                </div>
-                                            </motion.div>
-                                        </div>
-
-                                        <div className="pt-8">
-                                            <motion.button
-                                                whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(16,185,129,0.2)' }}
-                                                whileTap={{ scale: 0.98 }}
-                                                onClick={handleTerminate}
-                                                className="w-full py-8 rounded-[2.5rem] bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.5em] shadow-2xl transition-all relative overflow-hidden group"
-                                            >
-                                                <span className="relative z-10">BEGIN_JOURNEY</span>
-                                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                                            </motion.button>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </motion.div>
+                                <HandshakeResult 
+                                    finalPathData={finalPathData}
+                                    onBegin={handleTerminate}
+                                />
+                            )}                        </motion.div>
                     ) : successData ? (
-                        <motion.div
-                            key="success"
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -30 }}
-                            className="flex flex-col items-center text-center space-y-12 py-20"
-                        >
-                            <div className="size-24 rounded-[2rem] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
-                                <Zap size={40} />
-                            </div>
-                            
-                            <div className="space-y-4">
-                                <h1 className="text-4xl font-black uppercase tracking-tighter italic text-white font-exo">SYNCHRONIZATION_COMPLETE</h1>
-                                <p className="text-slate-400 font-medium uppercase tracking-[0.2em] text-xs max-w-sm mx-auto leading-loose">
-                                    Your neural patterns have been permanently archived. The archetype foundation is expanding.
-                                </p>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4 w-full">
-                                <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 space-y-2">
-                                    <span className="text-[9px] font-black text-white/20 uppercase tracking-widest block">Level Gain</span>
-                                    <span className="text-2xl font-black italic text-rose-500 font-exo">+{successData.level - (user?.level || 1)} LVL</span>
-                                </div>
-                                <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 space-y-2">
-                                    <span className="text-[9px] font-black text-white/20 uppercase tracking-widest block">Synapse Status</span>
-                                    <span className="text-xl font-black italic text-emerald-500 font-exo">ALIGNED</span>
-                                </div>
-                            </div>
-
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={handleTerminate}
-                                className="w-full py-6 rounded-[2rem] bg-white text-black font-black text-xs uppercase tracking-[0.4em] shadow-2xl hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center gap-3 group"
-                            >
-                                <LogOut size={16} />
-                                <span>RETURN_TO_DASHBOARD</span>
-                            </motion.button>
-                        </motion.div>
+                        <SyncSuccessView 
+                            successData={successData}
+                            currentLevel={user?.level}
+                            onReturn={handleTerminate}
+                        />
                     ) : currentQuestion ? (
                         <motion.div
                             key={currentQuestion.questionId}
@@ -781,52 +593,10 @@ const NeuralSyncPage = () => {
                                     >
                                         <div className="flex flex-col gap-6">
                                             {syncError ? (
-                                                <div className="pt-12 space-y-6">
-                                                    <div className="p-8 rounded-[2rem] bg-rose-500/10 border border-rose-500/20 text-rose-500 space-y-6 relative overflow-hidden backdrop-blur-xl">
-                                                        <div className="absolute top-0 left-0 w-1 h-full bg-rose-500" />
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="size-10 rounded-2xl bg-rose-500/20 flex items-center justify-center text-rose-500 animate-pulse">
-                                                                <AlertTriangle size={20} />
-                                                            </div>
-                                                            <div>
-                                                                <div className="font-mono text-[10px] uppercase tracking-[0.4em] opacity-60">
-                                                                    {syncError.type || 'NEURAL_ERROR'}
-                                                                </div>
-                                                                <div className="font-display italic font-black uppercase tracking-tighter text-lg">
-                                                                    {syncError.type === 'SYNAPTIC_FRACTURE' ? 'Neural Link Fracture' : 'Synaptic State Mismatch'}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="space-y-4">
-                                                            <p className="text-sm font-medium leading-relaxed opacity-90 font-mono tracking-tight">
-                                                                {syncError.message || `A mismatch occurred during sequence synchronization with node 1.0.`}
-                                                            </p>
-                                                            
-                                                            {syncError.target && (
-                                                                <div className="flex items-center gap-3 py-3 px-4 bg-black/40 rounded-xl border border-rose-500/20">
-                                                                    <div className="size-2 rounded-full bg-rose-500 animate-ping" />
-                                                                    <span className="text-[10px] font-black font-mono uppercase tracking-widest opacity-60">Missing Coordinate:</span>
-                                                                    <span className="text-xs font-black font-mono text-white tracking-widest">[{syncError.target}]</span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-
-                                                        <div className="pt-4 border-t border-rose-500/10">
-                                                            <p className="text-[9px] font-bold opacity-40 uppercase tracking-[0.3em] leading-relaxed">
-                                                                // RECALIBRATION_REQUIRED: Stability lost in the narrative stream. Reset to previous sector to restore link.
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <button 
-                                                        onClick={handleRecalibrate}
-                                                        className="w-full py-5 rounded-[1.5rem] bg-rose-500 text-white font-black text-xs uppercase tracking-[0.4em] shadow-[0_0_40px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group"
-                                                    >
-                                                        <RefreshCw size={14} className="group-hover:rotate-180 transition-transform duration-700" />
-                                                        <span>RE-CALIBRATE NEURAL LINK</span>
-                                                    </button>
-                                                </div>
+                                                <SyncErrorView 
+                                                    syncError={syncError}
+                                                    onRecalibrate={handleRecalibrate}
+                                                />
                                             ) : isTransitioning ? (
                                                 <div className="pt-12 flex items-center gap-4 text-white/20 animate-pulse">
                                                     <Database size={16} />
@@ -986,8 +756,8 @@ const NeuralSyncPage = () => {
                                         </div>
                                     )}
                                 </div>
-                                <span className="font-mono">
-                                    {isFastForwarding ? '4X_OVERCLOCK_ACTIVE' : 'HOLD_TO_OVERCLOCK'}
+                                <span className="font-mono text-[9px] uppercase tracking-[0.2em] opacity-80">
+                                    {isFastForwarding ? 'FAST_FORWARDING...' : 'HOLD_TO_FAST_FORWARD'}
                                 </span>
                             </motion.button>
                         ) : null}

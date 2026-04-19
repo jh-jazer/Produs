@@ -7,7 +7,7 @@ export const initializeSystemHabits = async (userId) => {
             name: 'Daily Planning',
             icon: 'event_note',
             color: 'amber',
-            category: 'DEX',
+            category: 'AGI',
             systemId: 'planner'
         },
         {

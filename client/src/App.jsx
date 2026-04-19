@@ -48,7 +48,7 @@ function AnimatedRoutes() {
   const transitionKey = location.pathname.startsWith('/auth') ? 'auth' : 'app';
 
   return (
-    <AnimatePresence initial={false}>
+    <AnimatePresence mode="wait" initial={false}>
       <Routes>
         {/* Public Landing Page */}
         <Route path="/" element={<Landing />} />

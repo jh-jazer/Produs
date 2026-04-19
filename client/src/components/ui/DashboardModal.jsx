@@ -29,7 +29,7 @@ const DashboardModal = ({
     const modalContent = (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[1000] flex items-start justify-center p-4 md:p-12 pt-32 overscroll-none">
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-8 overscroll-none">
                     {/* Backdrop with extreme blur and dimming */}
                     <motion.div 
                         initial={{ opacity: 0 }}

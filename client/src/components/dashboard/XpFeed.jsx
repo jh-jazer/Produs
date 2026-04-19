@@ -12,11 +12,11 @@ const XpFeed = ({ user }) => {
 
     const statColors = {
         str: 'rose-500',
-        dex: 'orange-400',
-        end: 'emerald-500',
+        agi: 'orange-400',
+        vit: 'emerald-500',
         int: 'accent',
         wis: 'purple-500',
-        cha: 'pink-500',
+        luk: 'pink-500',
         none: 'slate-400'
     };
 

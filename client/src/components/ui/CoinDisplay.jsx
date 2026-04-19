@@ -103,15 +103,17 @@ const CoinDisplay = ({ amount = 0, className = "", variant = "vault" }) => {
                         Vault_Asset
                     </span>
                 )}
-                <div className="flex items-baseline gap-1">
-                    <motion.span
-                        className={`font-black tracking-tight leading-none transition-colors duration-300 ${
-                            isPopping ? 'text-primary' : 'text-black dark:text-white'
-                        } ${isVault ? 'text-[13px]' : 'text-sm'}`}
-                    >
-                        {displayAmount.toLocaleString()}
-                    </motion.span>
-                    {isVault && <span className="text-[9px] font-black text-primary/60 uppercase">PC</span>}
+                <div className="flex items-baseline gap-2">
+                    <div className="min-w-[3.5rem] flex justify-start">
+                        <motion.span
+                            className={`font-black tracking-tight leading-none transition-colors duration-300 ${
+                                isPopping ? 'text-primary' : 'text-black dark:text-white'
+                            } ${isVault ? 'text-[13px]' : 'text-sm'}`}
+                        >
+                            {displayAmount.toLocaleString()}
+                        </motion.span>
+                    </div>
+                    <span className="text-[9px] font-black text-primary/60 uppercase shrink-0">PRODS</span>
                 </div>
             </div>
         </div>

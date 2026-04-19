@@ -288,14 +288,14 @@ export const checkNeuralSync = (user, currentLevel, prevLevel = null) => {
 export const syncTerritoryOwnership = async (user) => {
     if (user.level < 56 || user.rpg.specialistRank !== 'SSS') return;
 
-    const stats = ['str', 'dex', 'end', 'int', 'wis', 'cha'];
+    const stats = ['str', 'agi', 'vit', 'int', 'wis', 'luk'];
     const statNames = {
         str: 'Iron',
-        dex: 'Shadows',
-        end: 'Bastion',
+        agi: 'Shadows',
+        vit: 'Bastion',
         int: 'Logic',
         wis: 'Oracle',
-        cha: 'Embers'
+        luk: 'Embers'
     };
 
     let topStat = null;
@@ -330,7 +330,7 @@ export const awardXP = async (user, stat, amount, streak = 1, activityType = 'sy
         user.rpg.dailyXP = {
             date: today,
             total: 0,
-            byStat: { str: 0, dex: 0, end: 0, int: 0, wis: 0, cha: 0 }
+            byStat: { str: 0, agi: 0, vit: 0, int: 0, wis: 0, luk: 0 }
         };
     }
 

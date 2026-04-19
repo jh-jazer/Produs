@@ -538,27 +538,27 @@ export const ARCHETYPE_MATRIX = {
  */
 export const ARCHETYPE_PROTOCOLS = {
     'Strategist': {
-        flavor: "Cognitive optimization protocol initiated. Analysis of complex variables prioritized for maximum strategic leverage.",
+        flavor: "A methodical thinker who sees several moves ahead. You break complex problems into clear steps, resist impulsive decisions, and find satisfaction in systems that run without friction. Precision is your default mode.",
         perk: "Path to the Cure",
         multipliers: { int: 1.5, wis: 1.5, str: 0.8, agi: 0.8, vit: 1.0, luk: 1.0 }
     },
     'Visionary': {
-        flavor: "Inspiration broadcast active. Aligning group purpose with future-state projections. The mission is the message.",
+        flavor: "You lead with possibility, not precedent. People are drawn to your clarity of purpose and your ability to make the future feel real before it arrives. You create momentum by making others believe.",
         perk: "Unlocking the Golden Retriever Pet",
         multipliers: { int: 1.1, wis: 1.3, str: 0.7, agi: 1.0, vit: 0.9, luk: 1.5 }
     },
     'Warden': {
-        flavor: "Defense protocols stabilized. Fortifying boundaries and ensuring structural integrity of the collective ecosystem.",
+        flavor: "Reliable under pressure and loyal by nature. You build environments where others feel safe to perform their best. You don't seek the spotlight — you hold the foundation so others can stand on it.",
         perk: "People Respect",
         multipliers: { int: 0.8, wis: 1.0, str: 1.5, agi: 0.7, vit: 1.5, luk: 0.8 }
     },
     'Scout': {
-        flavor: "Reconnaissance sequence engaged. Mapping unexplored vectors and identifying high-value opportunities at the edge.",
+        flavor: "Restless and perceptive, you operate best at the edge of the known. You spot what others overlook, adapt faster than most, and thrive when the situation demands improvisation over protocol.",
         perk: "Unlocking the Mysterious Ally",
         multipliers: { int: 1.0, wis: 0.8, str: 0.9, agi: 1.5, vit: 1.0, luk: 1.5 }
     },
     'None': {
-        flavor: "Baseline identity detected. Awakening protocol pending synchronization. System potential unmapped.",
+        flavor: "No dominant trait has emerged yet — and that's a strength. You carry no fixed limitations and adapt to whatever the moment requires. Your path is wide open.",
         perk: "Blank Slate (Versatile Growth) | Potentiality Index (Fast Initial Levels) | Unbound (No Path Constraints)",
         multipliers: { int: 1.0, wis: 1.0, str: 1.0, agi: 1.0, vit: 1.0, luk: 1.0 }
     }

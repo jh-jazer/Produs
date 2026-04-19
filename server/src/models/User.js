@@ -74,11 +74,11 @@ const userSchema = new mongoose.Schema({
     rpg: {
         stats: {
             str: { type: Number, default: 0 },
-            dex: { type: Number, default: 0 },
-            end: { type: Number, default: 0 },
+            agi: { type: Number, default: 0 },
+            vit: { type: Number, default: 0 },
             int: { type: Number, default: 0 },
             wis: { type: Number, default: 0 },
-            cha: { type: Number, default: 0 }
+            luk: { type: Number, default: 0 }
         },
         path: { type: String, default: null },
         tier1: { type: String, default: null },
@@ -98,11 +98,11 @@ const userSchema = new mongoose.Schema({
             total: { type: Number, default: 0 },
             byStat: {
                 str: { type: Number, default: 0 },
-                dex: { type: Number, default: 0 },
-                end: { type: Number, default: 0 },
+                agi: { type: Number, default: 0 },
+                vit: { type: Number, default: 0 },
                 int: { type: Number, default: 0 },
                 wis: { type: Number, default: 0 },
-                cha: { type: Number, default: 0 }
+                luk: { type: Number, default: 0 }
             }
         },
         completedAnswers: {
@@ -120,6 +120,10 @@ const userSchema = new mongoose.Schema({
         prodCoins: {
             type: Number,
             default: 2000
+        },
+        cores: {
+            type: Number,
+            default: 0
         },
         specialistRank: {
             type: String,

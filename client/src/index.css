@@ -37,9 +37,9 @@
 
 :root {
     --primary: #0066ff;
-    --background: #f0fdfa;
-    --foreground: #0f172a;
-    --card: #ccfbf1;
+    --background: #000000;
+    --foreground: #ffffff;
+    --card: #111111;
     --border: color-mix(in srgb, var(--primary) 20%, transparent);
     --accent: var(--primary);
     --accent-bg: color-mix(in srgb, var(--primary) 10%, transparent);
@@ -94,11 +94,7 @@ body {
     background-image: var(--bg-image);
     background-size: var(--bg-size);
     color: var(--foreground);
-    transition:
-        background-color 0.5s ease,
-        color 0.5s ease,
-        border-color 0.5s ease,
-        box-shadow 0.5s ease;
+    /* Transition removed for immediate paint to avoid white flashes */
     overflow-x: hidden;
     scrollbar-gutter: stable;
 }
@@ -263,6 +259,13 @@ button:disabled {
     }
 
     --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
+
+    --animate-scan-line: scan-line 2.5s linear infinite;
+
+    @keyframes scan-line {
+        0% { transform: translateY(-100%); }
+        100% { transform: translateY(100%); }
+    }
 
     @keyframes fadeInUp {
         from {

@@ -8,12 +8,23 @@
   <link rel="apple-touch-icon" href="/produs-logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
-  <meta name="theme-color" content="#f6f6f8" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#000000" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Produs" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="description" content="Produs - The Minimalist Productivity Tool" />
+  <style>
+    /* Instant Blackout: Run before anything else to prevent white flashes */
+    html, body {
+      background: #000000 !important;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+  </style>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&display=swap"
     rel="stylesheet" />
@@ -311,6 +322,12 @@
         extrusion.appendChild(layer);
       }
 
+      // Check if we should skip the loader (e.g. for deep links to pages with their own loaders)
+      if (window.location.pathname.includes('/neural-sync')) {
+        document.getElementById('initial-loader').style.display = 'none';
+        return;
+      }
+
       const progressBar = document.getElementById('progress-bar');
       const progressPercent = document.getElementById('progress-percent');
       const loaderStatus = document.getElementById('loader-status');
@@ -324,7 +341,7 @@
         { threshold: 0, text: 'INITIALIZING LOGIC' },
         { threshold: 30, text: 'CALIBRATING MATRIX' },
         { threshold: 60, text: 'OPTIMIZING INTERFACE' },
-        { threshold: 90, text: 'SYSTEM READY' }
+        { threshold: 95, text: 'SYSTEM READY' }
       ];
 
       function updateLoader() {
@@ -374,6 +391,15 @@
         isAppReady = true;
         checkAndHide();
       };
+
+      // Failsafe: Ensure loader disappears after 6 seconds even if app fails to signal
+      setTimeout(() => {
+        if (!isAppReady) {
+          console.warn('Initial loader timed out. Forcing fade-out.');
+          isAppReady = true;
+          checkAndHide();
+        }
+      }, 6000);
 
       // Start the animation
       requestAnimationFrame(updateLoader);

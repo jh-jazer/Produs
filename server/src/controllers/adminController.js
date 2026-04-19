@@ -14,9 +14,12 @@ import Wishlist from '../models/Wishlist.js';
 import Notification from '../models/Notification.js';
 import YjsState from '../models/YjsState.js';
 
+import SystemSettings from '../models/SystemSettings.js';
+
 const getSystemStats = async (req, res) => {
     try {
         const totalUsers = await User.countDocuments();
+        const settings = await SystemSettings.getSettings();
 
         const archetypeStats = await User.aggregate([
             {
@@ -70,24 +73,59 @@ const getSystemStats = async (req, res) => {
             count: levelMap[i + 1] ?? 0
         }));
 
-        // Return dummy data for things that aren't fully tracked yet
-        // but provide some structure for the dashboard
         res.json({
             stats: [
                 { label: 'Total Users', value: totalUsers.toString(), icon: 'Users', color: 'text-blue-500' },
                 { label: 'Active Sessions', value: '156', icon: 'ShieldCheck', color: 'text-green-500' },
-                { label: 'Database Size', value: '2.4 GB', icon: 'Database', color: 'text-purple-500' },
+                { label: 'Core Pool', value: settings.corePool.toString(), icon: 'Zap', color: 'text-amber-500' },
                 { label: 'Growth', value: '+12%', icon: 'BarChart3', color: 'text-orange-500' },
             ],
             archetypeStats,
             levelDistribution,
-            recentUsers: await User.find().sort({ createdAt: -1 }).select('name email username banner avatar settings createdAt isAdmin'),
+            corePool: settings.corePool,
+            recentUsers: await User.find().sort({ createdAt: -1 }).select('name email username banner avatar settings createdAt isAdmin rpg.cores'),
             systemStatus: [
                  { label: 'API Server', status: 'Healthy', color: 'bg-green-500' },
                  { label: 'Database', status: 'Healthy', color: 'bg-green-500' },
                  { label: 'WebSocket', status: 'Healthy', color: 'bg-green-500' },
-                 { label: 'Static Assets', status: 'Healthy', color: 'bg-green-500' },
+                 { label: 'Core Registry', status: 'Active', color: 'bg-amber-500' },
             ]
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const distributeCores = async (req, res) => {
+    try {
+        const { userId, amount } = req.body;
+        const grantAmount = parseInt(amount);
+
+        if (isNaN(grantAmount) || grantAmount <= 0) {
+            return res.status(400).json({ message: 'Invalid amount' });
+        }
+
+        const settings = await SystemSettings.getSettings();
+        if (settings.corePool < grantAmount) {
+            return res.status(400).json({ message: 'Insufficient Core Pool' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Atomic decrease of pool and increase of user cores
+        settings.corePool -= grantAmount;
+        user.rpg.cores = (user.rpg.cores || 0) + grantAmount;
+
+        await settings.save();
+        await user.save();
+
+        res.json({ 
+            message: `Successfully granted ${grantAmount} Cores to ${user.username || user.name}`,
+            newBalance: user.rpg.cores,
+            remainingPool: settings.corePool
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -108,11 +146,11 @@ const resetUserOnboarding = async (req, res) => {
         user.exp = 0;
         user.rpg.stats = {
             str: 0,
-            dex: 0,
-            end: 0,
+            agi: 0,
+            vit: 0,
             int: 0,
             wis: 0,
-            cha: 0
+            luk: 0
         };
         user.rpg.archetype = {
             name: 'None',
@@ -201,4 +239,4 @@ const bulkDeleteUsers = async (req, res) => {
     }
 };
 
-export { getSystemStats, resetUserOnboarding, toggleUserAdmin, bulkDeleteUsers };
+export { getSystemStats, distributeCores, resetUserOnboarding, toggleUserAdmin, bulkDeleteUsers };

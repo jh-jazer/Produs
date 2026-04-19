@@ -11,6 +11,7 @@ import AdminUserRegistry from '../components/admin_components/AdminUserRegistry'
 import AdminSystemHealth from '../components/admin_components/AdminSystemHealth';
 import AdminBugs from '../components/admin_components/AdminBugs';
 import AdminNarrativeManager from '../components/admin_components/AdminNarrativeManager';
+import AdminCoreManager from '../components/admin_components/AdminCoreManager';
 
 const Admin = () => {
     const { mutate: globalMutate } = useSWRConfig();
@@ -31,6 +32,7 @@ const Admin = () => {
         { id: 'health', label: 'Health', icon: ShieldCheck },
         { id: 'bugs', label: 'Bugs', icon: Database },
         { id: 'narrative', label: 'Narrative', icon: BookOpen },
+        { id: 'cores', label: 'Cores', icon: Zap },
     ];
 
     const stats = React.useMemo(() => data?.stats || [
@@ -221,6 +223,17 @@ const Admin = () => {
                 {(activeTab === 'narrative' || activeTab === 'overview') && (
                     <div className="w-full">
                         <AdminNarrativeManager previewMode={activeTab === 'overview'} />
+                    </div>
+                )}
+
+                {/* CORES SECTION */}
+                {activeTab === 'cores' && (
+                    <div className="w-full">
+                        <AdminCoreManager 
+                            corePool={data?.corePool} 
+                            recentUsers={recentUsers} 
+                            onGrantComplete={() => mutate()} 
+                        />
                     </div>
                 )}
 

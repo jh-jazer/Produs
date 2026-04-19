@@ -29,8 +29,13 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
+            // SOFT LOGOUT: Clear storage and tokens without a hard refresh.
+            // This prevents the 'SYSTEM READY' splash screen from reappearing.
             if (typeof window !== 'undefined') {
-                window.location.href = '/auth';
+                localStorage.removeItem('userInfo');
+                authToken = null;
+                // Notify the app of the unauthorized state
+                window.dispatchEvent(new Event('auth-unauthorized'));
             }
         }
         return Promise.reject(error);

@@ -5,16 +5,16 @@ import { Shield } from 'lucide-react';
 import DashboardPanel from '../ui/DashboardPanel';
 
 const StatRadar = ({ user }) => {
-    const stats = user?.rpg?.stats || { str: 0, dex: 0, end: 0, int: 0, wis: 0, cha: 0 };
+    const stats = user?.rpg?.stats || { str: 0, agi: 0, vit: 0, int: 0, wis: 0, luk: 0 };
     const dailyXP = user?.rpg?.dailyXP?.byStat || {};
 
     const data = [
         { subject: 'STR', value: stats.str },
-        { subject: 'DEX', value: stats.dex },
-        { subject: 'END', value: stats.end },
+        { subject: 'AGI', value: stats.agi },
+        { subject: 'VIT', value: stats.vit },
         { subject: 'INT', value: stats.int },
         { subject: 'WIS', value: stats.wis },
-        { subject: 'CHA', value: stats.cha },
+        { subject: 'LUK', value: stats.luk },
     ];
 
     return (
