@@ -121,7 +121,7 @@ const Admin = () => {
     };
 
     return (
-        <div className="bg-transparent text-slate-900 dark:text-slate-100 p-4 pb-48 md:p-8 w-full">
+        <div className="bg-transparent text-slate-900 dark:text-slate-100 px-0 py-4 pb-48 md:p-8 w-full">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -172,7 +172,7 @@ const Admin = () => {
 
                 {/* Mobile Header */}
                 {activeTab === 'overview' && (
-                    <div className="md:hidden mt-4 mb-8">
+                    <div className="md:hidden mt-4 mb-8 px-4">
                         <h1 className="text-3xl font-black tracking-tight mb-1">Management</h1>
                         <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">Administrator Dashboard</p>
                     </div>

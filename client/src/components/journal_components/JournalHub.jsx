@@ -175,23 +175,8 @@ const JournalHub = ({ entries = [], onAction }) => {
                         >
                             <JournalEntry 
                                 onAction={handleAction} 
-                                mood={mood} 
-                                setMood={setMood} 
                                 initialEntry={editingEntry}
                             />
-                            
-                            <div className="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                        <span className="material-symbols-outlined">sentiment_satisfied</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Select Mood</p>
-                                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">How is the operator feeling?</p>
-                                    </div>
-                                </div>
-                                {moodSelector}
-                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>

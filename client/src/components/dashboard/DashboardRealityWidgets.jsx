@@ -22,11 +22,10 @@ export const MoodTracker = ({ user, updateMood, standalone = false }) => {
     };
 
     const today = new Date().toISOString().split('T')[0];
+    const currentMood = user?.settings?.mood;
     const moodSetDate = user?.settings?.moodSetAt;
-    const needsMoodUpdate = !user?.settings?.mood || !moodSetDate || moodSetDate !== today;
-
-    const currentMood = user?.settings?.mood || "neutral";
-    const currentData = moodEmojis[currentMood];
+    const needsMoodUpdate = !currentMood || !moodSetDate || moodSetDate !== today;
+    const currentData = moodEmojis[currentMood || 'neutral'];
 
     const handleSelect = (key) => {
         updateMood?.(key);
@@ -59,14 +58,16 @@ export const MoodTracker = ({ user, updateMood, standalone = false }) => {
                         ? 'p-1 bg-transparent border-none' 
                         : `p-6 bg-white dark:bg-[#121212] border-2 border-${currentData.color}-500/30 shadow-xl`}`}
             >
-                <img
-                    src={currentData.gif}
-                    alt={currentData.label}
-                    className={standalone ? 'w-7 h-7 md:w-8 md:h-8' : 'w-14 h-14'}
-                />
-                {!standalone && (
-                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] text-${currentData.color}-500`}>
-                        {currentData.label}
+                <div className="relative">
+                    <img
+                        src={currentData.gif}
+                        alt={currentData.label}
+                        className={standalone ? 'w-7 h-7 md:w-8 md:h-8' : 'w-14 h-14'}
+                    />
+                </div>
+                {((!currentMood && !isExpanded) || !standalone) && (
+                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${needsMoodUpdate ? 'text-rose-500' : `text-${currentData.color}-500`}`}>
+                        {!currentMood ? 'set me' : currentData.label}
                     </span>
                 )}
             </motion.button>

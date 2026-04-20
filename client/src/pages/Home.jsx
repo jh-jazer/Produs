@@ -1,7 +1,6 @@
-import React, { useContext, useState, useMemo } from 'react';
-import { DashboardContext } from "../context/DashboardContext";
+import React, { useState, useMemo } from 'react';
 import useAuthStore from "../store/useAuthStore";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Dashboard Zones
@@ -12,6 +11,7 @@ import StatRadar from '../components/dashboard/StatRadar';
 import EvolutionPreview from '../components/dashboard/EvolutionPreview';
 import PartnerPanel from '../components/dashboard/PartnerPanel';
 import XpFeed from '../components/dashboard/XpFeed';
+import RPGImmersiveOverlay from '../components/rpg/RPGImmersiveOverlay';
 import AwakeningOverlay from '../components/dashboard/AwakeningOverlay';
 import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
@@ -27,7 +27,15 @@ import { Users, Link as LinkIcon, ShieldAlert, Zap } from 'lucide-react';
 function Home() {
   const navigate = useNavigate();
   const { mutate } = useSWRConfig();
-  const { setIsSearchModalOpen, viewMode, setViewMode, protocolMode, setProtocolMode } = useContext(DashboardContext);
+  const { 
+    viewMode, 
+    setViewMode, 
+    protocolMode, 
+    setProtocolMode,
+    activeRpgTab,
+    setActiveRpgTab,
+    setIsSearchModalOpen
+  } = useOutletContext();
   const user = useAuthStore((state) => state.user);
   const syncUser = useAuthStore((state) => state.syncUser);
   const setNeuralSyncDismissed = useAuthStore((state) => state.setNeuralSyncDismissed);
@@ -83,7 +91,7 @@ function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="w-full max-w-5xl mx-auto pt-8 md:pt-8 pb-32 px-4 md:px-0 space-y-12"
+            className="w-full max-w-5xl mx-auto pt-2 pb-32 px-4 md:px-0 space-y-12"
           >
             {/* Header Skeleton */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8 border-b border-black/[0.03] dark:border-white/[0.03] pb-12">
@@ -114,7 +122,7 @@ function Home() {
             key="dashboard"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="w-full max-w-5xl mx-auto pt-8 md:pt-8 pb-32 px-0 md:px-0 space-y-6 md:space-y-12"
+            className={`w-full max-w-5xl pt-0 ${protocolMode === 'rpg' ? 'pb-0' : 'pb-32'} px-0 md:px-0 space-y-6 md:space-y-12`}
           >
             {/* Header & Identity Section */}
             <IdentityHeader user={user} habits={habits} />
@@ -141,20 +149,13 @@ function Home() {
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 1.02 }}
-                        className="flex flex-col space-y-4 md:space-y-8 w-full"
+                        className="w-full"
                       >
-                        {/* RPG Side Column */}
-                        <div className="w-full space-y-4 md:space-y-8">
-                             <StatRadar stats={user.rpg?.stats} />
-                             <EvolutionPreview user={user} />
-                        </div>
-                        
-                        {/* RPG Main Column */}
-                        <div className="w-full space-y-4 md:space-y-8">
-                             <TodayActivity user={user} habits={habits} />
-                             <StreakStatus habits={habits} />
-                             <XpFeed />
-                        </div>
+                        <RPGImmersiveOverlay 
+                          user={user} 
+                          activeTab={activeRpgTab} 
+                          setActiveTab={setActiveRpgTab} 
+                        />
                       </motion.div>
                     ) : (
                       <motion.div

@@ -42,8 +42,6 @@ const EvolutionPreview = ({ user }) => {
 
     return (
         <DashboardPanel
-            title="Evolution Path"
-            subtitle="Progress to Next Tier"
             showZap={false}
             icon={Sparkles}
         >

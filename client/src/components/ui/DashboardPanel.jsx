@@ -32,7 +32,7 @@ const DashboardPanel = ({
     const navigate = useNavigate();
 
     return (
-        <div className={`relative z-0 bg-slate-50/80 dark:bg-[#080808]/80 backdrop-blur-2xl border-y md:border border-primary/40 dark:border-white/5 rounded-none md:rounded-[2.5rem] overflow-hidden group shadow-none ${noPadding ? '' : 'px-4 py-8 md:p-8'} ${className}`}>
+        <div className={`relative z-0 bg-slate-50/20 dark:bg-[#080808]/20 backdrop-blur-2xl border-y md:border border-primary/40 dark:border-white/5 rounded-none md:rounded-[2.5rem] overflow-hidden group shadow-none ${noPadding ? '' : 'px-4 py-8 md:p-8'} ${className}`}>
             
             {/* Tactical Backdrop Decoration */}
             {showZap && (

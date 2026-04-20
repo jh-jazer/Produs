@@ -61,7 +61,7 @@ const DashboardModal = ({
                                             </div>
                                         )}
                                         {subtitle && (
-                                            <p className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic font-exo leading-none">{subtitle}</p>
+                                            <div className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic font-exo leading-none">{subtitle}</div>
                                         )}
                                     </>
                                 )}

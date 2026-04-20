@@ -26,28 +26,28 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
             <DashboardPanel
                 title="USER_REGISTRY_"
                 subtitle={`${recentUsers.length} Active Neural Links`}
-                headerExtra={
+            >
+                <div className="flex flex-col gap-4 mb-8">
                     <div className="flex items-center gap-3">
+                        <div className="relative group flex-1">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 size-3 group-focus-within:text-primary transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Search identity registry..."
+                                className="bg-black/5 dark:bg-white/5 border border-transparent focus:border-primary/30 rounded-2xl pl-11 pr-4 py-3.5 text-[10px] font-black uppercase tracking-wider outline-none transition-all w-full shadow-inner"
+                            />
+                        </div>
                         {recentUsers.length > 1 && (
                             <button 
                                 onClick={() => setIsPurgeConfirmOpen(true)}
-                                className="size-8 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-lg shadow-rose-500/10 group"
+                                className="size-[46px] flex items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-lg shadow-rose-500/10 group shrink-0"
                                 title="Purge Non-Admins"
                             >
-                                <Trash2 size={14} className="group-hover:scale-110 transition-transform" />
+                                <Trash2 size={18} className="group-hover:scale-110 transition-transform" />
                             </button>
                         )}
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                            <input
-                                type="text"
-                                placeholder="Search users..."
-                                className="bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-primary transition-colors w-40"
-                            />
-                        </div>
                     </div>
-                }
-            >
+                </div>
                 <div className="overflow-x-auto custom-scrollbar text-xs md:text-sm">
                     <table className="w-full min-w-[560px]">
                         <thead>

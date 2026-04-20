@@ -12,7 +12,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
             onClose={onClose}
             title={user?.username}
             subtitle={
-                <div className="flex flex-col gap-2 mt-3">
+                <div className="flex flex-row items-center gap-4 mt-3">
                     <div onClick={() => { onClose(); navigate('/dashboard/shop'); }} className="inline-block cursor-pointer active:scale-95 transition-all w-fit">
                         <CoinDisplay amount={user?.rpg?.prodCoins || 0} variant="minimal" />
                     </div>

@@ -143,8 +143,10 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     // Calculate level progress using total user EXP
     const progressData = getLevelProgress(user.exp || 0);
 
+    if (protocolMode === 'rpg') return null;
+
     return (
-        <div className="glass-panel w-full rounded-[2.5rem] mb-6 md:mb-12 relative overflow-hidden flex flex-col">
+        <div className="glass-panel w-full rounded-[2.5rem] mt-4 md:mt-8 mb-6 md:mb-12 relative overflow-hidden flex flex-col">
             {/* 1. Tactical Banner Segment */}
             <div 
                 ref={bannerRef}

@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { motion, useMotionValue, useMotionValueEvent, useSpring } from "framer-motion";
+import { Cpu, Handshake, User } from "lucide-react";
+import { DashboardContext } from "../../context/DashboardContext";
 
 export default function DashboardScrollIndicator() {
   const [percentage, setPercentage] = useState(0);
   const trackRef = React.useRef(null);
   const [isDragging, setIsDragging] = React.useState(false);
   const rawProgress = useMotionValue(0);
+  const { protocolMode, setProtocolMode, viewMode, setViewMode } = useContext(DashboardContext);
 
   const getActiveContainer = () => {
     // Topmost modal scroll container
@@ -125,7 +128,44 @@ export default function DashboardScrollIndicator() {
   }, [isDragging]);
 
   return (
-    <div className="fixed right-6 md:right-12 top-1/2 -translate-y-1/2 z-[100] hidden lg:flex flex-col items-center gap-6 pointer-events-none select-none text-slate-900 dark:text-white">
+    <div className="fixed right-6 md:right-12 top-1/2 -translate-y-1/2 z-[100] hidden lg:flex flex-col items-center gap-8 pointer-events-none select-none text-slate-900 dark:text-white">
+      {/* Tactical Mode Toggles (RPG & LINK) */}
+      <div className="flex flex-col items-center gap-1.5 p-1 glass-panel rounded-2xl pointer-events-auto">
+          <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setProtocolMode(protocolMode === 'rpg' ? 'reality' : 'rpg')}
+              className={`flex items-center size-10 justify-center transition-all duration-300 rounded-xl relative group/toggle
+                  ${protocolMode === 'rpg' 
+                      ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
+                      : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'}
+              `}
+          >
+              <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
+              
+              {/* Tooltip on left */}
+              <div className="absolute right-full mr-4 px-3 py-1.5 bg-black/80 dark:bg-white/10 backdrop-blur-md border border-white/10 rounded-lg opacity-0 group-hover/toggle:opacity-100 transition-opacity pointer-events-none hidden md:block">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white whitespace-nowrap">RPG_MODE</span>
+              </div>
+          </motion.button>
+
+          <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setViewMode(viewMode === 'personal' ? 'partner' : 'personal')}
+              className={`flex items-center size-10 justify-center transition-all duration-300 rounded-xl relative group/toggle
+                  ${viewMode === 'partner' 
+                      ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]' 
+                      : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'}
+              `}
+          >
+              {viewMode === 'partner' ? <Handshake size={14} /> : <User size={14} />}
+              
+              {/* Tooltip on left */}
+              <div className="absolute right-full mr-4 px-3 py-1.5 bg-black/80 dark:bg-white/10 backdrop-blur-md border border-white/10 rounded-lg opacity-0 group-hover/toggle:opacity-100 transition-opacity pointer-events-none hidden md:block">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white whitespace-nowrap">SYNC_LINK</span>
+              </div>
+          </motion.button>
+      </div>
+
       {/* Percentage Text */}
       <div className="flex flex-col items-center gap-1">
         <div className="relative">

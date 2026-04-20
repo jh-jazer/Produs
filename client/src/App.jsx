@@ -112,8 +112,13 @@ function App() {
   // Auto-reload when a new service-worker version is waiting.
   // This ensures users always run the latest deployed code.
   useRegisterSW({
-    onNeedRefresh(updateSW) {
-      updateSW(true); // skip waiting and reload all tabs immediately
+    onRegistered(r) {
+      // Check for updates every hour to ensure people get the new version without refreshing manually
+      if (r) {
+        setInterval(() => {
+          r.update();
+        }, 60 * 60 * 1000);
+      }
     },
   });
 

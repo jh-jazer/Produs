@@ -62,6 +62,7 @@ function Layout() {
     const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
     const [isOperationModalOpen, setIsOperationModalOpen] = useState(false);
     const [mobileTabs, setMobileTabs] = useState(null); // { tabs, activeTab, setActiveTab }
+    const [activeRpgTab, setActiveRpgTab] = useState('home');
     const isNeuralSyncDismissed = useAuthStore((state) => state.isNeuralSyncDismissed);
 
     // Fetch fresh profile from server — this is the authoritative source of truth.
@@ -110,13 +111,23 @@ function Layout() {
         navigate('/auth');
     };
 
-    const navItems = [
-        { name: 'Home', path: '/dashboard', icon: 'home' },
-        { name: 'Intellectual', path: '/dashboard/intellectual', icon: 'psychology' },
-        { name: 'Financial', path: '/dashboard/financial', icon: 'payments' },
-        { name: 'Physical', path: '/dashboard/physical', icon: 'monitor_heart' },
-        { name: 'Spiritual', path: '/dashboard/spiritual', icon: 'auto_awesome' },
+    const realityNav = [
+        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home' },
+        { id: 'intellectual', name: 'Intellectual', path: '/dashboard/intellectual', icon: 'psychology' },
+        { id: 'financial', name: 'Financial', path: '/dashboard/financial', icon: 'payments' },
+        { id: 'physical', name: 'Physical', path: '/dashboard/physical', icon: 'monitor_heart' },
+        { id: 'spiritual', name: 'Spiritual', path: '/dashboard/spiritual', icon: 'auto_awesome' },
     ];
+
+    const rpgNav = [
+        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home' },
+        { id: 'tower', name: 'Tower', path: '/dashboard', icon: 'castle' },
+        { id: 'items', name: 'Items', path: '/dashboard', icon: 'inventory_2' },
+        { id: 'skills', name: 'Skills', path: '/dashboard', icon: 'model_training' },
+        { id: 'roam', name: 'Roam', path: '/dashboard', icon: 'explore' },
+    ];
+
+    const navItems = protocolMode === 'rpg' ? rpgNav : realityNav;
 
     const currentNavItem = navItems.find(item => item.path === location.pathname);
     const pageTitle = (currentNavItem && !isOverview) ? currentNavItem.name : 'PRODUS';
@@ -130,26 +141,24 @@ function Layout() {
             setViewMode, 
             protocolMode, 
             setProtocolMode,
+            activeRpgTab,
+            setActiveRpgTab,
             setIsOperationModalOpen,
             mobileTabs,
             setMobileTabs
         }}>
-            <div
-            className="bg-transparent font-display text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden"
-            >
+            <div className="bg-transparent font-display text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden">
                 {/* Mobile Top Bar */}
                 <div className="md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-[135] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03]">
-                    {isOverview && (
-                        <div
-                            className="flex items-center gap-2.5 active:scale-95 transition-all cursor-pointer group"
-                            onClick={() => navigate('/dashboard')}
-                        >
-                            <Logo className="size-8" glow={false} />
-                            <span className="font-exo font-black text-lg tracking-tighter italic text-slate-800 dark:text-white mt-0.5">
-                                PRODUS
-                            </span>
-                        </div>
-                    )}
+                    <div
+                        className={`flex items-center gap-2.5 active:scale-95 transition-all cursor-pointer group ${isOverview ? 'opacity-100 flex' : 'opacity-0 pointer-events-none hidden md:flex'}`}
+                        onClick={() => navigate('/dashboard')}
+                    >
+                        <Logo className="size-8" glow={true} />
+                        <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-slate-800 dark:text-white mt-1 ml-3">
+                            PRODUS
+                        </span>
+                    </div>
 
                     {/* Integrated Mobile Tabs (Sub-pillars only) */}
                     {!isOverview && mobileTabs && (
@@ -271,12 +280,21 @@ function Layout() {
                         <div className="flex flex-col gap-1.5">
                             {navItems.map((item, idx) => {
                                 const isOverview = location.pathname === '/dashboard';
-                                const isActive = location.pathname === item.path || (item.path === '/dashboard' && location.pathname === '/dashboard');
+                                const isActive = protocolMode === 'rpg' 
+                                    ? activeRpgTab === item.id 
+                                    : (location.pathname === item.path || (item.path === '/dashboard' && location.pathname === '/dashboard'));
                                 
                                 return (
                                     <motion.button
-                                        key={item.path}
-                                        onClick={() => navigate(item.path)}
+                                        key={item.id}
+                                        onClick={() => {
+                                            if (protocolMode === 'rpg') {
+                                                if (location.pathname !== '/dashboard') navigate('/dashboard');
+                                                setActiveRpgTab(item.id);
+                                            } else {
+                                                navigate(item.path);
+                                            }
+                                        }}
                                         className={`relative group/nav flex items-center rounded-2xl transition-all duration-300
                                             ${isActive ? 'bg-black/[0.04] dark:bg-white/[0.06]' : 'hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}
                                             ${isMobileMenuOpen ? 'h-16 w-full px-4' : 'h-12'}
@@ -362,7 +380,7 @@ function Layout() {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -10 }}
                                         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                                        className="flex flex-col gap-2 cursor-pointer"
+                                        className="flex flex-row items-center gap-4 cursor-pointer"
                                         onClick={() => navigate('/dashboard/shop')}
                                         title="Open Terminal Shop"
                                     >
@@ -433,18 +451,10 @@ function Layout() {
 
                 {/* Main Application Interface */}
                 <div className={`flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]`}>
-                    {isOverview && !isAdminPage && (
-                        <div className="hidden md:block absolute top-0 left-0 right-0 z-40 h-40 pointer-events-none">
-                            <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)] via-[var(--background)]/95 to-transparent backdrop-blur-xl [mask-image:linear-gradient(to_bottom,black_20%,transparent),linear-gradient(to_right,transparent,black_10%,black_75%,transparent)] [-webkit-mask-composite:source-in] [mask-composite:intersect]" />
-                            <div className="relative pl-8 lg:pl-12 pr-24 lg:pr-32 pt-8 pb-4 pointer-events-auto">
-                                <DashboardHeader user={user} />
-                            </div>
-                        </div>
-                    )}
 
                     <div 
                         ref={mainRef}
-                        className={`flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar flex flex-col relative mt-16 md:mt-0 ${isOverview ? 'md:pt-24' : 'md:pt-0'}`}
+                        className={`flex-1 overflow-x-hidden ${protocolMode === 'rpg' ? 'overflow-y-hidden' : 'overflow-y-auto'} custom-scrollbar flex flex-col relative mt-16 md:mt-0`}
                     >
                         <AnimatePresence mode="wait" initial={false}>
                             <motion.main 
@@ -453,9 +463,9 @@ function Layout() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: "-10%", opacity: 0, scale: 0.96, pointerEvents: 'none' }}
                                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                className={`relative z-0 flex-1 flex justify-start pb-32 md:pb-12 px-0 md:px-12 lg:px-20 w-full ${isOverview ? '' : 'pt-6 md:pt-0'}`}
+                                className={`relative z-0 flex-1 flex flex-col ${protocolMode === 'rpg' ? 'justify-center pb-0 pt-0' : 'justify-start pb-32 md:pb-12 pt-0 md:pt-1'} px-0 md:pl-8 lg:pl-12 md:pr-24 lg:pr-32 w-full`}
                             >
-                                <Outlet context={{ setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, viewMode, setViewMode, protocolMode, setProtocolMode }} />
+                                <Outlet context={{ setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, viewMode, setViewMode, protocolMode, setProtocolMode, activeRpgTab, setActiveRpgTab }} />
                             </motion.main>
                         </AnimatePresence>
                     </div>
@@ -540,6 +550,7 @@ function Layout() {
                     isOpen={isOperationModalOpen} 
                     onClose={() => setIsOperationModalOpen(false)} 
                 />
+
 
                 <DashboardScrollIndicator />
                 <MobileBottomNav />

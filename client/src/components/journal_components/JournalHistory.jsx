@@ -3,6 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import { useJournal } from '../../hooks/useJournal';
 import { sanitizeHtml } from '../../utils/sanitize';
+ 
+const MOOD_GIFS = {
+    great:   "https://fonts.gstatic.com/s/e/notoemoji/latest/1f929/512.gif",
+    good:    "https://fonts.gstatic.com/s/e/notoemoji/latest/1f642/512.gif",
+    neutral: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f610/512.gif",
+    bad:     "https://fonts.gstatic.com/s/e/notoemoji/latest/1f614/512.gif",
+    awful:   "https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif",
+};
 
 const parseMarkdown = (text) => {
     if (!text) return { __html: '' };
@@ -83,7 +91,13 @@ const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => 
                                     <div>
                                         <div className="flex justify-between items-start mb-2">
                                             <div className="flex items-center gap-3">
-                                                <span className="text-xl md:text-2xl">{entry.mood}</span>
+                                                <div className="size-8 md:size-10 flex items-center justify-center shrink-0">
+                                                    {MOOD_GIFS[entry.mood] ? (
+                                                        <img src={MOOD_GIFS[entry.mood]} alt={entry.mood} className="w-full h-full object-contain" />
+                                                    ) : (
+                                                        <span className="text-xl md:text-2xl">{entry.mood || '😐'}</span>
+                                                    )}
+                                                </div>
                                                 <div>
                                                     <div className="flex items-center gap-2">
                                                         <p className="text-[10px] md:text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">

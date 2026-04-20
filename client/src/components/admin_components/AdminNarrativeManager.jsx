@@ -223,46 +223,46 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
             <DashboardPanel
                 title="NARRATIVE_MANAGER_"
                 subtitle={`${questions.length} Story Nodes Active`}
-                headerExtra={
-                    <div className="flex gap-3 relative z-[70]">
+            >
+                <div className="flex flex-nowrap items-center gap-2 md:gap-3 mb-8 relative z-[70] w-full overflow-x-auto pb-2 custom-scrollbar-mini">
                     <button 
                         onClick={() => setIsBulkModalOpen(true)}
-                        className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10 cursor-pointer active:scale-95"
+                        className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10 cursor-pointer active:scale-95 shrink-0"
                         title="Bulk JSON Import"
                     >
                         <FileJson size={20} />
                     </button>
                     <button 
                         onClick={handleDownloadJson}
-                        className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
+                        className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10 shrink-0"
                         title="Export JSON"
                     >
                         <Download size={20} />
                     </button>
                     <button 
                         onClick={handleSeed}
-                        className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
+                        className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10 shrink-0"
                         title="Seed Defaults"
                     >
                         <RefreshCw size={20} className={isValidating ? 'animate-spin' : ''} />
                     </button>
                     <button 
                         onClick={handleDeleteAll}
-                        className="p-3 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-transparent hover:border-white/10"
+                        className="p-3 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-transparent hover:border-white/10 shrink-0"
                         title="Purge All Questions"
                     >
                         <Trash2 size={20} />
                     </button>
                     <button 
                         onClick={addNewQuestion}
-                        className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+                        className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-primary/20 shrink-0 ml-auto md:ml-0"
                     >
                         <Plus size={18} />
-                        Create Node
+                        <span className="hidden sm:inline">Create Node</span>
+                        <span className="sm:hidden">Create</span>
                     </button>
                 </div>
-            }
-        >
+
             <div className="grid grid-cols-1 gap-4">
                 {/* New Node (Unsaved) Block */}
                 {editingNode && !questions.find(q => q.questionId === editingNode.questionId) && (
@@ -339,7 +339,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Choice Options (Branching)</label>
                                     <div className="space-y-3">
                                         {editingNode.options.map((opt, idx) => (
-                                            <div key={idx} className="grid grid-cols-12 gap-2 bg-white dark:bg-black/40 p-3 rounded-2xl border border-slate-100 dark:border-white/5 transition-all focus-within:border-accent/40">
+                                            <div key={idx} className="flex flex-col sm:grid sm:grid-cols-12 gap-2 bg-white dark:bg-black/40 p-3 rounded-2xl border border-slate-100 dark:border-white/5 transition-all focus-within:border-accent/40">
                                                 <div className="col-span-12 space-y-2 mt-2">
                                                     <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Post-Choice Narrative (Optional)</label>
                                                     <input 
@@ -355,7 +355,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                 </div>
                                                 <input 
                                                     placeholder="Option Text"
-                                                    className="col-span-6 bg-transparent text-sm font-bold focus:outline-none px-2"
+                                                    className="col-span-12 sm:col-span-6 bg-transparent text-sm font-bold focus:outline-none px-2 py-1"
                                                     value={opt.text}
                                                     onChange={(e) => {
                                                         const newOpts = [...editingNode.options];
@@ -365,7 +365,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                 />
                                                 {editingNode.section === 'PATH' ? (
                                                     <select 
-                                                        className="col-span-3 bg-transparent text-xs font-mono text-slate-500 focus:outline-none border-x border-slate-100 dark:border-white/10 px-2"
+                                                        className="col-span-12 sm:col-span-3 bg-transparent text-xs font-mono text-slate-500 focus:outline-none border-y sm:border-y-0 sm:border-x border-slate-100 dark:border-white/10 px-2 py-1"
                                                         value={opt.value}
                                                         onChange={(e) => {
                                                             const newOpts = [...editingNode.options];
@@ -380,7 +380,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                 ) : (
                                                     <input 
                                                         placeholder="Value"
-                                                        className="col-span-3 bg-transparent text-xs font-mono text-slate-500 focus:outline-none border-x border-slate-100 dark:border-white/10 px-2"
+                                                        className="col-span-12 sm:col-span-3 bg-transparent text-xs font-mono text-slate-500 focus:outline-none border-y sm:border-y-0 sm:border-x border-slate-100 dark:border-white/10 px-2 py-1"
                                                         value={opt.value}
                                                         onChange={(e) => {
                                                             const newOpts = [...editingNode.options];
@@ -389,7 +389,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                         }}
                                                     />
                                                 )}
-                                                <div className="col-span-3 flex items-center gap-1">
+                                                <div className="col-span-12 sm:col-span-3 flex items-center gap-1 px-2 py-1">
                                                     <Zap size={10} className="text-slate-400" />
                                                     <input 
                                                         placeholder="NextID"
@@ -434,18 +434,18 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                         className={`group border rounded-[2rem] transition-all bg-white dark:bg-[#121212]/30 backdrop-blur-md overflow-hidden ${expandedId === q.questionId ? 'border-accent shadow-[0_0_30px_rgba(var(--accent-rgb),0.1)]' : 'border-slate-100 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'}`}
                     >
                         <div 
-                            className="p-6 flex items-center justify-between cursor-pointer"
+                            className="p-3 md:p-6 flex items-center justify-between cursor-pointer"
                             onClick={() => setExpandedId(expandedId === q.questionId ? null : q.questionId)}
                         >
-                            <div className="flex items-center gap-5">
+                            <div className="flex items-center gap-3 md:gap-5">
                                 <div 
-                                    className={`size-10 rounded-xl flex items-center justify-center font-black font-mono text-[10px] ${q.type === 'ACTION' ? 'bg-accent text-white shadow-[0_0_15px_rgba(var(--accent-rgb),0.4)]' : 'bg-slate-100 dark:bg-[#000000] text-slate-400'}`}
-                                    style={{ marginLeft: `${(q.questionId.split('.').length - 1) * 20}px` }}
+                                    className={`size-8 md:size-10 shrink-0 rounded-lg md:rounded-xl flex items-center justify-center font-black font-mono text-[9px] md:text-[10px] ${q.type === 'ACTION' ? 'bg-accent text-white shadow-[0_0_15px_rgba(var(--accent-rgb),0.4)]' : 'bg-slate-100 dark:bg-[#000000] text-slate-400'}`}
+                                    style={{ marginLeft: `${Math.min((q.questionId.split('.').length - 1) * (typeof window !== 'undefined' && window.innerWidth < 640 ? 8 : 20), 60)}px` }}
                                 >
                                     {q.questionId}
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-slate-900 dark:text-white uppercase tracking-tight font-exo italic text-lg">
+                                    <h3 className="font-bold text-slate-900 dark:text-white uppercase tracking-tight font-exo italic text-base md:text-lg">
                                         {q.title || q.question}
                                         {q.questionId.split('.').length > 1 && (
                                             <span className="ml-2 px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 text-[8px] opacity-70">
@@ -463,12 +463,6 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); startEditing(q); }}
-                                    className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#000000] text-slate-400 hover:text-white hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100"
-                                >
-                                    <Plus size={16} />
-                                </button>
                                 {expandedId === q.questionId ? <ChevronUp size={20} className="text-slate-300" /> : <ChevronDown size={20} className="text-slate-300" />}
                             </div>
                         </div>
@@ -482,7 +476,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                     className="border-t border-slate-100 dark:border-white/10"
                                 >
                                     {editingNode && editingNode.questionId === q.questionId ? (
-                                        <div className="p-8 space-y-8 bg-slate-50/50 dark:bg-black/40">
+                                        <div className="p-4 md:p-8 space-y-6 md:space-y-8 bg-slate-50/50 dark:bg-black/40">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                 <div className="space-y-6">
                                                     <div className="space-y-2">
@@ -560,7 +554,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Adaptive Branches (Options)</label>
                                                         <div className="space-y-3">
                                                             {editingNode.options.map((opt, idx) => (
-                                                                <div key={idx} className="grid grid-cols-12 gap-2 bg-white dark:bg-black/40 p-3 rounded-2xl border border-slate-100 dark:border-white/5 transition-all focus-within:border-accent/40">
+                                                                <div key={idx} className="flex flex-col sm:grid sm:grid-cols-12 gap-2 bg-white dark:bg-black/40 p-3 rounded-2xl border border-slate-100 dark:border-white/5 transition-all focus-within:border-accent/40">
                                                                     <div className="col-span-12 space-y-2 mt-2">
                                                                         <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Post-Choice Narrative (Optional)</label>
                                                                         <input 
@@ -576,7 +570,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                                     </div>
                                                                     <input 
                                                                         placeholder="Option Text"
-                                                                        className="col-span-6 bg-transparent text-sm font-bold focus:outline-none px-2"
+                                                                        className="col-span-12 sm:col-span-6 bg-transparent text-sm font-bold focus:outline-none px-2 py-1"
                                                                         value={opt.text}
                                                                         onChange={(e) => {
                                                                             const newOpts = [...editingNode.options];
@@ -586,7 +580,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                                     />
                                                                     {editingNode.section === 'PATH' ? (
                                                                         <select 
-                                                                            className="col-span-3 bg-transparent text-xs font-mono text-accent focus:outline-none border-x border-slate-100 dark:border-white/10 px-2"
+                                                                            className="col-span-12 sm:col-span-3 bg-transparent text-xs font-mono text-accent focus:outline-none border-y sm:border-y-0 sm:border-x border-slate-100 dark:border-white/10 px-2 py-1"
                                                                             value={opt.value}
                                                                             onChange={(e) => {
                                                                                 const newOpts = [...editingNode.options];
@@ -601,7 +595,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                                     ) : (
                                                                         <input 
                                                                             placeholder="Value"
-                                                                            className="col-span-3 bg-transparent text-xs font-mono text-slate-500 focus:outline-none border-x border-slate-100 dark:border-white/10 px-2"
+                                                                            className="col-span-12 sm:col-span-3 bg-transparent text-xs font-mono text-slate-500 focus:outline-none border-y sm:border-y-0 sm:border-x border-slate-100 dark:border-white/10 px-2 py-1"
                                                                             value={opt.value}
                                                                             onChange={(e) => {
                                                                                 const newOpts = [...editingNode.options];
@@ -610,7 +604,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                                             }}
                                                                         />
                                                                     )}
-                                                                    <div className="col-span-3 flex items-center gap-1">
+                                                                    <div className="col-span-12 sm:col-span-3 flex items-center gap-1 px-2 py-1">
                                                                         <Zap size={10} className="text-slate-400" />
                                                                         <input 
                                                                             placeholder="NextID"
@@ -630,32 +624,34 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                 </div>
                                             </div>
 
-                                            <div className="flex justify-end gap-3 pt-6 border-t border-slate-200 dark:border-white/10">
+                                            <div className="flex flex-nowrap justify-end gap-4 md:gap-6 pt-6 border-t border-slate-200 dark:border-white/10">
                                                 <button 
                                                     onClick={() => setEditingNode(null)}
-                                                    className="px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-700 dark:hover:text-white transition-all"
+                                                    className="px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-700 dark:hover:text-white transition-all whitespace-nowrap"
                                                 >
-                                                    Discard Changes
+                                                    Discard
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(editingNode.questionId)}
-                                                    className="p-2.5 rounded-xl bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white transition-all flex items-center gap-2 font-black text-[10px] uppercase tracking-widest"
+                                                    className="p-2.5 rounded-xl text-orange-500 hover:bg-orange-500/10 transition-all flex items-center gap-2 font-black text-[10px] uppercase tracking-widest whitespace-nowrap"
                                                 >
                                                     <Trash2 size={16} />
-                                                    Delete Node
+                                                    <span className="hidden sm:inline">Delete Node</span>
+                                                    <span className="sm:hidden">Delete</span>
                                                 </button>
                                                 <button 
                                                     disabled={isSaving}
                                                     onClick={() => handleSave(editingNode)}
-                                                    className="bg-accent text-white px-8 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)] disabled:opacity-50 flex items-center gap-2"
+                                                    className="bg-accent text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)] disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
                                                 >
                                                     <Save size={16} />
-                                                    Update Node
+                                                    <span className="hidden sm:inline">Update Node</span>
+                                                    <span className="sm:hidden">Update</span>
                                                 </button>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="p-8 space-y-6">
+                                        <div className="p-4 md:p-8 space-y-6">
                                             {q.story && (
                                                 <div className="bg-slate-50 dark:bg-black/20 p-6 rounded-[1.5rem] border border-slate-100 dark:border-white/5">
                                                     <p className="text-sm font-medium text-slate-600 dark:text-slate-400 leading-relaxed italic">
@@ -681,18 +677,19 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                 </div>
                                             </div>
 
-                                            <div className="flex justify-end gap-3 pt-4">
+                                            <div className="flex flex-nowrap justify-end gap-6 pt-4">
                                                     <button 
                                                         onClick={() => handleDelete(q.questionId)}
-                                                        className="p-2.5 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center gap-2 font-black text-[10px] uppercase tracking-widest"
+                                                        className="group flex items-center gap-2 font-black text-[10px] uppercase tracking-widest text-slate-400 hover:text-rose-500 transition-all hover:underline underline-offset-8 whitespace-nowrap"
                                                     >
-                                                        <Trash2 size={16} />
+                                                        <Trash2 size={14} className="opacity-50 group-hover:opacity-100 transition-opacity" />
                                                         Delete Node
                                                     </button>
                                                     <button 
                                                         onClick={() => startEditing(q)}
-                                                        className="px-6 py-2.5 rounded-xl bg-slate-100 dark:bg-[#000000] text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/10"
+                                                        className="group flex items-center gap-2 font-black text-[10px] uppercase tracking-widest text-slate-400 hover:text-white transition-all hover:underline underline-offset-8 whitespace-nowrap"
                                                     >
+                                                        <Plus size={14} className="opacity-50 group-hover:opacity-100 transition-opacity" />
                                                         Edit Story Node
                                                     </button>
                                             </div>

@@ -8,26 +8,6 @@ import { useHabits } from '../../hooks/useHabits';
 import { ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
 import DashboardPanel from '../ui/DashboardPanel';
 
-const iconMap = {
-    'Iron Fist': 'Dumbbell',
-    'Blade Dancer': 'Zap',
-    'Warlord': 'Crosshair',
-    'Vanguard': 'TrendingUp',
-    'Sentinel': 'Shield',
-    'Forge Master': 'Sparkles',
-    'Commander': 'Network',
-    'Champion': 'Target',
-    'Shadow Monk': 'Eye',
-    'Ghost': 'Sparkles',
-    'Diplomat': 'Network',
-    'Bard': 'Sparkles',
-    'Oracle': 'Brain',
-    'Druid': 'Heart',
-    'Alchemist': 'Sparkles',
-    'Architect': 'TrendingUp',
-    'None': 'Activity'
-};
-
 const StreakStatus = ({ user }) => {
     const { habits } = useHabits();
     const today = new Date().toISOString().split('T')[0];

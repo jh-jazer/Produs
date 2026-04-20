@@ -90,8 +90,8 @@ const CoreDisplay = ({ amount = 0, className = "", variant = "minimal" }) => {
                         Limited_Resource
                     </span>
                 )}
-                <div className="flex items-baseline gap-2">
-                    <div className="min-w-[3.5rem] flex justify-start">
+                <div className="flex items-baseline gap-2 flex-nowrap">
+                    <div className="min-w-fit flex justify-start">
                         <motion.span
                             className={`font-black tracking-tight leading-none transition-colors duration-300 ${
                                 isPopping ? 'text-amber-400' : 'text-slate-900 dark:text-white'
@@ -100,7 +100,6 @@ const CoreDisplay = ({ amount = 0, className = "", variant = "minimal" }) => {
                             {displayAmount.toLocaleString()}
                         </motion.span>
                     </div>
-                    <span className="text-[9px] font-black text-amber-500/60 uppercase shrink-0">CORE</span>
                 </div>
             </div>
         </div>
