@@ -162,7 +162,7 @@ export default function Landing() {
         if (!isUnmounted && typeof ScrollTrigger !== 'undefined') {
             ScrollTrigger.refresh();
         }
-    }, 150);
+    }, 1000);
 
     return () => {
       isUnmounted = true;

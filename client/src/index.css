@@ -96,6 +96,8 @@ body {
     color: var(--foreground);
     /* Transition removed for immediate paint to avoid white flashes */
     overflow-x: hidden;
+    overflow-y: auto;
+    height: auto;
     scrollbar-gutter: stable;
 }
 

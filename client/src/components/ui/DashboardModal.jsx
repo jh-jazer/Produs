@@ -1,7 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, ChevronLeft } from 'lucide-react';
 
 /**
  * DashboardModal - A high-fidelity, cinematic reusable modal for the Produs HUD.
@@ -9,6 +9,7 @@ import { X } from 'lucide-react';
  * 
  * @param {boolean} isOpen - Controls visibility
  * @param {function} onClose - Callback to close the modal
+ * @param {function} onBack - Optional callback for back navigation
  * @param {string} title - Tactical label for the header (e.g. SYSTEM_UPGRADE_)
  * @param {string} subtitle - Descriptive sub-label
  * @param {React.ReactNode} children - Main modal content
@@ -18,6 +19,7 @@ import { X } from 'lucide-react';
 const DashboardModal = ({ 
     isOpen, 
     onClose, 
+    onBack,
     title, 
     subtitle, 
     children, 
@@ -68,11 +70,15 @@ const DashboardModal = ({
                             <div className="flex items-center gap-4">
                                 {headerExtra && headerExtra}
                                 <button 
-                                    onClick={onClose}
-                                    className="size-12 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-rose-500/20 text-slate-500 dark:text-slate-400 hover:text-rose-500 transition-all flex items-center justify-center border border-black/10 dark:border-white/10 group shadow-sm"
-                                    title="Close Nexus"
+                                    onClick={onBack || onClose}
+                                    className="size-12 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-primary/20 text-slate-500 dark:text-slate-400 hover:text-primary transition-all flex items-center justify-center border border-black/10 dark:border-white/10 group shadow-sm"
+                                    title={onBack ? "Go Back" : "Close Nexus"}
                                 >
-                                    <X size={20} className="group-hover:rotate-90 transition-transform" />
+                                    {onBack ? (
+                                        <ChevronLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
+                                    ) : (
+                                        <X size={20} className="group-hover:rotate-90 transition-transform" />
+                                    )}
                                 </button>
                             </div>
                         </div>
