@@ -28,7 +28,7 @@ const RPGImmersiveOverlay = ({ activeTab, setActiveTab }) => {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.02 }}
-            className="relative w-full h-[550px] bg-black/20 backdrop-blur-3xl rounded-[3rem] overflow-hidden flex items-center justify-center font-mono select-none shadow-2xl border border-white/10"
+            className="relative w-full h-[650px] md:h-[700px] lg:h-[750px] mt-6 md:mt-8 bg-black/20 backdrop-blur-3xl rounded-[3rem] overflow-hidden flex items-center justify-center font-mono select-none shadow-2xl border border-white/10"
         >
             {/* 1. Background Layers */}
             <div className="absolute inset-0 z-0">
