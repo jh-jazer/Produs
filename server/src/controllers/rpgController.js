@@ -37,6 +37,9 @@ export const completeDailyQuiz = async (req, res) => {
         
         // Mark as completed
         user.rpg.dailyQuiz = { lastCompleted: today };
+        
+        const { syncUserEnergy } = await import('../utils/rpgUtils.js');
+        syncUserEnergy(user);
         await user.save();
 
         res.json({
@@ -167,6 +170,8 @@ export const syncNeural = async (req, res) => {
         // Level 1 transformation and Path assignment are triggered by the NEURAL_HANDSHAKE ceremony.
 
         user.markModified('rpg');
+        const { syncUserEnergy } = await import('../utils/rpgUtils.js');
+        syncUserEnergy(user);
         await user.save();
 
         // Diagnostic Trace

@@ -54,6 +54,8 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                             <tr className="text-left text-slate-400 text-[10px] uppercase font-black tracking-widest border-b border-slate-100 dark:border-white/10">
                                 <th className="pb-4 font-black px-1">User</th>
                                 <th className="pb-4 font-black">Role</th>
+                                <th className="pb-4 font-black hidden md:table-cell">Level</th>
+                                <th className="pb-4 font-black hidden md:table-cell">Path</th>
                                 <th className="pb-4 font-black">Status</th>
                                 <th className="pb-4 font-black hidden sm:table-cell">Joined</th>
                                 <th className="pb-4 font-black"></th>
@@ -80,6 +82,16 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                                             <span className="text-[9px] md:text-[10px] font-black font-mono text-slate-400 bg-slate-100 dark:bg-[#000000] px-2 py-0.5 rounded-md">USER</span>
                                         )}
                                     </td>
+                                    <td className="py-4 hidden md:table-cell">
+                                        <span className="text-[10px] font-black font-mono text-white">LVL.{user.level ?? 0}</span>
+                                    </td>
+                                    <td className="py-4 hidden md:table-cell">
+                                        {user.rpg?.path ? (
+                                            <span className="text-[9px] font-black font-mono px-2 py-0.5 rounded-md bg-primary/10 text-primary">{user.rpg.path}</span>
+                                        ) : (
+                                            <span className="text-[9px] font-black font-mono text-slate-600">—</span>
+                                        )}
+                                    </td>
                                     <td className="py-4">
                                         <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase">Active</span>
                                     </td>
@@ -102,7 +114,7 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                             ))}
                             {visibleUsers.length === 0 && !isValidating && (
                                 <tr>
-                                    <td colSpan="5" className="py-12 text-center text-slate-500 italic font-medium text-sm">No users found in the galaxy.</td>
+                                    <td colSpan="7" className="py-12 text-center text-slate-500 italic font-medium text-sm">No users found in the galaxy.</td>
                                 </tr>
                             )}
                         </tbody>

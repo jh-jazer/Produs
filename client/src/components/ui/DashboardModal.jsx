@@ -41,14 +41,29 @@ const DashboardModal = ({
                         onClick={onClose}
                     />
 
-                    {/* Modal Container */}
-                    <motion.div 
-                        initial={{ scale: 0.9, y: 20, opacity: 0 }}
-                        animate={{ scale: 1, y: 0, opacity: 1 }}
-                        exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                        className={`relative w-full ${maxWidth} bg-slate-50 dark:bg-[#0a0a0a] rounded-[3rem] border border-primary/30 overflow-hidden flex flex-col max-h-[85vh] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] z-[1001]`}
-                        onClick={e => e.stopPropagation()}
-                    >
+                    {/* Modal Wrapper & Floating Close */}
+                    <div className="relative w-full flex justify-center">
+                        {/* THE FLOATING X BUTTON */}
+                        <motion.button
+                            initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
+                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                            exit={{ opacity: 0, scale: 0.5, rotate: -90 }}
+                            transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 15 }}
+                            onClick={onClose}
+                            className="absolute top-0.5 right-0.5 size-10 md:size-12 rounded-full bg-slate-50 dark:bg-[#0a0a0a] border border-primary/40 shadow-[0_0_10px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] z-[1010] flex items-center justify-center text-slate-900 dark:text-white hover:bg-primary/5 transition-all group active:scale-90"
+                            title="Close Nexus"
+                        >
+                            <X size={20} className="group-hover:rotate-90 transition-transform" />
+                        </motion.button>
+
+                        {/* Modal Container */}
+                        <motion.div 
+                            initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                            className={`relative w-full ${maxWidth} bg-slate-50 dark:bg-[#0a0a0a] rounded-[3rem] border border-primary/30 overflow-hidden flex flex-col max-h-[85vh] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] z-[1001]`}
+                            onClick={e => e.stopPropagation()}
+                        >
                         {/* Header Section */}
                         <div className="p-8 md:p-10 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-black/5 dark:bg-white/5 relative z-20">
                             <div className="space-y-1">
@@ -69,17 +84,15 @@ const DashboardModal = ({
                             
                             <div className="flex items-center gap-4">
                                 {headerExtra && headerExtra}
-                                <button 
-                                    onClick={onBack || onClose}
-                                    className="size-12 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-primary/20 text-slate-500 dark:text-slate-400 hover:text-primary transition-all flex items-center justify-center border border-black/10 dark:border-white/10 group shadow-sm"
-                                    title={onBack ? "Go Back" : "Close Nexus"}
-                                >
-                                    {onBack ? (
+                                {onBack && (
+                                    <button 
+                                        onClick={onBack}
+                                        className="size-12 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-primary/20 text-slate-500 dark:text-slate-400 hover:text-primary transition-all flex items-center justify-center border border-black/10 dark:border-white/10 group shadow-sm"
+                                        title="Go Back"
+                                    >
                                         <ChevronLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
-                                    ) : (
-                                        <X size={20} className="group-hover:rotate-90 transition-transform" />
-                                    )}
-                                </button>
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -88,6 +101,7 @@ const DashboardModal = ({
                             {children}
                         </div>
                     </motion.div>
+                    </div>
                 </div>
             )}
         </AnimatePresence>

@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import DashboardModal from './DashboardModal';
 import CoinDisplay from './CoinDisplay';
 import CoreDisplay from './CoreDisplay';
+import EnergyDisplay from './EnergyDisplay';
 
 const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onOpenNotifications, onOpenBugReport, onOpenStats, onSignOut }) => {
     const navigate = useNavigate();
@@ -12,12 +13,19 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
             onClose={onClose}
             title={user?.username}
             subtitle={
-                <div className="flex flex-row items-center gap-4 mt-3">
+                <div className="flex flex-row items-center gap-5 mt-3">
                     <div onClick={() => { onClose(); navigate('/dashboard/shop'); }} className="inline-block cursor-pointer active:scale-95 transition-all w-fit">
                         <CoinDisplay amount={user?.rpg?.prodCoins || 0} variant="minimal" />
                     </div>
                     <div className="inline-block w-fit opacity-80 hover:opacity-100 transition-opacity">
                         <CoreDisplay amount={user?.rpg?.cores || 0} variant="minimal" />
+                    </div>
+                    <div className="inline-block w-fit opacity-80 hover:opacity-100 transition-opacity ml-2">
+                        <EnergyDisplay 
+                            current={user?.rpg?.energy?.current ?? (10 + (user?.level || 0))} 
+                            max={10 + (user?.level || 0)} 
+                            variant="minimal" 
+                        />
                     </div>
                 </div>
             }

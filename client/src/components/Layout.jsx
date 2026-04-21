@@ -174,37 +174,21 @@ function Layout() {
 
                     {/* Tactical Tools Right */}
                     <div className="ml-auto flex items-center gap-3">
-                        {/* 1. Tactical Toggles (RPG & Link) */}
+                        {/* 1. Tactical Toggles (RPG) */}
                         <div className="flex items-center gap-1.5 p-1 rounded-2xl">
                             {/* RPG Toggle - Dashboard Only */}
                             {isOverview && (
                                 <button
                                     onClick={() => setProtocolMode(protocolMode === 'rpg' ? 'reality' : 'rpg')}
-                                    className={`size-9 rounded-xl flex items-center justify-center relative transition-all active:scale-95 ${
+                                    className={`px-3 h-9 rounded-xl flex items-center justify-center relative transition-all active:scale-95 font-black text-[11px] tracking-widest ${
                                         protocolMode === 'rpg' 
                                             ? 'bg-primary text-white' 
                                             : 'text-slate-500 bg-black/5 dark:bg-white/5'
                                     }`}
                                 >
-                                    <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
+                                    RPG
                                 </button>
                             )}
-
-                            {/* Partner Link Toggle */}
-                            {isOverview && (
-                                <button
-                                    onClick={() => setViewMode(viewMode === 'personal' ? 'partner' : 'personal')}
-                                    className={`size-9 rounded-xl flex items-center justify-center transition-all active:scale-95 ${
-                                        viewMode === 'partner'
-                                            ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]'
-                                            : 'text-slate-500 bg-black/5 dark:bg-white/5'
-                                    }`}
-                                >
-                                    {viewMode === 'partner' ? <Handshake size={14} /> : <User size={14} />}
-                                </button>
-                            )}
-
-
                         </div>
 
                         {/* Profile Avatar + LVL Badge (Very Right) */}

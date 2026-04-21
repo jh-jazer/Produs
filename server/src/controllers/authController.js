@@ -59,6 +59,8 @@ export const registerUser = async (req, res) => {
             await initializeSystemHabits(user._id);
 
             const levelInfo = calculateLevel(user.exp);
+            syncUserEnergy(user);
+            await user.save();
 
             res.status(201).json({
                 _id: user.id,
@@ -105,6 +107,9 @@ export const loginUser = async (req, res) => {
             await initializeSystemHabits(user._id);
 
             const levelInfo = calculateLevel(user.exp);
+            syncUserEnergy(user);
+            await user.save();
+
             res.json({
                 _id: user.id,
                 name: user.name,
@@ -179,6 +184,9 @@ export const getMe = async (req, res) => {
         
         if (user) {
             const levelInfo = calculateLevel(user.exp);
+            syncUserEnergy(user);
+            await user.save();
+
             res.json({
                 _id: user.id,
                 name: user.name,

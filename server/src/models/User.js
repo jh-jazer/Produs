@@ -143,6 +143,10 @@ const userSchema = new mongoose.Schema({
         inventory: {
             themes: { type: [String], default: ['classic'] },
             items: { type: [Object], default: [] }
+        },
+        energy: {
+            current: { type: Number, default: 10 },
+            lastUpdated: { type: Date, default: Date.now }
         }
     },
     timezone: {

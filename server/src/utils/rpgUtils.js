@@ -3,6 +3,49 @@
  * Handles Leveling, XP awarding, Daily Caps, and Archetype Evolution.
  */
 
+export const syncUserEnergy = (user) => {
+    const level = user.level || 0;
+    const maxEnergy = 10 + level;
+
+    if (!user.rpg.energy) {
+        user.rpg.energy = { current: maxEnergy, lastUpdated: new Date() };
+    }
+    
+    // Base 20 minutes, -0.5% per level
+    const recoveryMinutes = 20 * (1 - (level * 0.005));
+    const recoveryMs = Math.max(recoveryMinutes, 1) * 60 * 1000; // Cap at 1 minute min
+
+    const now = new Date();
+    const lastUpdated = new Date(user.rpg.energy.lastUpdated);
+    const elapsedMs = now - lastUpdated;
+    
+    const energyGained = Math.floor(elapsedMs / recoveryMs);
+
+    if (energyGained > 0) {
+        const newEnergy = Math.min(maxEnergy, user.rpg.energy.current + energyGained);
+        user.rpg.energy.current = newEnergy;
+        
+        // Move lastUpdated forward to represent unused partial recovery time
+        user.rpg.energy.lastUpdated = new Date(lastUpdated.getTime() + (energyGained * recoveryMs));
+        user.markModified('rpg.energy');
+    }
+
+    return {
+        current: user.rpg.energy.current,
+        max: maxEnergy,
+        recoveryMs
+    };
+};
+
+export const refillEnergy = (user) => {
+    const maxEnergy = 10 + (user.level || 0);
+    user.rpg.energy = {
+        current: maxEnergy,
+        lastUpdated: new Date()
+    };
+    user.markModified('rpg.energy');
+};
+
 export const LEVEL_TABLE = [
     { level: 0, title: 'Shut-in', xpToNext: 100, totalRequired: 0 },
     { level: 1, title: 'Tier 1: Novice', xpToNext: 150, totalRequired: 100 },
@@ -377,6 +420,11 @@ export const awardXP = async (user, stat, amount, streak = 1, activityType = 'sy
             to: archetypeInfo.name,
             date: new Date()
         });
+    }
+
+    // REFILL ENERGY ON LEVEL UP
+    if (user.level > oldLevel) {
+        refillEnergy(user);
     }
 
     // Log Activity
