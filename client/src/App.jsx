@@ -170,6 +170,17 @@ function App() {
     }
   }, [user?.settings?.themeMode, user?.settings?.theme]);
 
+  const signOut = useAuthStore((state) => state.signOut);
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      signOut();
+    };
+
+    window.addEventListener('auth-unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth-unauthorized', handleUnauthorized);
+  }, [signOut]);
+
   useEffect(() => {
     // Hide the initial loader once auth state is settled.
     // Syncing with cinematic global loader in index.html.

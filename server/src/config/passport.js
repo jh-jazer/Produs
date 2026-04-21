@@ -19,12 +19,18 @@ passport.use(
                     await initializeSystemHabits(user._id);
                     done(null, user);
                 } else {
+                    const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
+
+                    if (!email) {
+                        return done(new Error('Google account must have an email associated.'), null);
+                    }
+
                     // Check if user exists with the same email but registered via email/password
-                    user = await User.findOne({ email: profile.emails[0].value });
+                    user = await User.findOne({ email });
                     if (user) {
                         // Link googleId to the existing account
                         user.googleId = profile.id;
-                        if (!user.avatar && profile.photos && profile.photos.length > 0) {
+                        if ((!user.avatar || (typeof user.avatar === 'object' && Object.keys(user.avatar).length === 0)) && profile.photos && profile.photos.length > 0) {
                             user.avatar = profile.photos[0].value;
                         }
                         await user.save();
@@ -35,7 +41,7 @@ passport.use(
                         const newUser = {
                             googleId: profile.id,
                             name: profile.displayName,
-                            email: profile.emails[0].value,
+                            email: email,
                             avatar: profile.photos && profile.photos.length > 0 ? profile.photos[0].value : '',
                         };
 

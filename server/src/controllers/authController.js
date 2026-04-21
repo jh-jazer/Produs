@@ -14,7 +14,7 @@ import HealthLog from '../models/HealthLog.js';
 import Joi from 'joi';
 import mongoose from 'mongoose';
 import generateToken from '../utils/generateToken.js';
-import { calculateLevel, awardXP, determineArchetype, checkNeuralSync } from '../utils/rpgUtils.js';
+import { calculateLevel, awardXP, determineArchetype, checkNeuralSync, syncUserEnergy } from '../utils/rpgUtils.js';
 import { calculateScores, ARCHETYPE_PROTOCOLS } from '../shared/assessment.js';
 const registerSchema = Joi.object({
     name: Joi.string().min(2).max(50).required(),
@@ -485,14 +485,16 @@ export const getPublicProfile = async (req, res) => {
 // @access  Public
 export const googleAuthCallback = async (req, res) => {
     // Passport will attach the authenticated user to req.user
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+
     if (!req.user) {
-        return res.redirect(`${process.env.CLIENT_URL}/auth?error=auth_failed`);
+        return res.redirect(`${clientUrl}/auth?error=auth_failed`);
     }
 
     const token = generateToken(req.user._id);
 
     // Redirect to frontend with token in the URL params
-    res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}`);
+    res.redirect(`${clientUrl}/auth/callback?token=${token}`);
 };
 
 // @desc    Complete onboarding

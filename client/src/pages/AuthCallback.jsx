@@ -9,6 +9,7 @@ function AuthCallback() {
     const setCredentials = useAuthStore((state) => state.setCredentials);
 
     useEffect(() => {
+        let isMounted = true;
         const fetchUserProfile = async () => {
             const token = searchParams.get('token');
 
@@ -20,6 +21,8 @@ function AuthCallback() {
                     // Fetch the full user profile
                     const { data } = await api.get('/auth/me');
 
+                    if (!isMounted) return;
+
                     // Store the complete user object (which includes the token from the backend)
                     // The backend /auth/me returns _id, name, email, avatar. We need to append the token.
                     setCredentials({ ...data, token });
@@ -28,14 +31,15 @@ function AuthCallback() {
                     navigate('/dashboard');
                 } catch (error) {
                     console.error('Failed to fetch user profile:', error);
-                    navigate('/auth?error=invalid_token');
+                    if (isMounted) navigate('/auth?error=invalid_token');
                 }
             } else {
-                navigate('/auth?error=auth_failed');
+                if (isMounted) navigate('/auth?error=auth_failed');
             }
         };
 
         fetchUserProfile();
+        return () => { isMounted = false; };
     }, [searchParams, navigate, setCredentials]);
 
     return (
