@@ -83,7 +83,7 @@ const getSystemStats = async (req, res) => {
             archetypeStats,
             levelDistribution,
             corePool: settings.corePool,
-            recentUsers: await User.find().sort({ createdAt: -1 }).select('name email username banner avatar settings createdAt isAdmin rpg.cores'),
+            recentUsers: await User.find().sort({ createdAt: -1 }).select('name email username banner avatar settings createdAt isAdmin rpg level'),
             systemStatus: [
                  { label: 'API Server', status: 'Healthy', color: 'bg-green-500' },
                  { label: 'Database', status: 'Healthy', color: 'bg-green-500' },
