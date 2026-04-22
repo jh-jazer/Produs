@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { encrypt, decrypt } from '../utils/encryption.js';
 
 const journalSchema = new mongoose.Schema({
     user: {
@@ -34,9 +35,22 @@ const journalSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Ensure only one journal entry per user per day if needed, 
-// or allow multiple. Usually journalers write once a day, 
-// but let's allow multiple for flexibility unless specified.
+// Encryption Hooks
+journalSchema.pre('save', function(next) {
+    if (this.isModified('title')) this.title = encrypt(this.title);
+    if (this.isModified('content')) this.content = encrypt(this.content);
+    next();
+});
+
+journalSchema.post('init', function(doc) {
+    if (doc.title) doc.title = decrypt(doc.title);
+    if (doc.content) doc.content = decrypt(doc.content);
+});
+
+journalSchema.post('save', function(doc) {
+    if (doc.title) doc.title = decrypt(doc.title);
+    if (doc.content) doc.content = decrypt(doc.content);
+});
 
 const Journal = mongoose.model('Journal', journalSchema);
 export default Journal;

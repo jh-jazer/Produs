@@ -47,7 +47,7 @@ const DashboardModal = ({
                         <motion.button
                             initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
                             animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                            exit={{ opacity: 0, scale: 0.5, rotate: -90 }}
+                            exit={{ opacity: 0, scale: 0.5, rotate: -90, transition: { delay: 0 } }}
                             transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 15 }}
                             onClick={onClose}
                             className="absolute top-0.5 right-0.5 size-10 md:size-12 rounded-full bg-slate-50 dark:bg-[#0a0a0a] border border-primary/40 shadow-[0_0_10px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] z-[1010] flex items-center justify-center text-slate-900 dark:text-white hover:bg-primary/5 transition-all group active:scale-90"

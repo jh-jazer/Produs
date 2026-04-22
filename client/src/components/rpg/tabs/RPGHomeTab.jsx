@@ -150,26 +150,7 @@ const RPGHomeTab = ({ user }) => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-12">
-                        <div className="flex flex-col items-start">
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Cell_Power</span>
-                            <span className="text-[12px] font-black text-white">{user?.rpg?.energy?.current ?? (10 + (user?.level || 0))}</span>
-                        </div>
-                        <div className="flex-1 space-y-1.5 font-mono">
-                            <div className="flex justify-between items-center">
-                                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Energy_Vessel</span>
-                                <span className="text-[8px] font-black text-primary uppercase tracking-widest">{Math.round(((user?.rpg?.energy?.current ?? (10 + (user?.level || 0))) / (10 + (user?.level || 0))) * 100)}%</span>
-                            </div>
-                            <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                                <motion.div
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${((user?.rpg?.energy?.current ?? (10 + (user?.level || 0))) / (10 + (user?.level || 0))) * 100}%` }}
-                                    transition={{ duration: 1.5, ease: "easeOut" }}
-                                    className="h-full bg-primary shadow-[0_0_10px_rgba(6,182,212,0.3)]"
-                                />
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </motion.div>
         </div>

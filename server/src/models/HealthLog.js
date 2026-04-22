@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { encrypt, decrypt } from '../utils/encryption.js';
 
 const healthLogSchema = new mongoose.Schema({
     user: {
@@ -35,6 +36,23 @@ const healthLogSchema = new mongoose.Schema({
     }
 }, {
     timestamps: true
+});
+
+// Encryption Hooks
+healthLogSchema.pre('save', function(next) {
+    if (this.isModified('title')) this.title = encrypt(this.title);
+    if (this.isModified('details')) this.details = encrypt(this.details);
+    next();
+});
+
+healthLogSchema.post('init', function(doc) {
+    if (doc.title) doc.title = decrypt(doc.title);
+    if (doc.details) doc.details = decrypt(doc.details);
+});
+
+healthLogSchema.post('save', function(doc) {
+    if (doc.title) doc.title = decrypt(doc.title);
+    if (doc.details) doc.details = decrypt(doc.details);
 });
 
 const HealthLog = mongoose.model('HealthLog', healthLogSchema);

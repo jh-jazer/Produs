@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { encrypt, decrypt } from '../utils/encryption.js';
 
 const transactionSchema = new mongoose.Schema({
     user: {
@@ -31,6 +32,20 @@ const transactionSchema = new mongoose.Schema({
     }
 }, {
     timestamps: true
+});
+
+// Encryption Hooks
+transactionSchema.pre('save', function(next) {
+    if (this.isModified('title')) this.title = encrypt(this.title);
+    next();
+});
+
+transactionSchema.post('init', function(doc) {
+    if (doc.title) doc.title = decrypt(doc.title);
+});
+
+transactionSchema.post('save', function(doc) {
+    if (doc.title) doc.title = decrypt(doc.title);
 });
 
 const Transaction = mongoose.model('Transaction', transactionSchema);

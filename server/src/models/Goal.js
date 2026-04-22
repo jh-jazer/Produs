@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { encrypt, decrypt } from '../utils/encryption.js';
 
 const goalSchema = new mongoose.Schema({
     user: {
@@ -43,6 +44,20 @@ const goalSchema = new mongoose.Schema({
     }
 }, {
     timestamps: true
+});
+
+// Encryption Hooks
+goalSchema.pre('save', function(next) {
+    if (this.isModified('title')) this.title = encrypt(this.title);
+    next();
+});
+
+goalSchema.post('init', function(doc) {
+    if (doc.title) doc.title = decrypt(doc.title);
+});
+
+goalSchema.post('save', function(doc) {
+    if (doc.title) doc.title = decrypt(doc.title);
 });
 
 const Goal = mongoose.model('Goal', goalSchema);

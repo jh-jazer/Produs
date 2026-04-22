@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { encrypt, decrypt } from '../utils/encryption.js';
 
 const budgetSchema = new mongoose.Schema({
     user: {
@@ -20,6 +21,20 @@ const budgetSchema = new mongoose.Schema({
     }
 }, {
     timestamps: true
+});
+
+// Encryption Hooks
+budgetSchema.pre('save', function(next) {
+    if (this.isModified('category')) this.category = encrypt(this.category);
+    next();
+});
+
+budgetSchema.post('init', function(doc) {
+    if (doc.category) doc.category = decrypt(doc.category);
+});
+
+budgetSchema.post('save', function(doc) {
+    if (doc.category) doc.category = decrypt(doc.category);
 });
 
 const Budget = mongoose.model('Budget', budgetSchema);

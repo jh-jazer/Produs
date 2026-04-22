@@ -66,30 +66,32 @@ const AdminBugs = ({ previewMode = false }) => {
                     {visibleBugs.length > 0 ? visibleBugs.map((bug) => (
                         <div 
                             key={bug._id} 
-                            className={`border rounded-2xl transition-all ${expandedBug === bug._id ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-white/10 hover:border-slate-200 dark:hover:border-white/10 bg-white dark:bg-black/20'}`}
+                            className={`group border rounded-[2rem] transition-all bg-white dark:bg-[#121212]/30 backdrop-blur-md overflow-hidden ${expandedBug === bug._id ? 'border-primary shadow-[0_0_30px_rgba(var(--primary-rgb),0.1)]' : 'border-slate-100 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'}`}
                         >
                             <div 
-                                className="p-4 flex items-start justify-between cursor-pointer"
+                                className="p-3 md:p-6 flex items-center justify-between cursor-pointer"
                                 onClick={() => setExpandedBug(expandedBug === bug._id ? null : bug._id)}
                             >
-                                <div className="flex gap-4">
-                                    <div className={`px-2 py-0.5 rounded-md border text-[10px] font-black uppercase tracking-widest h-fit mt-1 ${getSeverityStyles(bug.severity)}`}>
-                                        {bug.severity}
+                                <div className="flex items-center gap-4 md:gap-5">
+                                    <div className={`size-8 md:size-10 shrink-0 rounded-lg md:rounded-xl flex items-center justify-center font-black font-mono text-[9px] md:text-[10px] border ${getSeverityStyles(bug.severity)} shadow-sm`}>
+                                        {bug.severity.charAt(0).toUpperCase()}
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-slate-900 dark:text-white mb-1">{bug.title}</h3>
-                                        <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                        <h3 className="font-bold text-slate-900 dark:text-white uppercase tracking-tight font-exo italic text-base md:text-lg">
+                                            {bug.title}
+                                        </h3>
+                                        <div className="flex items-center gap-3 mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400 font-mono">
                                             <span className="flex items-center gap-1">{getStatusIcon(bug.status)} {bug.status}</span>
-                                            <span>•</span>
-                                            <span>From {bug.user?.name || 'Unknown'}</span>
+                                            <span className="hidden sm:inline">•</span>
+                                            <span className="hidden sm:inline">From {bug.user?.name || 'Unknown'}</span>
                                             <span>•</span>
                                             <span>{new Date(bug.createdAt).toLocaleDateString()}</span>
                                         </div>
                                     </div>
                                 </div>
-                                <button className="text-slate-400">
-                                    {expandedBug === bug._id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                                </button>
+                                <div className="flex items-center gap-4">
+                                    {expandedBug === bug._id ? <ChevronUp size={20} className="text-slate-300" /> : <ChevronDown size={20} className="text-slate-300" />}
+                                </div>
                             </div>
 
                             <AnimatePresence>
@@ -98,66 +100,73 @@ const AdminBugs = ({ previewMode = false }) => {
                                         initial={{ height: 0, opacity: 0 }}
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
-                                        className="overflow-hidden border-t border-slate-100 dark:border-white/10"
+                                        className="border-t border-slate-100 dark:border-white/10"
                                     >
-                                        <div className="p-6 space-y-6">
-                                            <div className="bg-slate-50 dark:bg-black/40 p-4 rounded-2xl text-sm font-medium text-slate-600 dark:text-slate-300 italic">
-                                                "{bug.description}"
+                                        <div className="p-4 md:p-8 space-y-6 md:space-y-8 bg-slate-50/50 dark:bg-black/40">
+                                            <div className="bg-white dark:bg-black/40 p-6 rounded-[1.5rem] border border-slate-100 dark:border-white/5 shadow-inner">
+                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed italic">
+                                                    "{bug.description}"
+                                                </p>
                                             </div>
 
                                             {bug.adminResponse && (
-                                                <div className="flex gap-3">
-                                                    <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
-                                                        <Reply size={14} className="scale-x-[-1]" />
+                                                <div className="flex gap-4 p-4 rounded-2xl bg-primary/5 border border-primary/10">
+                                                    <div className="size-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0 shadow-lg shadow-primary/10">
+                                                        <Reply size={16} className="scale-x-[-1]" />
                                                     </div>
                                                     <div className="space-y-1">
-                                                        <p className="text-[10px] font-black text-primary uppercase tracking-widest">Admin Response</p>
-                                                        <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{bug.adminResponse}</p>
+                                                        <p className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                                                            <Activity size={10} />
+                                                            Neural Feedback Response_
+                                                        </p>
+                                                        <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-relaxed">{bug.adminResponse}</p>
                                                     </div>
                                                 </div>
                                             )}
 
-                                            <div className="space-y-3">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Actions</p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    <button 
-                                                        onClick={() => handleUpdateStatus(bug._id, 'in-progress')}
-                                                        className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${bug.status === 'in-progress' ? 'bg-blue-500 text-white' : 'bg-blue-500/10 text-blue-500 hover:bg-blue-500/20'}`}
-                                                    >
-                                                        In Progress
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleUpdateStatus(bug._id, 'resolved')}
-                                                        className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${bug.status === 'resolved' ? 'bg-emerald-500 text-white' : 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20'}`}
-                                                    >
-                                                        Resolve
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleUpdateStatus(bug._id, 'closed')}
-                                                        className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${bug.status === 'closed' ? 'bg-slate-500 text-white' : 'bg-slate-500/10 text-slate-500 hover:bg-slate-500/20'}`}
-                                                    >
-                                                        Close
-                                                    </button>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                <div className="space-y-4">
+                                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Protocol Status_</label>
+                                                    <div className="flex flex-wrap gap-3">
+                                                        <button 
+                                                            onClick={() => handleUpdateStatus(bug._id, 'in-progress')}
+                                                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${bug.status === 'in-progress' ? 'bg-blue-500 text-white shadow-blue-500/20 scale-105' : 'bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border border-blue-500/20'}`}
+                                                        >
+                                                            In Progress
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleUpdateStatus(bug._id, 'resolved')}
+                                                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${bug.status === 'resolved' ? 'bg-emerald-500 text-white shadow-emerald-500/20 scale-105' : 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/20'}`}
+                                                        >
+                                                            Resolve
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleUpdateStatus(bug._id, 'closed')}
+                                                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg ${bug.status === 'closed' ? 'bg-slate-500 text-white shadow-slate-500/20 scale-105' : 'bg-slate-500/10 text-slate-500 hover:bg-slate-500/20 border border-slate-500/20'}`}
+                                                        >
+                                                            Close
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            <div className="space-y-3 pt-2">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Send a Response</p>
-                                                <div className="flex gap-2">
-                                                    <input 
-                                                        type="text" 
-                                                        value={response}
-                                                        onChange={(e) => setResponse(e.target.value)}
-                                                        placeholder="Type your response to the user..."
-                                                        className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:border-primary transition-all"
-                                                    />
-                                                    <button 
-                                                        disabled={isSubmitting || !response.trim()}
-                                                        onClick={() => handleUpdateStatus(bug._id, bug.status, response)}
-                                                        className="bg-primary text-white px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all disabled:opacity-50"
-                                                    >
-                                                        Send
-                                                    </button>
+                                                <div className="space-y-4">
+                                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Transmit Response_</label>
+                                                    <div className="flex gap-2">
+                                                        <input 
+                                                            type="text" 
+                                                            value={response}
+                                                            onChange={(e) => setResponse(e.target.value)}
+                                                            placeholder="Type neural feedback..."
+                                                            className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-5 py-3 text-sm font-bold focus:outline-none focus:border-primary transition-all"
+                                                        />
+                                                        <button 
+                                                            disabled={isSubmitting || !response.trim()}
+                                                            onClick={() => handleUpdateStatus(bug._id, bug.status, response)}
+                                                            className="bg-primary text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
+                                                        >
+                                                            Send
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -165,6 +174,7 @@ const AdminBugs = ({ previewMode = false }) => {
                                 )}
                             </AnimatePresence>
                         </div>
+
                     )) : (
                         <div className="py-20 text-center">
                             <div className="size-16 rounded-full bg-slate-50 dark:bg-[#000000] flex items-center justify-center mx-auto mb-4">

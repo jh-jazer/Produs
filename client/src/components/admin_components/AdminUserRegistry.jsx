@@ -51,13 +51,13 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                 <div className="overflow-x-auto custom-scrollbar text-xs md:text-sm">
                     <table className="w-full min-w-[560px]">
                         <thead>
-                            <tr className="text-left text-slate-400 text-[10px] uppercase font-black tracking-widest border-b border-slate-100 dark:border-white/10">
+                            <tr className="text-center text-slate-400 text-[10px] uppercase font-black tracking-widest border-b border-slate-100 dark:border-white/10">
                                 <th className="pb-4 font-black px-1">User</th>
-                                <th className="pb-4 font-black">Role</th>
-                                <th className="pb-4 font-black hidden md:table-cell">Level</th>
-                                <th className="pb-4 font-black hidden md:table-cell">Path</th>
-                                <th className="pb-4 font-black">Status</th>
-                                <th className="pb-4 font-black hidden sm:table-cell">Joined</th>
+                                <th className="pb-4 font-black pr-8">Role</th>
+                                <th className="pb-4 font-black pr-8">Level</th>
+                                <th className="pb-4 font-black min-w-[120px] pr-8">Path</th>
+                                <th className="pb-4 font-black pr-8">Status</th>
+                                <th className="pb-4 font-black pr-8">Joined</th>
                                 <th className="pb-4 font-black"></th>
                             </tr>
                         </thead>
@@ -65,7 +65,7 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                             {visibleUsers.map((user) => (
                                 <tr key={user._id} className="border-b border-slate-50 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                                     <td className="py-4 px-1">
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center justify-center gap-3 text-left">
                                             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20 font-black uppercase text-xs shrink-0">
                                                 {user.name?.charAt(0) || 'U'}
                                             </div>
@@ -75,27 +75,27 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="py-4">
+                                    <td className="py-4 pr-8 text-center">
                                         {user.isAdmin || user.email === 'ernestodesabillejr@gmail.com' ? (
                                             <span className="text-[9px] md:text-[10px] font-black font-mono text-cyan-500 bg-cyan-500/10 px-2 py-0.5 rounded-md">ADMIN</span>
                                         ) : (
                                             <span className="text-[9px] md:text-[10px] font-black font-mono text-slate-400 bg-slate-100 dark:bg-[#000000] px-2 py-0.5 rounded-md">USER</span>
                                         )}
                                     </td>
-                                    <td className="py-4 hidden md:table-cell">
+                                    <td className="py-4 pr-8 text-center">
                                         <span className="text-[10px] font-black font-mono text-white">LVL.{user.level ?? 0}</span>
                                     </td>
-                                    <td className="py-4 hidden md:table-cell">
+                                    <td className="py-4 min-w-[120px] pr-8 text-center">
                                         {user.rpg?.path ? (
                                             <span className="text-[9px] font-black font-mono px-2 py-0.5 rounded-md bg-primary/10 text-primary">{user.rpg.path}</span>
                                         ) : (
                                             <span className="text-[9px] font-black font-mono text-slate-600">—</span>
                                         )}
                                     </td>
-                                    <td className="py-4">
+                                    <td className="py-4 pr-8 text-center">
                                         <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase">Active</span>
                                     </td>
-                                    <td className="py-4 text-slate-500 text-[10px] font-bold hidden sm:table-cell">
+                                    <td className="py-4 text-slate-500 text-[10px] font-bold pr-8 text-center">
                                         {new Date(user.createdAt).toLocaleDateString()}
                                     </td>
                                     <td className="py-4 text-right">

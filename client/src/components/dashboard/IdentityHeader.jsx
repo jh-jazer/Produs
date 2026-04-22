@@ -146,11 +146,11 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     if (protocolMode === 'rpg') return null;
 
     return (
-        <div className="glass-panel w-full rounded-[2.5rem] mt-4 md:mt-8 mb-6 md:mb-12 relative overflow-hidden flex flex-col">
+        <div className="glass-panel w-full h-[75vh] md:h-[90vh] rounded-[2.5rem] mt-4 md:mt-8 mb-6 md:mb-12 relative overflow-hidden flex flex-col">
             {/* 1. Tactical Banner Segment */}
             <div 
                 ref={bannerRef}
-                className={`w-full h-32 md:h-40 relative group overflow-hidden ${isEditing ? 'cursor-ns-resize active:cursor-grabbing' : ''}`}
+                className={`w-full h-64 md:h-[45vh] relative group overflow-hidden ${isEditing ? 'cursor-ns-resize active:cursor-grabbing' : ''}`}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
@@ -171,7 +171,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                 )}
 
                 {isEditing && (
-                    <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+                    <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
                         {/* 1. Drag Hint Overlay */}
                         <div className={`absolute inset-0 bg-black/40 flex flex-col items-center justify-center p-4 transition-opacity duration-300 ${isDragging ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                             <div className="flex flex-col items-center gap-2">
@@ -196,7 +196,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                         )}
                         
                         {/* Upload trigger area (Small corner button since main area is for dragging) */}
-                        <label className="absolute top-4 left-4 size-10 bg-black/60 backdrop-blur-md rounded-xl border border-white/10 flex items-center justify-center text-white cursor-pointer hover:bg-black/80 hover:border-cyan-500/50 transition-all pointer-events-auto" title="Upload New Image">
+                        <label className="absolute bottom-4 left-6 size-10 bg-black/60 backdrop-blur-md rounded-xl border border-white/10 flex items-center justify-center text-white cursor-pointer hover:bg-black/80 hover:border-cyan-500/50 transition-all pointer-events-auto shadow-xl" title="Upload New Image">
                             {isUploadingBanner ? (
                                 <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
@@ -250,7 +250,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
             </div>
 
             {/* 2. Profile Overlay & Header Section */}
-            <div className="px-4 md:px-12 pb-8 md:pb-10 -mt-10 md:-mt-12 relative z-10 space-y-6 md:space-y-10">
+            <div className="flex-1 px-4 md:px-12 pb-10 md:pb-14 -mt-10 md:-mt-12 relative z-10 flex flex-col justify-between">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-10">
                     <div className="flex flex-col md:flex-row items-center md:items-end gap-4 md:gap-8">
                         {/* Avatar */}
