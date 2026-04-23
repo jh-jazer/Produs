@@ -17,6 +17,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import useAuthStore from "../store/useAuthStore";
+import useLoadingStore from "../store/useLoadingStore";
+import { useNavigate } from "react-router-dom";
 import ScrollCanvas from "../components/landing/ScrollCanvas";
 import Hero from "../components/landing/Hero";
 import Features from "../components/landing/Features";
@@ -65,6 +67,17 @@ const TESTIMONIALS = [
 
 export default function Landing() {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
+  const { startLoading } = useLoadingStore();
+  
+  const handleStart = () => {
+    startLoading();
+    // Navigate shortly after loader starts for a smooth transition
+    setTimeout(() => {
+      navigate(user ? "/dashboard" : "/auth");
+    }, 1000); 
+  };
+
   const containerRef = useRef(null);
   const [progress, setProgress] = useState(0);
 
@@ -202,16 +215,17 @@ export default function Landing() {
         className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-6 md:py-10 flex justify-between items-center pointer-events-none"
       >
         <div className="flex items-center gap-3 md:gap-4 group cursor-pointer pointer-events-auto">
-          <Logo glow className="size-8 md:size-10" color="#3B82F6" />
           <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-white mt-1">Produs</span>
         </div>
 
-        <Link to={user ? "/dashboard" : "/auth"} className="pointer-events-auto group flex items-center gap-3 md:gap-6">
-          <span className="font-normal text-[9px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.5em] text-white/80 group-hover:text-current transition-colors text-right max-w-[100px] md:max-w-none">The Vault</span>
+        <div onClick={handleStart} className="pointer-events-auto group flex items-center gap-3 md:gap-6 cursor-pointer">
+          <span className="font-normal text-[9px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.5em] text-white/80 group-hover:text-current transition-colors text-right max-w-[100px] md:max-w-none">
+            {user ? "START" : "SIGN IN"}
+          </span>
           <div className="size-8 md:size-10 shrink-0 rounded-full border border-white/30 flex items-center justify-center group-hover:border-current transition-all">
             <ChevronRight size={14} className="text-white/80 group-hover:text-current group-hover:translate-x-1 transition-all" />
           </div>
-        </Link>
+        </div>
       </motion.nav>
 
       <div className="pin-background w-full h-screen overflow-hidden relative">
@@ -219,7 +233,7 @@ export default function Landing() {
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-90 pointer-events-none" />
         <div className="absolute -left-[20%] top-1/3 size-[100vw] bg-electric-blue/5 blur-[250px] rounded-full pointer-events-none" />
         <div className="absolute -right-[20%] bottom-1/3 size-[80vw] bg-white/[0.02] blur-[200px] rounded-full pointer-events-none" />
-        <div className="absolute inset-0 bg-[#050505] z-10 pointer-events-none" style={{ opacity: section2BgOpacity }} />
+        <div className="absolute inset-0 bg-[#000000] z-10 pointer-events-none" style={{ opacity: section2BgOpacity }} />
       </div>
 
       <div className="relative z-20 -mt-[100vh]">

@@ -189,7 +189,7 @@ export default function Classes() {
         <div className="mx-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-4 group">
           <div className="relative">
             <div className="absolute inset-x-0 bottom-0 top-1/2 bg-white/5 blur-md rounded-full group-hover:bg-white/10 transition-colors duration-500 opacity-0 group-hover:opacity-100 scale-150" />
-            <Logo glow className="size-10 md:size-12" color="white" />
+            <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-white mt-1">Produs</span>
 
           </div>
         </div>

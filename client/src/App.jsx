@@ -106,8 +106,12 @@ const swrGlobalConfig = {
 
 import DevTools from './components/ui/DevTools';
 
+import CinematicLoader from './components/ui/CinematicLoader';
+import useLoadingStore from './store/useLoadingStore';
+
 function App() {
   const user = useAuthStore((state) => state.user);
+  const { isLoading, stopLoading } = useLoadingStore();
 
   // Auto-reload when a new service-worker version is waiting.
   // This ensures users always run the latest deployed code.
@@ -195,6 +199,7 @@ function App() {
       <BrowserRouter>
         <AnimatedRoutes />
         <DevTools />
+        <CinematicLoader isVisible={isLoading} onComplete={stopLoading} />
       </BrowserRouter>
     </SWRConfig>
   );

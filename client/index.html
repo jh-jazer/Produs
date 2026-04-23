@@ -15,7 +15,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="description" content="Produs - The Minimalist Productivity Tool" />
   <style>
-    /* Instant Blackout: applied via class to allow removal after load */
+    /* Instant Blackout */
     .loading-lock {
       background: #000000 !important;
       margin: 0;
@@ -33,50 +33,19 @@
 
 <body>
   <div id="initial-loader" class="initial-loader">
-    <!-- HUD Layer -->
-    <div class="hud-layer">
-      <div class="hud-top-left">
-        SYS_INIT_SEQUENCE // P.001A<br />
-        MEMORY_ALLOC // OK<br />
-        GRAPH_ENGINE // ACTIVE
+    <div class="cinematic-container">
+      <!-- Tip Display Section -->
+      <div class="tip-wrapper">
+        <div class="tip-header">PRODUS</div>
+        <div class="tip-content" id="tip-content">"Preparing your workspace..."</div>
       </div>
-      <div class="hud-bottom-right" id="hud-stats">
-        COORDINATES: 0, 0<br />
-        LATENCY: 14MS<br />
-        STATUS: CALIBRATING
-      </div>
-    </div>
 
-    <!-- Scanner Effect -->
-    <div class="scanline"></div>
-
-    <div class="loader-content">
-      <!-- 3D Coin Container -->
-      <div class="coin-wrapper">
-        <div class="coin-glow"></div>
-        <div class="coin" id="coin-3d">
-          <div class="face front">
-            <img src="/produs-logo.png" alt="Produs" />
-          </div>
-          <div id="coin-extrusion"></div>
-          <div class="face back">
-            <img src="/produs-logo.png" alt="Produs" />
-          </div>
+      <!-- Minimalist Loading Info -->
+      <div class="loader-info">
+        <div class="loading-bar-container">
+          <div class="loading-bar-fill" id="progress-bar"></div>
         </div>
       </div>
-
-      <div class="loader-text-container">
-        <h1 class="loader-title">Produs</h1>
-        <div class="loader-line"></div>
-        <span class="loader-status" id="loader-status">INITIALIZING SYSTEM</span>
-        <div class="progress-info">
-          <span class="progress-percent" id="progress-percent">0%</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="loader-progress-container">
-      <div class="loader-progress-bar" id="progress-bar"></div>
     </div>
   </div>
 
@@ -84,8 +53,8 @@
   <script type="module" src="/src/main.jsx"></script>
   <style>
     :root {
-      --electric-blue: #0066FF;
-      --cyan: #06b6d4;
+      --brand-primary: #ffffff;
+      --brand-glow: rgba(255, 255, 255, 0.2);
     }
 
     .initial-loader {
@@ -93,215 +62,102 @@
       inset: 0;
       background: #000;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 99999;
-      transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s;
+      transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.5s;
       overflow: hidden;
       font-family: "Manrope", sans-serif;
     }
 
-    /* HUD Decorations */
-    .hud-layer {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 10;
-    }
-
-    .hud-top-left {
-      position: absolute;
-      top: 40px;
-      left: 40px;
-      font-family: monospace;
-      font-size: 8px;
-      color: rgba(255, 255, 255, 0.2);
-      letter-spacing: 1px;
-      line-height: 1.5;
-    }
-
-    .hud-bottom-right {
-      position: absolute;
-      bottom: 40px;
-      right: 40px;
-      font-family: monospace;
-      font-size: 8px;
-      color: rgba(255, 255, 255, 0.2);
-      text-align: right;
-      letter-spacing: 1px;
-      line-height: 1.5;
-    }
-
-    @media (max-width: 768px) {
-      .hud-layer { display: none; }
-    }
-
-    /* Scanline Effect */
-    .scanline {
-      position: absolute;
-      inset: 0;
-      height: 40vh;
-      background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.04), transparent);
-      pointer-events: none;
-      z-index: 5;
-      animation: scanline 8s linear infinite;
-    }
-
-    @keyframes scanline {
-      0% { transform: translateY(-100%); }
-      100% { transform: translateY(200%); }
-    }
-
-    /* 3D Coin Animation */
-    .coin-wrapper {
-      position: relative;
-      perspective: 1000px;
-      margin-bottom: 3rem;
-    }
-
-    .coin-glow {
-      position: absolute;
-      inset: -50px;
-      background: var(--electric-blue);
-      filter: blur(40px);
-      border-radius: 50%;
-      opacity: 0.15;
-      animation: glowPulse 3s infinite ease-in-out;
-    }
-
-    @keyframes glowPulse {
-      0%, 100% { transform: scale(1); opacity: 0.15; }
-      50% { transform: scale(1.2); opacity: 0.25; }
-    }
-
-    .coin {
-      width: 120px;
-      height: 120px;
-      position: relative;
-      transform-style: preserve-3d;
-      animation: coinRotate 4s linear infinite, coinFloat 2s infinite ease-in-out;
-    }
-
-    @keyframes coinRotate {
-      0% { transform: rotateY(0deg) rotateX(-15deg); }
-      100% { transform: rotateY(360deg) rotateX(-15deg); }
-    }
-
-    @keyframes coinFloat {
-      0%, 100% { margin-top: 0; }
-      50% { margin-top: -15px; }
-    }
-
-    .face {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: linear-gradient(to bottom, #1e293b, #0f172a);
-      border: 3px solid var(--cyan);
-      box-shadow: inset 0 0 20px rgba(6, 182, 212, 0.5), 0 0 15px var(--cyan);
+    .cinematic-container {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      gap: 3rem;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
     }
 
-    .face img {
-      width: 70%;
-      height: 70%;
-      object-fit: contain;
-      z-index: 2;
-    }
-
-    .face::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(6, 182, 212, 0.2);
-      filter: blur(8px);
-    }
-
-    .front { transform: translateZ(5px); }
-    .back { transform: translateZ(-5px) rotateY(180deg); }
-
-    .extrusion-layer {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: #083344;
-      border: 2px solid #020617;
-    }
-
-    /* Loader Content styling */
-    .loader-content {
+    /* Tip Styling */
+    .tip-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      z-index: 10;
+      gap: 1.5rem;
+      min-height: 60px;
     }
 
-    .loader-text-container {
+    .tip-header {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.8em;
+      color: rgba(255, 255, 255, 0.3);
+      text-transform: uppercase;
+      animation: fadeIn 1s ease-out forwards;
+    }
+
+    .tip-content {
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1.8;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: #fff;
+      max-width: 500px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .tip-content.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Loading Info Styling */
+    .loader-info {
       display: flex;
       flex-direction: column;
       align-items: center;
+      width: 250px;
       gap: 1rem;
     }
 
-    .loader-title {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: 0.8em;
-      text-transform: uppercase;
-      color: #fff;
-      margin-left: 0.8em;
-    }
-
-    .loader-line {
-      width: 200px;
+    .loading-bar-container {
+      width: 100%;
       height: 1px;
-      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent);
-    }
-
-    .loader-status {
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: 0.4em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.6);
-      animation: textPulse 2s infinite;
-    }
-
-    @keyframes textPulse {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 1; }
-    }
-
-    .progress-info {
-      margin-top: 1rem;
-    }
-
-    .progress-percent {
-      font-family: monospace;
-      font-size: 10px;
-      color: var(--electric-blue);
-      letter-spacing: 0.2em;
-    }
-
-    /* Progress Bar */
-    .loader-progress-container {
-      position: absolute;
-      bottom: 80px;
-      width: 256px;
-      height: 1px;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.1);
+      position: relative;
       overflow: hidden;
     }
 
-    .loader-progress-bar {
+    .loading-bar-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
       height: 100%;
       width: 0%;
       background: #fff;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 1);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+      transition: width 0.4s linear;
+    }
+
+    .loading-status {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      font-family: monospace;
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
     }
 
     .initial-loader.fade-out {
@@ -313,36 +169,47 @@
 
   <script>
     (function() {
-      // Inject extrusion layers for 3D coin
-      const extrusion = document.getElementById('coin-extrusion');
-      for (let i = 0; i < 20; i++) {
-        const layer = document.createElement('div');
-        layer.className = 'extrusion-layer';
-        layer.style.transform = `translateZ(${4 - i * 0.5}px)`;
-        extrusion.appendChild(layer);
-      }
+      let tips = [
+        "\"The Rule of Three: Define 3 core tasks each morning. Focus only on them.\"",
+        "\"Deep Work: 90 minutes of uninterrupted focus beats 4 hours of distracted work.\"",
+        "\"Analog Mornings: Avoid screens for the first 30 minutes after waking up.\"",
+        "\"The Shutdown Ritual: Clear your task list before 6 PM to reclaim your evening.\""
+      ];
 
-      // Check if we should skip the loader (e.g. for deep links to pages with their own loaders)
+      // Fetch external tips if available
+      fetch('/tips.json')
+        .then(res => res.json())
+        .then(data => {
+          const allTips = Object.values(data).flat();
+          if (allTips.length > 0) tips = allTips;
+        })
+        .catch(() => console.log('Using local fallback tips'));
+
+      // Check if we should skip the loader
       if (window.location.pathname.includes('/neural-sync')) {
-        document.getElementById('initial-loader').style.display = 'none';
+        const loader = document.getElementById('initial-loader');
+        if (loader) loader.style.display = 'none';
         return;
       }
 
       const progressBar = document.getElementById('progress-bar');
-      const progressPercent = document.getElementById('progress-percent');
-      const loaderStatus = document.getElementById('loader-status');
-      const stats = document.getElementById('hud-stats');
+      const tipContent = document.getElementById('tip-content');
       
       let progress = 0;
       let isAppReady = false;
       let isAnimationComplete = false;
 
-      const labels = [
-        { threshold: 0, text: 'INITIALIZING LOGIC' },
-        { threshold: 30, text: 'CALIBRATING MATRIX' },
-        { threshold: 60, text: 'OPTIMIZING INTERFACE' },
-        { threshold: 95, text: 'SYSTEM READY' }
-      ];
+      function setNewTip() {
+        const randomTip = tips[Math.floor(Math.random() * tips.length)];
+        tipContent.classList.remove('active');
+        setTimeout(() => {
+          tipContent.textContent = randomTip;
+          tipContent.classList.add('active');
+        }, 400);
+      }
+
+      setNewTip();
+      const tipInterval = setInterval(setNewTip, 5000); // 5 seconds per tip for better readability
 
       function updateLoader() {
         if (progress >= 100) {
@@ -352,38 +219,26 @@
           return;
         }
 
-        const step = progress < 30 ? 1.5 : progress < 70 ? 0.8 : 0.4;
+        const step = progress < 40 ? 0.6 : progress < 80 ? 0.3 : 0.1;
         progress = Math.min(100, progress + step);
 
-        progressBar.style.width = progress + '%';
-        progressPercent.textContent = Math.floor(progress) + '%';
-
-        // Update Text
-        const currentLabel = labels.filter(l => progress >= l.threshold).pop();
-        if (currentLabel && loaderStatus.textContent !== currentLabel.text) {
-          loaderStatus.textContent = currentLabel.text;
-        }
-
-        // Update HUD Stats
-        if (stats) {
-          stats.innerHTML = `COORDINATES: ${Math.floor(progress * 7.2)}, ${Math.floor(progress * 13.4)}<br />LATENCY: 14MS<br />STATUS: ${progress < 100 ? 'CALIBRATING' : 'READY'}`;
-        }
+        if (progressBar) progressBar.style.width = progress + '%';
 
         requestAnimationFrame(updateLoader);
       }
 
       function checkAndHide() {
-        if (isAnimationComplete && isAppReady) {
+        if (isAppReady && isAnimationComplete) {
           const loader = document.getElementById('initial-loader');
           if (!loader) return;
           
+          clearInterval(tipInterval);
           setTimeout(() => {
-            if (!loader) return;
             loader.classList.add('fade-out');
             document.documentElement.classList.remove('loading-lock');
             setTimeout(() => {
               if (loader.parentNode) loader.remove();
-            }, 1200);
+            }, 1500);
           }, 800);
         }
       }
@@ -393,20 +248,16 @@
         checkAndHide();
       };
 
-      // Failsafe: Ensure loader disappears after 6 seconds even if app fails to signal
       setTimeout(() => {
         if (!isAppReady) {
-          console.warn('Initial loader timed out. Forcing fade-out.');
           isAppReady = true;
           checkAndHide();
         }
-      }, 6000);
+      }, 12000); 
 
-      // Start the animation
       requestAnimationFrame(updateLoader);
     })();
   </script>
-
 </body>
 
 </html>

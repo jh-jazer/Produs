@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
-import DashboardScrollIndicator from './dashboard/DashboardScrollIndicator';
+import SideEnergyBar from './dashboard/SideEnergyBar';
 import { Search, Handshake, User, Lock, Zap, Cpu, ShoppingBag } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../services/api';
@@ -149,13 +149,32 @@ function Layout() {
         }}>
             <div className="bg-transparent font-display text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden">
                 {/* Mobile Top Bar */}
-                <div className="md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-[135] bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03]">
+                <div className="md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-[135] bg-white/80 dark:bg-[#000000]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03]">
+                    
+                    {/* Profile Avatar + LVL Badge (Left Side) */}
+                    <button
+                        className="relative flex items-center active:scale-95 transition-all mr-4 shrink-0"
+                        onClick={() => setIsUserMenuOpen(true)}
+                    >
+                        <div className="size-9 rounded-full ring-2 ring-primary/10 overflow-hidden bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0">
+                            {user?.avatar?.url ? (
+                                <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-[10px] font-black uppercase">{user?.name?.charAt(0)}</span>
+                            )}
+                        </div>
+                        {user?.level > 0 && (
+                            <div className="absolute -bottom-1 -right-1 bg-primary text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-lg border border-primary/20 scale-110">
+                                {user.level}
+                            </div>
+                        )}
+                    </button>
+
                     <div
                         className={`flex items-center gap-2.5 active:scale-95 transition-all cursor-pointer group ${isOverview ? 'opacity-100 flex' : 'opacity-0 pointer-events-none hidden md:flex'}`}
                         onClick={() => navigate('/dashboard')}
                     >
-                        <Logo className="size-8" glow={true} />
-                        <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-slate-800 dark:text-white mt-1 ml-3">
+                        <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-slate-800 dark:text-white mt-1">
                             PRODUS
                         </span>
                     </div>
@@ -190,25 +209,6 @@ function Layout() {
                                 </button>
                             )}
                         </div>
-
-                        {/* Profile Avatar + LVL Badge (Very Right) */}
-                        <button
-                            className="relative flex items-center active:scale-95 transition-all"
-                            onClick={() => setIsUserMenuOpen(true)}
-                        >
-                            <div className="size-9 rounded-full ring-2 ring-primary/10 overflow-hidden bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0">
-                                {user?.avatar?.url ? (
-                                    <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    <span className="text-[10px] font-black uppercase">{user?.name?.charAt(0)}</span>
-                                )}
-                            </div>
-                            {user?.level > 0 && (
-                                <div className="absolute -bottom-1 -right-1 bg-primary text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-lg border border-primary/20 scale-110">
-                                    {user.level}
-                                </div>
-                            )}
-                        </button>
                     </div>
 
                     {/* XP Progress Line at the very bottom edge */}
@@ -246,11 +246,9 @@ function Layout() {
                         ${location.pathname === '/dashboard' ? 'md:w-72' : 'md:w-20'}
                     `}
                 >
-                    {/* 1. Sidebar Header: Logo */}
+                    {/* 1. Sidebar Header */}
                     <div className="h-24 flex items-center px-6 shrink-0">
                         <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => isMobileMenuOpen ? setIsMobileMenuOpen(false) : navigate('/dashboard')}>
-                            <Logo className="size-8" color="currentColor" glow={false} />
-
                             <div className={`flex items-center overflow-hidden transition-all duration-500 ease-in-out
                                 ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden md:flex'}
                             `}>
@@ -459,7 +457,7 @@ function Layout() {
                     {isSearchModalOpen && (
                         <div className="fixed inset-0 z-[300] flex items-start justify-center pt-[10vw] px-4">
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSearchModalOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-md" />
-                            <motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="relative w-full max-w-lg bg-white dark:bg-[#121212] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 overflow-hidden flex flex-col max-h-[80vh] ar-corners">
+                            <motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="relative w-full max-w-lg bg-white dark:bg-[#000000] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 overflow-hidden flex flex-col max-h-[80vh] ar-corners">
                                 <div className="flex items-center justify-between p-4 border-b border-black/[0.06] dark:border-white/[0.06] bg-black/[0.02] dark:bg-white/[0.02]">
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.4em] ml-4 text-black/40 dark:text-white/40">Database Search</h4>
                                     <button onClick={() => setIsSearchModalOpen(false)} className="size-8 flex items-center justify-center rounded-full text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/[0.06] dark:hover:bg-white/[0.06] transition-colors"><span className="material-symbols-outlined text-[20px]">close</span></button>
@@ -536,7 +534,7 @@ function Layout() {
                 />
 
 
-                <DashboardScrollIndicator />
+                <SideEnergyBar />
                 <MobileBottomNav />
             </div>
         </DashboardContext.Provider>

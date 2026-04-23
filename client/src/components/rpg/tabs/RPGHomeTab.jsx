@@ -1,10 +1,14 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, Brain, Zap, Shield, Sword, Heart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Brain, Zap, Shield, Sword, Heart, Info, User, Shirt, Layers, Gem, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getLevelProgress } from '../../../utils/rpgHelpers';
 import { ARCHETYPE_PROTOCOLS } from '../../../constants/assessment';
+import RPGModal from '../../ui/RPGModal';
 
 const RPGHomeTab = ({ user }) => {
+    const [showInfoModal, setShowInfoModal] = React.useState(false);
+    const [vaultPage, setVaultPage] = React.useState(0);
+    const [activeSubTab, setActiveSubTab] = React.useState('stats');
     const protocolData = ARCHETYPE_PROTOCOLS[user?.rpg?.path] || ARCHETYPE_PROTOCOLS['None'];
     const progressData = getLevelProgress(user?.exp || 0);
 
@@ -19,66 +23,356 @@ const RPGHomeTab = ({ user }) => {
         { label: 'LUK_', value: userStats.luk, icon: <Sparkles size={14} />, color: 'purple' },
     ];
 
+    const subTabs = [
+        { id: 'stats', label: 'STATS_' },
+        { id: 'equip', label: 'EQUIP_' },
+        { id: 'items', label: 'ITEMS_' },
+    ];
+
+    const health = 500 + (userStats.vit * 10) + (userStats.str * 5);
+    const defense = Math.round((userStats.vit * 2) + (userStats.agi * 0.5));
+    const power = Math.round((userStats.str * 3) + (userStats.agi * 1));
+
+    const tacticalStats = {
+        defTact: Math.round((userStats.wis * 2) + (userStats.int * 0.5)),
+        pwrTact: Math.round((userStats.int * 3) + (userStats.wis * 1.5)),
+        critRate: ((userStats.luk * 0.4) + (userStats.int * 0.1)).toFixed(1),
+        critDmg: (150 + (userStats.luk * 0.2)).toFixed(1),
+        cdr: Math.min(50, (userStats.agi / 2.5)).toFixed(1),
+        atkSpeed: (1 + (userStats.agi / 100)).toFixed(2),
+        dodge: ((userStats.agi * 0.3) + (userStats.luk * 0.2)).toFixed(1),
+        lootQual: ((userStats.luk * 0.1) + (userStats.wis * 0.05)).toFixed(1),
+    };
+
+    const combatLogistics = [
+        { label: 'HP_', value: health, icon: <Heart size={10} />, color: 'rose' },
+        { label: 'P_DEF_', value: defense, icon: <Shield size={10} />, color: 'cyan' },
+        { label: 'T_DEF_', value: tacticalStats.defTact, icon: <Shield size={10} />, color: 'blue' },
+        { label: 'P_PWR_', value: power, icon: <Sword size={10} />, color: 'emerald' },
+        { label: 'T_PWR_', value: tacticalStats.pwrTact, icon: <Sword size={10} />, color: 'indigo' },
+        { label: 'CRIT_%', value: tacticalStats.critRate + '%', icon: <Sparkles size={10} />, color: 'amber' },
+        { label: 'CDMG_%', value: tacticalStats.critDmg + '%', icon: <Zap size={10} />, color: 'amber' },
+        { label: 'CDR_%', value: tacticalStats.cdr + '%', icon: <Zap size={10} />, color: 'blue' },
+        { label: 'ASPD_', value: tacticalStats.atkSpeed + 'x', icon: <Zap size={10} />, color: 'blue' },
+        { label: 'DODGE_', value: tacticalStats.dodge + '%', icon: <Zap size={10} />, color: 'emerald' },
+        { label: 'LOOT_', value: tacticalStats.lootQual + '%', icon: <Sparkles size={10} />, color: 'purple' },
+    ];
+
     return (
-        <div className="absolute inset-0 flex items-center justify-center overflow-hidden" key="home-inner">
-            {/* 1. HUD - Left Wing (Physical Stats) */}
-            <motion.div
-                initial={{ x: -100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="absolute left-4 lg:left-8 top-[42%] -translate-y-1/2 flex flex-col gap-8 z-20"
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none" key="home-inner">
+            
+            {/* Tactical Briefing Modal */}
+            <RPGModal
+                isOpen={showInfoModal}
+                onClose={() => setShowInfoModal(false)}
+                title="TACTICAL_BRIEFING_"
+                subtitle={user?.rpg?.path || 'Identity'}
+                maxWidth="max-w-xl"
             >
-                <div className="flex flex-col gap-6 md:gap-3">
-                    {stats.slice(0, 3).map((stat, i) => (
-                        <motion.div
-                            key={stat.label}
-                            initial={{ x: -20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: 0.1 * i }}
-                            className="group flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-12 border-b border-white/[0.01] md:border-white/[0.03] py-2 md:py-1.5 pr-2"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className={`p-1 rounded text-${stat.color}-500/60`}>
-                                    {stat.icon}
+                <div className="flex flex-col gap-8">
+                    <div className="space-y-4">
+                        <p className="text-sm font-bold text-slate-400 leading-relaxed tracking-wider uppercase italic">
+                            {protocolData.flavor}
+                        </p>
+                        
+                        <div className="h-px w-full bg-gradient-to-r from-cyan-500/20 via-transparent to-transparent" />
+                        
+                        <div className="space-y-4">
+                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] font-mono">Active_Protocol_Perks</span>
+                            <div className="bg-white/[0.03] border border-white/5 p-6 rounded-3xl">
+                                <div className="space-y-3">
+                                    {protocolData.perk.split(' | ').map((p, i) => (
+                                        <div key={i} className="flex items-start gap-3">
+                                            <div className="size-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                                            <span className="text-xs font-black text-emerald-500 tracking-widest uppercase leading-tight">
+                                                {p}
+                                            </span>
+                                        </div>
+                                    ))}
                                 </div>
-                                <span className="text-[10px] font-black text-slate-500 group-hover:text-white/80 transition-colors tracking-widest">{stat.label}</span>
                             </div>
-                            <span className="text-[13px] font-black text-white font-mono ml-8 md:ml-0">{stat.value}</span>
-                        </motion.div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] font-mono">Advanced_Combat_Logistics</span>
+                            <div className="grid grid-cols-2 gap-3">
+                                {[
+                                    { label: 'MAX_HEALTH', value: health, icon: <Heart size={10} />, color: 'rose' },
+                                    { label: 'CRIT_RATE', value: tacticalStats.critRate + '%', icon: <Sparkles size={10} />, color: 'amber' },
+                                    { label: 'PHYSICAL_DEF', value: defense, icon: <Shield size={10} />, color: 'cyan' },
+                                    { label: 'TACTICAL_DEF', value: tacticalStats.defTact, icon: <Shield size={10} />, color: 'blue' },
+                                    { label: 'PHYSICAL_PWR', value: power, icon: <Sword size={10} />, color: 'emerald' },
+                                    { label: 'TACTICAL_PWR', value: tacticalStats.pwrTact, icon: <Sword size={10} />, color: 'indigo' },
+                                    { label: 'CRIT_DMG', value: tacticalStats.critDmg + '%', icon: <Zap size={10} />, color: 'amber' },
+                                    { label: 'COOLDOWN_R', value: tacticalStats.cdr + '%', icon: <Zap size={10} />, color: 'blue' },
+                                    { label: 'ATTACK_SPD', value: tacticalStats.atkSpeed + 'x', icon: <Zap size={10} />, color: 'blue' },
+                                    { label: 'DODGE_CHNC', value: tacticalStats.dodge + '%', icon: <Zap size={10} />, color: 'emerald' },
+                                    { label: 'LOOT_QUALITY', value: tacticalStats.lootQual + '%', icon: <Sparkles size={10} />, color: 'purple' },
+                                ].map((stat, i) => (
+                                    <div key={i} className="flex items-center justify-between border border-white/5 p-3 rounded-xl bg-black/20">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-${stat.color}-500`}>{stat.icon}</span>
+                                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{stat.label}</span>
+                                        </div>
+                                        <span className="text-[11px] font-black text-white font-mono">{stat.value}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] font-mono">Neural_Synchronization_Multipliers</span>
+                            <div className="grid grid-cols-3 gap-3">
+                                {Object.entries(protocolData.multipliers).map(([stat, mult]) => (
+                                    <div key={stat} className="flex flex-col gap-2 border border-white/5 p-4 rounded-2xl bg-black/40 group hover:border-cyan-500/30 transition-all">
+                                        <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest leading-none">{stat}_MOD</span>
+                                        <div className="flex items-baseline gap-1">
+                                            <span className={`text-lg font-black font-mono leading-none ${mult >= 1.2 ? 'text-cyan-500' : mult < 1 ? 'text-rose-500' : 'text-white'}`}>
+                                                {mult.toFixed(1)}
+                                            </span>
+                                            <span className="text-[8px] font-bold text-slate-400">x</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </RPGModal>
+
+            {/* Top Tactical Navigation: Tabs Only */}
+            <motion.div
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="absolute top-1 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center pointer-events-auto"
+            >
+                {/* Sub-Tab Navigation: Unified Command Pill */}
+                <div className="bg-black/40 backdrop-blur-md border border-white/10 px-8 py-1 rounded-full flex items-center gap-8 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                    {subTabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveSubTab(tab.id)}
+                            className={`relative group/tab py-1 transition-all ${activeSubTab === tab.id ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+                        >
+                            <span className={`text-[11px] font-black tracking-[0.4em] font-mono transition-colors ${activeSubTab === tab.id ? 'text-white' : 'text-slate-600'}`}>
+                                {tab.label}
+                            </span>
+                        </button>
                     ))}
                 </div>
             </motion.div>
 
-            {/* 2. HUD - Right Wing (Logic Stats) */}
-            <motion.div
-                initial={{ x: 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="absolute right-4 lg:right-8 top-[42%] -translate-y-1/2 flex flex-col items-end gap-6 z-20 text-right"
-            >
-                <div className="flex flex-col gap-6 md:gap-3 w-full">
-                    {stats.slice(3, 6).map((stat, i) => (
-                        <motion.div
-                            key={stat.label}
-                            initial={{ x: 20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: 0.1 * i + 0.3 }}
-                            className="group flex flex-col md:flex-row-reverse items-end md:items-center justify-between gap-2 md:gap-12 border-b border-white/[0.01] md:border-white/[0.03] py-2 md:py-1.5 pl-2"
-                        >
-                            <div className="flex flex-row-reverse items-center gap-3">
-                                <div className={`p-1 rounded text-${stat.color}-500/60`}>
-                                    {stat.icon}
+            {activeSubTab === 'stats' && (
+                <>
+                    {/* Bottom Tactical Diagnostics: 3-Column Command Grid */}
+                    <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                        className="absolute bottom-1 md:bottom-2 left-[-4px] z-30 flex items-center pointer-events-auto w-full max-w-[95%] md:w-auto"
+                    >
+                        <div className="grid grid-cols-3 gap-x-12 md:gap-x-20 gap-y-2 px-6 py-5 rounded-[2rem]">
+                            {combatLogistics.map((stat, i) => (
+                                <div key={stat.label} className="flex items-center justify-start gap-2 min-w-[120px]">
+                                    <div className="flex items-center gap-1.5 min-w-[60px]">
+                                        <span className={`text-${stat.color}-500 opacity-80`}>{stat.icon}</span>
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest font-mono">{stat.label}</span>
+                                    </div>
+                                    <span className="text-[11px] font-black text-white font-mono">{stat.value}</span>
                                 </div>
-                                <span className="text-[10px] font-black text-slate-500 group-hover:text-white/80 transition-colors tracking-widest">{stat.label}</span>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* 1. HUD - Left Wing (Physical Stats) */}
+                    <motion.div
+                        initial={{ x: -100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        className="absolute left-4 lg:left-8 top-[42%] -translate-y-1/2 flex flex-col gap-8 z-20 pointer-events-auto"
+                    >
+                        <div className="flex flex-col gap-6 md:gap-3">
+                            {stats.slice(0, 3).map((stat, i) => (
+                                <motion.div
+                                    key={stat.label}
+                                    initial={{ x: -20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 0.1 * i }}
+                                    className="group flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-12 border-b border-white/[0.01] md:border-white/[0.03] py-2 md:py-1.5 pr-2"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`p-1 rounded text-${stat.color}-500/60`}>
+                                            {stat.icon}
+                                        </div>
+                                        <span className="text-[10px] font-black text-slate-500 group-hover:text-white/80 transition-colors tracking-widest">{stat.label}</span>
+                                    </div>
+                                    <span className="text-[13px] font-black text-white font-mono ml-8 md:ml-0">{stat.value}</span>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* 2. HUD - Right Wing (Logic Stats) */}
+                    <motion.div
+                        initial={{ x: 100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        className="absolute right-4 lg:right-8 top-[42%] -translate-y-1/2 flex flex-col items-end gap-6 z-20 text-right pointer-events-auto"
+                    >
+                        <div className="flex flex-col gap-6 md:gap-3 w-full">
+                            {stats.slice(3, 6).map((stat, i) => (
+                                <motion.div
+                                    key={stat.label}
+                                    initial={{ x: 20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 0.1 * i + 0.3 }}
+                                    className="group flex flex-col md:flex-row-reverse items-end md:items-center justify-between gap-2 md:gap-12 border-b border-white/[0.01] md:border-white/[0.03] py-2 md:py-1.5 pl-2"
+                                >
+                                    <div className="flex flex-row-reverse items-center gap-3">
+                                        <div className={`p-1 rounded text-${stat.color}-500/60`}>
+                                            {stat.icon}
+                                        </div>
+                                        <span className="text-[10px] font-black text-slate-500 group-hover:text-white/80 transition-colors tracking-widest">{stat.label}</span>
+                                    </div>
+                                    <span className="text-[13px] font-black text-white font-mono mr-8 md:mr-0">{stat.value}</span>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.div>
+                </>
+            )}
+
+            {activeSubTab === 'equip' && (
+                <>
+                    {/* Tactical Vault: Storage Boxes with Pagination */}
+                    <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                        className="absolute bottom-1 md:bottom-2 left-1 z-30 flex flex-col items-start gap-3 pointer-events-auto w-full max-w-[95%] md:w-auto"
+                    >
+                        <div className="flex items-center justify-between w-full px-6">
+                            <div className="flex items-center gap-4">
+                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest font-mono">TACTICAL_VAULT_</span>
+                                <span className="text-[9px] font-black text-white uppercase tracking-widest font-mono">PAGE {vaultPage + 1}</span>
                             </div>
-                            <span className="text-[13px] font-black text-white font-mono mr-8 md:mr-0">{stat.value}</span>
-                        </motion.div>
-                    ))}
-                </div>
-            </motion.div>
+                            
+                            <div className="flex items-center gap-2">
+                                <button 
+                                    onClick={() => setVaultPage(p => Math.max(0, p - 1))}
+                                    className={`p-1 rounded-md border border-white/10 hover:bg-white/5 transition-all ${vaultPage === 0 ? 'opacity-20 cursor-not-allowed' : 'opacity-100'}`}
+                                >
+                                    <ChevronLeft size={12} className="text-white" />
+                                </button>
+                                <button 
+                                    onClick={() => setVaultPage(p => p + 1)}
+                                    className="p-1 rounded-md border border-white/10 hover:bg-white/5 transition-all"
+                                >
+                                    <ChevronRight size={12} className="text-white" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-5 gap-2 px-6 py-4 rounded-3xl">
+                            {Array.from({ length: 10 }).map((_, i) => (
+                                <motion.div 
+                                    key={`${vaultPage}-${i}`}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: i * 0.03 }}
+                                    className="size-14 border border-white/10 bg-white/[0.02] rounded-xl hover:border-emerald-500/50 transition-all cursor-pointer relative group"
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
+                                    <span className="absolute bottom-1 right-1.5 text-[7px] font-black text-slate-700 uppercase">{vaultPage * 10 + i + 1}</span>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* Equipment Slots - Left Wing */}
+                    <motion.div
+                        initial={{ x: -100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        className="absolute left-12 lg:left-24 top-[42%] -translate-y-1/2 flex flex-col gap-6 z-20 pointer-events-auto"
+                    >
+                        {[
+                            { id: 'head', icon: <User size={24} /> },
+                            { id: 'body', icon: <Shirt size={24} /> },
+                            { id: 'legs', icon: <Layers size={24} /> },
+                        ].map((slot, i) => (
+                            <motion.div
+                                key={slot.id}
+                                initial={{ x: -20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.1 * i }}
+                                className="group flex items-center"
+                            >
+                                <div className="size-14 border border-white/10 bg-white/[0.02] rounded-2xl flex items-center justify-center group-hover:border-cyan-500/50 transition-all cursor-pointer relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="text-white opacity-20 group-hover:opacity-40 transition-opacity">
+                                        {slot.icon}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+
+                    {/* Equipment Slots - Right Wing */}
+                    <motion.div
+                        initial={{ x: 100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        className="absolute right-12 lg:right-24 top-[42%] -translate-y-1/2 flex flex-col items-end gap-6 z-20 text-right pointer-events-auto"
+                    >
+                        {[
+                            { id: 'main_hand', icon: <Sword size={24} /> },
+                            { id: 'off_hand', icon: <Shield size={24} /> },
+                            { id: 'accessory', icon: <Gem size={24} /> },
+                        ].map((slot, i) => (
+                            <motion.div
+                                key={slot.id}
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.1 * i + 0.3 }}
+                                className="group flex flex-row-reverse items-center"
+                            >
+                                <div className="size-14 border border-white/10 bg-white/[0.02] rounded-2xl flex items-center justify-center group-hover:border-emerald-500/50 transition-all cursor-pointer relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="text-white opacity-20 group-hover:opacity-40 transition-opacity">
+                                        {slot.icon}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+
+                </>
+            )}
+
+            {activeSubTab === 'items' && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute inset-x-8 top-[42%] -translate-y-1/2 flex flex-col items-center gap-8 z-20 pointer-events-auto"
+                >
+                    <div className="w-full max-w-md border border-white/5 bg-white/[0.01] p-6 rounded-3xl backdrop-blur-sm">
+                        <div className="flex justify-between items-center mb-6">
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Vault_Summary_</span>
+                            <span className="text-[10px] font-black text-white uppercase tracking-widest">0 / 100 Slots</span>
+                        </div>
+                        <div className="grid grid-cols-8 gap-2">
+                            {Array.from({ length: 16 }).map((_, i) => (
+                                <div key={i} className="aspect-square border border-white/[0.03] bg-black/20 rounded-md" />
+                            ))}
+                        </div>
+                    </div>
+                </motion.div>
+            )}
 
             {/* 3. Centerpiece - Avatar & Labels */}
-            <div className="relative z-10 flex flex-col items-center translate-y-6">
+            <div className="relative z-20 flex flex-col items-center -translate-y-10 md:-translate-y-14 pointer-events-auto">
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -99,60 +393,31 @@ const RPGHomeTab = ({ user }) => {
                     </div>
                 </motion.div>
 
-                <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="mt-8 flex flex-col items-center gap-2"
-                >
-                    <div className="flex items-center gap-3">
-                        <div className="h-px w-8 bg-gradient-to-r from-transparent to-cyan-500" />
-                        <span className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.6em]">{user?.rpg?.path || 'Identity'}_Protocol</span>
-                        <div className="h-px w-8 bg-gradient-to-l from-transparent to-cyan-500" />
-                    </div>
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: [0, 0.4, 0.7] }}
-                        transition={{ delay: 0.8, duration: 1.5 }}
-                        className="max-w-[400px] text-center text-[9px] font-bold text-slate-400 italic leading-relaxed tracking-[0.2em] uppercase mt-2 px-4"
+                {/* Archetype Title: Sitting at the feet */}
+                {activeSubTab === 'stats' && (
+                    <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        className="mt-6 md:mt-32 flex flex-col items-center gap-2"
                     >
-                        {protocolData.flavor}
-                    </motion.p>
-                </motion.div>
+                        <div className="flex items-center gap-4">
+                            <div className="h-px w-10 bg-gradient-to-r from-transparent via-cyan-500/50 to-cyan-500" />
+                            <button 
+                                onClick={() => setShowInfoModal(true)}
+                                className="flex items-center gap-3 group cursor-pointer hover:scale-105 transition-transform relative z-50 pointer-events-auto"
+                            >
+                                <span className="text-[11px] font-black text-cyan-500 uppercase tracking-[0.8em] group-hover:text-white transition-colors">{user?.rpg?.path || 'Identity'}</span>
+                                <div className="p-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/40 transition-all">
+                                    <Info size={10} className="text-cyan-500" />
+                                </div>
+                            </button>
+                            <div className="h-px w-10 bg-gradient-to-l from-transparent via-cyan-500/50 to-cyan-500" />
+                        </div>
+                    </motion.div>
+                )}
             </div>
 
-            {/* 4. Center Top Diagnostics - Sync Progress */}
-            <motion.div
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                className="absolute top-10 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2"
-            >
-                <div className="flex flex-col gap-4 w-64">
-                    <div className="flex items-center gap-12">
-                        <div className="flex flex-col items-start">
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Sync_Rank</span>
-                            <span className="text-[12px] font-black text-white">LVL.{user?.level || 0}</span>
-                        </div>
-                        <div className="flex-1 space-y-1.5 font-mono">
-                            <div className="flex justify-between items-center">
-                                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Neural_Sync</span>
-                                <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">{Math.round(((user?.exp - progressData.totalRequired) / progressData.nextLevelExp) * 100)}%</span>
-                            </div>
-                            <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                                <motion.div
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${((user?.exp - progressData.totalRequired) / progressData.nextLevelExp) * 100}%` }}
-                                    transition={{ duration: 1.5, ease: "easeOut" }}
-                                    className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-
-                </div>
-            </motion.div>
         </div>
     );
 };

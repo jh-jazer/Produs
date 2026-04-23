@@ -17,8 +17,7 @@ export default function Manual() {
           <span className="hidden md:inline-block font-normal text-[10px] uppercase tracking-[0.5em] text-white/80 group-hover:text-current transition-colors">Return</span>
         </Link>
         <Link to="/dashboard" className="mx-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-4 group">
-            <Logo glow className="size-9 md:size-11" color="white" />
-
+          <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-white mt-1">Produs</span>
         </Link>
       </nav>
 

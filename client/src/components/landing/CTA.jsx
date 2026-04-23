@@ -15,7 +15,7 @@ export default function CTA({ user }) {
   };
 
   return (
-    <section className="fixed inset-0 flex flex-col items-center justify-between text-center px-4 md:px-6 scene-cta pointer-events-none opacity-0 z-30 bg-[#020202] transition-colors duration-1000 overflow-hidden">
+    <section className="fixed inset-0 flex flex-col items-center justify-between text-center px-4 md:px-6 scene-cta pointer-events-none opacity-0 z-30 bg-[#000000] transition-colors duration-1000 overflow-hidden">
       <div className="flex-grow flex flex-col items-center justify-center w-full max-w-4xl mx-auto">
         <span className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.5em] md:tracking-[1em] text-cyan-400/40 mb-4 block">
           Final Prototype // Phase 4

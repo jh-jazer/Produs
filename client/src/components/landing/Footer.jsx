@@ -20,7 +20,7 @@ export default function Footer() {
         
         {/* Left: Original Logo & Name */}
         <div className="flex items-center gap-3 group cursor-default">
-          <Logo glow={false} className="size-6 md:size-7" color="white" />
+
           <span className="font-normal text-[10px] uppercase tracking-[0.5em] text-white/80">
             Produs
           </span>

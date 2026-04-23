@@ -36,7 +36,7 @@ function SignIn() {
     };
 
     return (
-        <div className="min-h-screen relative flex items-center justify-center p-4 bg-[#121212] overflow-hidden">
+        <div className="min-h-screen relative flex items-center justify-center p-4 bg-[#000000] overflow-hidden">
 
             {/* Background */}
             <div className="absolute inset-0">
@@ -52,14 +52,11 @@ function SignIn() {
             }}></div>
 
             {/* Modal Card */}
-            <div className="relative z-10 w-full max-w-[480px] bg-white dark:bg-[#121212] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-white/10 dark:border-white/10 backdrop-blur-sm overflow-hidden">
+            <div className="relative z-10 w-full max-w-[480px] bg-white dark:bg-[#000000] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-white/10 dark:border-white/10 backdrop-blur-sm overflow-hidden">
                 <div className="px-6 py-8 sm:px-12 sm:py-12">
 
                     {/* Logo */}
                     <div className="flex items-center justify-center gap-2.5 mb-10">
-                        <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg ring-1 ring-slate-900/10 dark:ring-white/10 bg-white dark:bg-white/5 p-1.5 flex items-center justify-center">
-                            <Logo glow={false} className="w-full h-full" />
-                        </div>
                         <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">Produs</span>
                     </div>
 

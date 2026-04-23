@@ -88,7 +88,7 @@ function Auth() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="min-h-screen relative flex items-center justify-center p-4 bg-[#121212] overflow-hidden"
+            className="min-h-screen relative flex items-center justify-center p-4 bg-[#000000] overflow-hidden"
         >
 
             {/* Background blobs */}
@@ -105,14 +105,14 @@ function Auth() {
             }}></div>
 
             {/* Modal Container */}
-            <div className="relative z-10 w-full max-w-[760px] h-[600px] md:h-[520px] bg-white dark:bg-[#121212] rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.4)] overflow-hidden">
+            <div className="relative z-10 w-full max-w-[760px] h-[600px] md:h-[520px] bg-white dark:bg-[#000000] rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.4)] overflow-hidden">
 
                 {/* Forms Container */}
                 <div className="relative w-full h-full flex">
 
                     {/* ====== Sign In Form (Always on left side) ====== */}
                     <div
-                        className="absolute top-0 left-0 w-full md:w-1/2 h-full flex items-center justify-center px-6 py-8 sm:px-10 sm:py-10 transition-opacity duration-700 ease-in-out z-10 bg-white dark:bg-[#121212]"
+                        className="absolute top-0 left-0 w-full md:w-1/2 h-full flex items-center justify-center px-6 py-8 sm:px-10 sm:py-10 transition-opacity duration-700 ease-in-out z-10 bg-white dark:bg-[#000000]"
                         style={{
                             opacity: isSignUp ? 0 : 1,
                             pointerEvents: isSignUp ? 'none' : 'auto',
@@ -120,9 +120,7 @@ function Auth() {
                     >
                         <div className="w-full max-w-[300px]">
                             <div className="flex items-center gap-2 mb-6">
-                                <div className="w-8 h-8 rounded-lg overflow-hidden shadow-none ring-1 ring-slate-900/10 dark:ring-white/10 bg-white dark:bg-white/5 p-1 flex items-center justify-center">
-                                    <Logo glow={false} className="w-full h-full" />
-                                </div>
+
                                 <span className="text-base font-black tracking-tight text-slate-900 dark:text-white">Produs</span>
                             </div>
                             <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">Welcome back</h1>
@@ -181,7 +179,7 @@ function Auth() {
 
                     {/* ====== Sign Up Form (Always on right side) ====== */}
                     <div
-                        className="absolute top-0 left-0 md:left-1/2 w-full md:w-1/2 h-full flex items-center justify-center px-6 py-8 sm:px-10 sm:py-10 transition-opacity duration-700 ease-in-out z-10 md:z-0 bg-white dark:bg-[#121212] md:bg-transparent"
+                        className="absolute top-0 left-0 md:left-1/2 w-full md:w-1/2 h-full flex items-center justify-center px-6 py-8 sm:px-10 sm:py-10 transition-opacity duration-700 ease-in-out z-10 md:z-0 bg-white dark:bg-[#000000] md:bg-transparent"
                         style={{
                             opacity: isSignUp ? 1 : 0,
                             pointerEvents: isSignUp ? 'auto' : 'none',
@@ -189,9 +187,6 @@ function Auth() {
                     >
                         <div className="w-full max-w-[300px]">
                             <div className="flex items-center gap-2 mb-6">
-                                <div className="w-8 h-8 rounded-lg overflow-hidden shadow-none ring-1 ring-slate-900/10 dark:ring-white/10 bg-white dark:bg-white/5 p-1 flex items-center justify-center">
-                                    <Logo glow={false} className="w-full h-full" />
-                                </div>
                                 <span className="text-base font-black tracking-tight text-slate-900 dark:text-white">Produs</span>
                             </div>
                             <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">Get started</h1>
@@ -259,7 +254,7 @@ function Auth() {
                             transform: isSignUp ? 'translateX(-100%)' : 'translateX(0)',
                         }}
                     >
-                        <div className="relative w-full h-full bg-[#121212] dark:bg-[#0c1220] overflow-hidden flex flex-col items-center justify-center p-10 text-center">
+                        <div className="relative w-full h-full bg-[#000000] dark:bg-[#000000] overflow-hidden flex flex-col items-center justify-center p-10 text-center">
                             {/* Decorative blobs inside panel */}
                             <div className="absolute inset-0">
                                 <div className="absolute top-[-30%] left-[-20%] w-[400px] h-[400px] rounded-full bg-primary/25 blur-[100px]"></div>
@@ -274,9 +269,7 @@ function Auth() {
                             }}></div>
 
                             <div className="relative z-10 flex flex-col items-center gap-6 max-w-[260px]">
-                                <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-white/5 p-2 flex items-center justify-center">
-                                    <Logo glow={false} className="w-full h-full" />
-                                </div>
+
 
                                 <div>
                                     <h2 className="text-2xl font-black text-white mb-2 tracking-tight">

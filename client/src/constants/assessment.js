@@ -546,7 +546,7 @@ export const ARCHETYPE_PROTOCOLS = {
     'Visionary': {
         flavor: "Inspiration broadcast active. Aligning group purpose with future-state projections. The mission is the message.",
         perk: "Unlocking the Golden Retriever Pet",
-        multipliers: { int: 1.1, wis: 1.3, str: 0.7, agi: 1.0, vit: 0.9, luk: 1.5 }
+        multipliers: { int: 1.2, wis: 1.3, str: 0.7, agi: 1.0, vit: 0.9, luk: 1.5 }
     },
     'Warden': {
         flavor: "Defense protocols stabilized. Fortifying boundaries and ensuring structural integrity of the collective ecosystem.",
