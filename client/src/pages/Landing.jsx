@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   ChevronRight, 
   Activity, 
@@ -19,7 +19,7 @@ import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import useAuthStore from "../store/useAuthStore";
 import useLoadingStore from "../store/useLoadingStore";
 import { useNavigate } from "react-router-dom";
-import ScrollCanvas from "../components/landing/ScrollCanvas";
+
 import Hero from "../components/landing/Hero";
 import Features from "../components/landing/Features";
 import Testimonials from "../components/landing/Testimonials";
@@ -33,12 +33,12 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 ScrollTrigger.config({ ignoreMobileResize: true });
 
 const SCENES_FEATURES = [
-  { id: "analytics", title: "REAL TIME ANALYTICS", label: "01 // SYSTEM METRICS", icon: Activity },
-  { id: "feed", title: "HEALTHY FEED", label: "02 // VITALITY NEXUS", icon: Heart },
-  { id: "habits", title: "HABIT TRACKER", label: "03 // CONSISTENCY ENGINE", icon: Orbit },
-  { id: "planner", title: "DAILY PLANNER", label: "04 // STRATEGIC NODE", icon: Calendar },
-  { id: "finance", title: "FINANCIAL MANAGER", label: "05 // CAPITAL FLOW", icon: TrendingUp },
-  { id: "journal", title: "JOURNAL LOGGER", icon: Brain, label: "06 // MENTAL CLARITY" },
+  { id: "analytics", title: "ANALYTICS", label: "01 // SYSTEM METRICS", icon: Activity, description: "Real-time performance tracking and behavioral mapping for peak efficiency." },
+  { id: "feed", title: "VITALITY", label: "02 // VITALITY NEXUS", icon: Heart, description: "Intelligent health data synchronization to maintain your physical edge." },
+  { id: "habits", title: "HABITS", label: "03 // CONSISTENCY ENGINE", icon: Orbit, description: "Neural habit loops designed to automate your path to mastery." },
+  { id: "planner", title: "STRATEGY", label: "04 // STRATEGIC NODE", icon: Calendar, description: "Dynamic daily planning that adapts to your unique cognitive flow." },
+  { id: "finance", title: "CAPITAL", label: "05 // CAPITAL FLOW", icon: TrendingUp, description: "Complete financial overview with real-time asset and liability monitoring." },
+  { id: "journal", title: "CLARITY", label: "06 // MENTAL CLARITY", icon: Brain, description: "Unrestricted mental logging to offload and organize your internal thoughts." },
 ];
 
 const TESTIMONIALS = [
@@ -78,11 +78,28 @@ export default function Landing() {
     }, 1000); 
   };
 
+  const [isLoaded, setIsLoaded] = useState(false);
   const containerRef = useRef(null);
   const [progress, setProgress] = useState(0);
 
-  // 1. GSAP Scrollytelling Timeline
+  // 0. Wait for initial-loader to be removed from the view
   useEffect(() => {
+    const checkLoader = () => {
+      const loader = document.getElementById('initial-loader');
+      if (!loader || loader.classList.contains('fade-out')) {
+        // Wait a small buffer for the fade-out transition to clear
+        setTimeout(() => setIsLoaded(true), 500);
+      } else {
+        setTimeout(checkLoader, 200);
+      }
+    };
+    checkLoader();
+  }, []);
+
+  // 1. GSAP Scrollytelling Timeline - Wait for isLoaded to ensure DOM is stable
+  useEffect(() => {
+    if (!isLoaded) return;
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -97,34 +114,69 @@ export default function Landing() {
       });
 
       tl.to(".scene-awakening", { opacity: 1, duration: 3 }, 0);
-      tl.to(".parallax-line-1", { y: -30, opacity: 0, duration: 2 }, 5);
-      tl.to(".parallax-line-2", { y: -50, opacity: 0, duration: 2 }, 5.5);
-      tl.to(".parallax-line-3", { y: -70, opacity: 0, duration: 2, scale: 1.02 }, 6);
-      tl.fromTo(".text-let-it-pass", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 2 }, 9);
-      tl.to(".text-let-it-pass", { opacity: 0, y: -20, duration: 2 }, 13);
-      tl.fromTo(".text-take-control", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 2 }, 15);
-      tl.to(".text-take-control", { opacity: 0, y: -20, duration: 2 }, 19);
-      tl.fromTo(".text-let-me-help", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 2 }, 21);
-      tl.to(".text-let-me-help", { opacity: 0, y: -20, duration: 2 }, 25);
+      tl.to(".parallax-line-2", { opacity: 0, y: -80, duration: 4 }, 6);
+      tl.to(".parallax-line-3", { opacity: 0, y: -120, duration: 4 }, 7);
+      tl.to(".text-let-it-pass", { opacity: 0, y: -160, duration: 4 }, 8);
+      tl.to(".hero-footer", { opacity: 0, y: 50, duration: 4 }, 8);
       tl.to(".scene-dimmer", { opacity: 0, duration: 5 }, 28);
-      tl.to(".scene-awakening", { opacity: 0, duration: 2 }, 32);
+      tl.to(".scene-awakening", { opacity: 0, pointerEvents: "none", duration: 2 }, 12);
 
-      SCENES_FEATURES.forEach((feature, idx) => {
-          const start = 30 + (idx * 10);
-          const nodeClass = `.detail-${feature.id}`;
-          tl.fromTo(nodeClass, { opacity: 0, scale: 0.8, y: 150 }, { opacity: 1, scale: 1, y: 0, duration: 8, ease: "power2.out" }, start);
-          tl.to(`${nodeClass} .hud-icon`, { y: -40, duration: 8 }, start + 2);
-          tl.to(`${nodeClass} .hud-title`, { y: -80, duration: 8 }, start + 3);
-          tl.to(nodeClass, { opacity: 0, scale: 1.2, y: -150, duration: 6, ease: "power2.in" }, start + 8);
-      });
+      // Transitional Scene: Reality (at 15%)
+      tl.fromTo(".scene-reality", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 4 }, 15);
+      tl.to(".scene-reality", { opacity: 0, y: -20, duration: 4 }, 25);
 
-      tl.fromTo(".scene-testimonials", { opacity: 0, y: 100 }, { opacity: 1, y: 0, duration: 6, ease: "power2.out" }, 90);
-      tl.to(".scene-testimonials", { opacity: 0, y: -50, duration: 2 }, 96);
-      tl.fromTo(".scene-cta", { opacity: 0, y: 100 }, { opacity: 1, y: 0, duration: 3, ease: "power2.out" }, 97);
+      // Cross-fade background videos
+      tl.to(".hero-video", { opacity: 0, duration: 5 }, 28);
+      tl.to(".features-video", { opacity: 1, duration: 5 }, 28);
+      // Second Hero (Features) Reveal
+      tl.fromTo(".detail-features", { opacity: 0, y: 50, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 6, ease: "power2.out" }, 35);
+      tl.to(".detail-features", { opacity: 0, y: -50, scale: 1.05, duration: 4, ease: "power2.in" }, 45);
+
+      // Quadrant Features Sequence
+      tl.to(".quadrant-intellectual", { opacity: 1, y: 0, duration: 4 }, 55);
+      tl.to(".quadrant-spiritual", { opacity: 1, y: 0, duration: 4 }, 57);
+      tl.to(".quadrant-financial", { opacity: 1, y: 0, duration: 4 }, 59);
+      tl.to(".quadrant-physical", { opacity: 1, y: 0, duration: 4 }, 61);
+
+      // Fade out all quadrants and the background video
+      tl.to(".scene-quadrants", { opacity: 0, duration: 4 }, 66);
+      tl.to(".features-video", { opacity: 0, duration: 4 }, 66);
+
+      // Gamified System Reveal
+      tl.fromTo(".scene-gamified", { opacity: 0 }, { opacity: 1, duration: 4, ease: "power2.out" }, 69);
+      // Parallax stagger for header
+      tl.fromTo(".gamified-header", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 4, ease: "power2.out" }, 69);
+      // Parallax stagger for rows
+      tl.fromTo(".gamified-row-1", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 3, ease: "power2.out" }, 69.5);
+      tl.fromTo(".gamified-row-2", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 3, ease: "power2.out" }, 70.5);
+      tl.fromTo(".gamified-row-3", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 3, ease: "power2.out" }, 71.5);
+      tl.fromTo(".gamified-row-4", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 3, ease: "power2.out" }, 72.5);
+      tl.to(".scene-gamified", { opacity: 0, y: -50, scale: 1.1, duration: 4, ease: "power2.in" }, 78);
+
+      // Testimonials Reveal (Horizontal Row)
+      tl.fromTo(".scene-testimonials", { opacity: 0 }, { opacity: 1, duration: 4, ease: "power2.out" }, 84);
+      
+      // Header: from Top
+      tl.fromTo(".testimonials-header", { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 4, ease: "power2.out" }, 84);
+
+      // Panel 1: from Left
+      tl.fromTo(".testimonial-panel-1", { opacity: 0, x: -300, rotate: -15 }, { opacity: 1, x: 0, rotate: 0, duration: 4, ease: "power3.out" }, 84.5);
+      
+      // Panel 2: from Bottom
+      tl.fromTo(".testimonial-panel-2", { opacity: 0, y: 300, rotate: 10 }, { opacity: 1, y: 0, rotate: 0, duration: 4, ease: "power3.out" }, 85.5);
+      
+      // Panel 3: from Right
+      tl.fromTo(".testimonial-panel-3", { opacity: 0, x: 300, rotate: 15 }, { opacity: 1, x: 0, rotate: 0, duration: 4, ease: "power3.out" }, 86.5);
+
+      tl.to(".scene-testimonials", { opacity: 0, scale: 1.2, duration: 3 }, 93);
+
+      
+      // CTA Reveal
+      tl.to(".scene-cta", { opacity: 1, pointerEvents: "auto", duration: 4 }, 95);
       tl.to(".scene-cta", { pointerEvents: "auto", duration: 0.1 }, 97.5);
     }, containerRef);
     return () => ctx.revert();
-  }, []);
+  }, [isLoaded]);
 
   // 2. Glow Cursor Logic
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -135,8 +187,7 @@ export default function Landing() {
   }, []);
 
   // 3. Lenis Scrolling Initialization
-  const mappedProgress = Math.min(1, progress / 0.3);
-  const section2BgOpacity = progress > 0.2 ? Math.min(1, (progress - 0.2) / 0.1) : 0;
+
 
   const handleNavigate = (targetProgress) => {
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -148,6 +199,7 @@ export default function Landing() {
   const refreshTimeoutRef = useRef(null);
 
   useEffect(() => {
+    if (!isLoaded) return;
     let isUnmounted = false;
     document.documentElement.classList.add("no-scrollbar");
     
@@ -199,46 +251,194 @@ export default function Landing() {
       lenis.destroy();
       window.lenis = null;
     };
-  }, []);
+  }, [isLoaded]);
 
   return (
     <div ref={containerRef} className="relative bg-black text-white selection:bg-electric-blue/30 font-sans h-[1200vh]">
       <div
-        className="fixed pointer-events-none z-[9999] size-[600px] rounded-full blur-[150px] transition-all duration-300 transform -translate-x-1/2 -translate-y-1/2 opacity-[0.07] bg-electric-blue"
+        className="fixed pointer-events-none z-[9999] size-[250px] rounded-full blur-[100px] transition-all duration-300 transform -translate-x-1/2 -translate-y-1/2 opacity-[0.1] bg-electric-blue"
         style={{ top: mousePosition.y, left: mousePosition.x }}
       />
 
-      <motion.nav
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1, delay: 3.5, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-6 md:py-10 flex justify-between items-center pointer-events-none"
-      >
-        <div className="flex items-center gap-3 md:gap-4 group cursor-pointer pointer-events-auto">
-          <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-white mt-1">Produs</span>
+      <AnimatePresence>
+        {isLoaded && (
+          <motion.nav
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-6 md:py-10 flex justify-between items-center pointer-events-none"
+          >
+            <div className="flex items-center gap-3 md:gap-4 group cursor-pointer pointer-events-auto">
+              <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-white mt-1">Produs</span>
+            </div>
+
+            <div onClick={handleStart} className="pointer-events-auto group flex items-center cursor-pointer relative">
+                <div className="size-10 md:size-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-white transition-all bg-white/[0.03] group-hover:bg-white/10">
+                  <div className="ml-1 w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent group-hover:scale-110 transition-transform" />
+                </div>
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+
+      <div className="pin-background w-full h-screen overflow-hidden relative bg-black p-2 md:p-12 lg:p-24 transition-colors duration-1000 z-0">
+        <div className="w-full h-full relative overflow-hidden bg-black z-0">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-contain hero-video absolute inset-0"
+            style={{ 
+              filter: "contrast(1.05) brightness(1)",
+              WebkitMaskImage: "radial-gradient(circle, black 70%, transparent 100%)",
+              maskImage: "radial-gradient(circle, black 70%, transparent 100%)"
+            }}
+          >
+            <source src="/Hero.mp4" type="video/mp4" />
+          </video>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-contain features-video absolute inset-0 opacity-0"
+            style={{ 
+              filter: "contrast(1.1) brightness(0.9)",
+              WebkitMaskImage: "radial-gradient(circle, black 70%, transparent 100%)",
+              maskImage: "radial-gradient(circle, black 70%, transparent 100%)"
+            }}
+          >
+            <source src="/Features.mp4" type="video/mp4" />
+          </video>
         </div>
 
-        <div onClick={handleStart} className="pointer-events-auto group flex items-center gap-3 md:gap-6 cursor-pointer">
-          <span className="font-normal text-[9px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.5em] text-white/80 group-hover:text-current transition-colors text-right max-w-[100px] md:max-w-none">
-            {user ? "START" : "SIGN IN"}
-          </span>
-          <div className="size-8 md:size-10 shrink-0 rounded-full border border-white/30 flex items-center justify-center group-hover:border-current transition-all">
-            <ChevronRight size={14} className="text-white/80 group-hover:text-current group-hover:translate-x-1 transition-all" />
-          </div>
-        </div>
-      </motion.nav>
-
-      <div className="pin-background w-full h-screen overflow-hidden relative">
-        <ScrollCanvas progress={mappedProgress} />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-90 pointer-events-none" />
         <div className="absolute -left-[20%] top-1/3 size-[100vw] bg-electric-blue/5 blur-[250px] rounded-full pointer-events-none" />
         <div className="absolute -right-[20%] bottom-1/3 size-[80vw] bg-white/[0.02] blur-[200px] rounded-full pointer-events-none" />
-        <div className="absolute inset-0 bg-[#000000] z-10 pointer-events-none" style={{ opacity: section2BgOpacity }} />
       </div>
 
       <div className="relative z-20 -mt-[100vh]">
-        <Hero />
-        <Features features={SCENES_FEATURES} />
+        {isLoaded && <Hero />}
+        
+        {/* Transitional Scene at 15% scroll */}
+        <div className="scene-reality fixed inset-0 flex items-center justify-center px-6 md:px-24 pointer-events-none opacity-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 items-center max-w-7xl w-full md:-translate-x-8">
+            <div className="text-center md:text-right">
+              <h2 className="text-white/80 text-3xl md:text-6xl font-black tracking-tight uppercase leading-[0.9]">
+                HELP YOUR <br /> <span className="text-white">HERO</span>
+              </h2>
+            </div>
+            <div className="text-center md:text-left border-t md:border-t-0 md:border-l border-white/10 pt-8 md:pt-0 md:pl-12">
+              <p className="text-white/40 text-xs md:text-sm font-light tracking-[0.3em] uppercase leading-relaxed max-w-sm mx-auto md:mx-0">
+                WHILE ON YOUR SIDE OF <span className="text-white/80">REALITY</span> <br /> WITH OUR SYSTEM
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Quadrant Features Scene */}
+        <div className="scene-quadrants fixed inset-0 z-30 pointer-events-none p-12 md:p-24 overflow-hidden">
+          {/* Top Left: Intellectual */}
+          <div className="quadrant-intellectual absolute top-[20%] left-[15%] opacity-0 max-w-xs">
+            <h3 className="text-white text-xl md:text-3xl font-black uppercase tracking-tighter mb-4">Intellectual</h3>
+            <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed">
+              Strategic planning, Deep Work focus sessions, and unrestricted mental logging for cognitive offloading.
+            </p>
+          </div>
+          
+          {/* Top Right: Physical */}
+          <div className="quadrant-physical absolute top-[20%] right-[15%] opacity-0 text-right max-w-xs">
+            <h3 className="text-white text-xl md:text-3xl font-black uppercase tracking-tighter mb-4">Physical</h3>
+            <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed">
+              Real-time vitality tracking and automated habit loops for health and peak energy maintenance.
+            </p>
+          </div>
+
+          {/* Bottom Left: Financial */}
+          <div className="quadrant-financial absolute bottom-[20%] left-[15%] opacity-0 max-w-xs">
+            <h3 className="text-white text-xl md:text-3xl font-black uppercase tracking-tighter mb-4">Financial</h3>
+            <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed">
+              Full-spectrum capital management, asset tracking, and resource allocation for long-term security.
+            </p>
+          </div>
+
+          {/* Bottom Right: Spiritual */}
+          <div className="quadrant-spiritual absolute bottom-[20%] right-[15%] opacity-0 text-right max-w-xs">
+            <h3 className="text-white text-xl md:text-3xl font-black uppercase tracking-tighter mb-4">Spiritual</h3>
+            <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed">
+              Mindset reflection, gratitude rituals, and alignment through the "Rule of Three" intentionality system.
+            </p>
+          </div>
+        </div>
+
+        {/* Gamified System Scene */}
+        <div className="scene-gamified fixed inset-0 flex items-center justify-center px-6 md:px-24 pointer-events-none opacity-0 z-30">
+          <div className="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
+            
+            {/* Left Column: Header */}
+            <div className="gamified-header text-center md:text-right md:-translate-x-12">
+              <h2 className="font-black tracking-[0.4em] uppercase flex flex-col items-center md:items-end gap-2 md:gap-4">
+                <span className="text-2xl md:text-4xl text-white inline-block skew-x-[-3deg]">
+                  IMMERSIVE
+                </span>
+                <span className="text-2xl md:text-4xl text-white inline-block md:translate-x-5 skew-x-[-3deg]">
+                  STORY
+                </span>
+                <span className="text-2xl md:text-4xl text-white inline-block md:translate-x-10 skew-x-[-3deg]">
+                  DRIVEN
+                </span>
+                <span className="text-2xl md:text-4xl text-white inline-block md:translate-x-16 skew-x-[-3deg]">
+                  GAME
+                </span>
+              </h2>
+            </div>
+
+            {/* Right Column: Rows */}
+            <div className="flex flex-col w-full">
+              {/* Row 1 */}
+              <div className="gamified-row-1 w-full py-6 md:py-8 flex flex-col items-center md:items-start gap-3">
+                <span className="text-electric-blue font-mono text-[10px] md:text-xs tracking-widest uppercase">01 // STORIES</span>
+                <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed max-w-[400px] text-center md:text-left">
+                  Unlock your personal narrative through progress.
+                </p>
+              </div>
+
+              <div className="w-24 h-px bg-white/20 md:translate-x-2.5" />
+
+              {/* Row 2 */}
+              <div className="gamified-row-2 w-full py-6 md:py-8 flex flex-col items-center md:items-start gap-3 md:translate-x-5">
+                <span className="text-white/60 font-mono text-[10px] md:text-xs tracking-widest uppercase">02 // LEVELLING</span>
+                <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed max-w-[400px] text-center md:text-left">
+                  Grow stronger through experience, unlock new tiers.
+                </p>
+              </div>
+
+              <div className="w-24 h-px bg-white/20 md:translate-x-8" />
+
+              {/* Row 3 */}
+              <div className="gamified-row-3 w-full py-6 md:py-8 flex flex-col items-center md:items-start gap-3 md:translate-x-10">
+                <span className="text-white/60 font-mono text-[10px] md:text-xs tracking-widest uppercase">03 // SURVIVAL</span>
+                <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed max-w-[400px] text-center md:text-left">
+                  Master the essentials and maintain your status.
+                </p>
+              </div>
+
+              <div className="w-24 h-px bg-white/20 md:translate-x-12" />
+
+              {/* Row 4 */}
+              <div className="gamified-row-4 w-full py-6 md:py-8 flex flex-col items-center md:items-start gap-3 md:translate-x-16">
+                <span className="text-white/60 font-mono text-[10px] md:text-xs tracking-widest uppercase">04 // COMPETITIONS</span>
+                <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed max-w-[400px] text-center md:text-left">
+                  Compete with yourself in global challenges.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <Features />
         <Testimonials testimonials={TESTIMONIALS} />
         <CTA user={user} />
       </div>

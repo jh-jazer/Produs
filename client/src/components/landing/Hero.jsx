@@ -1,39 +1,56 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Terminal } from "lucide-react";
 
-export default function Hero() {
+const Hero = () => {
   return (
-    <section className="fixed inset-0 flex items-center justify-center text-center px-6 pt-20 scene-awakening pointer-events-none z-20 perspective-1000">
-      <div className="max-w-5xl relative flex items-center justify-center min-h-[50vh]">
-        <h1 className="absolute text-2xl sm:text-3xl md:text-4xl font-thin uppercase text-white/90 drop-shadow-glow">
-          <span className="parallax-line-1 block tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">What if</span>
-          <span className="parallax-line-2 text-white/30 block mt-8 tracking-[0.3em] md:tracking-[1.2em] -mr-[0.3em] md:-mr-[1.2em]">this is already your</span>
-          <span className="parallax-line-3 text-white block mt-4 tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">Second Chance?</span>
-        </h1>
-
-        <div className="absolute text-2xl sm:text-3xl md:text-4xl font-thin uppercase text-white/90 drop-shadow-glow text-let-it-pass opacity-0">
-          <span className="block tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">will you let it pass</span>
+    <section className="fixed inset-0 flex flex-col items-center justify-center text-center px-4 md:px-6 scene-awakening z-20 pointer-events-none">
+      <div className="max-w-6xl w-full relative flex flex-col items-center">
+        
+        {/* Hero Title - Kinetic Typography */}
+        <div className="relative mb-6 md:mb-12">
+          <h1 className="font-black tracking-[-0.05em] leading-[0.8] uppercase flex flex-col items-center">
+           
+            <motion.span 
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="text-7xl md:text-[140px] text-transparent parallax-line-3 inline-block"
+              style={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}
+            >
+              PRODUS
+            </motion.span>
+          </h1>
+          
         </div>
 
-        <div className="absolute text-2xl sm:text-3xl md:text-4xl font-thin uppercase text-white/90 drop-shadow-glow text-take-control opacity-0">
-          <span className="block tracking-[0.5em] md:tracking-[1.5em] -mr-[0.5em] md:-mr-[1.5em]">or take back control</span>
-        </div>
+        {/* Description */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.8 }}
+          className="max-w-2xl text-white/40 text-sm md:text-base font-light tracking-[0.15em] leading-relaxed uppercase mb-8 md:mb-16 text-let-it-pass"
+        >
+          What if someone <span className="text-white/70">Else's Life</span> depends on your <span className="text-white/70">Productivity</span>? <br />
+          Would that change things?
+        </motion.p>
 
-        <div className="absolute text-let-me-help opacity-0 pointer-events-auto">
-          <Link 
-            to="/auth" 
-            className="block cursor-pointer pl-12 py-4 px-10 border border-white/20 bg-white/5 hover:bg-white/10 backdrop-blur-sm text-[11px] md:text-xs tracking-[0.8em] md:tracking-[1em] font-bold uppercase transition-all hover:scale-105 active:scale-95 text-center text-white"
-            style={{ marginLeft: '1em' }}
-          >
-            Start Now
-          </Link>
-        </div>
       </div>
 
-      <div className="absolute bottom-12 flex flex-col items-center gap-8">
-        <div className="w-px h-24 bg-gradient-to-b from-white/40 to-transparent" />
-        <span className="text-[10px] font-medium uppercase tracking-[0.5em] md:tracking-[1em] text-white/40 animate-pulse">Scroll to Begin</span>
-      </div>
+      {/* Footer Details */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 0.3, y: 0 }}
+        transition={{ duration: 1, delay: 2.5 }}
+        className="absolute bottom-12 w-full px-12 flex justify-between items-end hero-footer"
+      >
+        <div className="flex flex-col gap-3 items-start">
+          <Terminal size={18} className="text-electric-blue" />
+          <span className="text-[9px] tracking-[0.3em] font-mono uppercase">produs_main_v2.0.1</span>
+        </div>
+      </motion.div>
     </section>
   );
-}
+};
+
+export default React.memo(Hero);

@@ -68,7 +68,6 @@ export default function ScrollIndicator({ progress, onNavigate }) {
   return (
     <div className="fixed right-6 md:right-12 bottom-24 z-[100] hidden md:flex flex-col items-center gap-6 pointer-events-none select-none transition-colors duration-1000 text-white">
 
-
       {/* Vertical Progress Track & Section Dots */}
       <div 
         ref={trackRef}
@@ -115,11 +114,6 @@ export default function ScrollIndicator({ progress, onNavigate }) {
                   title={section.label}
                 >
                   {/* Active Indicator Line */}
-                  <motion.div 
-                    className={`w-4 h-[1px] bg-white transition-opacity ${isActive ? 'opacity-100' : 'opacity-0'}`}
-                  />
-                  
-                  {/* Visual Dot */}
                   <div className={`size-1.5 rounded-full border transition-all duration-300 ${isActive ? 'bg-white border-white scale-125 shadow-[0_0_10px_white]' : 'bg-transparent border-white/20 group-hover:border-white/60 group-hover:scale-110'}`} />
                   
                   {/* Label Overlay */}

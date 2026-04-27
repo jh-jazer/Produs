@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Brain, Zap, Shield, Sword, Heart, Info, User, Shirt, Layers, Gem, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sparkles, Brain, Zap, Shield, Sword, Heart, Info, User, Shirt, Layers, Gem, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 import { getLevelProgress } from '../../../utils/rpgHelpers';
 import { ARCHETYPE_PROTOCOLS } from '../../../constants/assessment';
 import RPGModal from '../../ui/RPGModal';
@@ -24,9 +24,9 @@ const RPGHomeTab = ({ user }) => {
     ];
 
     const subTabs = [
-        { id: 'stats', label: 'STATS_' },
-        { id: 'equip', label: 'EQUIP_' },
-        { id: 'items', label: 'ITEMS_' },
+        { id: 'stats', label: 'STATS' },
+        { id: 'items', label: 'ITEMS' },
+        { id: 'skills', label: 'SKILLS' },
     ];
 
     const health = 500 + (userStats.vit * 10) + (userStats.str * 5);
@@ -153,9 +153,9 @@ const RPGHomeTab = ({ user }) => {
                         <button
                             key={tab.id}
                             onClick={() => setActiveSubTab(tab.id)}
-                            className={`relative group/tab py-1 transition-all ${activeSubTab === tab.id ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+                            className={`relative group/tab py-1 transition-all ${activeSubTab === tab.id ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
                         >
-                            <span className={`text-[11px] font-black tracking-[0.4em] font-mono transition-colors ${activeSubTab === tab.id ? 'text-white' : 'text-slate-600'}`}>
+                            <span className={`text-[11px] font-black tracking-[0.4em] font-mono transition-colors ${activeSubTab === tab.id ? 'text-cyan-500' : 'text-white'}`}>
                                 {tab.label}
                             </span>
                         </button>
@@ -170,9 +170,9 @@ const RPGHomeTab = ({ user }) => {
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.6 }}
-                        className="absolute bottom-1 md:bottom-2 left-[-4px] z-30 flex items-center pointer-events-auto w-full max-w-[95%] md:w-auto"
+                        className="absolute bottom-1 md:bottom-6 left-1/2 md:left-[42%] -translate-x-1/2 z-30 flex items-center justify-center pointer-events-auto w-full max-w-[95%] md:w-auto"
                     >
-                        <div className="grid grid-cols-3 gap-x-12 md:gap-x-20 gap-y-2 px-6 py-5 rounded-[2rem]">
+                        <div className="grid grid-cols-3 md:grid-cols-4 gap-x-8 md:gap-x-42 gap-y-4 px-6 p-5 rounded-[2rem]">
                             {combatLogistics.map((stat, i) => (
                                 <div key={stat.label} className="flex items-center justify-start gap-2 min-w-[120px]">
                                     <div className="flex items-center gap-1.5 min-w-[60px]">
@@ -190,7 +190,7 @@ const RPGHomeTab = ({ user }) => {
                         initial={{ x: -100, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="absolute left-4 lg:left-8 top-[42%] -translate-y-1/2 flex flex-col gap-8 z-20 pointer-events-auto"
+                        className="absolute left-4 lg:left-[28%] top-[35%] -translate-y-1/2 flex flex-col gap-8 z-20 pointer-events-auto"
                     >
                         <div className="flex flex-col gap-6 md:gap-3">
                             {stats.slice(0, 3).map((stat, i) => (
@@ -218,7 +218,7 @@ const RPGHomeTab = ({ user }) => {
                         initial={{ x: 100, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="absolute right-4 lg:right-8 top-[42%] -translate-y-1/2 flex flex-col items-end gap-6 z-20 text-right pointer-events-auto"
+                        className="absolute right-4 lg:right-[28%] top-[35%] -translate-y-1/2 flex flex-col items-end gap-6 z-20 text-right pointer-events-auto"
                     >
                         <div className="flex flex-col gap-6 md:gap-3 w-full">
                             {stats.slice(3, 6).map((stat, i) => (
@@ -243,14 +243,14 @@ const RPGHomeTab = ({ user }) => {
                 </>
             )}
 
-            {activeSubTab === 'equip' && (
+            {activeSubTab === 'items' && (
                 <>
                     {/* Tactical Vault: Storage Boxes with Pagination */}
                     <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.6 }}
-                        className="absolute bottom-1 md:bottom-2 left-1 z-30 flex flex-col items-start gap-3 pointer-events-auto w-full max-w-[95%] md:w-auto"
+                        className="absolute bottom-4 md:bottom-8 left-1/2 md:left-[47%] -translate-x-1/2 z-30 flex flex-col items-center gap-3 pointer-events-auto w-full max-w-[95%] md:w-auto"
                     >
                         <div className="flex items-center justify-between w-full px-6">
                             <div className="flex items-center gap-4">
@@ -274,15 +274,18 @@ const RPGHomeTab = ({ user }) => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-5 gap-2 px-6 py-4 rounded-3xl">
-                            {Array.from({ length: 10 }).map((_, i) => (
+                        <div className="grid grid-cols-5 md:grid-cols-8 gap-2 md:gap-x-[72px] md:gap-y-4 px-6 py-4 rounded-3xl">
+                            {Array.from({ length: 16 }).map((_, i) => (
                                 <motion.div 
                                     key={`${vaultPage}-${i}`}
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: i * 0.03 }}
-                                    className="size-14 border border-white/10 bg-white/[0.02] rounded-xl hover:border-emerald-500/50 transition-all cursor-pointer relative group"
+                                    className={`size-14 border border-white/10 bg-white/[0.02] rounded-xl hover:border-emerald-500/50 transition-all cursor-pointer relative group ${i >= 10 ? 'hidden md:block' : ''}`}
                                 >
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] group-hover:opacity-10 transition-opacity">
+                                        <Package size={20} className="text-white" />
+                                    </div>
                                     <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
                                     <span className="absolute bottom-1 right-1.5 text-[7px] font-black text-slate-700 uppercase">{vaultPage * 10 + i + 1}</span>
                                 </motion.div>
@@ -295,7 +298,7 @@ const RPGHomeTab = ({ user }) => {
                         initial={{ x: -100, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="absolute left-12 lg:left-24 top-[42%] -translate-y-1/2 flex flex-col gap-6 z-20 pointer-events-auto"
+                        className="absolute left-2 lg:left-[32%] top-[35%] -translate-y-1/2 flex flex-col gap-4 z-20 pointer-events-auto"
                     >
                         {[
                             { id: 'head', icon: <User size={24} /> },
@@ -324,7 +327,7 @@ const RPGHomeTab = ({ user }) => {
                         initial={{ x: 100, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="absolute right-12 lg:right-24 top-[42%] -translate-y-1/2 flex flex-col items-end gap-6 z-20 text-right pointer-events-auto"
+                        className="absolute right-2 lg:right-[32%] top-[35%] -translate-y-1/2 flex flex-col items-end gap-4 z-20 text-right pointer-events-auto"
                     >
                         {[
                             { id: 'main_hand', icon: <Sword size={24} /> },
@@ -351,7 +354,7 @@ const RPGHomeTab = ({ user }) => {
                 </>
             )}
 
-            {activeSubTab === 'items' && (
+            {activeSubTab === 'skills' && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -359,12 +362,14 @@ const RPGHomeTab = ({ user }) => {
                 >
                     <div className="w-full max-w-md border border-white/5 bg-white/[0.01] p-6 rounded-3xl backdrop-blur-sm">
                         <div className="flex justify-between items-center mb-6">
-                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Vault_Summary_</span>
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest">0 / 100 Slots</span>
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Skill_Matrix_</span>
+                            <span className="text-[10px] font-black text-white uppercase tracking-widest">Protocol_Ready</span>
                         </div>
-                        <div className="grid grid-cols-8 gap-2">
-                            {Array.from({ length: 16 }).map((_, i) => (
-                                <div key={i} className="aspect-square border border-white/[0.03] bg-black/20 rounded-md" />
+                        <div className="grid grid-cols-4 gap-4">
+                            {Array.from({ length: 8 }).map((_, i) => (
+                                <div key={i} className="aspect-square border border-white/[0.03] bg-black/40 rounded-xl flex items-center justify-center group hover:border-cyan-500/30 transition-all cursor-pointer">
+                                    <div className="size-6 rounded-full bg-white/5 group-hover:bg-cyan-500/20 transition-all" />
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -372,7 +377,7 @@ const RPGHomeTab = ({ user }) => {
             )}
 
             {/* 3. Centerpiece - Avatar & Labels */}
-            <div className="relative z-20 flex flex-col items-center -translate-y-10 md:-translate-y-14 pointer-events-auto">
+            <div className={`relative z-20 flex flex-col items-center ${activeSubTab === 'items' ? '-translate-y-14 md:-translate-y-18' : '-translate-y-10 md:-translate-y-14'} pointer-events-auto`}>
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -399,7 +404,7 @@ const RPGHomeTab = ({ user }) => {
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.5 }}
-                        className="mt-6 md:mt-32 flex flex-col items-center gap-2"
+                        className="mt-2 md:mt-6 flex flex-col items-center gap-2"
                     >
                         <div className="flex items-center gap-4">
                             <div className="h-px w-10 bg-gradient-to-r from-transparent via-cyan-500/50 to-cyan-500" />
