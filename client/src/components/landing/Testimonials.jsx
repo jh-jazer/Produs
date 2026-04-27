@@ -2,17 +2,16 @@ import React from "react";
 
 const Testimonials = ({ testimonials }) => {
   return (
-    <section className="fixed inset-0 flex flex-col items-center justify-center px-6 scene-testimonials pointer-events-none opacity-0 z-30 overflow-hidden bg-black">
+    <section className="fixed inset-0 flex flex-col items-end md:items-center justify-center px-10 md:px-6 scene-testimonials pointer-events-none opacity-0 z-30 overflow-hidden bg-black">
       
-      <div className="max-w-7xl w-full mx-auto flex flex-col items-center gap-12 md:gap-20">
+      <div className="max-w-7xl w-full mx-auto flex flex-col items-end md:items-center gap-12 md:gap-20">
         
         {/* Slanted Header (Above Panels) */}
-        <div className="testimonials-header text-center w-full">
-          <h2 className="font-black tracking-[0.4em] uppercase flex flex-col items-center gap-2 md:gap-3">
-            <span className="text-2xl md:text-4xl text-white inline-block skew-x-[-3deg]">
+        <div className="testimonials-header text-right md:text-center w-full">
+          <h2 className="font-black tracking-[0.4em] uppercase flex flex-col items-end md:items-center gap-2 md:gap-3">
+            <span className="text-xl md:text-4xl text-white inline-block skew-x-[-3deg]">
               TESTIMONIALS
             </span>
-            
           </h2>
         </div>
 

@@ -4,18 +4,18 @@ import { Terminal } from "lucide-react";
 
 const Hero = () => {
   return (
-    <section className="fixed inset-0 flex flex-col items-center justify-center text-center px-4 md:px-6 scene-awakening z-20 pointer-events-none">
-      <div className="max-w-6xl w-full relative flex flex-col items-center">
+    <section className="fixed inset-0 flex flex-col items-end md:items-center justify-center text-right md:text-center px-10 md:px-6 scene-awakening z-20 pointer-events-none">
+      <div className="max-w-6xl w-full relative flex flex-col items-end md:items-center">
         
         {/* Hero Title - Kinetic Typography */}
         <div className="relative mb-6 md:mb-12">
-          <h1 className="font-black tracking-[-0.05em] leading-[0.8] uppercase flex flex-col items-center">
+          <h1 className="font-black tracking-[-0.05em] leading-[0.8] uppercase flex flex-col items-end md:items-center">
            
             <motion.span 
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-7xl md:text-[140px] text-transparent parallax-line-3 inline-block"
+              className="text-5xl md:text-[140px] text-transparent parallax-line-3 inline-block"
               style={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}
             >
               PRODUS
@@ -29,7 +29,7 @@ const Hero = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.5, delay: 0.8 }}
-          className="max-w-2xl text-white/40 text-sm md:text-base font-light tracking-[0.15em] leading-relaxed uppercase mb-8 md:mb-16 text-let-it-pass"
+          className="max-w-xs md:max-w-2xl text-white/40 text-[10px] md:text-base font-light tracking-[0.15em] leading-relaxed uppercase mb-8 md:mb-16"
         >
           What if someone <span className="text-white/70">Else's Life</span> depends on your <span className="text-white/70">Productivity</span>? <br />
           Would that change things?

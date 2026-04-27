@@ -281,18 +281,17 @@ export default function Landing() {
         )}
       </AnimatePresence>
 
-      <div className="pin-background w-full h-screen overflow-hidden relative bg-black p-2 md:p-12 lg:p-24 transition-colors duration-1000 z-0">
+      <div className="pin-background w-full h-screen overflow-hidden relative bg-black md:p-12 lg:p-24 transition-colors duration-1000 z-0">
         <div className="w-full h-full relative overflow-hidden bg-black z-0">
           <video
             autoPlay
             loop
             muted
             playsInline
-            className="w-full h-full object-contain hero-video absolute inset-0"
+            className="w-full h-full object-cover md:object-contain hero-video absolute inset-0"
             style={{ 
-              filter: "contrast(1.05) brightness(1)",
-              WebkitMaskImage: "radial-gradient(circle, black 70%, transparent 100%)",
-              maskImage: "radial-gradient(circle, black 70%, transparent 100%)"
+              filter: "contrast(1.05) brightness(1.1)",
+              objectPosition: typeof window !== 'undefined' && window.innerWidth < 768 ? '75% center' : 'center'
             }}
           >
             <source src="/Hero.mp4" type="video/mp4" />
@@ -302,18 +301,17 @@ export default function Landing() {
             loop
             muted
             playsInline
-            className="w-full h-full object-contain features-video absolute inset-0 opacity-0"
+            className="w-full h-full object-cover md:object-contain features-video absolute inset-0 opacity-0"
             style={{ 
-              filter: "contrast(1.1) brightness(0.9)",
-              WebkitMaskImage: "radial-gradient(circle, black 70%, transparent 100%)",
-              maskImage: "radial-gradient(circle, black 70%, transparent 100%)"
+              filter: "contrast(1.1) brightness(1)",
+              objectPosition: typeof window !== 'undefined' && window.innerWidth < 768 ? '75% center' : 'center'
             }}
           >
             <source src="/Features.mp4" type="video/mp4" />
           </video>
         </div>
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-90 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-60 pointer-events-none" />
         <div className="absolute -left-[20%] top-1/3 size-[100vw] bg-electric-blue/5 blur-[250px] rounded-full pointer-events-none" />
         <div className="absolute -right-[20%] bottom-1/3 size-[80vw] bg-white/[0.02] blur-[200px] rounded-full pointer-events-none" />
       </div>
@@ -322,15 +320,16 @@ export default function Landing() {
         {isLoaded && <Hero />}
         
         {/* Transitional Scene at 15% scroll */}
-        <div className="scene-reality fixed inset-0 flex items-center justify-center px-6 md:px-24 pointer-events-none opacity-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 items-center max-w-7xl w-full md:-translate-x-8">
-            <div className="text-center md:text-right">
-              <h2 className="text-white/80 text-3xl md:text-6xl font-black tracking-tight uppercase leading-[0.9]">
-                HELP YOUR <br /> <span className="text-white">HERO</span>
+        <div className="scene-reality fixed inset-0 flex items-center justify-end md:justify-center px-10 md:px-24 pointer-events-none opacity-0">
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-8 md:gap-24 items-end md:items-center max-w-7xl w-full">
+            <div className="text-right">
+              <h2 className="font-black tracking-tight uppercase leading-[0.85] flex flex-col items-end">
+                <span className="text-4xl md:text-6xl text-transparent" style={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}>HELP YOUR</span>
+                <span className="text-4xl md:text-6xl text-white">HERO</span>
               </h2>
             </div>
-            <div className="text-center md:text-left border-t md:border-t-0 md:border-l border-white/10 pt-8 md:pt-0 md:pl-12">
-              <p className="text-white/40 text-xs md:text-sm font-light tracking-[0.3em] uppercase leading-relaxed max-w-sm mx-auto md:mx-0">
+            <div className="text-right md:text-left md:pl-12">
+              <p className="text-white/40 text-[10px] md:text-sm font-light tracking-[0.3em] uppercase leading-relaxed max-w-[240px] md:max-w-sm">
                 WHILE ON YOUR SIDE OF <span className="text-white/80">REALITY</span> <br /> WITH OUR SYSTEM
               </p>
             </div>
@@ -340,101 +339,100 @@ export default function Landing() {
         {/* Quadrant Features Scene */}
         <div className="scene-quadrants fixed inset-0 z-30 pointer-events-none p-12 md:p-24 overflow-hidden">
           {/* Top Left: Intellectual */}
-          <div className="quadrant-intellectual absolute top-[20%] left-[15%] opacity-0 max-w-xs">
-            <h3 className="text-white text-xl md:text-3xl font-black uppercase tracking-tighter mb-4">Intellectual</h3>
-            <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed">
-              Strategic planning, Deep Work focus sessions, and unrestricted mental logging for cognitive offloading.
+          <div className="quadrant-intellectual absolute top-[15%] md:top-[20%] right-[10%] md:left-[15%] md:right-auto opacity-0 text-right md:text-left max-w-[200px] md:max-w-xs">
+            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">Intellectual</h3>
+            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">
+              Strategic planning, Deep Work focus sessions, and unrestricted mental logging.
             </p>
           </div>
           
           {/* Top Right: Physical */}
-          <div className="quadrant-physical absolute top-[20%] right-[15%] opacity-0 text-right max-w-xs">
-            <h3 className="text-white text-xl md:text-3xl font-black uppercase tracking-tighter mb-4">Physical</h3>
-            <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed">
-              Real-time vitality tracking and automated habit loops for health and peak energy maintenance.
+          <div className="quadrant-physical absolute top-[35%] md:top-[20%] right-[10%] md:right-[15%] opacity-0 text-right max-w-[200px] md:max-w-xs">
+            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">Physical</h3>
+            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">
+              Real-time vitality tracking and automated habit loops for peak energy maintenance.
             </p>
           </div>
 
           {/* Bottom Left: Financial */}
-          <div className="quadrant-financial absolute bottom-[20%] left-[15%] opacity-0 max-w-xs">
-            <h3 className="text-white text-xl md:text-3xl font-black uppercase tracking-tighter mb-4">Financial</h3>
-            <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed">
-              Full-spectrum capital management, asset tracking, and resource allocation for long-term security.
+          <div className="quadrant-financial absolute top-[55%] md:bottom-[20%] right-[10%] md:left-[15%] md:right-auto md:top-auto opacity-0 text-right md:text-left max-w-[200px] md:max-w-xs">
+            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">Financial</h3>
+            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">
+              Full-spectrum capital management, asset tracking, and resource allocation.
             </p>
           </div>
 
           {/* Bottom Right: Spiritual */}
-          <div className="quadrant-spiritual absolute bottom-[20%] right-[15%] opacity-0 text-right max-w-xs">
-            <h3 className="text-white text-xl md:text-3xl font-black uppercase tracking-tighter mb-4">Spiritual</h3>
-            <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed">
-              Mindset reflection, gratitude rituals, and alignment through the "Rule of Three" intentionality system.
+          <div className="quadrant-spiritual absolute top-[75%] md:bottom-[20%] right-[10%] md:right-[15%] md:top-auto opacity-0 text-right max-w-[200px] md:max-w-xs">
+            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">Spiritual</h3>
+            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">
+              Mindset reflection, gratitude rituals, and alignment through intentionality.
             </p>
           </div>
         </div>
 
         {/* Gamified System Scene */}
-        <div className="scene-gamified fixed inset-0 flex items-center justify-center px-6 md:px-24 pointer-events-none opacity-0 z-30">
-          <div className="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
+        <div className="scene-gamified fixed inset-0 flex items-center justify-end md:justify-center px-10 md:px-24 pointer-events-none opacity-0 z-30">
+          <div className="max-w-7xl w-full flex flex-col md:grid md:grid-cols-2 gap-12 md:gap-16 items-end md:items-center">
             
-            {/* Left Column: Header */}
-            <div className="gamified-header text-center md:text-right md:-translate-x-12">
-              <h2 className="font-black tracking-[0.4em] uppercase flex flex-col items-center md:items-end gap-2 md:gap-4">
-                <span className="text-2xl md:text-4xl text-white inline-block skew-x-[-3deg]">
+            {/* Header */}
+            <div className="gamified-header text-right md:-translate-x-12">
+              <h2 className="font-black tracking-[0.4em] uppercase flex flex-col items-end gap-2 md:gap-4">
+                <span className="text-xl md:text-4xl text-white inline-block skew-x-[-3deg]">
                   IMMERSIVE
                 </span>
-                <span className="text-2xl md:text-4xl text-white inline-block md:translate-x-5 skew-x-[-3deg]">
+                <span className="text-xl md:text-4xl text-white inline-block md:translate-x-5 skew-x-[-3deg]">
                   STORY
                 </span>
-                <span className="text-2xl md:text-4xl text-white inline-block md:translate-x-10 skew-x-[-3deg]">
+                <span className="text-xl md:text-4xl text-white inline-block md:translate-x-10 skew-x-[-3deg]">
                   DRIVEN
                 </span>
-                <span className="text-2xl md:text-4xl text-white inline-block md:translate-x-16 skew-x-[-3deg]">
+                <span className="text-xl md:text-4xl text-white inline-block md:translate-x-16 skew-x-[-3deg]">
                   GAME
                 </span>
               </h2>
             </div>
 
-            {/* Right Column: Rows */}
-            <div className="flex flex-col w-full">
+            {/* Rows */}
+            <div className="flex flex-col items-end md:items-start w-full">
               {/* Row 1 */}
-              <div className="gamified-row-1 w-full py-6 md:py-8 flex flex-col items-center md:items-start gap-3">
-                <span className="text-electric-blue font-mono text-[10px] md:text-xs tracking-widest uppercase">01 // STORIES</span>
-                <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed max-w-[400px] text-center md:text-left">
+              <div className="gamified-row-1 w-full py-4 md:py-8 flex flex-col items-end md:items-start gap-2 md:gap-3">
+                <span className="text-electric-blue font-mono text-[9px] md:text-xs tracking-widest uppercase">01 // STORIES</span>
+                <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed max-w-[280px] md:max-w-[400px] text-right md:text-left">
                   Unlock your personal narrative through progress.
                 </p>
               </div>
 
-              <div className="w-24 h-px bg-white/20 md:translate-x-2.5" />
+              <div className="w-16 md:w-24 h-px bg-white/20" />
 
               {/* Row 2 */}
-              <div className="gamified-row-2 w-full py-6 md:py-8 flex flex-col items-center md:items-start gap-3 md:translate-x-5">
-                <span className="text-white/60 font-mono text-[10px] md:text-xs tracking-widest uppercase">02 // LEVELLING</span>
-                <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed max-w-[400px] text-center md:text-left">
+              <div className="gamified-row-2 w-full py-4 md:py-8 flex flex-col items-end md:items-start gap-2 md:gap-3">
+                <span className="text-white/60 font-mono text-[9px] md:text-xs tracking-widest uppercase">02 // LEVELLING</span>
+                <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed max-w-[280px] md:max-w-[400px] text-right md:text-left">
                   Grow stronger through experience, unlock new tiers.
                 </p>
               </div>
 
-              <div className="w-24 h-px bg-white/20 md:translate-x-8" />
+              <div className="w-16 md:w-24 h-px bg-white/20" />
 
               {/* Row 3 */}
-              <div className="gamified-row-3 w-full py-6 md:py-8 flex flex-col items-center md:items-start gap-3 md:translate-x-10">
-                <span className="text-white/60 font-mono text-[10px] md:text-xs tracking-widest uppercase">03 // SURVIVAL</span>
-                <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed max-w-[400px] text-center md:text-left">
+              <div className="gamified-row-3 w-full py-4 md:py-8 flex flex-col items-end md:items-start gap-2 md:gap-3">
+                <span className="text-white/60 font-mono text-[9px] md:text-xs tracking-widest uppercase">03 // SURVIVAL</span>
+                <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed max-w-[280px] md:max-w-[400px] text-right md:text-left">
                   Master the essentials and maintain your status.
                 </p>
               </div>
 
-              <div className="w-24 h-px bg-white/20 md:translate-x-12" />
+              <div className="w-16 md:w-24 h-px bg-white/20" />
 
               {/* Row 4 */}
-              <div className="gamified-row-4 w-full py-6 md:py-8 flex flex-col items-center md:items-start gap-3 md:translate-x-16">
-                <span className="text-white/60 font-mono text-[10px] md:text-xs tracking-widest uppercase">04 // COMPETITIONS</span>
-                <p className="text-white/40 text-xs md:text-sm font-light tracking-wide leading-relaxed max-w-[400px] text-center md:text-left">
+              <div className="gamified-row-4 w-full py-4 md:py-8 flex flex-col items-end md:items-start gap-2 md:gap-3">
+                <span className="text-white/60 font-mono text-[9px] md:text-xs tracking-widest uppercase">04 // COMPETITIONS</span>
+                <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed max-w-[280px] md:max-w-[400px] text-right md:text-left">
                   Compete with yourself in global challenges.
                 </p>
               </div>
             </div>
-
           </div>
         </div>
 
