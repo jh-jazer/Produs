@@ -246,7 +246,7 @@ function Layout() {
                 <aside
                     className={`
                         hidden md:flex relative z-[150] h-full flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1]
-                        md:w-[15vw]
+                        md:w-[18vw]
                     `}
                 >
                     {/* 1. Sidebar Header */}
