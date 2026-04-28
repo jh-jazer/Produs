@@ -35,6 +35,16 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+/*
+  Override responsive breakpoints to require landscape orientation.
+  This ensures that tablets in portrait mode continue to show the mobile UI.
+*/
+@variant sm (@media (width >= 40rem) and (orientation: landscape));
+@variant md (@media (width >= 48rem) and (orientation: landscape));
+@variant lg (@media (width >= 64rem) and (orientation: landscape));
+@variant xl (@media (width >= 80rem) and (orientation: landscape));
+@variant 2xl (@media (width >= 96rem) and (orientation: landscape));
+
 :root {
     --primary: #0066ff;
     --background: #ffffff;

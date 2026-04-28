@@ -19,6 +19,7 @@ import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import useAuthStore from "../store/useAuthStore";
 import useLoadingStore from "../store/useLoadingStore";
 import { useNavigate } from "react-router-dom";
+import useMobile from "../hooks/useMobile";
 
 import Hero from "../components/landing/Hero";
 import Features from "../components/landing/Features";
@@ -69,6 +70,7 @@ export default function Landing() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { startLoading } = useLoadingStore();
+  const isMobile = useMobile();
   
   const handleStart = () => {
     startLoading();
@@ -291,7 +293,7 @@ export default function Landing() {
             className="w-full h-full object-cover md:object-contain hero-video absolute inset-0"
             style={{ 
               filter: "contrast(1.05) brightness(1.1)",
-              objectPosition: typeof window !== 'undefined' && window.innerWidth < 768 ? '75% center' : 'center'
+              objectPosition: isMobile ? '75% center' : 'center'
             }}
           >
             <source src="/Hero.mp4" type="video/mp4" />
@@ -304,7 +306,7 @@ export default function Landing() {
             className="w-full h-full object-cover md:object-contain features-video absolute inset-0 opacity-0"
             style={{ 
               filter: "contrast(1.1) brightness(1)",
-              objectPosition: typeof window !== 'undefined' && window.innerWidth < 768 ? '75% center' : 'center'
+              objectPosition: isMobile ? '75% center' : 'center'
             }}
           >
             <source src="/Features.mp4" type="video/mp4" />
