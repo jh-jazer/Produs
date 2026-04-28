@@ -322,7 +322,7 @@ export default function Landing() {
         {/* Transitional Scene at 15% scroll */}
         <div className="scene-reality fixed inset-0 flex items-center justify-end md:justify-center px-10 md:px-24 pointer-events-none opacity-0">
           <div className="flex flex-col md:grid md:grid-cols-2 gap-8 md:gap-24 items-end md:items-center max-w-7xl w-full">
-            <div className="text-right">
+            <div className="text-right md:-translate-x-[2px]">
               <h2 className="font-black tracking-tight uppercase leading-[0.85] flex flex-col items-end">
                 <span className="text-4xl md:text-6xl text-transparent" style={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}>HELP YOUR</span>
                 <span className="text-4xl md:text-6xl text-white">HERO</span>
