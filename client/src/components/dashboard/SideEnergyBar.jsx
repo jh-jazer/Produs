@@ -212,12 +212,7 @@ export default function SideEnergyBar() {
                 />
             )}
 
-            {/* Segments (RPG only) */}
-            {protocolMode === 'rpg' && (
-                <div className="absolute inset-0 flex flex-col justify-between py-1 opacity-20 pointer-events-none">
-                    {[...Array(10)].map((_, i) => <div key={i} className="w-full h-px bg-white/20" />)}
-                </div>
-            )}
+            {/* Segments removed for cleaner side panel aesthetic */}
           </div>
 
           {/* Scroll Thumb (Reality Only) */}

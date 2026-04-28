@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import QRModal from '../ui/QRModal';
-import { QrCode, Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check, Lock, Edit2, Save, X, Handshake, Users } from 'lucide-react';
+import { QrCode, Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check, Lock, Edit2, Save, X, Handshake, Users, Cpu } from 'lucide-react';
 import { getLevelProgress } from '../../utils/rpgHelpers';
 import { ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
 import Avatar from '../ui/Avatar';
@@ -146,334 +146,128 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     if (protocolMode === 'rpg') return null;
 
     return (
-        <div className="glass-panel w-full h-[75vh] md:h-[90vh] rounded-[2.5rem] mt-4 md:mt-8 mb-6 md:mb-12 relative overflow-hidden flex flex-col">
-            {/* 1. Tactical Banner Segment */}
-            <div 
-                ref={bannerRef}
-                className={`w-full h-64 md:h-[45vh] relative group overflow-hidden ${isEditing ? 'cursor-ns-resize active:cursor-grabbing' : ''}`}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
+        <div className="w-full max-w-4xl mx-auto px-4 md:px-0">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="relative mt-8 mb-12"
             >
-                {banner ? (
-                    <img 
-                        src={banner}
-                        alt="Profile Banner" 
-                        style={{ objectPosition: `center ${bannerPosition}%` }}
-                        className="w-full h-full object-cover pointer-events-none transition-[transform,object-position] duration-200 group-hover:scale-105" 
-                    />
-                ) : (
-                    <div className="w-full h-full bg-gradient-to-r from-slate-200 to-slate-100 dark:from-slate-900 dark:to-[#0a0a0a] transition-all duration-700">
-                        {/* Abstract tactical grid over empty banner */}
-                        <div className="absolute inset-0 bg-grid-light dark:bg-grid opacity-20" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                {/* 1. The ID Card Container */}
+                <div className="bg-[#f8f9fa] dark:bg-[#0a0a0a] rounded-[2rem] border-2 border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden relative group">
+                    
+                    {/* Tactical Background Accents */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-0 right-0 size-64 bg-primary/5 blur-[100px] rounded-full" />
+                        <div className="absolute bottom-0 left-0 size-64 bg-primary/5 blur-[100px] rounded-full" />
+                        <div className="absolute inset-0 bg-grid-light dark:bg-grid opacity-[0.03]" />
                     </div>
-                )}
 
-                {isEditing && (
-                    <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
-                        {/* 1. Drag Hint Overlay */}
-                        <div className={`absolute inset-0 bg-black/40 flex flex-col items-center justify-center p-4 transition-opacity duration-300 ${isDragging ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                            <div className="flex flex-col items-center gap-2">
-                                <span className="material-symbols-outlined text-white text-3xl animate-bounce">drag_pan</span>
-                                <span className="text-white text-[10px] font-black uppercase tracking-[0.4em] leading-none mb-4">DRAG_TO_FRAME_</span>
+                    {/* Card Header: System Identification - Compact Layout */}
+                    <div className="relative z-10 px-8 py-4 bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/[0.05] dark:border-white/[0.05] flex items-center gap-6 justify-start">
+                        {/* 1. Level Indicator */}
+                        <div className="flex items-center">
+                            <span className="text-[12px] font-black text-black dark:text-white font-exo italic tracking-[0.2em]">LVL_{user.level || 0}</span>
+                        </div>
+
+                        <div className="w-px h-6 bg-black/10 dark:bg-white/10" />
+
+                        {/* 2. Operative Identity */}
+                        <div className="flex flex-col items-start">
+                            <p className="text-[9px] font-black text-black/60 dark:text-white/60 uppercase tracking-[0.2em] leading-none mb-1">{(user.username || user.name || 'OPERATOR').split('#')[0].replace(/\d+/g, '')}</p>
+                            <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em] leading-none">{archeName || 'UNAWAKENED'}</p>
+                        </div>
+
+                        {/* 3. System ID */}
+                        <div className="flex items-center gap-3 ml-auto">
+                            <span className="text-[9px] font-black text-black/30 dark:text-white/30 uppercase tracking-[0.4em] font-sans">
+                                ID: {isIdVisible ? user._id : '••••••••••••••••'}
+                            </span>
+                            <div className="flex items-center gap-1">
+                                <button 
+                                    onClick={() => setIsIdVisible(!isIdVisible)}
+                                    className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded transition-colors text-black/30 dark:text-white/30 hover:text-black dark:hover:text-white"
+                                >
+                                    {isIdVisible ? <EyeOff size={11} /> : <Eye size={11} />}
+                                </button>
+                                <button 
+                                    onClick={handleCopyId}
+                                    className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded transition-colors text-black/30 dark:text-white/30 hover:text-black dark:hover:text-white"
+                                >
+                                    {hasCopiedId ? <Check size={11} className="text-green-500" /> : <Copy size={11} />}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="relative z-10 p-8 md:p-10 flex flex-col md:flex-row gap-10">
+                        {/* Left Section: Photo & Mood */}
+                        <div className="flex flex-col items-center gap-6">
+                            <div className="relative">
+                                <motion.div 
+                                    className="w-40 md:w-48 h-56 md:h-64 bg-white dark:bg-slate-50 shadow-xl relative overflow-visible flex items-center justify-center p-2"
+                                >
+
+                                    <Avatar config={avatar || user.avatar} className="size-full" />
+                                    
+                                    {isEditing && (
+                                        <button
+                                            onClick={() => setIsAvatarEditorOpen(true)}
+                                            className="absolute inset-0 bg-black/60 rounded-[2rem] flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity z-20"
+                                        >
+                                            <Edit2 size={24} className="text-white" />
+                                            <span className="text-white text-[8px] font-black uppercase tracking-widest mt-1">REPLACE_PHOTO</span>
+                                        </button>
+                                    )}
+                                </motion.div>
                                 
-                                {isDragging && (
-                                    <div className="px-3 py-1 bg-cyan-500 rounded-lg shadow-[0_0_15px_rgba(6,182,212,0.4)]">
-                                        <span className="text-[10px] font-black text-white font-mono leading-none">Y: {bannerPosition}%</span>
-                                    </div>
-                                )}
+                            </div>
+
+                        </div>
+
+                        {/* Right Section: Operative Data Area - Streamlined */}
+                        <div className="flex-1 pt-2">
+                            {/* Empty space as requested */}
+                        </div>
+                    </div>
+
+                    {/* Card Footer: Security Elements & Actions */}
+                    <div className="relative z-10 px-8 py-6 bg-black/[0.04] dark:bg-white/[0.04] border-t border-black/[0.05] dark:border-white/10 flex items-center justify-between mt-4">
+                        <div className="flex items-center gap-8">
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-3">
+                                    <MoodTracker user={user} updateMood={updateMood} standalone />
+                                    <span className="text-[6px] font-bold text-black dark:text-white font-mono tracking-[0.4em] uppercase truncate max-w-[250px]">{user.bio || 'STAY_FOCUSED'}</span>
+                                </div>
                             </div>
                         </div>
 
-                        {/* 2. Tactical Crosshair markers while dragging */}
-                        {isDragging && (
-                            <>
-                                <div className="absolute inset-x-0 h-px bg-cyan-500/50 shadow-[0_0_8px_rgba(6,182,212,0.3)] transition-all duration-75" style={{ top: `${bannerPosition}%` }} />
-                                <div className="absolute left-6 top-1/2 -translate-y-1/2 h-8 w-px bg-cyan-500" />
-                                <div className="absolute right-6 top-1/2 -translate-y-1/2 h-8 w-px bg-cyan-500" />
-                            </>
-                        )}
-                        
-                        {/* Upload trigger area (Small corner button since main area is for dragging) */}
-                        <label className="absolute bottom-4 left-6 size-10 bg-black/60 backdrop-blur-md rounded-xl border border-white/10 flex items-center justify-center text-white cursor-pointer hover:bg-black/80 hover:border-cyan-500/50 transition-all pointer-events-auto shadow-xl" title="Upload New Image">
-                            {isUploadingBanner ? (
-                                <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                <span className="material-symbols-outlined text-xl">upload</span>
-                            )}
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleBannerUpload}
-                                disabled={isUploadingBanner}
-                                className="hidden"
-                            />
-                        </label>
-                    </div>
-                )}
-            </div>
-
-            {/* Mood Indicator — Left Side (Outside banner to avoid clipping) */}
-            <div className="absolute top-4 left-6 z-30">
-                <MoodTracker user={user} updateMood={updateMood} standalone />
-            </div>
-
-            {/* Time & Date Cluster — Right Side */}
-            <div className="absolute top-4 right-6 flex items-center gap-3 px-3 py-1.5 bg-black/40 backdrop-blur-md rounded-xl border border-white/10 shadow-xl z-20">
-                {/* Vertical Day Marker */}
-                <div className="flex flex-col items-center justify-center leading-[0.85] text-[8px] font-black text-cyan-500/60 font-mono uppercase tracking-tighter">
-                    {currentTime.toLocaleDateString([], { weekday: 'short' }).toUpperCase().split('').map((char, i) => (
-                        <span key={i}>{char}</span>
-                    ))}
-                </div>
-
-                {/* Structural Divider */}
-                <div className="w-px h-6 bg-white/10" />
-
-                <div className="flex flex-col items-end gap-0.5">
-                    <div className="flex items-center gap-1.5 text-white">
-                        <span className="hidden md:inline text-[11px] font-black tracking-[0.2em] font-mono leading-none">
-                            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
-                        </span>
-                        <span className="inline md:hidden text-[11px] font-black tracking-[0.2em] font-mono leading-none">
-                            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
-                        </span>
-                    </div>
-                    <span className="hidden md:inline text-[7px] font-bold text-white/40 uppercase tracking-[0.3em] font-mono leading-none">
-                        {currentTime.toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase()}
-                    </span>
-                    <span className="inline md:hidden text-[7px] font-bold text-white/40 uppercase tracking-[0.3em] font-mono leading-none">
-                        {currentTime.toLocaleDateString([], { month: 'short', day: '2-digit' }).toUpperCase()}
-                    </span>
-                </div>
-            </div>
-
-            {/* 2. Profile Overlay & Header Section */}
-            <div className="flex-1 px-4 md:px-12 pb-10 md:pb-14 -mt-10 md:-mt-12 relative z-10 flex flex-col justify-between">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-10">
-                    <div className="flex flex-col md:flex-row items-center md:items-end gap-4 md:gap-8">
-                        {/* Avatar */}
-                        <motion.div 
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className="size-24 md:size-32 rounded-3xl md:rounded-[2.5rem] bg-white dark:bg-[#121212] p-1 shadow-2xl border-4 border-white/80 dark:border-white/10 ring-8 ring-black/5 dark:ring-white/[0.02] relative group"
-                        >
-                            <div className="w-full h-full rounded-2xl md:rounded-[2rem] overflow-hidden bg-slate-100 dark:bg-white/5">
-                                <Avatar config={avatar || user.avatar} className="size-full" />
-                            </div>
-                            {isEditing && (
-                                <button
-                                    onClick={() => setIsAvatarEditorOpen(true)}
-                                    className="absolute inset-0 bg-black/60 rounded-2xl md:rounded-[2rem] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20"
-                                >
-                                    <Edit2 size={24} className="text-white" />
-                                    <span className="text-white text-[8px] font-black uppercase tracking-widest mt-1">Change</span>
-                                </button>
-                            )}
-                        </motion.div>
-
-                        {/* User Identity Info */}
-                        <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-1 md:pb-5">
-                            <AnimatePresence mode="wait">
-                                {protocolMode === 'rpg' ? (
-                                    <motion.div 
-                                        key="rpg-info"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        className="flex items-center gap-3 mb-1"
-                                    >
-                                        <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
-                                            {stage || 'UNMAPPED'}
-                                        </span>
-                                    </motion.div>
-                                ) : (
-                                    <motion.div 
-                                        key="reality-info"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        className="flex items-center gap-3 mb-1"
-                                    >
-                                        <span className="text-[10px] font-black text-cyan-500 uppercase tracking-widest font-mono italic">
-                                            {isIdVisible ? user._id : '**************'}
-                                        </span>
-                                        <button 
-                                            onClick={() => setIsIdVisible(!isIdVisible)}
-                                            className="p-1 rounded-md bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-500 transition-colors"
-                                            title={isIdVisible ? "Hide ID" : "Show ID"}
-                                        >
-                                            {isIdVisible ? <EyeOff size={10} /> : <Eye size={10} />}
-                                        </button>
-                                        <button
-                                            onClick={handleCopyId}
-                                            className="p-1 rounded-md bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-500 transition-colors"
-                                            title="Copy ID"
-                                        >
-                                            {hasCopiedId ? <Check size={10} className="text-emerald-500" /> : <Copy size={10} />}
-                                        </button>
-                                        <div className="size-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.4)]" />
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                            
+                        <div className="flex items-center gap-3">
                             {isEditing ? (
-                                <div className="flex items-center gap-1 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-3 py-1 mt-1">
-                                    <span className="text-xl font-black text-slate-400">@</span>
-                                    <input
-                                        type="text"
-                                        value={usernameBase}
-                                        onChange={(e) => setUsernameBase(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 8))}
-                                        className="bg-transparent text-xl md:text-2xl font-black uppercase tracking-tighter italic text-slate-900 dark:text-white font-exo outline-none w-32"
-                                        placeholder="Username"
-                                    />
-                                    <span className="text-xl font-black text-slate-400 italic">
-                                        #{user?.username?.split('#')[1] || '0000'}
-                                    </span>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => setIsEditing(false)} className="px-5 py-2.5 bg-black/5 dark:bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10 transition-all">
+                                        Cancel_
+                                    </button>
+                                    <button onClick={handleSaveProfile} className="px-5 py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                                        Save_Changes_
+                                    </button>
                                 </div>
                             ) : (
-                                <motion.h1 
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                    className="text-2xl md:text-3xl font-black uppercase tracking-tighter italic text-slate-900 dark:text-white font-exo leading-none"
-                                >
-                                    @{user.username || user.name || 'USER_LINK_LOST'}
-                                    <button
-                                        onClick={() => setIsQrModalOpen(true)}
-                                        className="ml-2 p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-cyan-500 transition-all active:scale-95 group"
-                                        title="QR Connection Protocol"
-                                    >
-                                        <QrCode size={16} className="group-hover:rotate-12 transition-transform" />
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => setIsQrModalOpen(true)} className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-black/40 dark:text-white/40 hover:text-primary transition-all">
+                                        <QrCode size={18} />
                                     </button>
-                                </motion.h1>
+                                    <button onClick={() => setIsConnectionsModalOpen(true)} className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-black/40 dark:text-white/40 hover:text-primary transition-all">
+                                        <Users size={18} />
+                                    </button>
+                                    <button onClick={() => setIsEditing(true)} className="h-10 px-5 bg-black dark:bg-white text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all">
+                                        Edit_Profile_
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
-
-                    {/* Profile Actions HUB (Connections, Partner, Edit) */}
-                    <div className="flex justify-center items-center gap-3 w-full md:w-auto md:self-end">
-                        {isEditing ? (
-                            <div className="flex items-center justify-center gap-2 w-full md:w-auto">
-                                <button
-                                    onClick={() => {
-                                        setIsEditing(false);
-                                        setBanner(user?.banner || "");
-                                        setAvatar(user?.avatar || "");
-                                        setBio(user?.bio || "");
-                                    }}
-                                    className="px-6 py-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 rounded-2xl text-slate-700 dark:text-slate-200 font-bold text-xs transition-all flex items-center gap-2 uppercase tracking-widest"
-                                >
-                                    <X size={14} />
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleSaveProfile}
-                                    disabled={isSaving || isUploadingBanner}
-                                    className="px-6 py-3 bg-cyan-500 text-white rounded-2xl font-black text-xs hover:bg-cyan-600 transition-all shadow-lg shadow-cyan-500/20 disabled:opacity-50 flex items-center gap-2 uppercase tracking-widest"
-                                >
-                                    {isSaving ? (
-                                        <div className="size-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    ) : (
-                                        <Save size={14} />
-                                    )}
-                                    Save
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="flex justify-center items-center gap-3 w-full md:w-auto">
-                                <button
-                                    onClick={() => setIsConnectionsModalOpen(true)}
-                                    className="size-12 lg:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all relative group shadow-sm"
-                                    title="Network"
-                                >
-                                    <Users size={20} className="group-hover:scale-110 transition-transform" />
-                                    {user?.incomingConnectionRequests?.length > 0 && (
-                                        <span className="absolute -top-1 -right-1 size-3 bg-rose-500 rounded-full border-2 border-white dark:border-[#0a0a0a] animate-pulse" />
-                                    )}
-                                </button>
-                                <button
-                                    onClick={() => setIsEditing(true)}
-                                    className="size-12 lg:size-14 flex items-center justify-center rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-cyan-500 hover:border-cyan-500/30 transition-all shadow-sm group"
-                                    title="Edit Profile"
-                                >
-                                    <Edit2 size={20} className="group-hover:scale-110 transition-transform" />
-                                </button>
-                            </div>
-                        )}
-                    </div>
                 </div>
-
-                {/* 3. XP Progress Tracker (Space Reserved) */}
-                <div className="space-y-4"></div>
-
-                {/* 4. Lore / Bio Section */}
-                <div className="flex items-center gap-4 md:gap-8 pt-4 md:pt-8 border-t border-black/[0.05] dark:border-white/5">
-                    <div className="hidden md:flex size-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 items-center justify-center text-cyan-500 shrink-0">
-                        <AnimatePresence mode="wait">
-                            {protocolMode === 'rpg' ? (
-                                <motion.div
-                                    key="rpg-icon"
-                                    initial={{ scale: 0.5, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    exit={{ scale: 0.5, opacity: 0 }}
-                                >
-                                    <Sparkles size={28} />
-                                </motion.div>
-                            ) : (
-                                <motion.div
-                                    key="reality-icon"
-                                    initial={{ scale: 0.5, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    exit={{ scale: 0.5, opacity: 0 }}
-                                    className="text-cyan-500"
-                                >
-                                    <Target size={28} />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
-                    <div className="relative flex-1">
-                        <span className="absolute -left-4 -top-6 text-6xl text-black/[0.05] dark:text-white/5 font-serif italic selection:bg-transparent pointer-events-none">"</span>
-                        <AnimatePresence mode="wait">
-                            {protocolMode === 'rpg' ? (
-                                <motion.p 
-                                    key="rpg-flavor"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20, filter: 'blur(5px)' }}
-                                    className="text-[11px] md:text-xs font-bold text-slate-500 dark:text-slate-400 italic leading-relaxed tracking-[0.15em] uppercase px-4 max-w-4xl"
-                                >
-                                    {protocol.flavor}
-                                </motion.p>
-                            ) : (
-                                <motion.div
-                                    key="reality-bio"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20, filter: 'blur(5px)' }}
-                                    className="flex items-center gap-2 px-4 max-w-4xl w-full"
-                                >
-                                    {isEditing ? (
-                                        <textarea
-                                            value={bio}
-                                            onChange={(e) => setBio(e.target.value.slice(0, 160))}
-                                            placeholder="Write your operator objective..."
-                                            rows={2}
-                                            className="flex-1 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-[11px] md:text-xs font-bold text-slate-700 dark:text-slate-300 italic leading-relaxed tracking-[0.05em] normal-case resize-none outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 placeholder:text-slate-400 dark:placeholder:text-slate-600 transition-all"
-                                        />
-                                    ) : (
-                                        <p className="text-[11px] md:text-xs font-bold text-slate-500 dark:text-slate-400 italic leading-relaxed tracking-[0.05em] normal-case">
-                                            {user.bio || "Operator objective undefined. Establishing focus protocols..."}
-                                        </p>
-                                    )}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
-                </div>
-            </div>
+            </motion.div>
 
             {/* Modals */}
             <ConnectionsModal

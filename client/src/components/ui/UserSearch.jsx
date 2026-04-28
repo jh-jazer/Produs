@@ -94,7 +94,7 @@ const UserSearch = ({ onSelect }) => {
                                         )}
                                     </p>
                                     <p className="text-sm font-medium text-slate-500 truncate flex items-center gap-1">
-                                        @{user.username}
+                                        @{user.username.split('#')[0].replace(/\d+/g, '')}
                                         {user.username.toLowerCase().includes(query.toLowerCase()) && (
                                             <span className="px-1.5 py-0.5 rounded-md bg-primary/10 text-[9px] font-black text-primary uppercase tracking-tighter">Username Match</span>
                                         )}

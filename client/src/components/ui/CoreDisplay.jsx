@@ -43,14 +43,14 @@ const CoreDisplay = ({ amount = 0, className = "", variant = "minimal" }) => {
     return (
         <div className={`relative flex items-center gap-3 transition-all duration-300 ${
             !isMinimal
-                ? 'px-3.5 py-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl overflow-hidden'
+                ? 'px-3.5 py-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl overflow-hidden'
                 : 'px-0 py-0 bg-transparent border-none'
         } group ${className}`}>
 
             {/* Icon Section */}
             <div className={`relative z-10 size-7 flex items-center justify-center rounded-lg transition-all ${
                 !isMinimal
-                    ? 'bg-black border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                    ? 'bg-black border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]'
                     : 'bg-transparent border-none'
             }`}>
                 <motion.div
@@ -62,7 +62,7 @@ const CoreDisplay = ({ amount = 0, className = "", variant = "minimal" }) => {
                     className="relative flex items-center justify-center"
                 >
                     {/* Hexagonal Core Icon */}
-                    <span className="material-symbols-outlined text-amber-500 text-xl font-light">
+                    <span className="material-symbols-outlined text-black dark:text-white text-base font-light">
                         hexagon
                     </span>
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -77,7 +77,7 @@ const CoreDisplay = ({ amount = 0, className = "", variant = "minimal" }) => {
                             initial={{ scale: 0.8, opacity: 1 }}
                             animate={{ scale: 2.2, opacity: 0 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 rounded-lg border-2 border-amber-500 z-0"
+                            className="absolute inset-0 rounded-lg border-2 border-black dark:border-white z-0"
                         />
                     )}
                 </AnimatePresence>
@@ -86,16 +86,16 @@ const CoreDisplay = ({ amount = 0, className = "", variant = "minimal" }) => {
             {/* Amount Section */}
             <div className="flex flex-col relative z-10">
                 {!isMinimal && (
-                    <span className="text-[7px] font-black text-amber-500 uppercase tracking-[0.3em] leading-none mb-1">
-                        Limited_Resource
-                    </span>
+                        <span className="text-[7px] font-black text-slate-500 uppercase tracking-[0.3em] leading-none mb-1">
+                            Limited_Resource
+                        </span>
                 )}
                 <div className="flex items-baseline gap-2 flex-nowrap">
                     <div className="min-w-fit flex justify-start">
                         <motion.span
-                            className={`font-black tracking-tight leading-none transition-colors duration-300 ${
-                                isPopping ? 'text-amber-400' : 'text-slate-900 dark:text-white'
-                            } ${!isMinimal ? 'text-[13px]' : 'text-sm'}`}
+                            className={`font-sans font-black uppercase tracking-[0.4em] leading-none transition-colors duration-300 ${
+                                isPopping ? 'text-slate-400 dark:text-slate-500' : 'text-black dark:text-white'
+                            } text-[10px]`}
                         >
                             {displayAmount.toLocaleString()}
                         </motion.span>

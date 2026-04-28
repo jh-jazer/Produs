@@ -25,6 +25,8 @@ import { DashboardContext } from '../context/DashboardContext';
 import StatsModal from './ui/StatsModal';
 import CoinDisplay from './ui/CoinDisplay';
 import CoreDisplay from './ui/CoreDisplay';
+import EnergyDisplay from './ui/EnergyDisplay';
+import DecisionModal from './ui/DecisionModal';
 
 function Layout() {
     const { user, signOut } = useAuthStore();
@@ -61,6 +63,7 @@ function Layout() {
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
     const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
     const [isOperationModalOpen, setIsOperationModalOpen] = useState(false);
+    const [isLandingModalOpen, setIsLandingModalOpen] = useState(false);
     const [mobileTabs, setMobileTabs] = useState(null); // { tabs, activeTab, setActiveTab }
     const [activeRpgTab, setActiveRpgTab] = useState('home');
     const isNeuralSyncDismissed = useAuthStore((state) => state.isNeuralSyncDismissed);
@@ -147,7 +150,7 @@ function Layout() {
             mobileTabs,
             setMobileTabs
         }}>
-            <div className="bg-transparent font-display text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden">
+            <div className="bg-transparent font-sans text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden">
                 {/* Mobile Top Bar */}
                 <div className="md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-[135] bg-white/80 dark:bg-[#000000]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03]">
                     
@@ -172,7 +175,7 @@ function Layout() {
 
                     <div
                         className={`flex items-center gap-2.5 active:scale-95 transition-all cursor-pointer group ${isOverview ? 'opacity-100 flex' : 'opacity-0 pointer-events-none hidden md:flex'}`}
-                        onClick={() => navigate('/dashboard')}
+                        onClick={() => setIsLandingModalOpen(true)}
                     >
                         <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-slate-800 dark:text-white mt-1">
                             PRODUS
@@ -243,23 +246,21 @@ function Layout() {
                 <aside
                     className={`
                         hidden md:flex relative z-[150] h-full flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1]
-                        ${location.pathname === '/dashboard' ? 'md:w-72' : 'md:w-20'}
+                        md:w-[15vw]
                     `}
                 >
                     {/* 1. Sidebar Header */}
                     <div className="h-24 flex items-center px-6 shrink-0">
-                        <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => isMobileMenuOpen ? setIsMobileMenuOpen(false) : navigate('/dashboard')}>
-                            <div className={`flex items-center overflow-hidden transition-all duration-500 ease-in-out
-                                ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden md:flex'}
-                            `}>
-                                <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-black dark:text-white">Produs</span>
+                        <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => setIsLandingModalOpen(true)}>
+                            <div className="p-4 md:p-6 transition-all duration-[600ms] opacity-100 translate-y-0">
+                                <span className="font-black text-[14px] uppercase tracking-[0.8em] leading-none text-black dark:text-white">Produs</span>
                             </div>
                         </div>
                     </div>
 
                     {/* 2. Primary Navigation */}
-                    <div className="flex-1 px-4 py-8 overflow-visible min-h-0">
-                        <div className="flex flex-col gap-1.5">
+                    <div className="flex-1 px-2 pt-7 pb-8 overflow-visible min-h-0">
+                        <div className="flex flex-col gap-1">
                             {navItems.map((item, idx) => {
                                 const isOverview = location.pathname === '/dashboard';
                                 const isActive = protocolMode === 'rpg' 
@@ -278,9 +279,7 @@ function Layout() {
                                             }
                                         }}
                                         className={`relative group/nav flex items-center rounded-2xl transition-all duration-300
-                                            ${isActive ? 'bg-black/[0.04] dark:bg-white/[0.06]' : 'hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}
-                                            ${isMobileMenuOpen ? 'h-16 w-full px-4' : 'h-12'}
-                                            ${(!isOverview && !isMobileMenuOpen) ? 'w-12' : 'w-full'}
+                                            ${isMobileMenuOpen ? 'h-16 w-full px-4' : 'h-10 w-full'}
                                         `}
                                     >
                                         {!isMobileMenuOpen && (
@@ -290,33 +289,26 @@ function Layout() {
                                         )}
 
                                         <div className="relative flex items-center w-full h-full">
-                                            <div className={`absolute flex items-center justify-center size-[18px] z-50 transition-all duration-500 ${isMobileMenuOpen ? 'left-[36px]' : 'left-[31px]'}`}>
-                                                <div className={`absolute inset-[-8px] rounded-full transition-all duration-500
-                                                    ${isActive ? 'bg-primary/20 ring-1 ring-primary/30 scale-110 shadow-[0_0_15px_color-mix(in srgb, var(--primary), transparent)]' : 'bg-primary/0 group-hover/nav:bg-primary/10'}
-                                                `} />
-                                                <span className={`material-symbols-outlined transition-all duration-500 relative z-10
-                                                    ${isMobileMenuOpen ? 'text-[24px]' : 'text-[19px]'}
-                                                    ${isActive ? 'text-primary scale-110' : 'text-slate-400 group-hover/nav:text-primary group-hover/nav:scale-110'}
-                                                `}>
-                                                    {item.icon}
-                                                </span>
-                                            </div>
 
-                                            <div className={`flex items-center absolute pointer-events-none transition-all duration-[400ms] ease-[0.16,1,0.3,1] z-50
-                                                ${(location.pathname === '/dashboard' || isMobileMenuOpen)
-                                                    ? `left-0 relative ${isMobileMenuOpen ? 'pl-20' : 'pl-14 md:pl-16'} opacity-100 translate-x-0 w-max`
-                                                    : 'hidden md:flex left-[60px] bg-black dark:bg-white px-3.5 py-2.5 rounded shadow-xl opacity-0 -translate-x-2 group-hover/nav:opacity-100 group-hover/nav:translate-x-0 w-max border border-white/10 dark:border-black/10'}
+                                            <div className={`
+                                                absolute transition-all duration-[600ms] ease-[0.16,1,0.3,1] z-20
+                                                left-0 relative ${isMobileMenuOpen ? 'pl-20' : 'pl-6 md:pl-8'} opacity-100 translate-x-0 w-max
                                             `}>
-                                                <div className={`flex items-center ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'gap-4' : 'gap-0'}`}>
-                                                <div className={`h-px bg-primary transition-all duration-300 ${(location.pathname === '/dashboard' && !isMobileMenuOpen) ? 'w-4' : 'w-0 hidden'}`} />
-                                                    <span className={`font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300 mt-[1px]
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`font-sans font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300 mt-[1px]
                                                         ${isMobileMenuOpen ? 'text-[11px]' : 'text-[10px]'}
-                                                        ${(location.pathname === '/dashboard' || isMobileMenuOpen)
-                                                            ? (isActive ? 'text-black dark:text-white' : 'text-slate-500 dark:text-slate-400 group-hover/nav:text-black dark:group-hover:text-white')
-                                                            : 'text-white dark:text-black'}
+                                                        ${isActive 
+                                                            ? 'text-black dark:text-white drop-shadow-[0_0_12px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_0_12px_rgba(255,255,255,0.5)]' 
+                                                            : 'text-slate-500 group-hover/nav:text-black dark:group-hover/nav:text-white'}
                                                     `}>
                                                         {item.name}
                                                     </span>
+                                                    {isActive && (
+                                                        <motion.div 
+                                                            layoutId="sidebarActiveIndicator"
+                                                            className="size-1 rounded-full bg-black dark:bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                                                        />
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -327,106 +319,84 @@ function Layout() {
                     </div>
 
                     {/* 3. Sidebar Footer: Identity HUD */}
-                    <div className={`mt-auto p-4 md:p-6 flex flex-col items-start gap-4 transition-all duration-[600ms] shrink-0
-                        ${(location.pathname === '/dashboard' || isMobileMenuOpen) ? 'pl-[20px]' : 'pl-[16px]'}
-                    `}>
+                    <div className="mt-auto p-4 md:p-6 flex flex-col items-start gap-4 transition-all duration-[600ms] shrink-0 pl-[20px]">
 
 
 
                         {/* 2.5 Currency Display (Desktop) */}
                         <div className="mb-2 flex flex-col gap-3 transition-all duration-500">
-                            {!(location.pathname === '/dashboard' || isMobileMenuOpen) && (
-                                <div className="flex flex-col gap-2">
-                                    <div 
-                                        className="size-10 flex items-center justify-center cursor-pointer group/shop shrink-0"
-                                        onClick={() => navigate('/dashboard/shop')}
-                                        title="Open Terminal Shop"
-                                    >
-                                        <div className="relative">
-                                            <ShoppingBag size={18} className="text-slate-400 group-hover/shop:text-primary transition-colors" />
-                                            <div className="absolute -top-1 -right-1 size-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_var(--primary-glow)]" />
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Mini Core Indicator when collapsed */}
-                                    <div className="size-10 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity">
-                                        <div className="size-2 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse" />
-                                    </div>
-                                </div>
-                            )}
-                            
-                            <AnimatePresence>
-                                {(location.pathname === '/dashboard' || isMobileMenuOpen) && (
-                                    <motion.div
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -10 }}
-                                        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                                        className="flex flex-row items-center gap-4 cursor-pointer"
-                                        onClick={() => navigate('/dashboard/shop')}
-                                        title="Open Terminal Shop"
-                                    >
-                                        <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display" variant="minimal" />
-                                        <CoreDisplay amount={user?.rpg?.cores || 0} className="sidebar-core-display" variant="minimal" />
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                            <div 
+                                className="flex flex-col items-start gap-1 cursor-pointer"
+                                onClick={() => navigate('/dashboard/shop')}
+                                title="Open Terminal Shop"
+                            >
+                                <EnergyDisplay 
+                                    current={user?.rpg?.energy?.current ?? (10 + (user?.level || 0))} 
+                                    max={10 + (user?.level || 0)} 
+                                    variant="minimal" 
+                                    className="scale-90 origin-left"
+                                />
+                                <CoreDisplay amount={user?.rpg?.cores || 0} className="sidebar-core-display" variant="minimal" />
+                                <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display" variant="minimal" />
+                            </div>
                         </div>
 
                         <div className="relative flex items-center gap-4 group" ref={profileRef}>
-                            <button
-                                onClick={() => setIsUserMenuOpen(true)}
-                                className="size-10 rounded-full ring-2 ring-primary/10 hover:ring-primary/40 overflow-hidden transition-all active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0 relative group/avatar"
-                            >
-                                {user?.avatar?.url ? (
-                                    <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    <span className="text-xs font-bold">{user?.name?.charAt(0)}</span>
+                            <div className="relative shrink-0 p-[2px]">
+                                {/* Circular XP Progress Ring */}
+                                {user?.level > 0 && (
+                                    <div className="absolute inset-0 size-full">
+                                        <svg className="size-full -rotate-90">
+                                            <circle
+                                                cx="20" cy="20" r="19"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="1.5"
+                                                className="text-black/5 dark:text-white/10"
+                                            />
+                                            <motion.circle
+                                                cx="20" cy="20" r="19"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeDasharray="119.38" // 2 * PI * 19
+                                                initial={{ strokeDashoffset: 119.38 }}
+                                                animate={{ 
+                                                    strokeDashoffset: 119.38 - (119.38 * Math.min(100, Math.max(0, (((user.exp || 0) - (user.totalRequired || 0)) / (user.nextLevelExp || 100)) * 100))) / 100 
+                                                }}
+                                                transition={{ duration: 1.5, ease: "easeOut" }}
+                                                className="text-black dark:text-white drop-shadow-[0_0_3px_rgba(255,255,255,0.3)]"
+                                            />
+                                        </svg>
+                                    </div>
                                 )}
-                            </button>
 
-                                <AnimatePresence mode="wait">
-                                    {(location.pathname === '/dashboard' || isMobileMenuOpen) && (
-                                        <motion.div 
-                                            key="profile-greeting"
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -10 }}
-                                            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                            className={`${isMobileMenuOpen ? 'flex' : 'hidden md:flex'} flex-col whitespace-nowrap overflow-hidden max-w-[140px]`}
-                                        >
-                                            <div className="flex flex-col gap-0 w-full">
-                                                {/* ROW 1: Username & XP Status */}
-                                                <div className="flex items-end justify-between w-full pr-1">
-                                                    <p className="text-[8px] font-black text-black dark:text-white leading-none uppercase tracking-[0.2em]">
-                                                        @{user.username || 'OPERATOR'}
-                                                    </p>
-                                                    {user.level > 0 && (
-                                                        <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] leading-none">
-                                                            {user.exp - (user.totalRequired || 0)}/{user.nextLevelExp || 100}XP
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                
-                                                {/* ROW 2: Level & Progress Bar */}
-                                                <div className="w-full">
-                                                    {user?.level === 0 ? (
-                                                        <span className="text-[8px] font-black text-rose-500 uppercase tracking-[0.3em] animate-pulse">SHUT-IN_STATUS</span>
-                                                    ) : (
-                                                        <LevelDisplay 
-                                                            level={user?.level} 
-                                                            exp={user?.exp} 
-                                                            totalRequired={user?.totalRequired}
-                                                            nextLevelExp={user?.nextLevelExp}
-                                                            showXP={false}
-                                                            className="w-full" 
-                                                        />
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </motion.div>
+                                <button
+                                    onClick={() => setIsUserMenuOpen(true)}
+                                    className="size-10 rounded-full overflow-hidden transition-all active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center relative group/avatar z-10"
+                                >
+                                    {user?.avatar?.url ? (
+                                        <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover grayscale contrast-125" />
+                                    ) : (
+                                        <span className="text-xs font-bold">{user?.name?.charAt(0)}</span>
                                     )}
-                                </AnimatePresence>
+                                </button>
+
+                                {user?.level > 0 && (
+                                    <div className="absolute -bottom-1 -right-1 bg-white dark:bg-white text-black text-[7px] font-black px-1 py-0.5 rounded-md shadow-lg border border-black/10 scale-110 z-20 pointer-events-none">
+                                        {user.level}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex flex-col whitespace-nowrap overflow-hidden max-w-[140px]">
+                                <div className="flex flex-col gap-0 w-full">
+                                    <p className="text-[10px] font-black text-black dark:text-white leading-none uppercase tracking-[0.2em]">
+                                        @{(user.username || 'OPERATOR').split('#')[0].replace(/\d+/g, '')}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </aside>
@@ -445,13 +415,53 @@ function Layout() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: "-10%", opacity: 0, scale: 0.96, pointerEvents: 'none' }}
                                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                className={`relative z-0 flex-1 flex flex-col ${protocolMode === 'rpg' ? 'justify-center pb-0 pt-0' : 'justify-start pb-32 md:pb-12 pt-0 md:pt-1'} px-0 md:pl-8 lg:pl-12 md:pr-24 lg:pr-32 w-full`}
+                                className={`relative z-0 flex-1 flex flex-col ${protocolMode === 'rpg' ? 'justify-center pb-0 pt-0' : 'justify-start pb-32 md:pb-12 pt-0 md:pt-1'} px-0 md:pl-4 lg:pl-6 md:pr-8 lg:pr-12 w-full`}
                             >
                                 <Outlet context={{ setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, viewMode, setViewMode, protocolMode, setProtocolMode, activeRpgTab, setActiveRpgTab }} />
                             </motion.main>
                         </AnimatePresence>
                     </div>
                 </div>
+                
+                {/* Right Side HUD: Scroll Indicator & Protocol Toggle */}
+                <aside className="hidden md:flex w-[4vw] flex-col items-center justify-between py-12 border-l border-black/[0.03] dark:border-white/[0.03] bg-white/50 dark:bg-black/50 backdrop-blur-sm relative shrink-0">
+                    <div className="flex flex-col items-center gap-8 w-full h-full">
+                        {/* Scroll Progress Indicator (Reality Only) */}
+                        {protocolMode === 'reality' && (
+                            <div className="flex-1 w-full flex flex-col items-center justify-center gap-4">
+                                <div className="h-48 w-px bg-black/[0.05] dark:bg-white/10 relative overflow-hidden rounded-full">
+                                    <motion.div 
+                                        className="absolute top-0 left-0 w-full bg-primary"
+                                        style={{ height: '30%' }} // Placeholder for scroll sync
+                                    />
+                                </div>
+                                <span className="text-[8px] font-black text-slate-400 rotate-90 whitespace-nowrap uppercase tracking-[0.4em]">SCRL_SYNC</span>
+                            </div>
+                        )}
+
+                        {/* Mode Toggle Button */}
+                        <div className="mt-auto flex flex-col items-center gap-6">
+                            {protocolMode === 'rpg' && (
+                                <button 
+                                    onClick={() => setProtocolMode('reality')}
+                                    className="group relative flex flex-col items-center gap-3 transition-all hover:scale-105"
+                                    title="Exit RPG Protocol"
+                                >
+                                    <div className="size-10 rounded-full border border-primary/30 flex items-center justify-center bg-primary/5 group-hover:bg-primary/10 transition-all shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]">
+                                        <span className="material-symbols-outlined text-primary text-xl">keyboard_return</span>
+                                    </div>
+                                    <span className="text-[7px] font-black text-primary uppercase tracking-[0.3em] opacity-60 group-hover:opacity-100">REALITY_EXIT</span>
+                                </button>
+                            )}
+                            
+                            <div className="flex flex-col items-center gap-1 opacity-20">
+                                <div className="size-1 rounded-full bg-current" />
+                                <div className="size-1 rounded-full bg-current" />
+                                <div className="size-1 rounded-full bg-current" />
+                            </div>
+                        </div>
+                    </div>
+                </aside>
 
                 <AnimatePresence>
                     {isSearchModalOpen && (
@@ -534,7 +544,18 @@ function Layout() {
                 />
 
 
-                <SideEnergyBar />
+                <DecisionModal
+                    isOpen={isLandingModalOpen}
+                    message="Terminate operative session and return to central hub protocol?"
+                    confirmLabel="CONFIRM_EXIT"
+                    cancelLabel="STAY_HERE"
+                    onConfirm={() => {
+                        setIsLandingModalOpen(false);
+                        navigate('/');
+                    }}
+                    onCancel={() => setIsLandingModalOpen(false)}
+                />
+
                 <MobileBottomNav />
             </div>
         </DashboardContext.Provider>

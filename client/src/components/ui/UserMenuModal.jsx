@@ -11,7 +11,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
         <DashboardModal
             isOpen={isOpen}
             onClose={onClose}
-            title={user?.username}
+            title={user?.username?.replace(/\d+/g, '')}
             subtitle={
                 <div className="flex flex-row items-center gap-5 mt-3">
                     <div onClick={() => { onClose(); navigate('/dashboard/shop'); }} className="inline-block cursor-pointer active:scale-95 transition-all w-fit">

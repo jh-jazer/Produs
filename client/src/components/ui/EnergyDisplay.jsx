@@ -25,12 +25,12 @@ const EnergyDisplay = ({ current = 0, max = 10, className = "", variant = "vault
             {isVault && (
                 <>
                     {/* Tactical Highlights */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 opacity-40" />
-                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-black/10 dark:from-white/10 via-transparent to-black/5 dark:to-white/5 opacity-40" />
+                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-black/20 dark:via-white/20 to-transparent" />
                     
                     {/* Minimal Corner Brackets */}
-                    <div className="absolute top-1 left-1 size-1 border-t border-l border-primary/40" />
-                    <div className="absolute top-1 right-1 size-1 border-t border-r border-primary/40" />
+                    <div className="absolute top-1 left-1 size-1 border-t border-l border-black/20 dark:border-white/20" />
+                    <div className="absolute top-1 right-1 size-1 border-t border-r border-black/20 dark:border-white/20" />
                 </>
             )}
 
@@ -43,7 +43,7 @@ const EnergyDisplay = ({ current = 0, max = 10, className = "", variant = "vault
                 <motion.div>
                     <Zap 
                         size={16} 
-                        className={`${current > 0 ? 'text-primary fill-primary/20' : 'text-slate-500'}`} 
+                        className={`${current > 0 ? 'text-black dark:text-white fill-black/10 dark:fill-white/20' : 'text-slate-500'}`} 
                     />
                 </motion.div>
             </div>
@@ -56,13 +56,13 @@ const EnergyDisplay = ({ current = 0, max = 10, className = "", variant = "vault
                     </span>
                 )}
                 <div className="flex items-baseline gap-1">
-                    <span className={`font-black tracking-tight leading-none ${
+                    <span className={`font-sans font-black uppercase tracking-[0.4em] leading-none ${
                         current < (max * 0.2) ? 'text-rose-500' : 'text-black dark:text-white'
-                    } ${isVault ? 'text-[13px]' : 'text-sm'}`}>
+                    } text-[10px]`}>
                         {current}
                     </span>
-                    <span className="text-[9px] font-bold text-slate-500 opacity-40">/</span>
-                    <span className="text-[9px] font-bold text-slate-500 opacity-40">
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 opacity-40">/</span>
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 opacity-40">
                         {max}
                     </span>
                 </div>

@@ -51,16 +51,16 @@ const CoinDisplay = ({ amount = 0, className = "", variant = "vault" }) => {
             {isVault && (
                 <>
                     {/* Vault Glow Layer */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/5 opacity-50" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-black/5 via-transparent to-black/5 dark:from-white/5 dark:to-white/5 opacity-50" />
 
                     {/* Vault Decorative Elements */}
-                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-black/10 dark:via-white/20 to-transparent" />
 
                     {/* Corner Brackets */}
-                    <div className="absolute top-1 left-1 size-1.5 border-t border-l border-primary/40" />
-                    <div className="absolute top-1 right-1 size-1.5 border-t border-r border-primary/40" />
-                    <div className="absolute bottom-1 left-1 size-1.5 border-b border-l border-primary/40" />
-                    <div className="absolute bottom-1 right-1 size-1.5 border-b border-r border-primary/40" />
+                    <div className="absolute top-1 left-1 size-1.5 border-t border-l border-black/20 dark:border-white/20" />
+                    <div className="absolute top-1 right-1 size-1.5 border-t border-r border-black/20 dark:border-white/20" />
+                    <div className="absolute bottom-1 left-1 size-1.5 border-b border-l border-black/20 dark:border-white/20" />
+                    <div className="absolute bottom-1 right-1 size-1.5 border-b border-r border-black/20 dark:border-white/20" />
 
                     {/* Scanline Effect */}
                     <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%)] z-20 bg-[length:100%_4px] opacity-10" />
@@ -80,7 +80,9 @@ const CoinDisplay = ({ amount = 0, className = "", variant = "vault" }) => {
                     } : {}}
                     transition={{ duration: 0.5, ease: "backOut" }}
                 >
-                    <Logo className="size-4" glow={false} />
+                    <span className="material-symbols-outlined text-black dark:text-white text-base">
+                        toll
+                    </span>
                 </motion.div>
 
                 {/* Pulse ring when popping */}
@@ -90,7 +92,7 @@ const CoinDisplay = ({ amount = 0, className = "", variant = "vault" }) => {
                             initial={{ scale: 0.8, opacity: 1 }}
                             animate={{ scale: 2.2, opacity: 0 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 rounded-lg border-2 border-primary z-0"
+                            className="absolute inset-0 rounded-lg border-2 border-black dark:border-white z-0"
                         />
                     )}
                 </AnimatePresence>
@@ -106,9 +108,9 @@ const CoinDisplay = ({ amount = 0, className = "", variant = "vault" }) => {
                 <div className="flex items-baseline gap-2">
                     <div className="min-w-[3.5rem] flex justify-start">
                         <motion.span
-                            className={`font-black tracking-tight leading-none transition-colors duration-300 ${
-                                isPopping ? 'text-primary' : 'text-black dark:text-white'
-                            } ${isVault ? 'text-[13px]' : 'text-sm'}`}
+                            className={`font-sans font-black uppercase tracking-[0.4em] leading-none transition-colors duration-300 ${
+                                isPopping ? 'text-slate-400 dark:text-slate-500' : 'text-black dark:text-white'
+                            } text-[10px]`}
                         >
                             {displayAmount.toLocaleString()}
                         </motion.span>
