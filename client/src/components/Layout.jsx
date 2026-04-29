@@ -27,6 +27,8 @@ import CoinDisplay from './ui/CoinDisplay';
 import CoreDisplay from './ui/CoreDisplay';
 import EnergyDisplay from './ui/EnergyDisplay';
 import DecisionModal from './ui/DecisionModal';
+import ScrollIndicator from './landing/ScrollIndicator';
+import HudButtons from './ui/HudButtons';
 
 function Layout() {
     const { user, signOut } = useAuthStore();
@@ -250,9 +252,9 @@ function Layout() {
                     `}
                 >
                     {/* 1. Sidebar Header */}
-                    <div className="h-24 flex items-center px-6 shrink-0">
+                    <div className="h-24 flex items-center px-2 shrink-0">
                         <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => setIsLandingModalOpen(true)}>
-                            <div className="p-4 md:p-6 transition-all duration-[600ms] opacity-100 translate-y-0">
+                            <div className="p-2 md:p-4 transition-all duration-[600ms] opacity-100 translate-y-0">
                                 <span className="font-black text-[14px] uppercase tracking-[0.8em] leading-none text-black dark:text-white">Produs</span>
                             </div>
                         </div>
@@ -426,17 +428,9 @@ function Layout() {
                 {/* Right Side HUD: Scroll Indicator & Protocol Toggle */}
                 <aside className="hidden md:flex w-[4vw] flex-col items-center justify-between py-12 border-l border-black/[0.03] dark:border-white/[0.03] bg-white/50 dark:bg-black/50 backdrop-blur-sm relative shrink-0">
                     <div className="flex flex-col items-center gap-8 w-full h-full">
-                        {/* Scroll Progress Indicator (Reality Only) */}
+                        {/* Scroll Progress Placeholder (Space maintained) */}
                         {protocolMode === 'reality' && (
-                            <div className="flex-1 w-full flex flex-col items-center justify-center gap-4">
-                                <div className="h-48 w-px bg-black/[0.05] dark:bg-white/10 relative overflow-hidden rounded-full">
-                                    <motion.div 
-                                        className="absolute top-0 left-0 w-full bg-primary"
-                                        style={{ height: '30%' }} // Placeholder for scroll sync
-                                    />
-                                </div>
-                                <span className="text-[8px] font-black text-slate-400 rotate-90 whitespace-nowrap uppercase tracking-[0.4em]">SCRL_SYNC</span>
-                            </div>
+                            <div className="flex-1 w-full" />
                         )}
 
                         {/* Mode Toggle Button */}
@@ -454,14 +448,23 @@ function Layout() {
                                 </button>
                             )}
                             
-                            <div className="flex flex-col items-center gap-1 opacity-20">
-                                <div className="size-1 rounded-full bg-current" />
-                                <div className="size-1 rounded-full bg-current" />
-                                <div className="size-1 rounded-full bg-current" />
-                            </div>
                         </div>
                     </div>
                 </aside>
+
+                {/* HUD Overlay: Scroll Indicator (Reality Only) */}
+                {protocolMode === 'reality' && (
+                    <div className="hidden md:block">
+                        <HudButtons 
+                            onRpgClick={() => setProtocolMode('rpg')}
+                            onPartnerClick={() => setViewMode(prev => prev === 'personal' ? 'partner' : 'personal')}
+                        />
+                        <ScrollIndicator 
+                            variant="dashboard" 
+                            containerRef={mainRef} 
+                        />
+                    </div>
+                )}
 
                 <AnimatePresence>
                     {isSearchModalOpen && (

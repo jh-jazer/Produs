@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import Intellectual from './pages/Intellectual';
 import Home from './pages/Home';
+import HomeExperimental from './pages/HomeExperimental';
 import Financial from './pages/Financial';
 import Physical from './pages/Physical';
 import Spiritual from './pages/Spiritual';
@@ -65,7 +66,7 @@ function AnimatedRoutes() {
 
         {/* Protected Dashboard Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-          <Route index element={<Home />} />
+          <Route index element={<HomeExperimental />} />
           <Route path="intellectual" element={<Intellectual />} />
           {/* Redirects for the old routes */}
           <Route path="mental" element={<Navigate to="/dashboard/intellectual" replace />} />

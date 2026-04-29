@@ -26,6 +26,7 @@ import Features from "../components/landing/Features";
 import Testimonials from "../components/landing/Testimonials";
 import CTA from "../components/landing/CTA";
 import ScrollIndicator from "../components/landing/ScrollIndicator";
+import HudButtons from "../components/ui/HudButtons";
 // removed LandingSplashScreen import
 
 import Lenis from "lenis";
@@ -116,20 +117,26 @@ export default function Landing() {
       });
 
       tl.to(".scene-awakening", { opacity: 1, duration: 3 }, 0);
-      tl.to(".parallax-line-2", { opacity: 0, y: -80, duration: 4 }, 6);
-      tl.to(".parallax-line-3", { opacity: 0, y: -120, duration: 4 }, 7);
-      tl.to(".text-let-it-pass", { opacity: 0, y: -160, duration: 4 }, 8);
-      tl.to(".hero-footer", { opacity: 0, y: 50, duration: 4 }, 8);
+      tl.to(".parallax-line-2", { opacity: 0, y: -80, duration: 3 }, 2);
+      tl.to(".parallax-line-3", { opacity: 0, y: -120, duration: 3 }, 2);
+      tl.to(".text-let-it-pass", { opacity: 0, y: -160, duration: 3 }, 2);
+      tl.to(".hero-footer", { opacity: 0, y: 50, duration: 3 }, 2);
       tl.to(".scene-dimmer", { opacity: 0, duration: 5 }, 28);
-      tl.to(".scene-awakening", { opacity: 0, pointerEvents: "none", duration: 2 }, 12);
+      tl.to(".scene-awakening", { opacity: 0, pointerEvents: "none", duration: 1 }, 4);
 
-      // Transitional Scene: Reality (at 15%)
-      tl.fromTo(".scene-reality", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 4 }, 15);
-      tl.to(".scene-reality", { opacity: 0, y: -20, duration: 4 }, 25);
+      // Transitional Scene: Reality
+      tl.fromTo(".scene-reality", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 2 }, 5);
+      tl.to(".scene-reality", { opacity: 0, y: -20, duration: 4 }, 8);
+
+      // Mockups Scene Reveal (13% - 32%)
+      tl.to(".scene-mockups", { opacity: 1, duration: 4 }, 13);
+      tl.fromTo(".mockup-desktop", { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 6, ease: "power2.out" }, 14);
+      tl.fromTo(".mockup-mobile", { y: 150, opacity: 0 }, { y: 0, opacity: 1, duration: 6, ease: "power2.out" }, 15);
+      tl.to(".scene-mockups", { opacity: 0, y: -50, duration: 4, ease: "power2.in" }, 28);
 
       // Cross-fade background videos
-      tl.to(".hero-video", { opacity: 0, duration: 5 }, 28);
-      tl.to(".features-video", { opacity: 1, duration: 5 }, 28);
+      tl.to(".hero-video", { opacity: 0, duration: 3 }, 10);
+      tl.to(".features-video", { opacity: 1, duration: 5 }, 32);
       // Second Hero (Features) Reveal
       tl.fromTo(".detail-features", { opacity: 0, y: 50, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 6, ease: "power2.out" }, 35);
       tl.to(".detail-features", { opacity: 0, y: -50, scale: 1.05, duration: 4, ease: "power2.in" }, 45);
@@ -268,17 +275,13 @@ export default function Landing() {
             initial={{ y: -100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-6 md:py-10 flex justify-between items-center pointer-events-none"
+            className="fixed top-0 left-0 w-full z-[100] px-2 md:px-4 py-6 md:py-10 flex justify-between items-center pointer-events-none"
           >
             <div className="flex items-center gap-3 md:gap-4 group cursor-pointer pointer-events-auto">
               <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-white mt-1">Produs</span>
             </div>
 
-            <div onClick={handleStart} className="pointer-events-auto group flex items-center cursor-pointer relative">
-                <div className="size-10 md:size-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-white transition-all bg-white/[0.03] group-hover:bg-white/10">
-                  <div className="ml-1 w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent group-hover:scale-110 transition-transform" />
-                </div>
-            </div>
+
           </motion.nav>
         )}
       </AnimatePresence>
@@ -321,9 +324,9 @@ export default function Landing() {
       <div className="relative z-20 -mt-[100vh]">
         {isLoaded && <Hero />}
         
-        {/* Transitional Scene at 15% scroll */}
+        {/* Transitional Scene at 12% scroll */}
         <div className="scene-reality fixed inset-0 flex items-center justify-end md:justify-center px-10 md:px-24 pointer-events-none opacity-0">
-          <div className="flex flex-col md:grid md:grid-cols-2 gap-8 md:gap-24 items-end md:items-center max-w-7xl w-full">
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-8 md:gap-24 items-end md:items-center max-w-7xl w-full md:-translate-x-4 lg:-translate-x-6">
             <div className="text-right md:-translate-x-[2px]">
               <h2 className="font-black tracking-tight uppercase leading-[0.85] flex flex-col items-end">
                 <span className="text-4xl md:text-6xl text-transparent" style={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}>HELP YOUR</span>
@@ -334,6 +337,21 @@ export default function Landing() {
               <p className="text-white/40 text-[10px] md:text-sm font-light tracking-[0.3em] uppercase leading-relaxed max-w-[240px] md:max-w-sm">
                 WHILE ON YOUR SIDE OF <span className="text-white/80">REALITY</span> <br /> WITH OUR SYSTEM
               </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Mockups Scene (13% - 32%) */}
+        <div className="scene-mockups fixed inset-0 flex items-center justify-center z-30 pointer-events-none opacity-0">
+          <div className="relative w-full max-w-7xl px-12 flex flex-col md:flex-row items-center justify-center gap-12">
+            {/* Desktop Mockup */}
+            <div className="mockup-desktop relative w-[80%] md:w-[65%] aspect-video bg-black rounded-xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+              <img src="/mockups/desktop.png" alt="Desktop Interface" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            </div>
+            {/* Mobile Mockup */}
+            <div className="mockup-mobile absolute bottom-[-10%] right-[10%] md:right-[15%] md:bottom-[-10%] w-[35%] md:w-[18%] aspect-[9/19] bg-[#0a0a0a] rounded-[2.5rem] overflow-hidden border-[6px] border-white/5 shadow-2xl">
+              <img src="/mockups/mobile.png" alt="Mobile Interface" className="w-full h-full object-cover" />
             </div>
           </div>
         </div>
@@ -444,6 +462,10 @@ export default function Landing() {
       </div>
 
       <ScrollIndicator progress={progress} onNavigate={handleNavigate} />
+      <HudButtons 
+        variant="landing"
+        onRpgClick={handleStart}
+      />
     </div>
   );
 }
