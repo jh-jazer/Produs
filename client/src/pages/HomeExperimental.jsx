@@ -5,9 +5,9 @@ export default function HomeExperimental() {
   return (
     <div className="w-full min-h-screen bg-transparent text-white p-8 md:p-12 font-sans overflow-y-auto">
       {/* Hanging ID Badge Section */}
-      <div className="relative mb-32 h-48 flex flex-col items-center">
+      <div className="relative mb-[40rem] md:mb-48 h-32 flex flex-col items-center">
         {/* The Lace / Lanyard (Centered) */}
-        <div className="absolute top-[-32px] flex gap-2 h-24">
+        <div className="absolute top-[-32px] flex gap-4 h-12">
           <div className="w-[1px] h-full bg-white/20" />
           <div className="w-[1px] h-full bg-white/20" />
         </div>
@@ -22,47 +22,50 @@ export default function HomeExperimental() {
             damping: 15,
             delay: 0.2
           }}
-          className="absolute top-16 bg-[#121212] text-white w-72 p-5 rounded-sm shadow-[0_30px_60px_rgba(0,0,0,0.8)] border-t-[6px] border-primary group"
+          className="absolute top-4 bg-[#121212] text-white w-72 md:w-80 p-8 md:p-6 rounded-sm shadow-[0_30px_80px_rgba(0,0,0,0.9)] border-t-[8px] border-primary group min-h-[28rem] md:min-h-0 flex flex-col justify-between"
         >
           {/* Card Clip Hole */}
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 size-6 bg-black rounded-full border-[6px] border-[#121212]" />
           
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between items-start">
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col md:flex-row justify-between items-center md:items-start text-center md:text-left gap-3 md:gap-0">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Operative ID</span>
                 <span className="text-sm font-black tracking-tighter">#PX-7729-ALPHA</span>
               </div>
-              <div className="size-10 bg-white/5 rounded-sm flex items-center justify-center border border-white/10">
+              <div className="size-10 bg-white/5 rounded-sm flex items-center justify-center border border-white/10 shrink-0">
                 <span className="material-symbols-outlined text-xl opacity-40">fingerprint</span>
               </div>
             </div>
 
             <div className="h-[1px] bg-white/10 w-full" />
 
-            <div className="flex items-center gap-4">
-              <div className="size-14 bg-black rounded-sm overflow-hidden border border-white/10">
+            <div className="flex flex-col items-center gap-4">
+              <div className="size-20 md:size-14 bg-black rounded-sm overflow-hidden border border-white/10 shrink-0">
                 <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white/10 text-3xl">person</span>
+                  <span className="material-symbols-outlined text-white/10 text-4xl md:text-3xl">person</span>
                 </div>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col items-center gap-1">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">AUTHORIZED</span>
                 <span className="text-xs font-bold uppercase tracking-tight">OPERATIVE_SESSION</span>
               </div>
             </div>
 
-            <div className="mt-2 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="size-1.5 bg-primary rounded-full animate-pulse" />
-                <span className="text-[8px] font-bold uppercase tracking-widest">ACTIVE_LINK</span>
+            <div className="mt-2 flex flex-col gap-3">
+              <div className="h-[1px] bg-white/5 w-full md:hidden" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="size-1.5 bg-primary rounded-full animate-pulse" />
+                  <span className="text-[8px] font-bold uppercase tracking-widest">ACTIVE_LINK</span>
+                </div>
+                <span className="text-[8px] font-mono opacity-40">SEC_LEVEL_04</span>
               </div>
-              <span className="text-[8px] font-mono opacity-40">SEC_LEVEL_04</span>
             </div>
           </div>
 
           {/* Ghosted Branding */}
-          <div className="absolute bottom-0 right-0 p-2 opacity-[0.02]">
+          <div className="absolute bottom-0 right-0 p-2 opacity-[0.02] pointer-events-none">
             <span className="text-[40px] font-black">PRODUS</span>
           </div>
         </motion.div>

@@ -154,14 +154,15 @@ function Layout() {
         }}>
             <div className="bg-transparent font-sans text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden">
                 {/* Mobile Top Bar */}
-                <div className="md:hidden fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-[135] bg-white/80 dark:bg-[#000000]/80 backdrop-blur-md transition-all duration-300 border-b border-black/[0.03] dark:border-white/[0.03]">
+                <div className="md:hidden fixed top-0 left-0 right-0 h-20 flex items-center px-4 z-[135] bg-transparent transition-all duration-300 pointer-events-none">
+                    <div className="flex items-center w-full pointer-events-auto">
                     
                     {/* Profile Avatar + LVL Badge (Left Side) */}
                     <button
                         className="relative flex items-center active:scale-95 transition-all mr-4 shrink-0"
                         onClick={() => setIsUserMenuOpen(true)}
                     >
-                        <div className="size-9 rounded-full ring-2 ring-primary/10 overflow-hidden bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0">
+                        <div className="size-9 rounded-full ring-2 ring-primary/10 overflow-hidden bg-transparent flex items-center justify-center shrink-0">
                             {user?.avatar?.url ? (
                                 <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover" />
                             ) : (
@@ -196,29 +197,11 @@ function Layout() {
                         </div>
                     )}
 
-                    {/* Tactical Tools Right */}
-                    <div className="ml-auto flex items-center gap-3">
-                        {/* 1. Tactical Toggles (RPG) */}
-                        <div className="flex items-center gap-1.5 p-1 rounded-2xl">
-                            {/* RPG Toggle - Dashboard Only */}
-                            {isOverview && (
-                                <button
-                                    onClick={() => setProtocolMode(protocolMode === 'rpg' ? 'reality' : 'rpg')}
-                                    className={`px-3 h-9 rounded-xl flex items-center justify-center relative transition-all active:scale-95 font-black text-[11px] tracking-widest ${
-                                        protocolMode === 'rpg' 
-                                            ? 'bg-primary text-white' 
-                                            : 'text-slate-500 bg-black/5 dark:bg-white/5'
-                                    }`}
-                                >
-                                    RPG
-                                </button>
-                            )}
-                        </div>
-                    </div>
+
 
                     {/* XP Progress Line at the very bottom edge */}
                     {user?.level > 0 && (
-                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-200 dark:bg-white/10 overflow-hidden">
+                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-transparent overflow-hidden">
                             <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ 
@@ -229,6 +212,15 @@ function Layout() {
                             />
                         </div>
                     )}
+                    </div>
+                    
+                    {/* Integrated HUD Buttons for Mobile (Attached to top right) */}
+                    <div className="absolute top-0 right-0 pt-2">
+                        <HudButtons 
+                            onRpgClick={() => setProtocolMode('rpg')}
+                            onPartnerClick={() => setViewMode(prev => prev === 'personal' ? 'partner' : 'personal')}
+                        />
+                    </div>
                 </div>
 
                 {/* Sidebar Backdrop Mobile */}
@@ -452,7 +444,7 @@ function Layout() {
                     </div>
                 </aside>
 
-                {/* HUD Overlay: Scroll Indicator (Reality Only) */}
+                {/* HUD Overlay: Scroll Indicator (Reality Only) - Desktop Only */}
                 {protocolMode === 'reality' && (
                     <div className="hidden md:block">
                         <HudButtons 
