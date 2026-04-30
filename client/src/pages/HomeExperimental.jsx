@@ -459,8 +459,8 @@ export default function HomeExperimental() {
       </div>
 
       {/* Decorative vertical lines */}
-      <div className="fixed left-4 top-0 bottom-0 w-[1px] bg-white/[0.03] pointer-events-none" />
-      <div className="fixed left-8 top-0 bottom-0 w-[1px] bg-white/[0.03] pointer-events-none" />
+      <div className="hidden md:block fixed left-4 top-0 bottom-0 w-[1px] bg-white/[0.03] pointer-events-none" />
+      <div className="hidden md:block fixed left-8 top-0 bottom-0 w-[1px] bg-white/[0.03] pointer-events-none" />
     </div>
   );
 }
