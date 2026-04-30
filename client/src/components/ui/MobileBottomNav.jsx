@@ -9,19 +9,19 @@ const MobileBottomNav = () => {
     const { protocolMode, activeRpgTab, setActiveRpgTab } = useContext(DashboardContext);
 
     const realityPillars = [
+        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
         { id: 'financial', name: 'Financial', path: '/dashboard/financial', icon: 'payments' },
         { id: 'intellectual', name: 'Intellectual', path: '/dashboard/intellectual', icon: 'psychology' },
         { id: 'physical', name: 'Physical', path: '/dashboard/physical', icon: 'monitor_heart' },
         { id: 'spiritual', name: 'Spiritual', path: '/dashboard/spiritual', icon: 'auto_awesome' },
-        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
     ];
 
     const rpgPillars = [
+        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
         { id: 'tower', name: 'Tower', path: '/dashboard', icon: 'castle' },
         { id: 'items', name: 'Items', path: '/dashboard', icon: 'inventory_2' },
         { id: 'skills', name: 'Skills', path: '/dashboard', icon: 'model_training' },
         { id: 'roam', name: 'Roam', path: '/dashboard', icon: 'explore' },
-        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
     ];
 
     const pillars = protocolMode === 'rpg' ? rpgPillars : realityPillars;
@@ -52,7 +52,7 @@ const MobileBottomNav = () => {
 
     return (
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-[150] pointer-events-none">
-            <nav className="w-full h-18 bg-white dark:bg-black border-t border-black/[0.1] dark:border-white/[0.1] shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pointer-events-auto relative rounded-t-[2.5rem]">
+            <nav className="w-full h-18 bg-white dark:bg-black border-t-4 border-dashed border-black/10 dark:border-white/20 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pointer-events-auto relative rounded-t-[2.5rem]">
                 
                 {pillars.map((pillar) => {
                     const active = isActive(pillar);

@@ -108,7 +108,7 @@ export default function ScrollIndicator({
   const isLanding = variant === 'landing';
 
   return (
-    <div className="fixed right-2 bottom-24 z-[100] flex flex-col items-center gap-6 pointer-events-none select-none transition-colors duration-1000 text-white">
+    <div className="fixed right-2 bottom-24 z-[100] hidden md:flex flex-col items-center gap-6 pointer-events-none select-none transition-colors duration-1000 text-white">
 
       {/* Vertical Progress Track & Handle */}
       <div 

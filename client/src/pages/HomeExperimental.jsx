@@ -73,42 +73,28 @@ export default function HomeExperimental() {
       {/* Experimental 5-Column Header Grid */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-8 w-full mb-32">
         
-        {/* Screen Anchor Point */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-1 bg-white z-[60] shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
-        
-        {/* Column 1-3: Swinging ID Assembly (60% width) */}
+        {/* Column 1-3: Integrated Swinging ID Assembly (60% width) */}
         <div className="md:col-span-3 relative h-[500px] md:h-16 flex flex-col items-center">
           <div className="absolute inset-0 flex flex-col items-center">
-            {/* Single Robust Thread (Lanyard) - Static */}
-            <svg 
-              className="absolute top-[-1000px] left-1/2 -translate-x-1/2 w-16 h-[1100px] pointer-events-none z-30"
-              viewBox="0 0 64 1100"
-            >
-              <path 
-                d="M 33,0 L 33,1100" 
-                stroke="white" 
-                strokeWidth="12" 
-                strokeOpacity="0.8" 
-                fill="none" 
-              />
-            </svg>
             
-            {/* 3D Flippable Card Container - Animated */}
+            {/* 3D Swinging Assembly - Static */}
             <motion.div 
-              animate={{ 
-                rotate: isMobile ? 0 : [-2, 2, -2] 
-              }}
-              transition={{ 
-                repeat: Infinity,
-                duration: 6,
-                ease: "easeInOut"
-              }}
               style={{ transformOrigin: "top center" }}
-              className="absolute top-20 md:top-5 left-1/2 -translate-x-1/2 perspective-[1000px] cursor-pointer"
-              onClick={() => setIsFlipped(!isFlipped)}
+              className="absolute top-0 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center"
             >
+              {/* Screen Anchor Point - Visual Source */}
+              <div className="w-4 h-1 bg-white z-[60] shadow-[0_0_15px_rgba(255,255,255,0.5)] shrink-0" />
+              
+              {/* Integrated Thread (Lanyard) - Connects Anchor to Card */}
+              <div className="w-[12px] h-20 md:h-12 bg-white opacity-80 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50" />
+
+              {/* Flippable Card Container - Now sits directly at the end of the lace */}
+              <div 
+                className="relative -mt-4 perspective-[1000px] cursor-pointer pointer-events-auto"
+                onClick={() => setIsFlipped(!isFlipped)}
+              >
               <motion.div 
-                initial={{ y: -20, opacity: 0, rotate: -2 }}
+                initial={{ y: -20, opacity: 0 }}
                 animate={{ 
                   y: 0, 
                   opacity: 1, 
@@ -221,9 +207,10 @@ export default function HomeExperimental() {
                 </div>
               </div>
             </motion.div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </div>
+    </div>
 
         {/* Column 4-5: Habit Tracker Panel */}
         <div className="hidden md:flex md:col-span-2 flex-col bg-white/[0.02] rounded-sm p-8 min-h-[30rem] hover:bg-white/[0.04] transition-all group relative overflow-hidden">
