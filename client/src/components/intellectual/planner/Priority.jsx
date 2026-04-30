@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { usePlanner } from '../../../hooks/usePlanner';
+import { motion } from 'framer-motion';
 
 const Priority = ({
   isCompact = false,
@@ -16,16 +17,13 @@ const Priority = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Helper to check if current time is within a task's window
   const getActiveTask = () => {
     if (!tasks) return null;
-
     const nowStr = currentTime.toLocaleTimeString("en-US", {
       hour12: false,
       hour: "2-digit",
       minute: "2-digit",
     });
-
     return tasks.find((t) => {
       if (!t.startTime || !t.endTime) return false;
       return nowStr >= t.startTime && nowStr <= t.endTime;
@@ -43,161 +41,89 @@ const Priority = ({
   };
 
   return (
-    <div
-      className={`flex flex-col transition-all min-h-[200px] ${isCompact ? "gap-4" : "gap-6"}`}
-    >
-      <div className="flex justify-between items-start">
-        <div className="flex items-center gap-3">
-          <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary">
-              analytics
-            </span>
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              Priority
-            </h3>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              Focus for Today
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          {!isCompact && (
-            <div className="text-right">
-              <p className="text-sm font-black text-slate-900 dark:text-white">
-                {currentTime.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                {today.toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </p>
-            </div>
-          )}
-          {!isCompact && (
-            <button
-              onClick={onFlip}
-              className="hidden lg:flex p-1.5 rounded-lg bg-slate-50 dark:bg-[#000000] text-slate-400 hover:text-primary transition-colors items-center gap-1.5 group"
-              title="View Detailed Schedule"
-            >
-              <span className="text-[10px] font-black uppercase tracking-widest transition-opacity text-primary">
-                Schedule
-              </span>
-              <span className="material-symbols-outlined text-xl">
-                open_in_full
-              </span>
-            </button>
-          )}
-        </div>
-      </div>
+    <div className={`flex flex-col text-white font-sans ${isCompact ? "gap-6" : "gap-8"} relative`}>
+      <button 
+        onClick={onFlip}
+        className="absolute -top-16 right-0 size-10 flex items-center justify-center border border-white/20 hover:bg-white hover:text-black transition-all active:scale-95 z-20"
+      >
+        <span className="material-symbols-outlined text-sm font-bold italic">east</span>
+      </button>
 
       {/* Active Now Section */}
-      <div className="space-y-3">
-        <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
-          Active Now
-        </h4>
+      <div className="flex flex-col gap-4">
+        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/20">STATUS // ACTIVE_NOW</span>
         {activeTask ? (
-          <div className="relative overflow-hidden p-5 rounded-2xl bg-primary text-white shadow-lg shadow-primary/20 group">
-            <div className="absolute top-0 right-0 p-4 opacity-20 transition-transform group-hover:scale-110">
-              <span className="material-symbols-outlined text-4xl">bolt</span>
+          <motion.div 
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="p-6 bg-white text-black rounded-sm relative overflow-hidden group shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
+          >
+            <div className="absolute top-[-10px] right-[-10px] opacity-10 rotate-12 scale-150">
+              <span className="material-symbols-outlined text-[80px]">bolt</span>
             </div>
-            <div className="relative z-10">
-              <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">
-                Current Activity
-              </p>
-              <h5
-                className={`${isCompact ? "text-lg" : "text-xl"} font-black mb-1`}
-              >
-                {activeTask.title}
-              </h5>
-              <div className="flex items-center gap-2 text-xs font-bold opacity-90">
-                <span className="material-symbols-outlined text-sm">
-                  schedule
-                </span>
-                <span>
-                  {activeTask.startTime} - {activeTask.endTime}
-                </span>
+            <div className="relative z-10 flex flex-col gap-1">
+              <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-40">PRIORITY_NODE</span>
+              <h5 className="text-2xl font-black uppercase tracking-tighter leading-none">{activeTask.title}</h5>
+              <div className="flex items-center gap-2 mt-4 text-[10px] font-bold opacity-60 italic">
+                <span className="material-symbols-outlined text-xs">schedule</span>
+                <span>{activeTask.startTime} - {activeTask.endTime}</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         ) : (
-          <div
-            className={`${isCompact ? "p-4" : "p-5"} rounded-2xl border-2 border-dashed border-slate-100 dark:border-white/10/50 flex flex-col items-center justify-center text-center gap-2`}
-          >
-            <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 text-3xl">
-              coffee
-            </span>
-            <p className="text-xs font-bold text-slate-400">
-              No scheduled activity
-            </p>
+          <div className="p-8 border-2 border-dashed border-white/5 rounded-sm flex flex-col items-center justify-center text-center gap-2 opacity-30">
+            <span className="material-symbols-outlined text-3xl">terminal</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">Awaiting_Command...</span>
           </div>
         )}
       </div>
 
-      {/* Daily Briefing - Hidden in Compact Mode */}
+      {/* Briefing Section */}
       {!isCompact && (
-        <div className="space-y-4">
-          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-            Daily Briefing
-          </h4>
+        <div className="flex flex-col gap-6">
+          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/20">LOG // DAILY_BRIEFING</span>
+          <div className="flex flex-col gap-3">
+            {events.length > 0 && events.map((event) => (
+              <div key={event._id} className="flex items-center gap-4 p-4 bg-white/[0.03] border border-white/5 rounded-sm group hover:bg-white/[0.05] transition-all">
+                <div className="size-2 bg-white/40 rounded-full group-hover:scale-125 transition-transform" />
+                <span className="text-xs font-bold uppercase tracking-wide flex-1 opacity-80">{event.title}</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-white/20">EVENT</span>
+              </div>
+            ))}
 
-          <div className="space-y-2">
-            {events.length > 0 &&
-              events.map((event) => (
-                <div
-                  key={event._id}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-purple-500/5 border border-purple-500/10"
+            {todoTasks.length > 0 ? (
+              todoTasks.map((task) => (
+                <motion.div
+                  key={task._id}
+                  whileHover={{ x: 4 }}
+                  onClick={() => handleToggle(task)}
+                  className={`flex items-center gap-4 p-4 border transition-all cursor-pointer rounded-sm ${
+                    task.completed 
+                      ? "bg-white/[0.02] border-white/5 opacity-30" 
+                      : "bg-white/[0.04] border-white/10 hover:border-white/30"
+                  }`}
                 >
-                  <span className="material-symbols-outlined text-purple-500 text-sm">
-                    event
-                  </span>
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                    {event.title}
-                  </span>
-                  <span className="ml-auto text-[10px] font-black text-purple-400 uppercase">
-                    Event
-                  </span>
-                </div>
-              ))}
-
-            {todoTasks.length > 0
-              ? todoTasks.map((task) => (
-                  <div
-                    key={task._id}
-                    onClick={() => handleToggle(task)}
-                    className={`flex items-center gap-3 p-3 rounded-xl border ${!isReadOnly ? "cursor-pointer hover:border-primary/30" : ""} transition-all ${
-                      task.completed
-                        ? "bg-slate-50 dark:bg-[#000000]/10 border-transparent opacity-50"
-                        : "bg-slate-50 dark:bg-[#000000]/50 border-slate-100 dark:border-white/10 hover:border-primary/30 shadow-none"
-                    }`}
-                  >
-                    <span
-                      className={`material-symbols-outlined text-sm ${task.completed ? "text-green-500" : "text-slate-400"}`}
-                    >
-                      {task.completed ? "check_circle" : "circle"}
-                    </span>
-                    <span
-                      className={`text-sm font-bold ${task.completed ? "text-slate-400 line-through" : "text-slate-700 dark:text-slate-200"}`}
-                    >
-                      {task.title}
-                    </span>
-                    {task.startTime && (
-                      <span className="ml-auto text-[10px] font-black text-slate-400">
-                        {task.startTime}
-                      </span>
-                    )}
+                  <div className={`size-4 border-2 rounded-sm shrink-0 flex items-center justify-center transition-all ${
+                    task.completed ? "bg-white border-white" : "border-white/20"
+                  }`}>
+                    {task.completed && <span className="material-symbols-outlined text-black text-[10px] font-bold">check</span>}
                   </div>
-                ))
-              : events.length === 0 && (
-                  <p className="text-center text-xs font-bold text-slate-400 py-4 italic">
-                    No other tasks for today
-                  </p>
-                )}
+                  <span className={`text-[11px] font-black uppercase tracking-wider flex-1 ${task.completed ? "line-through opacity-40" : "opacity-90"}`}>
+                    {task.title}
+                  </span>
+                  {task.startTime && (
+                    <span className="text-[9px] font-mono opacity-20 uppercase">{task.startTime}</span>
+                  )}
+                </motion.div>
+              ))
+            ) : (
+              events.length === 0 && (
+                <div className="flex flex-col items-center gap-2 py-8 opacity-10">
+                  <span className="material-symbols-outlined text-2xl">inbox</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest">No_Additional_Nodes</span>
+                </div>
+              )
+            )}
           </div>
         </div>
       )}
@@ -206,4 +132,3 @@ const Priority = ({
 };
 
 export default Priority;
-

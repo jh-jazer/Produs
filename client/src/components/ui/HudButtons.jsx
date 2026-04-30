@@ -6,7 +6,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, variant = 'dash
     return (
       <div className="fixed top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none">
         <motion.button
-          whileHover={{ x: -2, width: '10vw' }}
+          whileHover={{ x: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={onRpgClick}
           className="w-[10vw] md:w-[4.2vw] h-[8vh] bg-white flex items-center justify-center pointer-events-auto group overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all rounded-l-md"
@@ -25,7 +25,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, variant = 'dash
     <div className="fixed top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none">
       {/* RPG Protocol Button */}
       <motion.button
-        whileHover={{ x: -2, width: '10vw' }}
+        whileHover={{ x: -2 }}
         whileTap={{ scale: 0.95 }}
         onClick={onRpgClick}
         className="w-[10vw] md:w-[4.2vw] h-[8vh] bg-white flex items-center justify-center pointer-events-auto group overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all rounded-l-md"
@@ -40,7 +40,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, variant = 'dash
 
       {/* Partner Protocol Button */}
       <motion.button
-        whileHover={{ x: -2, width: '10vw' }}
+        whileHover={{ x: -2 }}
         whileTap={{ scale: 0.95 }}
         onClick={onPartnerClick}
         className="w-[10vw] md:w-[4.2vw] h-[8vh] bg-white flex items-center justify-center pointer-events-auto group overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all rounded-l-md"

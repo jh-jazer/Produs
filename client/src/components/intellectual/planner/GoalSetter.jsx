@@ -1,53 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import api from '../../../services/api';
 import ConfirmDialog from '../../ui/ConfirmDialog';
-import DashboardPanel from '../../ui/DashboardPanel';
 import { useGoals } from '../../../hooks/useGoals';
+import { motion } from 'framer-motion';
 
-const fetcher = url => api.get(url).then(res => res.data);
-
-/* ─── helpers ─────────────────────────────────────────── */
-
-const MONTHS = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-/** Returns all ISO week numbers that touch the given month/year,
- *  paired with a human-readable label like "Week 1 (Mar 3–9)". */
-function getWeeksInMonth(year, month) {
-    const weeks = [];
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-
-    let current = new Date(firstDay);
-    // rewind to Monday
-    current.setDate(current.getDate() - ((current.getDay() + 6) % 7));
-
-    let weekNum = 1;
-    while (current <= lastDay) {
-        const weekStart = new Date(current);
-        const weekEnd = new Date(current);
-        weekEnd.setDate(weekEnd.getDate() + 6);
-
-        const fmt = (d) =>
-            d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-        weeks.push({
-            weekNum,
-            label: `Week ${weekNum}`,
-            range: `${fmt(weekStart)} – ${fmt(weekEnd)}`,
-            // Store as ISO week within the year for the DB
-            isoWeek: getISOWeek(weekStart),
-            startDate: weekStart,
-        });
-
-        current.setDate(current.getDate() + 7);
-        weekNum++;
-    }
-    return weeks;
-}
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
 function getISOWeek(date) {
     const d = new Date(date);
@@ -57,326 +14,174 @@ function getISOWeek(date) {
     return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 }
 
-/* ─── period config ──────────────────────────────────── */
+function getWeeksInMonth(year, month) {
+    const weeks = [];
+    const lastDay = new Date(year, month + 1, 0);
+    let current = new Date(year, month, 1);
+    current.setDate(current.getDate() - ((current.getDay() + 6) % 7));
+    let weekNum = 1;
+    while (current <= lastDay) {
+        weeks.push({ weekNum, label: `W${weekNum}`, isoWeek: getISOWeek(current) });
+        current.setDate(current.getDate() + 7);
+        weekNum++;
+    }
+    return weeks;
+}
 
 const PERIODS = [
-    { id: 'weekly',  label: 'Weekly',  icon: 'calendar_view_week' },
-    { id: 'monthly', label: 'Monthly', icon: 'calendar_month' },
-    { id: 'yearly',  label: 'Yearly',  icon: 'flag' },
+    { id: 'weekly',  label: 'WEEKLY' },
+    { id: 'monthly', label: 'MONTHLY' },
+    { id: 'yearly',  label: 'YEARLY' },
 ];
-
-/* ─── component ──────────────────────────────────────── */
 
 const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
     const now = new Date();
     const [view, setView] = useState('monthly');
     const [selectedYear, setSelectedYear] = useState(now.getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
-    const [selectedWeekIdx, setSelectedWeekIdx] = useState(0);   // index into weeksInMonth
+    const [selectedWeekIdx, setSelectedWeekIdx] = useState(0);
     const [newGoalTitle, setNewGoalTitle] = useState('');
     const [isAdding, setIsAdding] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(null);
 
-    const upcomingYears = Array.from({ length: 10 }, (_, i) => now.getFullYear() + i);
-    const weeksInMonth = useMemo(
-        () => getWeeksInMonth(selectedYear, selectedMonth),
-        [selectedYear, selectedMonth]
-    );
-
-    // Clamp week index when month changes
+    const weeksInMonth = useMemo(() => getWeeksInMonth(selectedYear, selectedMonth), [selectedYear, selectedMonth]);
     const safeWeekIdx = Math.min(selectedWeekIdx, weeksInMonth.length - 1);
     const currentWeek = weeksInMonth[safeWeekIdx];
 
-    /* ── Local goals hook ── */
     const filters = useMemo(() => ({
         period: view,
         year: selectedYear,
         month: view === 'yearly' ? undefined : selectedMonth,
         week: view === 'weekly' ? currentWeek?.isoWeek : undefined
-    }), [view, selectedYear, selectedMonth, currentWeek, view]);
+    }), [view, selectedYear, selectedMonth, currentWeek]);
 
     const { goals: filteredGoals, addGoal: addGoalLocal, toggleGoal: toggleGoalLocal, deleteGoal: deleteGoalLocal, isLoading } = useGoals(filters);
 
-    /* ── CRUD ── */
     const addGoal = async () => {
         if (!newGoalTitle.trim()) return;
-        const payload = {
-            title: newGoalTitle.trim(),
-            period: view,
-            year: Number(selectedYear),
-        };
+        const payload = { title: newGoalTitle.trim(), period: view, year: Number(selectedYear), color: 'white' };
         if (view === 'monthly') payload.month = Number(selectedMonth);
-        if (view === 'weekly')  { payload.month = Number(selectedMonth); payload.week = currentWeek?.isoWeek; }
-
+        if (view === 'weekly') { payload.month = Number(selectedMonth); payload.week = currentWeek?.isoWeek; }
         await addGoalLocal(payload);
         setNewGoalTitle('');
         setIsAdding(false);
-    };
-
-    const toggleGoal = async (goal) => {
-        await toggleGoalLocal(goal._id);
-    };
-
-    const deleteGoal = async (id) => {
-        await deleteGoalLocal(id);
-    };
-
-    /* ── titles ── */
-    const viewTitle = {
-        weekly:  currentWeek ? `${currentWeek.label}, ${MONTHS[selectedMonth]} ${selectedYear}` : '',
-        monthly: `${MONTHS[selectedMonth]} ${selectedYear}`,
-        yearly:  `${selectedYear} Goals`,
-    }[view];
-
-    const viewDesc = {
-        weekly:  'Strategic objectives for the current period.',
-        monthly: 'Things you must accomplish this month.',
-        yearly:  'Your primary objectives for the year.',
-    }[view];
-
-    /* ── render: period scroll bar ── */
-    const PeriodBar = () => {
-        if (view === 'monthly' || view === 'weekly') {
-            return (
-                <div className="flex flex-col gap-3">
-                    {/* Month scroller */}
-                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                        {MONTHS.map((m, idx) => (
-                            <button
-                                key={m}
-                                onClick={() => { setSelectedMonth(idx); setSelectedWeekIdx(0); }}
-                                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all whitespace-nowrap ${
-                                    selectedMonth === idx
-                                        ? 'bg-primary text-white shadow-none'
-                                        : 'bg-slate-50 dark:bg-[#000000]/50 text-slate-500 hover:bg-slate-100 dark:hover:bg-[#000000]'
-                                }`}
-                            >
-                                {m.substring(0, 3)}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Week scroller (only for weekly) */}
-                    {view === 'weekly' && (
-                        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                            {weeksInMonth.map((w, idx) => (
-                                <button
-                                    key={w.weekNum}
-                                    onClick={() => setSelectedWeekIdx(idx)}
-                                    className={`flex flex-col items-center px-3 py-2 rounded-xl text-[10px] font-black uppercase transition-all whitespace-nowrap border-2 ${
-                                        safeWeekIdx === idx
-                                            ? 'border-primary bg-primary/5 text-primary shadow-none'
-                                            : 'border-transparent bg-slate-50 dark:bg-[#000000]/50 text-slate-500 hover:bg-slate-100 dark:hover:bg-[#000000]'
-                                    }`}
-                                >
-                                    <span>{w.label}</span>
-                                    <span className="text-[9px] font-bold normal-case text-slate-400 mt-0.5">{w.range}</span>
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            );
-        }
-
-        // Yearly
-        return (
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                {upcomingYears.map(y => (
-                    <button
-                        key={y}
-                        onClick={() => setSelectedYear(y)}
-                        className={`px-4 py-1.5 rounded-lg text-[10px] font-black transition-all whitespace-nowrap ${
-                            selectedYear === y
-                                ? 'bg-primary text-white shadow-none'
-                                : 'bg-slate-50 dark:bg-[#000000]/50 text-slate-500 hover:bg-slate-100 dark:hover:bg-[#000000]'
-                        }`}
-                    >
-                        {y}
-                    </button>
-                ))}
-            </div>
-        );
     };
 
     const completedCount = filteredGoals.filter(g => g.completed).length;
     const progress = filteredGoals.length ? Math.round((completedCount / filteredGoals.length) * 100) : 0;
 
     return (
-        <>
-            {createPortal(
-                <ConfirmDialog
-                    isOpen={!!confirmDelete}
-                    title="Delete Goal"
-                    message="Are you sure you want to delete this goal?"
-                    confirmLabel="Delete"
-                    onConfirm={() => { deleteGoal(confirmDelete); setConfirmDelete(null); }}
-                    onCancel={() => setConfirmDelete(null)}
-                />,
-                document.body
-            )}
+        <div className="flex flex-col gap-8 font-sans relative">
+            <button onClick={() => setIsAdding(true)} className="absolute -top-16 right-0 size-10 flex items-center justify-center border border-white/10 hover:bg-white hover:text-black transition-all z-20">
+                <span className="material-symbols-outlined text-sm">add</span>
+            </button>
+            <ConfirmDialog
+                isOpen={!!confirmDelete}
+                title="TERMINATE_OBJECTIVE"
+                message="Objective will be removed from strategic database."
+                confirmLabel="TERMINATE"
+                onConfirm={() => { deleteGoalLocal(confirmDelete); setConfirmDelete(null); }}
+                onCancel={() => setConfirmDelete(null)}
+            />
 
-            {isAdding && createPortal(
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md" onClick={() => setIsAdding(false)}></div>
-                    <DashboardPanel
-                        className="w-full max-w-sm z-10 animate-in zoom-in-95 duration-200"
-                        title={`Quick Add ${view.charAt(0).toUpperCase() + view.slice(1)} Goal`}
-                        subtitle="Define your target"
-                        headerExtra={
-                            <button onClick={() => setIsAdding(false)} className="text-slate-400 hover:text-slate-600">
-                                <span className="material-symbols-outlined text-xl">close</span>
-                            </button>
-                        }
-                    >
-                        <div className="flex flex-col gap-4 mt-2">
-                             <input
-                                type="text"
-                                value={newGoalTitle}
-                                onChange={e => setNewGoalTitle(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && addGoal()}
-                                placeholder={`What must be done this ${view === 'weekly' ? 'week' : view === 'monthly' ? 'month' : 'year'}?`}
-                                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#000000] border border-slate-200 dark:border-white/10 text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none"
-                                autoFocus
-                            />
-                            <button
-                                onClick={addGoal}
-                                disabled={!newGoalTitle.trim()}
-                                className="w-full py-3 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
-                            >
-                                Create Objective
-                            </button>
-                        </div>
-                    </DashboardPanel>
-                </div>,
-                document.body
-            )}
-            <div className="flex flex-col gap-5 overflow-hidden">
-
-            {/* Header */}
-            <div className="px-6 pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h3 className="text-base font-black text-slate-900 dark:text-white leading-tight">{viewTitle}</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{viewDesc}</p>
-                </div>
-
-                {/* Period tabs & Add button */}
-                <div className="flex items-center gap-2">
-                    <div className="flex bg-slate-100 dark:bg-[#000000] p-1 rounded-xl shrink-0">
-                        {PERIODS.map(p => (
-                            <button
-                                key={p.id}
-                                onClick={() => setView(p.id)}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
-                                    view === p.id
-                                        ? 'bg-white dark:bg-[#121212] text-primary shadow-none'
-                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                                }`}
-                            >
-                                <span className="material-symbols-outlined text-sm">{p.icon}</span>
-                                {p.label}
-                            </button>
-                        ))}
-                    </div>
-                    {!isReadOnly && (
-                        <button
-                            onClick={() => setIsAdding(true)}
-                            className="p-1.5 rounded-lg bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.05] active:scale-95 transition-all flex items-center justify-center cursor-pointer"
-                            title="Add New Objective"
-                        >
-                            <span className="material-symbols-outlined text-[20px]">add</span>
+            {/* Selection Bar */}
+            <div className="flex gap-2 overflow-x-auto pb-4 custom-scrollbar">
+                {view === 'yearly' ? (
+                    [2026, 2027, 2028].map(y => (
+                        <button key={y} onClick={() => setSelectedYear(y)} className={`px-4 py-2 border text-[10px] font-black tracking-widest ${selectedYear === y ? 'bg-white text-black border-white' : 'border-white/10 text-white/40'}`}>
+                            {y}
                         </button>
-                    )}
-                </div>
-            </div>
-
-            {/* Period scroll bar */}
-            <div className="px-6">
-                <PeriodBar />
-            </div>
-
-            {/* Progress bar (when there are goals) */}
-            {filteredGoals.length > 0 && (
-                <div className="px-6">
-                    <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Progress</span>
-                        <span className="text-[10px] font-black text-primary">{completedCount}/{filteredGoals.length} done · {progress}%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-100 dark:bg-[#000000] rounded-full overflow-hidden">
-                        <div
-                            className="h-full bg-primary rounded-full transition-all duration-700"
-                            style={{ width: `${progress}%` }}
-                        />
-                    </div>
-                </div>
-            )}
-
-
-
-            {/* Goal list */}
-            <div className="px-6 pb-6 flex flex-col gap-2">
-                {filteredGoals.length === 0 ? (
-                    <div className="text-center py-10 border-2 border-dashed border-slate-100 dark:border-white/10/60 rounded-2xl flex flex-col items-center gap-2">
-                        <span className="material-symbols-outlined text-3xl text-slate-300 dark:text-slate-700">
-                            { view === 'weekly' ? 'calendar_view_week' : view === 'monthly' ? 'calendar_month' : 'flag' }
-                        </span>
-                        <p className="text-xs font-black uppercase tracking-widest text-slate-400">
-                            No {view} must-dos yet
-                        </p>
-                        {!isReadOnly && (
-                            <p className="text-[10px] text-slate-400">Type above and press Enter to add one.</p>
-                        )}
-                    </div>
+                    ))
                 ) : (
-                    filteredGoals.map(goal => (
-                        <div
-                            key={goal._id}
-                            className={`group flex items-center gap-3 px-4 py-3.5 rounded-2xl border transition-all ${
-                                goal.completed
-                                    ? 'bg-slate-50 dark:bg-[#000000]/20 border-transparent opacity-50'
-                                    : 'bg-white dark:bg-[#000000]/30 border-slate-200 dark:border-white/10/50 hover:border-primary/30 hover:shadow-none'
-                            }`}
-                        >
-                            {/* Check button */}
-                            <button
-                                onClick={() => !isReadOnly && toggleGoal(goal)}
-                                className={`size-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                                    goal.completed
-                                        ? 'bg-emerald-500 border-emerald-500 text-white'
-                                        : 'border-slate-300 dark:border-slate-600 hover:border-emerald-400'
-                                }`}
-                            >
-                                {goal.completed && (
-                                    <span className="material-symbols-outlined text-xs font-black">check</span>
-                                )}
-                            </button>
-
-                            {/* Title */}
-                            <span className={`flex-1 text-sm font-bold transition-all leading-tight ${
-                                goal.completed ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'
-                            }`}>
-                                {goal.title}
-                            </span>
-
-                            {/* Period badge */}
-                            <span className={`shrink-0 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${
-                                goal.period === 'weekly'
-                                    ? 'border-violet-200 text-violet-500 dark:border-violet-800 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/30'
-                                    : goal.period === 'monthly'
-                                        ? 'border-primary/20 text-primary bg-primary/5'
-                                        : 'border-amber-200 text-amber-600 bg-amber-50 dark:border-amber-800 dark:text-amber-400 dark:bg-amber-950/30'
-                            }`}>
-                                {goal.period === 'weekly' ? 'W' : goal.period === 'monthly' ? 'M' : 'Y'}
-                            </span>
-
-                        </div>
+                    MONTHS.map((m, idx) => (
+                        <button key={m} onClick={() => { setSelectedMonth(idx); setSelectedWeekIdx(0); }} className={`px-4 py-2 border text-[10px] font-black tracking-widest ${selectedMonth === idx ? 'bg-white text-black border-white' : 'border-white/10 text-white/40'}`}>
+                            {m}
+                        </button>
                     ))
                 )}
             </div>
+
+            {view === 'weekly' && (
+                <div className="flex gap-2">
+                    {weeksInMonth.map((w, idx) => (
+                        <button key={idx} onClick={() => setSelectedWeekIdx(idx)} className={`flex-1 py-2 border text-[9px] font-black ${safeWeekIdx === idx ? 'bg-white/10 border-white text-white' : 'border-white/5 text-white/20'}`}>
+                            {w.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+
+            {/* Progress Readout */}
+            {filteredGoals.length > 0 && (
+                <div className="flex flex-col gap-2">
+                    <div className="flex justify-between text-[10px] font-black tracking-widest text-white/40">
+                        <span>PROGRESS // COMPLETION</span>
+                        <span>{progress}%</span>
+                    </div>
+                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                        <motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} className="h-full bg-white shadow-[0_0_10px_white]" />
+                    </div>
+                </div>
+            )}
+
+            {/* Goals List */}
+            <div className="flex flex-col gap-3">
+                {filteredGoals.length === 0 ? (
+                    <div className="py-12 border border-dashed border-white/5 flex flex-col items-center gap-4 opacity-10">
+                        <span className="material-symbols-outlined text-4xl">target</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">Awaiting_Objectives...</span>
+                    </div>
+                ) : (
+                    filteredGoals.map(goal => (
+                        <motion.div 
+                            key={goal._id} 
+                            whileHover={{ x: 4 }}
+                            className={`flex items-center gap-4 p-4 border transition-all ${goal.completed ? 'bg-white/5 border-white/5 opacity-30' : 'bg-white/[0.03] border-white/10'}`}
+                        >
+                            <button 
+                                onClick={() => !isReadOnly && toggleGoalLocal(goal._id)}
+                                className={`size-5 border-2 transition-all flex items-center justify-center ${goal.completed ? 'bg-white border-white text-black' : 'border-white/20 hover:border-white'}`}
+                            >
+                                {goal.completed && <span className="material-symbols-outlined text-[12px] font-black">check</span>}
+                            </button>
+                            <span className={`flex-1 text-xs font-black uppercase tracking-wider ${goal.completed ? 'line-through' : 'text-white/80'}`}>{goal.title}</span>
+                            {!isReadOnly && <button onClick={() => setConfirmDelete(goal._id)} className="text-white/20 hover:text-white transition-colors"><span className="material-symbols-outlined text-sm">close</span></button>}
+                        </motion.div>
+                    ))
+                )}
             </div>
-        </>
+
+            {/* Add Goal Modal */}
+            {isAdding && createPortal(
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-8 backdrop-blur-md">
+                    <div className="absolute inset-0 bg-black/80" onClick={() => setIsAdding(false)} />
+                    <div className="relative w-full max-w-md bg-[#0a0a0a] border-4 border-white p-8 shadow-[0_0_100px_rgba(255,255,255,0.1)]">
+                        <div className="flex justify-between items-start mb-8">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">INITIALIZE // STRATEGIC_NODE</span>
+                                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Define Target</h3>
+                            </div>
+                            <button onClick={() => setIsAdding(false)} className="text-white/40 hover:text-white"><span className="material-symbols-outlined">close</span></button>
+                        </div>
+
+                        <div className="flex flex-col gap-6">
+                            <input 
+                                value={newGoalTitle}
+                                onChange={e => setNewGoalTitle(e.target.value)}
+                                placeholder="TARGET_IDENTIFIER..."
+                                className="w-full bg-white/5 border border-white/10 p-4 text-sm font-black uppercase tracking-widest focus:border-white transition-all outline-none"
+                                autoFocus
+                            />
+                            <button onClick={addGoal} className="w-full py-6 bg-white text-black font-black uppercase tracking-[0.5em] text-xs hover:bg-white/90 active:scale-95 transition-all">
+                                ESTABLISH_OBJECTIVE
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+        </div>
     );
 };
 
 export default GoalSetter;
-
