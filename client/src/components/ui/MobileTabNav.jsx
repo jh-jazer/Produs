@@ -30,7 +30,7 @@ const MobileTabNav = ({ tabs, activeTab, setActiveTab, variant = 'floating' }) =
     }, [lastScrollY, isHeader]);
 
     const content = (
-        <div className={`flex items-center gap-1 bg-[#f8f8f8]/90 dark:bg-[#050505]/90 backdrop-blur-xl p-1 rounded-2xl border border-black/[0.08] dark:border-white/10 ${!isHeader ? 'shadow-[0_20px_50px_rgba(0,0,0,0.4)]' : ''}`}>
+        <div className={`flex items-center gap-1 bg-white dark:bg-black p-1 rounded-2xl border border-black/[0.1] dark:border-white/10 ${!isHeader ? 'shadow-[0_20px_50px_rgba(0,0,0,0.4)]' : ''}`}>
             {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -49,14 +49,14 @@ const MobileTabNav = ({ tabs, activeTab, setActiveTab, variant = 'floating' }) =
                         }}
                         className={`relative flex items-center justify-center rounded-xl transition-all duration-300 ${isHeader ? 'size-9' : 'size-12'} ${
                             activeTab === tab.id
-                                ? 'text-white'
+                                ? 'text-white dark:text-black'
                                 : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'
                         }`}
                     >
                         {activeTab === tab.id && (
                             <motion.div
                                 layoutId="active-tab-bg"
-                                className="absolute inset-0 bg-electric-blue rounded-xl shadow-lg shadow-electric-blue/30"
+                                className="absolute inset-0 bg-black dark:bg-white rounded-xl shadow-lg"
                                 transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                             />
                         )}
@@ -75,10 +75,10 @@ const MobileTabNav = ({ tabs, activeTab, setActiveTab, variant = 'floating' }) =
                                     <motion.span
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#050505] dark:bg-[#121212] text-white text-[9px] font-semibold uppercase tracking-[0.3em] rounded-lg shadow-xl pointer-events-none whitespace-nowrap border border-white/10"
+                                        className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-[9px] font-semibold uppercase tracking-[0.3em] rounded-lg shadow-xl pointer-events-none whitespace-nowrap border border-black/10 dark:border-white/10"
                                     >
                                         {tab.label}
-                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#050505] dark:border-t-[#121212]" />
+                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black dark:border-t-white" />
                                     </motion.span>
                                 )}
                             </AnimatePresence>

@@ -52,7 +52,7 @@ const MobileBottomNav = () => {
 
     return (
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-[150] pointer-events-none">
-            <nav className="w-full h-18 bg-white/80 dark:bg-black/90 backdrop-blur-2xl rounded-t-[2.5rem] border-t border-black/[0.05] dark:border-white/[0.05] shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex items-center justify-around px-4 pointer-events-auto relative">
+            <nav className="w-full h-18 bg-white dark:bg-black border-t border-black/[0.1] dark:border-white/[0.1] shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pointer-events-auto relative rounded-t-[2.5rem]">
                 
                 {pillars.map((pillar) => {
                     const active = isActive(pillar);
@@ -66,10 +66,12 @@ const MobileBottomNav = () => {
                             >
                                 <div className={`size-16 rounded-full flex items-center justify-center transition-all duration-500 ${
                                     active 
-                                    ? 'bg-primary shadow-[0_8px_20px_color-mix(in_srgb,var(--primary)_40%,transparent)]' 
-                                    : 'bg-slate-900 border border-white/10 shadow-lg'
+                                    ? 'bg-black dark:bg-white shadow-xl' 
+                                    : 'bg-white dark:bg-black border border-black/10 dark:border-white/10 shadow-lg'
                                 }`}>
-                                    <span className="material-symbols-outlined text-white text-[32px]">
+                                    <span className={`material-symbols-outlined text-[32px] ${
+                                        active ? 'text-white dark:text-black' : 'text-black dark:text-white'
+                                    }`}>
                                         {pillar.icon}
                                     </span>
                                 </div>
@@ -82,27 +84,21 @@ const MobileBottomNav = () => {
                             key={pillar.id}
                             onClick={() => handleNav(pillar)}
                             className={`relative flex flex-col items-center justify-center transition-all duration-300 flex-1 ${
-                                active ? 'text-primary' : 'text-slate-400 dark:text-slate-500'
+                                active ? 'text-black dark:text-white' : 'text-black/40 dark:text-white/40'
                             }`}
                         >
                             <div className="relative flex items-center justify-center">
                                 <span className={`material-symbols-outlined transition-all duration-300 text-[22px] ${
-                                    active ? 'scale-110 drop-shadow-[0_0_8px_var(--primary-glow)]' : ''
+                                    active ? 'scale-110' : ''
                                 }`}>
                                     {pillar.icon}
                                 </span>
                             </div>
 
-                            <span className={`text-[7px] font-black uppercase tracking-[0.15em] mt-1 transition-all duration-300 ${
-                                active ? 'opacity-100' : 'opacity-60'
-                            }`}>
-                                {pillar.name}
-                            </span>
-
                             {active && (
                                 <motion.div 
                                     layoutId="nav-dot"
-                                    className="absolute -bottom-2 size-1 bg-primary rounded-full"
+                                    className="absolute -bottom-2 size-1 bg-black dark:bg-white rounded-full"
                                     transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                                 />
                             )}

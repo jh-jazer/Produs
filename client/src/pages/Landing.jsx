@@ -144,8 +144,8 @@ export default function Landing() {
       // Quadrant Features Sequence
       tl.to(".quadrant-intellectual", { opacity: 1, y: 0, duration: 4 }, 55);
       tl.to(".quadrant-spiritual", { opacity: 1, y: 0, duration: 4 }, 57);
-      tl.to(".quadrant-financial", { opacity: 1, y: 0, duration: 4 }, 59);
-      tl.to(".quadrant-physical", { opacity: 1, y: 0, duration: 4 }, 61);
+      tl.to(".quadrant-physical", { opacity: 1, y: 0, duration: 4 }, 59);
+      tl.to(".quadrant-financial", { opacity: 1, y: 0, duration: 4 }, 61);
 
       // Fade out all quadrants and the background video
       tl.to(".scene-quadrants", { opacity: 0, duration: 4 }, 66);
@@ -346,12 +346,12 @@ export default function Landing() {
           <div className="relative w-full max-w-7xl px-12 flex flex-col md:flex-row items-center justify-center gap-12">
             {/* Desktop Mockup */}
             <div className="mockup-desktop relative w-[80%] md:w-[65%] aspect-video bg-black rounded-xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-              <img src="/mockups/desktop.png" alt="Desktop Interface" className="w-full h-full object-cover" />
+              <img src="/desktopmock.png" alt="Desktop Interface" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             </div>
             {/* Mobile Mockup */}
             <div className="mockup-mobile absolute bottom-[-10%] right-[10%] md:right-[15%] md:bottom-[-10%] w-[35%] md:w-[18%] aspect-[9/19] bg-[#0a0a0a] rounded-[2.5rem] overflow-hidden border-[6px] border-white/5 shadow-2xl">
-              <img src="/mockups/mobile.png" alt="Mobile Interface" className="w-full h-full object-cover" />
+              <img src="/mobilemock.png" alt="Mobile Interface" className="w-full h-full object-cover" />
             </div>
           </div>
         </div>
@@ -398,16 +398,16 @@ export default function Landing() {
             {/* Header */}
             <div className="gamified-header text-right md:-translate-x-12">
               <h2 className="font-black tracking-[0.4em] uppercase flex flex-col items-end gap-2 md:gap-4">
-                <span className="text-xl md:text-4xl text-white inline-block skew-x-[-3deg]">
+                <span className="text-xl md:text-4xl text-white inline-block skew-x-[-3deg] md:skew-x-0">
                   IMMERSIVE
                 </span>
-                <span className="text-xl md:text-4xl text-white inline-block md:translate-x-5 skew-x-[-3deg]">
+                <span className="text-xl md:text-4xl text-white inline-block md:translate-x-0 skew-x-[-3deg] md:skew-x-0">
                   STORY
                 </span>
-                <span className="text-xl md:text-4xl text-white inline-block md:translate-x-10 skew-x-[-3deg]">
+                <span className="text-xl md:text-4xl text-white inline-block md:translate-x-0 skew-x-[-3deg] md:skew-x-0">
                   DRIVEN
                 </span>
-                <span className="text-xl md:text-4xl text-white inline-block md:translate-x-16 skew-x-[-3deg]">
+                <span className="text-xl md:text-4xl text-white inline-block md:translate-x-0 skew-x-[-3deg] md:skew-x-0">
                   GAME
                 </span>
               </h2>

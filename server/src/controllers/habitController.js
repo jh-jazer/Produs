@@ -1,6 +1,7 @@
 import Habit from '../models/Habit.js';
 import User from '../models/User.js';
 import { awardXP } from '../utils/rpgUtils.js';
+import { initializeSystemHabits } from '../utils/habitUtils.js';
 
 // @desc    Get all habits for a user
 // @route   GET /api/habits
@@ -233,6 +234,19 @@ export const reorderHabits = async (req, res) => {
         }
 
         res.json({ message: 'Habits reordered successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Initialize core habits for a user
+// @route   POST /api/habits/init
+// @access  Private
+export const initCoreHabits = async (req, res) => {
+    try {
+        await initializeSystemHabits(req.user._id);
+        const habits = await Habit.find({ user: req.user._id }).sort({ order: 1, createdAt: 1 });
+        res.json(habits);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

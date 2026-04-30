@@ -86,6 +86,16 @@ export const useHabits = () => {
         }
     };
 
+    const initHabits = async () => {
+        if (!userId) return;
+        try {
+            await api.post('/habits/init');
+            mutate('/habits');
+        } catch (err) {
+            console.error('Failed to initialize habits:', err);
+        }
+    };
+
     const reorderHabits = async (habitIds) => {
         if (!userId) return;
         try {
@@ -107,6 +117,7 @@ export const useHabits = () => {
         toggleCheck,
         updateHabit,
         deleteHabit,
+        initHabits,
         reorderHabits,
         isLoading,
         error

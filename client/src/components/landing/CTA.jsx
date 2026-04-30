@@ -42,7 +42,7 @@ export default function CTA({ user }) {
         </Link>
       </div>
 
-      <div className="absolute bottom-0 w-full p-8 md:p-12 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity duration-700">
+      <div className="absolute bottom-0 w-full px-8 md:px-12 pb-4 md:pb-6 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity duration-700">
         <Footer compact={true} />
       </div>
     </section>

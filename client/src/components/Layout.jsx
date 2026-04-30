@@ -154,15 +154,44 @@ function Layout() {
         }}>
             <div className="bg-transparent font-sans text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden">
                 {/* Mobile Top Bar */}
-                <div className="md:hidden fixed top-0 left-0 right-0 h-20 flex items-center px-4 z-[135] bg-transparent transition-all duration-300 pointer-events-none">
+                <div className="hidden fixed top-0 left-0 right-0 h-20 flex items-center px-4 z-[135] bg-transparent transition-all duration-300 pointer-events-none">
                     <div className="flex items-center w-full pointer-events-auto">
                     
                     {/* Profile Avatar + LVL Badge (Left Side) */}
                     <button
-                        className="relative flex items-center active:scale-95 transition-all mr-4 shrink-0"
+                        className="relative flex items-center active:scale-95 transition-all mr-4 shrink-0 p-[1.5px]"
                         onClick={() => setIsUserMenuOpen(true)}
                     >
-                        <div className="size-9 rounded-full ring-2 ring-primary/10 overflow-hidden bg-transparent flex items-center justify-center shrink-0">
+                        {/* Circular XP Progress Ring (Mobile Adaption) */}
+                        {user?.level > 0 && (
+                            <div className="absolute inset-0 size-full">
+                                <svg className="size-full -rotate-90">
+                                    <circle
+                                        cx="18" cy="18" r="17"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.2"
+                                        className="text-black/5 dark:text-white/10"
+                                    />
+                                    <motion.circle
+                                        cx="18" cy="18" r="17"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                        strokeLinecap="round"
+                                        strokeDasharray="106.81" // 2 * PI * 17
+                                        initial={{ strokeDashoffset: 106.81 }}
+                                        animate={{ 
+                                            strokeDashoffset: 106.81 - (106.81 * Math.min(100, Math.max(0, (((user.exp || 0) - (user.totalRequired || 0)) / (user.nextLevelExp || 100)) * 100))) / 100 
+                                        }}
+                                        transition={{ duration: 1.5, ease: "easeOut" }}
+                                        className="text-primary drop-shadow-[0_0_3px_rgba(var(--primary-rgb),0.3)]"
+                                    />
+                                </svg>
+                            </div>
+                        )}
+
+                        <div className="size-9 rounded-full overflow-hidden bg-black/5 dark:bg-white/10 flex items-center justify-center shrink-0 relative z-10">
                             {user?.avatar?.url ? (
                                 <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover" />
                             ) : (
@@ -170,7 +199,7 @@ function Layout() {
                             )}
                         </div>
                         {user?.level > 0 && (
-                            <div className="absolute -bottom-1 -right-1 bg-primary text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-lg border border-primary/20 scale-110">
+                            <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-lg border border-primary/20 scale-100 z-20">
                                 {user.level}
                             </div>
                         )}
@@ -400,7 +429,7 @@ function Layout() {
 
                     <div 
                         ref={mainRef}
-                        className={`flex-1 overflow-x-hidden ${protocolMode === 'rpg' ? 'overflow-y-hidden' : 'overflow-y-auto'} custom-scrollbar flex flex-col relative mt-16 md:mt-0`}
+                        className={`flex-1 overflow-x-hidden ${protocolMode === 'rpg' ? 'overflow-y-hidden' : 'overflow-y-auto'} custom-scrollbar flex flex-col relative mt-0`}
                     >
                         <AnimatePresence mode="wait" initial={false}>
                             <motion.main 
@@ -444,18 +473,20 @@ function Layout() {
                     </div>
                 </aside>
 
-                {/* HUD Overlay: Scroll Indicator (Reality Only) - Desktop Only */}
+                {/* HUD Overlay: Scroll Indicator (Reality Only) */}
                 {protocolMode === 'reality' && (
-                    <div className="hidden md:block">
+                    <>
                         <HudButtons 
                             onRpgClick={() => setProtocolMode('rpg')}
                             onPartnerClick={() => setViewMode(prev => prev === 'personal' ? 'partner' : 'personal')}
                         />
-                        <ScrollIndicator 
-                            variant="dashboard" 
-                            containerRef={mainRef} 
-                        />
-                    </div>
+                        <div className="hidden md:block">
+                            <ScrollIndicator 
+                                variant="dashboard" 
+                                containerRef={mainRef} 
+                            />
+                        </div>
+                    </>
                 )}
 
                 <AnimatePresence>
