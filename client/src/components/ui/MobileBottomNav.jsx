@@ -52,7 +52,14 @@ const MobileBottomNav = () => {
 
     return (
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-[150] pointer-events-none">
-            <nav className="w-full h-18 bg-white dark:bg-black border-t-4 border-dashed border-black/10 dark:border-white/20 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pointer-events-auto relative rounded-t-[2.5rem]">
+            <nav className="w-full h-18 bg-white dark:bg-black shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pointer-events-auto relative rounded-t-[2.5rem]">
+                {/* Tactical Chipped Border - Fine Line */}
+                <div 
+                    className="absolute inset-0 border-t-2 border-black/10 dark:border-white/20 rounded-t-[2.5rem] pointer-events-none"
+                    style={{ 
+                        clipPath: 'polygon(0% 0%, 15% 0%, 17% 100%, 19% 0%, 45% 0%, 47% 100%, 49% 0%, 78% 0%, 80% 100%, 82% 0%, 100% 0%, 100% 100%, 0% 100%)' 
+                    }} 
+                />
                 
                 {pillars.map((pillar) => {
                     const active = isActive(pillar);

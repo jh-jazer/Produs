@@ -91,7 +91,7 @@ const CinematicLoader = ({ isVisible, onComplete }) => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.8 }}
-                  className="text-[10px] font-bold leading-[1.8] tracking-[0.4em] text-white uppercase max-w-[500px]"
+                  className="text-[10px] font-bold leading-[1.8] tracking-[0.4em] text-white uppercase max-w-[500px] px-6 md:px-0"
                 >
                   {currentTip}
                 </motion.div>

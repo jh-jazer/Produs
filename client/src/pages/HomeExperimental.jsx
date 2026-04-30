@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import useAuthStore from '../store/useAuthStore';
 import useMobile from '../hooks/useMobile';
 import { useHabits } from '../hooks/useHabits';
@@ -24,7 +24,21 @@ export default function HomeExperimental() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [newHabitName, setNewHabitName] = useState('');
+  const [isAtTop, setIsAtTop] = useState(true);
   const today = new Date().toISOString().split('T')[0];
+
+  useEffect(() => {
+    // Find the main scrollable container in Layout
+    const container = document.querySelector('.custom-scrollbar');
+    if (!container) return;
+
+    const handleScroll = () => {
+      setIsAtTop(container.scrollTop < 10);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSyncHabits = async () => {
     setIsSyncing(true);
@@ -69,12 +83,12 @@ export default function HomeExperimental() {
   }, [isFlipped]);
 
   return (
-    <div className="w-full min-h-screen bg-transparent text-white p-8 pt-0 md:p-12 font-sans overflow-y-auto">
+    <div className="w-full bg-transparent text-white p-8 pt-0 md:p-12 font-sans">
       {/* Experimental 5-Column Header Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-8 w-full mb-32">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-8 w-full mb-[15vh] md:mb-32">
         
-        {/* Column 1-3: Integrated Swinging ID Assembly (60% width) */}
-        <div className="md:col-span-3 relative h-[500px] md:h-16 flex flex-col items-center">
+        {/* Column 1-2: Integrated Swinging ID Assembly */}
+        <div className="md:col-span-2 relative h-[75vh] md:h-16 flex flex-col items-center mb-[12vh] md:mb-0">
           <div className="absolute inset-0 flex flex-col items-center">
             
             {/* 3D Swinging Assembly - Static */}
@@ -86,7 +100,7 @@ export default function HomeExperimental() {
               <div className="w-4 h-1 bg-white z-[60] shadow-[0_0_15px_rgba(255,255,255,0.5)] shrink-0" />
               
               {/* Integrated Thread (Lanyard) - Connects Anchor to Card */}
-              <div className="w-[12px] h-20 md:h-12 bg-white opacity-80 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50" />
+              <div className="w-[12px] h-[15vh] md:h-5 bg-white opacity-80 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50" />
 
               {/* Flippable Card Container - Now sits directly at the end of the lace */}
               <div 
@@ -110,7 +124,7 @@ export default function HomeExperimental() {
                   opacity: { duration: 0.5, delay: 0.2 }
                 }}
                 style={{ transformStyle: "preserve-3d", originY: 0 }}
-                className="relative w-[286px] min-h-[446px]"
+                className="relative w-[75vw] md:w-[286px] min-h-[60vh] md:min-h-[446px]"
               >
               {/* FRONT FACE */}
               <div 
@@ -125,8 +139,8 @@ export default function HomeExperimental() {
                 
                 <div className="flex flex-col gap-6 w-full items-center mt-4">
                   <div className="flex flex-col items-center">
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">OP_HASH_{codenameHash}</span>
-                    <span className="text-sm font-black tracking-tighter uppercase">#{user?._id?.slice(-12) || 'UNKNOWN-ID'}</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">{user?.username?.split('#')[0].toUpperCase() || 'OPERATIVE'}_ID</span>
+                    <span className="text-sm font-black tracking-tighter uppercase opacity-80">OP_HASH_{codenameHash}</span>
                   </div>
 
                   <div className="h-[1px] bg-white/10 w-full" />
@@ -207,13 +221,29 @@ export default function HomeExperimental() {
                 </div>
               </div>
             </motion.div>
+
+            {/* Mobile Scroll Indicator - Flickers and only appears at top */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ 
+                opacity: isAtTop ? [0, 0.6, 0.3, 0.8, 0] : 0,
+                y: isAtTop ? [0, 5, 0] : 0
+              }}
+              transition={{ 
+                opacity: { duration: 3, repeat: Infinity, ease: "linear" },
+                y: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+              }}
+              className="absolute -bottom-[35px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
+            >
+              <span className="text-[9px] font-black uppercase tracking-[0.5em] whitespace-nowrap">Scroll Down</span>
+            </motion.div>
           </div>
         </motion.div>
       </div>
     </div>
 
-        {/* Column 4-5: Habit Tracker Panel */}
-        <div className="hidden md:flex md:col-span-2 flex-col bg-white/[0.02] rounded-sm p-8 min-h-[30rem] hover:bg-white/[0.04] transition-all group relative overflow-hidden">
+        {/* Column 3-5: Habit Tracker Panel */}
+        <div className="flex md:col-span-3 flex-col bg-white/[0.02] rounded-sm p-8 min-h-[30rem] hover:bg-white/[0.04] transition-all group relative overflow-hidden">
           <ChippedBorder opacity={0.7} />
           
           <div className="mb-10 flex justify-between items-center">
@@ -445,9 +475,6 @@ export default function HomeExperimental() {
         </motion.div>
       </div>
 
-      {/* Decorative vertical lines */}
-      <div className="hidden md:block fixed left-4 top-0 bottom-0 w-[1px] bg-white/[0.03] pointer-events-none" />
-      <div className="hidden md:block fixed left-8 top-0 bottom-0 w-[1px] bg-white/[0.03] pointer-events-none" />
     </div>
   );
 }

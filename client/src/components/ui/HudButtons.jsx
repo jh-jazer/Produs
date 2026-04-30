@@ -6,10 +6,10 @@ export default function HudButtons({ onRpgClick, onPartnerClick, variant = 'dash
     return (
       <div className="fixed top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none">
         <motion.button
-          whileHover={{ x: -2, width: '4.8vw' }}
+          whileHover={{ x: -2, width: '10vw' }}
           whileTap={{ scale: 0.95 }}
           onClick={onRpgClick}
-          className="w-[4.2vw] h-14 bg-white flex items-center justify-center pointer-events-auto group overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all rounded-l-md"
+          className="w-[10vw] md:w-[4.2vw] h-[8vh] bg-white flex items-center justify-center pointer-events-auto group overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all rounded-l-md"
         >
           <div className="flex flex-row items-center justify-center gap-1 pr-1">
             <span className="material-symbols-outlined text-black transition-opacity text-lg !hidden md:!inline-block">play_arrow</span>
@@ -25,10 +25,10 @@ export default function HudButtons({ onRpgClick, onPartnerClick, variant = 'dash
     <div className="fixed top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none">
       {/* RPG Protocol Button */}
       <motion.button
-        whileHover={{ x: -2, width: '40px md:4.8vw' }}
+        whileHover={{ x: -2, width: '10vw' }}
         whileTap={{ scale: 0.95 }}
         onClick={onRpgClick}
-        className="w-10 md:w-[4.2vw] h-14 bg-white flex items-center justify-center pointer-events-auto group overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all rounded-l-md"
+        className="w-[10vw] md:w-[4.2vw] h-[8vh] bg-white flex items-center justify-center pointer-events-auto group overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all rounded-l-md"
       >
         <div className="flex flex-row items-center justify-center gap-1 pr-1">
           <span className="material-symbols-outlined text-black transition-opacity text-lg !hidden md:!inline-block">videogame_asset</span>
@@ -40,10 +40,10 @@ export default function HudButtons({ onRpgClick, onPartnerClick, variant = 'dash
 
       {/* Partner Protocol Button */}
       <motion.button
-        whileHover={{ x: -2, width: '40px md:4.8vw' }}
+        whileHover={{ x: -2, width: '10vw' }}
         whileTap={{ scale: 0.95 }}
         onClick={onPartnerClick}
-        className="w-10 md:w-[4.2vw] h-14 bg-white flex items-center justify-center pointer-events-auto group overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all rounded-l-md"
+        className="w-[10vw] md:w-[4.2vw] h-[8vh] bg-white flex items-center justify-center pointer-events-auto group overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all rounded-l-md"
       >
         <div className="flex flex-row items-center justify-center gap-1 pr-1">
           <span className="material-symbols-outlined text-black transition-opacity text-lg !hidden md:!inline-block">group</span>
