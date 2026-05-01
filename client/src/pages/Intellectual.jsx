@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../store/useAuthStore';
 import { useHabits } from '../hooks/useHabits';
 import { usePlanner } from '../hooks/usePlanner';
+import WorkspaceSidebar from '../components/ui/WorkspaceSidebar';
 
 // UI Components
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
@@ -43,15 +44,15 @@ const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) =>
 );
 
 const Intellectual = () => {
-    const { user, viewMode } = useAuthStore();
+    const { user } = useAuthStore();
+    const { viewMode } = useContext(DashboardContext);
     const [activeDate, setActiveDate] = useState(new Date());
+    const { tasks, addTask, deleteTask } = usePlanner(activeDate);
     const [currentFilter, setCurrentFilter] = useState('All');
     const [activeTab, setActiveTab] = useState('priority'); 
-    const [isFlipped, setIsFlipped] = useState(false);
     const { setMobileTabs } = useContext(DashboardContext);
 
     const { habits, isLoading: habitsLoading, toggleCheck, addHabit, deleteHabit, updateHabit, reorderHabits } = useHabits();
-    const plannerData = usePlanner();
 
     const tabs = [
         { id: 'priority', label: 'Priority', icon: 'stars' },
@@ -91,99 +92,99 @@ const Intellectual = () => {
     if (habitsLoading && habits.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-white p-8 pt-0 md:p-12 font-sans overflow-x-hidden">
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key="intellectual-hud"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex flex-col gap-8 md:gap-12 mt-4"
-                >
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        
-                        {/* Primary Column (3-Col Grid Style) */}
-                        <div className={`lg:col-span-4 flex flex-col gap-8 ${['priority', 'planner'].includes(activeTab) ? 'block' : 'hidden lg:flex'}`}>
+        <div className="w-full bg-transparent text-white p-8 pt-0 md:p-12 font-sans overflow-x-hidden flex flex-col md:flex-row items-start gap-8 md:gap-12">
+            <WorkspaceSidebar 
+                tabs={tabs} 
+                activeTab={activeTab} 
+                setActiveTab={setActiveTab} 
+                namespace="Intellectual" 
+            />
+
+            <div className="flex-1">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex flex-col gap-8 md:gap-12"
+                    >
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                             
-                            {/* Flippable Tactical Panel */}
-                            <div className="relative w-full" style={{ perspective: '2000px' }}>
-                                <motion.div
-                                    animate={{ rotateY: isFlipped ? 180 : 0 }}
-                                    transition={{ duration: 0.7, type: 'spring', stiffness: 100, damping: 20 }}
-                                    style={{ transformStyle: 'preserve-3d' }}
-                                    className="relative w-full min-h-[500px]"
-                                >
-                                    {/* FRONT: Priority Directives */}
-                                    <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
-                                        <HUDPanel title="Priority // DIRECTIVES" subtitle="Core_Objectives_Current">
-                                            <Priority viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => setIsFlipped(true)} />
+                            {/* Tab Content Division */}
+                            <div className="lg:col-span-12">
+                                {/* PRIORITY DIVISION */}
+                                {activeTab === 'priority' && (
+                                    <div className="max-w-4xl mx-auto w-full">
+                                        <HUDPanel title="PRIORITY LIST" subtitle="DAILY TOP OBJECTIVES">
+                                            <Priority viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => setActiveTab('planner')} />
                                         </HUDPanel>
                                     </div>
-                                    
-                                    {/* BACK: Daily Schedule */}
-                                    <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
-                                        <HUDPanel title="Timeline // ALLOCATION" subtitle="Hourly_Block_Sync">
-                                            <DailySchedule viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => setIsFlipped(false)} />
+                                )}
+
+                                {/* PLANNER DIVISION */}
+                                {activeTab === 'planner' && (
+                                    <div className="max-w-5xl mx-auto w-full">
+                                        <HUDPanel title="DAILY PLANNER" subtitle="BLOCK SCHEDULE">
+                                            <DailySchedule viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => setActiveTab('priority')} />
                                         </HUDPanel>
                                     </div>
-                                </motion.div>
-                            </div>
+                                )}
 
-                        </div>
+                                {/* TRACKER DIVISION */}
+                                {activeTab === 'tracker' && (
+                                    <HUDPanel title="HABIT TRACKER" subtitle="CONSISTENCY LOG">
+                                        <HabitTracker
+                                            activeDate={activeDate}
+                                            onDateChange={changeWeek}
+                                            currentFilter={currentFilter}
+                                            onFilterChange={setCurrentFilter}
+                                            habits={habits}
+                                            myHabits={myHabits}
+                                            partnerHabits={partnerHabits}
+                                            checks={checks}
+                                            isPartnerView={viewMode === 'partner'}
+                                            partnerName={user?.partner?.name}
+                                            isLoading={habitsLoading}
+                                            toggleCheck={toggleCheck}
+                                            addHabit={addHabit}
+                                            deleteHabit={deleteHabit}
+                                            updateHabit={updateHabit}
+                                            reorderHabits={reorderHabits}
+                                            myUserId={user?._id}
+                                        />
+                                    </HUDPanel>
+                                )}
 
-                        {/* Secondary Column (Right - Expanded) */}
-                        <div className={`lg:col-span-8 flex flex-col gap-8 ${['calendar', 'tracker'].includes(activeTab) ? 'block' : 'hidden lg:flex'}`}>
-                            
-                            {/* Central Matrix - Habit Tracker */}
-                            <div className={activeTab === 'tracker' ? 'block' : 'hidden lg:block'}>
-                                <HUDPanel title="Matrix // CONSISTENCY" subtitle="Neural_Habit_Loops">
-                                    <HabitTracker
-                                        activeDate={activeDate}
-                                        onDateChange={changeWeek}
-                                        currentFilter={currentFilter}
-                                        onFilterChange={setCurrentFilter}
-                                        habits={habits}
-                                        myHabits={myHabits}
-                                        partnerHabits={partnerHabits}
-                                        checks={checks}
-                                        isPartnerView={viewMode === 'partner'}
-                                        partnerName={user?.partner?.name}
-                                        isLoading={habitsLoading}
-                                        toggleCheck={toggleCheck}
-                                        addHabit={addHabit}
-                                        deleteHabit={deleteHabit}
-                                        updateHabit={updateHabit}
-                                        reorderHabits={reorderHabits}
-                                        myUserId={user?._id}
-                                    />
-                                </HUDPanel>
-                            </div>
+                                {/* CALENDAR DIVISION */}
+                                {activeTab === 'calendar' && (
+                                    <HUDPanel title="CALENDAR" subtitle="MONTHLY VIEW">
+                                        <FullCalendar onDateSelect={setActiveDate} selectedDate={activeDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                                    </HUDPanel>
+                                )}
 
-                            {/* Tactical Schedule - Monthly View */}
-                            <div className={activeTab === 'calendar' ? 'block' : 'hidden lg:block'}>
-                                <HUDPanel title="Schedule // TEMPORAL" subtitle="Long_Range_Planning">
-                                    <FullCalendar onDateSelect={setActiveDate} selectedDate={activeDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
-                                </HUDPanel>
-                            </div>
-
-                            {/* Strategic Node - Goal Setting */}
-                            <div className={activeTab === 'goals' ? 'block' : 'hidden lg:block'}>
-                                <HUDPanel title="Strategy // OBJECTIVES" subtitle="Mid_Term_Parameters">
-                                    <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
-                                </HUDPanel>
+                                {/* GOALS DIVISION */}
+                                {activeTab === 'goals' && (
+                                    <div className="max-w-4xl mx-auto w-full">
+                                        <HUDPanel title="KEY GOALS" subtitle="LONG TERM OBJECTIVES">
+                                            <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
+                                        </HUDPanel>
+                                    </div>
+                                )}
                             </div>
                         </div>
-                    </div>
 
-                    {/* System Metadata Footer */}
-                    <div className="mt-16 pt-8 border-t border-white/5 flex justify-between items-center opacity-20">
-                      <span className="text-[8px] font-black uppercase tracking-[0.5em]">Produs_Intellectual_Interface_v0.2</span>
-                      <div className="flex gap-2">
-                        {[1,2,3,4,5,6].map(i => <div key={i} className="size-1 bg-white rounded-full" />)}
-                      </div>
-                    </div>
-                </motion.div>
-            </AnimatePresence>
+                        {/* System Metadata Footer */}
+                        <div className="mt-16 pt-8 border-t border-white/5 flex justify-between items-center opacity-20">
+                          <span className="text-[8px] font-black uppercase tracking-[0.5em]">PRODUS INTELLECTUAL WORKSPACE v0.2</span>
+                          <div className="flex gap-2">
+                            {[1,2,3,4,5,6].map(i => <div key={i} className="size-1 bg-white rounded-full" />)}
+                          </div>
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
         </div>
     );
 };

@@ -96,91 +96,90 @@ const JournalHub = ({ entries = [], onAction }) => {
 
     return (
         <div className="w-full text-left">
-            <DashboardPanel 
-                title={panelTitle} 
-                subtitle={panelSubtitle} 
-                icon={isWriting ? PenTool : Database} 
-                showZap 
-                headerExtra={backButton}
-            >
-                <AnimatePresence mode="wait">
-                    {!isWriting ? (
-                        <motion.div
-                            key="history"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, x: -10 }}
-                            transition={{ duration: 0.3 }}
-                            className="space-y-6"
+            <div className="flex justify-end mb-6">
+                {backButton}
+            </div>
+            
+            <AnimatePresence mode="wait">
+                {!isWriting ? (
+                    <motion.div
+                        key="history"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className="space-y-6"
+                    >
+                        <JournalHistory 
+                            entries={recentEntries} 
+                            onAction={onAction}
+                            onSelectEntry={handleSelectEntry}
                         >
-                            <JournalHistory 
-                                entries={recentEntries} 
-                                onAction={onAction}
-                                onSelectEntry={handleSelectEntry}
+                            {/* Write Journal Card */}
+                            <button
+                                onClick={handleWriteNew}
+                                className="group relative rounded-sm bg-white/[0.03] border border-white/10 hover:border-white/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[160px] w-full mb-6"
                             >
-                                {/* Write Journal Card */}
-                                <button
-                                    onClick={handleWriteNew}
-                                    className="group relative rounded-3xl bg-primary/5 dark:bg-primary/5 border-2 border-dashed border-primary/30 hover:border-primary/60 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[160px] w-full mb-6"
-                                >
-                                    {/* Left Side: Image (1/4) */}
-                                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-slate-100 dark:bg-white/5 border-r border-slate-100 dark:border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
-                                        <img 
-                                            src="/assets/journal_default_cover.png" 
-                                            alt="New Entry" 
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" 
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10 dark:to-black/30 pointer-events-none" />
-                                    </div>
+                                {/* Left Side: Image (1/4) */}
+                                <div className="w-1/4 relative shrink-0 overflow-hidden bg-white/5 border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                                    <img 
+                                        src="/assets/journal_default_cover.png" 
+                                        alt="New Entry" 
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" 
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/30 pointer-events-none" />
+                                </div>
 
-                                    {/* Right Side: Content (3/4) */}
-                                    <div className="flex-1 p-5 flex flex-col justify-between">
-                                        <div>
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:rotate-12 transition-transform">
-                                                        <PenTool size={20} />
-                                                    </div>
-                                                    <div>
-                                                        <span className="flex items-center gap-1 px-1.5 py-1 rounded bg-cyan-500/10 text-cyan-500 text-[10px] font-black uppercase tracking-widest border border-cyan-500/20">
-                                                            <span className="material-symbols-outlined text-[12px] animate-pulse">timer</span>
-                                                            {timeLeft} WINDOW
-                                                        </span>
-                                                    </div>
+                                {/* Right Side: Content (3/4) */}
+                                <div className="flex-1 p-8 flex flex-col justify-between">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="size-10 rounded-sm bg-white/5 flex items-center justify-center text-white/60 group-hover:rotate-12 transition-transform border border-white/10">
+                                                    <PenTool size={20} />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">TIME REMAINING</span>
+                                                    <span className="text-xs font-bold text-white tracking-widest">{timeLeft}</span>
                                                 </div>
                                             </div>
-
-                                            {/* Entry Title */}
-                                            <h4 className="text-sm font-black text-primary dark:text-blue-400 uppercase tracking-tight mt-10 mb-1">
-                                                New Field Note: Today
-                                            </h4>
                                         </div>
 
-                                        {/* Footer Decor */}
-                                        <div className="flex items-center justify-end mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
-                                            <div className="h-0.5 w-12 bg-primary rounded-full animate-pulse" />
-                                        </div>
+                                        {/* Entry Title */}
+                                        <h4 className="text-xl font-black text-white uppercase tracking-tighter italic mt-4">
+                                            WRITE NEW ENTRY
+                                        </h4>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">LOG YOUR THOUGHTS</span>
                                     </div>
-                                </button>
-                            </JournalHistory>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="editor"
-                            initial={{ opacity: 0, x: 10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -10 }}
-                            transition={{ duration: 0.3 }}
-                            className="space-y-6"
-                        >
-                            <JournalEntry 
-                                onAction={handleAction} 
-                                initialEntry={editingEntry}
-                            />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </DashboardPanel>
+
+                                    {/* Footer Decor */}
+                                    <div className="flex items-center justify-end mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
+                                        <div className="h-[2px] w-12 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]" />
+                                    </div>
+                                </div>
+                            </button>
+                        </JournalHistory>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="editor"
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className="space-y-6"
+                    >
+                        <div className="flex flex-col gap-1 mb-8">
+                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">{panelSubtitle}</span>
+                            <h3 className="text-2xl font-black uppercase tracking-tighter italic text-white">{panelTitle}</h3>
+                        </div>
+                        <JournalEntry 
+                            onAction={handleAction} 
+                            initialEntry={editingEntry}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

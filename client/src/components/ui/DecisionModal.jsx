@@ -1,21 +1,20 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * DecisionModal – A premium, wide-format decision modal for the Produs system.
- * 
- * Props:
- *   isOpen       – boolean
- *   title        – string  (e.g. "Recalibrate System")
- *   message      – string  (e.g. "Do you wish to proceed with the update?")
- *   confirmLabel – string  (default "PROCEED")
- *   cancelLabel  – string  (default "ABORT")
- *   onConfirm    – () => void
- *   onCancel     – () => void
- */
+const ChippedBorder = ({ opacity = 0.8 }) => (
+  <div 
+    className="absolute inset-[-2px] rounded-sm pointer-events-none z-0"
+    style={{
+      border: '4px solid white',
+      opacity,
+      clipPath: 'polygon(0% 0%, 15% 0%, 16% 2%, 18% 0%, 42% 0%, 43% 4%, 45% 0%, 78% 0%, 79% 2%, 81% 0%, 100% 0%, 100% 20%, 98% 22%, 100% 24%, 100% 55%, 97% 58%, 100% 61%, 100% 100%, 82% 100%, 81% 97%, 79% 100%, 38% 100%, 37% 96%, 35% 100%, 0% 100%, 0% 80%, 3% 78%, 0% 76%, 0% 35%, 2% 33%, 0% 31%)'
+    }}
+  />
+);
+
 const DecisionModal = ({
     isOpen,
-    title = 'Confirm Decision',
+    title = 'SYSTEM DECISION',
     message = 'Are you sure you want to proceed with this action?',
     confirmLabel = 'PROCEED',
     cancelLabel = 'ABORT',
@@ -31,49 +30,46 @@ const DecisionModal = ({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute inset-0 bg-black/60 backdrop-blur-xl"
+                        transition={{ duration: 0.3 }}
+                        className="absolute inset-0 bg-black/80 backdrop-blur-md"
                         onClick={onCancel}
                     />
-
-                    {/* Dialog Container */}
+ 
+                    {/* Dialog Container - Operative Panel Design */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.98, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.98, y: 10 }}
-                        transition={{ type: 'spring', damping: 30, stiffness: 400 }}
-                        className="relative z-10 w-full max-w-lg bg-white dark:bg-[#080808] rounded-3xl shadow-[0_40px_120px_rgba(0,0,0,0.8)] border border-black/[0.05] dark:border-white/[0.05] overflow-hidden"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        className="relative z-10 w-full max-w-xl bg-[#080808] p-10 md:p-12 rounded-sm group overflow-hidden border border-white/5 shadow-[0_50px_100px_-20px_rgba(0,0,0,1)]"
                     >
-                        {/* Thin accent line at the top */}
-                        <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                        <ChippedBorder opacity={0.4} />
+                        
+                        <div className="relative z-10">
 
-                        <div className="p-6 md:p-8 flex flex-col items-center text-center">
-                            {/* Message - Cinematic Loader Style */}
-                            <p className="text-[10px] md:text-[11px] font-bold leading-[2] tracking-[0.5em] text-black dark:text-white uppercase max-w-xl mb-8">
-                                "{message}"
-                            </p>
+                            {/* Message */}
+                            <div className="mb-12">
+                                <p className="text-[12px] md:text-[14px] font-bold leading-relaxed tracking-[0.2em] text-white/80 uppercase">
+                                    {message}
+                                </p>
+                            </div>
 
                             {/* Decision Actions */}
-                            <div className="flex flex-row gap-4 w-full max-w-md">
+                            <div className="flex flex-row gap-6 w-full">
                                 <button
                                     onClick={onCancel}
-                                    className="flex-1 py-4 rounded-2xl bg-transparent border border-black/[0.05] dark:border-white/[0.05] text-black/40 dark:text-white/30 font-black uppercase tracking-[0.3em] text-[10px] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] hover:text-black dark:hover:text-white transition-all active:scale-[0.98]"
+                                    className="flex-1 py-4 bg-white/5 border border-white/10 text-white/40 font-black uppercase tracking-[0.4em] text-[9px] hover:bg-white/10 hover:text-white transition-all active:scale-[0.98] rounded-sm"
                                 >
                                     {cancelLabel}
                                 </button>
                                 <button
                                     onClick={onConfirm}
-                                    className="flex-1 py-4 rounded-2xl bg-transparent border border-primary/30 text-primary font-black uppercase tracking-[0.3em] text-[10px] hover:bg-primary/5 transition-all active:scale-[0.98]"
+                                    className="flex-1 py-4 bg-white text-black font-black uppercase tracking-[0.4em] text-[9px] hover:bg-white/90 transition-all active:scale-[0.98] rounded-sm relative overflow-hidden"
                                 >
+                                    <div className="absolute top-0 right-0 w-2 h-2 bg-black rotate-45 translate-x-1 -translate-y-1" />
                                     {confirmLabel}
                                 </button>
                             </div>
-                        </div>
-
-                        {/* Aesthetic Footer Detail */}
-                        <div className="h-1 w-full bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-between px-10">
-                            <div className="h-full w-20 bg-primary/20" />
-                            <div className="h-full w-20 bg-primary/20" />
                         </div>
                     </motion.div>
                 </div>

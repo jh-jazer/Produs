@@ -67,22 +67,6 @@ const MobileTabNav = ({ tabs, activeTab, setActiveTab, variant = 'floating' }) =
                                 <Icon size={isHeader ? 16 : 22} strokeWidth={2.5} />
                             )}
                         </div>
-                        
-                        {/* Tooltip-like label appearing on active */}
-                        {!isHeader && (
-                            <AnimatePresence>
-                                {activeTab === tab.id && (
-                                    <motion.span
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-[9px] font-semibold uppercase tracking-[0.3em] rounded-lg shadow-xl pointer-events-none whitespace-nowrap border border-black/10 dark:border-white/10"
-                                    >
-                                        {tab.label}
-                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black dark:border-t-white" />
-                                    </motion.span>
-                                )}
-                            </AnimatePresence>
-                        )}
                     </button>
                 );
             })}

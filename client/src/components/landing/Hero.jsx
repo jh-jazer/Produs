@@ -41,11 +41,10 @@ const Hero = () => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 0.3, y: 0 }}
-        transition={{ duration: 1, delay: 2.5 }}
+        transition={{ duration: 1.2, delay: 0.5 }}
         className="absolute bottom-12 w-full px-12 flex justify-between items-end hero-footer"
       >
         <div className="flex flex-col gap-3 items-start">
-          <Terminal size={18} className="text-electric-blue" />
           <span className="text-[9px] tracking-[0.3em] font-mono uppercase">produs_main_v2.0.1</span>
         </div>
       </motion.div>

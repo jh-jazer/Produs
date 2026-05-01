@@ -99,7 +99,7 @@ const HabitChallenge = () => {
                                             </span>
                                         ) : (
                                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap ml-2 font-mono">
-                                                {challenge.daysLeft}{typeof challenge.daysLeft === 'number' ? 'D_LEFT' : ''}
+                                                {challenge.daysLeft}{typeof challenge.daysLeft === 'number' ? ' DAYS LEFT' : ''}
                                             </span>
                                         )}
                                     </div>

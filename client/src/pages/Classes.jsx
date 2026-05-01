@@ -109,11 +109,31 @@ const StatRadar = ({ stats, color }) => {
   );
 };
 
+import WorkspaceSidebar from '../components/ui/WorkspaceSidebar';
+import { useNavigate } from 'react-router-dom';
+
 export default function Classes() {
+  const navigate = useNavigate();
   const [selectedPath, setSelectedPath] = useState(null);
   const [selectedTier1, setSelectedTier1] = useState(null);
   const [selectedOutcome, setSelectedOutcome] = useState(null);
   const [filter, setFilter] = useState('');
+
+  const landingTabs = [
+    { id: "hub", label: "HUB", icon: "home", path: "/" },
+    { id: "about", label: "ABOUT", icon: "info", path: "/manual" },
+    { id: "classes", label: "CLASSES", icon: "school", path: "/classes" },
+    { id: "patches", label: "PATCHES", icon: "history", path: "/updates" }
+  ];
+
+  const [activeLandingTab] = useState("classes");
+
+  const handleLandingTabClick = (id) => {
+    const tab = landingTabs.find(t => t.id === id);
+    if (tab && tab.path) {
+      navigate(tab.path);
+    }
+  };
 
   // Generate viewable items based on drill-down state
   const viewItems = useMemo(() => {
@@ -172,51 +192,37 @@ export default function Classes() {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-primary/30 overflow-x-hidden">
-      {/* HUD Scanner Background */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03]">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent animate-pulse" />
+      {/* Hero Sidebar */}
+      <div className="fixed left-6 md:left-12 top-[50%] -translate-y-1/2 z-[100] pointer-events-auto">
+          <WorkspaceSidebar 
+            tabs={landingTabs}
+            activeTab={activeLandingTab}
+            setActiveTab={handleLandingTabClick}
+            namespace="Classes"
+          />
       </div>
-
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full z-[100] px-6 md:px-12 py-8 flex items-center bg-black/50 backdrop-blur-xl border-b border-white/5">
-        <Link to="/" className="group flex items-center gap-4">
-          <div className="size-10 rounded-full border border-white/10 flex items-center justify-center group-hover:border-primary transition-all backdrop-blur-md">
-            <ChevronLeft size={16} className="text-white/60 group-hover:text-primary group-hover:-translate-x-1 transition-all" />
-          </div>
-          <span className="hidden md:inline-block text-[10px] uppercase tracking-[0.6em] text-white/40 group-hover:text-white transition-colors">Return</span>
-        </Link>
-        <div className="mx-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-4 group">
-          <div className="relative">
-            <div className="absolute inset-x-0 bottom-0 top-1/2 bg-white/5 blur-md rounded-full group-hover:bg-white/10 transition-colors duration-500 opacity-0 group-hover:opacity-100 scale-150" />
-            <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-white mt-1">Produs</span>
-
-          </div>
-        </div>
-        
-      </nav>
-
-      <main className="max-w-7xl mx-auto px-6 pt-48 pb-32 relative z-10">
+      <main className="max-w-4xl mx-auto px-6 pt-32 pb-32 relative z-10">
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
           className="space-y-32"
         >
           {/* Hero Section */}
-          <section className="text-center space-y-8 relative">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[60vw] bg-primary/10 blur-[200px] rounded-full pointer-events-none" />
+          <section className="space-y-8 relative">
+            <div className="absolute -left-[50%] top-0 size-[50vw] bg-primary/5 blur-[150px] rounded-full pointer-events-none" />
             <div className="space-y-4">
               <span className="text-[10px] uppercase tracking-[0.8em] text-primary/60 font-mono">System Protocol // 96_MOD</span>
-              <h1 className="text-4xl md:text-8xl font-thin uppercase tracking-[0.3em] leading-[1.1]">
-                Evolution <br/><span className="text-white/20">Explorer</span>
+              <h1 className="text-4xl md:text-6xl font-thin uppercase tracking-[0.3em] leading-tight">
+                Evolution <br/><span className="text-white/30">Explorer</span>
               </h1>
             </div>
-            <p className="text-white/40 text-sm md:text-lg leading-relaxed font-light mx-auto max-w-3xl font-outfit">
+            <p className="text-white/60 text-sm md:text-base leading-relaxed max-w-2xl font-light">
               Explore the 96 unique outcomes of the Apocalypse Archetype System. Your path is defined by Path Selection, Tier 1 Specialty, Style, and Alignment.
             </p>
 
             {/* Axis Reference */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-20 pt-16 border-t border-white/5">
+            <div className="grid grid-cols-2 gap-4 mt-20 pt-16 border-t border-white/5">
               {AXES.map((axis, i) => (
                 <div key={i} className="text-left group relative p-4 hover:bg-white/5 transition-all rounded-lg border border-transparent hover:border-white/5">
                   <div className="absolute top-0 left-0 size-2 border-t border-l border-primary/40" />
@@ -272,8 +278,8 @@ export default function Classes() {
                 />
               </div>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <AnimatePresence mode="popLayout">
                 {filteredItems.map((item, idx) => (
                   <motion.div
@@ -421,11 +427,11 @@ export default function Classes() {
               initial={{ opacity: 0, y: 100, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 100, scale: 0.9 }}
-              className="w-full max-w-6xl bg-[#080808] border border-white/10 rounded-2xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)] relative z-10"
+              className="w-full max-w-6xl max-h-[90vh] bg-[#080808] border border-white/10 rounded-2xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)] relative z-10 flex flex-col"
             >
-              <div className="grid grid-cols-1 lg:grid-cols-2">
+              <div className="grid grid-cols-1 lg:grid-cols-2 h-full overflow-hidden">
                 {/* Left: Stats & Radar */}
-                <div className="p-8 md:p-12 bg-black/40 border-r border-white/5 relative overflow-hidden">
+                <div className="p-8 md:p-12 bg-black/40 border-r border-white/5 relative overflow-y-auto custom-scrollbar">
                   <div className="absolute -top-12 -left-12 size-64 bg-primary/5 blur-[100px] rounded-full" />
                   
                   <div className="relative z-10 space-y-12">
@@ -462,7 +468,7 @@ export default function Classes() {
                 </div>
 
                 {/* Right: Info, Perks, Evolution */}
-                <div className="p-8 md:p-12 space-y-12 max-h-[85vh] overflow-y-auto custom-scrollbar">
+                <div className="p-8 md:p-12 space-y-12 overflow-y-auto custom-scrollbar">
                   <section className="space-y-4">
                     <span className="text-[10px] uppercase tracking-[0.5em] text-primary/60 font-mono">_TACTICAL_LORE</span>
                     <p className="text-lg md:text-xl font-light text-white/90 leading-relaxed font-outfit">

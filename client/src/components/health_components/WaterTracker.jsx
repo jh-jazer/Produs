@@ -27,20 +27,12 @@ const WaterTracker = ({ metrics, addHealthLog, deleteHealthLog }) => {
     };
 
     return (
-        <div className="p-5 rounded-[24px] border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] flex flex-col gap-4 relative overflow-hidden group">
+        <div className="flex flex-col gap-4 relative group">
             <div className="flex justify-between items-center relative z-10">
-                <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
-                        <span className="material-symbols-outlined">water_drop</span>
-                    </div>
-                    <div>
-                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">Hydration</h4>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Daily Water Intake</p>
-                    </div>
-                </div>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">WATER INTAKE</span>
                 <button
                     onClick={() => setIsAdding(!isAdding)}
-                    className="size-8 rounded-xl bg-slate-50 dark:bg-white/5 text-slate-400 hover:text-blue-500 transition-colors flex items-center justify-center"
+                    className="size-8 rounded-sm border border-white/10 text-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center"
                 >
                     <span className="material-symbols-outlined text-lg">{isAdding ? 'close' : 'add'}</span>
                 </button>
@@ -54,27 +46,24 @@ const WaterTracker = ({ metrics, addHealthLog, deleteHealthLog }) => {
                             step="0.1"
                             value={waterAmount}
                             onChange={(e) => setWaterAmount(e.target.value)}
-                            placeholder="Amount in Liters (e.g. 2.5)"
+                            placeholder="LITERS..."
                             autoFocus
-                            className="w-full bg-slate-50 dark:bg-[#000000] border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-blue-500/50 transition-all font-bold placeholder:font-medium"
+                            className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-sm text-white outline-none focus:border-white/40 transition-all font-black uppercase tracking-widest placeholder:opacity-20"
                         />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">Liters</span>
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-white/20 uppercase tracking-widest">L</span>
                     </div>
-                    <button type="submit" className="w-full py-3 bg-blue-500 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                        Log Intake
+                    <button type="submit" className="w-full py-3 bg-white text-black rounded-sm text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/90 active:scale-[0.98] transition-all">
+                        SAVE LOG
                     </button>
                 </form>
             ) : (
-                <div className="flex items-baseline gap-2 relative z-10 mt-2">
-                    <span className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+                <div className="flex items-baseline gap-4 relative z-10">
+                    <span className="text-6xl font-black text-white tracking-tighter italic">
                         {latest?.details?.value || '0.0'}
                     </span>
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Liters Today</span>
+                    <span className="text-xs font-black text-white/40 uppercase tracking-[0.3em]">LITERS TOTAL</span>
                 </div>
             )}
-
-            {/* Subtle background decoration */}
-            <div className="absolute -right-4 -bottom-4 size-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-blue-400/10 transition-colors" />
         </div>
     );
 };

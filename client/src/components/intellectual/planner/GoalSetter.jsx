@@ -77,9 +77,9 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
             </button>
             <ConfirmDialog
                 isOpen={!!confirmDelete}
-                title="TERMINATE_OBJECTIVE"
-                message="Objective will be removed from strategic database."
-                confirmLabel="TERMINATE"
+                title="DELETE GOAL"
+                message="This goal will be permanently removed from your list."
+                confirmLabel="DELETE"
                 onConfirm={() => { deleteGoalLocal(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
@@ -115,7 +115,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
             {filteredGoals.length > 0 && (
                 <div className="flex flex-col gap-2">
                     <div className="flex justify-between text-[10px] font-black tracking-widest text-white/40">
-                        <span>PROGRESS // COMPLETION</span>
+                        <span>GOAL COMPLETION</span>
                         <span>{progress}%</span>
                     </div>
                     <div className="h-1 bg-white/5 rounded-full overflow-hidden">
@@ -129,7 +129,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                 {filteredGoals.length === 0 ? (
                     <div className="py-12 border border-dashed border-white/5 flex flex-col items-center gap-4 opacity-10">
                         <span className="material-symbols-outlined text-4xl">target</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest">Awaiting_Objectives...</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">NO GOALS DEFINED</span>
                     </div>
                 ) : (
                     filteredGoals.map(goal => (
@@ -158,7 +158,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                     <div className="relative w-full max-w-md bg-[#0a0a0a] border-4 border-white p-8 shadow-[0_0_100px_rgba(255,255,255,0.1)]">
                         <div className="flex justify-between items-start mb-8">
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">INITIALIZE // STRATEGIC_NODE</span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">ADD NEW GOAL</span>
                                 <h3 className="text-2xl font-black uppercase tracking-tighter italic">Define Target</h3>
                             </div>
                             <button onClick={() => setIsAdding(false)} className="text-white/40 hover:text-white"><span className="material-symbols-outlined">close</span></button>
@@ -168,12 +168,12 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                             <input 
                                 value={newGoalTitle}
                                 onChange={e => setNewGoalTitle(e.target.value)}
-                                placeholder="TARGET_IDENTIFIER..."
+                                placeholder="GOAL NAME..."
                                 className="w-full bg-white/5 border border-white/10 p-4 text-sm font-black uppercase tracking-widest focus:border-white transition-all outline-none"
                                 autoFocus
                             />
                             <button onClick={addGoal} className="w-full py-6 bg-white text-black font-black uppercase tracking-[0.5em] text-xs hover:bg-white/90 active:scale-95 transition-all">
-                                ESTABLISH_OBJECTIVE
+                                SAVE GOAL
                             </button>
                         </div>
                     </div>

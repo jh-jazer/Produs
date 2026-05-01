@@ -247,9 +247,9 @@ const JournalEntry = ({ onAction, initialEntry }) => {
                     </div>
                     <div className="text-center">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] block">
-                            {loading ? 'MODULATING_UPLINK...' : 'Attach image'}
+                            {loading ? 'UPLOADING...' : 'Attach image'}
                         </span>
-                        <span className="text-[8px] font-bold text-slate-400 tracking-widest opacity-60">System Optimized Upload</span>
+                        <span className="text-[8px] font-bold text-slate-400 tracking-widest opacity-60">Standard Upload</span>
                     </div>
                 </button>
             )}
@@ -355,7 +355,7 @@ const JournalEntry = ({ onAction, initialEntry }) => {
                             disabled={loading || !content.trim()}
                             className="px-8 py-2.5 rounded-xl bg-black dark:bg-white text-white dark:text-slate-900 text-[11px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all disabled:opacity-30 shadow-xl shadow-black/10 active:scale-95 flex items-center gap-2"
                         >
-                            {loading ? 'MODULATING...' : 'Confirm'}
+                            {loading ? 'SAVING...' : 'Confirm'}
                         </button>
                     </div>
                 </div>

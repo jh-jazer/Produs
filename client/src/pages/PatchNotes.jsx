@@ -1,11 +1,30 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, GitCommit, Rocket, Wrench } from 'lucide-react';
 import Logo from '../components/brand/Logo';
 import Footer from '../components/landing/Footer';
+import WorkspaceSidebar from '../components/ui/WorkspaceSidebar';
 
 export default function PatchNotes() {
+  const navigate = useNavigate();
+
+  const landingTabs = [
+    { id: "hub", label: "HUB", icon: "home", path: "/" },
+    { id: "about", label: "ABOUT", icon: "info", path: "/manual" },
+    { id: "classes", label: "CLASSES", icon: "school", path: "/classes" },
+    { id: "patches", label: "PATCHES", icon: "history", path: "/updates" }
+  ];
+
+  const [activeLandingTab] = useState("patches");
+
+  const handleLandingTabClick = (id) => {
+    const tab = landingTabs.find(t => t.id === id);
+    if (tab && tab.path) {
+      navigate(tab.path);
+    }
+  };
+
   const updates = [
     {
       version: "v1.2.0",
@@ -53,25 +72,21 @@ export default function PatchNotes() {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-electric-blue/30 overflow-x-hidden">
+      {/* Hero Sidebar */}
+      <div className="fixed left-6 md:left-12 top-[50%] -translate-y-1/2 z-[100] pointer-events-auto">
+          <WorkspaceSidebar 
+            tabs={landingTabs}
+            activeTab={activeLandingTab}
+            setActiveTab={handleLandingTabClick}
+            namespace="Patches"
+          />
+      </div>
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-6 md:py-10 flex items-center bg-black/50 backdrop-blur-md">
-        <Link to="/" className="group flex items-center gap-3 md:gap-4 cursor-pointer">
-          <div className="size-8 md:size-10 rounded-full border border-white/30 flex items-center justify-center group-hover:border-current transition-all">
-            <ChevronLeft size={14} className="text-white/80 group-hover:text-current group-hover:-translate-x-1 transition-all" />
-          </div>
-          <span className="hidden md:inline-block font-normal text-[10px] uppercase tracking-[0.5em] text-white/80 group-hover:text-current transition-colors">Return</span>
-        </Link>
-        <Link to="/manual" className="flex items-center gap-4 group mx-auto absolute left-1/2 -translate-x-1/2">
-          <div className="relative">
-            <div className="absolute inset-x-0 bottom-0 top-1/2 bg-white/5 blur-md rounded-full group-hover:bg-white/10 transition-colors duration-500 opacity-0 group-hover:opacity-100 scale-150" />
-            <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-white mt-1">Produs</span>
-
-          </div>
-        </Link>
+      <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-4 flex items-center bg-black/50 backdrop-blur-md">
       </nav>
 
       {/* Content */}
-      <main className="max-w-4xl mx-auto px-6 pt-40 pb-32">
+      <main className="max-w-4xl mx-auto px-6 pt-24 pb-32">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

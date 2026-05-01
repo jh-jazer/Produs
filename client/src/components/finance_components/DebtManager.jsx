@@ -77,16 +77,16 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                 onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="min-h-[300px] flex flex-col">
-            <div className="flex items-center justify-end mb-6">
-                <button
-                    onClick={() => setShowAdd(true)}
-                    className="size-8 rounded-lg bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-none"
-                    title="Add Record"
-                >
-                    <span className="material-symbols-outlined text-lg">add</span>
-                </button>
-            </div>
+            <div className="min-h-[300px] flex flex-col gap-6">
+                <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">CASH FLOW TRACKER</span>
+                    <button
+                        onClick={() => setShowAdd(true)}
+                        className="size-8 rounded-sm border border-white/10 text-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center"
+                    >
+                        <span className="material-symbols-outlined text-lg">add</span>
+                    </button>
+                </div>
             {/* Summary Totals */}
             {debts.length > 0 && (() => {
                 // Calculate Monthly Statistics including Recurring items
@@ -137,132 +137,99 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                 }
                 const displayNet = displayIncome - displayDebt;
 
-                return (
-                <div className="mb-6 p-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-[#121212]/20 flex flex-col gap-3">
-                    <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Report View</p>
-                        <select 
-                            value={summaryView}
-                            onChange={(e) => setSummaryView(e.target.value)}
-                            className="text-[10px] font-black uppercase bg-white dark:bg-[#000000] border-none rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary shadow-none cursor-pointer dark:text-slate-300"
-                        >
-                            <option value="overall">Overall Total</option>
-                            {availableMonths.map(m => (
-                                <option key={m} value={m}>{m} Report</option>
-                            ))}
-                        </select>
-                    </div>
+                    return (
+                        <div className="p-8 rounded-sm border border-white/5 bg-white/[0.02] flex flex-col gap-4">
+                            <div className="flex items-center justify-between mb-4">
+                                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">TIME FRAME</span>
+                                <select 
+                                    value={summaryView}
+                                    onChange={(e) => setSummaryView(e.target.value)}
+                                    className="text-[10px] font-black uppercase bg-white/5 border border-white/10 rounded-sm px-3 py-1 outline-none text-white cursor-pointer hover:bg-white/10 transition-all"
+                                >
+                                    <option value="overall">TOTAL OVERVIEW</option>
+                                    {availableMonths.map(m => (
+                                        <option key={m} value={m}>{m.toUpperCase()} REPORT</option>
+                                    ))}
+                                </select>
+                            </div>
 
-                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                        <span className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            Incoming
-                        </span>
-                        <span className="text-emerald-500">+{currencySymbol}{displayIncome.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                        <span className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                            Outbound
-                        </span>
-                        <span className="text-rose-500">-{currencySymbol}{displayDebt.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center mt-1 bg-white dark:bg-[#000000] p-3 rounded-xl border border-slate-100 dark:border-white/10/50 shadow-none transition-all">
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Net Flow</span>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
-                                {summaryView === 'overall' ? 'Available Balance' : `${summaryView} Outlook`}
-                            </span>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">INCOMING</span>
+                                    <span className="text-xl font-black text-white italic">+{currencySymbol}{displayIncome.toLocaleString()}</span>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">OUTBOUND</span>
+                                    <span className="text-xl font-black text-white/40 italic">-{currencySymbol}{displayDebt.toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 pt-6 border-t border-white/5 flex justify-between items-center">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.4em]">NET CASH FLOW</span>
+                                </div>
+                                <span className={`text-3xl font-black tracking-tighter italic ${displayNet >= 0 ? 'text-white' : 'text-rose-500'}`}>
+                                    {displayNet >= 0 ? '+' : '-'}{currencySymbol}{Math.abs(displayNet).toLocaleString()}
+                                </span>
+                            </div>
                         </div>
-                        <div className="flex flex-col items-end">
-                            <span className={`text-lg font-black tracking-tight ${
-                                displayNet >= 0 ? 'text-emerald-500' : 'text-rose-500'
-                            }`}>
-                                {displayNet >= 0 ? '+' : '-'}{currencySymbol}{Math.abs(displayNet).toLocaleString()}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                );
+                    );
             })()}
 
-            <div className="space-y-4 flex-1">
-                {sortedDebts.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-8 text-slate-400 h-full">
-                        <span className="material-symbols-outlined text-4xl mb-2 opacity-20">contract</span>
-                        <p className="text-xs font-bold uppercase tracking-widest text-slate-300">Clean Slate</p>
-                    </div>
-                ) : (
-                    sortedDebts.map(debt => {
-                        const isIncome = debt.nature === 'income';
-                        return (
-                            <div key={debt._id} className={`group p-4 rounded-xl border transition-all ${
-                                isIncome 
-                                    ? 'bg-emerald-50/30 dark:bg-emerald-500/5 border-emerald-100 dark:border-emerald-800/30 hover:border-emerald-500/30' 
-                                    : 'bg-slate-50/50 dark:bg-[#121212]/20 border-slate-100 dark:border-white/10 hover:border-primary/20'
-                            }`}>
-                                <div className="flex justify-between items-start">
-                                    <div className="flex flex-col">
-                                        <div className="flex items-center gap-2">
-                                            <span className={`material-symbols-outlined text-sm ${isIncome ? 'text-emerald-500' : 'text-slate-400'}`}>
-                                                {isIncome ? 'trending_up' : 'trending_down'}
-                                            </span>
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{debt.title}</span>
-                                                {debt.isPending && (
-                                                    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-tighter border border-amber-500/20">
-                                                        <span className="material-symbols-outlined text-[8px] animate-spin">sync</span>
-                                                        Pending
+                <div className="space-y-3 flex-1 mt-4">
+                    {sortedDebts.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 opacity-10 gap-4">
+                            <span className="material-symbols-outlined text-4xl">contract</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.4em]">NO CASH FLOW ENTRIES</span>
+                        </div>
+                    ) : (
+                        sortedDebts.map(debt => {
+                            const isIncome = debt.nature === 'income';
+                            return (
+                                <div key={debt._id} className="group p-5 rounded-sm border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all">
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-center gap-3">
+                                                <span className={`material-symbols-outlined text-sm ${isIncome ? 'text-white' : 'text-white/20'}`}>
+                                                    {isIncome ? 'trending_up' : 'trending_down'}
+                                                </span>
+                                                <span className="text-[11px] font-black text-white uppercase tracking-wider">{debt.title}</span>
+                                                <button
+                                                    onClick={() => setConfirmDelete(debt._id)}
+                                                    className="opacity-0 group-hover:opacity-100 text-white/10 hover:text-rose-500 transition-all p-1"
+                                                >
+                                                    <span className="material-symbols-outlined text-base">delete</span>
+                                                </button>
+                                            </div>
+                                            <div className="flex items-center gap-4 text-[9px] font-black text-white/20 uppercase tracking-widest">
+                                                {debt.dueDate && (
+                                                    <span className="flex items-center gap-1">
+                                                        <span className="material-symbols-outlined text-[10px]">calendar_today</span>
+                                                        {isIncome ? 'ETA' : 'DUE'}: {new Date(debt.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                                     </span>
                                                 )}
+                                                {debt.isMonthly && <span>RECURRING {debt.monthsLeft} REMAINING</span>}
                                             </div>
-                                            <button
-                                                onClick={() => setConfirmDelete(debt._id)}
-                                                className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-rose-500 transition-all p-0.5"
-                                            >
-                                                <span className="material-symbols-outlined text-base">delete</span>
-                                            </button>
                                         </div>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            {debt.dueDate && (
-                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                                                    <span className="material-symbols-outlined text-[10px]">calendar_today</span>
-                                                    {isIncome ? 'Expected' : 'Due'}: {new Date(debt.dueDate).toLocaleDateString('default', { month: 'short', day: 'numeric' })}
-                                                </span>
+                                        <div className="flex flex-col items-end gap-1">
+                                            <span className={`text-xl font-black italic ${isIncome ? 'text-white' : 'text-white/20'}`}>
+                                                {isIncome ? '+' : '-'}{currencySymbol}{debt.amount.toLocaleString()}
+                                            </span>
+                                            {!isIncome && (
+                                                <button
+                                                    onClick={() => { setShowPayModal(debt); setPayAmount(''); }}
+                                                    className="px-3 py-1 bg-white/5 hover:bg-white hover:text-black border border-white/10 rounded-sm text-[8px] font-black uppercase tracking-widest transition-all mt-2"
+                                                >
+                                                    PAY
+                                                </button>
                                             )}
                                         </div>
                                     </div>
-                                    <div className="flex flex-col items-end">
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                                            {isIncome ? 'Incoming' : 'Outbound'}
-                                        </p>
-                                        <span className={`text-base font-black ${isIncome ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                            {isIncome ? '+' : '-'}{currencySymbol}{debt.amount.toLocaleString()}
-                                        </span>
-                                        {debt.isMonthly && (
-                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">
-                                                Monthly • {debt.monthsLeft || '0'} left
-                                            </span>
-                                        )}
-                                    </div>
                                 </div>
-                                
-                                {!isIncome && (
-                                    <button
-                                        onClick={() => {
-                                            setShowPayModal(debt);
-                                            setPayAmount('');
-                                        }}
-                                        className="w-full mt-4 py-2 bg-white dark:bg-[#000000] border border-slate-200 dark:border-white/10 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-[#121212] transition-colors dark:text-slate-300 shadow-none"
-                                    >
-                                        Make Payment
-                                    </button>
-                                )}
-                            </div>
-                        );
-                    })
-                )}
-            </div>
+                            );
+                        })
+                    )}
+                </div>
 
 
             {/* Add Record Modal */}
@@ -449,7 +416,7 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                         </div>
 
                         <button type="submit" className="w-full py-3 bg-emerald-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all">
-                            Confirm Payment
+                            CONFIRM PAYMENT
                         </button>
                     </form>
                     </DashboardPanel>

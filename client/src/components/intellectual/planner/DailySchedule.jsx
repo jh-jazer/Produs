@@ -103,9 +103,9 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
             </div>
             <ConfirmDialog
                 isOpen={!!confirmDelete}
-                title="PURGE_NODE"
-                message="Confirm deletion of scheduled activity node."
-                confirmLabel="PURGE"
+                title="DELETE ACTIVITY"
+                message="Are you sure you want to delete this activity? This cannot be undone."
+                confirmLabel="DELETE"
                 onConfirm={() => { handleDeleteTask(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
@@ -184,8 +184,8 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                     <div className="relative w-full max-w-md bg-[#0a0a0a] border-4 border-white p-8 shadow-[0_0_100px_rgba(255,255,255,0.1)]">
                         <div className="flex justify-between items-start mb-8">
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">INITIALIZE // TIMELINE_NODE</span>
-                                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Add Objective</h3>
+                                <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">ADD NEW ACTIVITY</span>
+                                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Schedule Task</h3>
                             </div>
                             <button onClick={() => setIsAdding(false)} className="text-white/40 hover:text-white"><span className="material-symbols-outlined">close</span></button>
                         </div>
@@ -194,24 +194,24 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                             <input 
                                 value={newHabit.title}
                                 onChange={e => setNewHabit({...newHabit, title: e.target.value})}
-                                placeholder="OBJECTIVE_IDENTIFIER..."
+                                placeholder="ACTIVITY NAME..."
                                 className="w-full bg-white/5 border border-white/10 p-4 text-sm font-black uppercase tracking-widest focus:border-white transition-all outline-none"
                                 autoFocus
                             />
                             
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-2">
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-white/20">START_TIMESTAMP</span>
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-white/20">START TIME</span>
                                     <input type="time" value={newHabit.startTime} onChange={e => setNewHabit({...newHabit, startTime: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-white font-mono text-sm" />
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-white/20">END_TIMESTAMP</span>
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-white/20">END TIME</span>
                                     <input type="time" value={newHabit.endTime} onChange={e => setNewHabit({...newHabit, endTime: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-white font-mono text-sm" />
                                 </div>
                             </div>
 
                             <button onClick={handleAddTask} className="mt-4 w-full py-6 bg-white text-black font-black uppercase tracking-[0.5em] text-xs hover:bg-white/90 active:scale-95 transition-all">
-                                ALLOCATE_BLOCK
+                                SAVE ACTIVITY
                             </button>
                         </div>
                     </div>

@@ -51,7 +51,7 @@ const Priority = ({
 
       {/* Active Now Section */}
       <div className="flex flex-col gap-4">
-        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/20">STATUS // ACTIVE_NOW</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/20">CURRENT STATUS</span>
         {activeTask ? (
           <motion.div 
             initial={{ opacity: 0, x: -10 }}
@@ -62,7 +62,7 @@ const Priority = ({
               <span className="material-symbols-outlined text-[80px]">bolt</span>
             </div>
             <div className="relative z-10 flex flex-col gap-1">
-              <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-40">PRIORITY_NODE</span>
+              <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-40">ACTIVE TASK</span>
               <h5 className="text-2xl font-black uppercase tracking-tighter leading-none">{activeTask.title}</h5>
               <div className="flex items-center gap-2 mt-4 text-[10px] font-bold opacity-60 italic">
                 <span className="material-symbols-outlined text-xs">schedule</span>
@@ -73,7 +73,7 @@ const Priority = ({
         ) : (
           <div className="p-8 border-2 border-dashed border-white/5 rounded-sm flex flex-col items-center justify-center text-center gap-2 opacity-30">
             <span className="material-symbols-outlined text-3xl">terminal</span>
-            <span className="text-[10px] font-black uppercase tracking-widest">Awaiting_Command...</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">NO ACTIVE TASKS</span>
           </div>
         )}
       </div>
@@ -81,7 +81,7 @@ const Priority = ({
       {/* Briefing Section */}
       {!isCompact && (
         <div className="flex flex-col gap-6">
-          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/20">LOG // DAILY_BRIEFING</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/20">DAILY BRIEFING</span>
           <div className="flex flex-col gap-3">
             {events.length > 0 && events.map((event) => (
               <div key={event._id} className="flex items-center gap-4 p-4 bg-white/[0.03] border border-white/5 rounded-sm group hover:bg-white/[0.05] transition-all">
@@ -120,7 +120,7 @@ const Priority = ({
               events.length === 0 && (
                 <div className="flex flex-col items-center gap-2 py-8 opacity-10">
                   <span className="material-symbols-outlined text-2xl">inbox</span>
-                  <span className="text-[9px] font-black uppercase tracking-widest">No_Additional_Nodes</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest">CLEAR FOR TODAY</span>
                 </div>
               )
             )}

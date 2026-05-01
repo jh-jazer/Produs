@@ -31,180 +31,157 @@ const WorkoutTracker = ({ workouts, addHealthLog, deleteHealthLog }) => {
     return (
         <div className="flex flex-col gap-6 relative">
             <div className="flex justify-between items-center">
-                <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Workout Tracker</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-bold tracking-widest mt-1">Log physical activity</p>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">WORKOUT HISTORY</span>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setShowGuide(!showGuide)}
+                        className={`size-8 rounded-sm border transition-all flex items-center justify-center ${showGuide ? 'bg-white text-black border-white' : 'border-white/10 text-white/40 hover:bg-white/5'}`}
+                        title="Workout Guide"
+                    >
+                        <span className="material-symbols-outlined text-lg">menu_book</span>
+                    </button>
+                    <button
+                        onClick={() => setIsAdding(!isAdding)}
+                        className={`size-8 rounded-sm border transition-all flex items-center justify-center ${isAdding ? 'bg-white text-black border-white' : 'border-white/10 text-white/40 hover:bg-white/5'}`}
+                        title="New Workout"
+                    >
+                        <span className="material-symbols-outlined text-lg">{isAdding ? 'close' : 'add'}</span>
+                    </button>
                 </div>
-                <button
-                    onClick={() => setIsAdding(!isAdding)}
-                    className="p-2 rounded-lg bg-electric-blue/10 text-electric-blue hover:bg-electric-blue/20 transition-colors flex items-center gap-2"
-                >
-                    <span className="material-symbols-outlined text-[16px]">{isAdding ? 'close' : 'add'}</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:block">New Workout</span>
-                </button>
             </div>
 
             {isAdding && (
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4 rounded-xl bg-slate-50 dark:bg-[#000000]/50 border border-slate-100 dark:border-white/5 animate-in fade-in slide-in-from-top-2">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6 rounded-sm bg-white/[0.02] border border-white/10 animate-in fade-in slide-in-from-top-2">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="sm:col-span-2">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Workout Name</label>
+                        <div className="sm:col-span-2 space-y-2">
+                            <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">WORKOUT TITLE</label>
                             <input
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                className="w-full bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-lg p-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-electric-blue/50"
-                                placeholder="e.g., Morning Run, Weightlifting"
+                                className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-2 text-sm text-white focus:outline-none focus:border-white/40 font-black uppercase tracking-wider"
+                                placeholder="E.G. MORNING RUN"
                             />
                         </div>
-                        <div>
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Duration (min)</label>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">DURATION (MIN)</label>
                             <input
                                 type="number"
                                 value={duration}
                                 onChange={(e) => setDuration(e.target.value)}
-                                className="w-full bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-lg p-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-electric-blue/50"
-                                placeholder="e.g., 45"
+                                className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-2 text-sm text-white focus:outline-none focus:border-white/40 font-black"
+                                placeholder="45"
                             />
                         </div>
-                        <div>
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Body Part / Focus</label>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">BODY FOCUS</label>
                             <select
                                 value={targetArea}
                                 onChange={(e) => setTargetArea(e.target.value)}
-                                className="w-full bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-lg p-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-electric-blue/50"
+                                className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-2 text-sm text-white focus:outline-none focus:border-white/40 font-black uppercase tracking-wider cursor-pointer"
                             >
                                 <option value="full_body">Full Body</option>
                                 <option value="upper_body">Upper Body</option>
                                 <option value="lower_body">Lower Body</option>
-                                <option value="push">Push (Chest, Shoulders, Triceps)</option>
-                                <option value="pull">Pull (Back, Biceps)</option>
+                                <option value="push">Push</option>
+                                <option value="pull">Pull</option>
                                 <option value="legs">Legs</option>
                                 <option value="core">Core</option>
-                                <option value="cardio">Cardio / Endurance</option>
-                                <option value="mobility">Yoga / Mobility</option>
+                                <option value="cardio">Cardio</option>
+                                <option value="mobility">Mobility</option>
                             </select>
                         </div>
-                        <div>
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 block">Intensity</label>
-                            <select
-                                value={intensity}
-                                onChange={(e) => setIntensity(e.target.value)}
-                                className="w-full bg-white dark:bg-[#121212] border border-slate-200 dark:border-white/10 rounded-lg p-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-electric-blue/50"
-                            >
-                                <option value="low">Low (RPE 1-3)</option>
-                                <option value="moderate">Moderate (RPE 4-6)</option>
-                                <option value="vigorous">Vigorous (RPE 7-9)</option>
-                                <option value="high">High (RPE 10)</option>
-                            </select>
+                        <div className="sm:col-span-2 space-y-2">
+                            <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">INTENSITY LEVEL</label>
+                            <div className="grid grid-cols-4 gap-2">
+                                {['low', 'moderate', 'vigorous', 'high'].map(lvl => (
+                                    <button
+                                        key={lvl}
+                                        type="button"
+                                        onClick={() => setIntensity(lvl)}
+                                        className={`py-2 rounded-sm text-[9px] font-black uppercase tracking-widest border transition-all ${
+                                            intensity === lvl ? 'bg-white text-black border-white' : 'bg-white/5 text-white/20 border-white/10 hover:border-white/20'
+                                        }`}
+                                    >
+                                        {lvl}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                    <button type="submit" className="w-full py-2 bg-electric-blue text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-electric-blue/90 transition-colors">
-                        Save Workout
+                    <button type="submit" className="w-full py-3 bg-white text-black rounded-sm text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/90 transition-all border border-white/10">
+                        SAVE WORKOUT
                     </button>
                 </form>
             )}
 
-            <div className="flex justify-between items-center mt-2 border-b border-slate-100 dark:border-white/10 pb-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recent Logs</span>
-                <button onClick={() => setShowGuide(!showGuide)} className="text-[10px] font-bold text-electric-blue uppercase tracking-widest hover:opacity-80 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px]">menu_book</span>
-                    {showGuide ? 'Hide Guide' : 'Read Guide'}
-                </button>
-            </div>
-
             {showGuide && (
-                <div className="bg-slate-50 dark:bg-[#000000]/20 border border-slate-200 dark:border-white/10 p-5 rounded-xl text-xs md:text-sm text-slate-700 dark:text-slate-300 leading-relaxed overflow-y-auto max-h-[400px] custom-scrollbar mb-4 animate-in fade-in slide-in-from-top-2">
-                    <h4 className="text-sm font-bold text-electric-blue mb-3 uppercase tracking-widest">Choosing the Right Workout & Intensity</h4>
-                    <p className="mb-4">Choosing the right workout and intensity is a balancing act between your current fitness level, your specific goals, and how much time you can realistically commit. Instead of jumping into the most intense program you find online, it’s better to build a foundation that you can actually sustain.</p>
-                    
-                    <h5 className="font-bold text-slate-900 dark:text-white mt-4 mb-1">1. Define Your Primary Goal</h5>
-                    <ul className="list-disc pl-5 mb-4 space-y-1">
-                        <li><strong>Hypertrophy (Muscle Growth):</strong> Focus on resistance training (weights or calisthenics) with moderate reps (8–12) and sets.</li>
-                        <li><strong>Strength & Power:</strong> Focus on heavy weights with low reps (1–5) and longer rest periods.</li>
-                        <li><strong>Endurance & Cardiovascular Health:</strong> Focus on steady-state cardio (running, swimming) or High-Intensity Interval Training (HIIT).</li>
-                    </ul>
-
-                    <h5 className="font-bold text-slate-900 dark:text-white mt-4 mb-1">2. Determine Your Weekly Volume</h5>
-                    <p className="mb-2 italic opacity-80">Be honest about your schedule. It is better to commit to 3 days a week and hit them every time than to plan for 6 days and fail by Wednesday.</p>
-                    <ul className="list-disc pl-5 mb-4 space-y-1">
-                        <li><strong>Full Body (2–3 days/week):</strong> Great for beginners or busy schedules. You hit every major muscle group each session.</li>
-                        <li><strong>Upper/Lower Split (4 days/week):</strong> Allows for more focus on specific areas while providing ample recovery.</li>
-                        <li><strong>Push/Pull/Legs (3 or 6 days/week):</strong> An advanced split that categorizes movements by function.</li>
-                    </ul>
-
-                    <h5 className="font-bold text-slate-900 dark:text-white mt-4 mb-1">3. Gauging Your Intensity</h5>
-                    <p className="mb-2">Intensity isn't just about how much you sweat; it’s about the stress placed on your body.</p>
-                    <div className="bg-white dark:bg-[#121212] p-3 rounded-lg border border-slate-100 dark:border-white/5 mb-3">
-                        <strong className="text-electric-blue block mb-1">The RPE Scale (Rate of Perceived Exertion)</strong>
-                        <ul className="list-disc pl-5 space-y-1 text-xs">
-                            <li><strong>RPE 1–3:</strong> Very light (walking, active recovery).</li>
-                            <li><strong>RPE 4–6:</strong> Moderate (you can talk but not sing). Sweet spot for building a base.</li>
-                            <li><strong>RPE 7–9:</strong> Vigorous (difficult to speak, muscles burning). Where most growth happens.</li>
-                            <li><strong>RPE 10:</strong> Maximum effort (cannot do one more inch of movement). Use sparingly.</li>
-                        </ul>
-                    </div>
-                    
-                    <h5 className="font-bold text-slate-900 dark:text-white mt-4 mb-1">4. The Principle of Progressive Overload</h5>
-                    <p className="mb-2">Whatever you choose, the intensity must eventually increase. If you lift the same weight for the same reps every week, your body stops adapting. Every 1–2 weeks, try to:</p>
-                    <ul className="list-disc pl-5 mb-4 space-y-1">
-                        <li>Increase the weight slightly.</li>
-                        <li>Add one more repetition.</li>
-                        <li>Decrease your rest time between sets.</li>
-                    </ul>
-                    
-                    <div className="bg-rose-500/10 text-rose-600 dark:text-rose-400 p-3 rounded-lg border border-rose-500/20 text-xs mt-4">
-                        <strong>A Note on Recovery:</strong> Intensity is only effective if you can recover from it. If you find yourself constantly sore, irritable, or unable to sleep, your intensity is likely too high for your current recovery capacity (food and sleep).
+                <div className="bg-white/[0.02] border border-white/5 p-8 rounded-sm text-[11px] text-white/60 leading-relaxed overflow-y-auto max-h-[300px] custom-scrollbar animate-in fade-in slide-in-from-top-2">
+                    <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                        <span className="size-1.5 bg-white rounded-full animate-pulse" />
+                        WORKOUT GUIDE
+                    </h4>
+                    <div className="space-y-6">
+                        <section>
+                            <p className="font-black text-white uppercase tracking-widest mb-2 italic">01. TRAINING GOALS</p>
+                            <p>Define kinetic goals: Hypertrophy (Muscle), Strength (Power), or Endurance (Cardio). Align focus vectors with weekly operational capacity.</p>
+                        </section>
+                        <section>
+                            <p className="font-black text-white uppercase tracking-widest mb-2 italic">02. INTENSITY LEVELS (RPE)</p>
+                            <ul className="space-y-1">
+                                <li>GRADE_1-3: Active Recovery / Walking</li>
+                                <li>GRADE_4-6: Aerobic Base (Talking Possible)</li>
+                                <li>GRADE_7-9: Vigorous Operational Threshold</li>
+                                <li>GRADE_10: Maximum Physiological Limit</li>
+                            </ul>
+                        </section>
                     </div>
                 </div>
             )}
 
             <div className="flex flex-col gap-3">
                 {workouts.length > 0 ? workouts.map(workout => (
-                    <div key={workout._id} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-[#000000]/20 group transition-all hover:bg-slate-100 dark:hover:bg-[#000000]/40">
+                    <div key={workout._id} className="flex items-center justify-between p-4 rounded-sm border border-white/5 bg-white/[0.01] group transition-all hover:bg-white/[0.03] hover:border-white/10">
                         <div className="flex items-center gap-4">
-                            <div className={`size-10 rounded-full flex items-center justify-center bg-electric-blue/10 text-electric-blue`}>
-                                <span className="material-symbols-outlined text-xl">fitness_center</span>
+                            <div className="size-8 rounded-sm flex items-center justify-center bg-white/5 text-white/20 border border-white/5 group-hover:rotate-12 transition-transform">
+                                <span className="material-symbols-outlined text-sm">fitness_center</span>
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-sm font-bold text-slate-900 dark:text-white">{workout.title}</span>
-                                <div className="flex flex-wrap items-center gap-2 mt-1">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-md">
+                                <span className="text-[11px] font-black text-white uppercase tracking-wider">{workout.title}</span>
+                                <div className="flex flex-wrap items-center gap-3 mt-1">
+                                    <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/20">
                                         {workout.date}
                                     </span>
                                     {workout.details?.targetArea && (
-                                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-white/10 px-2 py-0.5 rounded-md border border-slate-200 dark:border-white/10">
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-white/40">
                                             {workout.details.targetArea.replace('_', ' ')}
                                         </span>
                                     )}
-                                    <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md ${
-                                        (workout.details?.intensity === 'vigorous' || workout.details?.intensity === 'high') ? 'bg-rose-500/10 text-rose-500' :
-                                        workout.details?.intensity === 'moderate' ? 'bg-amber-500/10 text-amber-500' :
-                                        'bg-emerald-500/10 text-emerald-500'
+                                    <span className={`text-[8px] font-black uppercase tracking-widest ${
+                                        (workout.details?.intensity === 'vigorous' || workout.details?.intensity === 'high') ? 'text-rose-500' : 'text-white/40'
                                     }`}>
                                         {workout.details?.intensity}
                                     </span>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <div className="text-right flex flex-col items-end">
-                                <span className="text-sm font-black text-slate-900 dark:text-white">{workout.details?.duration}</span>
-                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">MINS</span>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right flex items-baseline gap-2">
+                                <span className="text-lg font-black text-white italic">{workout.details?.duration}</span>
+                                <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">MINS</span>
                             </div>
                             <button
                                 onClick={() => deleteHealthLog(workout._id)}
-                                className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-rose-500 transition-all rounded-lg hover:bg-rose-500/10"
-                                aria-label="Delete workout"
+                                className="opacity-0 group-hover:opacity-100 size-6 flex items-center justify-center rounded-sm text-white/10 hover:text-rose-500 transition-all border border-white/5"
                             >
-                                <span className="material-symbols-outlined text-[18px]">delete</span>
+                                <span className="material-symbols-outlined text-sm">delete</span>
                             </button>
                         </div>
                     </div>
                 )) : (
-                    <div className="py-8 text-center bg-slate-50 dark:bg-[#000000]/20 rounded-2xl border border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center justify-center gap-2">
-                        <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 text-3xl">directions_run</span>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No workouts logged</p>
+                    <div className="py-12 text-center bg-white/[0.02] rounded-sm border border-dashed border-white/5 flex flex-col items-center justify-center gap-4 opacity-10">
+                        <span className="material-symbols-outlined text-4xl">directions_run</span>
+                        <p className="text-[10px] font-black uppercase tracking-[0.4em]">NO WORKOUTS RECORDED</p>
                     </div>
                 )}
             </div>

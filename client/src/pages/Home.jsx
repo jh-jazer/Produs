@@ -9,6 +9,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import RPGImmersiveOverlay from '../components/rpg/RPGImmersiveOverlay';
 import AwakeningOverlay from '../components/dashboard/AwakeningOverlay';
 import HabitChecklistHUD from '../components/dashboard/HabitChecklistHUD';
+import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 
 const ChippedBorder = ({ opacity = 0.8 }) => (
   <div 
@@ -124,12 +125,9 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex items-center justify-center min-h-[60vh]"
+            className="p-8 pt-0 md:p-12"
           >
-            <div className="flex flex-col items-center gap-4">
-              <div className="size-12 border-2 border-white/10 border-t-white rounded-full animate-spin" />
-              <span className="text-[10px] font-black uppercase tracking-[0.6em] opacity-20">Initializing_HUD</span>
-            </div>
+            <WorkspaceSkeleton />
           </motion.div>
         ) : (
           <motion.div

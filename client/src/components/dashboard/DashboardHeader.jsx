@@ -51,7 +51,7 @@ const DashboardHeader = ({ user }) => {
                                 }`}
                             >
                                 <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
-                                <span className="text-[10px] font-black uppercase tracking-widest font-mono">RPG_</span>
+                                <span className="hidden md:inline text-[10px] font-black uppercase tracking-widest font-mono">RPG_</span>
                                 {protocolMode !== 'rpg' && (
                                     <span className="absolute top-1 right-1 flex size-2">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
@@ -72,7 +72,7 @@ const DashboardHeader = ({ user }) => {
                             }`}
                         >
                             {viewMode === 'partner' ? <Handshake size={14} /> : <User size={14} />}
-                            <span className="text-[10px] font-black uppercase tracking-widest font-mono">LINK_</span>
+                            <span className="hidden md:inline text-[10px] font-black uppercase tracking-widest font-mono">LINK_</span>
                         </motion.button>
                     </div>
                 </div>

@@ -27,20 +27,19 @@ import Testimonials from "../components/landing/Testimonials";
 import CTA from "../components/landing/CTA";
 import ScrollIndicator from "../components/landing/ScrollIndicator";
 import HudButtons from "../components/ui/HudButtons";
-// removed LandingSplashScreen import
-
+import WorkspaceSidebar from "../components/ui/WorkspaceSidebar";
 import Lenis from "lenis";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 ScrollTrigger.config({ ignoreMobileResize: true });
 
 const SCENES_FEATURES = [
-  { id: "analytics", title: "ANALYTICS", label: "01 // SYSTEM METRICS", icon: Activity, description: "Real-time performance tracking and behavioral mapping for peak efficiency." },
-  { id: "feed", title: "VITALITY", label: "02 // VITALITY NEXUS", icon: Heart, description: "Intelligent health data synchronization to maintain your physical edge." },
-  { id: "habits", title: "HABITS", label: "03 // CONSISTENCY ENGINE", icon: Orbit, description: "Neural habit loops designed to automate your path to mastery." },
-  { id: "planner", title: "STRATEGY", label: "04 // STRATEGIC NODE", icon: Calendar, description: "Dynamic daily planning that adapts to your unique cognitive flow." },
-  { id: "finance", title: "CAPITAL", label: "05 // CAPITAL FLOW", icon: TrendingUp, description: "Complete financial overview with real-time asset and liability monitoring." },
-  { id: "journal", title: "CLARITY", label: "06 // MENTAL CLARITY", icon: Brain, description: "Unrestricted mental logging to offload and organize your internal thoughts." },
+  { id: "analytics", title: "ANALYTICS", label: "01 // SYSTEM METRICS", icon: "activity", description: "Real-time performance tracking and behavioral mapping for peak efficiency." },
+  { id: "feed", title: "VITALITY", label: "02 // VITALITY NEXUS", icon: "favorite", description: "Intelligent health data synchronization to maintain your physical edge." },
+  { id: "habits", title: "HABITS", label: "03 // CONSISTENCY ENGINE", icon: "cached", description: "Neural habit loops designed to automate your path to mastery." },
+  { id: "planner", title: "STRATEGY", label: "04 // STRATEGIC NODE", icon: "event", description: "Dynamic daily planning that adapts to your unique cognitive flow." },
+  { id: "finance", title: "CAPITAL", label: "05 // CAPITAL FLOW", icon: "trending_up", description: "Complete financial overview with real-time asset and liability monitoring." },
+  { id: "journal", title: "CLARITY", label: "06 // MENTAL CLARITY", icon: "psychology", description: "Unrestricted mental logging to offload and organize your internal thoughts." },
 ];
 
 const TESTIMONIALS = [
@@ -67,6 +66,35 @@ const TESTIMONIALS = [
   }
 ];
 
+const GlitchTitle = ({ progress, threshold, original, target }) => {
+  const [displayText, setDisplayText] = React.useState(original);
+  const [isGlitched, setIsGlitched] = React.useState(false);
+  
+  const chars = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+  React.useEffect(() => {
+    if (progress > threshold && !isGlitched) {
+      setIsGlitched(true);
+      let count = 0;
+      const interval = setInterval(() => {
+        setDisplayText(prev => 
+          target.split('').map((c, i) => Math.random() > 0.5 ? chars[Math.floor(Math.random() * chars.length)] : target[i]).join('')
+        );
+        count++;
+        if (count > 5) {
+          clearInterval(interval);
+          setDisplayText(target);
+        }
+      }, 50);
+    } else if (progress <= threshold && isGlitched) {
+      setIsGlitched(false);
+      setDisplayText(original);
+    }
+  }, [progress, threshold, original, target, isGlitched]);
+
+  return <span>{displayText}</span>;
+};
+
 export default function Landing() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
@@ -75,7 +103,6 @@ export default function Landing() {
   
   const handleStart = () => {
     startLoading();
-    // Navigate shortly after loader starts for a smooth transition
     setTimeout(() => {
       navigate(user ? "/dashboard" : "/auth");
     }, 1000); 
@@ -84,13 +111,26 @@ export default function Landing() {
   const [isLoaded, setIsLoaded] = useState(false);
   const containerRef = useRef(null);
   const [progress, setProgress] = useState(0);
+  const landingTabs = [
+    { id: "hub", label: "HUB", icon: "home", path: "/" },
+    { id: "about", label: "ABOUT", icon: "info", path: "/manual" },
+    { id: "classes", label: "CLASSES", icon: "school", path: "/classes" },
+    { id: "patches", label: "PATCHES", icon: "history", path: "/updates" }
+  ];
 
-  // 0. Wait for initial-loader to be removed from the view
+  const [activeLandingTab, setActiveLandingTab] = useState("hub");
+
+  const handleLandingTabClick = (id) => {
+    const tab = landingTabs.find(t => t.id === id);
+    if (tab && tab.path) {
+      navigate(tab.path);
+    }
+  };
+
   useEffect(() => {
     const checkLoader = () => {
       const loader = document.getElementById('initial-loader');
       if (!loader || loader.classList.contains('fade-out')) {
-        // Wait a small buffer for the fade-out transition to clear
         setTimeout(() => setIsLoaded(true), 500);
       } else {
         setTimeout(checkLoader, 200);
@@ -99,11 +139,20 @@ export default function Landing() {
     checkLoader();
   }, []);
 
-  // 1. GSAP Scrollytelling Timeline - Wait for isLoaded to ensure DOM is stable
   useEffect(() => {
     if (!isLoaded) return;
 
     const ctx = gsap.context(() => {
+      // Entrance Animation (Non-scroll)
+      gsap.from(".hero-sidebar", { 
+        opacity: 0, 
+        x: -40, 
+        duration: 1.2, 
+        delay: 0.5, 
+        ease: "power3.out" 
+      });
+
+      // TIMELINE CALIBRATION
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
@@ -116,87 +165,61 @@ export default function Landing() {
         }
       });
 
-      tl.to(".scene-awakening", { opacity: 1, duration: 3 }, 0);
-      tl.to(".parallax-line-2", { opacity: 0, y: -80, duration: 3 }, 2);
-      tl.to(".parallax-line-3", { opacity: 0, y: -120, duration: 3 }, 2);
-      tl.to(".text-let-it-pass", { opacity: 0, y: -160, duration: 3 }, 2);
-      tl.to(".hero-footer", { opacity: 0, y: 50, duration: 3 }, 2);
-      tl.to(".scene-dimmer", { opacity: 0, duration: 5 }, 28);
-      tl.to(".scene-awakening", { opacity: 0, pointerEvents: "none", duration: 1 }, 4);
+      // 01: INTRO SEQUENCE (0-10)
+      tl.to(".scene-awakening", { opacity: 1, duration: 2 }, 0);
+      tl.to(".hero-sidebar", { opacity: 1, x: 0, duration: 1 }, 0);
+      tl.to(".parallax-line-2", { opacity: 0, y: -80, duration: 3 }, 5);
+      tl.to(".parallax-line-3", { opacity: 0, y: -120, duration: 3 }, 5);
+      tl.to(".text-let-it-pass", { opacity: 0, y: -160, duration: 3 }, 5);
+      tl.to(".hero-footer", { opacity: 0, y: 50, duration: 3 }, 5);
+      tl.to(".hero-sidebar", { opacity: 0, y: 50, pointerEvents: "none", duration: 3 }, 5);
+      tl.to(".scene-awakening", { opacity: 0, pointerEvents: "none", duration: 2 }, 10);
+      tl.to(".hero-video", { opacity: 0, duration: 4 }, 18);
 
-      // Transitional Scene: Reality
-      tl.fromTo(".scene-reality", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 2 }, 5);
-      tl.to(".scene-reality", { opacity: 0, y: -20, duration: 4 }, 8);
+      // 02: REALITY PHASE (10-22)
+      tl.fromTo(".scene-reality", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 3 }, 10);
+      tl.to(".scene-reality", { opacity: 0, y: -20, duration: 4 }, 18);
 
-      // Mockups Scene Reveal (13% - 32%)
-      tl.to(".scene-mockups", { opacity: 1, duration: 4 }, 13);
-      tl.fromTo(".mockup-desktop", { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 6, ease: "power2.out" }, 14);
-      tl.fromTo(".mockup-mobile", { y: 150, opacity: 0 }, { y: 0, opacity: 1, duration: 6, ease: "power2.out" }, 15);
-      tl.to(".scene-mockups", { opacity: 0, y: -50, duration: 4, ease: "power2.in" }, 28);
+      // 03: MOCKUP INTERFACE (22-40)
+      tl.to(".scene-mockups", { opacity: 1, duration: 3 }, 22);
+      tl.fromTo(".mockup-desktop", { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 5, ease: "power2.out" }, 24);
+      tl.fromTo(".mockup-mobile", { y: 150, opacity: 0 }, { y: 0, opacity: 1, duration: 5, ease: "power2.out" }, 26);
+      tl.to(".scene-mockups", { opacity: 0, y: -50, duration: 4, ease: "power2.in" }, 36);
 
-      // Cross-fade background videos
-      tl.to(".hero-video", { opacity: 0, duration: 3 }, 10);
-      tl.to(".features-video", { opacity: 1, duration: 5 }, 32);
-      // Second Hero (Features) Reveal
-      tl.fromTo(".detail-features", { opacity: 0, y: 50, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 6, ease: "power2.out" }, 35);
-      tl.to(".detail-features", { opacity: 0, y: -50, scale: 1.05, duration: 4, ease: "power2.in" }, 45);
+      // 04: CORE CAPABILITIES (40-55)
+      tl.to(".features-video", { opacity: 1, duration: 5 }, 40);
+      tl.fromTo(".detail-features", { opacity: 0, y: 50, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 6, ease: "power2.out" }, 42);
+      tl.to(".detail-features", { opacity: 0, y: -50, scale: 1.05, duration: 4, ease: "power2.in" }, 50);
 
-      // Quadrant Features Sequence
+      // 05: THE PILLARS (55-75)
       tl.to(".quadrant-intellectual", { opacity: 1, y: 0, duration: 4 }, 55);
-      tl.to(".quadrant-spiritual", { opacity: 1, y: 0, duration: 4 }, 57);
-      tl.to(".quadrant-physical", { opacity: 1, y: 0, duration: 4 }, 59);
+      tl.to(".quadrant-physical", { opacity: 1, y: 0, duration: 4 }, 58);
       tl.to(".quadrant-financial", { opacity: 1, y: 0, duration: 4 }, 61);
+      tl.to(".quadrant-spiritual", { opacity: 1, y: 0, duration: 4 }, 64);
+      tl.to(".scene-quadrants", { opacity: 0, duration: 4 }, 71);
+      tl.to(".features-video", { opacity: 0, duration: 4 }, 71);
 
-      // Fade out all quadrants and the background video
-      tl.to(".scene-quadrants", { opacity: 0, duration: 4 }, 66);
-      tl.to(".features-video", { opacity: 0, duration: 4 }, 66);
-
-      // Gamified System Reveal
-      tl.fromTo(".scene-gamified", { opacity: 0 }, { opacity: 1, duration: 4, ease: "power2.out" }, 69);
-      // Parallax stagger for header
-      tl.fromTo(".gamified-header", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 4, ease: "power2.out" }, 69);
-      // Parallax stagger for rows
-      tl.fromTo(".gamified-row-1", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 3, ease: "power2.out" }, 69.5);
-      tl.fromTo(".gamified-row-2", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 3, ease: "power2.out" }, 70.5);
-      tl.fromTo(".gamified-row-3", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 3, ease: "power2.out" }, 71.5);
-      tl.fromTo(".gamified-row-4", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 3, ease: "power2.out" }, 72.5);
-      tl.to(".scene-gamified", { opacity: 0, y: -50, scale: 1.1, duration: 4, ease: "power2.in" }, 78);
-
-      // Testimonials Reveal (Horizontal Row)
-      tl.fromTo(".scene-testimonials", { opacity: 0 }, { opacity: 1, duration: 4, ease: "power2.out" }, 84);
+      // 06: SOCIAL PROOF (75-92)
+      tl.fromTo(".scene-testimonials", { opacity: 0 }, { opacity: 1, duration: 4, ease: "power2.out" }, 75);
+      tl.fromTo(".testimonials-header", { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 4, ease: "power2.out" }, 75);
+      tl.fromTo(".testimonial-panel-1", { opacity: 0, x: -300, rotate: -15 }, { opacity: 1, x: 0, rotate: 0, duration: 4, ease: "power3.out" }, 77);
+      tl.fromTo(".testimonial-panel-2", { opacity: 0, y: 300, rotate: 10 }, { opacity: 1, y: 0, rotate: 0, duration: 4, ease: "power3.out" }, 79);
+      tl.fromTo(".testimonial-panel-3", { opacity: 0, x: 300, rotate: 15 }, { opacity: 1, x: 0, rotate: 0, duration: 4, ease: "power3.out" }, 81);
+      tl.to(".scene-testimonials", { opacity: 0, scale: 1.2, duration: 4 }, 88);
       
-      // Header: from Top
-      tl.fromTo(".testimonials-header", { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 4, ease: "power2.out" }, 84);
-
-      // Panel 1: from Left
-      tl.fromTo(".testimonial-panel-1", { opacity: 0, x: -300, rotate: -15 }, { opacity: 1, x: 0, rotate: 0, duration: 4, ease: "power3.out" }, 84.5);
-      
-      // Panel 2: from Bottom
-      tl.fromTo(".testimonial-panel-2", { opacity: 0, y: 300, rotate: 10 }, { opacity: 1, y: 0, rotate: 0, duration: 4, ease: "power3.out" }, 85.5);
-      
-      // Panel 3: from Right
-      tl.fromTo(".testimonial-panel-3", { opacity: 0, x: 300, rotate: 15 }, { opacity: 1, x: 0, rotate: 0, duration: 4, ease: "power3.out" }, 86.5);
-
-      tl.to(".scene-testimonials", { opacity: 0, scale: 1.2, duration: 3 }, 93);
-
-      
-      // CTA Reveal
-      tl.to(".scene-cta", { opacity: 1, pointerEvents: "auto", duration: 4 }, 95);
-      tl.to(".scene-cta", { pointerEvents: "auto", duration: 0.1 }, 97.5);
+      // 07: FINAL PROTOCOL (92-100)
+      tl.to(".scene-cta", { opacity: 1, pointerEvents: "auto", duration: 4 }, 92);
+      tl.to(".scene-cta", { pointerEvents: "auto", duration: 0.1 }, 98);
     }, containerRef);
     return () => ctx.revert();
   }, [isLoaded]);
 
-  // 2. Glow Cursor Logic
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   useEffect(() => {
     const handleMouseMove = (e) => setMousePosition({ x: e.clientX, y: e.clientY });
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
-
-  // 3. Lenis Scrolling Initialization
-
 
   const handleNavigate = (targetProgress) => {
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -231,7 +254,6 @@ export default function Landing() {
     gsap.ticker.add(tickerRAF);
     gsap.ticker.lagSmoothing(0);
 
-    // Initial refresh to sync positions
     refreshTimeoutRef.current = setTimeout(() => {
         if (!isUnmounted && typeof ScrollTrigger !== 'undefined') {
             ScrollTrigger.refresh();
@@ -242,21 +264,11 @@ export default function Landing() {
       isUnmounted = true;
       if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
       document.documentElement.classList.remove("no-scrollbar");
-      
-      // Stop ticker and scroll processing IMMEDIATELY
       gsap.ticker.remove(tickerRAF);
       lenis.off('scroll', updateScrollTrigger);
-      
-      // Clear GSAP's internal refresh/scroll memory
       ScrollTrigger.clearScrollMemory();
-      
-      // Kill all ScrollTrigger instances
       ScrollTrigger.getAll().forEach(t => t.kill(true));
-      
-      // Force kill everything to prevent post-mortem refreshes or 100vh measurement removals
       ScrollTrigger.killAll(); 
-      
-      // Destroy lenis
       lenis.destroy();
       window.lenis = null;
     };
@@ -271,51 +283,42 @@ export default function Landing() {
 
       <AnimatePresence>
         {isLoaded && (
-          <motion.nav
-            initial={{ y: -100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed top-0 left-0 w-full z-[100] px-2 md:px-4 py-6 md:py-10 flex justify-between items-center pointer-events-none"
-          >
-            <div className="flex items-center gap-3 md:gap-4 group cursor-pointer pointer-events-auto">
-              <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-white mt-1">Produs</span>
+          <>
+            <motion.nav
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed top-0 left-0 w-full z-[100] px-6 md:px-12 py-8 md:py-12 flex justify-between items-center pointer-events-none"
+            >
+              <div className="flex items-center gap-4 group cursor-pointer pointer-events-auto">
+                <span className="font-black text-[14px] uppercase tracking-[0.8em] leading-none text-white">Produs</span>
+              </div>
+            </motion.nav>
+
+            <div
+              id="landing-sidebar"
+              className="fixed left-6 md:left-12 top-[50%] -translate-y-1/2 z-[100] pointer-events-auto hero-sidebar opacity-100 translate-x-0 transition-transform duration-1000"
+            >
+              <WorkspaceSidebar 
+                tabs={landingTabs}
+                activeTab={activeLandingTab}
+                setActiveTab={handleLandingTabClick}
+                namespace="Landing"
+              />
             </div>
-
-
-          </motion.nav>
+          </>
         )}
       </AnimatePresence>
 
       <div className="pin-background w-full h-screen overflow-hidden relative bg-black md:p-12 lg:p-24 transition-colors duration-1000 z-0">
         <div className="w-full h-full relative overflow-hidden bg-black z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover md:object-contain hero-video absolute inset-0"
-            style={{ 
-              filter: "contrast(1.05) brightness(1.1)",
-              objectPosition: isMobile ? '75% center' : 'center'
-            }}
-          >
+          <video autoPlay loop muted playsInline className="w-full h-full object-cover md:object-contain hero-video absolute inset-0" style={{ filter: "contrast(1.05) brightness(1.1)", objectPosition: isMobile ? '75% center' : 'center' }}>
             <source src="/Hero.mp4" type="video/mp4" />
           </video>
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover md:object-contain features-video absolute inset-0 opacity-0"
-            style={{ 
-              filter: "contrast(1.1) brightness(1)",
-              objectPosition: isMobile ? '75% center' : 'center'
-            }}
-          >
+          <video autoPlay loop muted playsInline className="w-full h-full object-cover md:object-contain features-video absolute inset-0 opacity-0" style={{ filter: "contrast(1.1) brightness(1)", objectPosition: isMobile ? '75% center' : 'center' }}>
             <source src="/Features.mp4" type="video/mp4" />
           </video>
         </div>
-
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-60 pointer-events-none" />
         <div className="absolute -left-[20%] top-1/3 size-[100vw] bg-electric-blue/5 blur-[250px] rounded-full pointer-events-none" />
         <div className="absolute -right-[20%] bottom-1/3 size-[80vw] bg-white/[0.02] blur-[200px] rounded-full pointer-events-none" />
@@ -323,8 +326,6 @@ export default function Landing() {
 
       <div className="relative z-20 -mt-[100vh]">
         {isLoaded && <Hero />}
-        
-        {/* Transitional Scene at 12% scroll */}
         <div className="scene-reality fixed inset-0 flex items-center justify-end md:justify-center px-10 md:px-24 pointer-events-none opacity-0">
           <div className="flex flex-col md:grid md:grid-cols-2 gap-8 md:gap-24 items-end md:items-center max-w-7xl w-full md:-translate-x-4 lg:-translate-x-6">
             <div className="text-right md:-translate-x-[2px]">
@@ -340,132 +341,60 @@ export default function Landing() {
             </div>
           </div>
         </div>
-
-        {/* Mockups Scene (13% - 32%) */}
         <div className="scene-mockups fixed inset-0 flex items-center justify-center z-30 pointer-events-none opacity-0">
           <div className="relative w-full max-w-7xl px-6 md:px-12 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12">
-            {/* Desktop Mockup */}
             <div className="mockup-desktop relative w-full md:w-[70%] aspect-[1911/883] bg-black rounded-xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
               <img src="/desktopmock.png" alt="Desktop Interface" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             </div>
-            {/* Mobile Mockup */}
             <div className="mockup-mobile relative w-[40%] md:w-[18%] aspect-[361/601] bg-[#0a0a0a] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border-[4px] md:border-[6px] border-white/5 shadow-2xl">
               <img src="/mobilemock.png" alt="Mobile Interface" className="w-full h-full object-cover" />
             </div>
           </div>
         </div>
-
-        {/* Quadrant Features Scene */}
         <div className="scene-quadrants fixed inset-0 z-30 pointer-events-none p-12 md:p-24 overflow-hidden">
-          {/* Top Left: Intellectual */}
           <div className="quadrant-intellectual absolute top-[15%] md:top-[20%] right-[10%] md:left-[15%] md:right-auto opacity-0 text-right md:text-left max-w-[200px] md:max-w-xs">
-            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">Intellectual</h3>
-            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">
-              Strategic planning, Deep Work focus sessions, and unrestricted mental logging.
-            </p>
+            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">
+              <GlitchTitle progress={progress} threshold={0.68} original="Intellectual" target="STORIES" />
+            </h3>
+            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">Strategic planning, Deep Work focus sessions, and unrestricted mental logging.</p>
           </div>
-          
-          {/* Top Right: Physical */}
           <div className="quadrant-physical absolute top-[35%] md:top-[20%] right-[10%] md:right-[15%] opacity-0 text-right max-w-[200px] md:max-w-xs">
-            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">Physical</h3>
-            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">
-              Real-time vitality tracking and automated habit loops for peak energy maintenance.
-            </p>
+            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">
+              <GlitchTitle progress={progress} threshold={0.68} original="Physical" target="LEVELLING" />
+            </h3>
+            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">Real-time vitality tracking and automated habit loops for peak energy maintenance.</p>
           </div>
-
-          {/* Bottom Left: Financial */}
           <div className="quadrant-financial absolute top-[55%] md:bottom-[20%] right-[10%] md:left-[15%] md:right-auto md:top-auto opacity-0 text-right md:text-left max-w-[200px] md:max-w-xs">
-            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">Financial</h3>
-            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">
-              Full-spectrum capital management, asset tracking, and resource allocation.
-            </p>
+            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">
+              <GlitchTitle progress={progress} threshold={0.68} original="Financial" target="SURVIVAL" />
+            </h3>
+            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">Full-spectrum capital management, asset tracking, and resource allocation.</p>
           </div>
-
-          {/* Bottom Right: Spiritual */}
           <div className="quadrant-spiritual absolute top-[75%] md:bottom-[20%] right-[10%] md:right-[15%] md:top-auto opacity-0 text-right max-w-[200px] md:max-w-xs">
-            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">Spiritual</h3>
-            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">
-              Mindset reflection, gratitude rituals, and alignment through intentionality.
-            </p>
+            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">
+              <GlitchTitle progress={progress} threshold={0.68} original="Spiritual" target="COMPETITION" />
+            </h3>
+            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">Mindset reflection, gratitude rituals, and alignment through intentionality.</p>
           </div>
         </div>
-
-        {/* Gamified System Scene */}
-        <div className="scene-gamified fixed inset-0 flex items-center justify-end md:justify-center px-10 md:px-24 pointer-events-none opacity-0 z-30">
-          <div className="max-w-7xl w-full flex flex-col md:grid md:grid-cols-2 gap-12 md:gap-16 items-end md:items-center">
-            
-            {/* Header */}
-            <div className="gamified-header text-right md:-translate-x-12">
-              <h2 className="font-black tracking-[0.4em] uppercase flex flex-col items-end gap-2 md:gap-4">
-                <span className="text-xl md:text-4xl text-white inline-block skew-x-[-3deg] md:skew-x-0">
-                  IMMERSIVE
-                </span>
-                <span className="text-xl md:text-4xl text-white inline-block md:translate-x-0 skew-x-[-3deg] md:skew-x-0">
-                  STORY
-                </span>
-                <span className="text-xl md:text-4xl text-white inline-block md:translate-x-0 skew-x-[-3deg] md:skew-x-0">
-                  DRIVEN
-                </span>
-                <span className="text-xl md:text-4xl text-white inline-block md:translate-x-0 skew-x-[-3deg] md:skew-x-0">
-                  GAME
-                </span>
-              </h2>
-            </div>
-
-            {/* Rows */}
-            <div className="flex flex-col items-end md:items-start w-full">
-              {/* Row 1 */}
-              <div className="gamified-row-1 w-full py-4 md:py-8 flex flex-col items-end md:items-start gap-2 md:gap-3">
-                <span className="text-electric-blue font-mono text-[9px] md:text-xs tracking-widest uppercase">01 // STORIES</span>
-                <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed max-w-[280px] md:max-w-[400px] text-right md:text-left">
-                  Unlock your personal narrative through progress.
-                </p>
-              </div>
-
-              <div className="w-16 md:w-24 h-px bg-white/20" />
-
-              {/* Row 2 */}
-              <div className="gamified-row-2 w-full py-4 md:py-8 flex flex-col items-end md:items-start gap-2 md:gap-3">
-                <span className="text-white/60 font-mono text-[9px] md:text-xs tracking-widest uppercase">02 // LEVELLING</span>
-                <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed max-w-[280px] md:max-w-[400px] text-right md:text-left">
-                  Grow stronger through experience, unlock new tiers.
-                </p>
-              </div>
-
-              <div className="w-16 md:w-24 h-px bg-white/20" />
-
-              {/* Row 3 */}
-              <div className="gamified-row-3 w-full py-4 md:py-8 flex flex-col items-end md:items-start gap-2 md:gap-3">
-                <span className="text-white/60 font-mono text-[9px] md:text-xs tracking-widest uppercase">03 // SURVIVAL</span>
-                <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed max-w-[280px] md:max-w-[400px] text-right md:text-left">
-                  Master the essentials and maintain your status.
-                </p>
-              </div>
-
-              <div className="w-16 md:w-24 h-px bg-white/20" />
-
-              {/* Row 4 */}
-              <div className="gamified-row-4 w-full py-4 md:py-8 flex flex-col items-end md:items-start gap-2 md:gap-3">
-                <span className="text-white/60 font-mono text-[9px] md:text-xs tracking-widest uppercase">04 // COMPETITIONS</span>
-                <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed max-w-[280px] md:max-w-[400px] text-right md:text-left">
-                  Compete with yourself in global challenges.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <Features />
         <Testimonials testimonials={TESTIMONIALS} />
         <CTA user={user} />
       </div>
 
-      {!isMobile && <ScrollIndicator progress={progress} onNavigate={handleNavigate} />}
-      <HudButtons 
-        variant="landing"
-        onRpgClick={handleStart}
-      />
+      <AnimatePresence>
+        {isLoaded && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {!isMobile && <ScrollIndicator progress={progress} onNavigate={handleNavigate} />}
+            <HudButtons variant="landing" onRpgClick={handleStart} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

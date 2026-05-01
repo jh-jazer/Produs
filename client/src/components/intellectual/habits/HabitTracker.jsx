@@ -5,20 +5,7 @@ import { Plus, Edit2, ArrowUpRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../../ui/ConfirmDialog';
 
-const ICON_OPTIONS = [
-    { icon: 'local_drink', label: 'Water' },
-    { icon: 'menu_book', label: 'Reading' },
-    { icon: 'directions_run', label: 'Running' },
-    { icon: 'self_improvement', label: 'Meditation' },
-    { icon: 'fitness_center', label: 'Gym' },
-    { icon: 'code', label: 'Coding' },
-    { icon: 'bedtime', label: 'Sleep' },
-    { icon: 'restaurant', label: 'Nutrition' },
-    { icon: 'brush', label: 'Creative' },
-    { icon: 'school', label: 'Study' },
-    { icon: 'music_note', label: 'Music' },
-    { icon: 'favorite', label: 'Wellness' },
-];
+import AddHabitModal, { ICON_OPTIONS } from './AddHabitModal';
 
 const SUGGESTIONS = [
     {
@@ -70,7 +57,6 @@ function HabitTracker({
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [modalStep, setModalStep] = useState('suggestions');
     const [editingHabit, setEditingHabit] = useState(null);
-    const [newHabit, setNewHabit] = useState({ name: '', icon: 'local_drink', color: 'white', isShared: false, category: 'INT' });
     const [localTeamHabits, setLocalTeamHabits] = useState([]);
     const [confirmDelete, setConfirmDelete] = useState(null);
 
@@ -133,7 +119,7 @@ function HabitTracker({
         const days = [];
         const start = new Date(activeDate);
         start.setDate(activeDate.getDate() - 3);
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 4; i++) {
             const d = new Date(start);
             d.setDate(start.getDate() + i);
             days.push(d);
@@ -147,12 +133,8 @@ function HabitTracker({
         await toggleCheck(habitId, dateStr);
     };
 
-    const handleAddHabit = async () => {
-        if (!newHabit.name.trim()) return;
-        await addHabit({ ...newHabit, name: newHabit.name.trim(), color: 'white' });
-        setNewHabit({ name: '', icon: 'local_drink', color: 'white', isShared: false, category: 'INT' });
-        setAddModalOpen(false);
-        setModalStep('suggestions');
+    const handleAddHabit = async (habitData) => {
+        await addHabit(habitData);
     };
 
     const renderHabitRow = (habit) => {
@@ -187,12 +169,12 @@ function HabitTracker({
                     <div className="flex flex-col min-w-0">
                         <span className="text-xs font-black uppercase tracking-wider text-white/80 group-hover/row:text-white transition-colors truncate">{habit.name}</span>
                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
-                            {isSystemHabit ? 'SYNCED_NODE' : (habit.streak > 0 ? `${habit.streak}D_STREAK` : 'NO_MOMENTUM')}
+                            {isSystemHabit ? 'SYSTEM SYNC' : (habit.streak > 0 ? `${habit.streak} DAY STREAK` : 'NO STREAK')}
                         </span>
                     </div>
                 </div>
 
-                <div className="flex-1 flex justify-between items-center max-w-[300px]">
+                <div className="flex-1 flex justify-end md:justify-between items-center max-w-[300px]">
                     {daysToDisplay.map((date, idx) => {
                         const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
                         const myChecked = habit.myPart ? checks[habit.myPart._id]?.completed[dateStr] : checks[habit._id]?.completed[dateStr];
@@ -200,7 +182,7 @@ function HabitTracker({
                         const isFuture = date > today;
 
                         return (
-                            <div key={idx} className={`relative flex items-center justify-center size-8 ${idx === 0 || idx === 6 ? 'hidden md:flex' : 'flex'}`}>
+                            <div key={idx} className={`relative flex items-center justify-center size-8 ${idx < 3 ? 'hidden md:flex' : 'flex'}`}>
                                 <button
                                     onClick={() => handleToggle(habit._id, date)}
                                     disabled={editMode || isFuture || isReadOnly || isSystemHabit}
@@ -243,8 +225,8 @@ function HabitTracker({
             </div>
             <ConfirmDialog
                 isOpen={!!confirmDelete}
-                title="TERMINATE_HABIT"
-                message="Are you sure you want to delete this habit loop? Historical data will be purged."
+                title="DELETE HABIT"
+                message="Are you sure you want to remove this habit? Historical data will be permanently deleted."
                 confirmLabel="DELETE"
                 onConfirm={() => { deleteHabit(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
@@ -252,10 +234,10 @@ function HabitTracker({
 
             <div className="flex flex-col">
                 <div className="flex items-center gap-4 px-4 py-4 border-b border-white/10 text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
-                    <div className="flex-1">CORE_HABIT_LOOPS</div>
-                    <div className="flex-1 flex justify-between items-center max-w-[300px]">
+                    <div className="flex-1">HABIT LIST</div>
+                    <div className="flex-1 flex justify-end md:justify-between items-center max-w-[300px]">
                         {daysToDisplay.map((d, i) => (
-                            <span key={i} className={`w-8 text-center ${i === 0 || i === 6 ? 'hidden md:block' : ''}`}>{d.getDate()}</span>
+                            <span key={i} className={`w-8 text-center ${i < 3 ? 'hidden md:inline-block' : ''}`}>{d.getDate()}</span>
                         ))}
                     </div>
                 </div>
@@ -272,7 +254,7 @@ function HabitTracker({
             {/* Momentum HUD Cards */}
             {!isLoading && habits.some(h => h.streak > 0) && (
                 <div className="flex flex-col gap-4 mt-8">
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">MOMENTUM // READOUT</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">HABIT MOMENTUM</span>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {habits.filter(h => h.streak > 0).sort((a,b) => b.streak - a.streak).slice(0, 3).map(h => (
                             <div key={h._id} className="p-6 bg-white/[0.03] border border-white/10 rounded-sm relative overflow-hidden group">
@@ -295,52 +277,11 @@ function HabitTracker({
             )}
 
             {/* Add Habit Modal - Tactical */}
-            {addModalOpen && createPortal(
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-8 backdrop-blur-md">
-                    <div className="absolute inset-0 bg-black/80" onClick={() => setAddModalOpen(false)} />
-                    <div className="relative w-full max-w-md bg-[#0a0a0a] border-4 border-white p-8 shadow-[0_0_100px_rgba(255,255,255,0.1)]">
-                        <div className="flex justify-between items-start mb-8">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">INITIALIZE // HABIT_LOOP</span>
-                                <h3 className="text-2xl font-black uppercase tracking-tighter italic">New Directive</h3>
-                            </div>
-                            <button onClick={() => setAddModalOpen(false)} className="text-white/40 hover:text-white"><span className="material-symbols-outlined">close</span></button>
-                        </div>
-
-                        <div className="flex flex-col gap-6">
-                            <div className="flex flex-col gap-2">
-                                <span className="text-[9px] font-black uppercase tracking-widest text-white/20">IDENTIFIER</span>
-                                <input 
-                                    value={newHabit.name}
-                                    onChange={e => setNewHabit({...newHabit, name: e.target.value})}
-                                    placeholder="NODE_NAME..."
-                                    className="w-full bg-white/5 border border-white/10 p-4 text-sm font-black uppercase tracking-widest focus:border-white transition-all outline-none"
-                                />
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                                <span className="text-[9px] font-black uppercase tracking-widest text-white/20">TYPE_SPECIFICATION</span>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {['STR', 'INT', 'WIS', 'DEX', 'CHA', 'PER'].map(cat => (
-                                        <button 
-                                            key={cat} 
-                                            onClick={() => setNewHabit({...newHabit, category: cat})}
-                                            className={`p-3 border text-[10px] font-black tracking-widest transition-all ${newHabit.category === cat ? 'bg-white text-black border-white' : 'border-white/10 text-white/40 hover:border-white/20'}`}
-                                        >
-                                            {cat}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <button onClick={handleAddHabit} className="mt-4 w-full py-6 bg-white text-black font-black uppercase tracking-[0.5em] text-xs hover:bg-white/90 active:scale-95 transition-all">
-                                EXECUTE_COMMAND
-                            </button>
-                        </div>
-                    </div>
-                </div>,
-                document.body
-            )}
+            <AddHabitModal 
+                isOpen={addModalOpen} 
+                onClose={() => setAddModalOpen(false)} 
+                onAdd={handleAddHabit} 
+            />
         </div>
     );
 }

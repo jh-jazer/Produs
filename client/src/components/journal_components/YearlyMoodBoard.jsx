@@ -235,7 +235,7 @@ const YearlyMoodBoard = ({ entries = [], hideTitle = false }) => {
             >
                 <div className="font-black">{tooltip.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
                 <div className="text-slate-400 dark:text-slate-500">
-                    {tooltip.isFuture ? 'Future' : tooltip.moodData ? `${tooltip.moodData.mood} Mood` : 'No entry'}
+                    {tooltip.isFuture ? 'FUTURE' : tooltip.moodData ? `${tooltip.moodData.mood} MOOD` : 'NO ENTRY'}
                 </div>
             </div>,
             document.body

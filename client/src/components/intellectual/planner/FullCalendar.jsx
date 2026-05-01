@@ -57,9 +57,9 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
             </div>
             <ConfirmDialog
                 isOpen={!!confirmDelete}
-                title="PURGE_EVENT"
-                message="Confirm deletion of strategic calendar event."
-                confirmLabel="PURGE"
+                title="DELETE EVENT"
+                message="Are you sure you want to delete this event? This action cannot be undone."
+                confirmLabel="DELETE"
                 onConfirm={async () => { if (confirmDelete) { await deleteTaskLocal(confirmDelete); setConfirmDelete(null); } }}
                 onCancel={() => setConfirmDelete(null)}
             />
@@ -76,7 +76,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                     const d = i + 1;
                     const date = new Date(year, month, d);
                     const isToday = date.toDateString() === today.toDateString();
-                    const isSelected = date.toDateString() === selectedDate.toDateString();
+                    const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
                     const dayTasks = getTasksForDay(d);
 
                     return (
@@ -106,7 +106,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                     <div className="relative w-full max-w-md bg-[#0a0a0a] border-4 border-white p-8 shadow-[0_0_100px_rgba(255,255,255,0.1)]">
                         <div className="flex justify-between items-start mb-8">
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">CALENDAR // EVENT_NODE</span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">CALENDAR EVENT</span>
                                 <h3 className="text-xl font-black uppercase tracking-tighter italic">{addModal.startDate.toDateString()}</h3>
                             </div>
                             <button onClick={() => setAddModal(null)} className="text-white/40 hover:text-white"><span className="material-symbols-outlined">close</span></button>
@@ -129,12 +129,12 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                     <input 
                                         value={newTaskTitle}
                                         onChange={e => setNewTaskTitle(e.target.value)}
-                                        placeholder="EVENT_IDENTIFIER..."
+                                        placeholder="EVENT NAME..."
                                         className="w-full bg-white/5 border border-white/10 p-4 text-sm font-black uppercase tracking-widest focus:border-white transition-all outline-none"
                                         autoFocus
                                     />
                                     <button onClick={addTask} className="w-full py-4 bg-white text-black font-black uppercase tracking-[0.5em] text-[10px] hover:bg-white/90 active:scale-95 transition-all">
-                                        ADD_EVENT
+                                        SAVE EVENT
                                     </button>
                                 </div>
                             )}

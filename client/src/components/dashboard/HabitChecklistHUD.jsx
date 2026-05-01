@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useHabits } from '../../hooks/useHabits';
+import AddHabitModal from '../intellectual/habits/AddHabitModal';
 
 const ChippedBorder = ({ opacity = 0.8 }) => (
   <div
@@ -17,7 +18,6 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 export default function HabitChecklistHUD() {
   const { habits, toggleCheck, initHabits, addHabit, isLoading: habitsLoading } = useHabits();
   const [addModalOpen, setAddModalOpen] = useState(false);
-  const [newHabitName, setNewHabitName] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
   const [thumbHeight, setThumbHeight] = useState(30);
 
@@ -59,17 +59,8 @@ export default function HabitChecklistHUD() {
     setIsSyncing(false);
   };
 
-  const handleCreateHabit = async (e) => {
-    e.preventDefault();
-    if (!newHabitName.trim()) return;
-    await addHabit({
-      name: newHabitName.trim(),
-      category: 'INT',
-      icon: 'star',
-      color: 'white',
-    });
-    setNewHabitName('');
-    setAddModalOpen(false);
+  const handleCreateHabit = async (habitData) => {
+    await addHabit(habitData);
   };
 
   return (
@@ -94,41 +85,11 @@ export default function HabitChecklistHUD() {
       </div>
 
       {/* Add Habit Modal */}
-      <AnimatePresence>
-        {addModalOpen && (
-          <motion.form
-            key="add-modal"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            onSubmit={handleCreateHabit}
-            className="mb-8 p-4 bg-white/[0.05] border border-white/20 rounded-sm relative z-30"
-          >
-            <div className="flex flex-col gap-3">
-              <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20">
-                Create_New_Node
-              </span>
-              <input
-                autoFocus
-                type="text"
-                placeholder="HABIT_NAME_REQUIRED"
-                value={newHabitName}
-                onChange={(e) => setNewHabitName(e.target.value)}
-                className="bg-transparent border-none text-xs font-black uppercase tracking-wider focus:ring-0 p-0 placeholder:text-white/10 outline-none"
-              />
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-[7px] font-mono opacity-20">AUTH_LEVEL_PRIMARY</span>
-                <button
-                  type="submit"
-                  className="text-[9px] font-black uppercase tracking-widest bg-white text-black px-3 py-1 hover:bg-white/80 transition-colors"
-                >
-                  Confirm
-                </button>
-              </div>
-            </div>
-          </motion.form>
-        )}
-      </AnimatePresence>
+      <AddHabitModal 
+        isOpen={addModalOpen} 
+        onClose={() => setAddModalOpen(false)} 
+        onAdd={handleCreateHabit} 
+      />
 
       {/* Scrollable list with custom scrollbar */}
       <div className="flex-1 relative overflow-hidden flex flex-col z-10">
@@ -185,6 +146,12 @@ export default function HabitChecklistHUD() {
                         check
                       </span>
                     )}
+                  </div>
+                  {/* Icon */}
+                  <div className="shrink-0 flex items-center justify-center size-8 bg-white/5 rounded-sm border border-white/5 group-hover/item:border-white/10 transition-all">
+                    <span className="material-symbols-outlined text-white/40 text-lg group-hover/item:text-white/80 transition-colors">
+                      {habit.icon}
+                    </span>
                   </div>
 
                   {/* Info */}

@@ -106,7 +106,7 @@ const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => 
                                                         {entry.isPending && (
                                                             <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-widest border border-amber-500/20 animate-pulse">
                                                                 <span className="material-symbols-outlined text-[10px]">sync</span>
-                                                                Syncing
+                                                                SYNCING
                                                             </span>
                                                         )}
                                                     </div>

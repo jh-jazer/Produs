@@ -20,7 +20,13 @@ export default function ScrollIndicator({
 
   // Use external progress if provided (landing), otherwise track internal scroll (dashboard)
   const isExternal = externalProgress !== undefined;
-  const progress = isExternal ? externalProgress : internalProgress;
+  
+  // For dashboard mode, if content is smaller than container, progress should be 0
+  const isScrollable = !isExternal && containerRef?.current 
+    ? containerRef.current.scrollHeight > containerRef.current.clientHeight 
+    : true;
+
+  const progress = isExternal ? externalProgress : (isScrollable ? internalProgress : 0);
   const percentage = Math.round(progress * 100);
 
   // Framer Motion scroll tracking for dashboard mode
@@ -34,11 +40,26 @@ export default function ScrollIndicator({
 
   // Sync internal progress from scrollYProgress (Dashboard only)
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (isExternal || isDragging || !trackRef.current) return;
+    if (isExternal || isDragging || !trackRef.current || !containerRef?.current) return;
+    
+    // Safety check: if we are at the absolute top, force 0
+    const currentScroll = containerRef.current.scrollTop;
+    const actualProgress = currentScroll === 0 ? 0 : latest;
+
     const trackHeight = trackRef.current.offsetHeight;
-    y.set(latest * trackHeight);
-    setInternalProgress(latest);
+    y.set(actualProgress * trackHeight);
+    setInternalProgress(actualProgress);
   });
+
+  // Reset progress when container becomes non-scrollable or on mount
+  useEffect(() => {
+    if (!isExternal && containerRef?.current) {
+        if (containerRef.current.scrollTop === 0) {
+            setInternalProgress(0);
+            y.set(0);
+        }
+    }
+  }, [isExternal, containerRef]);
 
   // Sync external progress to motion values (Landing only)
   useEffect(() => {
@@ -115,7 +136,7 @@ export default function ScrollIndicator({
         ref={trackRef}
         className="relative flex flex-col items-center group/track pointer-events-none w-full"
       >
-        <div className="relative flex flex-col items-center py-2 h-[calc(30vh+6px)] w-full">
+        <div className="relative flex flex-col items-center py-2 h-[calc(35vh+6px)] w-full">
           {/* Track Line */}
           <div className="relative w-[1px] h-full bg-white/10 overflow-hidden rounded-full">
             <motion.div 
@@ -148,7 +169,7 @@ export default function ScrollIndicator({
                 animate={{ opacity: (isDragging || percentage > 0) ? 1 : 0, x: (isDragging || percentage > 0) ? -10 : 0 }}
                 className="absolute right-full mr-4 px-2 py-1 rounded bg-white text-black text-[9px] font-black font-mono tracking-widest whitespace-nowrap shadow-xl pointer-events-none"
             >
-                [ {percentage.toString().padStart(3, '0')}% ]
+                {percentage.toString().padStart(3, '0')}%
             </motion.div>
 
             {/* Tactical metadata (Bottom label) */}
@@ -181,14 +202,7 @@ export default function ScrollIndicator({
         </div>
       </div>
 
-      {/* Abstract Design Elements (Landing Only) */}
-      {isLanding && (
-        <div className="flex flex-col gap-2 opacity-30 mt-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className={`w-1 h-3 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/20'}`} />
-          ))}
-        </div>
-      )}
+
 
       {/* Rotating Compass / HUD Element */}
       <motion.div 

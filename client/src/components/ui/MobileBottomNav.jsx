@@ -74,7 +74,7 @@ const MobileBottomNav = () => {
                                 <div className={`size-16 rounded-full flex items-center justify-center transition-all duration-500 ${
                                     active 
                                     ? 'bg-black dark:bg-white shadow-xl' 
-                                    : 'bg-white dark:bg-black border border-black/10 dark:border-white/10 shadow-lg'
+                                    : 'bg-white dark:bg-black border-2 border-black/10 dark:border-white/20 shadow-lg'
                                 }`}>
                                     <span className={`material-symbols-outlined text-[32px] ${
                                         active ? 'text-white dark:text-black' : 'text-black dark:text-white'

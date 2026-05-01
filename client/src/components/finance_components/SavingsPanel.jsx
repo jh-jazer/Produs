@@ -72,71 +72,66 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                 onConfirm={() => { handleDelete(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
             />
-            <div className="w-full overflow-hidden relative">
-            <div className="absolute -right-24 -top-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+            <div className="w-full overflow-hidden relative flex flex-col gap-8">
+                <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">SAVINGS TRACKER</span>
+                    <button
+                        onClick={() => setShowAdd(true)}
+                        className="size-8 rounded-sm border border-white/10 text-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center"
+                    >
+                        <span className="material-symbols-outlined text-lg">add</span>
+                    </button>
+                </div>
 
-            <div className="relative z-10">
-                <div className="flex items-center justify-between gap-6 mb-8">
-                    <div className="flex items-center gap-6">
-                        <div className="flex flex-col">
-                            <p className="text-2xl font-black text-slate-900 dark:text-white">{currencySymbol}{totalSavings.toLocaleString()}</p>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Saved</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => setShowAdd(true)}
-                            className="size-8 rounded-lg bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-none"
-                            title="New Goal"
-                        >
-                            <span className="material-symbols-outlined text-lg">add</span>
-                        </button>
+                <div className="p-8 rounded-sm border border-white/5 bg-white/[0.02]">
+                    <div className="flex flex-col gap-2">
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">TOTAL SAVINGS</p>
+                        <p className="text-4xl font-black text-white italic tracking-tighter">{currencySymbol}{totalSavings.toLocaleString()}</p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {savings.length === 0 ? (
-                        <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-100 dark:border-white/10 rounded-2xl">
-                            <span className="material-symbols-outlined text-4xl mb-2">account_balance_wallet</span>
-                            <p className="text-sm font-bold uppercase tracking-widest text-slate-300">No savings goals yet</p>
+                        <div className="col-span-full py-12 flex flex-col items-center justify-center opacity-10 gap-4 border border-dashed border-white/5 rounded-sm">
+                            <span className="material-symbols-outlined text-4xl">account_balance_wallet</span>
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em]">NO SAVINGS GOALS</p>
                         </div>
                     ) : (
                         savings.map(s => {
                             const progress = (s.amount / s.target) * 100;
                             return (
-                                <div key={s._id} className="p-6 rounded-2xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-[#121212]/10 hover:border-primary/20 transition-colors group">
-                                    <div className="flex justify-between items-start mb-4">
+                                <div key={s._id} className="p-6 rounded-sm border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-white/10 transition-all group">
+                                    <div className="flex justify-between items-start mb-6">
                                         <div>
-                                            <div className="flex items-center gap-1.5">
-                                                <h4 className="font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors">{s.title}</h4>
+                                            <div className="flex items-center gap-3">
+                                                <h4 className="text-[11px] font-black text-white uppercase tracking-wider">{s.title}</h4>
                                                 {s.isPending && (
-                                                    <span className="flex-shrink-0 animate-spin material-symbols-outlined text-[12px] text-amber-500">sync</span>
+                                                    <span className="animate-spin material-symbols-outlined text-[10px] text-white/20">sync</span>
                                                 )}
                                             </div>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{s.category}</p>
+                                            <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mt-1">{s.category}</p>
                                         </div>
                                         <button
                                             onClick={() => setConfirmDelete(s._id)}
-                                            className="text-slate-300 hover:text-rose-500 transition-colors"
+                                            className="text-white/10 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
                                         >
-                                            <span className="material-symbols-outlined text-lg">delete</span>
+                                            <span className="material-symbols-outlined text-sm">delete</span>
                                         </button>
                                     </div>
 
                                     <div className="flex items-baseline justify-between mb-2">
-                                        <p className="text-lg font-black text-slate-900 dark:text-white">
+                                        <p className="text-lg font-black text-white italic">
                                             {currencySymbol}{s.amount.toLocaleString()}
-                                            <span className="text-slate-400 text-xs font-bold ml-1">/ {currencySymbol}{s.target.toLocaleString()}</span>
+                                            <span className="text-white/20 text-[10px] font-black ml-2 uppercase">/ {currencySymbol}{s.target.toLocaleString()}</span>
                                         </p>
-                                        <span className="text-xs font-black text-primary">{Math.min(100, Math.round(progress))}%</span>
+                                        <span className="text-[10px] font-black text-white/40 italic">{Math.min(100, Math.round(progress))}%</span>
                                     </div>
 
-                                    <div className="w-full bg-slate-200 dark:bg-[#000000] h-2 rounded-full overflow-hidden mb-6">
+                                    <div className="w-full bg-white/5 h-[2px] rounded-sm overflow-hidden mb-6">
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${Math.min(100, progress)}%` }}
-                                            className={`h-full bg-primary rounded-full transition-all duration-700 ${s.isPending ? 'opacity-50 animate-pulse' : ''}`}
+                                            className={`h-full bg-white/40 rounded-sm transition-all duration-700 ${s.isPending ? 'opacity-50 animate-pulse' : ''}`}
                                         />
                                     </div>
 
@@ -145,10 +140,10 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                                             setFundingGoal(s);
                                             setFundAmount('');
                                         }}
-                                        className="w-full py-2.5 rounded-xl bg-white dark:bg-[#000000] border border-slate-200 dark:border-white/10 text-[10px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-primary transition-all flex items-center justify-center gap-2"
+                                        className="w-full py-2 border border-white/5 bg-white/5 rounded-sm text-[9px] font-black uppercase tracking-[0.2em] text-white/40 hover:bg-white hover:text-black hover:border-white transition-all flex items-center justify-center gap-2"
                                     >
                                         <span className="material-symbols-outlined text-sm">add</span>
-                                        Add Funds
+                                        ADD SAVINGS
                                     </button>
                                 </div>
                             );
@@ -157,16 +152,12 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                 </div>
 
                 {savings.length > 0 && (
-                    <div className="mt-8 pt-6 border-t border-slate-100 dark:border-white/10 flex items-center justify-between">
-                        <div className="flex items-center gap-6">
-                            <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Overall Progress</p>
-                                <p className="text-sm font-black text-slate-900 dark:text-white">{Math.round(overallProgress)}% toward targets</p>
-                            </div>
+                    <div className="pt-8 border-t border-white/5 flex items-center justify-between opacity-40">
+                        <div className="flex flex-col gap-1">
+                            <p className="text-[8px] font-black text-white uppercase tracking-widest">OVERALL PROGRESS</p>
+                            <p className="text-[10px] font-black text-white italic">{Math.round(overallProgress)}% TOWARDS GOAL</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full uppercase tracking-wider">On Track</span>
-                        </div>
+                        <span className="text-[8px] font-black text-white border border-white/20 px-3 py-1 rounded-sm uppercase tracking-widest">STABLE</span>
                     </div>
                 )}
             </div>
@@ -268,14 +259,13 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                         </div>
 
                         <button type="submit" disabled={loading} className="w-full py-3 bg-emerald-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50">
-                            {loading ? 'Processing...' : 'Confirm Deposit'}
+                            {loading ? 'Processing...' : 'DEPOSIT FUNDS'}
                         </button>
                     </form>
                     </DashboardPanel>
                 </div>,
                 document.body
             )}
-            </div>
         </>
     );
 };

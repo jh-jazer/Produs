@@ -76,65 +76,67 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
     const remainingBudget = Math.max(0, totalBudget - totalSpentThisMonth);
 
     return (
-        <div className="min-h-[300px] flex flex-col">
-            <div className="flex items-center justify-end mb-6">
+        <div className="min-h-[300px] flex flex-col gap-6">
+            <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">BUDGET OVERVIEW</span>
                 <button
                     onClick={() => {
                         setEditBudgets(budgetList.map(b => ({ ...b })));
                         setIsEditing(true);
                     }}
-                    className="size-8 rounded-lg bg-slate-100 dark:bg-[#000000] text-slate-600 dark:text-slate-400 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-none"
-                    title="Budget Settings"
+                    className="size-8 rounded-sm border border-white/10 text-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center"
                 >
                     <span className="material-symbols-outlined text-lg">settings</span>
                 </button>
             </div>
 
-            <div className="space-y-5 flex-1 flex flex-col">
+            <div className="space-y-6 flex-1 flex flex-col">
                 {budgetList.length > 0 ? (
                     <>
-                        {budgetList.map(b => {
-                            const spent = spendingByCategory[b.category] || 0;
-                            const percent = Math.min(100, (spent / b.limit) * 100);
-                            const color = percent > 90 ? 'bg-red-500' : percent > 70 ? 'bg-orange-500' : 'bg-primary';
+                        <div className="space-y-6">
+                            {budgetList.map(b => {
+                                const spent = spendingByCategory[b.category] || 0;
+                                const percent = Math.min(100, (spent / b.limit) * 100);
+                                const isCritical = percent > 90;
 
-                            return (
-                                <div key={b.category}>
-                                    <div className="flex justify-between items-center mb-2">
-                                        <div className="flex items-center gap-2 overflow-hidden">
-                                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">{b.category}</span>
-                                            {b.isPending && (
-                                                <span className="flex-shrink-0 animate-spin material-symbols-outlined text-[10px] text-amber-500">sync</span>
-                                            )}
+                                return (
+                                    <div key={b.category} className="space-y-2">
+                                        <div className="flex justify-between items-center px-1">
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{b.category}</span>
+                                                {b.isPending && (
+                                                    <span className="animate-spin material-symbols-outlined text-[10px] text-white/20">sync</span>
+                                                )}
+                                            </div>
+                                            <span className="text-[11px] font-black text-white italic">
+                                                {currencySymbol}{spent.toLocaleString()} / {currencySymbol}{b.limit.toLocaleString()}
+                                            </span>
                                         </div>
-                                        <span className="text-xs font-black text-slate-900 dark:text-white">
-                                            {currencySymbol}{spent.toLocaleString()} / {currencySymbol}{b.limit.toLocaleString()}
-                                        </span>
+                                        <div className="w-full bg-white/5 rounded-sm h-[2px] overflow-hidden relative">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${percent}%` }}
+                                                className={`h-full transition-all duration-700 ${isCritical ? 'bg-rose-500' : 'bg-white/40'} ${b.isPending ? 'opacity-50 animate-pulse' : ''}`}
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="w-full bg-slate-100 dark:bg-[#000000] rounded-full h-1.5 overflow-hidden">
-                                        <div
-                                            className={`${color} h-full rounded-full transition-all duration-700 ${b.isPending ? 'opacity-50 animate-pulse' : ''}`}
-                                            style={{ width: `${percent}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
 
-                        <div className="mt-auto pt-6">
-                            <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
-                                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">Left to Spend</p>
-                                <p className="text-2xl font-black text-primary">
+                        <div className="mt-auto pt-8 border-t border-white/5">
+                            <div className="p-8 rounded-sm border border-white/5 bg-white/[0.02]">
+                                <p className="text-[10px] font-black text-white/20 mb-4 uppercase tracking-[0.4em]">MONTHLY REMAINING</p>
+                                <p className="text-4xl font-black text-white italic tracking-tighter">
                                     {currencySymbol}{remainingBudget.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 </p>
                             </div>
                         </div>
                     </>
                 ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-slate-50 dark:bg-[#000000]/50 rounded-2xl border border-dashed border-slate-200 dark:border-white/10">
-                        <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600 mb-3">account_balance_wallet</span>
-                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">No Budgets Set</p>
-                        <p className="text-[10px] text-slate-400 font-medium">Click the settings icon above to define your monthly spending caps.</p>
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-12 opacity-10 gap-4">
+                        <span className="material-symbols-outlined text-4xl">account_balance_wallet</span>
+                        <p className="text-[10px] font-black uppercase tracking-[0.4em]">NO BUDGETS SET</p>
                     </div>
                 )}
             </div>
@@ -144,8 +146,8 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
                     <div className="absolute inset-0 bg-[#121212]/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsEditing(false)}></div>
                     <DashboardPanel
                         className="w-full max-w-md z-10 animate-in zoom-in-95 duration-200"
-                        title="Budget Categories"
-                        subtitle="Manage your monthly caps"
+                        title="MANAGE BUDGET"
+                        subtitle="Set spending limits per category"
                         headerExtra={
                             <button onClick={() => setIsEditing(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
@@ -243,7 +245,7 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
                             onClick={handleSave}
                             className="w-full py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-2"
                         >
-                            Save All Changes
+                            SAVE BUDGET
                         </button>
                         </div>
                     </DashboardPanel>

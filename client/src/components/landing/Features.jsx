@@ -11,6 +11,9 @@ const Features = () => {
         {/* Hero Title Duplicate Style */}
         <div className="relative mb-6 md:mb-12">
           <h1 className="font-black tracking-[-0.05em] leading-[0.8] uppercase flex flex-col items-end md:items-center">
+            <span className="text-2xl md:text-[60px] text-white mb-2">
+              WITH OUR
+            </span>
             <span 
               className="text-5xl md:text-[140px] text-transparent inline-block"
               style={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}

@@ -75,6 +75,13 @@ function Layout() {
     const { data: freshUser } = useSWR(user ? '/auth/me' : null);
     const syncUser = useAuthStore((state) => state.syncUser);
 
+    // Reset scroll position when mode changes
+    useEffect(() => {
+        if (mainRef.current) {
+            mainRef.current.scrollTop = 0;
+        }
+    }, [protocolMode]);
+
     // Keyboard Shortcut for Mode Switching
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -99,52 +106,31 @@ function Layout() {
     const { data: notifications = [] } = useSWR('/notifications', (url) => api.get(url).then(res => res.data), {
         refreshInterval: 30000
     });
+
     const unreadCount = notifications.filter(n => !n.read).length;
 
-    // Only open onboarding once we have verified server data confirming it's incomplete.
-    // This prevents false positives when freshUser hasn't loaded yet (localStorage has no onboardingCompleted).
-    useEffect(() => {
-        if (freshUser && !freshUser.username) {
-            setIsOnboardingOpen(true);
-        }
-    }, [freshUser]);
-
-
-    const handleSignOut = async () => {
-        setIsUserMenuOpen(false);
-        await signOut();
+    const handleSignOut = () => {
+        signOut();
         navigate('/auth');
     };
 
-    const realityNav = [
-        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home' },
-        { id: 'intellectual', name: 'Intellectual', path: '/dashboard/intellectual', icon: 'psychology' },
-        { id: 'financial', name: 'Financial', path: '/dashboard/financial', icon: 'payments' },
-        { id: 'physical', name: 'Physical', path: '/dashboard/physical', icon: 'monitor_heart' },
-        { id: 'spiritual', name: 'Spiritual', path: '/dashboard/spiritual', icon: 'auto_awesome' },
+    const navItems = protocolMode === 'rpg' ? [
+        { id: 'home', name: 'SYSTEM_CENTRAL', path: '/dashboard', icon: Cpu },
+        { id: 'map', name: 'NEURAL_NETWORK', path: '/dashboard/rpg/map', icon: Zap },
+        { id: 'inventory', name: 'CARGO_BAY', path: '/dashboard/rpg/inventory', icon: ShoppingBag },
+    ] : [
+        { id: 'overview', name: 'Home', path: '/dashboard', icon: Cpu },
+        { id: 'intellectual', name: 'Intellectual', path: '/dashboard/intellectual', icon: Zap },
+        { id: 'physical', name: 'Physical', path: '/dashboard/physical', icon: Zap },
+        { id: 'spiritual', name: 'Spiritual', path: '/dashboard/spiritual', icon: Zap },
+        { id: 'financial', name: 'Financial', path: '/dashboard/financial', icon: Zap },
     ];
-
-    const rpgNav = [
-        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home' },
-        { id: 'tower', name: 'Tower', path: '/dashboard', icon: 'castle' },
-        { id: 'items', name: 'Items', path: '/dashboard', icon: 'inventory_2' },
-        { id: 'skills', name: 'Skills', path: '/dashboard', icon: 'model_training' },
-        { id: 'roam', name: 'Roam', path: '/dashboard', icon: 'explore' },
-    ];
-
-    const navItems = protocolMode === 'rpg' ? rpgNav : realityNav;
-
-    const currentNavItem = navItems.find(item => item.path === location.pathname);
-    const pageTitle = (currentNavItem && !isOverview) ? currentNavItem.name : 'PRODUS';
 
     return (
-        <DashboardContext.Provider value={{ 
-            setIsSearchModalOpen, 
-            setIsNotificationModalOpen, 
-            unreadCount, 
-            viewMode, 
-            setViewMode, 
-            protocolMode, 
+        <DashboardContext.Provider value={{
+            viewMode,
+            setViewMode,
+            protocolMode,
             setProtocolMode,
             activeRpgTab,
             setActiveRpgTab,
@@ -246,8 +232,10 @@ function Layout() {
                     {/* Integrated HUD Buttons for Mobile (Attached to top right) */}
                     <div className="absolute top-0 right-0 pt-2">
                         <HudButtons 
-                            onRpgClick={() => setProtocolMode('rpg')}
+                            onRpgClick={() => setProtocolMode(prev => prev === 'rpg' ? 'reality' : 'rpg')}
                             onPartnerClick={() => setViewMode(prev => prev === 'personal' ? 'partner' : 'personal')}
+                            isRpgActive={protocolMode === 'rpg'}
+                            isPartnerActive={viewMode === 'partner'}
                         />
                     </div>
                 </div>
@@ -447,46 +435,42 @@ function Layout() {
                 </div>
                 
                 {/* Right Side HUD: Scroll Indicator & Protocol Toggle */}
-                <aside className="hidden md:flex w-[4vw] flex-col items-center justify-between py-12 border-l border-black/[0.03] dark:border-white/[0.03] bg-white/50 dark:bg-black/50 backdrop-blur-sm relative shrink-0">
+                <aside className="hidden md:flex w-[4vw] flex-col items-center justify-between py-12 bg-white/50 dark:bg-black/50 backdrop-blur-sm relative shrink-0">
                     <div className="flex flex-col items-center gap-8 w-full h-full">
                         {/* Scroll Progress Placeholder (Space maintained) */}
                         {protocolMode === 'reality' && (
                             <div className="flex-1 w-full" />
                         )}
-
-                        {/* Mode Toggle Button */}
-                        <div className="mt-auto flex flex-col items-center gap-6">
-                            {protocolMode === 'rpg' && (
-                                <button 
-                                    onClick={() => setProtocolMode('reality')}
-                                    className="group relative flex flex-col items-center gap-3 transition-all hover:scale-105"
-                                    title="Exit RPG Protocol"
-                                >
-                                    <div className="size-10 rounded-full border border-primary/30 flex items-center justify-center bg-primary/5 group-hover:bg-primary/10 transition-all shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]">
-                                        <span className="material-symbols-outlined text-primary text-xl">keyboard_return</span>
-                                    </div>
-                                    <span className="text-[7px] font-black text-primary uppercase tracking-[0.3em] opacity-60 group-hover:opacity-100">REALITY_EXIT</span>
-                                </button>
-                            )}
-                            
-                        </div>
                     </div>
                 </aside>
 
+                {/* Mobile User Menu Trigger */}
+                <div className="md:hidden fixed top-6 right-0 z-[101]">
+                    <button 
+                        onClick={() => setIsUserMenuOpen(true)}
+                        className="pl-6 pr-0 py-2 text-white/60 hover:text-white transition-colors active:scale-90"
+                    >
+                        <span className="material-symbols-outlined text-4xl">more_vert</span>
+                    </button>
+                </div>
+
+                {isOverview && (
+                    <HudButtons 
+                        onRpgClick={() => setProtocolMode(prev => prev === 'rpg' ? 'reality' : 'rpg')}
+                        onPartnerClick={() => setViewMode(prev => prev === 'personal' ? 'partner' : 'personal')}
+                        isRpgActive={protocolMode === 'rpg'}
+                        isPartnerActive={viewMode === 'partner'}
+                    />
+                )}
+
                 {/* HUD Overlay: Scroll Indicator (Reality Only) */}
                 {protocolMode === 'reality' && (
-                    <>
-                        <HudButtons 
-                            onRpgClick={() => setProtocolMode('rpg')}
-                            onPartnerClick={() => setViewMode(prev => prev === 'personal' ? 'partner' : 'personal')}
+                    <div className="hidden md:block">
+                        <ScrollIndicator 
+                            variant="dashboard" 
+                            containerRef={mainRef} 
                         />
-                        <div className="hidden md:block">
-                            <ScrollIndicator 
-                                variant="dashboard" 
-                                containerRef={mainRef} 
-                            />
-                        </div>
-                    </>
+                    </div>
                 )}
 
                 <AnimatePresence>
