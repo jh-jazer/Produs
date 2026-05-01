@@ -39,7 +39,7 @@ const WorkspaceSidebar = ({ tabs, activeTab, setActiveTab, namespace }) => {
                         {/* Icon with Hover Rotation */}
                         <motion.span 
                             animate={{ rotate: hoveredTab === tab.id ? 90 : 0 }}
-                            className="material-symbols-outlined text-sm shrink-0"
+                            className="material-symbols-outlined text-[10px] shrink-0"
                         >
                             {tab.icon}
                         </motion.span>
