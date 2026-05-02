@@ -135,6 +135,7 @@ function Layout() {
             activeRpgTab,
             setActiveRpgTab,
             setIsOperationModalOpen,
+            setIsLandingModalOpen,
             mobileTabs,
             setMobileTabs
         }}>
@@ -428,7 +429,7 @@ function Layout() {
                                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                                 className={`relative z-0 flex-1 flex flex-col ${protocolMode === 'rpg' ? 'justify-center pb-0 pt-0' : 'justify-start pb-32 md:pb-12 pt-0 md:pt-1'} px-0 md:pl-4 lg:pl-6 md:pr-8 lg:pr-12 w-full`}
                             >
-                                <Outlet context={{ setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, viewMode, setViewMode, protocolMode, setProtocolMode, activeRpgTab, setActiveRpgTab }} />
+                                <Outlet context={{ setIsLandingModalOpen, setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, viewMode, setViewMode, protocolMode, setProtocolMode, activeRpgTab, setActiveRpgTab }} />
                             </motion.main>
                         </AnimatePresence>
                     </div>

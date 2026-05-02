@@ -5,6 +5,7 @@ import { ChevronLeft, GitCommit, Rocket, Wrench } from 'lucide-react';
 import Logo from '../components/brand/Logo';
 import Footer from '../components/landing/Footer';
 import WorkspaceSidebar from '../components/ui/WorkspaceSidebar';
+import LandingHeader from '../components/landing/LandingHeader';
 
 export default function PatchNotes() {
   const navigate = useNavigate();
@@ -72,8 +73,9 @@ export default function PatchNotes() {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-electric-blue/30 overflow-x-hidden">
+      <LandingHeader activeTab={activeLandingTab} />
       {/* Hero Sidebar */}
-      <div className="fixed left-6 md:left-12 top-[50%] -translate-y-1/2 z-[100] pointer-events-auto">
+      <div className="hidden md:block fixed left-6 md:left-12 top-[50%] -translate-y-1/2 z-[100] pointer-events-auto">
           <WorkspaceSidebar 
             tabs={landingTabs}
             activeTab={activeLandingTab}
@@ -81,9 +83,6 @@ export default function PatchNotes() {
             namespace="Patches"
           />
       </div>
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-4 flex items-center bg-black/50 backdrop-blur-md">
-      </nav>
 
       {/* Content */}
       <main className="max-w-4xl mx-auto px-6 pt-24 pb-32">

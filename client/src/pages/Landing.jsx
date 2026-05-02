@@ -9,7 +9,9 @@ import {
   Brain,
   TrendingUp,
   Calendar,
-  Heart
+  Heart,
+  Menu,
+  X
 } from "lucide-react";
 import Logo from "../components/brand/Logo";
 
@@ -28,6 +30,7 @@ import CTA from "../components/landing/CTA";
 import ScrollIndicator from "../components/landing/ScrollIndicator";
 import HudButtons from "../components/ui/HudButtons";
 import WorkspaceSidebar from "../components/ui/WorkspaceSidebar";
+import LandingHeader from "../components/landing/LandingHeader";
 import Lenis from "lenis";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -111,6 +114,7 @@ export default function Landing() {
   const [isLoaded, setIsLoaded] = useState(false);
   const containerRef = useRef(null);
   const [progress, setProgress] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const landingTabs = [
     { id: "hub", label: "HUB", icon: "home", path: "/" },
     { id: "about", label: "ABOUT", icon: "info", path: "/manual" },
@@ -284,20 +288,11 @@ export default function Landing() {
       <AnimatePresence>
         {isLoaded && (
           <>
-            <motion.nav
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed top-0 left-0 w-full z-[100] px-6 md:px-12 py-8 md:py-12 flex justify-between items-center pointer-events-none"
-            >
-              <div className="flex items-center gap-4 group cursor-pointer pointer-events-auto">
-                <span className="font-black text-[14px] uppercase tracking-[0.8em] leading-none text-white">Produs</span>
-              </div>
-            </motion.nav>
+            <LandingHeader activeTab={activeLandingTab} />
 
             <div
               id="landing-sidebar"
-              className="fixed left-6 md:left-12 top-[50%] -translate-y-1/2 z-[100] pointer-events-auto hero-sidebar opacity-100 translate-x-0 transition-transform duration-1000"
+              className="hidden md:block fixed left-6 md:left-12 top-[50%] -translate-y-1/2 z-[100] pointer-events-auto hero-sidebar opacity-100 translate-x-0 transition-transform duration-1000"
             >
               <WorkspaceSidebar 
                 tabs={landingTabs}

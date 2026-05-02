@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ChippedBorder from './ChippedBorder';
 
 /**
  * DashboardPanel - A high-fidelity reusable layout container for the Produs HUD.
@@ -32,7 +33,8 @@ const DashboardPanel = ({
     const navigate = useNavigate();
 
     return (
-        <div className={`relative z-0 bg-slate-50/20 dark:bg-[#080808]/20 backdrop-blur-2xl border-y md:border border-primary/40 dark:border-white/5 rounded-none md:rounded-[2.5rem] overflow-hidden group shadow-none ${noPadding ? '' : 'px-4 py-8 md:p-8'} ${className}`}>
+        <div className={`relative z-0 bg-white/[0.03] dark:bg-[#080808]/40 backdrop-blur-2xl border-none rounded-none overflow-hidden group shadow-none ${noPadding ? '' : 'px-4 py-8 md:p-8'} ${className}`}>
+            <ChippedBorder opacity={0.3} thickness="2px" color="white" />
             
             {/* Tactical Backdrop Decoration */}
             {showZap && (
