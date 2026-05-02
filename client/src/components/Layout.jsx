@@ -102,6 +102,13 @@ function Layout() {
         if (freshUser) syncUser(freshUser);
     }, [freshUser]);
 
+    // Trigger onboarding if not completed
+    useEffect(() => {
+        if (user && user.onboardingCompleted === false) {
+            setIsOnboardingOpen(true);
+        }
+    }, [user?.onboardingCompleted]);
+
     // Fetch notifications
     const { data: notifications = [] } = useSWR('/notifications', (url) => api.get(url).then(res => res.data), {
         refreshInterval: 30000
