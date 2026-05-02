@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Handshake, User, Lock, Zap, Cpu, ChevronRight } from 'lucide-react';
+import { Search, Handshake, User, Lock, Zap, Cpu, ChevronRight, Download } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { DashboardContext } from '../../context/DashboardContext';
+import usePWAInstall from '../../hooks/usePWAInstall';
 import Logo from '../brand/Logo';
 
 const DashboardHeader = ({ user }) => {
@@ -16,11 +17,13 @@ const DashboardHeader = ({ user }) => {
         viewMode,
         setViewMode
     } = useContext(DashboardContext);
+    const { isStandalone } = usePWAInstall();
     const location = useLocation();
     const navigate = useNavigate();
     const isOverview = location.pathname === '/dashboard';
 
     const toggleProtocol = () => {
+        if (!isStandalone && protocolMode === 'reality') return;
         setProtocolMode(protocolMode === 'rpg' ? 'reality' : 'rpg');
     };
 
@@ -47,12 +50,19 @@ const DashboardHeader = ({ user }) => {
                                 } ${
                                     protocolMode === 'rpg' 
                                         ? 'bg-cyan-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)]' 
-                                        : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                                        : !isStandalone
+                                            ? 'bg-black/5 dark:bg-white/5 text-slate-500 cursor-not-allowed'
+                                            : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'
                                 }`}
+                                title={!isStandalone ? "Install PWA to access RPG" : ""}
                             >
-                                <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
+                                {isStandalone ? (
+                                    <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
+                                ) : (
+                                    <Download size={14} className="opacity-50" />
+                                )}
                                 <span className="text-[10px] font-black uppercase tracking-widest font-mono">RPG_</span>
-                                {protocolMode !== 'rpg' && (
+                                {protocolMode !== 'rpg' && isStandalone && (
                                     <span className="absolute top-1 right-1 flex size-2">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
                                         <span className="relative inline-flex rounded-full size-2 bg-red-500" />

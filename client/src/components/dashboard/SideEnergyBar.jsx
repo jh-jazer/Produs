@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, useMotionValue, useMotionValueEvent, useSpring } from "framer-motion";
-import { Cpu, Handshake, User, Zap } from "lucide-react";
+import { Cpu, Handshake, User, Zap, Download } from "lucide-react";
 import { DashboardContext } from "../../context/DashboardContext";
 import useAuthStore from "../../store/useAuthStore";
+import usePWAInstall from "../../hooks/usePWAInstall";
 
 const EnergyTimer = ({ current, max, lastUpdated, level }) => {
     const [timeLeft, setTimeLeft] = useState("");
@@ -44,6 +45,7 @@ const EnergyTimer = ({ current, max, lastUpdated, level }) => {
 export default function SideEnergyBar() {
   const { protocolMode, setProtocolMode, viewMode, setViewMode } = useContext(DashboardContext);
   const { user } = useAuthStore();
+  const { isStandalone } = usePWAInstall();
   const location = useLocation();
   const [scrollPercentage, setScrollPercentage] = useState(0);
   const trackRef = useRef(null);
@@ -131,6 +133,7 @@ export default function SideEnergyBar() {
             <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
+                  if (!isStandalone && protocolMode === 'reality') return;
                   const next = protocolMode === 'rpg' ? 'reality' : 'rpg';
                   setProtocolMode(next);
                   if (next === 'rpg') setViewMode('personal');
@@ -138,12 +141,21 @@ export default function SideEnergyBar() {
                 className={`flex items-center size-10 justify-center transition-all duration-300 rounded-xl relative group/toggle
                     ${protocolMode === 'rpg' 
                         ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
-                        : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'}
+                        : !isStandalone
+                            ? 'bg-white/5 text-slate-500 cursor-not-allowed'
+                            : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'}
                 `}
+                title={!isStandalone ? "Install PWA to access RPG" : ""}
             >
-                <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
+                {isStandalone ? (
+                    <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
+                ) : (
+                    <Download size={14} className="opacity-50" />
+                )}
                 <div className="absolute right-full mr-4 px-3 py-1.5 bg-black border border-white/10 rounded-lg opacity-0 group-hover/toggle:opacity-100 transition-opacity pointer-events-none hidden md:block">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white whitespace-nowrap">RPG_MODE</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white whitespace-nowrap">
+                        {!isStandalone ? 'PWA_REQUIRED' : 'RPG_MODE'}
+                    </span>
                 </div>
             </motion.button>
 

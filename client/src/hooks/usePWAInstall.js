@@ -7,8 +7,15 @@ import { useState, useEffect } from 'react';
 export default function usePWAInstall() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [installable, setInstallable] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
+    const checkStandalone = () => {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
+    };
+
+    setIsStandalone(checkStandalone());
+
     const handler = (e) => {
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
@@ -21,7 +28,7 @@ export default function usePWAInstall() {
     window.addEventListener('beforeinstallprompt', handler);
 
     // Check if app is already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    if (checkStandalone()) {
       setInstallable(false);
     }
 
@@ -50,5 +57,5 @@ export default function usePWAInstall() {
     setInstallable(false);
   };
 
-  return { installable, installApp };
+  return { installable, installApp, isStandalone };
 }

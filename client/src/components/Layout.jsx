@@ -22,6 +22,7 @@ import OperationModeModal from './ui/OperationModeModal';
 import LevelDisplay from './ui/LevelDisplay';
 import DashboardHeader from './dashboard/DashboardHeader';
 import { DashboardContext } from '../context/DashboardContext';
+import usePWAInstall from '../hooks/usePWAInstall';
 import StatsModal from './ui/StatsModal';
 import CoinDisplay from './ui/CoinDisplay';
 import CoreDisplay from './ui/CoreDisplay';
@@ -30,6 +31,7 @@ import DecisionModal from './ui/DecisionModal';
 
 function Layout() {
     const { user, signOut } = useAuthStore();
+    const { isStandalone } = usePWAInstall();
     const [viewMode, setViewMode] = useState('personal'); // 'personal' | 'partner'
     const [protocolMode, setProtocolMode] = useState('reality'); // 'reality' | 'rpg'
     const mainRef = useRef(null);
@@ -80,13 +82,21 @@ function Layout() {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.isContentEditable) return;
             
             if (e.key.toLowerCase() === 'm') {
+                if (protocolMode === 'reality' && !isStandalone) return;
                 setProtocolMode(prev => prev === 'rpg' ? 'reality' : 'rpg');
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, [isStandalone, protocolMode]);
+
+    // Force Reality Mode if not in Standalone
+    useEffect(() => {
+        if (!isStandalone && protocolMode === 'rpg') {
+            setProtocolMode('reality');
+        }
+    }, [isStandalone, protocolMode]);
 
     // Sync fresh server data into the in-memory store whenever it arrives
     useEffect(() => {
@@ -199,7 +209,7 @@ function Layout() {
                         {/* 1. Tactical Toggles (RPG) */}
                         <div className="flex items-center gap-1.5 p-1 rounded-2xl">
                             {/* RPG Toggle - Dashboard Only */}
-                            {isOverview && (
+                            {isOverview && isStandalone && (
                                 <button
                                     onClick={() => setProtocolMode(protocolMode === 'rpg' ? 'reality' : 'rpg')}
                                     className={`px-3 h-9 rounded-xl flex items-center justify-center relative transition-all active:scale-95 font-black text-[11px] tracking-widest ${

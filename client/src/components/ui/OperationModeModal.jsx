@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Users, Zap, Shield, Target, Lock, X, CheckCircle2, Cpu } from 'lucide-react';
+import { User, Users, Zap, Shield, Target, Lock, X, CheckCircle2, Cpu, Download } from 'lucide-react';
 import { DashboardContext } from '../../context/DashboardContext';
 import useAuthStore from '../../store/useAuthStore';
+import usePWAInstall from '../../hooks/usePWAInstall';
 
 const OperationModeModal = ({ isOpen, onClose }) => {
     const { 
@@ -12,10 +13,11 @@ const OperationModeModal = ({ isOpen, onClose }) => {
         setViewMode 
     } = useContext(DashboardContext);
     const { user } = useAuthStore();
+    const { isStandalone } = usePWAInstall();
 
     if (!user) return null;
 
-    const isIsekaiLocked = !user.rpg?.path && !user.rpg?.pendingQuestions?.length && user.level > 0;
+    const isIsekaiLocked = (!user.rpg?.path && !user.rpg?.pendingQuestions?.length && user.level > 0) || !isStandalone;
     const isPartnerLocked = !user.partner;
 
     const sections = [
@@ -36,7 +38,7 @@ const OperationModeModal = ({ isOpen, onClose }) => {
                 {
                     id: 'rpg',
                     name: 'RPG Mode',
-                    description: 'Gamified view with levels, XP, and stats.',
+                    description: !isStandalone ? 'INSTALL PWA TO UNLOCK RPG PROTOCOL.' : 'Gamified view with levels, XP, and stats.',
                     icon: Zap,
                     active: protocolMode === 'rpg',
                     locked: isIsekaiLocked,
@@ -156,7 +158,15 @@ const OperationModeModal = ({ isOpen, onClose }) => {
 
                                                 {option.locked && (
                                                     <div className="absolute top-3 md:top-4 right-5 md:right-6 uppercase text-[7px] md:text-[8px] font-black tracking-widest text-slate-400 flex items-center gap-1.5">
-                                                        <Lock size={7} className="md:size-2" /> Restricted
+                                                        {!isStandalone && option.id === 'rpg' ? (
+                                                            <>
+                                                                <Download size={7} className="md:size-2" /> PWA REQUIRED
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Lock size={7} className="md:size-2" /> Restricted
+                                                            </>
+                                                        )}
                                                     </div>
                                                 )}
                                             </button>
