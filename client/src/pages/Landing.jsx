@@ -113,6 +113,8 @@ export default function Landing() {
 
   const [isLoaded, setIsLoaded] = useState(false);
   const containerRef = useRef(null);
+  const heroVideoRef = useRef(null);
+  const featuresVideoRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const landingTabs = [
@@ -145,6 +147,31 @@ export default function Landing() {
 
   useEffect(() => {
     if (!isLoaded) return;
+
+    // Force video play for mobile/iOS
+    const playVideos = () => {
+      if (heroVideoRef.current) {
+        heroVideoRef.current.play().catch((err) => {
+          console.log("Hero video autoplay failed:", err);
+        });
+      }
+      if (featuresVideoRef.current) {
+        featuresVideoRef.current.play().catch((err) => {
+          console.log("Features video autoplay failed:", err);
+        });
+      }
+    };
+
+    playVideos();
+
+    // Interaction fallback for mobile autoplay policies
+    const handleInteraction = () => {
+      playVideos();
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('click', handleInteraction);
+    };
+    window.addEventListener('touchstart', handleInteraction);
+    window.addEventListener('click', handleInteraction);
 
     const ctx = gsap.context(() => {
       // Entrance Animation (Non-scroll)
@@ -275,6 +302,8 @@ export default function Landing() {
       ScrollTrigger.killAll(); 
       lenis.destroy();
       window.lenis = null;
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('click', handleInteraction);
     };
   }, [isLoaded]);
 
@@ -307,10 +336,30 @@ export default function Landing() {
 
       <div className="pin-background w-full h-screen overflow-hidden relative bg-black md:p-12 lg:p-24 transition-colors duration-1000 z-0">
         <div className="w-full h-full relative overflow-hidden bg-black z-0">
-          <video autoPlay loop muted playsInline className="w-full h-full object-cover md:object-contain hero-video absolute inset-0" style={{ filter: "contrast(1.05) brightness(1.1)", objectPosition: isMobile ? '75% center' : 'center' }}>
+          <video
+            ref={heroVideoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            webkitPlaysInline
+            preload="auto"
+            className="w-full h-full object-cover md:object-contain hero-video absolute inset-0"
+            style={{ filter: "contrast(1.05) brightness(1.1)", objectPosition: isMobile ? '75% center' : 'center' }}
+          >
             <source src="/Hero.mp4" type="video/mp4" />
           </video>
-          <video autoPlay loop muted playsInline className="w-full h-full object-cover md:object-contain features-video absolute inset-0 opacity-0" style={{ filter: "contrast(1.1) brightness(1)", objectPosition: isMobile ? '75% center' : 'center' }}>
+          <video
+            ref={featuresVideoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            webkitPlaysInline
+            preload="auto"
+            className="w-full h-full object-cover md:object-contain features-video absolute inset-0 opacity-0"
+            style={{ filter: "contrast(1.1) brightness(1)", objectPosition: isMobile ? '75% center' : 'center' }}
+          >
             <source src="/Features.mp4" type="video/mp4" />
           </video>
         </div>
