@@ -22,24 +22,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
   />
 );
 
-const GlitchText = ({ show, onClick }) => {
-    const text = "PRODUS";
-    const [displayText, setDisplayText] = React.useState("");
-
-    React.useEffect(() => {
-        if (show) {
-            let i = 0;
-            const timer = setInterval(() => {
-                setDisplayText(text.slice(0, i));
-                i++;
-                if (i > text.length) clearInterval(timer);
-            }, 100);
-            return () => clearInterval(timer);
-        } else {
-            setDisplayText("");
-        }
-    }, [show]);
-
+const MobileLogoText = ({ show, onClick }) => {
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -49,30 +32,8 @@ const GlitchText = ({ show, onClick }) => {
             onClick={onClick}
         >
             <div className="relative">
-                <h1 className="text-[14px] font-black uppercase tracking-[0.8em] text-white mix-blend-difference font-sans">
-                    {displayText}
-                    
-                    {/* Glitch Overlays */}
-                    <motion.span 
-                        animate={{ 
-                            x: [0, -2, 1, -1, 0],
-                            opacity: [0, 0.3, 0.1, 0.4, 0]
-                        }}
-                        transition={{ repeat: Infinity, duration: 0.2 }}
-                        className="absolute inset-0 text-cyan-500 blur-[1px] select-none pointer-events-none"
-                    >
-                        {displayText}
-                    </motion.span>
-                    <motion.span 
-                        animate={{ 
-                            x: [0, 2, -1, 1, 0],
-                            opacity: [0, 0.3, 0.1, 0.4, 0]
-                        }}
-                        transition={{ repeat: Infinity, duration: 0.15, delay: 0.1 }}
-                        className="absolute inset-0 text-rose-500 blur-[1px] select-none pointer-events-none"
-                    >
-                        {displayText}
-                    </motion.span>
+                <h1 className="text-[14px] font-black uppercase tracking-[0.8em] text-black dark:text-white font-sans">
+                    PRODUS
                 </h1>
             </div>
         </motion.div>
@@ -194,7 +155,7 @@ export default function Home() {
             animate={{ opacity: 1 }}
             className="p-8 pt-0 md:p-12"
           >
-            {isMobile && <GlitchText show={isAtTop} onClick={() => setIsLandingModalOpen(true)} />}
+            {isMobile && <MobileLogoText show={isAtTop} onClick={() => setIsLandingModalOpen(true)} />}
             {/* Reality Dashboard Layout */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 w-full mb-[15vh] md:mb-32">
               

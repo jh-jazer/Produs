@@ -203,7 +203,7 @@ function Layout() {
                         className={`flex items-center gap-2.5 active:scale-95 transition-all cursor-pointer group ${isOverview ? 'opacity-100 flex' : 'opacity-0 pointer-events-none hidden md:flex'}`}
                         onClick={() => setIsLandingModalOpen(true)}
                     >
-                        <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-slate-800 dark:text-white mt-1">
+                        <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-black dark:text-white mt-1">
                             PRODUS
                         </span>
                     </div>
