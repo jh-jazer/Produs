@@ -143,7 +143,7 @@ const FinancialOverview = ({
                     >
                         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                         <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-4">TOTAL BALANCE</p>
-                        <p className={`text-6xl font-black tracking-tighter italic ${displayedBalance >= 0 ? "text-white" : "text-rose-500"}`}>
+                        <p className={`text-3xl font-black tracking-tighter italic ${displayedBalance >= 0 ? "text-white" : "text-rose-500"}`}>
                             {currencySymbol}{Math.abs(displayedBalance).toLocaleString()}
                         </p>
 
@@ -228,7 +228,7 @@ const FinancialOverview = ({
                         <span className="size-1 bg-white animate-pulse" />
                         TOTAL INCOME
                     </p>
-                    <p className="text-3xl font-black text-white italic tracking-tighter">{currencySymbol}{totalIncome.toLocaleString()}</p>
+                    <p className="text-xl font-black text-white italic tracking-tighter">{currencySymbol}{totalIncome.toLocaleString()}</p>
                 </div>
                 <div className={`p-8 rounded-sm border transition-all duration-500 ${
                     totalExpenses > 0 ? 'bg-white/[0.02] border-white/10' : 'bg-white/[0.01] border-transparent opacity-40'
@@ -237,7 +237,7 @@ const FinancialOverview = ({
                         <span className="size-1 bg-white animate-pulse" />
                         TOTAL EXPENSES
                     </p>
-                    <p className="text-3xl font-black text-white italic tracking-tighter">{currencySymbol}{totalExpenses.toLocaleString()}</p>
+                    <p className="text-xl font-black text-white italic tracking-tighter">{currencySymbol}{totalExpenses.toLocaleString()}</p>
                 </div>
             </div>
 

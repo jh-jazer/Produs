@@ -1,7 +1,19 @@
 <!doctype html>
-<html lang="en" class="dark loading-lock">
+<html lang="en" class="loading-lock">
 
 <head>
+  <!-- Anti-flash theme bootstrap: runs synchronously before first paint -->
+  <script>
+    (function () {
+      var stored = localStorage.getItem('produs-theme-mode');
+      var resolved = stored === 'dark'
+        ? 'dark'
+        : stored === 'light'
+          ? 'light'
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (resolved === 'dark') document.documentElement.classList.add('dark');
+    })();
+  </script>
   <meta charset="UTF-8" />
 
   <link rel="icon" type="image/png" href="/produs-logo.png" />

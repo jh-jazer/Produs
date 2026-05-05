@@ -29,9 +29,12 @@ import EnergyDisplay from './ui/EnergyDisplay';
 import DecisionModal from './ui/DecisionModal';
 import ScrollIndicator from './landing/ScrollIndicator';
 import HudButtons from './ui/HudButtons';
+import ThemeToggle from './ui/ThemeToggle';
+import { useTheme } from '../hooks/useTheme';
 
 function Layout() {
     const { user, signOut } = useAuthStore();
+    const { isDark, setThemeMode } = useTheme(); // boots & syncs theme
     const [viewMode, setViewMode] = useState('personal'); // 'personal' | 'partner'
     const [protocolMode, setProtocolMode] = useState('reality'); // 'reality' | 'rpg'
     const mainRef = useRef(null);
@@ -359,6 +362,9 @@ function Layout() {
                                 <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display" variant="minimal" />
                             </div>
                         </div>
+
+                        {/* Theme Toggle */}
+                        <ThemeToggle className="mb-1" />
 
                         <div className="relative flex items-center gap-4 group" ref={profileRef}>
                             <div className="relative shrink-0 p-[2px]">

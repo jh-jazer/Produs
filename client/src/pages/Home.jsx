@@ -230,7 +230,7 @@ export default function Home() {
                 <ChippedBorder opacity={0.7} />
                 <h3 className="text-xs font-black uppercase tracking-[0.4em] mb-8 text-foreground/40">Vitality // SYNCHRONIZATION</h3>
                 <div className="flex flex-col md:flex-row gap-12 items-end justify-between">
-                  <div className="flex flex-col gap-4"><span className="text-6xl font-black tracking-tighter">98.4%</span><p className="text-white/40 text-xs font-light tracking-wide max-w-[200px]">Optimal cognitive state detected.</p></div>
+                  <div className="flex flex-col gap-4"><span className="text-3xl font-black tracking-tighter">98.4%</span><p className="text-foreground/40 text-xs font-light tracking-wide max-w-[200px]">Optimal cognitive state detected.</p></div>
                   <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: '98%' }} className="h-full bg-white" /></div>
                 </div>
               </motion.div>
@@ -250,7 +250,7 @@ export default function Home() {
               <div className="md:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-8">
                 {[{ l: 'Capital', v: '$12,450.00' }, { l: 'Energy', v: '450kJ' }, { l: 'Focus', v: '4.8h' }].map((s, i) => (
                   <div key={i} className="bg-foreground/[0.02] rounded-sm p-6 flex flex-col gap-2 hover:bg-foreground/[0.04] transition-all relative">
-                    <ChippedBorder opacity={0.5} /><span className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30">{s.l}</span><span className="text-2xl font-black tracking-tight">{s.v}</span>
+                    <ChippedBorder opacity={0.5} /><span className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30">{s.l}</span><span className="text-base font-black tracking-tight">{s.v}</span>
                   </div>
                 ))}
               </div>

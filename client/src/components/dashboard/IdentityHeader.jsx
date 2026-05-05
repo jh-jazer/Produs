@@ -153,12 +153,10 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                 className="relative mt-8 mb-12"
             >
                 {/* 1. The ID Card Container */}
-                <div className="bg-[#f8f9fa] dark:bg-[#0a0a0a] rounded-[2rem] border-2 border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden relative group">
+                <div className="bg-[#f8f9fa] dark:bg-[#0a0a0a] rounded-[2rem] border-2 border-black/5 dark:border-white/10 overflow-hidden relative group">
                     
                     {/* Tactical Background Accents */}
                     <div className="absolute inset-0 pointer-events-none">
-                        <div className="absolute top-0 right-0 size-64 bg-primary/5 blur-[100px] rounded-full" />
-                        <div className="absolute bottom-0 left-0 size-64 bg-primary/5 blur-[100px] rounded-full" />
                         <div className="absolute inset-0 bg-grid-light dark:bg-grid opacity-[0.03]" />
                     </div>
 
@@ -204,7 +202,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                         <div className="flex flex-col items-center gap-6">
                             <div className="relative">
                                 <motion.div 
-                                    className="w-40 md:w-48 h-56 md:h-64 bg-white dark:bg-slate-50 shadow-xl relative overflow-visible flex items-center justify-center p-2"
+                                    className="w-40 md:w-48 h-56 md:h-64 bg-white dark:bg-slate-50 relative overflow-visible flex items-center justify-center p-2"
                                 >
 
                                     <Avatar config={avatar || user.avatar} className="size-full" />

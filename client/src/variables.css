@@ -7,10 +7,29 @@
 
 
 /* =============================================================================
+   0. GLOBAL TYPE SCALE — THE MASTER DIAL
+   ─────────────────────────────────────────────────────────────────────────────
+   Every Tailwind font size (text-xs → text-9xl) is defined in rem.
+   rem is relative to THIS value on html. One change scales every font globally.
+
+   100% = 16px  (browser default — full Tailwind sizes)
+    87% = 14px  (slight reduction)
+    80% = 12.8px  ← CURRENT  (compact HUD aesthetic)
+    75% = 12px  (very compact)
+    70% = 11.2px  (minimal)
+   ============================================================================= */
+
+html {
+  font-size: 80%; /* ← CHANGE THIS ONE VALUE to scale every font in the app */
+}
+
+
+/* =============================================================================
    1. BRAND & CORE PALETTE
    Primary accent, semantic surface colors, and foreground tokens.
    These are the root defaults (light mode). Dark mode overrides live in .dark.
    ============================================================================= */
+
 
 :root {
 

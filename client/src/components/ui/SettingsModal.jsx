@@ -4,11 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import useAuthStore from '../../store/useAuthStore';
 import DashboardModal from './DashboardModal';
+import { useTheme } from '../../hooks/useTheme';
 
 const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
     const { user, updateSettings, deleteAccount } = useAuthStore();
+    const { themeMode, setThemeMode } = useTheme();
     const navigate = useNavigate();
-    const [localSettings, setLocalSettings] = useState(user?.settings || { darkMode: false, notificationsEnabled: false, theme: 'classic', themeMode: 'light' });
+    const [localSettings, setLocalSettings] = useState(user?.settings || { notificationsEnabled: false, theme: 'classic', themeMode: 'light' });
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteWord, setDeleteWord] = useState('');
@@ -49,15 +51,6 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
         const newValue = !localSettings[key];
         const updatedLocal = { ...localSettings, [key]: newValue };
         setLocalSettings(updatedLocal);
-
-        if (key === 'darkMode') {
-            if (newValue) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        }
-
         try {
             await updateSettings({ [key]: newValue });
         } catch (err) {
@@ -67,27 +60,8 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
     };
 
     const handleThemeModeChange = async (mode) => {
-        const updatedLocal = { ...localSettings, themeMode: mode };
-        setLocalSettings(updatedLocal);
-
-        if (mode === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else if (mode === 'light') {
-            document.documentElement.classList.remove('dark');
-        } else {
-            // System
-            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        }
-
-        try {
-            await updateSettings({ themeMode: mode });
-        } catch (err) {
-            console.error('Failed to sync theme mode:', err);
-        }
+        setLocalSettings(prev => ({ ...prev, themeMode: mode }));
+        await setThemeMode(mode); // centralized — applies class + persists
     };
 
     const handleThemeChange = async (themeId) => {
@@ -178,7 +152,7 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                                 <button
                                     key={mode}
                                     onClick={() => handleThemeModeChange(mode)}
-                                    className={`py-3 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${localSettings.themeMode === mode ? 'bg-white dark:bg-[#121212] text-primary shadow-lg ring-1 ring-black/[0.05] dark:ring-white/10' : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'}`}
+                                    className={`py-3 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${themeMode === mode ? 'bg-white dark:bg-[#121212] text-primary shadow-lg ring-1 ring-black/[0.05] dark:ring-white/10' : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'}`}
                                 >
                                     {mode}
                                 </button>
