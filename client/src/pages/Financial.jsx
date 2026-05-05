@@ -15,7 +15,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
   <div 
     className="absolute inset-[-2px] rounded-sm pointer-events-none z-0"
     style={{
-      border: '4px solid white',
+      border: '4px solid currentColor',
       opacity,
       clipPath: 'polygon(0% 0%, 15% 0%, 16% 2%, 18% 0%, 42% 0%, 43% 4%, 45% 0%, 78% 0%, 79% 2%, 81% 0%, 100% 0%, 100% 20%, 98% 22%, 100% 24%, 100% 55%, 97% 58%, 100% 61%, 100% 100%, 82% 100%, 81% 97%, 79% 100%, 38% 100%, 37% 96%, 35% 100%, 0% 100%, 0% 80%, 3% 78%, 0% 76%, 0% 35%, 2% 33%, 0% 31%)'
     }}
@@ -23,12 +23,12 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
-  <div className={`relative bg-white/[0.02] hover:bg-white/[0.04] transition-all p-8 rounded-sm group overflow-hidden ${className}`}>
+  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all p-8 rounded-sm group overflow-hidden ${className}`}>
     <ChippedBorder opacity={0.6} />
     <div className="relative z-10">
       <div className="mb-8 flex justify-between items-start">
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">{title}</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
           {subtitle && <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>}
         </div>
         {headerExtra && <div className="flex gap-2">{headerExtra}</div>}
@@ -87,7 +87,7 @@ const Financial = () => {
     if (isLoading && transactions.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-white p-8 pt-0 md:p-12 font-sans overflow-x-hidden flex flex-col md:flex-row items-start gap-8 md:gap-12">
+        <div className="w-full bg-transparent text-foreground p-8 pt-0 md:p-12 font-sans overflow-x-hidden flex flex-col md:flex-row items-start gap-8 md:gap-12">
             {/* Tactical Navigation Bar - Vertical on Desktop */}
             <WorkspaceSidebar 
                 tabs={tabs} 
@@ -193,10 +193,10 @@ const Financial = () => {
                         </div>
 
                         {/* System Metadata Footer */}
-                        <div className="mt-16 pt-8 border-t border-white/5 flex justify-between items-center opacity-20">
+                        <div className="mt-16 pt-8 border-t border-foreground/5 flex justify-between items-center opacity-20">
                           <span className="text-[8px] font-black uppercase tracking-[0.5em]">PRODUS_FINANCIAL_WORKSPACE_v0.2</span>
                           <div className="flex gap-2">
-                            {[1,2,3,4,5,6].map(i => <div key={i} className="size-1 bg-white rounded-full" />)}
+                            {[1,2,3,4,5,6].map(i => <div key={i} className="size-1 bg-foreground rounded-full" />)}
                           </div>
                         </div>
                     </motion.div>

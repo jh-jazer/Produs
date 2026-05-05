@@ -4,7 +4,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
   <div 
     className="absolute inset-[-1px] rounded-sm pointer-events-none z-0"
     style={{
-      border: '2px solid white',
+      border: '2px solid currentColor',
       opacity,
       clipPath: 'polygon(0% 0%, 15% 0%, 16% 2%, 18% 0%, 42% 0%, 43% 4%, 45% 0%, 78% 0%, 79% 2%, 81% 0%, 100% 0%, 100% 20%, 98% 22%, 100% 24%, 100% 55%, 97% 58%, 100% 61%, 100% 100%, 82% 100%, 81% 97%, 79% 100%, 38% 100%, 37% 96%, 35% 100%, 0% 100%, 0% 80%, 3% 78%, 0% 76%, 0% 35%, 2% 33%, 0% 31%)'
     }}
@@ -57,9 +57,9 @@ const WorkspaceSkeleton = () => {
             </div>
 
             {/* Loading Indicator HUD Pill */}
-            <div className="fixed bottom-12 right-12 flex items-center gap-4 px-6 py-3 bg-[#080808] border border-white/10 rounded-sm shadow-2xl z-[100]">
-                <div className="size-1.5 rounded-full bg-white animate-ping" />
-                <span className="text-[9px] font-black uppercase tracking-[0.5em] text-white/40">HUD_SYNC_INITIALIZING</span>
+            <div className="fixed bottom-12 right-12 flex items-center gap-4 px-6 py-3 bg-white dark:bg-[#080808] border border-foreground/10 rounded-sm shadow-2xl z-[100]">
+                <div className="size-1.5 rounded-full bg-foreground animate-ping" />
+                <span className="text-[9px] font-black uppercase tracking-[0.5em] text-foreground/40">HUD_SYNC_INITIALIZING</span>
             </div>
         </div>
     );

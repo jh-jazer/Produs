@@ -1,0 +1,509 @@
+/* =============================================================================
+   PRODUS DESIGN SYSTEM — variables.css
+   Centralized CSS Custom Properties (Design Tokens)
+   Link this file globally BEFORE index.css and tailwind imports.
+   Usage: var(--token-name)
+   ============================================================================= */
+
+
+/* =============================================================================
+   1. BRAND & CORE PALETTE
+   Primary accent, semantic surface colors, and foreground tokens.
+   These are the root defaults (light mode). Dark mode overrides live in .dark.
+   ============================================================================= */
+
+:root {
+
+  /* --- Brand Blue (Primary Accent) --- */
+  --color-primary:          #0066FF;
+  --color-primary-muted:    #0066FF80;         /* 50% opacity variant */
+  --color-primary-rgb:      0, 102, 255;       /* For use in rgba() */
+  --color-primary-glow:     rgba(0, 102, 255, 0.3);
+
+  /* --- Semantic Surface / Background --- */
+  --color-bg:               #ffffff;           /* Page background (light) */
+  --color-bg-subtle:        #f8f8f8;           /* Slightly off-white panels */
+  --color-card:             #ffffff;           /* Card surface */
+
+  /* --- Dark Surface Palette (used as explicit dark bg panels in both modes) ---
+     These are intentional dark UI elements — ID cards, HUD overlays, modals —
+     that remain dark regardless of theme. */
+  --color-surface-deepest:  #000000;           /* Absolute black */
+  --color-surface-deep:     #020202;
+  --color-surface-darker:   #050505;
+  --color-surface-dark:     #080808;           /* Primary dark panel bg */
+  --color-surface-mid:      #0a0a0a;
+  --color-surface-raised:   #0f0f0f;           /* Slightly raised dark layer */
+  --color-surface-card:     #111111;
+  --color-surface-card-alt: #121212;           /* ID card face bg */
+  --color-surface-elevated: #1a1a1a;           /* Hover / elevated state */
+  --color-surface-ui:       #1e1f22;           /* Discord-inspired UI surface */
+  --color-surface-panel:    #1e293b;           /* Slate-toned panel */
+  --color-surface-muted:    #192233;           /* Dark muted panel */
+  --color-surface-control:  #2b2d31;           /* Input / control bg */
+
+  /* --- Foreground / Text --- */
+  --color-fg:               #000000;           /* Primary text (light mode) */
+  --color-fg-muted:         #64748b;           /* Muted / secondary text (slate-500) */
+  --color-fg-subtle:        #80848e;           /* Subtle text (Discord muted) */
+  --color-fg-faint:         #b5bac1;           /* Very faint (Discord secondary) */
+  --color-fg-ghost:         #dbdee1;           /* Ghost text (Discord primary) */
+
+  /* --- Border --- */
+  --color-border:           color-mix(in srgb, var(--color-primary) 20%, transparent);
+  --color-border-subtle:    rgba(0, 0, 0, 0.08);  /* Light mode subtle border */
+  --color-border-strong:    rgba(0, 0, 0, 0.15);
+
+  /* --- Accent Utilities (used by glass / glow patterns) --- */
+  --color-accent:           var(--color-primary);
+  --color-accent-bg:        color-mix(in srgb, var(--color-primary) 10%, transparent);
+  --color-accent-border:    color-mix(in srgb, var(--color-primary) 20%, transparent);
+  --color-accent-glow:      color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+
+
+/* =============================================================================
+   2. DARK MODE OVERRIDES
+   Applied when the .dark class is present on <html> (managed by theme toggle).
+   ============================================================================= */
+
+.dark {
+  --color-bg:               #000000;
+  --color-bg-subtle:        #000000;
+  --color-card:             #000000;
+
+  --color-fg:               #f8fafc;           /* Near-white primary text */
+  --color-fg-muted:         #94a3b8;           /* slate-400 */
+  --color-fg-subtle:        #80848e;
+  --color-fg-faint:         #b5bac1;
+  --color-fg-ghost:         #dbdee1;
+
+  --color-border:           rgba(255, 255, 255, 0.10);
+  --color-border-subtle:    rgba(255, 255, 255, 0.05);
+  --color-border-strong:    rgba(255, 255, 255, 0.20);
+
+  --color-accent-bg:        color-mix(in srgb, var(--color-primary) 15%, transparent);
+  --color-accent-border:    color-mix(in srgb, var(--color-primary) 30%, transparent);
+  --color-accent-glow:      color-mix(in srgb, var(--color-primary) 50%, transparent);
+
+  --color-primary-glow:     rgba(0, 102, 255, 0.5);
+}
+
+
+/* =============================================================================
+   3. HABIT & CATEGORY ACCENT COLORS
+   Category-specific brand colors used across the habit tracker, charts, etc.
+   ============================================================================= */
+
+:root {
+  /* Habit Categories */
+  --color-habit-health:     #059669;           /* emerald-600 */
+  --color-habit-mindset:    #a855f7;           /* purple-500 */
+  --color-habit-focus:      #0891b2;           /* cyan-700 */
+  --color-habit-social:     #ff4d00;           /* signal-orange */
+
+  /* Status / Signal Colors */
+  --color-signal-orange:    #ff4d00;           /* Warning / action */
+  --color-neon-emerald:     #00ff88;           /* Success / active */
+  --color-dark-amethyst:    #a855f7;           /* Special / purple */
+
+  /* Chart / Data Visualization Palette
+     Maps directly to Tailwind semantic colors used in recharts */
+  --color-chart-blue:       #3b82f6;           /* blue-500   */
+  --color-chart-emerald:    #10b981;           /* emerald-500 */
+  --color-chart-amber:      #f59e0b;           /* amber-500  */
+  --color-chart-rose:       #f43f5e;           /* rose-500   */
+  --color-chart-purple:     #a855f7;           /* purple-500 */
+  --color-chart-cyan:       #06b6d4;           /* cyan-500   */
+  --color-chart-orange:     #f97316;           /* orange-500 */
+  --color-chart-teal:       #14b8a6;           /* teal-500   */
+  --color-chart-indigo:     #6366f1;           /* indigo-500 */
+  --color-chart-pink:       #ec4899;           /* pink-500   */
+  --color-chart-red:        #ef4444;           /* red-500    */
+  --color-chart-violet:     #8b5cf6;           /* violet-500 */
+}
+
+
+/* =============================================================================
+   4. TYPOGRAPHY SCALE
+   Font families, size scale, weight aliases, and letter-spacing tokens.
+   ============================================================================= */
+
+:root {
+  /* --- Font Families --- */
+  --font-primary:     "Outfit", "Inter", sans-serif;   /* Default UI font */
+  --font-display:     "Exo 2", sans-serif;              /* Headers / HUD labels */
+  --font-mono:        "JetBrains Mono", "Fira Code", monospace; /* Code / data readouts */
+  --font-accent:      "Bangers", system-ui;             /* Impact titles (RPG) */
+  --font-handwrite:   "Kalam", cursive;                 /* Journal / notes */
+  --font-comic:       "Comic Neue", cursive;            /* Casual / comic style */
+
+  /* --- Font Size Scale ---
+     Based on extracted usage: 7px–9px (micro HUD), 10px–12px (labels),
+     14px–16px (body), 18px–24px (sub-headings), 32px–96px (display).
+     Named semantically rather than by raw size. */
+  --text-micro:       0.4375rem;   /* 7px  — barely-visible HUD metadata */
+  --text-nano:        0.5rem;      /* 8px  — secondary HUD labels */
+  --text-tiny:        0.5625rem;   /* 9px  — tertiary labels, tracking codes */
+  --text-label:       0.625rem;    /* 10px — primary HUD labels (most common) */
+  --text-caption:     0.6875rem;   /* 11px — captions, table headers */
+  --text-xs:          0.75rem;     /* 12px — small body, badges */
+  --text-sm:          0.875rem;    /* 14px — secondary body */
+  --text-base:        1rem;        /* 16px — primary body copy */
+  --text-md:          1.125rem;    /* 18px — emphasized body */
+  --text-lg:          1.25rem;     /* 20px — card titles */
+  --text-xl:          1.5rem;      /* 24px — section headings */
+  --text-2xl:         1.875rem;    /* 30px — page sub-headings */
+  --text-3xl:         2.25rem;     /* 36px — page headings */
+  --text-4xl:         3rem;        /* 48px — display headings */
+  --text-5xl:         3.75rem;     /* 60px — hero numbers */
+  --text-6xl:         4.5rem;      /* 72px — large hero copy */
+  --text-hero:        6rem;        /* 96px — full-screen impact text */
+
+  /* --- Font Weights --- */
+  --weight-thin:      100;
+  --weight-light:     300;
+  --weight-normal:    400;
+  --weight-medium:    500;
+  --weight-semibold:  600;
+  --weight-bold:      700;
+  --weight-extrabold: 800;
+  --weight-black:     900;         /* Most used across the HUD system */
+
+  /* --- Letter Spacing (Tracking) Scale ---
+     Extracted from all uppercase HUD label patterns: tracking-[0.1em]–[0.8em] */
+  --tracking-tight:   -0.025em;    /* Compressed display text */
+  --tracking-normal:  0em;
+  --tracking-wide:    0.05em;      /* tracking-wide (Tailwind default) */
+  --tracking-wider:   0.1em;       /* tracking-[0.1em] */
+  --tracking-label:   0.2em;       /* tracking-[0.2em] — action labels */
+  --tracking-hud-sm:  0.3em;       /* tracking-[0.3em] — HUD labels */
+  --tracking-hud-md:  0.4em;       /* tracking-[0.4em] — section labels (most common) */
+  --tracking-hud-lg:  0.5em;       /* tracking-[0.5em] — metadata */
+  --tracking-hud-xl:  0.6em;       /* tracking-[0.6em] — HUD panel titles */
+  --tracking-hud-2xl: 0.8em;       /* tracking-[0.8em] — maximum spread (PRODUS branding) */
+
+  /* --- Line Heights --- */
+  --leading-none:     1;
+  --leading-tight:    1.25;
+  --leading-snug:     1.375;
+  --leading-normal:   1.5;
+  --leading-relaxed:  1.625;
+  --leading-loose:    2;
+}
+
+
+/* =============================================================================
+   5. SPACING SCALE
+   Maps to Tailwind's default 4px base unit (1 unit = 4px / 0.25rem).
+   Named semantically for use in custom CSS and inline styles.
+   ============================================================================= */
+
+:root {
+  --space-0:     0;
+  --space-px:    1px;
+  --space-0-5:   0.125rem;   /* 2px  */
+  --space-1:     0.25rem;    /* 4px  */
+  --space-2:     0.5rem;     /* 8px  */
+  --space-3:     0.75rem;    /* 12px */
+  --space-4:     1rem;       /* 16px — base unit */
+  --space-5:     1.25rem;    /* 20px */
+  --space-6:     1.5rem;     /* 24px */
+  --space-8:     2rem;       /* 32px — standard section gap */
+  --space-10:    2.5rem;     /* 40px */
+  --space-12:    3rem;       /* 48px — large section gap */
+  --space-16:    4rem;       /* 64px */
+  --space-20:    5rem;       /* 80px */
+  --space-24:    6rem;       /* 96px — hero padding */
+  --space-32:    8rem;       /* 128px — page-level margin */
+  --space-40:    10rem;      /* 160px */
+
+  /* Semantic aliases */
+  --spacing-xs:  var(--space-2);    /* 8px  — tight internal gap */
+  --spacing-sm:  var(--space-4);    /* 16px — card internal padding sm */
+  --spacing-md:  var(--space-6);    /* 24px — card padding */
+  --spacing-lg:  var(--space-8);    /* 32px — section padding */
+  --spacing-xl:  var(--space-12);   /* 48px — large section padding */
+  --spacing-2xl: var(--space-20);   /* 80px — page-level vertical rhythm */
+  --spacing-3xl: var(--space-24);   /* 96px — hero sections */
+
+  /* Component-specific spacing */
+  --panel-padding:        var(--space-8);    /* 32px — DashboardPanel, HUDPanel */
+  --panel-padding-mobile: var(--space-4);    /* 16px — mobile panel padding */
+  --modal-padding:        var(--space-10);   /* 40px — DashboardModal body */
+  --modal-padding-md:     2.5rem;           /* 40px — md breakpoint modal */
+  --nav-gap:              var(--space-8);    /* 32px — sidebar / nav gaps */
+}
+
+
+/* =============================================================================
+   6. BORDER RADIUS SCALE
+   Produs uses a "tactical" flat aesthetic — rounded-sm dominates.
+   ============================================================================= */
+
+:root {
+  --radius-none:    0;
+  --radius-xs:      0.125rem;   /* 2px  — pixel-art / HUD sharp corners */
+  --radius-sm:      0.25rem;    /* 4px  — rounded-sm  (dominant: panels, cards) */
+  --radius-md:      0.375rem;   /* 6px  — rounded-md  (form elements) */
+  --radius-base:    0.5rem;     /* 8px  — rounded     (general default) */
+  --radius-lg:      0.75rem;    /* 12px — rounded-lg  (buttons, badges) */
+  --radius-xl:      1rem;       /* 16px — rounded-xl  (modals, cards) */
+  --radius-2xl:     1.5rem;     /* 24px — rounded-2xl (large cards) */
+  --radius-full:    9999px;     /* rounded-full (pills, avatars) */
+
+  /* Semantic aliases */
+  --radius-panel:   var(--radius-sm);    /* HUD panels and workspace cards */
+  --radius-button:  var(--radius-sm);    /* Tactical buttons */
+  --radius-input:   var(--radius-md);    /* Form inputs */
+  --radius-badge:   var(--radius-lg);    /* Tags, badges */
+  --radius-avatar:  var(--radius-full);  /* User avatars */
+  --radius-modal:   var(--radius-sm);    /* Modals (tactical flat style) */
+}
+
+
+/* =============================================================================
+   7. BORDERS
+   Standard border widths extracted from border, border-2, border-4 usage.
+   ============================================================================= */
+
+:root {
+  --border-width-none:   0;
+  --border-width-thin:   1px;    /* border    — subtle separators */
+  --border-width-base:   2px;    /* border-2  — button / input borders */
+  --border-width-thick:  4px;    /* border-4  — ChippedBorder decorative frame */
+}
+
+
+/* =============================================================================
+   8. SHADOWS & ELEVATION
+   Extracted from custom shadow-[…] patterns across the codebase.
+   Follows a low → high "depth" scale for layering.
+   ============================================================================= */
+
+:root {
+  /* Glow / bloom effects */
+  --shadow-glow-white-sm:  0 0 3px  rgba(255, 255, 255, 0.30);
+  --shadow-glow-white-md:  0 0 10px rgba(255, 255, 255, 0.10);
+  --shadow-glow-white-lg:  0 0 15px rgba(255, 255, 255, 0.50);
+  --shadow-glow-white-xl:  0 0 12px rgba(255, 255, 255, 0.50);
+  --shadow-glow-primary:   0 0  8px var(--color-primary-glow);
+  --shadow-glow-black:     0 0 12px rgba(0, 0, 0, 0.20);
+  --shadow-glow-dark-lg:   0 0 50px rgba(0, 0, 0, 0.50);
+  --shadow-glow-dark-xl:   0 0 100px rgba(0, 0, 0, 0.80);
+
+  /* Elevation / drop shadows (light source from above) */
+  --shadow-sm:     0 20px  50px rgba(0, 0, 0, 0.50);   /* shadow-hud spec */
+  --shadow-md:     0 20px  60px rgba(0, 0, 0, 0.30);
+  --shadow-lg:     0 25px  80px rgba(0, 0, 0, 0.40);
+  --shadow-xl:     0 30px  80px rgba(0, 0, 0, 1.00);   /* ID card / floating panel */
+  --shadow-modal:  0 30px  60px -15px rgba(0, 0, 0, 0.50); /* DashboardModal */
+  --shadow-hud:    0 20px  50px rgba(0, 0, 0, 0.50);   /* DashboardPanel HUD */
+}
+
+
+/* =============================================================================
+   9. OPACITY SCALE
+   Standardized values for text-opacity, bg-opacity, and border-opacity utilities.
+   ============================================================================= */
+
+:root {
+  --opacity-ghost:    0.03;    /* Barely-there panel bg */
+  --opacity-faintest: 0.04;
+  --opacity-faint:    0.05;    /* Dividers, subtle borders */
+  --opacity-softest:  0.10;
+  --opacity-soft:     0.15;
+  --opacity-dim:      0.20;    /* Decorative metadata text */
+  --opacity-muted:    0.30;    /* Secondary labels */
+  --opacity-base:     0.40;    /* HUD label text default */
+  --opacity-secondary:0.50;
+  --opacity-primary:  0.60;    /* Active label text */
+  --opacity-strong:   0.80;    /* Near-full body text */
+  --opacity-full:     1.00;
+}
+
+
+/* =============================================================================
+   10. Z-INDEX STACK
+   Full z-index layer system. Prevents arbitrary z-index collisions.
+   ============================================================================= */
+
+:root {
+  --z-base:       0;      /* Default document flow */
+  --z-raised:     10;     /* Slightly elevated components */
+  --z-dropdown:   20;     /* Dropdown menus, tooltips */
+  --z-sticky:     30;     /* Sticky headers */
+  --z-fixed:      50;     /* Fixed navigation */
+  --z-hud:        60;     /* In-page HUD overlays */
+  --z-overlay:    100;    /* z-[100] — page-level overlays */
+  --z-overlay-1:  101;
+  --z-overlay-2:  110;
+  --z-drawer:     135;
+  --z-modal:      140;    /* Standard modals */
+  --z-modal-top:  150;    /* Stacked / nested modals */
+  --z-toast:      200;    /* Toast notifications */
+  --z-nav:        300;    /* Mobile nav */
+  --z-loader:     1000;   /* DashboardModal portal */
+  --z-decision:   10002;  /* DecisionModal (highest — confirmation flows) */
+  --z-supreme:    9999;   /* Absolute top — critical error overlays */
+}
+
+
+/* =============================================================================
+   11. ANIMATION & MOTION TOKENS
+   Duration, easing, and keyframe reference tokens.
+   ============================================================================= */
+
+:root {
+  /* Duration */
+  --duration-instant:   100ms;
+  --duration-fast:      300ms;   /* Standard micro-interaction (most common) */
+  --duration-base:      400ms;
+  --duration-moderate:  500ms;
+  --duration-slow:      600ms;
+  --duration-slower:    700ms;
+  --duration-deliberate:1000ms;  /* Page transitions, dramatic reveals */
+
+  /* Easing */
+  --ease-default:    ease;
+  --ease-out:        ease-out;
+  --ease-in-out:     ease-in-out;
+  --ease-spring:     cubic-bezier(0.16, 1, 0.30, 1);   /* Framer-motion spring feel */
+  --ease-cinematic:  cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* Standard transition shorthands */
+  --transition-base:    all var(--duration-fast) var(--ease-default);
+  --transition-color:   color var(--duration-fast) var(--ease-default),
+                        background-color var(--duration-fast) var(--ease-out),
+                        border-color var(--duration-fast) var(--ease-out);
+  --transition-transform: transform var(--duration-fast) var(--ease-spring);
+  --transition-opacity: opacity var(--duration-fast) var(--ease-default);
+}
+
+
+/* =============================================================================
+   12. LAYOUT & CONTAINER TOKENS
+   Breakpoints (for reference), max-widths, and grid tokens.
+   ============================================================================= */
+
+:root {
+  /* Max-width scale (based on codebase usage) */
+  --container-xs:   480px;
+  --container-sm:   520px;
+  --container-md:   600px;
+  --container-lg:   760px;
+  --container-xl:   1024px;
+  --container-2xl:  1280px;   /* max-w-5xl / max-w-6xl range */
+  --container-page: 1400px;   /* max-w-[1400px] — widest page layout */
+
+  /* Grid */
+  --grid-cols-default: 12;
+  --grid-gap:          var(--space-8);   /* 32px — standard grid gap */
+  --grid-gap-sm:       var(--space-4);   /* 16px — tight grids */
+
+  /* Backdrop blur scale */
+  --blur-sm:    4px;    /* backdrop-blur-sm  */
+  --blur-md:    12px;   /* backdrop-blur-md  */
+  --blur-xl:    24px;   /* backdrop-blur-xl  */
+  --blur-2xl:   40px;   /* backdrop-blur-2xl */
+  --blur-3xl:   64px;   /* backdrop-blur-3xl — modals */
+}
+
+
+/* =============================================================================
+   13. COMPONENT-SPECIFIC TOKENS
+   Frequently composed patterns extracted from ChippedBorder, DashboardPanel,
+   DashboardModal, HabitChecklistHUD, WorkspaceSkeleton, and WorkspaceSidebar.
+   ============================================================================= */
+
+:root {
+  /* ChippedBorder */
+  --chipped-border-color:      currentColor;
+  --chipped-border-thickness:  var(--border-width-thick);    /* 4px */
+  --chipped-border-opacity:    0.6;
+  --chipped-clip-path: polygon(
+    0% 0%, 15% 0%, 16% 2%, 18% 0%,
+    42% 0%, 43% 4%, 45% 0%,
+    78% 0%, 79% 2%, 81% 0%,
+    100% 0%, 100% 20%, 98% 22%, 100% 24%,
+    100% 55%, 97% 58%, 100% 61%,
+    100% 100%, 82% 100%, 81% 97%, 79% 100%,
+    38% 100%, 37% 96%, 35% 100%,
+    0% 100%, 0% 80%, 3% 78%, 0% 76%,
+    0% 35%, 2% 33%, 0% 31%
+  );
+
+  /* DashboardPanel / HUDPanel */
+  --panel-bg:            color-mix(in srgb, var(--color-fg) 3%, transparent);
+  --panel-bg-hover:      color-mix(in srgb, var(--color-fg) 5%, transparent);
+  --panel-header-color:  color-mix(in srgb, var(--color-fg) 40%, transparent);
+
+  /* DashboardModal */
+  --modal-bg:            var(--color-bg);      /* bg-white / dark:bg-[#080808] */
+  --modal-backdrop:      rgba(0, 0, 0, 0.60);  /* Overlay dimmer */
+  --modal-border:        var(--color-border-subtle);
+
+  /* Skeleton shimmer */
+  --skeleton-bg:         color-mix(in srgb, var(--color-fg) 5%, transparent);
+
+  /* HUD Pill (loading indicator) */
+  --hud-pill-bg-light:   var(--color-bg);
+  --hud-pill-bg-dark:    var(--color-surface-dark);   /* #080808 */
+}
+
+
+/* =============================================================================
+   14. TYPOGRAPHY HEADING DEFAULTS
+   Semantic h1–h6 scale using the tokens defined above.
+   These are optional base styles — Tailwind utility classes take precedence
+   when used directly on elements.
+   ============================================================================= */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family:   var(--font-display);
+  font-weight:   var(--weight-black);
+  line-height:   var(--leading-none);
+  letter-spacing: var(--tracking-tight);
+  color:         var(--color-fg);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+h1 { font-size: var(--text-hero);  }   /* 96px — landing page impact */
+h2 { font-size: var(--text-6xl);   }   /* 72px — section hero */
+h3 { font-size: var(--text-4xl);   }   /* 48px — page headings */
+h4 { font-size: var(--text-3xl);   }   /* 36px — card headings */
+h5 { font-size: var(--text-xl);    }   /* 24px — sub-section titles */
+h6 { font-size: var(--text-lg);    }   /* 20px — panel labels */
+
+/* HUD Label — the most common text pattern across the codebase:
+   10px / font-black / uppercase / tracking-[0.4em]
+   Use: <span class="hud-label">SECTION_TITLE</span> */
+.hud-label {
+  font-family:    var(--font-mono);
+  font-size:      var(--text-label);        /* 10px */
+  font-weight:    var(--weight-black);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-hud-md);   /* 0.4em */
+  line-height:    var(--leading-none);
+  color:          color-mix(in srgb, var(--color-fg) 40%, transparent);
+}
+
+/* HUD Sub-label — 8px metadata lines */
+.hud-sublabel {
+  font-family:    var(--font-mono);
+  font-size:      var(--text-nano);         /* 8px */
+  font-weight:    var(--weight-black);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest, 0.1em);
+  opacity:        var(--opacity-dim);       /* 20% */
+}
+
+/* Body text */
+body, p {
+  font-family: var(--font-primary);
+  font-size:   var(--text-base);
+  font-weight: var(--weight-normal);
+  line-height: var(--leading-relaxed);
+  color:       var(--color-fg);
+}

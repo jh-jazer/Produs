@@ -65,7 +65,7 @@ const DashboardModal = ({
                             className={`relative w-full ${maxWidth} bg-white dark:bg-[#080808] backdrop-blur-3xl rounded-none border-none overflow-hidden flex flex-col max-h-[85vh] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] z-[1001]`}
                             onClick={e => e.stopPropagation()}
                         >
-                            <ChippedBorder opacity={0.6} thickness="4px" color="white" />
+                            <ChippedBorder opacity={0.6} thickness="4px" />
                             <div className="absolute inset-0 border border-white/10 pointer-events-none z-40" />
                         {/* Header Section */}
                         <div className="p-8 md:p-10 border-b border-black/5 dark:border-white/5 flex items-center justify-between relative z-20">

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ChippedBorder = ({ opacity = 0.8, color = "white", thickness = "4px" }) => (
+const ChippedBorder = ({ opacity = 0.8, color = "currentColor", thickness = "4px" }) => (
   <div 
     className="absolute inset-0 pointer-events-none z-50"
     style={{

@@ -34,7 +34,7 @@ const DashboardPanel = ({
 
     return (
         <div className={`relative z-0 bg-white/[0.03] dark:bg-[#080808]/40 backdrop-blur-2xl border-none rounded-none overflow-hidden group shadow-none ${noPadding ? '' : 'px-4 py-8 md:p-8'} ${className}`}>
-            <ChippedBorder opacity={0.3} thickness="2px" color="white" />
+            <ChippedBorder opacity={0.3} thickness="2px" />
             
             {/* Tactical Backdrop Decoration */}
             {showZap && (

@@ -7,7 +7,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
   <div
     className="absolute inset-[-2px] rounded-sm pointer-events-none z-0"
     style={{
-      border: '4px solid white',
+      border: '4px solid currentColor',
       opacity,
       clipPath:
         'polygon(0% 0%, 15% 0%, 16% 2%, 18% 0%, 42% 0%, 43% 4%, 45% 0%, 78% 0%, 79% 2%, 81% 0%, 100% 0%, 100% 20%, 98% 22%, 100% 24%, 100% 55%, 97% 58%, 100% 61%, 100% 100%, 82% 100%, 81% 97%, 79% 100%, 38% 100%, 37% 96%, 35% 100%, 0% 100%, 0% 80%, 3% 78%, 0% 76%, 0% 35%, 2% 33%, 0% 31%)',
@@ -64,18 +64,18 @@ export default function HabitChecklistHUD() {
   };
 
   return (
-    <div className="flex md:col-span-3 flex-col bg-white/[0.02] rounded-sm p-8 h-[70vh] md:h-[500px] hover:bg-white/[0.04] transition-all group relative overflow-hidden">
+    <div className="flex md:col-span-3 flex-col bg-foreground/[0.02] rounded-sm p-8 h-[70vh] md:h-[500px] hover:bg-foreground/[0.04] transition-all group relative overflow-hidden">
       <ChippedBorder opacity={0.7} />
 
       {/* Header */}
       <div className="mb-10 flex justify-between items-center relative z-10">
-        <span className="text-xs font-black uppercase tracking-[0.6em] text-white/60">CHECKLIST</span>
+        <span className="text-xs font-black uppercase tracking-[0.6em] text-foreground/60">CHECKLIST</span>
         <button
           onClick={() => setAddModalOpen((prev) => !prev)}
           className={`size-8 flex items-center justify-center border-2 transition-all active:scale-95 ${
             addModalOpen
-              ? 'bg-white border-white text-black'
-              : 'border-white/20 hover:border-white text-white/40 hover:text-white'
+              ? 'bg-foreground border-foreground text-background'
+              : 'border-foreground/20 hover:border-foreground text-foreground/40 hover:text-foreground'
           }`}
         >
           <span className="material-symbols-outlined text-sm">
@@ -95,9 +95,9 @@ export default function HabitChecklistHUD() {
       <div className="flex-1 relative overflow-hidden flex flex-col z-10">
 
         {/* Scroll track + thumb */}
-        <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-white/20 pointer-events-none z-20">
+        <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-foreground/20 pointer-events-none z-20">
           <motion.div
-            className="absolute w-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+            className="absolute w-full bg-foreground"
             style={{
               height: `${thumbHeight}%`,
               top: thumbTop,
@@ -128,8 +128,8 @@ export default function HabitChecklistHUD() {
                   whileHover={{ x: 4 }}
                   className={`flex items-center gap-4 p-4 border rounded-sm transition-all group/item cursor-pointer ${
                     isCompleted
-                      ? 'bg-white/[0.05] border-white/20'
-                      : 'bg-white/[0.01] border-white/5 hover:border-white/10'
+                      ? 'bg-foreground/[0.05] border-foreground/20'
+                      : 'bg-foreground/[0.01] border-foreground/5 hover:border-foreground/10'
                   }`}
                   onClick={() => toggleCheck(habit._id, today)}
                 >
@@ -137,19 +137,19 @@ export default function HabitChecklistHUD() {
                   <div
                     className={`size-5 border-2 rounded-sm shrink-0 flex items-center justify-center transition-all ${
                       isCompleted
-                        ? 'bg-white border-white'
-                        : 'border-white/20 group-hover/item:border-white/40'
+                        ? 'bg-foreground border-foreground'
+                        : 'border-foreground/20 group-hover/item:border-foreground/40'
                     }`}
                   >
                     {isCompleted && (
-                      <span className="material-symbols-outlined text-black text-sm font-bold">
+                      <span className="material-symbols-outlined text-background text-sm font-bold">
                         check
                       </span>
                     )}
                   </div>
                   {/* Icon */}
-                  <div className="shrink-0 flex items-center justify-center size-8 bg-white/5 rounded-sm border border-white/5 group-hover/item:border-white/10 transition-all">
-                    <span className="material-symbols-outlined text-white/40 text-lg group-hover/item:text-white/80 transition-colors">
+                  <div className="shrink-0 flex items-center justify-center size-8 bg-foreground/5 rounded-sm border border-foreground/5 group-hover/item:border-foreground/10 transition-all">
+                    <span className="material-symbols-outlined text-foreground/40 text-lg group-hover/item:text-foreground/80 transition-colors">
                       {habit.icon}
                     </span>
                   </div>
@@ -187,7 +187,7 @@ export default function HabitChecklistHUD() {
               <button
                 onClick={handleSyncHabits}
                 disabled={isSyncing}
-                className="px-6 py-3 bg-white text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white/90 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-3"
+                className="px-6 py-3 bg-foreground text-background text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-3"
               >
                 {isSyncing ? 'Syncing...' : 'Sync_Core_Modules'}
               </button>

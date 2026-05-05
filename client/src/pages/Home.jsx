@@ -15,7 +15,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
   <div 
     className="absolute inset-[-2px] rounded-sm pointer-events-none z-0"
     style={{
-      border: '4px solid white',
+      border: '4px solid currentColor',
       opacity,
       clipPath: 'polygon(0% 0%, 15% 0%, 16% 2%, 18% 0%, 42% 0%, 43% 4%, 45% 0%, 78% 0%, 79% 2%, 81% 0%, 100% 0%, 100% 20%, 98% 22%, 100% 24%, 100% 55%, 97% 58%, 100% 61%, 100% 100%, 82% 100%, 81% 97%, 79% 100%, 38% 100%, 37% 96%, 35% 100%, 0% 100%, 0% 80%, 3% 78%, 0% 76%, 0% 35%, 2% 33%, 0% 31%)'
     }}
@@ -107,7 +107,7 @@ export default function Home() {
   const isLevel0Active = isUnawakened && protocolMode === 'rpg';
 
   return (
-    <div className="w-full bg-transparent text-white font-sans">
+    <div className="w-full bg-transparent text-foreground font-sans">
       <AnimatePresence mode="wait">
         {isLevel0Active && !isInitializing ? (
           <motion.div
@@ -226,17 +226,17 @@ export default function Home() {
 
             {/* Bottom Grid Layout */}
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 max-w-[1400px]">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="md:col-span-8 group relative bg-white/[0.03] rounded-sm p-8 overflow-hidden hover:bg-white/[0.05] transition-all">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="md:col-span-8 group relative bg-foreground/[0.03] rounded-sm p-8 overflow-hidden hover:bg-foreground/[0.05] transition-all">
                 <ChippedBorder opacity={0.7} />
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] mb-8 text-white/40">Vitality // SYNCHRONIZATION</h3>
+                <h3 className="text-xs font-black uppercase tracking-[0.4em] mb-8 text-foreground/40">Vitality // SYNCHRONIZATION</h3>
                 <div className="flex flex-col md:flex-row gap-12 items-end justify-between">
                   <div className="flex flex-col gap-4"><span className="text-6xl font-black tracking-tighter">98.4%</span><p className="text-white/40 text-xs font-light tracking-wide max-w-[200px]">Optimal cognitive state detected.</p></div>
                   <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: '98%' }} className="h-full bg-white" /></div>
                 </div>
               </motion.div>
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="md:col-span-4 bg-white/5 rounded-sm p-8 flex flex-col justify-between hover:border-white/30 transition-all cursor-pointer group relative">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="md:col-span-4 bg-foreground/5 rounded-sm p-8 flex flex-col justify-between hover:border-foreground/30 transition-all cursor-pointer group relative">
                 <ChippedBorder opacity={0.7} />
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] mb-6 text-white/40">Strategy // CURRENT</h3>
+                <h3 className="text-xs font-black uppercase tracking-[0.4em] mb-6 text-foreground/40">Strategy // CURRENT</h3>
                 <ul className="flex flex-col gap-4">
                   {['Finalize HUD Architecture', 'Neural Loop Integration'].map((t, i) => (
                     <li key={i} className="flex items-center gap-3"><div className="size-1.5 bg-white rounded-full" /><span className="text-[10px] font-bold uppercase tracking-widest opacity-80">{t}</span></li>
@@ -249,8 +249,8 @@ export default function Home() {
               </motion.div>
               <div className="md:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-8">
                 {[{ l: 'Capital', v: '$12,450.00' }, { l: 'Energy', v: '450kJ' }, { l: 'Focus', v: '4.8h' }].map((s, i) => (
-                  <div key={i} className="bg-white/[0.02] rounded-sm p-6 flex flex-col gap-2 hover:bg-white/[0.04] transition-all relative">
-                    <ChippedBorder opacity={0.5} /><span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/30">{s.l}</span><span className="text-2xl font-black tracking-tight">{s.v}</span>
+                  <div key={i} className="bg-foreground/[0.02] rounded-sm p-6 flex flex-col gap-2 hover:bg-foreground/[0.04] transition-all relative">
+                    <ChippedBorder opacity={0.5} /><span className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30">{s.l}</span><span className="text-2xl font-black tracking-tight">{s.v}</span>
                   </div>
                 ))}
               </div>
