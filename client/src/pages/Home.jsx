@@ -168,46 +168,46 @@ export default function Home() {
                     <div className="relative -mt-4 perspective-[1000px] cursor-pointer pointer-events-auto" onClick={() => setIsFlipped(!isFlipped)}>
                       <motion.div animate={{ rotateY: isFlipped ? 180 : 0 }} transition={{ type: "spring", stiffness: 260, damping: 20 }} style={{ transformStyle: "preserve-3d", originY: 0 }} className="relative w-[75vw] md:w-[286px] min-h-[60vh] md:min-h-[446px]">
                         {/* FRONT FACE */}
-                        <div className="absolute inset-0 bg-[#121212] text-white p-8 rounded-sm shadow-[0_30px_80px_rgba(0,0,0,1)] flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden" }}>
+                        <div className="absolute inset-0 bg-gray-300 dark:bg-[#121212] text-black dark:text-white p-8 rounded-sm flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden" }}>
                           <ChippedBorder opacity={1} />
-                          <div className="absolute top-0 left-1/2 -translate-x-1/2 size-8 bg-[#000000] rounded-full border-[7px] border-[#121212] z-20 flex items-center justify-center">
-                             <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-white/30" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 size-8 bg-black/10 dark:bg-[#000000] rounded-full border-[7px] border-white dark:border-[#121212] z-20 flex items-center justify-center">
+                             <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-black/30 dark:border-white/30" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
                           </div>
                           <div className="flex flex-col gap-6 w-full items-center mt-4">
                             <div className="flex flex-col items-center">
-                              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">{user?.username?.split('#')[0].toUpperCase() || 'OPERATIVE'}_ID</span>
+                              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/20 dark:text-white/20">{user?.username?.split('#')[0].toUpperCase() || 'OPERATIVE'}_ID</span>
                               <span className="text-sm font-black tracking-tighter uppercase opacity-80">OP_HASH_{codenameHash}</span>
                             </div>
-                            <div className="h-[1px] bg-white/10 w-full" />
+                            <div className="h-[1px] bg-black/10 dark:bg-white/10 w-full" />
                             <div className="flex flex-col items-center gap-6">
-                              <div className="size-32 bg-black rounded-sm overflow-hidden border border-white/10 shrink-0 relative">
-                                <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center"><span className="material-symbols-outlined text-white/10 text-6xl">person</span></div>
-                                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent h-1/2 w-full top-0 animate-scanline" />
+                              <div className="size-32 bg-black/5 dark:bg-black rounded-sm overflow-hidden border border-black/10 dark:border-white/10 shrink-0 relative">
+                                <div className="w-full h-full bg-gradient-to-br from-black/5 to-black/10 dark:from-[#1a1a1a] dark:to-[#0a0a0a] flex items-center justify-center"><span className="material-symbols-outlined text-black/10 dark:text-white/10 text-6xl">person</span></div>
+                                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/5 dark:via-white/5 to-transparent h-1/2 w-full top-0 animate-scanline" />
                               </div>
                               <div className="flex flex-col items-center gap-1">
-                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">AUTHORIZED</span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 dark:text-white/40">AUTHORIZED</span>
                                 <span className="text-xs font-bold uppercase tracking-tight">{user?.rpg?.archetype?.name || 'UNAWAKENED'}</span>
                               </div>
                             </div>
                           </div>
                         </div>
                         {/* BACK FACE */}
-                        <div className="absolute inset-0 bg-[#0f0f0f] text-white p-8 rounded-sm shadow-[0_30px_80px_rgba(0,0,0,1)] flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+                        <div className="absolute inset-0 bg-gray-300 dark:bg-[#0f0f0f] text-black dark:text-white p-8 rounded-sm flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
                           <ChippedBorder opacity={1} />
-                          <div className="absolute top-0 left-1/2 -translate-x-1/2 size-8 bg-[#000000] rounded-full border-[7px] border-[#0f0f0f] z-20 flex items-center justify-center">
-                             <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-white/20" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 size-8 bg-black/10 dark:bg-[#000000] rounded-full border-[7px] border-white dark:border-[#0f0f0f] z-20 flex items-center justify-center">
+                             <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-black/20 dark:border-white/20" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
                           </div>
                           <div className="flex flex-col gap-8 w-full items-center mt-10">
                             <div className="flex flex-col items-center">
-                              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">System Metadata</span>
+                              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/20 dark:text-white/20">System Metadata</span>
                               <span className="text-[9px] font-mono opacity-40 uppercase tracking-widest">Global_Unique_Identifier</span>
                             </div>
-                            <div className="p-4 bg-white/[0.03] border border-white/10 rounded-sm relative">
-                              <QRCodeSVG value={user?._id || 'PRODUS_OPERATIVE'} size={140} bgColor={"transparent"} fgColor={"rgba(255, 255, 255, 0.8)"} level={"L"} />
+                            <div className="p-4 bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-sm relative">
+                              <QRCodeSVG value={user?._id || 'PRODUS_OPERATIVE'} size={140} bgColor={"transparent"} fgColor={document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.8)'} level={"L"} />
                             </div>
                             <div className="flex flex-col items-center gap-2 w-full">
-                              <span className="text-[9px] font-black uppercase tracking-[0.4em] text-white/10">Full Access Key</span>
-                              <div className="w-full bg-white/[0.02] border border-white/5 p-3 rounded-sm font-mono text-[9px] break-all leading-relaxed opacity-60">{user?._id || 'SESSION_DATA_NOT_FOUND'}</div>
+                              <span className="text-[9px] font-black uppercase tracking-[0.4em] text-black/10 dark:text-white/10">Full Access Key</span>
+                              <div className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 p-3 rounded-sm font-mono text-[9px] break-all leading-relaxed opacity-60">{user?._id || 'SESSION_DATA_NOT_FOUND'}</div>
                             </div>
                           </div>
                         </div>
