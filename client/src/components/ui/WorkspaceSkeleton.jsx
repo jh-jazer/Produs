@@ -56,11 +56,6 @@ const WorkspaceSkeleton = () => {
                 </div>
             </div>
 
-            {/* Loading Indicator HUD Pill */}
-            <div className="fixed bottom-12 right-12 flex items-center gap-4 px-6 py-3 bg-white dark:bg-[#080808] border border-foreground/10 rounded-sm shadow-2xl z-[100]">
-                <div className="size-1.5 rounded-full bg-foreground animate-ping" />
-                <span className="text-[9px] font-black uppercase tracking-[0.5em] text-foreground/40">HUD_SYNC_INITIALIZING</span>
-            </div>
         </div>
     );
 };
