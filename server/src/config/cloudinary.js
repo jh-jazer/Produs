@@ -27,5 +27,15 @@ const wishlistStorage = new CloudinaryStorage({
   },
 });
 
+const avatarStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'produs_avatars',
+    allowedFormats: ['jpg', 'png', 'jpeg', 'webp'],
+    transformation: [{ width: 400, height: 400, crop: 'limit' }]
+  },
+});
+
 export const uploadBanner = multer({ storage: storage });
 export const uploadWishlist = multer({ storage: wishlistStorage });
+export const uploadAvatar = multer({ storage: avatarStorage });

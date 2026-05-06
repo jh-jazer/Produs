@@ -100,11 +100,7 @@ const CoinDisplay = ({ amount = 0, className = "", variant = "vault" }) => {
 
             {/* Amount Section */}
             <div className="flex flex-col relative z-10">
-                {isVault && (
-                    <span className="text-[7px] font-black text-slate-500 uppercase tracking-[0.3em] leading-none mb-1">
-                        Vault_Asset
-                    </span>
-                )}
+
                 <div className="flex items-baseline gap-2">
                     <div className="min-w-[3.5rem] flex justify-start">
                         <motion.span

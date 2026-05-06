@@ -21,6 +21,9 @@ import UserMenuModal from "./ui/UserMenuModal";
 import OperationModeModal from './ui/OperationModeModal';
 import LevelDisplay from './ui/LevelDisplay';
 import DashboardHeader from './dashboard/DashboardHeader';
+import ConnectionsModal from './ui/ConnectionsModal';
+import IdentityEditModal from './ui/IdentityEditModal';
+import QRModal from './ui/QRModal';
 import { DashboardContext } from '../context/DashboardContext';
 import StatsModal from './ui/StatsModal';
 import CoinDisplay from './ui/CoinDisplay';
@@ -54,6 +57,7 @@ function Layout() {
 
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+    const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
 
     useEffect(() => {
         if (isUserMenuOpen || isSettingsModalOpen) {
@@ -69,6 +73,8 @@ function Layout() {
     const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
     const [isOperationModalOpen, setIsOperationModalOpen] = useState(false);
     const [isLandingModalOpen, setIsLandingModalOpen] = useState(false);
+    const [isIdentityEditModalOpen, setIsIdentityEditModalOpen] = useState(false);
+    const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const [mobileTabs, setMobileTabs] = useState(null); // { tabs, activeTab, setActiveTab }
     const [activeRpgTab, setActiveRpgTab] = useState('home');
     const isNeuralSyncDismissed = useAuthStore((state) => state.isNeuralSyncDismissed);
@@ -146,6 +152,11 @@ function Layout() {
             setActiveRpgTab,
             setIsOperationModalOpen,
             setIsLandingModalOpen,
+            setIsConnectionsModalOpen,
+            setIsIdentityEditModalOpen,
+            setIsQrModalOpen,
+            setIsSearchModalOpen,
+            setIsNotificationModalOpen,
             mobileTabs,
             setMobileTabs
         }}>
@@ -189,11 +200,7 @@ function Layout() {
                         )}
 
                         <div className="size-9 rounded-full overflow-hidden bg-black/5 dark:bg-white/10 flex items-center justify-center shrink-0 relative z-10">
-                            {user?.avatar?.url ? (
-                                <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover" />
-                            ) : (
-                                <span className="text-[10px] font-black uppercase">{user?.name?.charAt(0)}</span>
-                            )}
+                            <Avatar config={user?.avatar} />
                         </div>
                         {user?.level > 0 && (
                             <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-lg border border-primary/20 scale-100 z-20">
@@ -206,7 +213,7 @@ function Layout() {
                         className={`flex items-center gap-2.5 active:scale-95 transition-all cursor-pointer group ${isOverview ? 'opacity-100 flex' : 'opacity-0 pointer-events-none hidden md:flex'}`}
                         onClick={() => setIsLandingModalOpen(true)}
                     >
-                        <span className="font-black text-[11px] uppercase tracking-[0.8em] leading-none text-black dark:text-white mt-1">
+                        <span className="wordmark text-black dark:text-white mt-1">
                             PRODUS
                         </span>
                     </div>
@@ -275,7 +282,7 @@ function Layout() {
                     <div className="h-24 flex items-center px-2 shrink-0">
                         <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => setIsLandingModalOpen(true)}>
                             <div className="p-2 md:p-4 transition-all duration-[600ms] opacity-100 translate-y-0">
-                                <span className="font-black text-[14px] uppercase tracking-[0.8em] leading-none text-black dark:text-white">Produs</span>
+                                <span className="wordmark text-black dark:text-white">PRODUS</span>
                             </div>
                         </div>
                     </div>
@@ -349,8 +356,8 @@ function Layout() {
                         <div className="mb-2 flex flex-col gap-3 transition-all duration-500">
                             <div 
                                 className="flex flex-col items-start gap-1 cursor-pointer"
-                                onClick={() => navigate('/dashboard/shop')}
-                                title="Open Terminal Shop"
+                                onClick={() => navigate('/dashboard/merchant')}
+                                title="Open Merchant"
                             >
                                 <EnergyDisplay 
                                     current={user?.rpg?.energy?.current ?? (10 + (user?.level || 0))} 
@@ -401,11 +408,7 @@ function Layout() {
                                     onClick={() => setIsUserMenuOpen(true)}
                                     className="size-10 rounded-full overflow-hidden transition-all active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center relative group/avatar z-10"
                                 >
-                                    {user?.avatar?.url ? (
-                                        <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover grayscale contrast-125" />
-                                    ) : (
-                                        <span className="text-xs font-bold">{user?.name?.charAt(0)}</span>
-                                    )}
+                                    <Avatar config={user?.avatar} />
                                 </button>
 
                                 {user?.level > 0 && (
@@ -433,16 +436,43 @@ function Layout() {
                         ref={mainRef}
                         className={`flex-1 overflow-x-hidden ${protocolMode === 'rpg' ? 'overflow-y-hidden' : 'overflow-y-auto'} custom-scrollbar flex flex-col relative mt-0`}
                     >
-                        <AnimatePresence mode="wait" initial={false}>
+                        <ConnectionsModal 
+                    isOpen={isConnectionsModalOpen} 
+                    onClose={() => setIsConnectionsModalOpen(false)}
+                    onProfileClick={(username) => navigate(`/dashboard/profile/${username}`)}
+                />
+
+                <IdentityEditModal
+                    isOpen={isIdentityEditModalOpen}
+                    onClose={() => setIsIdentityEditModalOpen(false)}
+                />
+
+                <AnimatePresence mode="wait" initial={false}>
                             <motion.main 
                                 key={location.pathname}
                                 initial={{ x: "100%", opacity: 1 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: "-10%", opacity: 0, scale: 0.96, pointerEvents: 'none' }}
                                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                className={`relative z-0 flex-1 flex flex-col ${protocolMode === 'rpg' ? 'justify-center pb-0 pt-0' : 'justify-start pb-32 md:pb-12 pt-0 md:pt-1'} px-0 md:pl-4 lg:pl-6 md:pr-8 lg:pr-12 w-full`}
+                                className={`relative z-0 flex-1 flex flex-col ${protocolMode === 'rpg' ? 'justify-center pb-0 pt-0' : 'justify-start pb-48 md:pb-12 pt-0 md:pt-1'} px-0 md:pl-4 lg:pl-6 md:pr-8 lg:pr-12 w-full`}
                             >
-                                <Outlet context={{ setIsLandingModalOpen, setIsSearchModalOpen, setIsNotificationModalOpen, unreadCount, viewMode, setViewMode, protocolMode, setProtocolMode, activeRpgTab, setActiveRpgTab }} />
+                                <Outlet context={{ 
+                                    setIsLandingModalOpen, 
+                                    setIsSearchModalOpen, 
+                                    setIsNotificationModalOpen, 
+                                    setIsConnectionsModalOpen,
+                                    setIsIdentityEditModalOpen,
+                                    setIsQrModalOpen,
+                                    setIsProfileModalOpen,
+                                    setIsSettingsModalOpen,
+                                    unreadCount, 
+                                    viewMode, 
+                                    setViewMode, 
+                                    protocolMode, 
+                                    setProtocolMode, 
+                                    activeRpgTab, 
+                                    setActiveRpgTab 
+                                }} />
                             </motion.main>
                         </AnimatePresence>
                     </div>
@@ -565,6 +595,12 @@ function Layout() {
                 <OperationModeModal 
                     isOpen={isOperationModalOpen} 
                     onClose={() => setIsOperationModalOpen(false)} 
+                />
+
+                <QRModal 
+                    isOpen={isQrModalOpen} 
+                    onClose={() => setIsQrModalOpen(false)} 
+                    userId={user?._id}
                 />
 
 

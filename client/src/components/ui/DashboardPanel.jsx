@@ -33,8 +33,8 @@ const DashboardPanel = ({
     const navigate = useNavigate();
 
     return (
-        <div className={`relative z-0 bg-white/[0.03] dark:bg-[#080808]/40 backdrop-blur-2xl border-none rounded-none overflow-hidden group shadow-none ${noPadding ? '' : 'px-4 py-8 md:p-8'} ${className}`}>
-            <ChippedBorder opacity={0.3} thickness="2px" />
+        <div className={`relative z-0 bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all rounded-sm overflow-hidden group shadow-none ${noPadding ? '' : 'p-8'} ${className}`}>
+            <ChippedBorder opacity={0.6} />
             
             {/* Tactical Backdrop Decoration */}
             {showZap && (
@@ -45,16 +45,13 @@ const DashboardPanel = ({
 
             {/* Header Section */}
             {(title || subtitle || actionLabel) && (
-                <div className="flex items-center justify-between px-4 md:px-0 mb-4 md:mb-6 relative z-10">
-                    <div className="flex flex-col">
+                <div className="flex items-center justify-between mb-8 relative z-10">
+                    <div className="flex flex-col gap-1">
                         {title && (
-                            <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] font-mono flex items-center gap-2 mb-1">
-                                <span className="size-1.5 rounded-full bg-primary animate-pulse" />
-                                {title}
-                            </h2>
+                            <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
                         )}
                         {subtitle && (
-                            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest leading-none">{subtitle}</p>
+                            <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>
                         )}
                     </div>
                     <div className="flex items-center gap-3">

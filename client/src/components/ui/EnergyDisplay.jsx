@@ -18,19 +18,26 @@ const EnergyDisplay = ({ current = 0, max = 10, className = "", variant = "vault
     return (
         <div className={`relative flex items-center gap-3 transition-all duration-300 ${
             isVault
-                ? 'px-3.5 py-2 bg-black/5 dark:bg-white/5 backdrop-blur-md rounded-xl'
+                ? 'px-3.5 py-2 overflow-hidden'
                 : 'px-0 py-0 bg-transparent border-none'
         } group ${className}`}>
 
             {isVault && (
                 <>
-                    {/* Tactical Highlights */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-black/10 dark:from-white/10 via-transparent to-black/5 dark:to-white/5 opacity-40" />
-                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-black/20 dark:via-white/20 to-transparent" />
-                    
-                    {/* Minimal Corner Brackets */}
-                    <div className="absolute top-1 left-1 size-1 border-t border-l border-black/20 dark:border-white/20" />
-                    <div className="absolute top-1 right-1 size-1 border-t border-r border-black/20 dark:border-white/20" />
+                    {/* Vault Glow Layer */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-black/5 via-transparent to-black/5 dark:from-white/5 dark:to-white/5 opacity-50" />
+
+                    {/* Vault Decorative Elements */}
+                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-black/10 dark:via-white/20 to-transparent" />
+
+                    {/* Corner Brackets */}
+                    <div className="absolute top-1 left-1 size-1.5 border-t border-l border-black/20 dark:border-white/20" />
+                    <div className="absolute top-1 right-1 size-1.5 border-t border-r border-black/20 dark:border-white/20" />
+                    <div className="absolute bottom-1 left-1 size-1.5 border-b border-l border-black/20 dark:border-white/20" />
+                    <div className="absolute bottom-1 right-1 size-1.5 border-b border-r border-black/20 dark:border-white/20" />
+
+                    {/* Scanline Effect */}
+                    <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%)] z-20 bg-[length:100%_4px] opacity-10" />
                 </>
             )}
 
@@ -50,11 +57,7 @@ const EnergyDisplay = ({ current = 0, max = 10, className = "", variant = "vault
 
             {/* Value Section */}
             <div className="flex flex-col relative z-10">
-                {isVault && (
-                    <span className="text-[7px] font-black text-slate-500 uppercase tracking-[0.3em] leading-none mb-1">
-                        Energy_Core
-                    </span>
-                )}
+
                 <div className="flex items-baseline gap-1">
                     <span className={`font-sans font-black uppercase tracking-[0.4em] leading-none ${
                         current < (max * 0.2) ? 'text-rose-500' : 'text-black dark:text-white'

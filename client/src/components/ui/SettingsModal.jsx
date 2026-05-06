@@ -107,36 +107,36 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                     {/* Developer Section */}
                     {isAdmin && (
                         <div className="space-y-4">
-                            <h4 className="text-[9px] font-black text-primary uppercase tracking-[0.4em] px-1">Developer</h4>
+                            <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1 mb-2">Developer</div>
                             
                             {/* Manage Protocol */}
                             <button 
                                 onClick={() => { onClose(); navigate('/dashboard/admin'); }} 
-                                className="w-full flex items-center justify-between p-4 px-5 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all group"
+                                className="w-full flex items-center justify-between p-4 px-5 rounded-sm border border-foreground/10 bg-foreground/5 hover:bg-foreground/10 transition-all group"
                             >
                                 <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-primary opacity-60 group-hover:opacity-100 transition-opacity">admin_panel_settings</span>
-                                    <span className="text-xs font-black text-slate-600 dark:text-white/60 uppercase tracking-widest">Manage</span>
+                                    <span className="material-symbols-outlined text-foreground opacity-60 group-hover:opacity-100 transition-opacity">admin_panel_settings</span>
+                                    <span className="text-[8px] font-mono uppercase tracking-widest text-foreground">Manage</span>
                                 </div>
-                                <span className="material-symbols-outlined text-slate-300">chevron_right</span>
+                                <span className="material-symbols-outlined text-foreground/40">chevron_right</span>
                             </button>
 
                             {/* Dev Tools Toggle */}
-                            <div className="flex items-center justify-between p-4 px-5 rounded-2xl bg-primary/5 border border-primary/20 transition-all hover:bg-primary/10">
+                            <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:bg-foreground/10">
                                 <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-primary">terminal</span>
+                                    <span className="material-symbols-outlined text-foreground opacity-60">terminal</span>
                                     <div className="flex flex-col">
-                                        <span className="text-xs font-black text-slate-700 dark:text-white/70 uppercase tracking-widest">Dev_Tools_</span>
-                                        <span className="text-[8px] font-black text-primary/60 uppercase tracking-wider">Interface_Overlay</span>
+                                        <span className="text-[8px] font-mono uppercase tracking-widest text-foreground">Dev_Tools_</span>
+                                        <span className="text-[8px] font-black text-foreground/40 uppercase tracking-wider">Interface_Overlay</span>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => handleToggle('showDevTools')}
-                                    className={`w-10 h-5 rounded-full transition-all relative flex items-center ${localSettings.showDevTools ? 'bg-primary' : 'bg-black/10 dark:bg-white/10'}`}
+                                    className={`w-10 h-5 rounded-sm transition-all relative flex items-center ${localSettings.showDevTools ? 'bg-foreground' : 'bg-foreground/10'}`}
                                 >
                                     <motion.div
                                         animate={{ x: localSettings.showDevTools ? 22 : 3 }}
-                                        className="absolute size-3.5 bg-white rounded-full shadow-sm"
+                                        className={`absolute size-3.5 rounded-sm shadow-sm ${localSettings.showDevTools ? 'bg-background' : 'bg-foreground/50'}`}
                                     />
                                 </button>
                             </div>
@@ -145,40 +145,40 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
 
                     {/* Appearance */}
                     <div className="space-y-4">
-                        <h4 className="text-[9px] font-black text-slate-500 dark:text-white/40 uppercase tracking-[0.4em] px-1">Appearance</h4>
+                        <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1 mb-2">Appearance</div>
 
-                        <div className="grid grid-cols-3 gap-2 p-1.5 bg-black/[0.03] dark:bg-white/5 border border-black/[0.05] dark:border-white/10 rounded-2xl">
+                        <div className="grid grid-cols-3 gap-2 p-1.5 bg-foreground/5 border border-foreground/10 rounded-sm">
                             {['light', 'dark', 'system'].map((mode) => (
                                 <button
                                     key={mode}
                                     onClick={() => handleThemeModeChange(mode)}
-                                    className={`py-3 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${themeMode === mode ? 'bg-white dark:bg-[#121212] text-primary shadow-lg ring-1 ring-black/[0.05] dark:ring-white/10' : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'}`}
+                                    className={`py-3 px-3 rounded-sm text-[10px] font-black uppercase tracking-widest transition-all ${themeMode === mode ? 'bg-foreground text-background shadow-lg' : 'text-foreground/40 hover:text-foreground hover:bg-foreground/5'}`}
                                 >
                                     {mode}
                                 </button>
                             ))}
                         </div>
 
-                        <div className="flex items-center justify-between p-4 px-5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/5 transition-all hover:border-primary/20">
+                        <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
                             <div className="flex items-center gap-3">
-                                <span className="material-symbols-outlined text-primary opacity-60">notifications</span>
-                                <span className="text-xs font-black text-slate-600 dark:text-white/60 uppercase tracking-widest">Push Notifications</span>
+                                <span className="material-symbols-outlined text-foreground opacity-60">notifications</span>
+                                <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Push Notifications</span>
                             </div>
                             <button
                                 onClick={() => handleToggle('notificationsEnabled')}
-                                className={`w-10 h-5 rounded-full transition-all relative flex items-center ${localSettings.notificationsEnabled ? 'bg-primary' : 'bg-black/10 dark:bg-white/10'}`}
+                                className={`w-10 h-5 rounded-sm transition-all relative flex items-center ${localSettings.notificationsEnabled ? 'bg-foreground' : 'bg-foreground/10'}`}
                             >
                                 <motion.div
                                     animate={{ x: localSettings.notificationsEnabled ? 22 : 3 }}
-                                    className="absolute size-3.5 bg-white rounded-full shadow-sm"
+                                    className={`absolute size-3.5 rounded-sm shadow-sm ${localSettings.notificationsEnabled ? 'bg-background' : 'bg-foreground/50'}`}
                                 />
                             </button>
                         </div>
 
-                        <div className="flex items-center justify-between p-4 px-5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/5 transition-all hover:border-primary/20">
+                        <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-primary opacity-60">payments</span>
-                                 <span className="text-xs font-black text-slate-600 dark:text-white/60 uppercase tracking-widest">Currency</span>
+                                 <span className="material-symbols-outlined text-foreground opacity-60">payments</span>
+                                 <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Currency</span>
                              </div>
                              <select
                                  value={user?.currency || 'USD'}
@@ -190,7 +190,7 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                                          console.error('Failed to sync currency:', err);
                                      }
                                  }}
-                                 className="bg-white dark:bg-[#121212] border border-black/[0.08] dark:border-white/10 rounded-xl px-3 py-1.5 text-[10px] font-black uppercase tracking-wider outline-none text-slate-600 dark:text-white/60 focus:border-primary transition-colors cursor-pointer"
+                                 className="bg-transparent border border-foreground/20 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-wider outline-none text-foreground focus:border-foreground transition-colors cursor-pointer"
                              >
                                  <option value="USD">USD ($)</option>
                                  <option value="PHP">PHP (₱)</option>
@@ -200,21 +200,21 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
 
                     {/* Theme Selection */}
                     <div className="space-y-4">
-                        <h4 className="text-[9px] font-black text-slate-500 dark:text-white/40 uppercase tracking-[0.4em] px-1">Accent Theme</h4>
+                        <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1 mb-2">Accent Theme</div>
                         <div className="grid grid-cols-5 gap-3">
                             {themes.map((t) => (
                                 <button
                                     key={t.id}
                                     onClick={() => handleThemeChange(t.id)}
-                                    className={`group relative flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${localSettings.theme === t.id ? 'border-primary bg-primary/5' : 'border-black/[0.05] dark:border-white/5 hover:border-black/10 dark:hover:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}`}
+                                    className={`group relative flex flex-col items-center gap-2 p-3 rounded-sm border transition-all ${localSettings.theme === t.id ? 'border-primary bg-primary/5' : 'border-foreground/10 hover:border-foreground/20 hover:bg-foreground/5'}`}
                                     title={t.name}
                                 >
                                     <div 
-                                        className="size-10 rounded-2xl shadow-none ring-2 ring-white dark:ring-[#121212] group-hover:scale-105 transition-transform"
+                                        className="size-10 rounded-sm shadow-none group-hover:scale-105 transition-transform"
                                         style={{ backgroundColor: t.color }}
                                     />
                                     {localSettings.theme === t.id && (
-                                        <motion.span layoutId="theme-check" className="absolute -top-1.5 -right-1.5 size-5 bg-primary text-white rounded-full flex items-center justify-center border-2 border-white dark:border-[#121212]">
+                                        <motion.span layoutId="theme-check" className="absolute -top-1.5 -right-1.5 size-5 bg-primary text-white rounded-sm flex items-center justify-center">
                                             <span className="material-symbols-outlined text-[10px] font-bold">check</span>
                                         </motion.span>
                                     )}
@@ -225,46 +225,46 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
 
                     {/* Security */}
                     <div className="space-y-4">
-                        <h4 className="text-[9px] font-black text-slate-500 dark:text-white/40 uppercase tracking-[0.4em] px-1">Security</h4>
+                        <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1 mb-2">Security</div>
 
-                        <button className="w-full flex items-center justify-between p-4 px-5 rounded-2xl border border-black/[0.05] dark:border-white/5 hover:bg-black/[0.03] dark:hover:bg-white/[0.02] transition-all hover:border-primary/20 group">
+                        <button className="w-full flex items-center justify-between p-4 px-5 rounded-sm border border-foreground/10 hover:bg-foreground/5 transition-all group">
                             <div className="flex items-center gap-3">
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">lock</span>
-                                <span className="text-xs font-black text-slate-600 dark:text-white/60 uppercase tracking-widest">Change Password</span>
+                                <span className="material-symbols-outlined text-foreground opacity-60 group-hover:opacity-100 transition-colors">lock</span>
+                                <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Change Password</span>
                             </div>
-                            <span className="material-symbols-outlined text-slate-300">chevron_right</span>
+                            <span className="material-symbols-outlined text-foreground/40">chevron_right</span>
                         </button>
                     </div>
 
                     {/* Support / Anomalies */}
                     <div className="space-y-4">
-                        <h4 className="text-[9px] font-black text-slate-500 dark:text-white/40 uppercase tracking-[0.4em] px-1">Support</h4>
+                        <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1 mb-2">Support</div>
                         <button 
                             onClick={() => { onClose(); onOpenBugReport(); }} 
-                            className="w-full flex items-center justify-between p-4 px-5 rounded-2xl border border-black/[0.05] dark:border-white/5 bg-black/[0.03] dark:bg-white/[0.02] hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all group"
+                            className="w-full flex items-center justify-between p-4 px-5 rounded-sm border border-foreground/10 bg-foreground/5 hover:bg-foreground/10 transition-all group"
                         >
                             <div className="flex items-center gap-3">
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-rose-500 transition-colors">bug_report</span>
-                                <span className="text-xs font-black text-slate-600 dark:text-white/60 uppercase tracking-widest">Report Bug</span>
+                                <span className="material-symbols-outlined text-foreground opacity-60 group-hover:text-rose-500 transition-colors">bug_report</span>
+                                <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Report Bug</span>
                             </div>
-                            <span className="material-symbols-outlined text-slate-300">chevron_right</span>
+                            <span className="material-symbols-outlined text-foreground/40">chevron_right</span>
                         </button>
                     </div>
 
                     {/* Danger Zone */}
                     <div className="space-y-4 pt-4">
-                        <h4 className="text-[9px] font-black text-rose-500 uppercase tracking-[0.4em] px-1">Danger Zone</h4>
+                        <div className="text-[8px] font-mono uppercase tracking-widest text-rose-500/60 px-1 mb-2">Danger Zone</div>
                         <button
                             onClick={() => setShowDeleteConfirm(true)}
-                            className="w-full flex items-center justify-between p-5 rounded-3xl border border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10 transition-all group"
+                            className="w-full flex items-center justify-between p-5 rounded-sm border border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10 transition-all group"
                         >
                             <div className="flex items-center gap-3 text-rose-500">
                                 <span className="material-symbols-outlined">delete_forever</span>
-                                <span className="text-xs font-black uppercase tracking-widest">Delete My Account</span>
+                                <span className="text-[8px] font-mono text-rose-500 uppercase tracking-widest">Delete My Account</span>
                             </div>
                             <span className="material-symbols-outlined text-rose-500/40 group-hover:text-rose-500 transition-colors">chevron_right</span>
                         </button>
-                        <p className="text-[10px] text-slate-500 dark:text-white/30 px-2 leading-relaxed font-black uppercase tracking-tighter opacity-60">
+                        <p className="text-[10px] text-foreground/30 px-2 leading-relaxed font-mono uppercase tracking-widest">
                             Once you delete your account, there is no going back. All your habits, journals, and data will be permanently removed.
                         </p>
                     </div>
@@ -272,7 +272,7 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                     <div className="pt-4 pb-2">
                         <button
                             onClick={onClose}
-                            className="w-full py-5 bg-black dark:bg-white text-white dark:text-black rounded-3xl font-black text-[10px] uppercase tracking-[0.4em] hover:opacity-90 shadow-xl active:scale-[0.98] transition-all"
+                            className="w-full py-5 bg-foreground text-background rounded-sm font-black text-[10px] uppercase tracking-[0.4em] hover:opacity-90 shadow-xl active:scale-[0.98] transition-all"
                         >
                             Done
                         </button>

@@ -17,13 +17,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
                 <div className="flex items-center gap-5 mt-2">
                     <div className="size-16 md:size-20 rounded-full border-2 border-black/10 dark:border-white/10 p-1 flex items-center justify-center shrink-0 relative group">
                         <div className="size-full rounded-full overflow-hidden bg-black/5 dark:bg-white/10 ring-1 ring-black/5 dark:ring-white/10">
-                            {user?.avatar?.url ? (
-                                <img src={user.avatar.url} alt="Profile" className="w-full h-full object-cover grayscale contrast-110" />
-                            ) : (
-                                <div className="size-full flex items-center justify-center bg-black/5 dark:bg-white/10">
-                                    <Avatar config={user?.avatar?.config} className="size-[80%]" />
-                                </div>
-                            )}
+                            <Avatar config={user?.avatar} />
                         </div>
                         {/* Level badge anchored to avatar */}
                         <div className="absolute -bottom-1 -right-1 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black px-2 py-0.5 rounded-md shadow-lg border border-black/10 dark:border-white/10 z-10">
@@ -71,34 +65,34 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
 
                 {/* Navigation Actions */}
                 <div className="flex flex-col gap-1">
-                    <button onClick={() => { onClose(); navigate('/dashboard/shop'); }} className="w-full px-5 py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all flex items-center gap-4 group">
-                        <span className="material-symbols-outlined text-xl opacity-40 group-hover:opacity-100 group-hover:text-black dark:group-hover:text-white transition-all">shopping_bag</span>
-                        <span>Store</span>
+                    <button onClick={() => { onClose(); navigate('/dashboard/merchant'); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all flex items-center gap-4 group">
+                        <span className="material-symbols-outlined text-lg opacity-40 group-hover:opacity-100 group-hover:text-black dark:group-hover:text-white transition-all">shopping_bag</span>
+                        <span>MERCHANT</span>
                     </button>
 
-                    <button onClick={() => { onClose(); onOpenNotifications(); }} className="w-full px-5 py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all flex items-center justify-between group">
+                    <button onClick={() => { onClose(); onOpenNotifications(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all flex items-center justify-between group">
                         <div className="flex items-center gap-4">
-                            <span className="material-symbols-outlined text-xl opacity-40 group-hover:opacity-100 group-hover:text-black dark:group-hover:text-white transition-all">notifications</span>
-                            <span>Notifications</span>
+                            <span className="material-symbols-outlined text-lg opacity-40 group-hover:opacity-100 group-hover:text-black dark:group-hover:text-white transition-all">notifications</span>
+                            <span>NOTIFICATIONS</span>
                         </div>
                         {unreadCount > 0 && (
-                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white text-[9px] font-black border border-black/10 dark:border-white/10">
+                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white text-[8px] font-black border border-black/10 dark:border-white/10">
                                 <span className="size-1 rounded-full bg-black dark:bg-white animate-pulse" />
                                 {unreadCount}
                             </div>
                         )}
                     </button>
 
-                    <button onClick={() => { onClose(); onOpenSettings(); }} className="w-full px-5 py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all flex items-center gap-4 group">
-                        <span className="material-symbols-outlined text-xl opacity-40 group-hover:opacity-100 group-hover:text-black dark:group-hover:text-white transition-all">settings</span>
-                        <span>Settings</span>
+                    <button onClick={() => { onClose(); onOpenSettings(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all flex items-center gap-4 group">
+                        <span className="material-symbols-outlined text-lg opacity-40 group-hover:opacity-100 group-hover:text-black dark:group-hover:text-white transition-all">settings</span>
+                        <span>SETTINGS</span>
                     </button>
 
                     <div className="my-2 border-t border-black/[0.05] dark:border-white/[0.05]" />
 
-                    <button onClick={onSignOut} className="w-full px-5 py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-rose-500 hover:bg-rose-500/5 rounded-2xl transition-all flex items-center gap-4 group">
-                        <span className="material-symbols-outlined text-xl opacity-60 group-hover:opacity-100 transition-all">logout</span>
-                        <span>Sign Out</span>
+                    <button onClick={onSignOut} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-rose-500 hover:bg-rose-500/5 rounded-2xl transition-all flex items-center gap-4 group">
+                        <span className="material-symbols-outlined text-lg opacity-60 group-hover:opacity-100 transition-all">logout</span>
+                        <span>SIGN OUT</span>
                     </button>
                 </div>
             </div>

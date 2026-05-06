@@ -20,61 +20,42 @@ const ThemeToggle = ({ className = '' }) => {
             title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             className={`
-                relative flex items-center gap-2.5 group
-                text-foreground/40 hover:text-foreground
+                relative flex items-center gap-3 group
                 transition-colors duration-300
                 ${className}
             `}
         >
-            {/* Track */}
+            {/* Tactical Rectangular Track */}
             <div
                 className={`
-                    relative w-10 h-5 rounded-full transition-colors duration-300 shrink-0
-                    ${isDark ? 'bg-foreground/20' : 'bg-foreground/10'}
-                    border border-foreground/10
+                    relative w-10 h-[14px] shrink-0
+                    border border-black/20 dark:border-white/20
+                    bg-black/5 dark:bg-white/5
+                    overflow-hidden
                 `}
             >
-                {/* Thumb */}
+                {/* Micro details on track */}
+                <div className="absolute inset-0 flex justify-between px-[2px] items-center pointer-events-none z-0 opacity-40">
+                    <div className="w-[1px] h-[6px] bg-black dark:bg-white" />
+                    <div className="w-[1px] h-[6px] bg-black dark:bg-white" />
+                </div>
+
+                {/* Sharp Block Thumb */}
                 <motion.div
                     layout
-                    animate={{ x: isDark ? 22 : 2 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    animate={{ x: isDark ? 26 : 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 40 }}
                     className={`
-                        absolute top-[3px] size-3.5 rounded-full
-                        flex items-center justify-center
-                        shadow-sm
-                        ${isDark ? 'bg-foreground' : 'bg-foreground'}
+                        absolute top-0 bottom-0 w-[12px]
+                        bg-black dark:bg-white z-10
+                        shadow-[0_0_10px_rgba(0,0,0,0.5)] dark:shadow-[0_0_10px_rgba(255,255,255,0.3)]
                     `}
                 />
             </div>
 
             {/* Icon + Label */}
             <div className="flex items-center gap-1.5 w-[4rem] overflow-hidden">
-                <AnimatePresence mode="wait" initial={false}>
-                    {isDark ? (
-                        <motion.span
-                            key="dark"
-                            initial={{ opacity: 0, y: -8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 8 }}
-                            transition={{ duration: 0.2 }}
-                            className="material-symbols-outlined text-[14px] shrink-0"
-                        >
-                            dark_mode
-                        </motion.span>
-                    ) : (
-                        <motion.span
-                            key="light"
-                            initial={{ opacity: 0, y: -8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 8 }}
-                            transition={{ duration: 0.2 }}
-                            className="material-symbols-outlined text-[14px] shrink-0"
-                        >
-                            light_mode
-                        </motion.span>
-                    )}
-                </AnimatePresence>
+
 
                 <AnimatePresence mode="wait" initial={false}>
                     <motion.span
@@ -83,7 +64,7 @@ const ThemeToggle = ({ className = '' }) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.15 }}
-                        className="text-[9px] font-black uppercase tracking-[0.3em] whitespace-nowrap"
+                        className="text-[9px] font-black uppercase tracking-[0.3em] whitespace-nowrap text-black/40 dark:text-white/40 group-hover:text-black dark:group-hover:text-white transition-colors"
                     >
                         {isDark ? 'Dark' : 'Light'}
                     </motion.span>

@@ -18,7 +18,7 @@ import Classes from './pages/Classes';
 import PatchNotes from './pages/PatchNotes';
 import PublicProfile from './pages/PublicProfile';
 import NeuralSyncPage from './pages/NeuralSyncPage';
-import Shop from './pages/Shop';
+import Merchant from './pages/Merchant';
 import useAuthStore from './store/useAuthStore';
 import { useEffect } from 'react';
 
@@ -75,7 +75,7 @@ function AnimatedRoutes() {
           <Route path="financial" element={<Financial />} />
           <Route path="physical" element={<Physical />} />
           <Route path="spiritual" element={<Spiritual />} />
-          <Route path="shop" element={<Shop />} />
+          <Route path="merchant" element={<Merchant />} />
           {/* Redirects for the old routes */}
           <Route path="finance" element={<Navigate to="/dashboard/financial" replace />} />
           <Route path="health" element={<Navigate to="/dashboard/physical" replace />} />

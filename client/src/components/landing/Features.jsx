@@ -4,8 +4,8 @@ import { Terminal } from "lucide-react";
 
 const Features = () => {
   return (
-    <section className="detail-features fixed inset-0 flex flex-col items-end md:items-center justify-center text-right md:text-center px-10 md:px-6 z-20 pointer-events-none opacity-0">
-      <div className="max-w-6xl w-full relative flex flex-col items-center">
+    <section className="detail-features fixed inset-0 flex flex-col items-end md:items-center justify-center text-right md:text-center px-6 md:px-6 z-20 pointer-events-none opacity-0">
+      <div className="max-w-6xl w-full relative flex flex-col items-end md:items-center">
         
 
         {/* Hero Title Duplicate Style */}

@@ -24,6 +24,9 @@ import { useNavigate } from "react-router-dom";
 import useMobile from "../hooks/useMobile";
 
 import Hero from "../components/landing/Hero";
+import RealityScene from "../components/landing/RealityScene";
+import MockupScene from "../components/landing/MockupScene";
+import PillarScene from "../components/landing/PillarScene";
 import Features from "../components/landing/Features";
 import Testimonials from "../components/landing/Testimonials";
 import CTA from "../components/landing/CTA";
@@ -33,8 +36,6 @@ import WorkspaceSidebar from "../components/ui/WorkspaceSidebar";
 import LandingHeader from "../components/landing/LandingHeader";
 import Lenis from "lenis";
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
-ScrollTrigger.config({ ignoreMobileResize: true });
 
 const SCENES_FEATURES = [
   { id: "analytics", title: "ANALYTICS", label: "01 // SYSTEM METRICS", icon: "activity", description: "Real-time performance tracking and behavioral mapping for peak efficiency." },
@@ -69,34 +70,7 @@ const TESTIMONIALS = [
   }
 ];
 
-const GlitchTitle = ({ progress, threshold, original, target }) => {
-  const [displayText, setDisplayText] = React.useState(original);
-  const [isGlitched, setIsGlitched] = React.useState(false);
-  
-  const chars = "!@#$%^&*()_+-=[]{}|;:,.<>?";
 
-  React.useEffect(() => {
-    if (progress > threshold && !isGlitched) {
-      setIsGlitched(true);
-      let count = 0;
-      const interval = setInterval(() => {
-        setDisplayText(prev => 
-          target.split('').map((c, i) => Math.random() > 0.5 ? chars[Math.floor(Math.random() * chars.length)] : target[i]).join('')
-        );
-        count++;
-        if (count > 5) {
-          clearInterval(interval);
-          setDisplayText(target);
-        }
-      }, 50);
-    } else if (progress <= threshold && isGlitched) {
-      setIsGlitched(false);
-      setDisplayText(original);
-    }
-  }, [progress, threshold, original, target, isGlitched]);
-
-  return <span>{displayText}</span>;
-};
 
 export default function Landing() {
   const { user } = useAuthStore();
@@ -173,6 +147,7 @@ export default function Landing() {
     window.addEventListener('touchstart', handleInteraction);
     window.addEventListener('click', handleInteraction);
 
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
     const ctx = gsap.context(() => {
       // Entrance Animation (Non-scroll)
       gsap.from(".hero-sidebar", { 
@@ -196,53 +171,65 @@ export default function Landing() {
         }
       });
 
-      // 01: INTRO SEQUENCE (0-10)
+      // 01: INTRO SEQUENCE (0-8)
       tl.to(".scene-awakening", { opacity: 1, duration: 2 }, 0);
-      tl.to(".hero-sidebar", { opacity: 1, x: 0, duration: 1 }, 0);
-      tl.to(".parallax-line-2", { opacity: 0, y: -80, duration: 3 }, 5);
-      tl.to(".parallax-line-3", { opacity: 0, y: -120, duration: 3 }, 5);
-      tl.to(".text-let-it-pass", { opacity: 0, y: -160, duration: 3 }, 5);
-      tl.to(".hero-footer", { opacity: 0, y: 50, duration: 3 }, 5);
-      tl.to(".hero-sidebar", { opacity: 0, y: 50, pointerEvents: "none", duration: 3 }, 5);
-      tl.to(".scene-awakening", { opacity: 0, pointerEvents: "none", duration: 2 }, 10);
-      tl.to(".hero-video", { opacity: 0, duration: 4 }, 18);
+      tl.to(".parallax-line-2", { opacity: 0, y: -80, duration: 3 }, 2);
+      tl.to(".parallax-line-3", { opacity: 0, y: -120, duration: 3 }, 2);
+      tl.to(".text-let-it-pass", { opacity: 0, y: 120, duration: 3 }, 2);
+      tl.to(".hero-footer", { opacity: 0, y: 50, duration: 3 }, 2);
+      tl.to(".scene-awakening", { opacity: 0, pointerEvents: "none", duration: 2 }, 8);
 
-      // 02: REALITY PHASE (10-22)
-      tl.fromTo(".scene-reality", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 3 }, 10);
-      tl.to(".scene-reality", { opacity: 0, y: -20, duration: 4 }, 18);
+      // 02: REALITY PHASE (7-14)
+      tl.fromTo(".scene-reality", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 4 }, 7);
+      tl.to(".scene-reality", { opacity: 0, y: -20, duration: 3 }, 12);
+      tl.to(".hero-video", { opacity: 0, duration: 3 }, 12);
 
-      // 03: MOCKUP INTERFACE (22-40)
-      tl.to(".scene-mockups", { opacity: 1, duration: 3 }, 22);
-      tl.fromTo(".mockup-desktop", { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 5, ease: "power2.out" }, 24);
-      tl.fromTo(".mockup-mobile", { y: 150, opacity: 0 }, { y: 0, opacity: 1, duration: 5, ease: "power2.out" }, 26);
-      tl.to(".scene-mockups", { opacity: 0, y: -50, duration: 4, ease: "power2.in" }, 36);
+      // 03: MOCKUP INTERFACE (18-26)
+      tl.to(".scene-mockups", { opacity: 1, duration: 3 }, 18);
+      tl.fromTo(".mockup-desktop", { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 3, ease: "power2.out" }, 19);
+      tl.fromTo(".mockup-mobile", { y: 150, opacity: 0 }, { y: 0, opacity: 1, duration: 3, ease: "power2.out" }, 21);
+      tl.to(".scene-mockups", { opacity: 0, y: -50, duration: 3, ease: "power2.in" }, 25);
 
-      // 04: CORE CAPABILITIES (40-55)
-      tl.to(".features-video", { opacity: 1, duration: 5 }, 40);
-      tl.fromTo(".detail-features", { opacity: 0, y: 50, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 6, ease: "power2.out" }, 42);
-      tl.to(".detail-features", { opacity: 0, y: -50, scale: 1.05, duration: 4, ease: "power2.in" }, 50);
+      // 04: CORE CAPABILITIES (30-45)
+      tl.to(".features-video", { opacity: 1, duration: 4 }, 30);
+      tl.fromTo(".detail-features", { opacity: 0, y: 50, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 5, ease: "power2.out" }, 32);
+      tl.to(".detail-features", { opacity: 0, y: -50, scale: 1.05, duration: 4, ease: "power2.in" }, 41);
 
-      // 05: THE PILLARS (55-75)
-      tl.to(".quadrant-intellectual", { opacity: 1, y: 0, duration: 4 }, 55);
-      tl.to(".quadrant-physical", { opacity: 1, y: 0, duration: 4 }, 58);
-      tl.to(".quadrant-financial", { opacity: 1, y: 0, duration: 4 }, 61);
-      tl.to(".quadrant-spiritual", { opacity: 1, y: 0, duration: 4 }, 64);
-      tl.to(".scene-quadrants", { opacity: 0, duration: 4 }, 71);
-      tl.to(".features-video", { opacity: 0, duration: 4 }, 71);
+      // 05: THE PILLARS (48-72)
+      tl.to(".quadrant-intellectual", { opacity: 1, y: 0, duration: 4 }, 48);
+      tl.to(".quadrant-physical", { opacity: 1, y: 0, duration: 4 }, 52);
+      tl.to(".quadrant-financial", { opacity: 1, y: 0, duration: 4 }, 56);
+      tl.to(".quadrant-spiritual", { opacity: 1, y: 0, duration: 4 }, 60);
+      tl.to(".scene-quadrants", { opacity: 0, duration: 4 }, 70);
+      tl.to(".features-video", { opacity: 0, duration: 4 }, 70);
 
-      // 06: SOCIAL PROOF (75-92)
-      tl.fromTo(".scene-testimonials", { opacity: 0 }, { opacity: 1, duration: 4, ease: "power2.out" }, 75);
-      tl.fromTo(".testimonials-header", { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 4, ease: "power2.out" }, 75);
-      tl.fromTo(".testimonial-panel-1", { opacity: 0, x: -300, rotate: -15 }, { opacity: 1, x: 0, rotate: 0, duration: 4, ease: "power3.out" }, 77);
-      tl.fromTo(".testimonial-panel-2", { opacity: 0, y: 300, rotate: 10 }, { opacity: 1, y: 0, rotate: 0, duration: 4, ease: "power3.out" }, 79);
-      tl.fromTo(".testimonial-panel-3", { opacity: 0, x: 300, rotate: 15 }, { opacity: 1, x: 0, rotate: 0, duration: 4, ease: "power3.out" }, 81);
-      tl.to(".scene-testimonials", { opacity: 0, scale: 1.2, duration: 4 }, 88);
+      // 06: SOCIAL PROOF (78-92)
+      tl.fromTo(".scene-testimonials", { opacity: 0 }, { opacity: 1, duration: 4, ease: "power2.out" }, 78);
+      tl.fromTo(".testimonials-header", { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 4, ease: "power2.out" }, 78);
       
-      // 07: FINAL PROTOCOL (92-100)
-      tl.to(".scene-cta", { opacity: 1, pointerEvents: "auto", duration: 4 }, 92);
-      tl.to(".scene-cta", { pointerEvents: "auto", duration: 0.1 }, 98);
+      if (isMobile) {
+        // Mobile: Vertical "Scrolling Up" flow
+        tl.fromTo(".testimonial-container", { y: 500 }, { y: -500, duration: 12, ease: "none" }, 78);
+        tl.fromTo(".testimonial-panel-1", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 3 }, 80);
+        tl.fromTo(".testimonial-panel-2", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 3 }, 83);
+        tl.fromTo(".testimonial-panel-3", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 3 }, 86);
+      } else {
+        // Desktop: Kinetic panels from sides
+        tl.fromTo(".testimonial-panel-1", { opacity: 0, x: -300, rotate: -15 }, { opacity: 1, x: 0, rotate: 0, duration: 5, ease: "power3.out" }, 80);
+        tl.fromTo(".testimonial-panel-2", { opacity: 0, y: 300, rotate: 10 }, { opacity: 1, y: 0, rotate: 0, duration: 5, ease: "power3.out" }, 82);
+        tl.fromTo(".testimonial-panel-3", { opacity: 0, x: 300, rotate: 15 }, { opacity: 1, x: 0, rotate: 0, duration: 5, ease: "power3.out" }, 84);
+      }
+
+      tl.to(".scene-testimonials", { opacity: 0, scale: isMobile ? 1 : 1.2, duration: 4 }, 90);
+
+      // 07: FINAL PROTOCOL (95-100)
+      tl.to(".scene-cta", { opacity: 1, pointerEvents: "auto", duration: 2 }, 95);
     }, containerRef);
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('click', handleInteraction);
+    };
   }, [isLoaded]);
 
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -259,7 +246,6 @@ export default function Landing() {
     else window.scrollTo(0, target);
   };
 
-  const refreshTimeoutRef = useRef(null);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -285,25 +271,15 @@ export default function Landing() {
     gsap.ticker.add(tickerRAF);
     gsap.ticker.lagSmoothing(0);
 
-    refreshTimeoutRef.current = setTimeout(() => {
-        if (!isUnmounted && typeof ScrollTrigger !== 'undefined') {
-            ScrollTrigger.refresh();
-        }
-    }, 1000);
+
 
     return () => {
       isUnmounted = true;
-      if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
       document.documentElement.classList.remove("no-scrollbar");
       gsap.ticker.remove(tickerRAF);
       lenis.off('scroll', updateScrollTrigger);
-      ScrollTrigger.clearScrollMemory();
-      ScrollTrigger.getAll().forEach(t => t.kill(true));
-      ScrollTrigger.killAll(); 
       lenis.destroy();
       window.lenis = null;
-      window.removeEventListener('touchstart', handleInteraction);
-      window.removeEventListener('click', handleInteraction);
     };
   }, [isLoaded]);
 
@@ -342,7 +318,6 @@ export default function Landing() {
             loop
             muted
             playsInline
-            webkitPlaysInline
             preload="auto"
             className="w-full h-full object-cover md:object-contain hero-video absolute inset-0"
             style={{ filter: "contrast(1.05) brightness(1.1)", objectPosition: isMobile ? '75% center' : 'center' }}
@@ -355,7 +330,6 @@ export default function Landing() {
             loop
             muted
             playsInline
-            webkitPlaysInline
             preload="auto"
             className="w-full h-full object-cover md:object-contain features-video absolute inset-0 opacity-0"
             style={{ filter: "contrast(1.1) brightness(1)", objectPosition: isMobile ? '75% center' : 'center' }}
@@ -370,58 +344,9 @@ export default function Landing() {
 
       <div className="relative z-20 -mt-[100vh]">
         {isLoaded && <Hero />}
-        <div className="scene-reality fixed inset-0 flex items-center justify-end md:justify-center px-10 md:px-24 pointer-events-none opacity-0">
-          <div className="flex flex-col md:grid md:grid-cols-2 gap-8 md:gap-24 items-end md:items-center max-w-7xl w-full md:-translate-x-4 lg:-translate-x-6">
-            <div className="text-right md:-translate-x-[2px]">
-              <h2 className="font-black tracking-tight uppercase leading-[0.85] flex flex-col items-end">
-                <span className="text-4xl md:text-6xl text-transparent" style={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}>HELP YOUR</span>
-                <span className="text-4xl md:text-6xl text-white">HERO</span>
-              </h2>
-            </div>
-            <div className="text-right md:text-left md:pl-12">
-              <p className="text-white/40 text-[10px] md:text-sm font-light tracking-[0.3em] uppercase leading-relaxed max-w-[240px] md:max-w-sm">
-                WHILE ON YOUR SIDE OF <span className="text-white/80">REALITY</span> <br /> WITH OUR SYSTEM
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="scene-mockups fixed inset-0 flex items-center justify-center z-30 pointer-events-none opacity-0">
-          <div className="relative w-full max-w-7xl px-6 md:px-12 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12">
-            <div className="mockup-desktop relative w-full md:w-[70%] aspect-[1911/883] bg-black rounded-xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-              <img src="/desktopmock.png" alt="Desktop Interface" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-            </div>
-            <div className="mockup-mobile relative w-[40%] md:w-[18%] aspect-[361/601] bg-[#0a0a0a] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border-[4px] md:border-[6px] border-white/5 shadow-2xl">
-              <img src="/mobilemock.png" alt="Mobile Interface" className="w-full h-full object-cover" />
-            </div>
-          </div>
-        </div>
-        <div className="scene-quadrants fixed inset-0 z-30 pointer-events-none p-12 md:p-24 overflow-hidden">
-          <div className="quadrant-intellectual absolute top-[15%] md:top-[20%] right-[10%] md:left-[15%] md:right-auto opacity-0 text-right md:text-left max-w-[200px] md:max-w-xs">
-            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">
-              <GlitchTitle progress={progress} threshold={0.68} original="Intellectual" target="STORIES" />
-            </h3>
-            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">Strategic planning, Deep Work focus sessions, and unrestricted mental logging.</p>
-          </div>
-          <div className="quadrant-physical absolute top-[35%] md:top-[20%] right-[10%] md:right-[15%] opacity-0 text-right max-w-[200px] md:max-w-xs">
-            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">
-              <GlitchTitle progress={progress} threshold={0.68} original="Physical" target="LEVELLING" />
-            </h3>
-            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">Real-time vitality tracking and automated habit loops for peak energy maintenance.</p>
-          </div>
-          <div className="quadrant-financial absolute top-[55%] md:bottom-[20%] right-[10%] md:left-[15%] md:right-auto md:top-auto opacity-0 text-right md:text-left max-w-[200px] md:max-w-xs">
-            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">
-              <GlitchTitle progress={progress} threshold={0.68} original="Financial" target="SURVIVAL" />
-            </h3>
-            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">Full-spectrum capital management, asset tracking, and resource allocation.</p>
-          </div>
-          <div className="quadrant-spiritual absolute top-[75%] md:bottom-[20%] right-[10%] md:right-[15%] md:top-auto opacity-0 text-right max-w-[200px] md:max-w-xs">
-            <h3 className="text-white text-lg md:text-3xl font-black uppercase tracking-tighter mb-2 md:mb-4">
-              <GlitchTitle progress={progress} threshold={0.68} original="Spiritual" target="COMPETITION" />
-            </h3>
-            <p className="text-white/40 text-[10px] md:text-sm font-light tracking-wide leading-relaxed">Mindset reflection, gratitude rituals, and alignment through intentionality.</p>
-          </div>
-        </div>
+        <RealityScene />
+        <MockupScene />
+        <PillarScene progress={progress} isMobile={isMobile} />
         <Features />
         <Testimonials testimonials={TESTIMONIALS} />
         <CTA user={user} />

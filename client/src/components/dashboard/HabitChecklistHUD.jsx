@@ -69,7 +69,10 @@ export default function HabitChecklistHUD() {
 
       {/* Header */}
       <div className="mb-10 flex justify-between items-center relative z-10">
-        <span className="text-xs font-black uppercase tracking-[0.6em] text-foreground/60">CHECKLIST</span>
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">CHECKLIST</span>
+          <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">DAILY PROTOCOLS</span>
+        </div>
         <button
           onClick={() => setAddModalOpen((prev) => !prev)}
           className={`size-8 flex items-center justify-center border-2 transition-all active:scale-95 ${

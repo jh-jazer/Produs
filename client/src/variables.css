@@ -20,7 +20,7 @@
    ============================================================================= */
 
 html {
-  font-size: 80%; /* ← CHANGE THIS ONE VALUE to scale every font in the app */
+  font-size: 70%; /* ← CHANGE THIS ONE VALUE to scale every font in the app */
 }
 
 
@@ -468,6 +468,10 @@ html {
   /* HUD Pill (loading indicator) */
   --hud-pill-bg-light:   var(--color-bg);
   --hud-pill-bg-dark:    var(--color-surface-dark);   /* #080808 */
+
+  /* Authentication Page */
+  --auth-title-size:     1.5rem;              /* 24px — Optimized for terminal impact */
+  --auth-subtitle-size:  var(--text-xs);      /* 12px */
 }
 
 

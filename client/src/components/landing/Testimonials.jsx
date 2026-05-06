@@ -16,8 +16,8 @@ const Testimonials = ({ testimonials }) => {
         </div>
 
         {/* Square Panels Row */}
-        <div className="relative z-10 w-full px-4">
-          <div className="flex flex-wrap md:flex-nowrap justify-center gap-4 md:gap-8">
+        <div className="relative z-10 w-full px-4 testimonial-container">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-8">
             {testimonials.map((testimonial, idx) => (
               <div 
                 key={testimonial.id}

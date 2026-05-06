@@ -28,6 +28,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     const [isEasyMode, setIsEasyMode] = useState(true);
     const [isAuthorizing, setIsAuthorizing] = useState(false);
     const [isTypingComplete, setIsTypingComplete] = useState(false);
+    const [hasRevealedInputs, setHasRevealedInputs] = useState(false); // Persistent visibility
     const [hasCompletedInitialType, setHasCompletedInitialType] = useState(false);
     const [isFastForwarding, setIsFastForwarding] = useState(false);
 
@@ -68,6 +69,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                 setIsInitializing(false);
                 if (hasCompletedInitialType) {
                     setIsTypingComplete(true);
+                    setHasRevealedInputs(true);
                 }
             }, 800);
         };
@@ -139,7 +141,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[500] bg-white dark:bg-[#050505] text-slate-900 dark:text-slate-100 selection:bg-rose-500/30 overflow-hidden font-outfit">
+        <div className="fixed inset-0 z-[500] bg-white dark:bg-[#050505] text-slate-900 dark:text-slate-100 selection:bg-white/30 overflow-hidden font-outfit">
             {/* Cinematic Background */}
             <div className="absolute inset-0 pointer-events-none z-0">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,163,255,0.05)_0%,transparent_70%)] opacity-50 dark:opacity-50 opacity-20" />
@@ -172,20 +174,20 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                             exit={{ opacity: 0 }}
                             className="w-full max-w-sm space-y-8 text-center"
                         >
-                            <div className="flex items-center justify-between text-[10px] font-black text-blue-700 dark:text-electric-blue uppercase tracking-[0.4em]">
+                            <div className="flex items-center justify-between text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.4em]">
                                 <span className="flex items-center gap-2">
                                     <Cpu size={12} className="animate-pulse" />
-                                    DIAGNOSTIC_RUNNING
+                                    SYSTEM_STARTUP
                                 </span>
-                                <div className="size-2 rounded-full bg-electric-blue animate-ping" />
+                                <div className="size-2 rounded-full bg-slate-900 dark:bg-white animate-ping" />
                             </div>
                             
-                            <div className="h-0.5 w-full bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-0.5 w-full bg-slate-900/5 dark:bg-white/5 rounded-full overflow-hidden">
                                 <motion.div 
                                     initial={{ width: 0 }}
                                     animate={{ width: "100%" }}
                                     transition={{ duration: 2, ease: "easeInOut" }}
-                                    className="h-full bg-electric-blue dark:shadow-[0_0_15px_rgba(0,163,255,0.5)]"
+                                    className="h-full bg-slate-900 dark:bg-white dark:shadow-[0_0_15px_rgba(255,255,255,0.5)]"
                                 />
                             </div>
 
@@ -219,12 +221,10 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                     {/* Centered Node HUD & Progress Map */}
                                     <HandshakeNode 
                                         title={<>Identity <span className="text-white/20">Sync</span></>}
-                                        subtitle="BIOMETRIC_OFFBOARDING"
-                                        nodeId="0.1"
+                                        subtitle="PROFILE_SETUP"
+                                        nodeId="1"
                                         steps={['Identity', 'Calibration', 'Finalize']}
                                         currentStep={0}
-                                        accentColor="text-electric-blue"
-                                        lineColor="bg-electric-blue"
                                     />
 
                                     <div className="space-y-16 max-w-2xl mx-auto">
@@ -243,7 +243,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                         }}
                                                         className={`px-3 h-full rounded-full text-[7px] font-black uppercase tracking-widest transition-all ${
                                                             isEasyMode 
-                                                                ? 'bg-electric-blue text-white shadow-[0_0_12px_rgba(0,163,255,0.3)]' 
+                                                                ? 'bg-slate-900 dark:bg-white text-white dark:text-black shadow-[0_0_12px_rgba(255,255,255,0.3)]' 
                                                                 : 'text-slate-400 dark:text-white/20 hover:text-slate-900 dark:hover:text-white/40'
                                                         }`}
                                                     >
@@ -258,7 +258,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                         }}
                                                         className={`px-3 h-full rounded-full text-[7px] font-black uppercase tracking-widest transition-all ${
                                                             !isEasyMode 
-                                                                ? 'bg-emerald-500 text-white shadow-[0_0_12px_rgba(16,185,129,0.3)]' 
+                                                                ? 'bg-slate-900 dark:bg-white text-white dark:text-black shadow-[0_0_12px_rgba(255,255,255,0.3)]' 
                                                                 : 'text-slate-400 dark:text-white/20 hover:text-slate-900 dark:hover:text-white/40'
                                                         }`}
                                                     >
@@ -267,7 +267,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                 </div>
                                             </div>
 
-                                            <div className="text-xl md:text-2xl font-light text-slate-700 dark:text-slate-300 leading-relaxed font-display">
+                                            <div className="text-base md:text-lg font-light text-slate-700 dark:text-slate-300 leading-relaxed font-display">
                                                 {hasCompletedInitialType ? (
                                                     <div className="text-slate-900 dark:text-white/90 whitespace-pre-wrap">
                                                         {(isEasyMode ? simpleBootLines : bootLines).join("\n\n")}
@@ -280,6 +280,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                         multiplier={isFastForwarding ? 4 : 1}
                                                         onComplete={() => {
                                                             setIsTypingComplete(true);
+                                                            setHasRevealedInputs(true);
                                                             setHasCompletedInitialType(true);
                                                         }}
                                                         className="text-slate-900 dark:text-white/90"
@@ -290,19 +291,19 @@ const OnboardingModal = ({ isOpen, onClose }) => {
 
                                 {/* Form Entry Section */}
                                 <AnimatePresence>
-                                    {isTypingComplete && (
+                                    {hasRevealedInputs && (
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             className="space-y-12"
                                         >
                                             {/* Role/Gender Selector */}
-                                            <div className="space-y-6">
-                                                <div className="flex items-center gap-4 text-slate-400 dark:text-white/40 font-black text-[10px] uppercase tracking-[0.4em]">
-                                                    <span>01_CHOOSE_BIOMETRIC_AVATAR</span>
+                                            <div className="space-y-4">
+                                                <div className="flex items-center gap-4 text-slate-400 dark:text-white/20 font-black text-[8px] uppercase tracking-[0.4em]">
+                                                    <span>01_CHOOSE_AVATAR</span>
                                                     <div className="h-px flex-1 bg-slate-200 dark:bg-white/[0.03]" />
                                                 </div>
-                                                <div className="grid grid-cols-2 gap-4">
+                                                <div className="grid grid-cols-2 gap-3">
                                                     {[
                                                         { id: 'male', label: 'Male', icon: User },
                                                         { id: 'female', label: 'Female', icon: User },
@@ -311,26 +312,26 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                             key={g.id}
                                                             type="button"
                                                             onClick={() => setGender(g.id)}
-                                                            className={`group p-6 rounded-3xl border transition-all duration-300 flex flex-col items-center gap-4 ${
+                                                            className={`group p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center gap-3 ${
                                                                 gender === g.id
-                                                                    ? 'bg-electric-blue/10 border-electric-blue/40 text-electric-blue shadow-[0_0_30px_rgba(0,163,255,0.1)]'
+                                                                    ? 'bg-slate-900/5 dark:bg-white/10 border-slate-900/40 dark:border-white/40 text-slate-900 dark:text-white shadow-[0_0_20px_rgba(255,255,255,0.05)]'
                                                                     : 'bg-slate-50 dark:bg-white/[0.02] border-slate-200 dark:border-white/5 text-slate-400 dark:text-white/30 hover:bg-slate-100 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/20'
                                                             }`}
                                                         >
-                                                            <div className={`size-12 rounded-2xl flex items-center justify-center transition-all ${
-                                                                gender === g.id ? 'bg-electric-blue/20 shadow-inner' : 'bg-slate-200 dark:bg-white/5'
+                                                            <div className={`size-10 rounded-xl flex items-center justify-center transition-all ${
+                                                                gender === g.id ? 'bg-slate-900/10 dark:bg-white/20 shadow-inner' : 'bg-slate-200 dark:bg-white/5'
                                                             }`}>
-                                                                <g.icon size={20} className={gender === g.id ? 'opacity-100' : 'opacity-40 dark:opacity-40 text-slate-600 dark:text-white'} />
+                                                                <g.icon size={18} className={gender === g.id ? 'opacity-100' : 'opacity-40 dark:opacity-40 text-slate-600 dark:text-white'} />
                                                             </div>
-                                                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">{g.label}</span>
+                                                            <span className="text-[9px] font-black uppercase tracking-[0.3em]">{g.label}</span>
                                                         </button>
                                                     ))}
                                                 </div>
                                             </div>
 
                                             {/* Username Section */}
-                                            <div className="space-y-6">
-                                                <div className="flex items-center gap-4 text-slate-400 dark:text-white/40 font-black text-[10px] uppercase tracking-[0.4em]">
+                                            <div className="space-y-4">
+                                                <div className="flex items-center gap-4 text-slate-400 dark:text-white/20 font-black text-[8px] uppercase tracking-[0.4em]">
                                                     <span>02_SET_USERNAME</span>
                                                     <div className="h-px flex-1 bg-slate-200 dark:bg-white/[0.03]" />
                                                 </div>
@@ -344,18 +345,18 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                             checkUsername(val);
                                                         }}
                                                         placeholder="username..."
-                                                        className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 group-hover:border-slate-300 dark:group-hover:border-white/20 rounded-3xl p-8 text-2xl md:text-3xl font-black outline-none focus:border-electric-blue focus:bg-electric-blue/5 transition-all text-electric-blue placeholder:text-slate-300 dark:placeholder:text-white/5 tracking-[0.4em] font-exo italic text-center uppercase"
+                                                        className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 group-hover:border-slate-300 dark:group-hover:border-white/20 rounded-2xl p-5 text-lg font-black outline-none focus:border-slate-900 dark:focus:border-white focus:bg-slate-900/5 dark:focus:bg-white/5 transition-all text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-white/5 tracking-[0.4em] font-exo italic text-center uppercase"
                                                     />
-                                                    <div className="flex justify-between items-center mt-4 px-4 font-mono text-[9px] uppercase tracking-widest leading-none">
-                                                        <span className={username.length > 0 && username.length < 3 ? 'text-blue-400' : 'text-slate-400 dark:text-white/20'}>
+                                                    <div className="flex justify-between items-center mt-3 px-4 font-mono text-[8px] uppercase tracking-widest leading-none">
+                                                        <span className={username.length > 0 && username.length < 3 ? 'text-slate-900 dark:text-white/60' : 'text-slate-400 dark:text-white/20'}>
                                                             LEN: {username.length}/8
                                                         </span>
                                                         {isCheckingUsername ? (
-                                                            <span className="text-slate-400 dark:text-white/20 animate-pulse">CHECKING_SYSTEM_ARCHIVES...</span>
+                                                            <span className="text-slate-400 dark:text-white/20 animate-pulse">CHECKING_USERNAME...</span>
                                                         ) : (
                                                             <>
-                                                                {isUsernameAvailable === false && <span className="text-blue-500">IDENTIFIER_TAKEN // CONFLICT</span>}
-                                                                {isUsernameAvailable === true && <span className="text-emerald-500 text-[10px] font-black italic">PROTOCOL_CLEARED</span>}
+                                                                {isUsernameAvailable === false && <span className="text-slate-900 dark:text-white/60">CONFLICT</span>}
+                                                                {isUsernameAvailable === true && <span className="text-slate-900 dark:text-white font-black italic">AVAILABLE</span>}
                                                             </>
                                                         )}
                                                     </div>
@@ -378,19 +379,19 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                         {isAuthorizing ? (
                                                             <>
                                                                 <RefreshCw size={16} className="animate-spin" />
-                                                                <span>UPLOADING DATA..</span>
+                                                                <span>SAVING...</span>
                                                             </>
                                                         ) : (
                                                             <>
-                                                                <span>COMMENCE_SYNC</span>
+                                                                <span>CONTINUE</span>
                                                                 <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
                                                             </>
                                                         )}
                                                     </div>
                                                 </button>
                                                 {!gender && isUsernameAvailable && (
-                                                    <p className="text-center font-mono text-[8px] uppercase tracking-[0.4em] text-blue-400 animate-pulse">
-                                                        [ CRITICAL: SELECT BIOMETRIC_AVATAR TO CONTINUE ]
+                                                    <p className="text-center font-mono text-[8px] uppercase tracking-[0.4em] text-slate-900 dark:text-white/40 animate-pulse">
+                                                        [ PLEASE SELECT AN AVATAR TO CONTINUE ]
                                                     </p>
                                                 )}
                                             </div>
@@ -412,12 +413,10 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                             {/* Centered Node HUD & Progress Map */}
                             <HandshakeNode 
                                 title="Calibration"
-                                subtitle="VISUAL_INTERFACE_SETUP"
-                                nodeId="0.2"
+                                subtitle="INTERFACE_SETUP"
+                                nodeId="2"
                                 steps={['Identity', 'Calibration', 'Finalize']}
                                 currentStep={1}
-                                accentColor="text-electric-blue"
-                                lineColor="bg-electric-blue"
                             />
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
@@ -431,14 +430,14 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                         onClick={() => handleThemeChange(mode.id)}
                                         className={`p-10 rounded-[2.5rem] border-2 flex flex-col items-center gap-6 transition-all group ${
                                             themeMode === mode.id
-                                                ? "border-electric-blue bg-electric-blue/10 shadow-[0_0_40px_rgba(0,163,255,0.1)]"
+                                                ? "border-slate-900 dark:border-white bg-slate-900/5 dark:bg-white/10 shadow-[0_0_40px_rgba(255,255,255,0.1)]"
                                                 : "border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] hover:bg-slate-100 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/20"
                                         }`}
                                     >
                                         <div className={`size-12 rounded-2xl flex items-center justify-center transition-all ${
-                                            themeMode === mode.id ? "bg-electric-blue/20 shadow-inner" : "bg-slate-200 dark:bg-white/5"
+                                            themeMode === mode.id ? "bg-slate-900/10 dark:bg-white/20 shadow-inner" : "bg-slate-200 dark:bg-white/5"
                                         }`}>
-                                            <mode.icon size={24} className={themeMode === mode.id ? 'text-electric-blue' : 'text-slate-400 dark:text-white/20 group-hover:text-slate-600 dark:group-hover:text-white/40'} />
+                                            <mode.icon size={24} className={themeMode === mode.id ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-white/20 group-hover:text-slate-600 dark:group-hover:text-white/40'} />
                                         </div>
                                         <span className={`text-[10px] font-black uppercase tracking-widest ${themeMode === mode.id ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/40'}`}>
                                             {mode.name}
@@ -452,16 +451,16 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                     onClick={() => { setIsInitializing(true); setStep(1); }}
                                     className="px-10 py-6 rounded-3xl border border-slate-200 dark:border-white/10 text-slate-400 dark:text-white/40 font-black text-[10px] uppercase tracking-widest hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all font-exo"
                                 >
-                                    RE_IDENTIFY
+                                    BACK
                                 </button>
                                 <button
                                     onClick={() => {
                                         setStep(3);
                                         setIsTypingComplete(false);
                                     }}
-                                    className="flex-1 py-6 rounded-[2rem] bg-electric-blue text-white font-black text-[10px] uppercase tracking-[0.5em] shadow-[0_0_30px_rgba(0,163,255,0.2)] hover:scale-[1.02] transition-all font-exo"
+                                    className="flex-1 py-6 rounded-[2rem] bg-slate-900 dark:bg-white text-white dark:text-black font-black text-[10px] uppercase tracking-[0.5em] shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02] transition-all font-exo"
                                 >
-                                    LOG_CALIBRATION
+                                    CONTINUE
                                 </button>
                             </div>
                         </motion.div>
@@ -477,12 +476,10 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                             {/* Centered Node HUD & Progress Map */}
                             <HandshakeNode 
                                 title={<>Welcome, @{username}</>}
-                                subtitle="SYNERGY_ESTABLISHED"
-                                nodeId="0.3"
+                                subtitle="SETUP_COMPLETE"
+                                nodeId="3"
                                 steps={['Identity', 'Calibration', 'Finalize']}
                                 currentStep={2}
-                                accentColor="text-emerald-500"
-                                lineColor="bg-emerald-500"
                             />
 
                             <div className="space-y-8 max-w-xl mx-auto">
@@ -490,7 +487,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
 
                                 <div className="p-8 rounded-[2.5rem] bg-slate-100 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 backdrop-blur-3xl relative overflow-hidden group min-h-[120px] flex items-center justify-center">
                                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <div className="text-sm text-slate-400 leading-relaxed uppercase tracking-widest font-medium font-outfit text-center italic">
+                                    <div className="text-xs text-slate-400 leading-relaxed uppercase tracking-widest font-medium font-outfit text-center italic">
                                         <Typewriter 
                                             key={isEasyMode ? 'final-easy' : 'final-pro'}
                                             text={isEasyMode 
@@ -513,9 +510,9 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                             <button
                                                 onClick={handleOnboardingComplete}
                                                 disabled={loading}
-                                                className="w-full py-8 rounded-[2.5rem] bg-emerald-500 text-white font-black text-xs uppercase tracking-[0.8em] transition-all hover:scale-[1.02] font-exo shadow-[0_0_50px_rgba(16,185,129,0.3)] shadow-emerald-500/20 active:scale-[0.98]"
+                                                className="w-full py-8 rounded-[2.5rem] bg-slate-900 dark:bg-white text-white dark:text-black font-black text-xs uppercase tracking-[0.8em] transition-all hover:scale-[1.02] font-exo shadow-[0_0_50px_rgba(255,255,255,0.2)] active:scale-[0.98]"
                                             >
-                                                {loading ? 'INITIALIZING_SYSTEM...' : 'PRODUS'}
+                                                {loading ? 'SETTING_UP...' : 'PRODUS'}
                                             </button>
                                         </motion.div>
                                     )}

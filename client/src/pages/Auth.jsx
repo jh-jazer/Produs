@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Logo from '../components/brand/Logo';
 import useAuthStore from '../store/useAuthStore';
 import api from '../services/api';
+import { Cpu, Lock, Mail, User, Shield, Zap, ArrowRight, Fingerprint, Globe, Terminal as TerminalIcon } from 'lucide-react';
+
+/**
+ * PRODUS AUTH TERMINAL (v2.1)
+ * ---------------------------------------------------------
+ * Aesthetic: High-Density Tactical HUD / Monochromatic
+ * Terminology: Standard (User-Friendly)
+ * Layout: Viewport-Relative Scaling
+ */
 
 function Auth() {
     const [isSignUp, setIsSignUp] = useState(false);
@@ -20,29 +29,24 @@ function Auth() {
     const location = useLocation();
     const setCredentials = useAuthStore((state) => state.setCredentials);
 
-    // Check for Google OAuth error in URL
+    // Check for Google OAuth error
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         if (queryParams.get('error') === 'auth_failed') {
-            setError('Google Authentication failed. Please try again or use email/password.');
+            setError('Authentication failed. Please try again or use email.');
         }
     }, [location]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        if (error) setError(null); // Clear error when user types
+        if (error) setError(null);
     };
 
     const handleSignIn = async (e) => {
         e.preventDefault();
-
-        if (!formData.email || !formData.password) {
-            return setError("Please fill in all fields.");
-        }
-
+        if (!formData.email || !formData.password) return setError("Please fill in all fields.");
         setIsLoading(true);
         setError(null);
-
         try {
             const { data } = await api.post('/auth/login', {
                 email: formData.email,
@@ -51,7 +55,7 @@ function Auth() {
             setCredentials(data);
             navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.message || 'Login failed. Please try again.');
+            setError(err.response?.data?.message || 'Invalid email or password.');
         } finally {
             setIsLoading(false);
         }
@@ -59,14 +63,11 @@ function Auth() {
 
     const handleSignUp = async (e) => {
         e.preventDefault();
-
         if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
             return setError("Please fill in all fields.");
         }
-
         setIsLoading(true);
         setError(null);
-
         try {
             const { data } = await api.post('/auth/register', {
                 name: `${formData.firstName} ${formData.lastName}`,
@@ -83,231 +84,190 @@ function Auth() {
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="min-h-screen relative flex items-center justify-center p-4 bg-[#000000] overflow-hidden"
-        >
-
-            {/* Background blobs */}
-            <div className="absolute inset-0">
-                <div className="absolute top-[-30%] left-[-15%] w-[600px] h-[600px] rounded-full bg-primary/20 blur-[150px] animate-pulse"></div>
-                <div className="absolute bottom-[-25%] right-[-10%] w-[500px] h-[500px] rounded-full bg-blue-500/15 blur-[130px] animate-pulse [animation-delay:1s]"></div>
-                <div className="absolute top-[30%] right-[15%] w-[350px] h-[350px] rounded-full bg-violet-500/10 blur-[100px] animate-pulse [animation-delay:2s]"></div>
+        <div className="min-h-screen relative flex items-center justify-center p-6 bg-black overflow-hidden font-sans selection:bg-primary selection:text-white">
+            
+            {/* Background Atmosphere */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-white/[0.03] rounded-full blur-[100px] animate-pulse [animation-delay:2s]" />
+                <div className="absolute inset-0 bg-grid-light dark:bg-grid opacity-[0.05]" />
             </div>
 
-            {/* Grid overlay */}
-            <div className="absolute inset-0 opacity-[0.04]" style={{
-                backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
-                backgroundSize: '50px 50px'
-            }}></div>
+            {/* Main Terminal Container */}
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="relative z-10 w-full max-w-[900px] h-[85vh] max-h-[700px] bg-[#080808]/80 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col md:flex-row"
+            >
+                {/* Status Bar */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-white/5 overflow-hidden z-50">
+                    <motion.div 
+                        animate={{ x: isSignUp ? '100%' : '0%' }}
+                        className="w-1/2 h-full bg-primary shadow-[0_0_10px_var(--color-primary)]"
+                    />
+                </div>
 
-            {/* Modal Container */}
-            <div className="relative z-10 w-full max-w-[760px] h-[600px] md:h-[520px] bg-white dark:bg-[#000000] rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.4)] overflow-hidden">
-
-                {/* Forms Container */}
-                <div className="relative w-full h-full flex">
-
-                    {/* ====== Sign In Form (Always on left side) ====== */}
-                    <div
-                        className="absolute top-0 left-0 w-full md:w-1/2 h-full flex items-center justify-center px-6 py-8 sm:px-10 sm:py-10 transition-opacity duration-700 ease-in-out z-10 bg-white dark:bg-[#000000]"
-                        style={{
-                            opacity: isSignUp ? 0 : 1,
-                            pointerEvents: isSignUp ? 'none' : 'auto',
-                        }}
-                    >
-                        <div className="w-full max-w-[300px]">
-                            <div className="flex items-center gap-2 mb-6">
-
-                                <span className="text-base font-black tracking-tight text-slate-900 dark:text-white">Produs</span>
-                            </div>
-                            <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">Welcome back</h1>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-6">Sign in to your account</p>
-
-                            <button onClick={() => window.location.href = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/auth/google` : '/api/auth/google'} type="button" className="w-full py-2 mb-4 bg-white dark:bg-[#000000]/50 border-2 border-slate-100 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-[#000000] transition-all flex items-center justify-center gap-2 group">
-                                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                Google
-                            </button>
-
-                            <div className="flex items-center mb-4">
-                                <div className="flex-grow border-t border-slate-200 dark:border-white/10"></div>
-                                <span className="mx-3 text-slate-400 text-[10px] font-bold uppercase tracking-wider">or</span>
-                                <div className="flex-grow border-t border-slate-200 dark:border-white/10"></div>
+                {/* Left Section: Interaction Hub */}
+                <div className="w-full md:w-[55%] p-10 md:p-14 flex flex-col justify-center relative overflow-y-auto">
+                    
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={isSignUp ? 'signup' : 'signin'}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            transition={{ duration: 0.4, ease: "easeInOut" }}
+                            className="w-full max-w-[320px] mx-auto md:mx-0"
+                        >
+                            {/* Branding */}
+                            <div className="flex items-center mb-8 cursor-default">
+                                <span className="text-sm font-black uppercase tracking-[0.5em] text-white/80">Produs</span>
                             </div>
 
-                            {/* Error Message Display */}
-                            {!isSignUp && error && (
-                                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-center">
-                                    <p className="text-[11px] font-bold text-red-500">{error}</p>
-                                </div>
-                            )}
+                            <header className="mb-8">
+                                <h1 className="font-black text-white mb-2 tracking-tighter" style={{ fontSize: 'var(--auth-title-size)' }}>
+                                    {isSignUp ? 'Create Account' : 'Welcome Back'}
+                                </h1>
+                                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">
+                                    {isSignUp ? 'Join the operative network' : 'Sign in to access your dashboard'}
+                                </p>
+                            </header>
 
-                            <form onSubmit={handleSignIn} className="flex flex-col gap-3">
-                                <div className="flex flex-col gap-1 group">
-                                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors">Email</label>
-                                    <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[16px]">mail</span>
-                                        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="alex@example.com" className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#000000]/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20 focus:border-slate-900 dark:focus:border-white transition-all placeholder-slate-400/70" />
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-1 group">
-                                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors">Password</label>
-                                    <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[16px]">lock</span>
-                                        <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#000000]/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20 focus:border-slate-900 dark:focus:border-white transition-all placeholder-slate-400/70" />
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <label className="flex items-center gap-1.5 cursor-pointer">
-                                        <input type="checkbox" className="appearance-none w-3.5 h-3.5 rounded border-2 border-slate-300 dark:border-slate-600 checked:bg-[#121212] dark:checked:bg-white checked:border-slate-900 dark:checked:border-white transition-colors cursor-pointer" />
-                                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Remember me</span>
-                                    </label>
-                                    <a href="#" className="text-[11px] font-bold text-primary hover:underline">Forgot password?</a>
-                                </div>
-                                <button disabled={isLoading} type="submit" className="w-full mt-1 py-2.5 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-black hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                                    {isLoading ? 'Signing In...' : 'Sign In'}
-                                </button>
-                            </form>
-
-                            <p className="mt-4 text-center text-[11px] text-slate-500 dark:text-slate-400 font-medium md:hidden">
-                                No account? <button onClick={() => { setIsSignUp(true); setError(null); }} className="text-slate-900 dark:text-white font-black hover:underline">Sign up</button>
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* ====== Sign Up Form (Always on right side) ====== */}
-                    <div
-                        className="absolute top-0 left-0 md:left-1/2 w-full md:w-1/2 h-full flex items-center justify-center px-6 py-8 sm:px-10 sm:py-10 transition-opacity duration-700 ease-in-out z-10 md:z-0 bg-white dark:bg-[#000000] md:bg-transparent"
-                        style={{
-                            opacity: isSignUp ? 1 : 0,
-                            pointerEvents: isSignUp ? 'auto' : 'none',
-                        }}
-                    >
-                        <div className="w-full max-w-[300px]">
-                            <div className="flex items-center gap-2 mb-6">
-                                <span className="text-base font-black tracking-tight text-slate-900 dark:text-white">Produs</span>
-                            </div>
-                            <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">Get started</h1>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-6">Create your free account</p>
-
-                            <button onClick={() => window.location.href = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/auth/google` : '/api/auth/google'} type="button" className="w-full py-2 mb-4 bg-white dark:bg-[#000000]/50 border-2 border-slate-100 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-[#000000] transition-all flex items-center justify-center gap-2 group">
-                                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                Google
-                            </button>
-
-                            <div className="flex items-center mb-4">
-                                <div className="flex-grow border-t border-slate-200 dark:border-white/10"></div>
-                                <span className="mx-3 text-slate-400 text-[10px] font-bold uppercase tracking-wider">or</span>
-                                <div className="flex-grow border-t border-slate-200 dark:border-white/10"></div>
-                            </div>
-
-                            {/* Error Message Display */}
-                            {isSignUp && error && (
-                                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-center">
-                                    <p className="text-[11px] font-bold text-red-500">{error}</p>
-                                </div>
-                            )}
-
-                            <form onSubmit={handleSignUp} className="flex flex-col gap-3">
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="flex flex-col gap-1 group">
-                                        <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors">First Name</label>
-                                        <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Alex" className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#000000]/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20 focus:border-slate-900 dark:focus:border-white transition-all placeholder-slate-400/70" />
-                                    </div>
-                                    <div className="flex flex-col gap-1 group">
-                                        <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors">Last Name</label>
-                                        <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Doe" className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#000000]/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20 focus:border-slate-900 dark:focus:border-white transition-all placeholder-slate-400/70" />
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-1 group">
-                                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors">Email</label>
-                                    <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[16px]">mail</span>
-                                        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="alex@example.com" className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#000000]/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20 focus:border-slate-900 dark:focus:border-white transition-all placeholder-slate-400/70" />
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-1 group">
-                                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors">Password</label>
-                                    <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[16px]">lock</span>
-                                        <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#000000]/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20 focus:border-slate-900 dark:focus:border-white transition-all placeholder-slate-400/70" />
-                                    </div>
-                                </div>
-                                <button disabled={isLoading} type="submit" className="w-full mt-1 py-2.5 bg-[#121212] dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-black hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                                    {isLoading ? 'Creating Account...' : 'Create Account'}
-                                </button>
-                            </form>
-
-                            <p className="mt-4 text-center text-[11px] text-slate-500 dark:text-slate-400 font-medium md:hidden">
-                                Have an account? <button onClick={() => { setIsSignUp(false); setError(null); }} className="text-slate-900 dark:text-white font-black hover:underline">Sign in</button>
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* ====== Sliding Overlay Panel ====== */}
-                    <div
-                        className="absolute top-0 w-1/2 h-full z-20 transition-transform duration-700 ease-in-out hidden md:block"
-                        style={{
-                            left: '50%',
-                            transform: isSignUp ? 'translateX(-100%)' : 'translateX(0)',
-                        }}
-                    >
-                        <div className="relative w-full h-full bg-[#000000] dark:bg-[#000000] overflow-hidden flex flex-col items-center justify-center p-10 text-center">
-                            {/* Decorative blobs inside panel */}
-                            <div className="absolute inset-0">
-                                <div className="absolute top-[-30%] left-[-20%] w-[400px] h-[400px] rounded-full bg-primary/25 blur-[100px]"></div>
-                                <div className="absolute bottom-[-20%] right-[-20%] w-[350px] h-[350px] rounded-full bg-blue-500/20 blur-[80px]"></div>
-                                <div className="absolute top-[50%] left-[60%] w-[200px] h-[200px] rounded-full bg-violet-500/15 blur-[60px]"></div>
-                            </div>
-
-                            {/* Grid overlay */}
-                            <div className="absolute inset-0 opacity-[0.04]" style={{
-                                backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
-                                backgroundSize: '40px 40px'
-                            }}></div>
-
-                            <div className="relative z-10 flex flex-col items-center gap-6 max-w-[260px]">
-
-
-                                <div>
-                                    <h2 className="text-2xl font-black text-white mb-2 tracking-tight">
-                                        {isSignUp ? 'Already with us?' : 'New here?'}
-                                    </h2>
-                                    <p className="text-sm text-slate-400 font-medium leading-relaxed">
-                                        {isSignUp
-                                            ? 'Sign in to access your habits, goals, and financial insights.'
-                                            : 'Create an account and start building better habits today.'
-                                        }
-                                    </p>
-                                </div>
-
-                                <button
-                                    onClick={() => { setIsSignUp(!isSignUp); setError(null); }}
-                                    className="px-8 py-2.5 rounded-xl border-2 border-white/20 text-white text-sm font-black hover:bg-white hover:text-slate-900 transition-all duration-300 hover:scale-105 active:scale-95"
+                            {error && (
+                                <motion.div 
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    className="mb-6 p-4 bg-rose-500/10 border-l-2 border-rose-500 text-rose-500 text-[9px] font-black uppercase tracking-widest flex items-center gap-3"
                                 >
-                                    {isSignUp ? 'Sign In' : 'Sign Up'}
-                                </button>
+                                    <Shield size={14} />
+                                    {error}
+                                </motion.div>
+                            )}
 
-                                {/* Stats */}
-                                <div className="flex gap-6 mt-2">
-                                    <div className="text-center">
-                                        <p className="text-lg font-black text-white">12K+</p>
-                                        <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Users</p>
+                            <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="flex flex-col gap-4">
+                                {isSignUp && (
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 ml-1">First Name</label>
+                                            <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="John" className="bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-white placeholder:text-white/10 focus:outline-none focus:border-primary/50 focus:bg-white/[0.05] transition-all" />
+                                        </div>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 ml-1">Last Name</label>
+                                            <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Doe" className="bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-white placeholder:text-white/10 focus:outline-none focus:border-primary/50 focus:bg-white/[0.05] transition-all" />
+                                        </div>
                                     </div>
-                                    <div className="w-px bg-[#000000]"></div>
-                                    <div className="text-center">
-                                        <p className="text-lg font-black text-white">50M+</p>
-                                        <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Habits</p>
+                                )}
+
+                                <div className="flex flex-col gap-1.5 group">
+                                    <label className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 ml-1 group-focus-within:text-primary transition-colors">Email Address</label>
+                                    <div className="relative">
+                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-white/20 group-focus-within:text-primary transition-colors" />
+                                        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="name@email.com" className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 py-2.5 text-sm font-bold text-white placeholder:text-white/10 focus:outline-none focus:border-primary/50 focus:bg-white/[0.05] transition-all" />
                                     </div>
                                 </div>
+
+                                <div className="flex flex-col gap-1.5 group">
+                                    <label className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 ml-1 group-focus-within:text-primary transition-colors">Password</label>
+                                    <div className="relative">
+                                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-white/20 group-focus-within:text-primary transition-colors" />
+                                        <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 py-2.5 text-sm font-bold text-white placeholder:text-white/10 focus:outline-none focus:border-primary/50 focus:bg-white/[0.05] transition-all" />
+                                    </div>
+                                </div>
+
+                                {!isSignUp && (
+                                    <div className="flex items-center justify-between px-1">
+                                        <label className="flex items-center gap-2 cursor-pointer group/check">
+                                            <input type="checkbox" className="appearance-none size-3 rounded-sm border border-white/20 checked:bg-primary checked:border-primary transition-all cursor-pointer" />
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-white/30 group-hover/check:text-white/60 transition-colors">Remember Me</span>
+                                        </label>
+                                        <button type="button" className="text-[9px] font-black uppercase tracking-widest text-primary/60 hover:text-primary hover:underline transition-all">Forgot Password?</button>
+                                    </div>
+                                )}
+
+                                <button 
+                                    disabled={isLoading}
+                                    type="submit" 
+                                    className="w-full bg-white text-black py-3.5 rounded-xl font-black text-xs uppercase tracking-[0.4em] hover:bg-primary hover:text-white hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(255,255,255,0.05)] disabled:opacity-50 mt-2 flex items-center justify-center gap-3"
+                                >
+                                    {isLoading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
+                                    <ArrowRight size={14} />
+                                </button>
+                            </form>
+
+                            <div className="mt-6 pt-6 border-t border-white/5 flex flex-col gap-4">
+                                <button 
+                                    onClick={() => window.location.href = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/auth/google` : '/api/auth/google'} 
+                                    className="w-full bg-transparent border border-white/10 text-white/60 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3"
+                                >
+                                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="size-3" alt="G" />
+                                    Sign in with Google
+                                </button>
                             </div>
+                            
+                            {/* Mobile Switcher */}
+                            <p className="mt-6 text-center text-[10px] font-black text-white/20 uppercase tracking-widest md:hidden">
+                                {isSignUp ? 'Already have an account?' : 'New here?'} 
+                                <button onClick={() => setIsSignUp(!isSignUp)} className="text-white ml-2 underline underline-offset-4 decoration-primary/50">{isSignUp ? 'Sign In' : 'Sign Up'}</button>
+                            </p>
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
+
+                {/* Right Section: Visual Overlay */}
+                <div className="hidden md:flex md:w-[45%] bg-white/[0.02] border-l border-white/5 relative flex-col items-center justify-center p-12 overflow-hidden group">
+                    <div className="absolute inset-0 bg-scanline pointer-events-none opacity-[0.03]" />
+                    
+                    <div className="relative z-10 w-full flex flex-col items-center gap-10">
+                        <div className="relative size-36 flex items-center justify-center">
+                            <motion.div 
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                className="absolute inset-0 border border-white/[0.05] rounded-full border-dashed"
+                            />
+                            <motion.div 
+                                animate={{ rotate: -360 }}
+                                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                className="absolute inset-4 border border-primary/20 rounded-full border-dashed"
+                            />
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={isSignUp ? 'shield' : 'shield-auth'}
+                                    initial={{ scale: 0.5, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 1.5, opacity: 0 }}
+                                    className="relative z-20 text-white"
+                                >
+                                    {isSignUp ? <Fingerprint size={50} strokeWidth={1} className="text-primary" /> : <Shield size={50} strokeWidth={1} className="text-white" />}
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
+
+                        <div className="text-center">
+                            <h2 className="font-black text-white mb-3 tracking-tighter" style={{ fontSize: 'var(--auth-title-size)' }}>
+                                {isSignUp ? 'Already with us?' : 'New here?'}
+                            </h2>
+                            <p className="text-xs text-white/40 font-medium leading-relaxed max-w-[220px] mx-auto mb-10">
+                                {isSignUp 
+                                    ? 'Sign in to access your habits, goals, and insights.' 
+                                    : 'Create an account and start building better habits today.'
+                                }
+                            </p>
+
+                            <button
+                                onClick={() => setIsSignUp(!isSignUp)}
+                                className="group relative px-8 py-3 overflow-hidden rounded-xl border border-white/10 hover:border-white/30 transition-all active:scale-95"
+                            >
+                                <span className="relative z-10 text-[10px] font-black uppercase tracking-[0.4em] text-white group-hover:text-primary transition-colors">
+                                    {isSignUp ? 'Sign In' : 'Sign Up'}
+                                </span>
+                                <div className="absolute inset-0 bg-white scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500 ease-[0.16, 1, 0.3, 1]" />
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </motion.div>
+            </motion.div>
+        </div>
     );
 }
 

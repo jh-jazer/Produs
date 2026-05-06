@@ -9,17 +9,17 @@ const MobileBottomNav = () => {
     const { protocolMode, activeRpgTab, setActiveRpgTab } = useContext(DashboardContext);
 
     const realityPillars = [
-        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
         { id: 'financial', name: 'Financial', path: '/dashboard/financial', icon: 'payments' },
         { id: 'intellectual', name: 'Intellectual', path: '/dashboard/intellectual', icon: 'psychology' },
+        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
         { id: 'physical', name: 'Physical', path: '/dashboard/physical', icon: 'monitor_heart' },
         { id: 'spiritual', name: 'Spiritual', path: '/dashboard/spiritual', icon: 'auto_awesome' },
     ];
 
     const rpgPillars = [
-        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
         { id: 'tower', name: 'Tower', path: '/dashboard', icon: 'castle' },
         { id: 'items', name: 'Items', path: '/dashboard', icon: 'inventory_2' },
+        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
         { id: 'skills', name: 'Skills', path: '/dashboard', icon: 'model_training' },
         { id: 'roam', name: 'Roam', path: '/dashboard', icon: 'explore' },
     ];
@@ -69,14 +69,14 @@ const MobileBottomNav = () => {
                             <button
                                 key={pillar.id}
                                 onClick={() => handleNav(pillar)}
-                                className="relative -top-3 flex flex-col items-center justify-center transition-all duration-300 z-20"
+                                className="relative -top-5 flex flex-col items-center justify-center transition-all duration-300 z-20"
                             >
-                                <div className={`size-16 rounded-full flex items-center justify-center transition-all duration-500 ${
+                                <div className={`size-20 rounded-full flex items-center justify-center transition-all duration-500 ${
                                     active 
                                     ? 'bg-black dark:bg-white shadow-xl' 
                                     : 'bg-white dark:bg-black border-2 border-black/10 dark:border-white/20 shadow-lg'
                                 }`}>
-                                    <span className={`material-symbols-outlined text-[32px] ${
+                                    <span className={`material-symbols-outlined text-[40px] ${
                                         active ? 'text-white dark:text-black' : 'text-black dark:text-white'
                                     }`}>
                                         {pillar.icon}

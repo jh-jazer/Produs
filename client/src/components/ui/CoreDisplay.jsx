@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const CoreDisplay = ({ amount = 0, className = "", variant = "minimal" }) => {
+const CoreDisplay = ({ amount = 0, className = "", variant = "vault" }) => {
     const [displayAmount, setDisplayAmount] = useState(amount);
     const [isPopping, setIsPopping] = useState(false);
     const prevAmount = useRef(amount);
@@ -38,19 +38,38 @@ const CoreDisplay = ({ amount = 0, className = "", variant = "minimal" }) => {
         return () => cancelAnimationFrame(requestRef.current);
     }, [amount]);
 
-    const isMinimal = variant === "minimal";
+    const isVault = variant === "vault";
 
     return (
         <div className={`relative flex items-center gap-3 transition-all duration-300 ${
-            !isMinimal
-                ? 'px-3.5 py-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl overflow-hidden'
+            isVault
+                ? 'px-3.5 py-2 overflow-hidden'
                 : 'px-0 py-0 bg-transparent border-none'
         } group ${className}`}>
 
+            {isVault && (
+                <>
+                    {/* Vault Glow Layer */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-black/5 via-transparent to-black/5 dark:from-white/5 dark:to-white/5 opacity-50" />
+
+                    {/* Vault Decorative Elements */}
+                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-black/10 dark:via-white/20 to-transparent" />
+
+                    {/* Corner Brackets */}
+                    <div className="absolute top-1 left-1 size-1.5 border-t border-l border-black/20 dark:border-white/20" />
+                    <div className="absolute top-1 right-1 size-1.5 border-t border-r border-black/20 dark:border-white/20" />
+                    <div className="absolute bottom-1 left-1 size-1.5 border-b border-l border-black/20 dark:border-white/20" />
+                    <div className="absolute bottom-1 right-1 size-1.5 border-b border-r border-black/20 dark:border-white/20" />
+
+                    {/* Scanline Effect */}
+                    <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%)] z-20 bg-[length:100%_4px] opacity-10" />
+                </>
+            )}
+
             {/* Icon Section */}
             <div className={`relative z-10 size-7 flex items-center justify-center rounded-lg transition-all ${
-                !isMinimal
-                    ? 'bg-black border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]'
+                isVault
+                    ? 'bg-black border border-white/10 shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)]'
                     : 'bg-transparent border-none'
             }`}>
                 <motion.div
@@ -85,11 +104,7 @@ const CoreDisplay = ({ amount = 0, className = "", variant = "minimal" }) => {
 
             {/* Amount Section */}
             <div className="flex flex-col relative z-10">
-                {!isMinimal && (
-                        <span className="text-[7px] font-black text-slate-500 uppercase tracking-[0.3em] leading-none mb-1">
-                            Limited_Resource
-                        </span>
-                )}
+
                 <div className="flex items-baseline gap-2 flex-nowrap">
                     <div className="min-w-fit flex justify-start">
                         <motion.span

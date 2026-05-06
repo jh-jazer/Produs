@@ -73,13 +73,10 @@ const DashboardModal = ({
                                 {(title || subtitle) && (
                                     <>
                                         {title && (
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <div className="size-1.5 rounded-full bg-primary animate-pulse" />
-                                                <h2 className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.4em] font-mono leading-none">{title}</h2>
-                                            </div>
+                                            <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
                                         )}
                                         {subtitle && (
-                                            <div className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic font-exo leading-none">{subtitle}</div>
+                                            <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>
                                         )}
                                     </>
                                 )}

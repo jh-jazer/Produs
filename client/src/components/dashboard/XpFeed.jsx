@@ -21,81 +21,79 @@ const XpFeed = ({ user }) => {
     };
 
     if (isLoading) return (
-        <div className="w-full space-y-4 py-8 animate-pulse">
+        <div className="w-full space-y-3 py-8 animate-pulse">
             {[1, 2, 3].map(i => (
-                <div key={i} className="h-16 w-full bg-slate-100 dark:bg-white/5 rounded-2xl" />
+                <div key={i} className="h-16 w-full bg-foreground/5 rounded-sm" />
             ))}
         </div>
     );
 
     if (!history || history.length === 0) return (
         <div className="w-full py-12 flex flex-col items-center justify-center text-center space-y-4 opacity-40">
-            <Clock size={40} className="text-slate-300" />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No Recent Activity Logged</p>
+            <Clock size={40} className="text-foreground/20" />
+            <p className="text-[10px] font-mono uppercase tracking-widest">No Recent Activity Logged</p>
         </div>
     );
 
     return (
-        <div className="w-full space-y-4">
-            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="flex items-center justify-between px-1 mb-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">REALTIME_XP_STREAM</span>
-                    <div className="flex items-center gap-2">
-                        <div className="size-1 rounded-full bg-cyan-500 animate-pulse" />
-                        <span className="text-[8px] font-black font-mono text-cyan-500 uppercase leading-none">SYNC_ACTIVE</span>
-                    </div>
+        <div className="w-full space-y-3">
+            <div className="flex items-center justify-between mb-4">
+                <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1">REALTIME_XP_STREAM</div>
+                <div className="flex items-center gap-2">
+                    <div className="size-1 rounded-full bg-primary animate-pulse" />
+                    <span className="text-[8px] font-mono text-primary uppercase tracking-widest">SYNC_ACTIVE</span>
                 </div>
-                {history.map((event, idx) => {
-                    const color = statColors[event.stat] || 'slate-400';
-                    const time = new Date(event.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            </div>
+            {history.map((event, idx) => {
+                const color = statColors[event.stat] || 'slate-400';
+                const time = new Date(event.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-                    return (
-                        <motion.div
-                            key={event._id || idx}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                            className="glass-card flex items-center gap-4 p-4 rounded-3xl hover:border-white/40 transition-all group"
-                        >
-                            {/* Stat Badge */}
-                            <div className={`size-10 rounded-2xl bg-${color}/10 border border-${color}/20 flex items-center justify-center text-${color} shrink-0`}>
-                                <Plus size={16} />
+                return (
+                    <motion.div
+                        key={event._id || idx}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="group relative p-4 rounded-sm border border-foreground/5 bg-transparent hover:bg-foreground/5 transition-all flex items-center gap-4"
+                    >
+                        {/* Stat Badge */}
+                        <div className={`size-10 rounded-sm bg-${color}/10 border border-${color}/20 flex items-center justify-center text-${color} shrink-0`}>
+                            <Plus size={16} />
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                                <h4 className="text-[10px] font-black uppercase tracking-wider leading-snug text-foreground truncate pr-2">
+                                    {event.action}
+                                </h4>
+                                <span className="text-[8px] font-mono text-foreground/40 shrink-0">{time}</span>
                             </div>
-
-                            {/* Info */}
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between">
-                                    <h4 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tight truncate pr-2 font-exo italic">
-                                        {event.action}
-                                    </h4>
-                                    <span className="text-[9px] font-black text-slate-400 font-mono shrink-0">{time}</span>
-                                </div>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest bg-${color}/10 text-${color}`}>
-                                        {event.stat.toUpperCase()}
+                            <div className="flex items-center gap-2 mt-1.5">
+                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-widest bg-${color}/10 text-${color}`}>
+                                    {event.stat.toUpperCase()}
+                                </span>
+                                {event.perkActivated && (
+                                    <span className="text-[8px] font-black text-orange-500 uppercase tracking-widest flex items-center gap-0.5">
+                                        <Sparkles size={8} /> {event.perkActivated}
                                     </span>
-                                    {event.perkActivated && (
-                                        <span className="text-[8px] font-black text-orange-500 uppercase tracking-widest flex items-center gap-0.5">
-                                            <Sparkles size={8} /> {event.perkActivated}
-                                        </span>
-                                    )}
-                                </div>
+                                )}
                             </div>
+                        </div>
 
-                            {/* Amount */}
-                            <div className="px-3 py-2 bg-slate-900 dark:bg-white rounded-xl shadow-lg shrink-0">
-                                <span className="text-xs font-black text-white dark:text-black font-exo italic">+{event.amount}</span>
-                            </div>
-                        </motion.div>
-                    );
-                })}
-                {/* End of Transcript Indicator - Now inside scroll for organic feel */}
-                <div className="pt-6 pb-2 flex justify-center opacity-40">
-                    <div className="flex items-center gap-4 w-full px-4">
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent to-slate-200 dark:to-white/10" />
-                        <p className="text-[8px] font-black text-slate-400 dark:text-white/20 uppercase tracking-[0.4em] whitespace-nowrap">END_OF_TRANSCRIPT</p>
-                        <div className="flex-1 h-px bg-gradient-to-l from-transparent to-slate-200 dark:to-white/10" />
-                    </div>
+                        {/* Amount */}
+                        <div className="px-2 py-1 bg-foreground/10 rounded-sm shrink-0">
+                            <span className="text-[10px] font-mono text-foreground">+{event.amount} XP</span>
+                        </div>
+                    </motion.div>
+                );
+            })}
+            {/* End of Transcript Indicator */}
+            <div className="pt-6 pb-2 flex justify-center opacity-40">
+                <div className="flex items-center gap-4 w-full px-4">
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent to-foreground/20" />
+                    <p className="text-[8px] font-mono text-foreground/40 uppercase tracking-widest whitespace-nowrap">END_OF_TRANSCRIPT</p>
+                    <div className="flex-1 h-px bg-gradient-to-l from-transparent to-foreground/20" />
                 </div>
             </div>
         </div>

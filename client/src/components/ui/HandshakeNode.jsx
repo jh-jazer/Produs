@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 /**
  * HandshakeNode - A cinematic header component for narrative nodes.
  * Displays a centered title with a "NODE_ID" hud element.
+ * Redesigned for High-Fidelity Tactical HUD (Monochromatic).
  */
 const HandshakeNode = ({ 
     title, 
@@ -11,103 +12,120 @@ const HandshakeNode = ({
     nodeId = "0.0", 
     steps = [], 
     currentStep = 0,
-    accentColor = "text-rose-500",
-    lineColor = "bg-rose-500",
+    accentColor = "text-white",
+    lineColor = "bg-white",
     onPrev,
     onNext,
     prevDisabled = false,
     nextDisabled = false
 }) => {
     return (
-        <div className="flex flex-col items-center gap-8 w-full">
-            {/* Progress Map (The Linked Nodes) */}
-            <div className="flex items-center justify-center gap-2">
-                {steps.map((step, idx) => (
-                    <React.Fragment key={idx}>
-                        <div className="relative group">
-                            <motion.div 
-                                animate={currentStep === idx ? { 
-                                    scale: [1, 1.2, 1],
-                                    boxShadow: [
-                                        "0 0 0px rgba(0,0,0,0)",
-                                        "0 0 15px currentColor",
-                                        "0 0 0px rgba(0,0,0,0)"
-                                    ]
-                                } : {}}
-                                transition={{ duration: 2, repeat: Infinity }}
-                                className={`size-3 rounded-full border-2 transition-all duration-500 ${
-                                    currentStep === idx 
-                                        ? `${accentColor} border-current bg-current` 
-                                        : currentStep > idx 
-                                            ? "border-emerald-500 bg-emerald-500/20" 
-                                            : "border-slate-300 dark:border-white/10 bg-slate-100 dark:bg-white/5"
-                                }`}
-                            />
-                            {/* Hover Tooltip/Label */}
-                            <div className="absolute top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                                <span className="text-[7px] font-mono tracking-widest uppercase text-white/40">
-                                    {step}
-                                </span>
+        <div className="flex flex-col items-center gap-10 w-full select-none">
+            
+            {/* 1. LINK ARRAY (Progress Map) */}
+            <div className="flex items-center justify-center gap-3">
+                {steps.map((step, idx) => {
+                    const isActive = currentStep === idx;
+                    const isCompleted = currentStep > idx;
+                    
+                    return (
+                        <React.Fragment key={idx}>
+                            <div className="relative group flex flex-col items-center">
+                                <motion.div 
+                                    animate={isActive ? { 
+                                        scale: [1, 1.15, 1],
+                                        boxShadow: [
+                                            "0 0 0px rgba(255,255,255,0)",
+                                            "0 0 10px rgba(255,255,255,0.3)",
+                                            "0 0 0px rgba(255,255,255,0)"
+                                        ]
+                                    } : {}}
+                                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                                    className={`size-2.5 rounded-full border transition-all duration-700 ${
+                                        isActive 
+                                            ? "bg-white border-white shadow-[0_0_15px_rgba(255,255,255,0.4)]" 
+                                            : isCompleted 
+                                                ? "bg-white/40 border-white/40" 
+                                                : "bg-white/[0.05] border-white/10"
+                                    }`}
+                                />
+                                
+                                {/* HUD Tag */}
+                                <div className={`absolute top-6 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none ${isActive ? 'opacity-40 translate-y-0' : 'translate-y-1'}`}>
+                                    <span className="text-[7px] font-black tracking-[0.4em] uppercase text-white whitespace-nowrap">
+                                        {step}
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                        {idx < steps.length - 1 && (
-                            <div className={`h-[1px] w-8 transition-all duration-500 ${
-                                currentStep > idx ? "bg-emerald-500/40" : "bg-slate-300 dark:bg-white/10"
-                            }`} />
-                        )}
-                    </React.Fragment>
-                ))}
+                            
+                            {idx < steps.length - 1 && (
+                                <div className="relative w-12 h-px">
+                                    <div className="absolute inset-0 bg-white/5" />
+                                    <motion.div 
+                                        initial={{ scaleX: 0 }}
+                                        animate={{ scaleX: isCompleted ? 1 : 0 }}
+                                        className="absolute inset-0 bg-white/40 origin-left"
+                                        transition={{ duration: 0.8 }}
+                                    />
+                                </div>
+                            )}
+                        </React.Fragment>
+                    );
+                })}
             </div>
 
-            {/* Centered Node Header with Navigation */}
-            <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10 w-full max-w-4xl">
-                {/* Prev Button */}
-                <div className="flex items-center gap-4 order-2 md:order-1 flex-1 justify-end md:justify-end">
+            {/* 2. CORE TERMINAL HEADER */}
+            <div className="flex items-center justify-center gap-6 md:gap-12 w-full max-w-4xl px-6">
+                
+                {/* Navigation: Prev */}
+                <div className="flex-1 flex justify-end">
                     {onPrev && (
                         <button
                             disabled={prevDisabled}
                             onClick={onPrev}
-                            className="size-10 rounded-2xl border border-slate-300 dark:border-white/10 flex items-center justify-center text-slate-400 dark:text-white/40 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 disabled:opacity-20 disabled:cursor-not-allowed transition-all font-black text-2xl"
+                            className="group size-10 rounded-xl border border-white/10 flex items-center justify-center text-white/30 hover:text-white hover:border-white/30 hover:bg-white/[0.03] disabled:opacity-5 transition-all"
                         >
-                            <span className="mb-1 leading-none">&lt;</span>
+                            <span className="text-xs font-black tracking-widest group-hover:-translate-x-1 transition-transform">←</span>
                         </button>
                     )}
                 </div>
 
-                <div className="text-center order-1 md:order-2 flex-[2]">
-                    <motion.h1 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic text-slate-900 dark:text-white font-exo mb-4 select-none leading-none"
-                    >
-                        {title}
-                    </motion.h1>
-
-                    <div className="flex items-center justify-center gap-6 text-slate-300 dark:text-white/20">
-                        <div className={`h-px flex-1 max-w-[80px] ${lineColor} opacity-40`} />
-                        <div className="flex flex-col items-center gap-1">
-                            <span className={`text-[9px] font-mono tracking-[0.6em] uppercase ${accentColor} font-black`}>
-                                NODE_{nodeId}
+                <div className="flex-[2] text-center flex flex-col items-center">
+                    {/* NODE METADATA */}
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="h-px w-8 bg-white/10" />
+                        <div className="flex flex-col items-center">
+                            <span className="text-[8px] font-black tracking-[0.5em] text-white/40 uppercase mb-1">
+                                NODE_0.{nodeId}
                             </span>
                             {subtitle && (
-                                <span className="text-[8px] font-mono tracking-[0.4em] uppercase text-slate-500 dark:text-white/40 italic">
+                                <span className="text-[7px] font-mono tracking-[0.3em] text-white/20 uppercase italic">
                                     {subtitle}
                                 </span>
                             )}
                         </div>
-                        <div className={`h-px flex-1 max-w-[80px] ${lineColor} opacity-40`} />
+                        <div className="h-px w-8 bg-white/10" />
                     </div>
+
+                    <motion.h1 
+                        key={title}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white font-display leading-none"
+                    >
+                        {title}
+                    </motion.h1>
                 </div>
 
-                {/* Next Button */}
-                <div className="flex items-center gap-4 order-3 md:order-3 flex-1 justify-start">
+                {/* Navigation: Next */}
+                <div className="flex-1 flex justify-start">
                     {onNext && (
                         <button
                             disabled={nextDisabled}
                             onClick={onNext}
-                            className="size-10 rounded-2xl border border-slate-300 dark:border-white/10 flex items-center justify-center text-slate-400 dark:text-white/40 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 disabled:opacity-20 disabled:cursor-not-allowed transition-all font-black text-2xl"
+                            className="group size-10 rounded-xl border border-white/10 flex items-center justify-center text-white/30 hover:text-white hover:border-white/30 hover:bg-white/[0.03] disabled:opacity-5 transition-all"
                         >
-                            <span className="mb-1 leading-none">&gt;</span>
+                            <span className="text-xs font-black tracking-widest group-hover:translate-x-1 transition-transform">→</span>
                         </button>
                     )}
                 </div>

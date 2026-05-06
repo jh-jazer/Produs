@@ -1,7 +1,20 @@
 import React from 'react';
 
 const Avatar = ({ config, className = "size-full" }) => {
-    // Default config if missing
+    // If config is a string (URL), render as image
+    if (typeof config === 'string' && config.startsWith('http')) {
+        return (
+            <div className={`${className} overflow-hidden rounded-sm bg-foreground/5`}>
+                <img 
+                    src={config} 
+                    alt="Identity" 
+                    className="size-full object-cover grayscale contrast-110 brightness-95 hover:grayscale-0 transition-all duration-500" 
+                />
+            </div>
+        );
+    }
+
+    // Default config if missing or legacy object
     const {
         skin = "#F3C5A5",
         hair = "short",
@@ -9,7 +22,7 @@ const Avatar = ({ config, className = "size-full" }) => {
         eyes = "default",
         clothing = "hoodie",
         clothingColor = "#3B82F6"
-    } = config || {};
+    } = (typeof config === 'object' ? config : {}) || {};
 
     return (
         <svg

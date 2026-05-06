@@ -68,3 +68,7 @@ Since we are in March, these seasonal challenges focus on "Spring Cleaning" your
 3.  **The "Flow State" Collaboration**
     *   **The Mission:** Join a "Live Focus Room" (using your WebSockets/Socket.io feature) and work alongside others for 2 hours.
     *   **Why now?** Utilizing the community aspect of Produs to fight the "mid-month slump."
+
+## ?? Terminology Rules
+- **Always use standard, easy-to-understand terminology** for UI elements and navigation (e.g., use "Merchant", "Settings", "Notifications", "Sign Out").
+- **Do NOT** use overly tactical, sci-fi, or hard-to-understand terms (e.g., avoid "TERMINAL_SHOP", "SYSTEM_ALERTS", "TERMINATE_SESSION") unless explicitly requested by the user.

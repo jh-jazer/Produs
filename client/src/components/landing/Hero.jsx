@@ -29,7 +29,7 @@ const Hero = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.5, delay: 0.8 }}
-          className="max-w-xs md:max-w-2xl text-white/40 text-[10px] md:text-base font-light tracking-[0.15em] leading-relaxed uppercase mb-8 md:mb-16"
+          className="text-let-it-pass max-w-xs md:max-w-2xl text-white/40 text-[10px] md:text-base font-light tracking-[0.15em] leading-relaxed uppercase mb-8 md:mb-16"
         >
           What if someone <span className="text-white/70">Else's Life</span> depends on your <span className="text-white/70">Productivity</span>? <br />
           Would that change things?

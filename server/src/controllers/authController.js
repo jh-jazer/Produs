@@ -768,7 +768,17 @@ export const uploadBannerImage = async (req, res) => {
         if (!req.file) {
             return res.status(400).json({ message: 'No image file provided' });
         }
-        // req.file.path contains the secure Cloudinary URL returned by multer-storage-cloudinary
+        res.status(200).json({ url: req.file.path });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const uploadAvatarImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No image file provided' });
+        }
         res.status(200).json({ url: req.file.path });
     } catch (error) {
         res.status(500).json({ message: error.message });
