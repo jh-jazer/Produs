@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useHabits } from '../../hooks/useHabits';
 import AddHabitModal from '../intellectual/habits/AddHabitModal';
 
@@ -19,39 +19,23 @@ export default function HabitChecklistHUD() {
   const { habits, toggleCheck, initHabits, addHabit, isLoading: habitsLoading } = useHabits();
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [thumbHeight, setThumbHeight] = useState(30);
-
-  const scrollRef = useRef(null);
-  const { scrollYProgress } = useScroll({ container: scrollRef });
-  const thumbTop = useTransform(scrollYProgress, [0, 1], ['0%', `${100 - thumbHeight}%`]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 4;
 
   const today = new Date().toISOString().split('T')[0];
 
-  // Recalculate thumb height whenever habits or loading state changes
+  const totalPages = Math.ceil(habits.length / itemsPerPage);
+  const currentHabits = habits.slice(
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage
+  );
+
+  // Reset to first page if current page becomes empty (e.g. after deletion)
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const calculate = () => {
-      const { scrollHeight, clientHeight } = el;
-      if (scrollHeight > clientHeight) {
-        setThumbHeight(Math.max((clientHeight / scrollHeight) * 100, 10));
-      } else {
-        setThumbHeight(100);
-      }
-    };
-
-    calculate();
-    window.addEventListener('resize', calculate);
-
-    // Recalculate after DOM settles
-    const timer = setTimeout(calculate, 150);
-
-    return () => {
-      window.removeEventListener('resize', calculate);
-      clearTimeout(timer);
-    };
-  }, [habits, habitsLoading]);
+    if (currentPage >= totalPages && totalPages > 0) {
+      setCurrentPage(totalPages - 1);
+    }
+  }, [habits.length, totalPages, currentPage]);
 
   const handleSyncHabits = async () => {
     setIsSyncing(true);
@@ -94,87 +78,82 @@ export default function HabitChecklistHUD() {
         onAdd={handleCreateHabit} 
       />
 
-      {/* Scrollable list with custom scrollbar */}
-      <div className="flex-1 relative overflow-hidden flex flex-col z-10">
-
-        {/* Scroll track + thumb */}
-        <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-foreground/20 pointer-events-none z-20">
-          <motion.div
-            className="absolute w-full bg-foreground"
-            style={{
-              height: `${thumbHeight}%`,
-              top: thumbTop,
-            }}
-          />
-        </div>
-
-        {/* Scrollable content */}
-        <div
-          ref={scrollRef}
-          className="flex-1 overflow-y-auto pr-6 flex flex-col gap-3 overscroll-contain"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
+      {/* Paginated list */}
+      <div className="flex-1 relative flex flex-col z-10 overflow-hidden">
+        {/* Content */}
+        <div className="flex-1 flex flex-col gap-3">
           {habitsLoading ? (
             <div className="flex flex-col gap-4 opacity-20 animate-pulse">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="h-12 bg-white/10 rounded-sm w-full" />
               ))}
             </div>
-          ) : habits.length > 0 ? (
-            habits.map((habit) => {
-              const isCompleted = habit.checks?.some(
-                (c) => c.date === today && c.completed
-              );
-              return (
-                <motion.div
-                  key={habit._id}
-                  whileHover={{ x: 4 }}
-                  className={`flex items-center gap-4 p-4 border rounded-sm transition-all group/item cursor-pointer ${
-                    isCompleted
-                      ? 'bg-foreground/[0.05] border-foreground/20'
-                      : 'bg-foreground/[0.01] border-foreground/5 hover:border-foreground/10'
-                  }`}
-                  onClick={() => toggleCheck(habit._id, today)}
-                >
-                  {/* Checkbox */}
-                  <div
-                    className={`size-5 border-2 rounded-sm shrink-0 flex items-center justify-center transition-all ${
-                      isCompleted
-                        ? 'bg-foreground border-foreground'
-                        : 'border-foreground/20 group-hover/item:border-foreground/40'
-                    }`}
-                  >
-                    {isCompleted && (
-                      <span className="material-symbols-outlined text-background text-sm font-bold">
-                        check
-                      </span>
-                    )}
-                  </div>
-                  {/* Icon */}
-                  <div className="shrink-0 flex items-center justify-center size-8 bg-foreground/5 rounded-sm border border-foreground/5 group-hover/item:border-foreground/10 transition-all">
-                    <span className="material-symbols-outlined text-foreground/40 text-lg group-hover/item:text-foreground/80 transition-colors">
-                      {habit.icon}
-                    </span>
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                    <span
-                      className={`text-[11px] font-black uppercase tracking-wider truncate ${
+          ) : currentHabits.length > 0 ? (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentPage}
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+                className="flex flex-col gap-3"
+              >
+                {currentHabits.map((habit) => {
+                  const isCompleted = habit.checks?.some(
+                    (c) => c.date === today && c.completed
+                  );
+                  return (
+                    <motion.div
+                      key={habit._id}
+                      whileHover={{ x: 4 }}
+                      className={`flex items-center gap-4 p-4 border rounded-sm transition-all group/item cursor-pointer ${
                         isCompleted
-                          ? 'opacity-100'
-                          : 'opacity-40 group-hover/item:opacity-70'
+                          ? 'bg-foreground/[0.05] border-foreground/20'
+                          : 'bg-foreground/[0.01] border-foreground/5 hover:border-foreground/10'
                       }`}
+                      onClick={() => toggleCheck(habit._id, today)}
                     >
-                      {habit.name}
-                    </span>
-                    <span className="text-[8px] font-mono opacity-20 tracking-tighter uppercase">
-                      Streak: {habit.streak || 0}d
-                    </span>
-                  </div>
-                </motion.div>
-              );
-            })
+                      {/* Checkbox */}
+                      <div
+                        className={`size-5 border-2 rounded-sm shrink-0 flex items-center justify-center transition-all ${
+                          isCompleted
+                            ? 'bg-foreground border-foreground'
+                            : 'border-foreground/20 group-hover/item:border-foreground/40'
+                        }`}
+                      >
+                        {isCompleted && (
+                          <span className="material-symbols-outlined text-background text-sm font-bold">
+                            check
+                          </span>
+                        )}
+                      </div>
+                      {/* Icon */}
+                      <div className="shrink-0 flex items-center justify-center size-8 bg-foreground/5 rounded-sm border border-foreground/5 group-hover/item:border-foreground/10 transition-all">
+                        <span className="material-symbols-outlined text-foreground/40 text-lg group-hover/item:text-foreground/80 transition-colors">
+                          {habit.icon}
+                        </span>
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                        <span
+                          className={`text-[11px] font-black uppercase tracking-wider truncate ${
+                            isCompleted
+                              ? 'opacity-100'
+                              : 'opacity-40 group-hover/item:opacity-70'
+                          }`}
+                        >
+                          {habit.name}
+                        </span>
+                        <span className="text-[8px] font-mono opacity-20 tracking-tighter uppercase">
+                          Streak: {habit.streak || 0}d
+                        </span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            </AnimatePresence>
           ) : (
             /* Empty state */
             <div className="flex flex-col items-center justify-center h-full opacity-40 text-center gap-6 py-8">
@@ -197,6 +176,38 @@ export default function HabitChecklistHUD() {
             </div>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="mt-auto pt-6 flex items-center justify-between border-t border-foreground/5">
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-1 transition-all duration-300 ${
+                    currentPage === i ? 'w-4 bg-foreground' : 'w-1 bg-foreground/20'
+                  }`}
+                />
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+                disabled={currentPage === 0}
+                className="size-8 flex items-center justify-center border border-foreground/10 hover:border-foreground/40 disabled:opacity-10 transition-all"
+              >
+                <span className="material-symbols-outlined text-sm">chevron_left</span>
+              </button>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={currentPage === totalPages - 1}
+                className="size-8 flex items-center justify-center border border-foreground/10 hover:border-foreground/40 disabled:opacity-10 transition-all"
+              >
+                <span className="material-symbols-outlined text-sm">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

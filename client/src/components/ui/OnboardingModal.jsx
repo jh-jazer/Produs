@@ -19,7 +19,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
     const [gender, setGender] = useState('');
-    const [themeMode, setThemeMode] = useState('system');
+    const [themeMode, setThemeMode] = useState('dark');
     const [loading, setLoading] = useState(false);
 
     // Final Alignment States
@@ -45,6 +45,12 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     ];
 
     // 1. Initial Diagnostic Sequence (Dedicated Init Screen)
+    useEffect(() => {
+        if (isOpen) {
+            handleThemeChange('dark');
+        }
+    }, [isOpen]);
+
     useEffect(() => {
         if (!isOpen || !isInitializing) return;
 
@@ -223,7 +229,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                         title={<>Identity <span className="text-white/20">Sync</span></>}
                                         subtitle="PROFILE_SETUP"
                                         nodeId="1"
-                                        steps={['Identity', 'Calibration', 'Finalize']}
+                                        steps={['Identity', 'Finalize']}
                                         currentStep={0}
                                     />
 
@@ -370,6 +376,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                         setTimeout(() => {
                                                             setIsAuthorizing(false);
                                                             setStep(2);
+                                                            setIsTypingComplete(false);
                                                         }, 1500);
                                                     }}
                                                     disabled={!isUsernameAvailable || !gender || isAuthorizing}
@@ -405,70 +412,6 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                     {step === 2 && (
                         <motion.div
                             key="step2"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="w-full max-w-4xl space-y-12"
-                        >
-                            {/* Centered Node HUD & Progress Map */}
-                            <HandshakeNode 
-                                title="Calibration"
-                                subtitle="INTERFACE_SETUP"
-                                nodeId="2"
-                                steps={['Identity', 'Calibration', 'Finalize']}
-                                currentStep={1}
-                            />
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                                {[
-                                    { id: 'light', name: 'Light', icon: Sun },
-                                    { id: 'dark', name: 'Dark', icon: Moon },
-                                    { id: 'system', name: 'System', icon: RefreshCw }
-                                ].map(mode => (
-                                    <button
-                                        key={mode.id}
-                                        onClick={() => handleThemeChange(mode.id)}
-                                        className={`p-10 rounded-[2.5rem] border-2 flex flex-col items-center gap-6 transition-all group ${
-                                            themeMode === mode.id
-                                                ? "border-slate-900 dark:border-white bg-slate-900/5 dark:bg-white/10 shadow-[0_0_40px_rgba(255,255,255,0.1)]"
-                                                : "border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] hover:bg-slate-100 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/20"
-                                        }`}
-                                    >
-                                        <div className={`size-12 rounded-2xl flex items-center justify-center transition-all ${
-                                            themeMode === mode.id ? "bg-slate-900/10 dark:bg-white/20 shadow-inner" : "bg-slate-200 dark:bg-white/5"
-                                        }`}>
-                                            <mode.icon size={24} className={themeMode === mode.id ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-white/20 group-hover:text-slate-600 dark:group-hover:text-white/40'} />
-                                        </div>
-                                        <span className={`text-[10px] font-black uppercase tracking-widest ${themeMode === mode.id ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-white/30 group-hover:text-slate-600 dark:group-hover:text-white/40'}`}>
-                                            {mode.name}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
-
-                            <div className="flex flex-col md:flex-row gap-4 pt-12">
-                                <button
-                                    onClick={() => { setIsInitializing(true); setStep(1); }}
-                                    className="px-10 py-6 rounded-3xl border border-slate-200 dark:border-white/10 text-slate-400 dark:text-white/40 font-black text-[10px] uppercase tracking-widest hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all font-exo"
-                                >
-                                    BACK
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setStep(3);
-                                        setIsTypingComplete(false);
-                                    }}
-                                    className="flex-1 py-6 rounded-[2rem] bg-slate-900 dark:bg-white text-white dark:text-black font-black text-[10px] uppercase tracking-[0.5em] shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02] transition-all font-exo"
-                                >
-                                    CONTINUE
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {step === 3 && (
-                        <motion.div
-                            key="step3"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             className="w-full max-w-4xl text-center space-y-6"
@@ -477,9 +420,9 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                             <HandshakeNode 
                                 title={<>Welcome, @{username}</>}
                                 subtitle="SETUP_COMPLETE"
-                                nodeId="3"
-                                steps={['Identity', 'Calibration', 'Finalize']}
-                                currentStep={2}
+                                nodeId="2"
+                                steps={['Identity', 'Finalize']}
+                                currentStep={1}
                             />
 
                             <div className="space-y-8 max-w-xl mx-auto">
