@@ -124,6 +124,10 @@ function App() {
         }, 60 * 60 * 1000);
       }
     },
+    onNeedRefresh() {
+      // Automatically refresh the page to apply the update for a seamless "auto update" experience.
+      window.location.reload();
+    },
   });
 
   useEffect(() => {
