@@ -21,16 +21,16 @@ const Testimonials = ({ testimonials }) => {
             {testimonials.map((testimonial, idx) => (
               <div 
                 key={testimonial.id}
-                className={`testimonial-panel-${idx + 1} aspect-square w-full max-w-[280px] bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] rounded-sm p-6 md:p-8 flex flex-col justify-center pointer-events-auto hover:bg-white/[0.05] transition-all duration-700 group shrink-0`}
+                className={`testimonial-panel-${idx + 1} aspect-square w-full max-w-[350px] md:max-w-[320px] bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] rounded-sm p-8 md:p-10 flex flex-col justify-center pointer-events-auto hover:bg-white/[0.05] transition-all duration-700 group shrink-0`}
               >
                 {/* Content Only */}
-                <p className="text-white/50 text-xs md:text-sm font-light tracking-wide leading-relaxed group-hover:text-white/70 transition-colors duration-500 text-center italic">
+                <p className="text-white/50 text-sm md:text-base font-light tracking-wide leading-relaxed group-hover:text-white/70 transition-colors duration-500 text-center italic">
                   "{testimonial.content}"
                 </p>
 
                 {/* Bottom: Stats (Optional but user said remove user info, keeping stats for 'game' feel if appropriate, or removing if they meant all meta) */}
                 <div className="mt-8 pt-4 border-t border-white/5 text-center">
-                  <span className="text-white/40 font-mono text-[9px] tracking-widest uppercase">
+                  <span className="text-white/40 font-mono text-[11px] tracking-widest uppercase">
                     {testimonial.stats}
                   </span>
                 </div>

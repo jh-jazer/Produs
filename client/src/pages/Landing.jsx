@@ -184,46 +184,46 @@ export default function Landing() {
       tl.to(".scene-reality", { opacity: 0, y: -20, duration: 3 }, 12);
       tl.to(".hero-video", { opacity: 0, duration: 3 }, 12);
 
-      // 03: MOCKUP INTERFACE (18-26)
-      tl.to(".scene-mockups", { opacity: 1, duration: 3 }, 18);
-      tl.fromTo(".mockup-desktop", { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 3, ease: "power2.out" }, 19);
-      tl.fromTo(".mockup-mobile", { y: 150, opacity: 0 }, { y: 0, opacity: 1, duration: 3, ease: "power2.out" }, 21);
+      // 03: MOCKUP INTERFACE (14-26)
+      tl.to(".scene-mockups", { opacity: 1, duration: 3 }, 14);
+      tl.fromTo(".mockup-desktop", { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 3, ease: "power2.out" }, 15);
+      tl.fromTo(".mockup-mobile", { y: 150, opacity: 0 }, { y: 0, opacity: 1, duration: 3, ease: "power2.out" }, 17);
       tl.to(".scene-mockups", { opacity: 0, y: -50, duration: 3, ease: "power2.in" }, 25);
 
-      // 04: CORE CAPABILITIES (30-45)
-      tl.to(".features-video", { opacity: 1, duration: 4 }, 30);
-      tl.fromTo(".detail-features", { opacity: 0, y: 50, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 5, ease: "power2.out" }, 32);
+      // 04: CORE CAPABILITIES (26-45)
+      tl.to(".features-video", { opacity: 1, duration: 4 }, 26);
+      tl.fromTo(".detail-features", { opacity: 0, y: 50, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 5, ease: "power2.out" }, 28);
       tl.to(".detail-features", { opacity: 0, y: -50, scale: 1.05, duration: 4, ease: "power2.in" }, 41);
 
-      // 05: THE PILLARS (48-72)
-      tl.to(".quadrant-intellectual", { opacity: 1, y: 0, duration: 4 }, 48);
-      tl.to(".quadrant-physical", { opacity: 1, y: 0, duration: 4 }, 52);
-      tl.to(".quadrant-financial", { opacity: 1, y: 0, duration: 4 }, 56);
-      tl.to(".quadrant-spiritual", { opacity: 1, y: 0, duration: 4 }, 60);
+      // 05: THE PILLARS (43-72)
+      tl.to(".quadrant-intellectual", { opacity: 1, y: 0, duration: 4 }, 43);
+      tl.to(".quadrant-physical", { opacity: 1, y: 0, duration: 4 }, 49);
+      tl.to(".quadrant-financial", { opacity: 1, y: 0, duration: 4 }, 53);
+      tl.to(".quadrant-spiritual", { opacity: 1, y: 0, duration: 4 }, 57);
       tl.to(".scene-quadrants", { opacity: 0, duration: 4 }, 70);
       tl.to(".features-video", { opacity: 0, duration: 4 }, 70);
 
-      // 06: SOCIAL PROOF (78-92)
-      tl.fromTo(".scene-testimonials", { opacity: 0 }, { opacity: 1, duration: 4, ease: "power2.out" }, 78);
-      tl.fromTo(".testimonials-header", { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 4, ease: "power2.out" }, 78);
+      // 06: SOCIAL PROOF (72-92)
+      tl.fromTo(".scene-testimonials", { opacity: 0 }, { opacity: 1, duration: 4, ease: "power2.out" }, 72);
+      tl.fromTo(".testimonials-header", { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 4, ease: "power2.out" }, 72);
       
       if (isMobile) {
         // Mobile: Vertical "Scrolling Up" flow
-        tl.fromTo(".testimonial-container", { y: 500 }, { y: -500, duration: 12, ease: "none" }, 78);
-        tl.fromTo(".testimonial-panel-1", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 3 }, 80);
-        tl.fromTo(".testimonial-panel-2", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 3 }, 83);
-        tl.fromTo(".testimonial-panel-3", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 3 }, 86);
+        tl.fromTo(".testimonial-container", { y: 500 }, { y: -500, duration: 12, ease: "none" }, 72);
+        tl.fromTo(".testimonial-panel-1", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 3 }, 74);
+        tl.fromTo(".testimonial-panel-2", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 3 }, 77);
+        tl.fromTo(".testimonial-panel-3", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 3 }, 80);
       } else {
         // Desktop: Kinetic panels from sides
-        tl.fromTo(".testimonial-panel-1", { opacity: 0, x: -300, rotate: -15 }, { opacity: 1, x: 0, rotate: 0, duration: 5, ease: "power3.out" }, 80);
-        tl.fromTo(".testimonial-panel-2", { opacity: 0, y: 300, rotate: 10 }, { opacity: 1, y: 0, rotate: 0, duration: 5, ease: "power3.out" }, 82);
-        tl.fromTo(".testimonial-panel-3", { opacity: 0, x: 300, rotate: 15 }, { opacity: 1, x: 0, rotate: 0, duration: 5, ease: "power3.out" }, 84);
+        tl.fromTo(".testimonial-panel-1", { opacity: 0, x: -300, rotate: -15 }, { opacity: 1, x: 0, rotate: 0, duration: 5, ease: "power3.out" }, 74);
+        tl.fromTo(".testimonial-panel-2", { opacity: 0, y: 300, rotate: 10 }, { opacity: 1, y: 0, rotate: 0, duration: 5, ease: "power3.out" }, 76);
+        tl.fromTo(".testimonial-panel-3", { opacity: 0, x: 300, rotate: 15 }, { opacity: 1, x: 0, rotate: 0, duration: 5, ease: "power3.out" }, 78);
       }
 
       tl.to(".scene-testimonials", { opacity: 0, scale: isMobile ? 1 : 1.2, duration: 4 }, 90);
 
-      // 07: FINAL PROTOCOL (95-100)
-      tl.to(".scene-cta", { opacity: 1, pointerEvents: "auto", duration: 2 }, 95);
+      // 07: FINAL PROTOCOL (92-100)
+      tl.to(".scene-cta", { opacity: 1, pointerEvents: "auto", duration: 2 }, 92);
     }, containerRef);
     return () => {
       ctx.revert();
@@ -297,7 +297,7 @@ export default function Landing() {
 
             <div
               id="landing-sidebar"
-              className="hidden md:block fixed left-6 md:left-12 top-[50%] -translate-y-1/2 z-[100] pointer-events-auto hero-sidebar opacity-100 translate-x-0 transition-transform duration-1000"
+              className="hidden md:block fixed left-6 md:left-12 top-[35%] -translate-y-1/2 z-[100] pointer-events-auto hero-sidebar opacity-100 translate-x-0 transition-transform duration-1000"
             >
               <WorkspaceSidebar 
                 tabs={landingTabs}
