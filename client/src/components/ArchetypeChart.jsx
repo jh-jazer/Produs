@@ -25,22 +25,6 @@ const ArchetypeChart = ({ data = [] }) => {
 
     return (
         <div className="w-full h-full min-h-[300px] flex flex-col">
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h3 className="text-lg font-black flex items-center gap-2">
-                        <Award className="text-primary" size={20} />
-                        Archetype Distribution
-                    </h3>
-                    <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-1">Player Class Analytics</p>
-                </div>
-                <div className="flex gap-2">
-                    <div className="px-3 py-1 bg-slate-100 dark:bg-white/5 rounded-full border border-slate-200 dark:border-white/10 flex items-center gap-2">
-                        <Users size={12} className="text-slate-400" />
-                        <span className="text-[10px] font-black">{data.reduce((acc, curr) => acc + curr.total, 0)} Total</span>
-                    </div>
-                </div>
-            </div>
-
             <div className="flex-1 w-full min-h-[250px]">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart

@@ -87,7 +87,7 @@ const userSchema = new mongoose.Schema({
         finalLabel: { type: String, default: null },
         confidence: { type: Number, default: 100 },
         archetype: {
-            name: { type: String, default: 'None' },
+            name: { type: String, default: 'Rookie' },
             tier: { type: Number, default: 1 },
             stage: { type: String, default: 'Unawakened' }
         },

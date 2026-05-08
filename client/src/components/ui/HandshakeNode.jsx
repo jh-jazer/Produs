@@ -50,12 +50,7 @@ const HandshakeNode = ({
                                     }`}
                                 />
                                 
-                                {/* HUD Tag */}
-                                <div className={`absolute top-6 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none ${isActive ? 'opacity-40 translate-y-0' : 'translate-y-1'}`}>
-                                    <span className="text-[7px] font-black tracking-[0.4em] uppercase text-white whitespace-nowrap">
-                                        {step}
-                                    </span>
-                                </div>
+
                             </div>
                             
                             {idx < steps.length - 1 && (
@@ -92,29 +87,28 @@ const HandshakeNode = ({
 
                 <div className="flex-[2] text-center flex flex-col items-center">
                     {/* NODE METADATA */}
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="h-px w-8 bg-white/10" />
-                        <div className="flex flex-col items-center">
-                            <span className="text-[8px] font-black tracking-[0.5em] text-white/40 uppercase mb-1">
-                                NODE_0.{nodeId}
-                            </span>
-                            {subtitle && (
+                    {subtitle && (
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="h-px w-8 bg-white/10" />
+                            <div className="flex flex-col items-center">
                                 <span className="text-[7px] font-mono tracking-[0.3em] text-white/20 uppercase italic">
                                     {subtitle}
                                 </span>
-                            )}
+                            </div>
+                            <div className="h-px w-8 bg-white/10" />
                         </div>
-                        <div className="h-px w-8 bg-white/10" />
-                    </div>
+                    )}
 
-                    <motion.h1 
-                        key={title}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white font-display leading-none"
-                    >
-                        {title}
-                    </motion.h1>
+                    {title && (
+                        <motion.h1 
+                            key={title}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white font-display leading-none"
+                        >
+                            {title}
+                        </motion.h1>
+                    )}
                 </div>
 
                 {/* Navigation: Next */}

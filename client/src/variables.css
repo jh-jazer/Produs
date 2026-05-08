@@ -20,7 +20,7 @@
    ============================================================================= */
 
 html {
-  font-size: 70%; /* ← CHANGE THIS ONE VALUE to scale every font in the app */
+  font-size: 60%; /* ← GLOBAL SCALE OVERRIDE — Reduced for higher density HUD */
 }
 
 
@@ -170,14 +170,14 @@ html {
   --text-sm:          0.875rem;    /* 14px — secondary body */
   --text-base:        1rem;        /* 16px — primary body copy */
   --text-md:          1.125rem;    /* 18px — emphasized body */
-  --text-lg:          1.25rem;     /* 20px — card titles */
-  --text-xl:          1.5rem;      /* 24px — section headings */
-  --text-2xl:         1.875rem;    /* 30px — page sub-headings */
-  --text-3xl:         2.25rem;     /* 36px — page headings */
-  --text-4xl:         3rem;        /* 48px — display headings */
-  --text-5xl:         3.75rem;     /* 60px — hero numbers */
-  --text-6xl:         4.5rem;      /* 72px — large hero copy */
-  --text-hero:        6rem;        /* 96px — full-screen impact text */
+  --text-lg:          1.125rem;    /* 18px (at 100%) -> 10.8px (at 60%) */
+  --text-xl:          1.25rem;     /* 20px (at 100%) -> 12px (at 60%) */
+  --text-2xl:         1.5rem;      /* 24px (at 100%) -> 14.4px (at 60%) */
+  --text-3xl:         1.875rem;    /* 30px (at 100%) -> 18px (at 60%) */
+  --text-4xl:         2.25rem;     /* 36px (at 100%) -> 21.6px (at 60%) */
+  --text-5xl:         3rem;        /* 48px (at 100%) -> 28.8px (at 60%) */
+  --text-6xl:         3.75rem;     /* 60px (at 100%) -> 36px (at 60%) */
+  --text-hero:        4.5rem;      /* 72px (at 100%) -> 43.2px (at 60%) */
 
   /* --- Font Weights --- */
   --weight-thin:      100;

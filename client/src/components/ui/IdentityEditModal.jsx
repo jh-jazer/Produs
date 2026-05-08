@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../../store/useAuthStore';
 import api from '../../services/api';
 import DashboardModal from './DashboardModal';
+import Avatar from './Avatar';
 
 const IdentityEditModal = ({ isOpen, onClose }) => {
     const { user, updateSettings } = useAuthStore();
@@ -75,11 +76,7 @@ const IdentityEditModal = ({ isOpen, onClose }) => {
                             onClick={() => fileInputRef.current?.click()}
                             className="size-24 rounded-full bg-foreground/5 border-2 border-foreground/10 flex items-center justify-center cursor-pointer group relative overflow-hidden ar-corners"
                         >
-                            {formData.avatar && typeof formData.avatar === 'string' ? (
-                                <img src={formData.avatar} alt="Avatar" className="size-full object-cover" />
-                            ) : (
-                                <span className="material-symbols-outlined text-foreground/10 text-4xl">person</span>
-                            )}
+                            <Avatar config={formData.avatar} className="size-full" />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <span className="material-symbols-outlined text-white text-xl">upload</span>
                             </div>

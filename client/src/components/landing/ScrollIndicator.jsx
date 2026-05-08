@@ -136,7 +136,7 @@ export default function ScrollIndicator({
         ref={trackRef}
         className="relative flex flex-col items-center group/track pointer-events-none w-full"
       >
-        <div className="relative flex flex-col items-center py-2 h-[calc(35vh+6px)] w-full">
+        <div className="relative flex flex-col items-center py-2 h-[calc(53vh+6px)] w-full">
           {/* Track Line */}
           <div className="relative w-[1px] h-full bg-white/10 overflow-hidden rounded-full">
             <motion.div 

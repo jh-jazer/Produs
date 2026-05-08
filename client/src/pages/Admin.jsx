@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useContext } from 'react';
-import { motion } from 'framer-motion';
-import { Users, BarChart3, ShieldCheck, Database, RefreshCcw, BookOpen, FileDown, Zap, Activity } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Users, BarChart3, ShieldCheck, Database, RefreshCcw, BookOpen, FileDown, Zap, Activity, Monitor } from 'lucide-react';
 import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import { DashboardContext } from '../context/DashboardContext';
@@ -12,6 +12,8 @@ import AdminSystemHealth from '../components/admin_components/AdminSystemHealth'
 import AdminBugs from '../components/admin_components/AdminBugs';
 import AdminNarrativeManager from '../components/admin_components/AdminNarrativeManager';
 import AdminCoreManager from '../components/admin_components/AdminCoreManager';
+import AdminLandingManager from '../components/admin_components/AdminLandingManager';
+import WorkspaceSidebar from '../components/ui/WorkspaceSidebar';
 
 const Admin = () => {
     const { mutate: globalMutate } = useSWRConfig();
@@ -27,12 +29,12 @@ const Admin = () => {
     }, [activeTab, setMobileTabs]);
 
     const tabs = [
-        { id: 'overview', label: 'Overview', icon: BarChart3 },
-        { id: 'users', label: 'Users', icon: Users },
-        { id: 'health', label: 'Health', icon: ShieldCheck },
-        { id: 'bugs', label: 'Bugs', icon: Database },
-        { id: 'narrative', label: 'Narrative', icon: BookOpen },
-        { id: 'cores', label: 'Cores', icon: Zap },
+        { id: 'overview', label: 'Overview', icon: 'analytics' },
+        { id: 'users', label: 'Users', icon: 'group' },
+        { id: 'maintenance', label: 'Maintenance', icon: 'security' },
+        { id: 'narrative', label: 'Narrative', icon: 'book' },
+        { id: 'cores', label: 'Cores', icon: 'bolt' },
+        { id: 'landing', label: 'Landing', icon: 'web' },
     ];
 
     const stats = React.useMemo(() => data?.stats || [
@@ -121,123 +123,93 @@ const Admin = () => {
     };
 
     return (
-        <div className="bg-transparent text-slate-900 dark:text-slate-100 px-0 py-4 pb-48 md:p-8 w-full">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-none relative z-0"
-            >
-                {/* Desktop Header */}
-                <header className="hidden md:flex flex-col gap-8 mb-12">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                        <div>
-                            <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">System Management</h1>
-                            <p className="text-slate-500 dark:text-slate-400 font-medium">Welcome back, Admin. Here's what's happening today.</p>
-                        </div>
-                        <div className="flex flex-wrap md:flex-nowrap gap-4 w-full md:w-auto">
-                            <button 
-                                onClick={() => setIsExportModalOpen(true)}
-                                className="flex-1 md:flex-none bg-slate-100 dark:bg-white/5 text-slate-500 hover:text-slate-900 dark:hover:text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 flex items-center justify-center gap-3"
-                            >
-                                <FileDown size={18} />
-                                Export Audit Logs
-                            </button>
-                            <button 
-                                onClick={() => mutate()} 
-                                disabled={isValidating}
-                                className="flex-1 md:flex-none bg-primary text-white px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl shadow-primary/20 disabled:opacity-50"
-                            >
-                                <RefreshCcw size={18} className={isValidating ? 'animate-spin' : ''} />
-                                {isValidating ? 'Syncing...' : 'Neural Sync'}
-                            </button>
-                        </div>
-                    </div>
+        <div className="w-full bg-transparent text-foreground p-4 md:p-12 font-sans overflow-x-hidden flex flex-col md:flex-row items-start gap-4 md:gap-12">
+            <div className="w-full md:w-16 shrink-0 md:sticky md:top-8 z-[100]">
+                <WorkspaceSidebar 
+                    tabs={tabs} 
+                    activeTab={activeTab} 
+                    setActiveTab={setActiveTab} 
+                    namespace="Admin" 
+                />
+            </div>
 
-                    {/* Desktop Tab Navigation (Integrated into Header) */}
-                    <div className="flex items-center gap-1.5 bg-black/[0.03] dark:bg-white/[0.03] p-1.5 rounded-2xl w-fit border border-black/[0.05] dark:border-white/5">
-                        {tabs.map((tab) => {
-                            const Icon = tab.icon;
-                            const isActive = activeTab === tab.id;
-                            return (
-                                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                                    className={`flex items-center gap-2.5 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${isActive ? 'bg-white dark:bg-zinc-800 text-primary shadow-sm ring-1 ring-black/5 dark:ring-white/10' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5'}`}
-                                >
-                                    <Icon size={14} strokeWidth={isActive ? 3 : 2} />
-                                    {tab.label}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </header>
+            <div className="flex-1 w-full">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className="w-full max-w-none relative z-0"
+                    >
+                        {/* ── Content Sections ── */}
 
-                {/* Mobile Header */}
-                {activeTab === 'overview' && (
-                    <div className="md:hidden mt-4 mb-8 px-4">
-                        <h1 className="text-3xl font-black tracking-tight mb-1">Management</h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">Administrator Dashboard</p>
-                    </div>
-                )}
+                        {/* OVERVIEW SECTION */}
+                        {(activeTab === 'overview' || activeTab === 'users' || activeTab === 'maintenance') && (
+                            <div className="space-y-8 mb-12">
+                                {(activeTab === 'overview') && (
+                                    <AdminStats 
+                                        stats={stats} 
+                                        archetypeStats={archetypeStats} 
+                                        levelDistribution={levelDistribution} 
+                                        activeTab={activeTab} 
+                                    />
+                                )}
 
+                                {(activeTab === 'overview' || activeTab === 'users') && (
+                                    <AdminUserRegistry
+                                        recentUsers={recentUsers}
+                                        isValidating={isValidating}
+                                        onResetOnboarding={handleResetOnboarding}
+                                        onToggleAdmin={handleToggleAdmin}
+                                        onBulkPurge={handleBulkPurge}
+                                        activeTab={activeTab}
+                                        previewMode={activeTab === 'overview'}
+                                    />
+                                )}
 
-                {/* ── Content Sections: Use conditional rendering to prevent hidden-chart errors ── */}
-
-                {/* OVERVIEW SECTION */}
-                {(activeTab === 'overview' || activeTab === 'users' || activeTab === 'health') && (
-                    <div className="space-y-8 mb-12">
-                        {/* We show stats on Overview and specifically requested tabs */}
-                        {(activeTab === 'overview') && (
-                            <AdminStats 
-                                stats={stats} 
-                                archetypeStats={archetypeStats} 
-                                levelDistribution={levelDistribution} 
-                                activeTab={activeTab} 
-                            />
+                                {(activeTab === 'overview' || activeTab === 'maintenance') && (
+                                    <AdminSystemHealth systemStatus={systemStatus} activeTab={activeTab} />
+                                )}
+                            </div>
                         )}
 
-                        {(activeTab === 'overview' || activeTab === 'users') && (
-                            <AdminUserRegistry
-                                recentUsers={recentUsers}
-                                isValidating={isValidating}
-                                onResetOnboarding={handleResetOnboarding}
-                                onToggleAdmin={handleToggleAdmin}
-                                onBulkPurge={handleBulkPurge}
-                                activeTab={activeTab}
-                                previewMode={activeTab === 'overview'}
-                            />
+                        {/* MAINTENANCE (BUGS) SECTION */}
+                        {(activeTab === 'maintenance' || activeTab === 'overview') && (
+                            <div className="w-full mb-12">
+                                <AdminBugs previewMode={activeTab === 'overview'} />
+                            </div>
                         )}
 
-                        {(activeTab === 'overview' || activeTab === 'health') && (
-                            <AdminSystemHealth systemStatus={systemStatus} activeTab={activeTab} />
+                        {/* NARRATIVE SECTION */}
+                        {(activeTab === 'narrative' || activeTab === 'overview') && (
+                            <div className="w-full">
+                                <AdminNarrativeManager previewMode={activeTab === 'overview'} />
+                            </div>
                         )}
-                    </div>
-                )}
 
-                {/* BUGS SECTION */}
-                {(activeTab === 'bugs' || activeTab === 'overview') && (
-                    <div className="w-full mb-12">
-                        <AdminBugs previewMode={activeTab === 'overview'} />
-                    </div>
-                )}
+                        {/* CORES SECTION */}
+                        {activeTab === 'cores' && (
+                            <div className="w-full">
+                                <AdminCoreManager 
+                                    corePool={data?.corePool} 
+                                    recentUsers={recentUsers} 
+                                    onGrantComplete={() => mutate()} 
+                                />
+                            </div>
+                        )}
 
-                {/* NARRATIVE SECTION */}
-                {(activeTab === 'narrative' || activeTab === 'overview') && (
-                    <div className="w-full">
-                        <AdminNarrativeManager previewMode={activeTab === 'overview'} />
-                    </div>
-                )}
+                        {/* LANDING SECTION */}
+                        {activeTab === 'landing' && (
+                            <div className="w-full">
+                                <AdminLandingManager />
+                            </div>
+                        )}
 
-                {/* CORES SECTION */}
-                {activeTab === 'cores' && (
-                    <div className="w-full">
-                        <AdminCoreManager 
-                            corePool={data?.corePool} 
-                            recentUsers={recentUsers} 
-                            onGrantComplete={() => mutate()} 
-                        />
-                    </div>
-                )}
-
-            </motion.div>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
 
             {/* Export Modal */}
             <DashboardModal

@@ -18,7 +18,6 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     const [username, setUsername] = useState('');
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
-    const [gender, setGender] = useState('');
     const [themeMode, setThemeMode] = useState('dark');
     const [loading, setLoading] = useState(false);
 
@@ -88,12 +87,25 @@ const OnboardingModal = ({ isOpen, onClose }) => {
     const startFF = () => setIsFastForwarding(true);
     const stopFF = () => setIsFastForwarding(false);
 
-    // 4. Auto-Scroll to Top on Step Change
+    // 4. Auto-Scroll to Top on Step Change / Auto-Focus on reveal
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }, [step]);
+
+    useEffect(() => {
+        if (hasRevealedInputs && scrollRef.current) {
+            // Small timeout to allow Framer Motion to start its entry animation
+            const timer = setTimeout(() => {
+                scrollRef.current.scrollTo({
+                    top: scrollRef.current.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [hasRevealedInputs]);
 
     const checkUsername = async (val) => {
         if (val.length < 3 || val.length > 8) {
@@ -129,7 +141,6 @@ const OnboardingModal = ({ isOpen, onClose }) => {
             const store = useAuthStore.getState();
             await store.completeOnboarding({
                 username,
-                gender,
                 themeMode,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 currency: 'USD'
@@ -227,7 +238,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                     {/* Centered Node HUD & Progress Map */}
                                     <HandshakeNode 
                                         title={<>Identity <span className="text-white/20">Sync</span></>}
-                                        subtitle="PROFILE_SETUP"
+                                        subtitle=""
                                         nodeId="1"
                                         steps={['Identity', 'Finalize']}
                                         currentStep={0}
@@ -273,7 +284,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                 </div>
                                             </div>
 
-                                            <div className="text-base md:text-lg font-light text-slate-700 dark:text-slate-300 leading-relaxed font-display">
+                                            <div className="text-xl md:text-3xl font-light text-slate-700 dark:text-slate-300 leading-relaxed font-display">
                                                 {hasCompletedInitialType ? (
                                                     <div className="text-slate-900 dark:text-white/90 whitespace-pre-wrap">
                                                         {(isEasyMode ? simpleBootLines : bootLines).join("\n\n")}
@@ -303,42 +314,10 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                             animate={{ opacity: 1, y: 0 }}
                                             className="space-y-12"
                                         >
-                                            {/* Role/Gender Selector */}
-                                            <div className="space-y-4">
-                                                <div className="flex items-center gap-4 text-slate-400 dark:text-white/20 font-black text-[8px] uppercase tracking-[0.4em]">
-                                                    <span>01_CHOOSE_AVATAR</span>
-                                                    <div className="h-px flex-1 bg-slate-200 dark:bg-white/[0.03]" />
-                                                </div>
-                                                <div className="grid grid-cols-2 gap-3">
-                                                    {[
-                                                        { id: 'male', label: 'Male', icon: User },
-                                                        { id: 'female', label: 'Female', icon: User },
-                                                    ].map((g) => (
-                                                        <button
-                                                            key={g.id}
-                                                            type="button"
-                                                            onClick={() => setGender(g.id)}
-                                                            className={`group p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center gap-3 ${
-                                                                gender === g.id
-                                                                    ? 'bg-slate-900/5 dark:bg-white/10 border-slate-900/40 dark:border-white/40 text-slate-900 dark:text-white shadow-[0_0_20px_rgba(255,255,255,0.05)]'
-                                                                    : 'bg-slate-50 dark:bg-white/[0.02] border-slate-200 dark:border-white/5 text-slate-400 dark:text-white/30 hover:bg-slate-100 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/20'
-                                                            }`}
-                                                        >
-                                                            <div className={`size-10 rounded-xl flex items-center justify-center transition-all ${
-                                                                gender === g.id ? 'bg-slate-900/10 dark:bg-white/20 shadow-inner' : 'bg-slate-200 dark:bg-white/5'
-                                                            }`}>
-                                                                <g.icon size={18} className={gender === g.id ? 'opacity-100' : 'opacity-40 dark:opacity-40 text-slate-600 dark:text-white'} />
-                                                            </div>
-                                                            <span className="text-[9px] font-black uppercase tracking-[0.3em]">{g.label}</span>
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-
                                             {/* Username Section */}
                                             <div className="space-y-4">
                                                 <div className="flex items-center gap-4 text-slate-400 dark:text-white/20 font-black text-[8px] uppercase tracking-[0.4em]">
-                                                    <span>02_SET_USERNAME</span>
+                                                    <span>01_SET_USERNAME</span>
                                                     <div className="h-px flex-1 bg-slate-200 dark:bg-white/[0.03]" />
                                                 </div>
                                                 <div className="relative group">
@@ -369,6 +348,8 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                 </div>
                                             </div>
 
+
+
                                             <div className="pt-8 space-y-6">
                                                 <button
                                                     onClick={() => {
@@ -379,7 +360,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                             setIsTypingComplete(false);
                                                         }, 1500);
                                                     }}
-                                                    disabled={!isUsernameAvailable || !gender || isAuthorizing}
+                                                    disabled={!isUsernameAvailable || isAuthorizing}
                                                     className="w-full py-8 rounded-[2.5rem] bg-electric-blue text-white font-black text-xs uppercase tracking-[0.8em] shadow-[0_0_50px_rgba(0,163,255,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed group relative overflow-hidden"
                                                 >
                                                     <div className="relative z-10 flex items-center justify-center gap-4">
@@ -396,11 +377,6 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                                                         )}
                                                     </div>
                                                 </button>
-                                                {!gender && isUsernameAvailable && (
-                                                    <p className="text-center font-mono text-[8px] uppercase tracking-[0.4em] text-slate-900 dark:text-white/40 animate-pulse">
-                                                        [ PLEASE SELECT AN AVATAR TO CONTINUE ]
-                                                    </p>
-                                                )}
                                             </div>
                                         </motion.div>
                                     )}
@@ -418,19 +394,28 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                         >
                             {/* Centered Node HUD & Progress Map */}
                             <HandshakeNode 
-                                title={<>Welcome, @{username}</>}
-                                subtitle="SETUP_COMPLETE"
+                                title=""
+                                subtitle=""
                                 nodeId="2"
                                 steps={['Identity', 'Finalize']}
                                 currentStep={1}
                             />
 
-                            <div className="space-y-8 max-w-xl mx-auto">
+                            <div className="space-y-8 max-w-xl my-30 mx-auto">
 
 
-                                <div className="p-8 rounded-[2.5rem] bg-slate-100 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 backdrop-blur-3xl relative overflow-hidden group min-h-[120px] flex items-center justify-center">
+                                <div className="p-8 rounded-[2.5rem] bg-slate-100 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 backdrop-blur-3xl relative overflow-hidden group min-h-[120px] flex flex-col items-center justify-center">
                                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <div className="text-xs text-slate-400 leading-relaxed uppercase tracking-widest font-medium font-outfit text-center italic">
+                                    
+                                    <motion.h2 
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="text-xl md:text-2xl py-10 font-black text-slate-900 dark:text-white uppercase tracking-tight mb-10 text-center font-display"
+                                    >
+                                        Welcome, {username}
+                                    </motion.h2>
+
+                                    <div className="text-sm md:text-lg text-slate-400 leading-relaxed uppercase tracking-widest font-medium font-outfit text-center italic">
                                         <Typewriter 
                                             key={isEasyMode ? 'final-easy' : 'final-pro'}
                                             text={isEasyMode 

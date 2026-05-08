@@ -7,7 +7,6 @@ import useAuthStore from '../store/useAuthStore';
 import api from '../services/api';
 
 import Avatar from '../components/ui/Avatar';
-import AvatarEditor from '../components/ui/AvatarEditor';
 import ProfileModal from '../components/ui/ProfileModal';
 import ConnectionsModal from '../components/ui/ConnectionsModal';
 import PartnerModal from '../components/ui/PartnerModal';
@@ -53,7 +52,6 @@ function Profile() {
     const [profileModalUser, setProfileModalUser] = useState(null);
 
     const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
-    const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
     const [showId, setShowId] = useState(false);
@@ -233,15 +231,6 @@ function Profile() {
                             <div className="size-32 rounded-full border-[6px] border-white dark:border-[#1e293b] bg-slate-100 dark:bg-[#000000] overflow-hidden shadow-xl ring-2 ring-primary/5">
                                 <Avatar config={avatar || user?.avatar} />
                             </div>
-                            {isEditing && (
-                                <button
-                                    onClick={() => setIsAvatarEditorOpen(true)}
-                                    className="absolute inset-0 bg-black/60 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20"
-                                >
-                                    <span className="material-symbols-outlined text-white text-2xl">edit</span>
-                                    <span className="text-white text-[8px] font-black uppercase tracking-widest mt-1">Change</span>
-                                </button>
-                            )}
                         </div>
 
                         {/* Info Column */}
@@ -368,18 +357,6 @@ function Profile() {
                                         rows={3}
                                         className="w-full bg-white dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 text-sm font-medium text-slate-700 dark:text-slate-300 rounded-xl px-4 py-3 outline-none focus:border-primary transition-all resize-none"
                                     />
-                                </div>
-
-                                {/* Avatar Customization Button */}
-                                <div>
-                                    <label className="block text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">face</span> Character Customization</label>
-                                    <button
-                                        onClick={() => setIsAvatarEditorOpen(true)}
-                                        className="w-full bg-white dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 text-sm font-bold text-slate-700 dark:text-slate-300 rounded-xl px-4 py-3 hover:bg-slate-100 dark:hover:bg-[#000000] transition-colors flex items-center justify-center gap-2"
-                                    >
-                                        <span className="material-symbols-outlined text-lg">palette</span>
-                                        Customize Character
-                                    </button>
                                 </div>
 
 
@@ -619,17 +596,7 @@ function Profile() {
             onProfileClick={(username) => { setProfileModalUser(username); setIsPartnerModalOpen(false); }}
         />
 
-        {/* Avatar Editor Modal */}
-        {isAvatarEditorOpen && (
-            <AvatarEditor
-                initialConfig={avatar}
-                onClose={() => setIsAvatarEditorOpen(false)}
-                onSave={(newConfig) => {
-                    setAvatar(newConfig);
-                    setIsAvatarEditorOpen(false);
-                }}
-            />
-        )}
+
         {/* Profile Overlay Modal */}
         <AnimatePresence>
             {profileModalUser && (

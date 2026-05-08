@@ -5,6 +5,7 @@ import api from '../../services/api';
 import useAuthStore from '../../store/useAuthStore';
 import DashboardModal from './DashboardModal';
 import { useTheme } from '../../hooks/useTheme';
+import ThemeToggle from './ThemeToggle';
 
 const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
     const { user, updateSettings, deleteAccount } = useAuthStore();
@@ -125,10 +126,7 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                             <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:bg-foreground/10">
                                 <div className="flex items-center gap-3">
                                     <span className="material-symbols-outlined text-foreground opacity-60">terminal</span>
-                                    <div className="flex flex-col">
-                                        <span className="text-[8px] font-mono uppercase tracking-widest text-foreground">Dev_Tools_</span>
-                                        <span className="text-[8px] font-black text-foreground/40 uppercase tracking-wider">Interface_Overlay</span>
-                                    </div>
+                                    <span className="text-[8px] font-mono uppercase tracking-widest text-foreground">Developer Tools</span>
                                 </div>
                                 <button
                                     onClick={() => handleToggle('showDevTools')}
@@ -147,16 +145,13 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                     <div className="space-y-4">
                         <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1 mb-2">Appearance</div>
 
-                        <div className="grid grid-cols-3 gap-2 p-1.5 bg-foreground/5 border border-foreground/10 rounded-sm">
-                            {['light', 'dark', 'system'].map((mode) => (
-                                <button
-                                    key={mode}
-                                    onClick={() => handleThemeModeChange(mode)}
-                                    className={`py-3 px-3 rounded-sm text-[10px] font-black uppercase tracking-widest transition-all ${themeMode === mode ? 'bg-foreground text-background shadow-lg' : 'text-foreground/40 hover:text-foreground hover:bg-foreground/5'}`}
-                                >
-                                    {mode}
-                                </button>
-                            ))}
+                        <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-foreground opacity-60">palette</span>
+                                <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Interface Protocol</span>
+                            </div>
+                            
+                            <ThemeToggle />
                         </div>
 
                         <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">

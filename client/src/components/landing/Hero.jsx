@@ -2,7 +2,10 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Terminal } from "lucide-react";
 
-const Hero = () => {
+const Hero = ({ config }) => {
+  const title = config?.title || "PRODUS";
+  const description = config?.description || "A high-performance interface for managing the four pillars of human mastery.";
+
   return (
     <section className="fixed inset-0 flex flex-col items-end md:items-center justify-center text-right md:text-center px-10 md:px-6 scene-awakening z-20 pointer-events-none">
       <div className="max-w-6xl w-full relative flex flex-col items-end md:items-center">
@@ -18,7 +21,7 @@ const Hero = () => {
               className="text-6xl md:text-[180px] text-transparent parallax-line-3 inline-block"
               style={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}
             >
-              PRODUS
+              {title}
             </motion.span>
           </h1>
           
@@ -31,8 +34,7 @@ const Hero = () => {
           transition={{ duration: 1.5, delay: 0.8 }}
           className="text-let-it-pass max-w-xs md:max-w-2xl text-white/40 text-[10px] md:text-base font-light tracking-[0.15em] leading-relaxed uppercase mb-8 md:mb-16"
         >
-          What if someone <span className="text-white/70">Else's Life</span> depends on your <span className="text-white/70">Productivity</span>? <br />
-          Would that change things?
+          {description}
         </motion.p>
 
       </div>

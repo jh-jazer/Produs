@@ -53,12 +53,12 @@ const AdminLevelChart = ({ data = [] }) => {
         <div className="w-full flex flex-col gap-6">
             {/* Summary pills */}
             <div className="flex flex-wrap gap-3">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-xl">
-                    <Users size={12} className="text-slate-400" />
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-foreground/[0.03] border border-foreground/5 rounded-none">
+                    <Users size={12} className="text-foreground/40" />
                     <span className="text-[10px] font-black uppercase tracking-widest">{total} Total Players</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-xl">
-                    <TrendingUp size={12} className="text-primary" />
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-foreground/[0.03] border border-foreground/5 rounded-none">
+                    <TrendingUp size={12} className="text-foreground" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Peak: Lv {peakLevel.level} ({peakLevel.count} users)</span>
                 </div>
             </div>
@@ -71,14 +71,14 @@ const AdminLevelChart = ({ data = [] }) => {
                         margin={{ top: 4, right: 4, left: -28, bottom: 4 }}
                         barCategoryGap="2%"
                     >
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(100,116,139,0.1)" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                         {MILESTONES.map(m => (
                             <ReferenceLine
                                 key={m}
                                 x={m}
-                                stroke="rgba(100,116,139,0.2)"
+                                stroke="rgba(255,255,255,0.1)"
                                 strokeDasharray="4 4"
-                                label={{ value: `Lv${m}`, position: 'top', fontSize: 8, fill: '#94a3b8', fontWeight: 800 }}
+                                label={{ value: `Lv${m}`, position: 'top', fontSize: 8, fill: '#666', fontWeight: 800 }}
                             />
                         ))}
                         <XAxis
@@ -91,13 +91,13 @@ const AdminLevelChart = ({ data = [] }) => {
                         <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: '#64748b', fontSize: 9, fontWeight: 800 }}
+                            tick={{ fill: '#666', fontSize: 9, fontWeight: 800 }}
                             allowDecimals={false}
                         />
-                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0, 102, 255, 0.05)' }} />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }} />
                         <Bar
                             dataKey="count"
-                            radius={[3, 3, 0, 0]}
+                            radius={[0, 0, 0, 0]}
                             onMouseEnter={(_, idx) => setHoveredLevel(idx)}
                             onMouseLeave={() => setHoveredLevel(null)}
                         >
@@ -105,7 +105,7 @@ const AdminLevelChart = ({ data = [] }) => {
                                 <Cell
                                     key={`cell-${index}`}
                                     fill={getTierColor(entry.level)}
-                                    opacity={hoveredLevel === null || hoveredLevel === index ? 1 : 0.4}
+                                    opacity={hoveredLevel === null || hoveredLevel === index ? 0.8 : 0.2}
                                 />
                             ))}
                         </Bar>
@@ -116,18 +116,18 @@ const AdminLevelChart = ({ data = [] }) => {
             {/* Tier legend */}
             <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
                 {[
-                    { label: 'T1', range: '1–10', color: '#64748b' },
-                    { label: 'T2', range: '11–20', color: '#22c55e' },
-                    { label: 'T3', range: '21–30', color: '#3b82f6' },
-                    { label: 'T4', range: '31–40', color: '#a855f7' },
-                    { label: 'T5', range: '41–50', color: '#f59e0b' },
-                    { label: 'T6', range: '51–60', color: '#ef4444' },
+                    { label: 'T1', range: '1–10', color: '#666' },
+                    { label: 'T2', range: '11–20', color: '#888' },
+                    { label: 'T3', range: '21–30', color: '#aaa' },
+                    { label: 'T4', range: '31–40', color: '#ccc' },
+                    { label: 'T5', range: '41–50', color: '#eee' },
+                    { label: 'T6', range: '51–60', color: '#fff' },
                     { label: 'T7', range: '61–65', color: '#0066FF' },
                 ].map((tier) => (
-                    <div key={tier.label} className="flex flex-col items-center gap-1 p-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
-                        <div className="w-full h-1.5 rounded-full" style={{ backgroundColor: tier.color }} />
-                        <span className="text-[9px] font-black text-slate-400">{tier.label}</span>
-                        <span className="text-[8px] font-bold text-slate-400">{tier.range}</span>
+                    <div key={tier.label} className="flex flex-col items-center gap-1 p-2 rounded-none bg-foreground/[0.03] border border-foreground/5">
+                        <div className="w-full h-1 rounded-none" style={{ backgroundColor: tier.color }} />
+                        <span className="text-[9px] font-black text-foreground/40">{tier.label}</span>
+                        <span className="text-[8px] font-bold text-foreground/20">{tier.range}</span>
                     </div>
                 ))}
             </div>

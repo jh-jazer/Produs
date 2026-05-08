@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import useSWR from "swr";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ChevronRight, 
@@ -77,6 +78,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const { startLoading } = useLoadingStore();
   const isMobile = useMobile();
+  const { data: landingConfig } = useSWR('/landing-config');
   
   const handleStart = () => {
     startLoading();
@@ -284,7 +286,7 @@ export default function Landing() {
   }, [isLoaded]);
 
   return (
-    <div ref={containerRef} className="relative bg-black text-white selection:bg-electric-blue/30 font-sans h-[1200vh]">
+    <div ref={containerRef} className="dark relative bg-black text-white selection:bg-electric-blue/30 font-sans h-[1200vh]">
       <div
         className="fixed pointer-events-none z-[9999] size-[250px] rounded-full blur-[100px] transition-all duration-300 transform -translate-x-1/2 -translate-y-1/2 opacity-[0.1] bg-electric-blue"
         style={{ top: mousePosition.y, left: mousePosition.x }}
@@ -343,9 +345,9 @@ export default function Landing() {
       </div>
 
       <div className="relative z-20 -mt-[100vh]">
-        {isLoaded && <Hero />}
+        {isLoaded && <Hero config={landingConfig?.hero} />}
         <RealityScene />
-        <MockupScene />
+        <MockupScene config={landingConfig?.mockups} />
         <PillarScene progress={progress} isMobile={isMobile} />
         <Features />
         <Testimonials testimonials={TESTIMONIALS} />

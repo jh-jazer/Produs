@@ -3,8 +3,34 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, Plus, Save, Trash2, Activity, Zap, MessageSquare, ChevronDown, ChevronUp, RefreshCw, FileJson, Download, X } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../../services/api';
-import DashboardPanel from '../ui/DashboardPanel';
 import DashboardModal from '../ui/DashboardModal';
+
+const ChippedBorder = ({ opacity = 0.8 }) => (
+  <div 
+    className="absolute inset-[-2px] rounded-sm pointer-events-none z-0"
+    style={{
+      border: '4px solid currentColor',
+      opacity,
+      clipPath: 'polygon(0% 0%, 15% 0%, 16% 2%, 18% 0%, 42% 0%, 43% 4%, 45% 0%, 78% 0%, 79% 2%, 81% 0%, 100% 0%, 100% 20%, 98% 22%, 100% 24%, 100% 55%, 97% 58%, 100% 61%, 100% 100%, 82% 100%, 81% 97%, 79% 100%, 38% 100%, 37% 96%, 35% 100%, 0% 100%, 0% 80%, 3% 78%, 0% 76%, 0% 35%, 2% 33%, 0% 31%)'
+    }}
+  />
+);
+
+const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
+  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all p-8 rounded-sm group overflow-hidden ${className}`}>
+    <ChippedBorder opacity={0.6} />
+    <div className="relative z-10">
+      <div className="mb-8 flex justify-between items-start">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
+          {subtitle && <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>}
+        </div>
+        {headerExtra && <div className="flex gap-2">{headerExtra}</div>}
+      </div>
+      {children}
+    </div>
+  </div>
+);
 
 const compareDecimalIds = (a, b) => {
     const partsA = a.split('.').map(Number);
@@ -220,48 +246,26 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
 
     return (
         <div ref={containerRef} className="relative space-y-4">
-            <DashboardPanel
-                title="NARRATIVE_MANAGER_"
+            <HUDPanel
+                title="Narrative Manager"
                 subtitle={`${questions.length} Story Nodes Active`}
             >
-                <div className="flex flex-nowrap items-center gap-2 md:gap-3 mb-8 relative z-[70] w-full overflow-x-auto pb-2 custom-scrollbar-mini">
-                    <button 
-                        onClick={() => setIsBulkModalOpen(true)}
-                        className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10 cursor-pointer active:scale-95 shrink-0"
-                        title="Bulk JSON Import"
-                    >
-                        <FileJson size={20} />
-                    </button>
-                    <button 
-                        onClick={handleDownloadJson}
-                        className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10 shrink-0"
-                        title="Export JSON"
-                    >
-                        <Download size={20} />
-                    </button>
-                    <button 
-                        onClick={handleSeed}
-                        className="p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10 shrink-0"
-                        title="Seed Defaults"
-                    >
-                        <RefreshCw size={20} className={isValidating ? 'animate-spin' : ''} />
-                    </button>
-                    <button 
-                        onClick={handleDeleteAll}
-                        className="p-3 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-transparent hover:border-white/10 shrink-0"
-                        title="Purge All Questions"
-                    >
-                        <Trash2 size={20} />
-                    </button>
-                    <button 
-                        onClick={addNewQuestion}
-                        className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-primary/20 shrink-0 ml-auto md:ml-0"
-                    >
-                        <Plus size={18} />
-                        <span className="hidden sm:inline">Create Node</span>
-                        <span className="sm:hidden">Create</span>
+            <div className="flex gap-2 mb-8 border-b border-foreground/5 pb-6">
+                <button onClick={() => setIsBulkModalOpen(true)} className="p-2 bg-foreground/5 hover:bg-foreground/10 text-foreground/40 hover:text-foreground transition-all rounded-none border border-foreground/5" title="Bulk Import">
+                    <FileJson size={14} />
+                </button>
+                <button onClick={handleDownloadJson} className="p-2 bg-foreground/5 hover:bg-foreground/10 text-foreground/40 hover:text-foreground transition-all rounded-none border border-foreground/5" title="Export Raw">
+                    <Download size={14} />
+                </button>
+                <button onClick={handleSeed} className="p-2 bg-foreground/5 hover:bg-foreground/10 text-foreground/40 hover:text-foreground transition-all rounded-none border border-foreground/5" title="Restore Seed">
+                    <RefreshCw size={14} className={isValidating ? 'animate-spin' : ''} />
+                </button>
+                <div className="ml-auto">
+                    <button onClick={addNewQuestion} className="bg-foreground text-background px-4 py-2 rounded-none font-black text-[8px] uppercase tracking-widest hover:opacity-90 transition-all flex items-center gap-2">
+                        <Plus size={10} /> Create New Node
                     </button>
                 </div>
+            </div>
 
             <div className="grid grid-cols-1 gap-4">
                 {/* New Node (Unsaved) Block */}
@@ -431,39 +435,34 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                 {visibleQuestions.map((q) => (
                     <div 
                         key={q.questionId}
-                        className={`group border rounded-[2rem] transition-all bg-white dark:bg-[#121212]/30 backdrop-blur-md overflow-hidden ${expandedId === q.questionId ? 'border-accent shadow-[0_0_30px_rgba(var(--accent-rgb),0.1)]' : 'border-slate-100 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'}`}
+                        className={`relative group bg-foreground/[0.03] border border-foreground/5 p-5 rounded-none overflow-hidden transition-all ${expandedId === q.questionId ? 'border-foreground/20 bg-foreground/[0.05]' : 'hover:border-foreground/10'}`}
                     >
                         <div 
-                            className="p-3 md:p-6 flex items-center justify-between cursor-pointer"
+                            className="flex items-center justify-between cursor-pointer"
                             onClick={() => setExpandedId(expandedId === q.questionId ? null : q.questionId)}
                         >
-                            <div className="flex items-center gap-3 md:gap-5">
-                                <div 
-                                    className={`size-8 md:size-10 shrink-0 rounded-lg md:rounded-xl flex items-center justify-center font-black font-mono text-[9px] md:text-[10px] ${q.type === 'ACTION' ? 'bg-accent text-white shadow-[0_0_15px_rgba(var(--accent-rgb),0.4)]' : 'bg-slate-100 dark:bg-[#000000] text-slate-400'}`}
-                                    style={{ marginLeft: `${Math.min((q.questionId.split('.').length - 1) * (typeof window !== 'undefined' && window.innerWidth < 640 ? 8 : 20), 60)}px` }}
-                                >
+                            <div className="flex items-center gap-5">
+                                <div className={`size-8 shrink-0 flex items-center justify-center font-black font-mono text-[9px] rounded-sm ${q.type === 'ACTION' ? 'bg-foreground text-background' : 'bg-foreground/5 text-foreground/40 border border-foreground/10'}`}>
                                     {q.questionId}
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-slate-900 dark:text-white uppercase tracking-tight font-exo italic text-base md:text-lg">
+                                    <h3 className="font-black text-[10px] uppercase tracking-widest text-foreground group-hover:text-primary transition-colors">
                                         {q.title || q.question}
                                         {q.questionId.split('.').length > 1 && (
-                                            <span className="ml-2 px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 text-[8px] opacity-70">
-                                                DEPTH_{q.questionId.split('.').length - 1}
-                                            </span>
+                                            <span className="ml-2 text-[7px] font-mono opacity-20">D{q.questionId.split('.').length - 1}</span>
                                         )}
                                     </h3>
-                                    <div className="flex items-center gap-3 mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400 font-mono">
+                                    <div className="flex items-center gap-3 mt-1 text-[8px] font-black uppercase tracking-widest text-foreground/40 font-mono">
                                         <span className="flex items-center gap-1"><Activity size={10} /> {q.section}</span>
                                         <span>•</span>
                                         <span className="flex items-center gap-1"><Zap size={10} /> Weight {q.weight}</span>
                                         {q.story && <span>•</span>}
-                                        {q.story && <span className="flex items-center gap-1"><MessageSquare size={10} /> Story Case Active</span>}
+                                        {q.story && <span className="flex items-center gap-1"><MessageSquare size={10} /> Story_Active</span>}
                                     </div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
-                                {expandedId === q.questionId ? <ChevronUp size={20} className="text-slate-300" /> : <ChevronDown size={20} className="text-slate-300" />}
+                                {expandedId === q.questionId ? <ChevronUp size={16} className="text-foreground/20" /> : <ChevronDown size={16} className="text-foreground/20" />}
                             </div>
                         </div>
 
@@ -500,9 +499,9 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                                                     </div>
                                                     <div className="space-y-2">
                                                         <label className="text-[10px] font-black uppercase tracking-widest text-accent px-1 flex items-center gap-2">
-                                                            Node ID (Coordinates)
+                                                            Node ID
                                                             {editingNode.originalId && editingNode.originalId !== editingNode.questionId && (
-                                                                <span className="text-[8px] bg-accent/20 px-1.5 py-0.5 rounded animate-pulse">RENAME_CASCADE_PENDING</span>
+                                                                <span className="text-[8px] bg-accent/20 px-1.5 py-0.5 rounded animate-pulse">Syncing ID...</span>
                                                             )}
                                                         </label>
                                                         <input 
@@ -713,21 +712,21 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                 {previewMode && questions.length > 3 && (
                     <button
                         onClick={() => setShowAll(v => !v)}
-                        className="w-full mt-2 py-3 rounded-2xl border border-dashed border-slate-200 dark:border-white/10 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 transition-all"
+                        className="w-full mt-4 py-4 border border-dashed border-foreground/10 text-[9px] font-black uppercase tracking-[0.4em] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all font-mono"
                     >
-                        {showAll ? `Show Less` : `Show All ${questions.length} Nodes`}
+                        {showAll ? `Hide All Nodes` : `Show All Nodes (${questions.length})`}
                     </button>
                 )}
                 </div>
-            </DashboardPanel>
+            </HUDPanel>
 
             {/* Bulk Import Modal */}
             {/* Bulk Import Modal */}
             <DashboardModal
                 isOpen={isBulkModalOpen}
                 onClose={() => setIsBulkModalOpen(false)}
-                title="PROMPT_IMPORT_SEQUENCE_"
-                subtitle="Bulk Neural Import"
+                title="Bulk Import"
+                subtitle="Import Narrative Nodes"
                 headerExtra={
                     validationErrors.length > 0 && (
                         <motion.div 
@@ -738,7 +737,7 @@ const AdminNarrativeManager = ({ previewMode = false }) => {
                             <div className="flex flex-col">
                                 <div className="flex items-center gap-2 text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">
                                     <Activity size={10} className="animate-pulse" />
-                                    <span>Integrity Failure_</span>
+                                    <span>Validation Error</span>
                                 </div>
                                 <div className="max-h-[40px] overflow-y-auto pr-2 custom-scrollbar-mini">
                                     {validationErrors.map((err, i) => (

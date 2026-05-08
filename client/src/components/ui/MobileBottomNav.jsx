@@ -55,7 +55,7 @@ const MobileBottomNav = () => {
             <nav className="w-full h-18 bg-white dark:bg-black shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pointer-events-auto relative rounded-t-[2.5rem]">
                 {/* Tactical Chipped Border - Fine Line */}
                 <div 
-                    className="absolute inset-0 border-t-2 border-black/10 dark:border-white/20 rounded-t-[2.5rem] pointer-events-none"
+                    className="absolute inset-0 border-t-2 border-black dark:border-white/20 rounded-t-[2.5rem] pointer-events-none"
                     style={{ 
                         clipPath: 'polygon(0% 0%, 15% 0%, 17% 100%, 19% 0%, 45% 0%, 47% 100%, 49% 0%, 78% 0%, 80% 100%, 82% 0%, 100% 0%, 100% 100%, 0% 100%)' 
                     }} 
@@ -74,7 +74,7 @@ const MobileBottomNav = () => {
                                 <div className={`size-20 rounded-full flex items-center justify-center transition-all duration-500 ${
                                     active 
                                     ? 'bg-black dark:bg-white shadow-xl' 
-                                    : 'bg-white dark:bg-black border-2 border-black/10 dark:border-white/20 shadow-lg'
+                                    : 'bg-white dark:bg-black border-2 border-black dark:border-white/20 shadow-lg'
                                 }`}>
                                     <span className={`material-symbols-outlined text-[40px] ${
                                         active ? 'text-white dark:text-black' : 'text-black dark:text-white'
@@ -91,7 +91,7 @@ const MobileBottomNav = () => {
                             key={pillar.id}
                             onClick={() => handleNav(pillar)}
                             className={`relative flex flex-col items-center justify-center transition-all duration-300 flex-1 ${
-                                active ? 'text-black dark:text-white' : 'text-black/40 dark:text-white/40'
+                                active ? 'text-black dark:text-white' : 'text-black dark:text-white/40'
                             }`}
                         >
                             <div className="relative flex items-center justify-center">

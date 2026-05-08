@@ -24,6 +24,7 @@ import adminRoutes from './src/routes/adminRoutes.js';
 import bugRoutes from './src/routes/bugRoutes.js';
 import healthRoutes from './src/routes/healthRoutes.js';
 import rpgRoutes from './src/routes/rpgRoutes.js';
+import landingConfigRoutes from './src/routes/landingConfig.js';
 
 // Connect to Database
 connectDB();
@@ -70,6 +71,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/bugs', bugRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/rpg', rpgRoutes);
+app.use('/api/landing-config', landingConfigRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

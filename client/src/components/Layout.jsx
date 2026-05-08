@@ -34,10 +34,12 @@ import ScrollIndicator from './landing/ScrollIndicator';
 import HudButtons from './ui/HudButtons';
 import ThemeToggle from './ui/ThemeToggle';
 import { useTheme } from '../hooks/useTheme';
+import useMobile from '../hooks/useMobile';
 
 function Layout() {
     const { user, signOut } = useAuthStore();
     const { isDark, setThemeMode } = useTheme(); // boots & syncs theme
+    const isMobile = useMobile();
     const [viewMode, setViewMode] = useState('personal'); // 'personal' | 'partner'
     const [protocolMode, setProtocolMode] = useState('reality'); // 'reality' | 'rpg'
     const mainRef = useRef(null);
@@ -434,7 +436,7 @@ function Layout() {
 
                     <div 
                         ref={mainRef}
-                        className={`flex-1 overflow-x-hidden ${protocolMode === 'rpg' ? 'overflow-y-hidden' : 'overflow-y-auto'} custom-scrollbar flex flex-col relative mt-0`}
+                        className={`flex-1 overflow-x-hidden ${protocolMode === 'rpg' ? 'overflow-y-hidden' : 'overflow-y-auto'} custom-scrollbar flex flex-col relative mt-0 ${isMobile ? 'snap-y snap-mandatory' : ''}`}
                     >
                         <ConnectionsModal 
                     isOpen={isConnectionsModalOpen} 
@@ -492,7 +494,7 @@ function Layout() {
                 <div className="md:hidden fixed top-6 right-0 z-[101]">
                     <button 
                         onClick={() => setIsUserMenuOpen(true)}
-                        className="pl-6 pr-0 py-2 text-white/60 hover:text-white transition-colors active:scale-90"
+                        className="pl-6 pr-0 py-2 text-black dark:text-white/60 hover:text-black dark:hover:text-white transition-colors active:scale-90"
                     >
                         <span className="material-symbols-outlined text-4xl">more_vert</span>
                     </button>

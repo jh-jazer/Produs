@@ -12,9 +12,10 @@ import RPGImmersiveOverlay from '../components/rpg/RPGImmersiveOverlay';
 import AwakeningOverlay from '../components/dashboard/AwakeningOverlay';
 import HabitChecklistHUD from '../components/dashboard/HabitChecklistHUD';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
+import Avatar from '../components/ui/Avatar';
 
 const ChippedBorder = ({ opacity = 0.8 }) => (
-  <div 
+  <div
     className="absolute inset-[-2px] rounded-sm pointer-events-none z-0"
     style={{
       border: '4px solid currentColor',
@@ -25,29 +26,29 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const MobileLogoText = ({ show, onClick }) => {
-    return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: show ? 1 : 0 }}
-            transition={{ duration: 0.5 }}
-            className={`fixed top-10 left-6 z-[100] md:hidden ${show ? 'pointer-events-auto' : 'pointer-events-none'}`}
-            onClick={onClick}
-        >
-            <div className="relative">
-                <h1 className="wordmark text-black dark:text-white">
-                    PRODUS
-                </h1>
-            </div>
-        </motion.div>
-    );
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: show ? 1 : 0 }}
+      transition={{ duration: 0.5 }}
+      className={`fixed top-10 left-6 z-[100] md:hidden ${show ? 'pointer-events-auto' : 'pointer-events-none'}`}
+      onClick={onClick}
+    >
+      <div className="relative">
+        <h1 className="wordmark text-black dark:text-white">
+          PRODUS
+        </h1>
+      </div>
+    </motion.div>
+  );
 };
 
 export default function Home() {
   const navigate = useNavigate();
   const { user, updateSettings } = useAuthStore();
   const setNeuralSyncDismissed = useAuthStore((state) => state.setNeuralSyncDismissed);
-  const { 
-    protocolMode, 
+  const {
+    protocolMode,
     setProtocolMode,
     activeRpgTab,
     setActiveRpgTab,
@@ -57,7 +58,7 @@ export default function Home() {
     setIsIdentityEditModalOpen,
     setIsQrModalOpen
   } = useOutletContext();
-  
+
   const isMobile = useMobile();
   const fileInputRef = useRef(null);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -171,8 +172,8 @@ export default function Home() {
             exit={{ opacity: 0, scale: 1.05 }}
             className="flex-1 h-full flex items-center justify-center px-4 overflow-hidden py-20"
           >
-            <AwakeningOverlay 
-              onAwaken={handleInitiateAwakening} 
+            <AwakeningOverlay
+              onAwaken={handleInitiateAwakening}
               onBackToReality={() => setProtocolMode('reality')}
               isLoading={false}
               hasStarted={user?.rpg?.completedAnswers?.length > 0}
@@ -186,10 +187,10 @@ export default function Home() {
             exit={{ opacity: 0 }}
             className="w-full"
           >
-            <RPGImmersiveOverlay 
-              user={user} 
-              activeTab={activeRpgTab} 
-              setActiveTab={setActiveRpgTab} 
+            <RPGImmersiveOverlay
+              user={user}
+              activeTab={activeRpgTab}
+              setActiveTab={setActiveRpgTab}
             />
           </motion.div>
         ) : isInitializing ? (
@@ -212,11 +213,11 @@ export default function Home() {
             {isMobile && <MobileLogoText show={isAtTop} onClick={() => setIsLandingModalOpen(true)} />}
             {/* Reality Dashboard Layout */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 w-full mb-[15vh] md:mb-32">
-              
+
               {/* Column 1-2: Integrated Swinging ID Assembly */}
-              <div className="md:col-span-2 relative h-[85vh] md:h-16 flex flex-col items-center mb-[22vh] md:mb-0">
+              <div className="md:col-span-2 relative min-h-[90dvh] md:min-h-[unset] h-auto md:h-16 flex flex-col items-center justify-center mb-0 snap-start snap-always">
                 <div className="absolute inset-0 flex flex-col items-center">
-                  <motion.div style={{ transformOrigin: "top center" }} className="absolute top-0 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
+                  <motion.div style={{ transformOrigin: "top center" }} className="absolute top-0 md:mt-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
                     <div className="w-4 h-1 bg-white z-[60] shadow-[0_0_15px_rgba(255,255,255,0.5)] shrink-0" />
                     <div className="w-[12px] h-[15vh] md:h-5 bg-white opacity-80 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50" />
                     <div className="relative -mt-4 perspective-[1000px] cursor-pointer pointer-events-auto" onClick={() => setIsFlipped(!isFlipped)}>
@@ -225,16 +226,16 @@ export default function Home() {
                         <div className="absolute inset-0 bg-gray-300 dark:bg-[#121212] text-black dark:text-white p-8 rounded-sm flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden" }}>
                           <ChippedBorder opacity={1} />
                           <div className="absolute top-0 left-1/2 -translate-x-1/2 size-8 bg-black/10 dark:bg-[#000000] rounded-full border-[7px] border-white dark:border-[#121212] z-20 flex items-center justify-center">
-                             <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-black/30 dark:border-white/30" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
+                            <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-black/30 dark:border-white/30" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
                           </div>
                           <div className="flex flex-col gap-6 w-full items-center mt-4">
                             <div className="flex flex-col items-center">
-                              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/20 dark:text-white/20">{user?.rpg?.archetype?.name?.toUpperCase() || 'OPERATIVE'}_ID</span>
+                              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/20 dark:text-white/20">{(user?.rpg?.archetype?.name && user.rpg.archetype.name !== 'None' ? user.rpg.archetype.name.toUpperCase() : 'ROOKIE')}_ID</span>
                               <span className="text-sm font-black tracking-tighter uppercase opacity-80">OP_HASH_{codenameHash}</span>
                             </div>
                             <div className="h-[1px] bg-black/10 dark:bg-white/10 w-full" />
-                             <div className="flex flex-col items-center gap-6">
-                              <div 
+                            <div className="flex flex-col items-center gap-6">
+                              <div
                                 onClick={(e) => {
                                   if (isEditing) {
                                     e.stopPropagation();
@@ -243,20 +244,16 @@ export default function Home() {
                                 }}
                                 className={`size-48 md:size-44 bg-black/5 dark:bg-black rounded-sm overflow-hidden border border-black/10 dark:border-white/10 shrink-0 relative transition-all ${isEditing ? 'ring-2 ring-primary cursor-pointer' : ''}`}
                               >
-                                <input 
-                                  type="file" 
-                                  ref={fileInputRef} 
-                                  onChange={handleImageUpload} 
-                                  className="hidden" 
+                                <input
+                                  type="file"
+                                  ref={fileInputRef}
+                                  onChange={handleImageUpload}
+                                  className="hidden"
                                   accept="image/*"
                                 />
                                 <div className="w-full h-full bg-white p-2 pb-6 shadow-xl relative">
                                   <div className="size-full bg-black/5 overflow-hidden flex items-center justify-center relative">
-                                    {editData.avatar && typeof editData.avatar === 'string' ? (
-                                      <img src={editData.avatar} alt="Avatar" className="size-full object-cover" />
-                                    ) : (
-                                      <span className="material-symbols-outlined text-black/10 text-6xl">person</span>
-                                    )}
+                                    <Avatar config={editData.avatar} className="size-full" />
                                     {/* Texture Overlay */}
                                     <div className="absolute inset-0 bg-black/5 pointer-events-none mix-blend-overlay" />
                                   </div>
@@ -275,7 +272,7 @@ export default function Home() {
                                 {isEditing ? (
                                   <div className="flex flex-col items-center gap-2 w-full">
                                     <div className="relative w-full">
-                                      <input 
+                                      <input
                                         type="text"
                                         value={editData.username}
                                         onClick={(e) => e.stopPropagation()}
@@ -286,7 +283,7 @@ export default function Home() {
                                       />
                                       <span className="absolute right-0 bottom-1 text-[8px] opacity-20 font-mono">#{user?.username?.split('#')[1]}</span>
                                     </div>
-                                    <textarea 
+                                    <textarea
                                       value={editData.bio}
                                       onClick={(e) => e.stopPropagation()}
                                       onChange={(e) => setEditData(prev => ({ ...prev, bio: e.target.value }))}
@@ -309,7 +306,7 @@ export default function Home() {
                             <div className="absolute bottom-6 right-6 z-40 flex items-center gap-3">
                               {isEditing ? (
                                 <div className="flex items-center gap-3">
-                                  <button 
+                                  <button
                                     onClick={(e) => { e.stopPropagation(); setIsEditing(false); }}
                                     className="p-1 text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white transition-all hover:scale-125"
                                     title="ABORT_CHANGES"
@@ -317,7 +314,7 @@ export default function Home() {
                                     <span className="material-symbols-outlined text-sm">close</span>
                                   </button>
                                   <div className="w-[1px] h-3 bg-black/10 dark:bg-white/10" />
-                                  <button 
+                                  <button
                                     onClick={(e) => { e.stopPropagation(); handleSaveInline(); }}
                                     className="p-1 text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white transition-all hover:scale-125"
                                     title="SYNC_CHANGES"
@@ -329,58 +326,58 @@ export default function Home() {
                                 <>
                                   <AnimatePresence>
                                     {isIdMenuOpen && (
-                                      <motion.div 
+                                      <motion.div
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: 20 }}
                                         className="flex items-center gap-2 pr-2 border-r border-black/10 dark:border-white/10"
                                       >
-                                        <button 
+                                        <button
                                           onClick={(e) => { e.stopPropagation(); setIsIdMenuOpen(false); setIsEditing(true); }}
                                           className="p-1 transition-colors"
                                           title="EDIT_ID"
                                         >
-                                          <span className="material-symbols-outlined text-[16px] opacity-40 hover:opacity-100">edit</span>
+                                          <span className="material-symbols-outlined text-[16px] text-black dark:text-white opacity-40 hover:opacity-100">edit</span>
                                         </button>
-                                        <button 
+                                        <button
                                           onClick={(e) => { e.stopPropagation(); setIsIdMenuOpen(false); setIsSearchModalOpen(true); }}
                                           className="p-1 transition-colors"
                                           title="SEARCH_ID"
                                         >
-                                          <span className="material-symbols-outlined text-[16px] opacity-40 hover:opacity-100">search</span>
+                                          <span className="material-symbols-outlined text-[16px] text-black dark:text-white opacity-40 hover:opacity-100">search</span>
                                         </button>
-                                        <button 
+                                        <button
                                           onClick={(e) => { e.stopPropagation(); setIsIdMenuOpen(false); setIsQrModalOpen(true); }}
                                           className="p-1 transition-colors"
                                           title="SCAN_ID"
                                         >
-                                          <span className="material-symbols-outlined text-[16px] opacity-40 hover:opacity-100">qr_code_scanner</span>
+                                          <span className="material-symbols-outlined text-[16px] text-black dark:text-white opacity-40 hover:opacity-100">qr_code_scanner</span>
                                         </button>
-                                        <button 
-                                          onClick={(e) => { 
-                                            e.stopPropagation(); 
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
                                             setIsIdMenuOpen(false);
                                             setIsConnectionsModalOpen(true);
                                           }}
                                           className="p-1 transition-colors"
                                           title="NETWORK_ID"
                                         >
-                                          <span className="material-symbols-outlined text-[16px] opacity-40 hover:opacity-100">group</span>
+                                          <span className="material-symbols-outlined text-[16px] text-black dark:text-white opacity-40 hover:opacity-100">group</span>
                                         </button>
                                       </motion.div>
                                     )}
                                   </AnimatePresence>
 
-                                  <button 
+                                  <button
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       setIsIdMenuOpen(!isIdMenuOpen);
                                     }}
                                     className={`p-2 transition-all group/menu`}
                                   >
-                                    <motion.span 
+                                    <motion.span
                                       animate={{ rotate: isIdMenuOpen ? -90 : 0 }}
-                                      className={`material-symbols-outlined text-sm transition-opacity ${isIdMenuOpen ? 'opacity-100' : 'opacity-20 group-hover/menu:opacity-60'}`}
+                                      className={`material-symbols-outlined text-sm transition-opacity ${isIdMenuOpen ? 'text-black dark:text-white' : 'text-black dark:text-white opacity-40 dark:opacity-20 group-hover/menu:opacity-100'}`}
                                     >
                                       more_vert
                                     </motion.span>
@@ -394,7 +391,7 @@ export default function Home() {
                         <div className="absolute inset-0 bg-gray-300 dark:bg-[#0f0f0f] text-black dark:text-white p-8 rounded-sm flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
                           <ChippedBorder opacity={1} />
                           <div className="absolute top-0 left-1/2 -translate-x-1/2 size-8 bg-black/10 dark:bg-[#000000] rounded-full border-[7px] border-white dark:border-[#0f0f0f] z-20 flex items-center justify-center">
-                             <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-black/20 dark:border-white/20" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
+                            <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-black/20 dark:border-white/20" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
                           </div>
                           <div className="flex flex-col gap-8 w-full items-center mt-10">
                             <div className="flex flex-col items-center">
@@ -420,11 +417,13 @@ export default function Home() {
               </div>
 
               {/* Habit Checklist HUD Component */}
-              <HabitChecklistHUD />
+              <div className="snap-start snap-always md:col-span-3 min-h-[90dvh] flex flex-col justify-center py-10">
+                <HabitChecklistHUD />
+              </div>
             </div>
 
             {/* Bottom Grid Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 max-w-[1400px]">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 max-w-[1400px] snap-start snap-always min-h-[90dvh] flex flex-col justify-center py-20">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="md:col-span-8 group relative bg-foreground/[0.03] rounded-sm p-8 overflow-hidden hover:bg-foreground/[0.05] transition-all">
                 <ChippedBorder opacity={0.7} />
                 <h3 className="text-xs font-black uppercase tracking-[0.4em] mb-8 text-foreground/40">Vitality // SYNCHRONIZATION</h3>

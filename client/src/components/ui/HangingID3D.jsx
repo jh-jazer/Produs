@@ -3,8 +3,12 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useSphere, useBox, Physics, usePointToPointConstraint } from '@react-three/cannon';
 import { Html, PerspectiveCamera, Environment } from '@react-three/drei';
 import * as THREE from 'three';
+import useAuthStore from '../../store/useAuthStore';
+import Avatar from './Avatar';
 
 const IDCard = ({ position = [0, 0, 0] }) => {
+  const { user } = useAuthStore();
+  
   // The Anchor (where the lace is attached to the "ceiling")
   const [anchorRef] = useSphere(() => ({
     type: 'Static',
@@ -65,7 +69,7 @@ const IDCard = ({ position = [0, 0, 0] }) => {
              <div className="flex justify-between items-start">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Operative ID</span>
-                <span className="text-sm font-black tracking-tighter">#PX-7729-ALPHA</span>
+                <span className="text-sm font-black tracking-tighter">#{user?._id?.slice(-8).toUpperCase() || 'UNKNOWN'}</span>
               </div>
               <div className="size-10 bg-white/5 rounded-sm flex items-center justify-center border border-white/10">
                 <span className="material-symbols-outlined text-xl opacity-40">fingerprint</span>
@@ -76,13 +80,11 @@ const IDCard = ({ position = [0, 0, 0] }) => {
 
             <div className="flex items-center gap-4">
               <div className="size-14 bg-black rounded-sm overflow-hidden border border-white/10">
-                <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white/10 text-3xl">person</span>
-                </div>
+                <Avatar config={user?.avatar} className="size-full" />
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">AUTHORIZED</span>
-                <span className="text-xs font-bold uppercase tracking-tight">OPERATIVE_SESSION</span>
+                <span className="text-xs font-bold uppercase tracking-tight">{user?.username?.split('#')[0] || 'OPERATIVE'}</span>
               </div>
             </div>
 
@@ -91,7 +93,7 @@ const IDCard = ({ position = [0, 0, 0] }) => {
                 <div className="size-1.5 bg-primary rounded-full animate-pulse" />
                 <span className="text-[8px] font-bold uppercase tracking-widest">ACTIVE_LINK</span>
               </div>
-              <span className="text-[8px] font-mono opacity-40">SEC_LEVEL_04</span>
+              <span className="text-[8px] font-mono opacity-40">SEC_LEVEL_{user?.level || 0}</span>
             </div>
           </div>
         </Html>
