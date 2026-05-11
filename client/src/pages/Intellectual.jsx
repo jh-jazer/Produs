@@ -28,8 +28,10 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
-  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all p-8 rounded-sm group overflow-hidden ${className}`}>
-    <ChippedBorder opacity={0.6} />
+  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all p-4 md:p-8 rounded-sm group overflow-hidden ${className}`}>
+    <div className="hidden md:block">
+      <ChippedBorder opacity={0.6} />
+    </div>
     <div className="relative z-10">
       <div className="mb-8 flex justify-between items-start">
         <div className="flex flex-col gap-1">
@@ -43,29 +45,20 @@ const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) =>
   </div>
 );
 
+import { useNavigate, useLocation } from 'react-router-dom';
+
 const Intellectual = () => {
     const { user } = useAuthStore();
+    const location = useLocation();
     const { viewMode } = useContext(DashboardContext);
     const [activeDate, setActiveDate] = useState(new Date());
     const { tasks, addTask, deleteTask } = usePlanner(activeDate);
     const [currentFilter, setCurrentFilter] = useState('All');
-    const [activeTab, setActiveTab] = useState('priority'); 
-    const { setMobileTabs } = useContext(DashboardContext);
+    
+    // The active module is now driven by navigation state or external triggers
+    const activeModule = location.state?.activeTab || 'tracker'; 
 
     const { habits, isLoading: habitsLoading, toggleCheck, addHabit, deleteHabit, updateHabit, reorderHabits } = useHabits();
-
-    const tabs = [
-        { id: 'priority', label: 'Priority', icon: 'stars' },
-        { id: 'planner', label: 'Planner', icon: 'schedule' },
-        { id: 'calendar', label: 'Calendar', icon: 'calendar_today' },
-        { id: 'goals', label: 'Goals', icon: 'flag' },
-        { id: 'tracker', label: 'Tracker', icon: 'check_circle' },
-    ];
-
-    useEffect(() => {
-        setMobileTabs({ tabs, activeTab, setActiveTab });
-        return () => setMobileTabs(null);
-    }, [activeTab, setMobileTabs]);
 
     const myHabits = React.useMemo(() => habits.filter(h => h.userId === user?._id), [habits, user]);
     const partnerHabits = React.useMemo(() => habits.filter(h => h.userId !== user?._id), [habits, user]);
@@ -92,96 +85,28 @@ const Intellectual = () => {
     if (habitsLoading && habits.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground p-8 pt-0 md:p-12 font-sans overflow-x-hidden flex flex-col md:flex-row items-start gap-8 md:gap-12">
-            <WorkspaceSidebar 
-                tabs={tabs} 
-                activeTab={activeTab} 
-                setActiveTab={setActiveTab} 
-                namespace="Intellectual" 
-            />
-
-            <div className="flex-1">
+        <div className="w-full bg-transparent text-foreground p-8 pt-12 md:p-12 md:pt-16 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full max-w-7xl mt-8 md:mt-0">
                 <AnimatePresence mode="wait">
                     <motion.div
-                        key={activeTab}
+                        key={activeModule}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.3 }}
                         className="flex flex-col gap-8 md:gap-12"
                     >
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                            
-                            {/* Tab Content Division */}
-                            <div className="lg:col-span-12">
-                                {/* PRIORITY DIVISION */}
-                                {activeTab === 'priority' && (
-                                    <div className="max-w-4xl mx-auto w-full">
-                                        <HUDPanel title="PRIORITY LIST" subtitle="DAILY TOP OBJECTIVES">
-                                            <Priority viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => setActiveTab('planner')} />
-                                        </HUDPanel>
-                                    </div>
-                                )}
-
-                                {/* PLANNER DIVISION */}
-                                {activeTab === 'planner' && (
-                                    <div className="max-w-5xl mx-auto w-full">
-                                        <HUDPanel title="DAILY PLANNER" subtitle="BLOCK SCHEDULE">
-                                            <DailySchedule viewMode={viewMode} isReadOnly={viewMode === 'partner'} onFlip={() => setActiveTab('priority')} />
-                                        </HUDPanel>
-                                    </div>
-                                )}
-
-                                {/* TRACKER DIVISION */}
-                                {activeTab === 'tracker' && (
-                                    <HUDPanel title="HABIT TRACKER" subtitle="CONSISTENCY LOG">
-                                        <HabitTracker
-                                            activeDate={activeDate}
-                                            onDateChange={changeWeek}
-                                            currentFilter={currentFilter}
-                                            onFilterChange={setCurrentFilter}
-                                            habits={habits}
-                                            myHabits={myHabits}
-                                            partnerHabits={partnerHabits}
-                                            checks={checks}
-                                            isPartnerView={viewMode === 'partner'}
-                                            partnerName={user?.partner?.name}
-                                            isLoading={habitsLoading}
-                                            toggleCheck={toggleCheck}
-                                            addHabit={addHabit}
-                                            deleteHabit={deleteHabit}
-                                            updateHabit={updateHabit}
-                                            reorderHabits={reorderHabits}
-                                            myUserId={user?._id}
-                                        />
-                                    </HUDPanel>
-                                )}
-
-                                {/* CALENDAR DIVISION */}
-                                {activeTab === 'calendar' && (
-                                    <HUDPanel title="CALENDAR" subtitle="MONTHLY VIEW">
-                                        <FullCalendar onDateSelect={setActiveDate} selectedDate={activeDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
-                                    </HUDPanel>
-                                )}
-
-                                {/* GOALS DIVISION */}
-                                {activeTab === 'goals' && (
-                                    <div className="max-w-4xl mx-auto w-full">
-                                        <HUDPanel title="KEY GOALS" subtitle="LONG TERM OBJECTIVES">
-                                            <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
-                                        </HUDPanel>
-                                    </div>
-                                )}
+                        {/* Tab Content Division */}
+                        <div className="w-full max-w-full mx-auto">
+                            <div className="flex flex-col items-center justify-center py-40 opacity-40 text-center gap-6">
+                                <span className="material-symbols-outlined text-6xl opacity-20">inventory_2</span>
+                                <div className="flex flex-col gap-2">
+                                    <span className="text-sm font-black uppercase tracking-[0.4em]">Intellectual_Core_Relocated</span>
+                                    <span className="text-[10px] font-mono opacity-40 uppercase">Primary_Modules_Active_In_Global_HUD</span>
+                                </div>
                             </div>
                         </div>
 
-                        {/* System Metadata Footer */}
-                        <div className="mt-16 pt-8 border-t border-foreground/5 flex justify-between items-center opacity-20">
-                          <span className="text-[8px] font-black uppercase tracking-[0.5em]">PRODUS INTELLECTUAL WORKSPACE v0.2</span>
-                          <div className="flex gap-2">
-                            {[1,2,3,4,5,6].map(i => <div key={i} className="size-1 bg-foreground rounded-full" />)}
-                          </div>
-                        </div>
                     </motion.div>
                 </AnimatePresence>
             </div>

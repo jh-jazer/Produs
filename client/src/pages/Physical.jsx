@@ -41,7 +41,10 @@ const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) =>
 
 import WorkspaceSidebar from '../components/ui/WorkspaceSidebar';
 
+import { useNavigate, useLocation } from 'react-router-dom';
+
 const Physical = () => {
+    const location = useLocation();
     const {
         workouts,
         nutrition,
@@ -52,49 +55,28 @@ const Physical = () => {
     } = useHealth();
 
     const { setMobileTabs } = useContext(DashboardContext);
-    const [activeTab, setActiveTab] = useState('workout');
-
-    useEffect(() => {
-        setMobileTabs({ tabs, activeTab, setActiveTab });
-        return () => setMobileTabs(null);
-    }, [activeTab, setMobileTabs]);
-
-    const tabs = [
-        { id: 'workout', label: 'Workout', icon: 'fitness_center' },
-        { id: 'nutrition', label: 'Nutrition', icon: 'restaurant' },
-        { id: 'bmi', label: 'BMI', icon: 'monitor_weight' },
-        { id: 'water', label: 'Water', icon: 'water_drop' },
-        { id: 'sleep', label: 'Sleep', icon: 'bedtime' },
-    ];
-
-    const currencySymbol = '$'; // Placeholder if needed
+    
+    // The active module is now driven by navigation state or external triggers
+    const activeModule = location.state?.activeTab || 'workout';
 
     if (isLoading && workouts.length === 0 && metrics.length === 0 && nutrition.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground p-8 pt-0 md:p-12 font-sans overflow-x-hidden flex flex-col md:flex-row items-start gap-8 md:gap-12">
-            {/* Tactical Navigation Bar - Vertical on Desktop */}
-            <WorkspaceSidebar 
-                tabs={tabs} 
-                activeTab={activeTab} 
-                setActiveTab={setActiveTab} 
-                namespace="Physical" 
-            />
-
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex-1"
-                >
-                    <div className="flex flex-col gap-8">
+        <div className="w-full bg-transparent text-foreground p-8 pt-0 md:p-12 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full max-w-6xl">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeModule}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex flex-col gap-8 md:gap-12"
+                    >
                         {/* Tab Content Division */}
                         <div className="w-full">
                             {/* BMI DIVISION */}
-                            {activeTab === 'bmi' && (
+                            {activeModule === 'bmi' && (
                                  <div className="max-w-4xl mx-auto w-full">
                                      <HUDPanel title="BODY MASS" subtitle="BMI INDEX & METRICS">
                                          <BMITracker metrics={metrics} addHealthLog={addHealthLog} />
@@ -103,7 +85,7 @@ const Physical = () => {
                             )}
 
                             {/* WATER DIVISION */}
-                            {activeTab === 'water' && (
+                            {activeModule === 'water' && (
                                  <div className="max-w-4xl mx-auto w-full">
                                      <HUDPanel title="HYDRATION" subtitle="DAILY WATER INTAKE">
                                          <WaterTracker metrics={metrics} addHealthLog={addHealthLog} />
@@ -112,7 +94,7 @@ const Physical = () => {
                             )}
 
                             {/* SLEEP DIVISION */}
-                            {activeTab === 'sleep' && (
+                            {activeModule === 'sleep' && (
                                  <div className="max-w-4xl mx-auto w-full">
                                      <HUDPanel title="CIRCADIAN" subtitle="REST & RECOVERY CYCLES">
                                          <SleepTracker metrics={metrics} addHealthLog={addHealthLog} />
@@ -121,7 +103,7 @@ const Physical = () => {
                             )}
 
                             {/* WORKOUT DIVISION */}
-                            {activeTab === 'workout' && (
+                            {activeModule === 'workout' && (
                                 <div className="max-w-5xl mx-auto w-full">
                                     <HUDPanel title="WORKOUT TRACKER" subtitle="FITNESS PROGRESS">
                                         <WorkoutTracker
@@ -134,7 +116,7 @@ const Physical = () => {
                             )}
 
                             {/* NUTRITION DIVISION */}
-                            {activeTab === 'nutrition' && (
+                            {activeModule === 'nutrition' && (
                                 <div className="max-w-5xl mx-auto w-full">
                                     <HUDPanel title="NUTRITION LOG" subtitle="DIETARY TRACKING">
                                         <NutritionLog
@@ -146,17 +128,17 @@ const Physical = () => {
                                 </div>
                             )}
                         </div>
-                    </div>
 
-                    {/* System Metadata Footer */}
-                    <div className="mt-16 pt-8 border-t border-foreground/5 flex justify-between items-center opacity-20">
-                      <span className="text-[8px] font-black uppercase tracking-[0.5em]">PRODUS PHYSICAL WORKSPACE v0.2</span>
-                      <div className="flex gap-2">
-                        {[1,2,3,4,5,6].map(i => <div key={i} className="size-1 bg-foreground rounded-full" />)}
-                      </div>
-                    </div>
-                </motion.div>
-            </AnimatePresence>
+                        {/* System Metadata Footer */}
+                        <div className="mt-16 pt-8 border-t border-foreground/5 flex justify-between items-center opacity-20">
+                          <span className="text-[8px] font-black uppercase tracking-[0.5em]">PRODUS_MODULAR_CORE_v1.0</span>
+                          <div className="flex gap-2">
+                            {[1,2,3,4,5,6].map(i => <div key={i} className="size-1 bg-foreground rounded-full" />)}
+                          </div>
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
         </div>
     );
 };

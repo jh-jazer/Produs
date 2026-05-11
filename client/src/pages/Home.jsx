@@ -10,7 +10,7 @@ import { QRCodeSVG } from 'qrcode.react';
 // Components
 import RPGImmersiveOverlay from '../components/rpg/RPGImmersiveOverlay';
 import AwakeningOverlay from '../components/dashboard/AwakeningOverlay';
-import HabitChecklistHUD from '../components/dashboard/HabitChecklistHUD';
+import PriorityHUD from '../components/dashboard/PriorityHUD';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 import Avatar from '../components/ui/Avatar';
 
@@ -252,8 +252,20 @@ export default function Home() {
                                   accept="image/*"
                                 />
                                 <div className="w-full h-full bg-white p-2 pb-6 shadow-xl relative">
+                                  {/* Level Badge - Absolute Corner Overlay */}
+                                  <div className="absolute top-0 left-0 px-2 py-0.5 bg-black text-white dark:bg-white dark:text-black text-[9px] font-black uppercase tracking-widest z-30 shadow-lg">
+                                    LVL_{user?.rpg?.level || 1}
+                                  </div>
                                   <div className="size-full bg-black/5 overflow-hidden flex items-center justify-center relative">
                                     <Avatar config={editData.avatar} className="size-full" />
+                                    {/* EXP Bar - Anchored to bottom of image */}
+                                    <div className="absolute bottom-0 left-0 right-0 h-2 bg-black/10 dark:bg-white/5 z-40 overflow-hidden border-t border-black/5 dark:border-white/5">
+                                      <motion.div 
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${Math.min(100, (user?.rpg?.exp || 0) / 10)}%` }}
+                                        className="h-full bg-black dark:bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]"
+                                      />
+                                    </div>
                                     {/* Texture Overlay */}
                                     <div className="absolute inset-0 bg-black/5 pointer-events-none mix-blend-overlay" />
                                   </div>
@@ -416,13 +428,24 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Habit Checklist HUD Component */}
-              <div className="snap-start snap-always md:col-span-3 min-h-[90dvh] flex flex-col justify-center py-10">
-                <HabitChecklistHUD />
+              {/* Priority HUD Component + Metrics Grid */}
+              <div className="snap-start snap-always md:col-span-3 flex flex-col gap-8 py-10">
+                <PriorityHUD />
+                
+                {/* Metrics Overlay - Now anchored to the first fold */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[{ l: 'Capital', v: '$12,450.00' }, { l: 'Energy', v: '450kJ' }, { l: 'Focus', v: '4.8h' }].map((s, i) => (
+                    <div key={i} className="bg-foreground/[0.02] rounded-sm p-6 flex flex-col gap-2 hover:bg-foreground/[0.04] transition-all relative">
+                      <ChippedBorder opacity={0.5} />
+                      <span className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30">{s.l}</span>
+                      <span className="text-base font-black tracking-tight">{s.v}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Bottom Grid Layout */}
+            {/* Bottom Grid Layout - Remaining Sections */}
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 max-w-[1400px] snap-start snap-always min-h-[90dvh] flex flex-col justify-center py-20">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="md:col-span-8 group relative bg-foreground/[0.03] rounded-sm p-8 overflow-hidden hover:bg-foreground/[0.05] transition-all">
                 <ChippedBorder opacity={0.7} />
@@ -445,13 +468,6 @@ export default function Home() {
                   <span className="material-symbols-outlined text-sm">east</span>
                 </div>
               </motion.div>
-              <div className="md:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-                {[{ l: 'Capital', v: '$12,450.00' }, { l: 'Energy', v: '450kJ' }, { l: 'Focus', v: '4.8h' }].map((s, i) => (
-                  <div key={i} className="bg-foreground/[0.02] rounded-sm p-6 flex flex-col gap-2 hover:bg-foreground/[0.04] transition-all relative">
-                    <ChippedBorder opacity={0.5} /><span className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30">{s.l}</span><span className="text-base font-black tracking-tight">{s.v}</span>
-                  </div>
-                ))}
-              </div>
             </div>
           </motion.div>
         )}

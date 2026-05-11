@@ -245,8 +245,22 @@ function HabitTracker({
                 <div className="flex flex-col">
                     {isLoading ? (
                         Array(3).fill(0).map((_, i) => <div key={i} className="h-16 w-full animate-pulse bg-white/5 my-1" />)
-                    ) : (
+                    ) : localTeamHabits.length > 0 ? (
                         localTeamHabits.map(renderHabitRow)
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-20 opacity-40 text-center gap-6">
+                            <span className="material-symbols-outlined text-5xl opacity-20">rule</span>
+                            <div className="flex flex-col gap-2">
+                                <span className="text-xs font-black uppercase tracking-[0.4em]">No_Active_Habits</span>
+                                <span className="text-[10px] font-mono opacity-40 uppercase">System_Modules_Offline</span>
+                            </div>
+                            <button
+                                onClick={() => setAddModalOpen(true)}
+                                className="px-8 py-4 bg-white text-black text-xs font-black uppercase tracking-[0.2em] hover:opacity-90 active:scale-95 transition-all flex items-center gap-3"
+                            >
+                                Sync_Core_Modules
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import SideEnergyBar from './dashboard/SideEnergyBar';
-import { Search, Handshake, User, Lock, Zap, Cpu, ShoppingBag } from 'lucide-react';
+import { Search, Handshake, User, Lock, Zap, Cpu, ShoppingBag, ChevronDown } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
@@ -35,6 +35,8 @@ import HudButtons from './ui/HudButtons';
 import ThemeToggle from './ui/ThemeToggle';
 import { useTheme } from '../hooks/useTheme';
 import useMobile from '../hooks/useMobile';
+import ProToolsModal from './ui/ProToolsModal';
+import ToolsMarketplaceModal from './ui/ToolsMarketplaceModal';
 
 function Layout() {
     const { user, signOut } = useAuthStore();
@@ -77,8 +79,13 @@ function Layout() {
     const [isLandingModalOpen, setIsLandingModalOpen] = useState(false);
     const [isIdentityEditModalOpen, setIsIdentityEditModalOpen] = useState(false);
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+    const [isToolsStoreModalOpen, setIsToolsStoreModalOpen] = useState(false);
+    const [isMarketplaceModalOpen, setIsMarketplaceModalOpen] = useState(false);
+    const [marketplaceCategory, setMarketplaceCategory] = useState('all');
     const [mobileTabs, setMobileTabs] = useState(null); // { tabs, activeTab, setActiveTab }
     const [activeRpgTab, setActiveRpgTab] = useState('home');
+    const [expandedCategory, setExpandedCategory] = useState(null);
+    const [isMoreExpanded, setIsMoreExpanded] = useState(false);
     const isNeuralSyncDismissed = useAuthStore((state) => state.isNeuralSyncDismissed);
 
     // Fetch fresh profile from server — this is the authoritative source of truth.
@@ -138,11 +145,42 @@ function Layout() {
         { id: 'inventory', name: 'CARGO_BAY', path: '/dashboard/rpg/inventory', icon: ShoppingBag },
     ] : [
         { id: 'overview', name: 'Home', path: '/dashboard', icon: Cpu },
-        { id: 'intellectual', name: 'Intellectual', path: '/dashboard/intellectual', icon: Zap },
-        { id: 'physical', name: 'Physical', path: '/dashboard/physical', icon: Zap },
-        { id: 'spiritual', name: 'Spiritual', path: '/dashboard/spiritual', icon: Zap },
-        { id: 'financial', name: 'Financial', path: '/dashboard/financial', icon: Zap },
+        { id: 'habits', name: 'Habit Tracker', path: '/dashboard/habits', icon: Zap },
+        { id: 'planner', name: 'Daily Planner', path: '/dashboard/planner', icon: Zap },
+        { id: 'goals', name: 'Goal Setter', path: '/dashboard/goals', icon: Zap },
+        { id: 'calendar', name: 'Calendar', path: '/dashboard/calendar', icon: Zap },
+        { id: 'more', name: 'More', path: '#', icon: Zap, isHeader: true },
     ];
+
+    const proToolsCategories = [
+        { id: 'spiritual', name: 'Spiritual', icon: 'auto_awesome', color: { light: '#7C3AED', dark: '#A78BFA' } },
+        { id: 'intellectual', name: 'Intellectual', icon: 'psychology', color: { light: '#2563EB', dark: '#60A5FA' } },
+        { id: 'physical', name: 'Physical', icon: 'monitor_heart', color: { light: '#DC2626', dark: '#F87171' } },
+        { id: 'emotional', name: 'Emotional', icon: 'favorite', color: { light: '#DB2777', dark: '#F472B6' } },
+        { id: 'social', name: 'Social', icon: 'group', color: { light: '#059669', dark: '#34D399' } },
+        { id: 'financial', name: 'Financial', icon: 'payments', color: { light: '#D97706', dark: '#FBBF24' } },
+    ];
+
+    const categoryTools = {
+        spiritual: [
+            { id: 'journal', icon: 'edit_note', path: '/dashboard/spiritual', tabId: 'journal' },
+        ],
+        intellectual: [],
+        physical: [
+            { id: 'workout', icon: 'fitness_center', path: '/dashboard/physical', tabId: 'workout' },
+            { id: 'nutrition', icon: 'restaurant', path: '/dashboard/physical', tabId: 'nutrition' },
+            { id: 'bmi', icon: 'monitor_weight', path: '/dashboard/physical', tabId: 'bmi' },
+            { id: 'water', icon: 'water_drop', path: '/dashboard/physical', tabId: 'water' },
+            { id: 'sleep', icon: 'bedtime', path: '/dashboard/physical', tabId: 'sleep' },
+        ],
+        financial: [
+            { id: 'summary', icon: 'account_balance', path: '/dashboard/financial', tabId: 'summary' },
+            { id: 'budget', icon: 'pie_chart', path: '/dashboard/financial', tabId: 'budget' },
+            { id: 'savings', icon: 'shield', path: '/dashboard/financial', tabId: 'savings' },
+            { id: 'wishlist', icon: 'shopping_cart', path: '/dashboard/financial', tabId: 'wishlist' },
+            { id: 'debts', icon: 'trending_up', path: '/dashboard/financial', tabId: 'debts' },
+        ]
+    };
 
     return (
         <DashboardContext.Provider value={{
@@ -159,6 +197,10 @@ function Layout() {
             setIsQrModalOpen,
             setIsSearchModalOpen,
             setIsNotificationModalOpen,
+            setIsToolsStoreModalOpen,
+            setIsMarketplaceModalOpen,
+            marketplaceCategory,
+            setMarketplaceCategory,
             mobileTabs,
             setMobileTabs
         }}>
@@ -294,56 +336,160 @@ function Layout() {
                         <div className="flex flex-col gap-1">
                             {navItems.map((item, idx) => {
                                 const isOverview = location.pathname === '/dashboard';
+                                const currentSubTab = mobileTabs?.activeTab || location.state?.activeTab;
+                                
                                 const isActive = protocolMode === 'rpg' 
                                     ? activeRpgTab === item.id 
-                                    : (location.pathname === item.path || (item.path === '/dashboard' && location.pathname === '/dashboard'));
+                                    : (item.path === '/dashboard' && location.pathname === '/dashboard') || 
+                                      (location.pathname.startsWith(item.path) && (!item.tabId || item.tabId === currentSubTab));
                                 
                                 return (
-                                    <motion.button
-                                        key={item.id}
-                                        onClick={() => {
-                                            if (protocolMode === 'rpg') {
-                                                if (location.pathname !== '/dashboard') navigate('/dashboard');
-                                                setActiveRpgTab(item.id);
-                                            } else {
-                                                navigate(item.path);
-                                            }
-                                        }}
-                                        className={`relative group/nav flex items-center rounded-2xl transition-all duration-300
-                                            ${isMobileMenuOpen ? 'h-16 w-full px-4' : 'h-10 w-full'}
-                                        `}
-                                    >
-                                        {!isMobileMenuOpen && (
-                                            <div className={`absolute left-0 top-[calc(50%-12px)] w-[2px] transition-colors duration-500 bg-slate-200 dark:bg-white/10
-                                                ${idx === navItems.length - 1 ? 'bg-gradient-to-b !from-current !to-transparent opacity-40' : ''}
-                                            `} />
-                                        )}
+                                    <React.Fragment key={item.id}>
+                                        <motion.button
+                                            onClick={() => {
+                                                if (protocolMode === 'rpg') {
+                                                    if (location.pathname !== '/dashboard') navigate('/dashboard');
+                                                    setActiveRpgTab(item.id);
+                                                } else {
+                                                    if (item.id === 'more') {
+                                                        setIsMoreExpanded(!isMoreExpanded);
+                                                        return;
+                                                    }
+                                                    if (item.tabId && mobileTabs) {
+                                                        mobileTabs.setActiveTab(item.tabId);
+                                                    }
+                                                    navigate(item.path, { state: { activeTab: item.tabId } });
+                                                }
+                                            }}
+                                            className={`relative group/nav flex items-center rounded-2xl transition-all duration-300
+                                                ${isMobileMenuOpen ? 'h-16 w-full px-4' : 'h-10 w-full'}
+                                            `}
+                                        >
+                                            {!isMobileMenuOpen && (
+                                                <div className={`absolute left-0 top-[calc(50%-12px)] w-[2px] transition-colors duration-500 bg-slate-200 dark:bg-white/10
+                                                    ${idx === navItems.length - 1 ? 'bg-gradient-to-b !from-current !to-transparent opacity-40' : ''}
+                                                `} />
+                                            )}
 
-                                        <div className="relative flex items-center w-full h-full">
+                                            <div className="relative flex items-center w-full h-full">
 
-                                            <div className={`
-                                                absolute transition-all duration-[600ms] ease-[0.16,1,0.3,1] z-20
-                                                left-0 relative ${isMobileMenuOpen ? 'pl-20' : 'pl-6 md:pl-8'} opacity-100 translate-x-0 w-max
-                                            `}>
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`font-sans font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300 mt-[1px]
-                                                        ${isMobileMenuOpen ? 'text-[11px]' : 'text-[10px]'}
-                                                        ${isActive 
-                                                            ? 'text-black dark:text-white drop-shadow-[0_0_12px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_0_12px_rgba(255,255,255,0.5)]' 
-                                                            : 'text-slate-500 group-hover/nav:text-black dark:group-hover/nav:text-white'}
-                                                    `}>
-                                                        {item.name}
-                                                    </span>
-                                                    {isActive && (
-                                                        <motion.div 
-                                                            layoutId="sidebarActiveIndicator"
-                                                            className="size-1 rounded-full bg-black dark:bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"
-                                                        />
-                                                    )}
+                                                <div className={`
+                                                    absolute transition-all duration-[600ms] ease-[0.16,1,0.3,1] z-20
+                                                    left-0 relative ${isMobileMenuOpen ? 'pl-20' : 'pl-6 md:pl-8'} opacity-100 translate-x-0 w-max
+                                                `}>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`font-sans font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all duration-300 mt-[1px]
+                                                            ${isMobileMenuOpen ? 'text-[11px]' : 'text-[10px]'}
+                                                            ${isActive 
+                                                                ? 'text-black dark:text-white drop-shadow-[0_0_12px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_0_12px_rgba(255,255,255,0.5)]' 
+                                                                : 'text-slate-500 group-hover/nav:text-black dark:group-hover/nav:text-white'}
+                                                        `}>
+                                                            {item.name}
+                                                        </span>
+                                                        {item.id === 'more' && (
+                                                            <button 
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setIsMoreExpanded(!isMoreExpanded);
+                                                                }}
+                                                                className={`ml-1 transition-transform duration-300 ${isMoreExpanded ? 'rotate-180' : 'rotate-0'}`}
+                                                            >
+                                                                <ChevronDown className="w-3 h-3 text-slate-400" />
+                                                            </button>
+                                                        )}
+                                                        {isActive && (
+                                                            <motion.div 
+                                                                layoutId="sidebarActiveIndicator"
+                                                                className="size-1 rounded-full bg-black dark:bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                                                            />
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </motion.button>
+                                        </motion.button>
+
+                                        {/* Render Categories below More */}
+                                        {item.id === 'more' && protocolMode === 'reality' && (
+                                            <AnimatePresence>
+                                                {isMoreExpanded && (
+                                                    <motion.div 
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: 'auto', opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                        className="relative flex flex-col gap-1 pl-12 mt-2 mb-4 overflow-hidden"
+                                                    >
+                                                        {/* Vertical Connecting Line */}
+                                                        <div className="absolute left-8 top-0 bottom-4 w-[1px] bg-black/10 dark:bg-white/10" />
+
+                                                        {proToolsCategories.map((cat, catIdx) => (
+                                                            <div key={cat.id} className="relative flex flex-col gap-1">
+                                                                {/* Horizontal Branch Line */}
+                                                                <div className="absolute -left-4 top-[14px] w-3 h-[1px] bg-black/10 dark:bg-white/10" />
+
+                                                                <button
+                                                                    onClick={() => setExpandedCategory(expandedCategory === cat.id ? null : cat.id)}
+                                                                    className="flex items-center gap-2 py-1 transition-all duration-300 hover:translate-x-1"
+                                                                    style={{ 
+                                                                        color: expandedCategory === cat.id 
+                                                                            ? (isDark ? cat.color.dark : cat.color.light) 
+                                                                            : 'inherit' 
+                                                                    }}
+                                                                >
+                                                                    <span className={`text-[9px] font-black uppercase tracking-[0.3em] italic ${expandedCategory === cat.id ? '' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                                                                        {cat.name}
+                                                                    </span>
+                                                                    <div 
+                                                                        className={`size-1 rounded-full transition-all duration-300 ${expandedCategory === cat.id ? 'scale-125' : 'scale-50 opacity-20'}`}
+                                                                        style={{ backgroundColor: isDark ? cat.color.dark : cat.color.light }}
+                                                                    />
+                                                                </button>
+
+                                                                {/* Icons for category */}
+                                                                <AnimatePresence>
+                                                                    {expandedCategory === cat.id && (
+                                                                        <motion.div
+                                                                            initial={{ height: 0, opacity: 0 }}
+                                                                            animate={{ height: 'auto', opacity: 1 }}
+                                                                            exit={{ height: 0, opacity: 0 }}
+                                                                            className="flex flex-wrap gap-2 py-2 overflow-hidden"
+                                                                        >
+                                                                            {(categoryTools[cat.id] || []).map((tool) => (
+                                                                                <button
+                                                                                    key={tool.id}
+                                                                                    onClick={() => {
+                                                                                        if (tool.tabId && mobileTabs) {
+                                                                                            mobileTabs.setActiveTab(tool.tabId);
+                                                                                        }
+                                                                                        navigate(tool.path, { state: { activeTab: tool.tabId } });
+                                                                                    }}
+                                                                                    style={{ '--pillar-color': isDark ? cat.color.dark : cat.color.light }}
+                                                                                    className="size-8 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 flex items-center justify-center hover:border-[var(--pillar-color)] hover:text-[var(--pillar-color)] transition-all group"
+                                                                                >
+                                                                                    <span className="material-symbols-outlined text-[16px] transition-transform group-hover:scale-110">
+                                                                                        {tool.icon}
+                                                                                    </span>
+                                                                                </button>
+                                                                            ))}
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    setMarketplaceCategory(cat.id);
+                                                                                    setIsMarketplaceModalOpen(true);
+                                                                                }}
+                                                                                style={{ '--pillar-color': isDark ? cat.color.dark : cat.color.light }}
+                                                                                className="size-8 rounded-full border border-dashed border-black/20 dark:border-white/20 flex items-center justify-center hover:border-[var(--pillar-color)] hover:text-[var(--pillar-color)] transition-all"
+                                                                            >
+                                                                                <span className="material-symbols-outlined text-[16px]">add</span>
+                                                                            </button>
+                                                                        </motion.div>
+                                                                    )}
+                                                                </AnimatePresence>
+                                                            </div>
+                                                        ))}
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        )}
+                                    </React.Fragment>
                                 );
                             })}
                         </div>
@@ -616,6 +762,17 @@ function Layout() {
                         navigate('/');
                     }}
                     onCancel={() => setIsLandingModalOpen(false)}
+                />
+
+                <ProToolsModal 
+                    isOpen={isToolsStoreModalOpen} 
+                    onClose={() => setIsToolsStoreModalOpen(false)} 
+                />
+
+                <ToolsMarketplaceModal 
+                    isOpen={isMarketplaceModalOpen}
+                    onClose={() => setIsMarketplaceModalOpen(false)}
+                    category={marketplaceCategory}
                 />
 
                 <MobileBottomNav />

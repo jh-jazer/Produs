@@ -6,22 +6,24 @@ import { DashboardContext } from '../../context/DashboardContext';
 const MobileBottomNav = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { protocolMode, activeRpgTab, setActiveRpgTab } = useContext(DashboardContext);
+    const { protocolMode, activeRpgTab, setActiveRpgTab, setIsToolsStoreModalOpen, mobileTabs } = useContext(DashboardContext);
 
     const realityPillars = [
-        { id: 'financial', name: 'Financial', path: '/dashboard/financial', icon: 'payments' },
-        { id: 'intellectual', name: 'Intellectual', path: '/dashboard/intellectual', icon: 'psychology' },
         { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
-        { id: 'physical', name: 'Physical', path: '/dashboard/physical', icon: 'monitor_heart' },
-        { id: 'spiritual', name: 'Spiritual', path: '/dashboard/spiritual', icon: 'auto_awesome' },
+        { id: 'habits', name: 'Habits', path: '/dashboard/intellectual', icon: 'task_alt' },
+        { id: 'planner', name: 'Planner', path: '/dashboard/intellectual', icon: 'calendar_today' },
+        { id: 'goals', name: 'Goal Setter', path: '/dashboard/intellectual', icon: 'flag' },
+        { id: 'calendar', name: 'Calendar', path: '/dashboard/intellectual', icon: 'event' },
+        { id: 'more', name: 'More', path: '/dashboard/profile', icon: 'more_horiz' },
     ];
 
     const rpgPillars = [
+        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
         { id: 'tower', name: 'Tower', path: '/dashboard', icon: 'castle' },
         { id: 'items', name: 'Items', path: '/dashboard', icon: 'inventory_2' },
-        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
         { id: 'skills', name: 'Skills', path: '/dashboard', icon: 'model_training' },
         { id: 'roam', name: 'Roam', path: '/dashboard', icon: 'explore' },
+        { id: 'more', name: 'More', path: '/dashboard/profile', icon: 'more_horiz' },
     ];
 
     const pillars = protocolMode === 'rpg' ? rpgPillars : realityPillars;
@@ -33,6 +35,20 @@ const MobileBottomNav = () => {
         if (protocolMode === 'rpg') {
             return activeRpgTab === pillar.id;
         }
+
+        // Productivity Tool Specific Active State
+        const tabIdMap = {
+            habits: 'tracker',
+            planner: 'planner',
+            calendar: 'calendar',
+            goals: 'goals'
+        };
+
+        if (tabIdMap[pillar.id]) {
+            const currentTab = mobileTabs?.activeTab || location.state?.activeTab;
+            return location.pathname.startsWith(pillar.path) && currentTab === tabIdMap[pillar.id];
+        }
+
         return location.pathname.startsWith(pillar.path);
     };
 
@@ -43,7 +59,31 @@ const MobileBottomNav = () => {
             }
             setActiveRpgTab(pillar.id);
         } else {
-            navigate(pillar.path, { replace: true });
+            if (pillar.id === 'more') {
+                setIsToolsStoreModalOpen(true);
+                return;
+            }
+
+            // Direct Tab Switching for Productivity Tools
+            const tabIdMap = {
+                habits: 'tracker',
+                planner: 'planner',
+                calendar: 'calendar',
+                goals: 'goals'
+            };
+
+            const targetTab = tabIdMap[pillar.id];
+
+            if (targetTab && mobileTabs) {
+                mobileTabs.setActiveTab(targetTab);
+                if (location.pathname !== pillar.path) {
+                    navigate(pillar.path, { replace: true, state: { activeTab: targetTab } });
+                }
+                return;
+            }
+
+            navigate(pillar.path, { replace: true, state: { activeTab: targetTab } });
+            
             if (protocolMode === 'rpg' && pillar.id === 'home') {
                 setActiveRpgTab('home');
             }
@@ -57,7 +97,7 @@ const MobileBottomNav = () => {
                 <div 
                     className="absolute inset-0 border-t-2 border-black dark:border-white/20 rounded-t-[2.5rem] pointer-events-none"
                     style={{ 
-                        clipPath: 'polygon(0% 0%, 15% 0%, 17% 100%, 19% 0%, 45% 0%, 47% 100%, 49% 0%, 78% 0%, 80% 100%, 82% 0%, 100% 0%, 100% 100%, 0% 100%)' 
+                        clipPath: 'polygon(0% 0%, 5% 0%, 7% 100%, 12% 100%, 14% 0%, 30% 0%, 32% 100%, 36% 100%, 38% 0%, 45% 0%, 47% 100%, 51% 100%, 53% 0%, 65% 0%, 67% 100%, 71% 100%, 73% 0%, 85% 0%, 87% 100%, 92% 100%, 94% 0%, 100% 0%, 100% 100%, 0% 100%)' 
                     }} 
                 />
                 
@@ -102,13 +142,6 @@ const MobileBottomNav = () => {
                                 </span>
                             </div>
 
-                            {active && (
-                                <motion.div 
-                                    layoutId="nav-dot"
-                                    className="absolute -bottom-2 size-1 bg-black dark:bg-white rounded-full"
-                                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-                                />
-                            )}
                         </button>
                     );
                 })}

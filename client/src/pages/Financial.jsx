@@ -40,8 +40,11 @@ const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) =>
 
 import WorkspaceSidebar from '../components/ui/WorkspaceSidebar';
 
+import { useNavigate, useLocation } from 'react-router-dom';
+
 const Financial = () => {
     const { user } = useAuthStore();
+    const location = useLocation();
     const currencySymbol = user?.currency === 'PHP' ? '₱' : '$';
 
     const { 
@@ -57,12 +60,9 @@ const Financial = () => {
     } = useFinance();
 
     const { setMobileTabs } = useContext(DashboardContext);
-    const [activeTab, setActiveTab] = useState('summary');
-
-    useEffect(() => {
-        setMobileTabs({ tabs, activeTab, setActiveTab });
-        return () => setMobileTabs(null);
-    }, [activeTab, setMobileTabs]);
+    
+    // The active module is now driven by navigation state or external triggers
+    const activeModule = location.state?.activeTab || 'summary';
 
     const handleAction = () => {
         // SWR handles refreshing
@@ -76,125 +76,106 @@ const Financial = () => {
     const totalUpcomingIncome = upcomingIncome.reduce((sum, d) => sum + (d.amount || 0), 0);
     const netBalance = totalSavings - totalDebt;
 
-    const tabs = [
-        { id: 'summary', label: 'Overview', icon: 'account_balance' },
-        { id: 'budget', label: 'Budget', icon: 'pie_chart' },
-        { id: 'savings', label: 'Vault', icon: 'shield' },
-        { id: 'wishlist', label: 'Targets', icon: 'shopping_cart' },
-        { id: 'debts', label: 'Flow', icon: 'trending_up' },
-    ];
-
     if (isLoading && transactions.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground p-8 pt-0 md:p-12 font-sans overflow-x-hidden flex flex-col md:flex-row items-start gap-8 md:gap-12">
-            {/* Tactical Navigation Bar - Vertical on Desktop */}
-            <WorkspaceSidebar 
-                tabs={tabs} 
-                activeTab={activeTab} 
-                setActiveTab={setActiveTab} 
-                namespace="Financial" 
-            />
-
-            <div className="flex-1">
+        <div className="w-full bg-transparent text-foreground p-8 pt-0 md:p-12 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full max-w-6xl">
                 <AnimatePresence mode="wait">
                     <motion.div
-                        key={activeTab}
+                        key={activeModule}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.3 }}
                         className="flex flex-col gap-8 md:gap-12"
                     >
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                            
-                            {/* Tab Content Division */}
-                            <div className="lg:col-span-12">
-                                {/* SUMMARY DIVISION */}
-                                {activeTab === 'summary' && (
-                                    <div className="max-w-6xl mx-auto w-full">
-                                        <HUDPanel title="FINANCIAL OVERVIEW" subtitle="NET WORTH & ASSETS">
-                                            <FinancialOverview
-                                                transactions={transactions}
-                                                budgets={budgets}
-                                                currencySymbol={currencySymbol}
-                                                netBalance={netBalance}
-                                                totalSavings={totalSavings}
-                                                totalDebt={totalDebt}
-                                                totalUpcomingIncome={totalUpcomingIncome}
-                                                addFinanceItem={addFinanceItem}
-                                                deleteFinanceItem={deleteFinanceItem}
-                                            />
-                                        </HUDPanel>
-                                    </div>
-                                )}
-
-                                {/* BUDGET DIVISION */}
-                                {activeTab === 'budget' && (
-                                    <HUDPanel title="MONTHLY BUDGET" subtitle="ACTIVE SPENDING">
-                                        <MonthlyBudget
-                                            budgets={budgets}
+                        {/* Tab Content Division */}
+                        <div className="w-full">
+                            {/* SUMMARY DIVISION */}
+                            {activeModule === 'summary' && (
+                                <div className="max-w-6xl mx-auto w-full">
+                                    <HUDPanel title="FINANCIAL OVERVIEW" subtitle="NET WORTH & ASSETS">
+                                        <FinancialOverview
                                             transactions={transactions}
+                                            budgets={budgets}
+                                            currencySymbol={currencySymbol}
+                                            netBalance={netBalance}
+                                            totalSavings={totalSavings}
+                                            totalDebt={totalDebt}
+                                            totalUpcomingIncome={totalUpcomingIncome}
+                                            addFinanceItem={addFinanceItem}
+                                            deleteFinanceItem={deleteFinanceItem}
+                                        />
+                                    </HUDPanel>
+                                </div>
+                            )}
+
+                            {/* BUDGET DIVISION */}
+                            {activeModule === 'budget' && (
+                                <HUDPanel title="MONTHLY BUDGET" subtitle="ACTIVE SPENDING">
+                                    <MonthlyBudget
+                                        budgets={budgets}
+                                        transactions={transactions}
+                                        currencySymbol={currencySymbol}
+                                        onAction={handleAction}
+                                        addFinanceItem={addFinanceItem}
+                                        deleteFinanceItem={deleteFinanceItem}
+                                    />
+                                </HUDPanel>
+                            )}
+
+                            {/* SAVINGS DIVISION */}
+                            {activeModule === 'savings' && (
+                                <div className="max-w-4xl mx-auto w-full">
+                                    <HUDPanel title="SAVINGS & VAULT" subtitle="EMERGENCY FUNDS">
+                                        <SavingsPanel
+                                            savings={savings}
                                             currencySymbol={currencySymbol}
                                             onAction={handleAction}
                                             addFinanceItem={addFinanceItem}
                                             deleteFinanceItem={deleteFinanceItem}
                                         />
                                     </HUDPanel>
-                                )}
+                                </div>
+                            )}
 
-                                {/* SAVINGS DIVISION */}
-                                {activeTab === 'savings' && (
-                                    <div className="max-w-4xl mx-auto w-full">
-                                        <HUDPanel title="SAVINGS & VAULT" subtitle="EMERGENCY FUNDS">
-                                            <SavingsPanel
-                                                savings={savings}
-                                                currencySymbol={currencySymbol}
-                                                onAction={handleAction}
-                                                addFinanceItem={addFinanceItem}
-                                                deleteFinanceItem={deleteFinanceItem}
-                                            />
-                                        </HUDPanel>
-                                    </div>
-                                )}
+                            {/* WISHLIST DIVISION */}
+                            {activeModule === 'wishlist' && (
+                                <div className="max-w-4xl mx-auto w-full">
+                                    <HUDPanel title="WISHLIST" subtitle="PLANNED PURCHASES">
+                                        <Wishlist
+                                            items={wishlist}
+                                            budgets={budgets}
+                                            currencySymbol={currencySymbol}
+                                            onAction={handleAction}
+                                            addFinanceItem={addFinanceItem}
+                                            deleteFinanceItem={deleteFinanceItem}
+                                        />
+                                    </HUDPanel>
+                                </div>
+                            )}
 
-                                {/* WISHLIST DIVISION */}
-                                {activeTab === 'wishlist' && (
-                                    <div className="max-w-4xl mx-auto w-full">
-                                        <HUDPanel title="WISHLIST" subtitle="PLANNED PURCHASES">
-                                            <Wishlist
-                                                items={wishlist}
-                                                budgets={budgets}
-                                                currencySymbol={currencySymbol}
-                                                onAction={handleAction}
-                                                addFinanceItem={addFinanceItem}
-                                                deleteFinanceItem={deleteFinanceItem}
-                                            />
-                                        </HUDPanel>
-                                    </div>
-                                )}
-
-                                {/* DEBTS DIVISION */}
-                                {activeTab === 'debts' && (
-                                    <div className="max-w-4xl mx-auto w-full">
-                                        <HUDPanel title="DEBTS & INCOME" subtitle="CASH FLOW TRACKER">
-                                            <DebtManager
-                                                debts={debts}
-                                                currencySymbol={currencySymbol}
-                                                onAction={handleAction}
-                                                addFinanceItem={addFinanceItem}
-                                                updateFinanceItem={updateFinanceItem}
-                                                deleteFinanceItem={deleteFinanceItem}
-                                            />
-                                        </HUDPanel>
-                                    </div>
-                                )}
-                            </div>
+                            {/* DEBTS DIVISION */}
+                            {activeModule === 'debts' && (
+                                <div className="max-w-4xl mx-auto w-full">
+                                    <HUDPanel title="DEBTS & INCOME" subtitle="CASH FLOW TRACKER">
+                                        <DebtManager
+                                            debts={debts}
+                                            currencySymbol={currencySymbol}
+                                            onAction={handleAction}
+                                            addFinanceItem={addFinanceItem}
+                                            updateFinanceItem={updateFinanceItem}
+                                            deleteFinanceItem={deleteFinanceItem}
+                                        />
+                                    </HUDPanel>
+                                </div>
+                            )}
                         </div>
 
                         {/* System Metadata Footer */}
                         <div className="mt-16 pt-8 border-t border-foreground/5 flex justify-between items-center opacity-20">
-                          <span className="text-[8px] font-black uppercase tracking-[0.5em]">PRODUS_FINANCIAL_WORKSPACE_v0.2</span>
+                          <span className="text-[8px] font-black uppercase tracking-[0.5em]">PRODUS_MODULAR_CORE_v1.0</span>
                           <div className="flex gap-2">
                             {[1,2,3,4,5,6].map(i => <div key={i} className="size-1 bg-foreground rounded-full" />)}
                           </div>

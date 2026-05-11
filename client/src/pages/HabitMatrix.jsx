@@ -1,0 +1,87 @@
+import React, { useContext } from 'react';
+import { motion } from 'framer-motion';
+import useAuthStore from '../store/useAuthStore';
+import { useHabits } from '../hooks/useHabits';
+import HabitTracker from '../components/intellectual/habits/HabitTracker';
+import { DashboardContext } from '../context/DashboardContext';
+import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
+
+const ChippedBorder = ({ opacity = 0.8 }) => (
+  <div 
+    className="absolute inset-[-2px] rounded-sm pointer-events-none z-0"
+    style={{
+      border: '4px solid currentColor',
+      opacity,
+      clipPath: 'polygon(0% 0%, 15% 0%, 16% 2%, 18% 0%, 42% 0%, 43% 4%, 45% 0%, 78% 0%, 79% 2%, 81% 0%, 100% 0%, 100% 20%, 98% 22%, 100% 24%, 100% 55%, 97% 58%, 100% 61%, 100% 100%, 82% 100%, 81% 97%, 79% 100%, 38% 100%, 37% 96%, 35% 100%, 0% 100%, 0% 80%, 3% 78%, 0% 76%, 0% 35%, 2% 33%, 0% 31%)'
+    }}
+  />
+);
+
+const HUDPanel = ({ title, subtitle, children, className = "" }) => (
+  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all p-4 md:p-8 rounded-sm group overflow-hidden ${className}`}>
+    <div className="hidden md:block">
+      <ChippedBorder opacity={0.6} />
+    </div>
+    <div className="relative z-10">
+      <div className="mb-8 flex justify-between items-start">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
+          {subtitle && <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>}
+        </div>
+      </div>
+      {children}
+    </div>
+  </div>
+);
+
+const HabitMatrix = () => {
+    const { user } = useAuthStore();
+    const { viewMode } = useContext(DashboardContext);
+    const { habits, isLoading, toggleCheck, addHabit, deleteHabit, updateHabit, reorderHabits } = useHabits();
+
+    const myHabits = React.useMemo(() => habits.filter(h => h.userId === user?._id), [habits, user]);
+    const partnerHabits = React.useMemo(() => habits.filter(h => h.userId !== user?._id), [habits, user]);
+
+    const checks = React.useMemo(() => {
+        const dict = {};
+        habits.forEach(habit => {
+            dict[habit._id] = { completed: {} };
+            if (habit.checks && Array.isArray(habit.checks)) {
+                habit.checks.forEach(check => {
+                    dict[habit._id].completed[check.date] = check.completed;
+                });
+            }
+        });
+        return dict;
+    }, [habits]);
+
+    if (isLoading && habits.length === 0) return <WorkspaceSkeleton />;
+
+    return (
+        <div className="w-full bg-transparent text-foreground p-8 pt-12 md:p-12 md:pt-16 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full max-w-7xl mt-8 md:mt-0">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                    <HUDPanel title="HABIT MATRIX" subtitle="CONSISTENCY LOG">
+                        <HabitTracker
+                            habits={habits}
+                            myHabits={myHabits}
+                            partnerHabits={partnerHabits}
+                            checks={checks}
+                            isPartnerView={viewMode === 'partner'}
+                            partnerName={user?.partner?.name}
+                            isLoading={isLoading}
+                            toggleCheck={toggleCheck}
+                            addHabit={addHabit}
+                            deleteHabit={deleteHabit}
+                            updateHabit={updateHabit}
+                            reorderHabits={reorderHabits}
+                            myUserId={user?._id}
+                        />
+                    </HUDPanel>
+                </motion.div>
+            </div>
+        </div>
+    );
+};
+
+export default HabitMatrix;

@@ -12,7 +12,7 @@ const Avatar = ({ config, className = "size-full" }) => {
             <img 
                 src={src} 
                 alt="Identity" 
-                className="size-full object-cover grayscale contrast-110 brightness-95 hover:grayscale-0 transition-all duration-500" 
+                className="size-full object-cover" 
                 onError={(e) => {
                     if (e.target.src !== window.location.origin + '/default.webp') {
                         e.target.src = '/default.webp';

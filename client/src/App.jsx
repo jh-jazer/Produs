@@ -19,6 +19,10 @@ import PatchNotes from './pages/PatchNotes';
 import PublicProfile from './pages/PublicProfile';
 import NeuralSyncPage from './pages/NeuralSyncPage';
 import Merchant from './pages/Merchant';
+import HabitMatrix from './pages/HabitMatrix';
+import TacticalPlanner from './pages/TacticalPlanner';
+import GoalSetterPage from './pages/GoalSetterPage';
+import TemporalSync from './pages/TemporalSync';
 import useAuthStore from './store/useAuthStore';
 import { useEffect } from 'react';
 
@@ -67,19 +71,22 @@ function AnimatedRoutes() {
         <Route path="/dashboard" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<Home />} />
           <Route path="intellectual" element={<Intellectual />} />
-          {/* Redirects for the old routes */}
-          <Route path="mental" element={<Navigate to="/dashboard/intellectual" replace />} />
-          {/* Redirects for the old routes */}
-          <Route path="habits" element={<Navigate to="/dashboard/mental" replace />} />
-          <Route path="planner" element={<Navigate to="/dashboard/mental" replace />} />
+          <Route path="habits" element={<HabitMatrix />} />
+          <Route path="planner" element={<TacticalPlanner />} />
+          <Route path="goals" element={<GoalSetterPage />} />
+          <Route path="calendar" element={<TemporalSync />} />
+          
           <Route path="financial" element={<Financial />} />
           <Route path="physical" element={<Physical />} />
           <Route path="spiritual" element={<Spiritual />} />
           <Route path="merchant" element={<Merchant />} />
-          {/* Redirects for the old routes */}
+          
           <Route path="finance" element={<Navigate to="/dashboard/financial" replace />} />
           <Route path="health" element={<Navigate to="/dashboard/physical" replace />} />
           <Route path="journal" element={<Navigate to="/dashboard/spiritual" replace />} />
+          
+          <Route path="mental" element={<Navigate to="/dashboard/intellectual" replace />} />
+          
           <Route path="profile" element={<Profile />} />
           <Route path="admin" element={<AdminRoute><Admin /></AdminRoute>} />
         </Route>

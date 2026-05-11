@@ -48,7 +48,7 @@ export default function HabitChecklistHUD() {
   };
 
   return (
-    <div className="flex md:col-span-3 flex-col bg-foreground/[0.02] rounded-sm p-8 h-[70vh] md:h-[500px] hover:bg-foreground/[0.04] transition-all group relative overflow-hidden">
+    <div className="flex md:col-span-3 flex-col bg-foreground/[0.02] rounded-sm p-8 h-[45vh] md:h-[380px] hover:bg-foreground/[0.04] transition-all group relative overflow-hidden">
       <ChippedBorder opacity={0.7} />
 
       {/* Header */}
