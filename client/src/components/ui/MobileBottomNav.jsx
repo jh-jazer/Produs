@@ -10,10 +10,10 @@ const MobileBottomNav = () => {
 
     const realityPillars = [
         { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
-        { id: 'habits', name: 'Habits', path: '/dashboard/intellectual', icon: 'task_alt' },
-        { id: 'planner', name: 'Planner', path: '/dashboard/intellectual', icon: 'calendar_today' },
-        { id: 'goals', name: 'Goal Setter', path: '/dashboard/intellectual', icon: 'flag' },
-        { id: 'calendar', name: 'Calendar', path: '/dashboard/intellectual', icon: 'event' },
+        { id: 'habits', name: 'Habits', path: '/dashboard/habits', icon: 'task_alt' },
+        { id: 'planner', name: 'Planner', path: '/dashboard/planner', icon: 'calendar_today' },
+        { id: 'goals', name: 'Goal Setter', path: '/dashboard/goals', icon: 'flag' },
+        { id: 'calendar', name: 'Calendar', path: '/dashboard/calendar', icon: 'event' },
         { id: 'more', name: 'More', path: '/dashboard/profile', icon: 'more_horiz' },
     ];
 
@@ -92,14 +92,8 @@ const MobileBottomNav = () => {
 
     return (
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-[150] pointer-events-none">
-            <nav className="w-full h-18 bg-white dark:bg-black shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pointer-events-auto relative rounded-t-[2.5rem]">
-                {/* Tactical Chipped Border - Fine Line */}
-                <div 
-                    className="absolute inset-0 border-t-2 border-black dark:border-white/20 rounded-t-[2.5rem] pointer-events-none"
-                    style={{ 
-                        clipPath: 'polygon(0% 0%, 5% 0%, 7% 100%, 12% 100%, 14% 0%, 30% 0%, 32% 100%, 36% 100%, 38% 0%, 45% 0%, 47% 100%, 51% 100%, 53% 0%, 65% 0%, 67% 100%, 71% 100%, 73% 0%, 85% 0%, 87% 100%, 92% 100%, 94% 0%, 100% 0%, 100% 100%, 0% 100%)' 
-                    }} 
-                />
+            <nav className="w-full h-24 bg-white dark:bg-black shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pb-4 pointer-events-auto relative rounded-t-[2.5rem]">
+                <div className="absolute inset-0 border-t-4 border-black dark:border-white/20 rounded-t-[2.5rem] pointer-events-none" />
                 
                 {pillars.map((pillar) => {
                     const active = isActive(pillar);

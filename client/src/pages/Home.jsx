@@ -14,6 +14,7 @@ import PriorityHUD from '../components/dashboard/PriorityHUD';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 import Avatar from '../components/ui/Avatar';
 import FinancialOverview from '../components/finance_components/FinancialOverview';
+import FinancialBreakdown from '../components/finance_components/FinancialBreakdown';
 import { useFinance } from '../hooks/useFinance';
 
 const ChippedBorder = ({ opacity = 0.8 }) => (
@@ -88,6 +89,8 @@ export default function Home() {
     bio: user?.bio || '',
     avatar: user?.avatar || {}
   });
+
+  const [showAddTx, setShowAddTx] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -446,25 +449,61 @@ export default function Home() {
               </div>
 
               {/* Priority HUD Component + Metrics Grid */}
-              <div className="snap-start snap-always md:col-span-3 flex flex-col gap-8 pt-32 pb-10 md:py-10">
+              <div className="snap-start snap-always md:col-span-3 flex flex-col gap-8 pt-16 pb-10 md:py-10">
                 <PriorityHUD />
                 
-                {/* Metrics Overlay - Now anchored to the first fold */}
+                {/* Metrics Overlay - Financial Vitals */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[{ l: 'Capital', v: '$12,450.00' }, { l: 'Energy', v: '450kJ' }, { l: 'Focus', v: '4.8h' }].map((s, i) => (
-                    <div key={i} className="bg-foreground/[0.02] rounded-sm p-6 flex flex-col gap-2 hover:bg-foreground/[0.04] transition-all relative">
+                  {[
+                    { 
+                        l: ['CURRENT', 'BALANCE'], 
+                        v: (transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0) - 
+                            transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)),
+                        c: 'text-white'
+                    },
+                    { 
+                        l: ['NET', 'PROJECTION'], 
+                        v: (transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0) - 
+                            transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0) + 
+                            totalUpcomingIncome - totalDebt),
+                        c: 'text-primary'
+                    },
+                    { 
+                        l: ['VAULT', 'SAVINGS'], 
+                        v: totalSavings,
+                        c: 'text-emerald-500'
+                    }
+                  ].map((s, i) => (
+                    <div key={i} className="bg-foreground/[0.02] rounded-sm p-6 flex flex-col gap-2 hover:bg-foreground/[0.04] transition-all relative group/metric">
                       <ChippedBorder opacity={0.5} />
-                      <span className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30">{s.l}</span>
-                      <span className="text-base font-black tracking-tight">{s.v}</span>
+                      <span className={`text-2xl font-black tracking-tighter italic ${s.c}`}>
+                        {user?.currency === 'PHP' ? '₱' : '$'}{Math.abs(s.v).toLocaleString()}
+                      </span>
+                      <div className="flex flex-col -gap-1">
+                        {s.l.map((word, idx) => (
+                          <span key={idx} className="text-[9px] font-black uppercase tracking-[0.4em] text-foreground/20 group-hover/metric:text-foreground/40 transition-colors leading-tight">
+                            {word}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      {/* Decorative HUD Corner */}
+                      <div className="absolute top-2 right-2 size-1 bg-foreground/10 group-hover/metric:bg-primary/40 transition-colors" />
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Bottom Grid Layout - Remaining Sections */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 max-w-[1400px] snap-start snap-always h-auto flex flex-col justify-center pt-20 pb-4">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="md:col-span-8 group relative bg-foreground/[0.03] rounded-sm p-8 overflow-hidden hover:bg-foreground/[0.05] transition-all">
+            {/* Bottom Grid Layout - Split Financial HUD */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 max-w-[1400px] snap-start snap-always h-auto pt-20 pb-4">
+              
+              {/* Left Part: Financial Overview (8/12) */}
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }} 
+                animate={{ opacity: 1, x: 0 }} 
+                className="md:col-span-8 group relative bg-foreground/[0.03] rounded-sm p-12 hover:bg-foreground/[0.05] transition-all"
+              >
                 <ChippedBorder opacity={0.7} />
                 <FinancialOverview
                   transactions={transactions}
@@ -475,21 +514,25 @@ export default function Home() {
                   totalUpcomingIncome={totalUpcomingIncome}
                   addFinanceItem={addFinanceItem}
                   deleteFinanceItem={deleteFinanceItem}
-                  compact={true}
+                  showAddTx={showAddTx}
+                  setShowAddTx={setShowAddTx}
                 />
               </motion.div>
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="md:col-span-4 bg-foreground/5 rounded-sm p-6 flex flex-col justify-between hover:border-foreground/30 transition-all cursor-pointer group relative">
+
+              {/* Right Part: Breakdown (4/12) */}
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }} 
+                animate={{ opacity: 1, x: 0 }} 
+                transition={{ delay: 0.1 }}
+                className="md:col-span-4 group relative bg-foreground/[0.03] rounded-sm p-12 hover:bg-foreground/[0.05] transition-all"
+              >
                 <ChippedBorder opacity={0.7} />
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] mb-6 text-foreground/40">Strategy // CURRENT</h3>
-                <ul className="flex flex-col gap-4">
-                  {['Finalize HUD Architecture', 'Neural Loop Integration'].map((t, i) => (
-                    <li key={i} className="flex items-center gap-3"><div className="size-1.5 bg-white rounded-full" /><span className="text-[10px] font-bold uppercase tracking-widest opacity-80">{t}</span></li>
-                  ))}
-                </ul>
-                <div className="mt-12 flex justify-between items-center group-hover:translate-x-1 transition-transform">
-                  <span className="text-[9px] font-black uppercase tracking-[0.3em]">Open Strategic Node</span>
-                  <span className="material-symbols-outlined text-sm">east</span>
-                </div>
+                <FinancialBreakdown
+                  selectedTransactions={transactions}
+                  totalExpenses={transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)}
+                  localCurrency={user?.currency === 'PHP' ? '₱' : '$'}
+                  setShowAddTx={setShowAddTx}
+                />
               </motion.div>
             </div>
           </motion.div>

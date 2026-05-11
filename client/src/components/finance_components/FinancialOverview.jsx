@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import DashboardPanel from "../ui/DashboardPanel";
 import ConfirmDialog from "../ui/ConfirmDialog";
+import currencyCodes from 'currency-codes';
 
 const FinancialOverview = ({
   transactions = [],
@@ -14,14 +15,16 @@ const FinancialOverview = ({
   addFinanceItem,
   deleteFinanceItem,
   compact = false,
+  showAddTx,
+  setShowAddTx,
 }) => {
-  const [includeSavings, setIncludeSavings] = useState(false);
-  const [includeUpcoming, setIncludeUpcoming] = useState(false);
+  const [foresee, setForesee] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringMonths, setRecurringMonths] = useState(1);
+  const [localCurrency, setLocalCurrency] = useState(currencySymbol);
   const [showSettings, setShowSettings] = useState(false);
-  const [viewMode, setViewMode] = useState("current"); // 'current' | 'history'
-  const [innerView, setInnerView] = useState("categories"); // 'categories' | 'ledger'
+  const [viewMode, setViewMode] = useState("current"); 
   const [selectedMonthOffset, setSelectedMonthOffset] = useState(0); 
-  const [showAddTx, setShowAddTx] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [newTx, setNewTx] = useState({ 
       title: '', 
@@ -30,8 +33,6 @@ const FinancialOverview = ({
       category: 'General', 
       date: new Date().toISOString().split('T')[0] 
   });
-
-  const now = new Date();
 
   // Categories helper
   const budgetCategories = budgets.map(b => b.category);
@@ -65,10 +66,11 @@ const FinancialOverview = ({
     return months;
   }, [transactions]);
 
-  // Current selected month transactions
+  // Current selected month totals
   const selectedTransactions = useMemo(() => {
+    if (selectedMonthOffset === 'all') return transactions;
     const targetDate = new Date();
-    targetDate.setMonth(targetDate.getMonth() + selectedMonthOffset);
+    targetDate.setMonth(targetDate.getMonth() + parseInt(selectedMonthOffset));
     return transactions.filter((t) => {
       const d = new Date(t.date);
       return d.getMonth() === targetDate.getMonth() && d.getFullYear() === targetDate.getFullYear();
@@ -83,38 +85,77 @@ const FinancialOverview = ({
     .filter((t) => t.type === "expense")
     .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
 
-  const ledgerBalance = transactions.reduce((sum, t) => {
-    const amt = parseFloat(t.amount) || 0;
-    return t.type === "income" ? sum + amt : sum - amt;
-  }, 0);
+  const displayedBalance = useMemo(() => {
+      let balance = transactions.reduce((sum, t) => {
+        const amt = parseFloat(t.amount) || 0;
+        return t.type === "income" ? sum + amt : sum - amt;
+      }, 0);
+      if (foresee) {
+        balance += totalUpcomingIncome - totalDebt;
+      }
+      return balance;
+  }, [transactions, foresee, totalUpcomingIncome, totalDebt]);
 
-  let displayedBalance = ledgerBalance;
-  if (includeSavings) displayedBalance += totalSavings;
-  if (includeUpcoming) {
-    displayedBalance += totalUpcomingIncome - totalDebt;
-  }
+  const getCurrencySymbol = (code) => {
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: code,
+      }).formatToParts(0).find(p => p.type === 'currency').value;
+    } catch (e) {
+      return code;
+    }
+  };
 
-  const categoryTotals = selectedTransactions
-    .filter((t) => t.type === "expense")
-    .reduce((acc, t) => {
-      acc[t.category] = (acc[t.category] || 0) + (parseFloat(t.amount) || 0);
-      return acc;
-    }, {});
-
-  const categories = Object.entries(categoryTotals)
-    .map(([label, amount]) => ({
-      label,
-      amount,
-      percent: totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0,
-    }))
-    .sort((a, b) => b.amount - a.amount);
+  const allCurrencies = useMemo(() => {
+    const codes = currencyCodes.data.map(c => c.code);
+    const uniqueCodes = [...new Set(codes)].sort();
+    return uniqueCodes;
+  }, []);
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    const txData = { ...newTx, amount: parseFloat(newTx.amount) || 0 };
-    await addFinanceItem('transaction', txData);
-    setShowAddTx(false);
-    setNewTx({ title: '', amount: '', type: 'expense', category: 'General', date: new Date().toISOString().split('T')[0] });
+    const amountNum = parseFloat(newTx.amount);
+    if (!newTx.title || isNaN(amountNum) || amountNum <= 0) return;
+
+    const txData = { ...newTx, amount: amountNum };
+    
+    try {
+      if (newTx.type === 'debt') {
+        await addFinanceItem('debt', { 
+            title: newTx.title, 
+            amount: amountNum, 
+            nature: 'debt',
+            date: newTx.date,
+            isRecurring,
+            recurringMonths 
+        });
+      } else if (newTx.type === 'upcoming') {
+        await addFinanceItem('debt', { 
+            title: newTx.title, 
+            amount: amountNum, 
+            nature: 'income',
+            date: newTx.date,
+            isRecurring,
+            recurringMonths 
+        });
+      } else {
+        await addFinanceItem('transaction', txData);
+      }
+
+      setShowAddTx(false);
+      setIsRecurring(false);
+      setRecurringMonths(1);
+      setNewTx({ 
+          title: '', 
+          amount: '', 
+          type: 'expense', 
+          category: 'General', 
+          date: new Date().toISOString().split('T')[0] 
+      });
+    } catch (err) {
+      console.error("Add Transaction Error:", err);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -122,326 +163,336 @@ const FinancialOverview = ({
     setConfirmDelete(null);
   };
 
-    return (
-        <div className={`flex flex-col ${compact ? 'gap-4' : 'gap-8 min-h-[500px]'} relative group`}>
-            <ConfirmDialog
-                isOpen={!!confirmDelete}
-                title="DELETE RECORD"
-                message="Are you sure you want to delete this transaction from your history?"
-                confirmLabel="DELETE"
-                onConfirm={() => handleDelete(confirmDelete)}
-                onCancel={() => setConfirmDelete(null)}
-            />
-            {/* Header Structure (Matches PriorityHUD style) */}
-            <div className="mb-2 flex justify-between items-start relative z-10">
-                <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">FINANCIAL OVERVIEW</span>
-                    <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">REAL-TIME SYNC</span>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                    <span className="text-[10px] font-black tracking-[0.3em] uppercase opacity-40">ACTIVE_VAULT</span>
-                    <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-20">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}</span>
-                </div>
-            </div>
+  return (
+    <div className={`flex flex-col ${compact ? 'gap-4' : 'gap-8 min-h-[400px]'} relative group`}>
+        <ConfirmDialog
+            isOpen={!!confirmDelete}
+            title="DELETE RECORD"
+            message="Are you sure you want to delete this transaction from your history?"
+            confirmLabel="DELETE"
+            onConfirm={() => handleDelete(confirmDelete)}
+            onCancel={() => setConfirmDelete(null)}
+        />
 
-            {/* Hero Display Section */}
-            <div className="relative min-h-[80px] flex flex-col justify-center">
-                {viewMode === 'current' ? (
-                    <motion.div 
-                        key="balance"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="p-6 text-center rounded-sm bg-white/[0.03] border border-white/5 relative overflow-hidden"
-                    >
-                        <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mb-4">TOTAL BALANCE</p>
-                        <p className={`text-3xl font-black tracking-tighter italic ${displayedBalance >= 0 ? "text-white" : "text-rose-500"}`}>
-                            {currencySymbol}{Math.abs(displayedBalance).toLocaleString()}
-                        </p>
-
-            <div className="flex items-center justify-center gap-3 mt-4">
-              {includeSavings && (
-                <span className="px-2 py-1 rounded-md text-[8px] font-black bg-primary/10 text-primary border border-primary/20 uppercase tracking-widest">
-                  +Savings
-                </span>
-              )}
-              {includeUpcoming && (
-                <span className="px-2 py-1 rounded-md text-[8px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-widest">
-                  +Upcoming
-                </span>
-              )}
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div 
-            key="chart"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full"
-          >
-            <div className="h-44 flex items-end gap-2 relative pt-8 px-2">
-                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-5 py-8">
-                    <div className="border-t border-slate-400 w-full"></div>
-                    <div className="border-t border-slate-400 w-full"></div>
-                    <div className="border-t border-slate-400 w-full"></div>
-                </div>
-
-                {historyData.map((col, idx) => {
-                    const maxVal = Math.max(...historyData.map(h => Math.max(h.inc, h.exp)), 1);
-                    const incHeight = (col.inc / maxVal) * 100;
-                    const expHeight = (col.exp / maxVal) * 100;
-                    const isActive = selectedMonthOffset === col.offset;
-
-                    return (
-                        <div 
-                          key={idx} 
-                          onClick={() => setSelectedMonthOffset(col.offset)}
-                          className={`flex-1 flex flex-col justify-end gap-2 group cursor-pointer rounded-t-xl transition-all duration-300 p-1
-                            ${isActive ? 'bg-primary/5 dark:bg-primary/10 ring-1 ring-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}`}
-                        >
-                            <div className="w-full relative h-28">
-                                <div className="flex gap-1 h-full items-end justify-center w-full px-1">
-                                    <div 
-                                      className={`rounded-t-sm relative transition-all w-full max-w-[12px] ${isActive ? 'bg-emerald-500' : 'bg-emerald-500/20 group-hover:bg-emerald-500/40'}`} 
-                                      style={{ height: `${incHeight}%` }} 
-                                    />
-                                    <div 
-                                      className={`rounded-t-sm relative transition-all w-full max-w-[12px] ${isActive ? 'bg-rose-500' : 'bg-rose-500/20 group-hover:bg-rose-500/40'}`} 
-                                      style={{ height: `${expHeight}%` }} 
-                                    />
-                                </div>
-                            </div>
-                            <span className={`text-[10px] text-center font-black uppercase tracking-widest ${isActive ? 'text-primary' : 'text-slate-400'}`}>
-                                {col.label}
-                            </span>
-                        </div>
-                    );
-                })}
-            </div>
-          </motion.div>
-        )}
-      </div>
-
-
-            {/* Breakdown Grid */}
-            <div className="grid grid-cols-2 gap-4">
-                <div className={`p-8 rounded-sm border transition-all duration-500 ${
-                    totalIncome > 0 ? 'bg-white/[0.02] border-white/10' : 'bg-white/[0.01] border-transparent opacity-40'
-                }`}>
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mb-4 flex items-center gap-2">
-                        <span className="size-1 bg-white animate-pulse" />
-                        TOTAL INCOME
-                    </p>
-                    <p className="text-xl font-black text-white italic tracking-tighter">{currencySymbol}{totalIncome.toLocaleString()}</p>
-                </div>
-                <div className={`p-8 rounded-sm border transition-all duration-500 ${
-                    totalExpenses > 0 ? 'bg-white/[0.02] border-white/10' : 'bg-white/[0.01] border-transparent opacity-40'
-                }`}>
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mb-4 flex items-center gap-2">
-                        <span className="size-1 bg-white animate-pulse" />
-                        TOTAL EXPENSES
-                    </p>
-                    <p className="text-xl font-black text-white italic tracking-tighter">{currencySymbol}{totalExpenses.toLocaleString()}</p>
-                </div>
-            </div>
-
-            {/* Expenditure Distribution Section */}
-            <div className="space-y-6 pt-8 border-t border-white/5">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-6">
-                        <div className="flex bg-white/5 p-1 rounded-sm border border-white/5">
-                            {[
-                                { id: 'categories', label: 'CHART' },
-                                { id: 'ledger', label: 'LIST' }
-                            ].map(tab => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setInnerView(tab.id)}
-                                    className={`px-4 py-1.5 rounded-sm text-[9px] font-black uppercase tracking-[0.3em] transition-all ${
-                                        innerView === tab.id 
-                                            ? 'bg-white text-black' 
-                                            : 'text-white/20 hover:text-white/40'
-                                    }`}
-                                >
-                                    {tab.label}
-                                </button>
-                            ))}
-                        </div>
-                        <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.6em] hidden sm:block">EXPENSE BREAKDOWN</span>
+        <div className="flex flex-col gap-8 pt-4 relative">
+            <div className="flex flex-col gap-8">
+                <div className="flex justify-between items-start mb-6">
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">FINANCIAL OVERVIEW</span>
+                        <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">REAL-TIME SYNC</span>
                     </div>
                     
-                    <button
-                        onClick={() => setShowAddTx(true)}
-                        className="size-10 rounded-sm bg-white text-black flex items-center justify-center hover:bg-white/80 transition-all border border-white/10"
-                    >
-                        <span className="material-symbols-outlined text-xl">add</span>
-                    </button>
+                    <div className="relative">
+                        <select
+                            value={selectedMonthOffset}
+                            onChange={(e) => setSelectedMonthOffset(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
+                            className="bg-white/5 border border-white/10 text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-2 outline-none appearance-none cursor-pointer hover:bg-white/10 transition-all pr-10"
+                        >
+                            <option value="all" className="bg-black text-white">ALL TIME</option>
+                            {[-5, -4, -3, -2, -1, 0].map((offset) => {
+                                const date = new Date();
+                                date.setMonth(date.getMonth() + offset);
+                                const label = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase();
+                                return (
+                                    <option key={offset} value={offset} className="bg-black text-white">
+                                        {label}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none text-xs">
+                            expand_more
+                        </span>
+                    </div>
                 </div>
 
-                <div className={`${compact ? 'min-h-[100px]' : 'min-h-[240px]'}`}>
-                    <AnimatePresence mode="wait">
-                        {innerView === 'categories' ? (
-                            <motion.div
-                                key="cats"
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 10 }}
-                                className="space-y-6"
-                            >
-                                {categories.length > 0 ? (
-                                    categories.slice(0, 6).map((cat, i) => {
-                                        return (
-                                            <div key={cat.label} className="space-y-3">
-                                                <div className="flex justify-between items-center px-1">
-                                                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{cat.label}</span>
-                                                    <span className="text-[10px] font-black text-white italic tracking-widest">{currencySymbol}{cat.amount.toLocaleString()}</span>
+                <div className="relative min-h-[80px] flex flex-col justify-center">
+                    {viewMode === 'current' ? (
+                        <motion.div 
+                            key="balance"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="p-12 text-center rounded-sm bg-white/[0.03] border border-white/5 relative overflow-hidden"
+                        >
+                            <div className="absolute top-4 right-4 z-20">
+                                <button 
+                                    onClick={() => setShowSettings(true)}
+                                    className="size-8 flex items-center justify-center rounded-sm border border-white/10 bg-white/5 text-white/40 hover:text-white hover:bg-white/10 transition-all"
+                                >
+                                    <span className="material-symbols-outlined text-lg">more_vert</span>
+                                </button>
+
+                                {showSettings && createPortal(
+                                    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+                                        <div className="absolute inset-0 bg-[#000000]/80 backdrop-blur-sm" onClick={() => setShowSettings(false)} />
+                                        <DashboardPanel
+                                            className="w-full max-w-sm z-10"
+                                            title="FINANCIAL CONFIG"
+                                            subtitle="SYSTEM SETTINGS"
+                                            headerExtra={
+                                                <button onClick={() => setShowSettings(false)} className="text-white/20 hover:text-white transition-colors">
+                                                    <span className="material-symbols-outlined">close</span>
+                                                </button>
+                                            }
+                                        >
+                                            <div className="flex flex-col gap-2">
+                                                <div className="p-2 bg-white/[0.02] border-b border-white/5">
+                                                    <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/20 px-2">PROJECTION MODES</span>
                                                 </div>
-                                                <div className="w-full bg-white/5 rounded-sm h-[2px] overflow-hidden">
-                                                    <motion.div 
-                                                        initial={{ width: 0 }}
-                                                        animate={{ width: `${cat.percent}%` }}
-                                                        className="h-full bg-white/40 transition-all duration-700" 
+                                                <button 
+                                                    onClick={() => setForesee(!foresee)}
+                                                    className="w-full flex items-center justify-between px-4 py-4 hover:bg-white hover:text-black transition-all group"
+                                                >
+                                                    <span className="text-[10px] font-black uppercase tracking-widest">FORESEE PROJECTION</span>
+                                                    <div className={`size-4 rounded-full border-2 transition-all ${foresee ? 'bg-current border-transparent' : 'border-current opacity-20'}`} />
+                                                </button>
+
+                                                <div className="p-4 flex flex-col gap-4">
+                                                    <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/20">CURRENCY SYSTEM</span>
+                                                    <div className="relative">
+                                                        <select
+                                                            value={localCurrency}
+                                                            onChange={(e) => setLocalCurrency(e.target.value)}
+                                                            className="w-full bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-3 outline-none appearance-none cursor-pointer hover:bg-white/10 transition-all pr-10"
+                                                        >
+                                                            {allCurrencies.map(code => {
+                                                                const symbol = getCurrencySymbol(code);
+                                                                const currencyInfo = currencyCodes.code(code);
+                                                                return (
+                                                                    <option key={code} value={symbol} className="bg-black text-white">
+                                                                        {code} - {currencyInfo ? currencyInfo.currency.toUpperCase() : ''} ({symbol})
+                                                                    </option>
+                                                                );
+                                                            })}
+                                                        </select>
+                                                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none">
+                                                            expand_more
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </DashboardPanel>
+                                    </div>,
+                                    document.body
+                                )}
+                            </div>
+
+                            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                            <p 
+                                className={`font-black tracking-tighter italic leading-none ${
+                                    displayedBalance > 0 ? "text-emerald-500" : 
+                                    displayedBalance < 0 ? "text-rose-500" : 
+                                    "text-white"
+                                }`}
+                                style={{ fontSize: '3.5rem' }}
+                            >
+                                {localCurrency}{Math.abs(displayedBalance).toLocaleString()}
+                            </p>
+                            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mt-2">
+                                TOTAL BALANCE {selectedMonthOffset === 'all' ? '(ALL TIME)' : `- ${(() => {
+                                    const d = new Date();
+                                    d.setMonth(d.getMonth() + parseInt(selectedMonthOffset));
+                                    return d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+                                })()}`}
+                            </p>
+
+                            <div className="flex items-center justify-center gap-3 mt-4">
+                                {foresee && (
+                                    <motion.span 
+                                        initial={{ opacity: 0, y: 5 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="px-2 py-1 rounded-sm text-[8px] font-black bg-white/10 text-white border border-white/20 uppercase tracking-widest flex items-center gap-2"
+                                    >
+                                        <span className="size-1 bg-white animate-pulse rounded-full" />
+                                        PROJECTION ACTIVE (INC + UPCOMING - DEBT)
+                                    </motion.span>
+                                )}
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <motion.div 
+                            key="chart"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="w-full"
+                        >
+                            <div className="h-44 flex items-end gap-2 relative pt-8 px-2">
+                                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-5 py-8">
+                                    <div className="border-t border-slate-400 w-full"></div>
+                                    <div className="border-t border-slate-400 w-full"></div>
+                                    <div className="border-t border-slate-400 w-full"></div>
+                                </div>
+
+                                {historyData.map((col, idx) => {
+                                    const maxVal = Math.max(...historyData.map(h => Math.max(h.inc, h.exp)), 1);
+                                    const incHeight = (col.inc / maxVal) * 100;
+                                    const expHeight = (col.exp / maxVal) * 100;
+                                    const isActive = selectedMonthOffset === col.offset;
+
+                                    return (
+                                        <div 
+                                            key={idx} 
+                                            onClick={() => setSelectedMonthOffset(col.offset)}
+                                            className={`flex-1 flex flex-col justify-end gap-2 group cursor-pointer rounded-t-xl transition-all duration-300 p-1
+                                            ${isActive ? 'bg-primary/5 dark:bg-primary/10 ring-1 ring-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}`}
+                                        >
+                                            <div className="w-full relative h-28">
+                                                <div className="flex gap-1 h-full items-end justify-center w-full px-1">
+                                                    <div 
+                                                        className={`rounded-t-sm relative transition-all w-full max-w-[12px] ${isActive ? 'bg-emerald-500' : 'bg-emerald-500/20 group-hover:bg-emerald-500/40'}`} 
+                                                        style={{ height: `${incHeight}%` }} 
+                                                    />
+                                                    <div 
+                                                        className={`rounded-t-sm relative transition-all w-full max-w-[12px] ${isActive ? 'bg-rose-500' : 'bg-rose-500/20 group-hover:bg-rose-500/40'}`} 
+                                                        style={{ height: `${expHeight}%` }} 
                                                     />
                                                 </div>
                                             </div>
-                                        );
-                                    })
-                                ) : (
-                                    <EmptyState text="NO DATA AVAILABLE" />
-                                )}
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                key="ledger"
-                                initial={{ opacity: 0, x: 10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -10 }}
-                                className="space-y-3 max-h-[360px] overflow-y-auto pr-4 custom-scrollbar"
-                            >
-                                {selectedTransactions.length > 0 ? (
-                                    selectedTransactions.slice().reverse().map((tx) => (
-                                        <div key={tx._id} className="flex items-center justify-between p-4 rounded-sm bg-white/[0.02] border border-white/5 transition-all group">
-                                            <div className="flex items-center gap-4">
-                                                <div className="size-8 rounded-sm bg-white/5 flex items-center justify-center text-white/20 border border-white/10">
-                                                    <span className="material-symbols-outlined text-sm">{tx.type === 'income' ? 'payments' : tx.type === 'savings' ? 'savings' : 'shopping_bag'}</span>
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <p className="text-[11px] font-black text-white uppercase tracking-wider">{tx.title}</p>
-                                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">{tx.category}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-6">
-                                                <p className="text-sm font-black text-white italic">
-                                                    {tx.type === 'expense' ? '-' : '+'}{currencySymbol}{tx.amount.toLocaleString()}
-                                                </p>
-                                                <button 
-                                                    onClick={() => setConfirmDelete(tx._id)}
-                                                    className="size-6 rounded-sm border border-white/5 text-white/10 hover:text-rose-500 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
-                                                >
-                                                    <span className="material-symbols-outlined text-sm">delete</span>
-                                                </button>
-                                            </div>
+                                            <span className={`text-[10px] text-center font-black uppercase tracking-widest ${isActive ? 'text-primary' : 'text-slate-400'}`}>
+                                                {col.label}
+                                            </span>
                                         </div>
-                                    ))
-                                ) : (
-                                    <EmptyState text="NO ENTRIES FOUND" />
-                                )}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                                    );
+                                })}
+                            </div>
+                        </motion.div>
+                    )}
+                </div>
+
+                <div className="grid grid-cols-2 border-t border-white/10 pt-8">
+                    <div className="p-6 flex flex-col gap-1 border-r-2 border-b border-white/10">
+                        <p className="font-black text-white italic tracking-tighter leading-none mb-2" style={{ fontSize: '1.5rem' }}>{localCurrency}{totalIncome.toLocaleString()}</p>
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] flex items-center gap-2">
+                            <span className="size-1 bg-white animate-pulse" />
+                            TOTAL INCOME
+                        </p>
+                    </div>
+                    <div className="p-6 flex flex-col gap-1 pl-8 border-b border-white/10">
+                        <p className="font-black text-white italic tracking-tighter leading-none mb-2" style={{ fontSize: '1.5rem' }}>{localCurrency}{totalExpenses.toLocaleString()}</p>
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] flex items-center gap-2">
+                            <span className="size-1 bg-white animate-pulse" />
+                            TOTAL EXPENSES
+                        </p>
+                    </div>
+                    <div className="p-6 flex flex-col gap-1 border-r-2 border-white/10">
+                        <p className="font-black text-white italic tracking-tighter leading-none mb-2" style={{ fontSize: '1.5rem' }}>{localCurrency}{totalDebt.toLocaleString()}</p>
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] flex items-center gap-2">
+                            <span className="size-1 bg-rose-500 animate-pulse" />
+                            TOTAL DEBT
+                        </p>
+                    </div>
+                    <div className="p-6 flex flex-col gap-1 pl-8">
+                        <p className="font-black text-white italic tracking-tighter leading-none mb-2" style={{ fontSize: '1.5rem' }}>{localCurrency}{totalUpcomingIncome.toLocaleString()}</p>
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] flex items-center gap-2">
+                            <span className="size-1 bg-emerald-500 animate-pulse" />
+                            UPCOMING INC
+                        </p>
+                    </div>
                 </div>
             </div>
+        </div>
 
-
-      {/* Add Transaction Portal */}
-      {showAddTx && createPortal(
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-              <div className="absolute inset-0 bg-[#000000]/80 backdrop-blur-sm" onClick={() => setShowAddTx(false)}></div>
-              <DashboardPanel
-                  className="w-full max-w-md z-10 animate-in zoom-in-95 duration-200"
-                  title="ADD TRANSACTION"
-                  subtitle="NEW ENTRY"
-                  headerExtra={
-                      <button onClick={() => setShowAddTx(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
-                          <span className="material-symbols-outlined text-xl">close</span>
-                      </button>
-                  }
-              >
-                <form onSubmit={handleAdd} className="space-y-5 px-1 py-2">
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">TITLE</label>
-                        <input
-                            type="text" required placeholder="Enter title..."
-                            className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                            value={newTx.title} onChange={e => setNewTx({ ...newTx, title: e.target.value })}
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
+        {showAddTx && createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+                <div className="absolute inset-0 bg-[#000000]/80 backdrop-blur-sm" onClick={() => setShowAddTx(false)}></div>
+                <DashboardPanel
+                    className="w-full max-w-md z-10"
+                    title="ADD TRANSACTION"
+                    subtitle="NEW ENTRY"
+                    headerExtra={
+                        <button onClick={() => setShowAddTx(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                            <span className="material-symbols-outlined text-xl">close</span>
+                        </button>
+                    }
+                >
+                    <form onSubmit={handleAdd} className="space-y-5 px-1 py-2">
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">AMOUNT</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">TITLE</label>
                             <input
-                                type="number" required step="0.01"
-                                className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                value={newTx.amount} onChange={e => setNewTx({ ...newTx, amount: e.target.value })}
+                                type="text" required placeholder="Enter title..."
+                                className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-bold"
+                                value={newTx.title} onChange={e => setNewTx({ ...newTx, title: e.target.value })}
                             />
                         </div>
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">TYPE</label>
-                            <select
-                                className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none cursor-pointer"
-                                value={newTx.type} onChange={e => setNewTx({ ...newTx, type: e.target.value })}
-                            >
-                                <option value="expense">Expense (-)</option>
-                                <option value="income">Income (+)</option>
-                                <option value="savings">Vault (★)</option>
-                            </select>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">AMOUNT</label>
+                                <input
+                                    type="number" required step="0.01"
+                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-bold"
+                                    value={newTx.amount} onChange={e => setNewTx({ ...newTx, amount: e.target.value })}
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">TYPE</label>
+                                <select
+                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-bold appearance-none cursor-pointer"
+                                    value={newTx.type} onChange={e => setNewTx({ ...newTx, type: e.target.value })}
+                                >
+                                    <option value="expense">Expense (-)</option>
+                                    <option value="income">Income (+)</option>
+                                    <option value="savings">Savings (★)</option>
+                                    <option value="debt">Debt (⚠)</option>
+                                    <option value="upcoming">Upcoming Income (⌚)</option>
+                                </select>
+                            </div>
+
+                            {(newTx.type === 'debt' || newTx.type === 'upcoming') && (
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex items-center gap-3 p-4 rounded-sm bg-white/[0.02] border border-white/5 cursor-pointer hover:bg-white/[0.05] transition-all" onClick={() => setIsRecurring(!isRecurring)}>
+                                        <div className={`size-4 rounded-sm border transition-all flex items-center justify-center ${isRecurring ? 'bg-white border-white text-black' : 'border-white/20 text-transparent'}`}>
+                                            <span className="material-symbols-outlined text-[12px] font-black">check</span>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">RECURRING</span>
+                                            <span className="text-[8px] font-black uppercase tracking-widest text-white/20">MONTHLY SYNC</span>
+                                        </div>
+                                    </div>
+
+                                    {isRecurring && (
+                                        <div className="flex flex-col gap-1.5 p-4 rounded-sm bg-white/[0.02] border border-white/5">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">DURATION (MONTHS)</label>
+                                            <input
+                                                type="number" min="1" max="60"
+                                                className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-bold"
+                                                value={recurringMonths} onChange={e => setRecurringMonths(parseInt(e.target.value))}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">CATEGORY</label>
-                            <select
-                                className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold appearance-none cursor-pointer"
-                                value={newTx.category} onChange={e => setNewTx({ ...newTx, category: e.target.value })}
-                            >
-                                {availableCategories.sort().map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">CATEGORY</label>
+                                <select
+                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-bold appearance-none cursor-pointer"
+                                    value={newTx.category} onChange={e => setNewTx({ ...newTx, category: e.target.value })}
+                                >
+                                    {availableCategories.sort().map(cat => (
+                                        <option key={cat} value={cat}>{cat}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">DATE</label>
+                                <input
+                                    type="date" required
+                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-bold"
+                                    value={newTx.date} onChange={e => setNewTx({ ...newTx, date: e.target.value })}
+                                />
+                            </div>
                         </div>
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">DATE</label>
-                            <input
-                                type="date" required
-                                className="w-full bg-slate-50 dark:bg-[#000000] border dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none dark:text-white font-bold"
-                                value={newTx.date} onChange={e => setNewTx({ ...newTx, date: e.target.value })}
-                            />
-                        </div>
-                    </div>
-                    <button type="submit" className="w-full py-4 bg-primary text-white font-black text-[10px] uppercase tracking-[0.3em] rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.01] transition-transform active:scale-[0.98] mt-4">
-                        SAVE TRANSACTION
-                    </button>
-                </form>
-              </DashboardPanel>
-          </div>,
-          document.body
-      )}
+                        <button type="submit" className="w-full py-4 bg-primary text-white font-black text-[10px] uppercase tracking-[0.3em] rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.01] transition-transform active:scale-[0.98] mt-4">
+                            SAVE TRANSACTION
+                        </button>
+                    </form>
+                </DashboardPanel>
+            </div>,
+            document.body
+        )}
     </div>
   );
 };
-
-const EmptyState = ({ text }) => (
-  <div className="flex flex-col items-center justify-center py-10 opacity-40 text-center gap-6">
-    <span className="material-symbols-outlined text-4xl opacity-20">terminal</span>
-    <div className="flex flex-col gap-2">
-      <span className="text-[10px] font-black uppercase tracking-[0.4em]">
-        {text}
-      </span>
-      <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">
-        SYSTEM_IDLE
-      </span>
-    </div>
-  </div>
-);
 
 export default FinancialOverview;
