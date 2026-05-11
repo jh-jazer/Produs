@@ -13,6 +13,7 @@ const FinancialOverview = ({
   totalUpcomingIncome = 0,
   addFinanceItem,
   deleteFinanceItem,
+  compact = false,
 }) => {
   const [includeSavings, setIncludeSavings] = useState(false);
   const [includeUpcoming, setIncludeUpcoming] = useState(false);
@@ -122,7 +123,7 @@ const FinancialOverview = ({
   };
 
     return (
-        <div className="flex flex-col gap-8 min-h-[500px] relative group">
+        <div className={`flex flex-col ${compact ? 'gap-4' : 'gap-8 min-h-[500px]'} relative group`}>
             <ConfirmDialog
                 isOpen={!!confirmDelete}
                 title="DELETE RECORD"
@@ -131,6 +132,7 @@ const FinancialOverview = ({
                 onConfirm={() => handleDelete(confirmDelete)}
                 onCancel={() => setConfirmDelete(null)}
             />
+
 
             {/* Hero Display Section */}
             <div className="relative min-h-[160px] flex flex-col justify-center">
@@ -210,14 +212,6 @@ const FinancialOverview = ({
         )}
       </div>
 
-      {/* Dynamic Breakdown Header */}
-      <div className="flex items-center justify-between px-1">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">
-          {viewMode === 'history' 
-            ? `Monthly Analysis: ${historyData.find(h => h.offset === selectedMonthOffset)?.label || 'Current'}` 
-            : 'Real-time Financial Overview'}
-        </p>
-      </div>
 
             {/* Breakdown Grid */}
             <div className="grid grid-cols-2 gap-4">
@@ -274,7 +268,7 @@ const FinancialOverview = ({
                     </button>
                 </div>
 
-                <div className="min-h-[240px]">
+                <div className={`${compact ? 'min-h-[100px]' : 'min-h-[240px]'}`}>
                     <AnimatePresence mode="wait">
                         {innerView === 'categories' ? (
                             <motion.div
@@ -348,15 +342,6 @@ const FinancialOverview = ({
                 </div>
             </div>
 
-            {/* Footer Metadata */}
-            <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between opacity-20">
-                <div className="flex items-center gap-4 text-[8px] font-black uppercase tracking-[0.4em]">
-                    <span>SYSTEM SECURE</span>
-                    <div className="size-1 bg-white rounded-full animate-pulse" />
-                    <span>v2.0</span>
-                </div>
-                <span className="text-[8px] font-mono tracking-widest uppercase opacity-40">UTC_{new Date().toISOString().split('T')[0]}</span>
-            </div>
 
       {/* Add Transaction Portal */}
       {showAddTx && createPortal(
@@ -436,8 +421,8 @@ const FinancialOverview = ({
 };
 
 const EmptyState = ({ text }) => (
-  <div className="py-12 text-center bg-slate-50 dark:bg-[#000000]/20 rounded-3xl border border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center gap-2">
-    <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 text-3xl">terminal</span>
+  <div className="py-6 text-center bg-slate-50 dark:bg-[#000000]/20 rounded-3xl border border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center gap-2">
+    <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 text-xl">terminal</span>
     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">{text}</p>
   </div>
 );

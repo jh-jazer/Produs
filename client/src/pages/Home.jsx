@@ -13,6 +13,8 @@ import AwakeningOverlay from '../components/dashboard/AwakeningOverlay';
 import PriorityHUD from '../components/dashboard/PriorityHUD';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 import Avatar from '../components/ui/Avatar';
+import FinancialOverview from '../components/finance_components/FinancialOverview';
+import { useFinance } from '../hooks/useFinance';
 
 const ChippedBorder = ({ opacity = 0.8 }) => (
   <div
@@ -58,6 +60,21 @@ export default function Home() {
     setIsIdentityEditModalOpen,
     setIsQrModalOpen
   } = useOutletContext();
+
+  const { 
+      transactions, 
+      budgets, 
+      debts, 
+      savings, 
+      addFinanceItem, 
+      deleteFinanceItem 
+  } = useFinance();
+
+  const totalSavings = savings.reduce((sum, s) => sum + (s.amount || 0), 0);
+  const actualDebts = debts.filter(d => d.nature === 'debt' || !d.nature);
+  const totalDebt = actualDebts.reduce((sum, d) => sum + (d.amount || 0), 0);
+  const upcomingIncome = debts.filter(d => d.nature === 'income');
+  const totalUpcomingIncome = upcomingIncome.reduce((sum, d) => sum + (d.amount || 0), 0);
 
   const isMobile = useMobile();
   const fileInputRef = useRef(null);
@@ -212,7 +229,7 @@ export default function Home() {
           >
             {isMobile && <MobileLogoText show={isAtTop} onClick={() => setIsLandingModalOpen(true)} />}
             {/* Reality Dashboard Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-8 w-full mb-[15vh] md:mb-32">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-8 w-full mb-[10vh] md:mb-24">
 
               {/* Column 1-2: Integrated Swinging ID Assembly */}
               <div className="md:col-span-2 relative min-h-[90dvh] md:min-h-[unset] h-auto md:h-16 flex flex-col items-center justify-center mb-0 snap-start snap-always">
@@ -429,7 +446,7 @@ export default function Home() {
               </div>
 
               {/* Priority HUD Component + Metrics Grid */}
-              <div className="snap-start snap-always md:col-span-3 flex flex-col gap-8 py-10">
+              <div className="snap-start snap-always md:col-span-3 flex flex-col gap-8 pt-32 pb-10 md:py-10">
                 <PriorityHUD />
                 
                 {/* Metrics Overlay - Now anchored to the first fold */}
@@ -446,14 +463,20 @@ export default function Home() {
             </div>
 
             {/* Bottom Grid Layout - Remaining Sections */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 max-w-[1400px] snap-start snap-always min-h-[90dvh] flex flex-col justify-center py-20">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 max-w-[1400px] snap-start snap-always h-auto flex flex-col justify-center pt-20 pb-4">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="md:col-span-8 group relative bg-foreground/[0.03] rounded-sm p-8 overflow-hidden hover:bg-foreground/[0.05] transition-all">
                 <ChippedBorder opacity={0.7} />
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] mb-8 text-foreground/40">Vitality // SYNCHRONIZATION</h3>
-                <div className="flex flex-col md:flex-row gap-12 items-end justify-between">
-                  <div className="flex flex-col gap-4"><span className="text-3xl font-black tracking-tighter">98.4%</span><p className="text-foreground/40 text-xs font-light tracking-wide max-w-[200px]">Optimal cognitive state detected.</p></div>
-                  <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: '98%' }} className="h-full bg-white" /></div>
-                </div>
+                <FinancialOverview
+                  transactions={transactions}
+                  budgets={budgets}
+                  currencySymbol={user?.currency === 'PHP' ? '₱' : '$'}
+                  totalSavings={totalSavings}
+                  totalDebt={totalDebt}
+                  totalUpcomingIncome={totalUpcomingIncome}
+                  addFinanceItem={addFinanceItem}
+                  deleteFinanceItem={deleteFinanceItem}
+                  compact={true}
+                />
               </motion.div>
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="md:col-span-4 bg-foreground/5 rounded-sm p-8 flex flex-col justify-between hover:border-foreground/30 transition-all cursor-pointer group relative">
                 <ChippedBorder opacity={0.7} />

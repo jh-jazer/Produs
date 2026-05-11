@@ -501,7 +501,7 @@ function Layout() {
 
 
                         {/* 2.5 Currency Display (Desktop) */}
-                        <div className="mb-2 flex flex-col gap-3 transition-all duration-500">
+                        <div className="mb-2 flex flex-col gap-4 transition-all duration-500">
                             <div 
                                 className="flex flex-col items-start gap-1 cursor-pointer"
                                 onClick={() => navigate('/dashboard/merchant')}
@@ -511,10 +511,10 @@ function Layout() {
                                     current={user?.rpg?.energy?.current ?? (10 + (user?.level || 0))} 
                                     max={10 + (user?.level || 0)} 
                                     variant="minimal" 
-                                    className="scale-90 origin-left"
+                                    className="scale-[0.8] origin-left"
                                 />
-                                <CoreDisplay amount={user?.rpg?.cores || 0} className="sidebar-core-display" variant="minimal" />
-                                <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display" variant="minimal" />
+                                <CoreDisplay amount={user?.rpg?.cores || 0} className="sidebar-core-display scale-[0.8] origin-left" variant="minimal" />
+                                <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display scale-[0.8] origin-left" variant="minimal" />
                             </div>
                         </div>
 

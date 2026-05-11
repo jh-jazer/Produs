@@ -23,8 +23,10 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
-  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all p-8 rounded-sm group overflow-hidden ${className}`}>
-    <ChippedBorder opacity={0.6} />
+  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all p-4 md:p-8 rounded-sm group overflow-hidden ${className}`}>
+    <div className="hidden md:block">
+      <ChippedBorder opacity={0.6} />
+    </div>
     <div className="relative z-10">
       <div className="mb-8 flex justify-between items-start">
         <div className="flex flex-col gap-1">
@@ -79,8 +81,8 @@ const Financial = () => {
     if (isLoading && transactions.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground p-8 pt-0 md:p-12 font-sans overflow-x-hidden flex flex-col items-center">
-            <div className="w-full max-w-6xl">
+        <div className="w-full bg-transparent text-foreground p-8 pt-12 md:p-12 md:pt-16 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full max-w-7xl">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeModule}
@@ -94,21 +96,19 @@ const Financial = () => {
                         <div className="w-full">
                             {/* SUMMARY DIVISION */}
                             {activeModule === 'summary' && (
-                                <div className="max-w-6xl mx-auto w-full">
-                                    <HUDPanel title="FINANCIAL OVERVIEW" subtitle="NET WORTH & ASSETS">
-                                        <FinancialOverview
-                                            transactions={transactions}
-                                            budgets={budgets}
-                                            currencySymbol={currencySymbol}
-                                            netBalance={netBalance}
-                                            totalSavings={totalSavings}
-                                            totalDebt={totalDebt}
-                                            totalUpcomingIncome={totalUpcomingIncome}
-                                            addFinanceItem={addFinanceItem}
-                                            deleteFinanceItem={deleteFinanceItem}
-                                        />
-                                    </HUDPanel>
-                                </div>
+                                <HUDPanel title="FINANCIAL OVERVIEW" subtitle="NET WORTH & ASSETS">
+                                    <FinancialOverview
+                                        transactions={transactions}
+                                        budgets={budgets}
+                                        currencySymbol={currencySymbol}
+                                        netBalance={netBalance}
+                                        totalSavings={totalSavings}
+                                        totalDebt={totalDebt}
+                                        totalUpcomingIncome={totalUpcomingIncome}
+                                        addFinanceItem={addFinanceItem}
+                                        deleteFinanceItem={deleteFinanceItem}
+                                    />
+                                </HUDPanel>
                             )}
 
                             {/* BUDGET DIVISION */}
@@ -127,59 +127,46 @@ const Financial = () => {
 
                             {/* SAVINGS DIVISION */}
                             {activeModule === 'savings' && (
-                                <div className="max-w-4xl mx-auto w-full">
-                                    <HUDPanel title="SAVINGS & VAULT" subtitle="EMERGENCY FUNDS">
-                                        <SavingsPanel
-                                            savings={savings}
-                                            currencySymbol={currencySymbol}
-                                            onAction={handleAction}
-                                            addFinanceItem={addFinanceItem}
-                                            deleteFinanceItem={deleteFinanceItem}
-                                        />
-                                    </HUDPanel>
-                                </div>
+                                <HUDPanel title="SAVINGS & VAULT" subtitle="EMERGENCY FUNDS">
+                                    <SavingsPanel
+                                        savings={savings}
+                                        currencySymbol={currencySymbol}
+                                        onAction={handleAction}
+                                        addFinanceItem={addFinanceItem}
+                                        deleteFinanceItem={deleteFinanceItem}
+                                    />
+                                </HUDPanel>
                             )}
 
                             {/* WISHLIST DIVISION */}
                             {activeModule === 'wishlist' && (
-                                <div className="max-w-4xl mx-auto w-full">
-                                    <HUDPanel title="WISHLIST" subtitle="PLANNED PURCHASES">
-                                        <Wishlist
-                                            items={wishlist}
-                                            budgets={budgets}
-                                            currencySymbol={currencySymbol}
-                                            onAction={handleAction}
-                                            addFinanceItem={addFinanceItem}
-                                            deleteFinanceItem={deleteFinanceItem}
-                                        />
-                                    </HUDPanel>
-                                </div>
+                                <HUDPanel title="WISHLIST" subtitle="PLANNED PURCHASES">
+                                    <Wishlist
+                                        items={wishlist}
+                                        budgets={budgets}
+                                        currencySymbol={currencySymbol}
+                                        onAction={handleAction}
+                                        addFinanceItem={addFinanceItem}
+                                        deleteFinanceItem={deleteFinanceItem}
+                                    />
+                                </HUDPanel>
                             )}
 
                             {/* DEBTS DIVISION */}
                             {activeModule === 'debts' && (
-                                <div className="max-w-4xl mx-auto w-full">
-                                    <HUDPanel title="DEBTS & INCOME" subtitle="CASH FLOW TRACKER">
-                                        <DebtManager
-                                            debts={debts}
-                                            currencySymbol={currencySymbol}
-                                            onAction={handleAction}
-                                            addFinanceItem={addFinanceItem}
-                                            updateFinanceItem={updateFinanceItem}
-                                            deleteFinanceItem={deleteFinanceItem}
-                                        />
-                                    </HUDPanel>
-                                </div>
+                                <HUDPanel title="DEBTS & INCOME" subtitle="CASH FLOW TRACKER">
+                                    <DebtManager
+                                        debts={debts}
+                                        currencySymbol={currencySymbol}
+                                        onAction={handleAction}
+                                        addFinanceItem={addFinanceItem}
+                                        updateFinanceItem={updateFinanceItem}
+                                        deleteFinanceItem={deleteFinanceItem}
+                                    />
+                                </HUDPanel>
                             )}
                         </div>
 
-                        {/* System Metadata Footer */}
-                        <div className="mt-16 pt-8 border-t border-foreground/5 flex justify-between items-center opacity-20">
-                          <span className="text-[8px] font-black uppercase tracking-[0.5em]">PRODUS_MODULAR_CORE_v1.0</span>
-                          <div className="flex gap-2">
-                            {[1,2,3,4,5,6].map(i => <div key={i} className="size-1 bg-foreground rounded-full" />)}
-                          </div>
-                        </div>
                     </motion.div>
                 </AnimatePresence>
             </div>
