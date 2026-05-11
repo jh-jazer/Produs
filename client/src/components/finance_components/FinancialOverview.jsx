@@ -132,19 +132,29 @@ const FinancialOverview = ({
                 onConfirm={() => handleDelete(confirmDelete)}
                 onCancel={() => setConfirmDelete(null)}
             />
-
+            {/* Header Structure (Matches PriorityHUD style) */}
+            <div className="mb-2 flex justify-between items-start relative z-10">
+                <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">FINANCIAL OVERVIEW</span>
+                    <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">REAL-TIME SYNC</span>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                    <span className="text-[10px] font-black tracking-[0.3em] uppercase opacity-40">ACTIVE_VAULT</span>
+                    <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-20">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}</span>
+                </div>
+            </div>
 
             {/* Hero Display Section */}
-            <div className="relative min-h-[160px] flex flex-col justify-center">
+            <div className="relative min-h-[80px] flex flex-col justify-center">
                 {viewMode === 'current' ? (
                     <motion.div 
                         key="balance"
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="p-12 text-center rounded-sm bg-white/[0.03] border border-white/5 relative overflow-hidden"
+                        className="p-6 text-center rounded-sm bg-white/[0.03] border border-white/5 relative overflow-hidden"
                     >
                         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-4">TOTAL BALANCE</p>
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mb-4">TOTAL BALANCE</p>
                         <p className={`text-3xl font-black tracking-tighter italic ${displayedBalance >= 0 ? "text-white" : "text-rose-500"}`}>
                             {currencySymbol}{Math.abs(displayedBalance).toLocaleString()}
                         </p>
@@ -218,7 +228,7 @@ const FinancialOverview = ({
                 <div className={`p-8 rounded-sm border transition-all duration-500 ${
                     totalIncome > 0 ? 'bg-white/[0.02] border-white/10' : 'bg-white/[0.01] border-transparent opacity-40'
                 }`}>
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mb-4 flex items-center gap-2">
                         <span className="size-1 bg-white animate-pulse" />
                         TOTAL INCOME
                     </p>
@@ -227,7 +237,7 @@ const FinancialOverview = ({
                 <div className={`p-8 rounded-sm border transition-all duration-500 ${
                     totalExpenses > 0 ? 'bg-white/[0.02] border-white/10' : 'bg-white/[0.01] border-transparent opacity-40'
                 }`}>
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mb-4 flex items-center gap-2">
                         <span className="size-1 bg-white animate-pulse" />
                         TOTAL EXPENSES
                     </p>
@@ -247,7 +257,7 @@ const FinancialOverview = ({
                                 <button
                                     key={tab.id}
                                     onClick={() => setInnerView(tab.id)}
-                                    className={`px-4 py-1.5 rounded-sm text-[9px] font-black uppercase tracking-widest transition-all ${
+                                    className={`px-4 py-1.5 rounded-sm text-[9px] font-black uppercase tracking-[0.3em] transition-all ${
                                         innerView === tab.id 
                                             ? 'bg-white text-black' 
                                             : 'text-white/20 hover:text-white/40'
@@ -257,7 +267,7 @@ const FinancialOverview = ({
                                 </button>
                             ))}
                         </div>
-                        <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.4em] hidden sm:block">EXPENSE BREAKDOWN</span>
+                        <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.6em] hidden sm:block">EXPENSE BREAKDOWN</span>
                     </div>
                     
                     <button
@@ -421,9 +431,16 @@ const FinancialOverview = ({
 };
 
 const EmptyState = ({ text }) => (
-  <div className="py-6 text-center bg-slate-50 dark:bg-[#000000]/20 rounded-3xl border border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center gap-2">
-    <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 text-xl">terminal</span>
-    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">{text}</p>
+  <div className="flex flex-col items-center justify-center py-10 opacity-40 text-center gap-6">
+    <span className="material-symbols-outlined text-4xl opacity-20">terminal</span>
+    <div className="flex flex-col gap-2">
+      <span className="text-[10px] font-black uppercase tracking-[0.4em]">
+        {text}
+      </span>
+      <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">
+        SYSTEM_IDLE
+      </span>
+    </div>
   </div>
 );
 

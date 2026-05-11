@@ -50,7 +50,7 @@ export default function PriorityHUD() {
       <ChippedBorder opacity={0.7} />
 
       {/* Header */}
-      <div className="mb-10 flex justify-between items-start relative z-10">
+      <div className="mb-2 flex justify-between items-start relative z-10">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">PRIORITY LIST</span>
           <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">DAILY OBJECTIVES</span>

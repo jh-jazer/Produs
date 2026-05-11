@@ -478,7 +478,7 @@ export default function Home() {
                   compact={true}
                 />
               </motion.div>
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="md:col-span-4 bg-foreground/5 rounded-sm p-8 flex flex-col justify-between hover:border-foreground/30 transition-all cursor-pointer group relative">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="md:col-span-4 bg-foreground/5 rounded-sm p-6 flex flex-col justify-between hover:border-foreground/30 transition-all cursor-pointer group relative">
                 <ChippedBorder opacity={0.7} />
                 <h3 className="text-xs font-black uppercase tracking-[0.4em] mb-6 text-foreground/40">Strategy // CURRENT</h3>
                 <ul className="flex flex-col gap-4">
