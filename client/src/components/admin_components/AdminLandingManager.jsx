@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, RefreshCcw, Monitor, Smartphone, Type, Image as ImageIcon } from 'lucide-react';
+import { Save, RefreshCcw, Monitor, Smartphone, Type, Image as ImageIcon, Upload } from 'lucide-react';
 import api from '../../services/api';
 import useSWR from 'swr';
 
@@ -35,6 +35,36 @@ const AdminLandingManager = () => {
     const { data: config, mutate, isValidating } = useSWR('/landing-config');
     const [formData, setFormData] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [uploadingType, setUploadingType] = useState(null);
+
+    const handleImageUpload = async (e, type) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingType(type);
+        const data = new FormData();
+        data.append('image', file);
+
+        try {
+            const res = await api.post('/upload/banner', data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (res.data?.url) {
+                setFormData(prev => ({
+                    ...prev,
+                    mockups: {
+                        ...prev.mockups,
+                        [type === 'desktop' ? 'desktopImage' : 'mobileImage']: res.data.url
+                    }
+                }));
+            }
+        } catch (err) {
+            alert('Upload failed: ' + (err.response?.data?.message || err.message));
+        } finally {
+            setUploadingType(null);
+            e.target.value = '';
+        }
+    };
 
     useEffect(() => {
         if (config) {
@@ -123,12 +153,19 @@ const AdminLandingManager = () => {
                             <div className="space-y-2">
                                 <label className="text-[8px] font-black uppercase tracking-widest opacity-40 ml-1">Desktop_Buffer</label>
                                 <div className="flex flex-col gap-4">
-                                    <input 
-                                        type="text"
-                                        value={formData.mockups.desktopImage}
-                                        onChange={(e) => setFormData({...formData, mockups: {...formData.mockups, desktopImage: e.target.value}})}
-                                        className="w-full bg-foreground/[0.03] border-b border-foreground/10 rounded-none px-4 py-3 text-[10px] font-mono focus:outline-none focus:border-foreground/40 transition-all"
-                                    />
+                                    <div className="flex gap-2">
+                                        <input 
+                                            type="text"
+                                            value={formData.mockups.desktopImage}
+                                            onChange={(e) => setFormData({...formData, mockups: {...formData.mockups, desktopImage: e.target.value}})}
+                                            className="flex-1 bg-foreground/[0.03] border-b border-foreground/10 rounded-none px-4 py-3 text-[10px] font-mono focus:outline-none focus:border-foreground/40 transition-all"
+                                        />
+                                        <label className="cursor-pointer bg-foreground/[0.05] hover:bg-foreground/[0.1] border border-foreground/10 px-4 py-3 flex items-center justify-center gap-2 rounded-sm text-[10px] font-bold uppercase transition-all shrink-0">
+                                            {uploadingType === 'desktop' ? <RefreshCcw className="animate-spin" size={14} /> : <Upload size={14} />}
+                                            <span>Upload</span>
+                                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'desktop')} className="hidden" disabled={uploadingType !== null} />
+                                        </label>
+                                    </div>
                                     <div className="w-full aspect-video bg-foreground/[0.05] border border-foreground/10 rounded-sm flex items-center justify-center overflow-hidden">
                                         <img src={formData.mockups.desktopImage} alt="Preview" className="w-full h-full object-cover opacity-60" />
                                     </div>
@@ -137,12 +174,19 @@ const AdminLandingManager = () => {
                             <div className="space-y-2">
                                 <label className="text-[8px] font-black uppercase tracking-widest opacity-40 ml-1">Mobile_Buffer</label>
                                 <div className="flex flex-col gap-4">
-                                    <input 
-                                        type="text"
-                                        value={formData.mockups.mobileImage}
-                                        onChange={(e) => setFormData({...formData, mockups: {...formData.mockups, mobileImage: e.target.value}})}
-                                        className="w-full bg-foreground/[0.03] border-b border-foreground/10 rounded-none px-4 py-3 text-[10px] font-mono focus:outline-none focus:border-foreground/40 transition-all"
-                                    />
+                                    <div className="flex gap-2">
+                                        <input 
+                                            type="text"
+                                            value={formData.mockups.mobileImage}
+                                            onChange={(e) => setFormData({...formData, mockups: {...formData.mockups, mobileImage: e.target.value}})}
+                                            className="flex-1 bg-foreground/[0.03] border-b border-foreground/10 rounded-none px-4 py-3 text-[10px] font-mono focus:outline-none focus:border-foreground/40 transition-all"
+                                        />
+                                        <label className="cursor-pointer bg-foreground/[0.05] hover:bg-foreground/[0.1] border border-foreground/10 px-4 py-3 flex items-center justify-center gap-2 rounded-sm text-[10px] font-bold uppercase transition-all shrink-0">
+                                            {uploadingType === 'mobile' ? <RefreshCcw className="animate-spin" size={14} /> : <Upload size={14} />}
+                                            <span>Upload</span>
+                                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'mobile')} className="hidden" disabled={uploadingType !== null} />
+                                        </label>
+                                    </div>
                                     <div className="w-24 aspect-[9/16] bg-foreground/[0.05] border border-foreground/10 rounded-sm flex items-center justify-center overflow-hidden">
                                         <img src={formData.mockups.mobileImage} alt="Preview" className="w-full h-full object-cover opacity-60" />
                                     </div>
