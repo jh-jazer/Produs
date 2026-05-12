@@ -24,9 +24,8 @@ const budgetSchema = new mongoose.Schema({
 });
 
 // Encryption Hooks
-budgetSchema.pre('save', function(next) {
+budgetSchema.pre('save', function() {
     if (this.isModified('category')) this.category = encrypt(this.category);
-    next();
 });
 
 budgetSchema.post('init', function(doc) {

@@ -2,6 +2,7 @@
  * RPG Utility Engine for Produs
  * Handles Leveling, XP awarding, Daily Caps, and Archetype Evolution.
  */
+import User from '../models/User.js';
 
 export const syncUserEnergy = (user) => {
     const level = user.level || 0;
@@ -366,84 +367,10 @@ export const syncTerritoryOwnership = async (user) => {
 import Activity from '../models/Activity.js';
 
 export const awardXP = async (user, stat, amount, streak = 1, activityType = 'system', action = 'Syncing data') => {
-    const today = new Date().toISOString().split('T')[0];
-    
-    // Initialize/Reset Daily XP if needed
-    if (user.rpg.dailyXP.date !== today) {
-        user.rpg.dailyXP = {
-            date: today,
-            total: 0,
-            byStat: { str: 0, agi: 0, vit: 0, int: 0, wis: 0, luk: 0 }
-        };
-    }
-
-    // Apply Streak Multiplier
-    const multiplier = getStreakMultiplier(streak);
-    let finalXP = Math.round(amount * multiplier);
-
-    // Apply Archetype Multipliers if they exist
-    if (user.rpg.statMultipliers && user.rpg.statMultipliers.get) {
-        const mult = user.rpg.statMultipliers.get(stat);
-        if (mult) finalXP = Math.round(finalXP * mult);
-    } else if (user.rpg.statMultipliers && user.rpg.statMultipliers[stat]) {
-        const mult = user.rpg.statMultipliers[stat];
-        if (mult) finalXP = Math.round(finalXP * mult);
-    }
-
-    // DAILY CAPS REMOVED PER USER REQUEST
-    if (finalXP <= 0) return { xpAwarded: 0 };
-
-    // Update User Stats and XP
-    user.rpg.stats[stat] += finalXP;
-    user.exp += finalXP;
-    user.rpg.dailyXP.total += finalXP;
-    user.rpg.dailyXP.byStat[stat] = (user.rpg.dailyXP.byStat[stat] || 0) + finalXP;
-
-    // Recalculate Level and Archetype
-    const levelInfo = calculateLevel(user.exp);
-    const oldLevel = user.level;
-    user.level = levelInfo.level;
-
-    const archetypeInfo = determineArchetype(user, user.level);
-    user.rpg.finalLabel = archetypeInfo.name;
-    
-    // TRIGGER Neural Sync check (Pass oldLevel to check for multi-level jumps)
-    const unlocked = checkNeuralSync(user, user.level, oldLevel);
-    
-    const oldArchetype = user.rpg.archetype.name;
-    user.rpg.archetype = archetypeInfo;
-
-    // Handle Archetype Transformation History
-    if (oldArchetype !== 'None' && oldArchetype !== archetypeInfo.name) {
-        user.rpg.archetypeHistory.push({
-            from: oldArchetype,
-            to: archetypeInfo.name,
-            date: new Date()
-        });
-    }
-
-    // REFILL ENERGY ON LEVEL UP
-    if (user.level > oldLevel) {
-        refillEnergy(user);
-    }
-
-    // Log Activity
-    try {
-        await Activity.create({
-            user: user._id,
-            type: activityType,
-            action,
-            stat,
-            amount: finalXP,
-            perkActivated: multiplier > 1 ? `Streak ${multiplier}x` : null
-        });
-    } catch (logError) {
-        console.error('Failed to log RPG activity:', logError);
-    }
-
+    // Stat rewards and XP allocation completely disabled across all components per USER request.
     return {
-        leveledUp: user.level > oldLevel,
-        transformed: oldArchetype !== 'None' && oldArchetype !== archetypeInfo.name,
-        xpAwarded: finalXP
+        leveledUp: false,
+        transformed: false,
+        xpAwarded: 0
     };
 };

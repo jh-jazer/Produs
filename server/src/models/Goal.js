@@ -47,9 +47,8 @@ const goalSchema = new mongoose.Schema({
 });
 
 // Encryption Hooks
-goalSchema.pre('save', function(next) {
+goalSchema.pre('save', function() {
     if (this.isModified('title')) this.title = encrypt(this.title);
-    next();
 });
 
 goalSchema.post('init', function(doc) {

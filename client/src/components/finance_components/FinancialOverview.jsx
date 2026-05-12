@@ -127,8 +127,8 @@ const FinancialOverview = ({
             amount: amountNum, 
             nature: 'debt',
             date: newTx.date,
-            isRecurring,
-            recurringMonths 
+            isMonthly: isRecurring,
+            monthsLeft: recurringMonths 
         });
       } else if (newTx.type === 'upcoming') {
         await addFinanceItem('debt', { 
@@ -136,8 +136,8 @@ const FinancialOverview = ({
             amount: amountNum, 
             nature: 'income',
             date: newTx.date,
-            isRecurring,
-            recurringMonths 
+            isMonthly: isRecurring,
+            monthsLeft: recurringMonths 
         });
       } else {
         await addFinanceItem('transaction', txData);
@@ -174,7 +174,7 @@ const FinancialOverview = ({
             onCancel={() => setConfirmDelete(null)}
         />
 
-        <div className="flex flex-col gap-8 pt-4 relative">
+        <div className="flex flex-col gap-8 pt-0 -mt-24 md:-mt-4 relative">
             <div className="flex flex-col gap-8">
                 <div className="flex justify-between items-start mb-6">
                     <div className="flex flex-col gap-1">
@@ -279,14 +279,13 @@ const FinancialOverview = ({
 
                             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                             <p 
-                                className={`font-black tracking-tighter italic leading-none ${
-                                    displayedBalance > 0 ? "text-emerald-500" : 
-                                    displayedBalance < 0 ? "text-rose-500" : 
-                                    "text-white"
-                                }`}
-                                style={{ fontSize: '3.5rem' }}
+                                className="font-black tracking-tighter leading-none"
+                                style={{ 
+                                    fontSize: '3.5rem',
+                                    color: displayedBalance > 0 ? '#10b981' : displayedBalance < 0 ? '#f43f5e' : '#ffffff'
+                                }}
                             >
-                                {localCurrency}{Math.abs(displayedBalance).toLocaleString()}
+                                {localCurrency}{displayedBalance < 0 ? '-' : ''}{Math.abs(displayedBalance).toLocaleString()}
                             </p>
                             <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mt-2">
                                 TOTAL BALANCE {selectedMonthOffset === 'all' ? '(ALL TIME)' : `- ${(() => {
@@ -359,35 +358,44 @@ const FinancialOverview = ({
                     )}
                 </div>
 
-                <div className="grid grid-cols-2 border-t border-white/10 pt-8">
-                    <div className="p-6 flex flex-col gap-1 border-r-2 border-b border-white/10">
-                        <p className="font-black text-white italic tracking-tighter leading-none mb-2" style={{ fontSize: '1.5rem' }}>{localCurrency}{totalIncome.toLocaleString()}</p>
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] flex items-center gap-2">
-                            <span className="size-1 bg-white animate-pulse" />
-                            TOTAL INCOME
+                <div className="grid grid-cols-2 border-t border-white/10 pt-3">
+                    <div className="py-2 px-2 flex flex-col items-center justify-center text-center gap-1 border-r-2 border-b border-white/10">
+                        <p className="font-black tracking-tighter leading-none mb-1" style={{ fontSize: '1.5rem', color: '#10b981' }}>{localCurrency}{totalIncome.toLocaleString()}</p>
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] flex items-center justify-center gap-1.5 font-exo whitespace-nowrap">
+                            <span className="size-1 animate-pulse shrink-0 rounded-full" style={{ backgroundColor: '#10b981' }} />
+                            INCOME
                         </p>
                     </div>
-                    <div className="p-6 flex flex-col gap-1 pl-8 border-b border-white/10">
-                        <p className="font-black text-white italic tracking-tighter leading-none mb-2" style={{ fontSize: '1.5rem' }}>{localCurrency}{totalExpenses.toLocaleString()}</p>
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] flex items-center gap-2">
-                            <span className="size-1 bg-white animate-pulse" />
-                            TOTAL EXPENSES
+                    <div className="py-2 px-2 flex flex-col items-center justify-center text-center gap-1 border-b border-white/10">
+                        <p className="font-black tracking-tighter leading-none mb-1" style={{ fontSize: '1.5rem', color: '#f43f5e' }}>-{localCurrency}{totalExpenses.toLocaleString()}</p>
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] flex items-center justify-center gap-1.5 font-exo whitespace-nowrap">
+                            <span className="size-1 animate-pulse shrink-0 rounded-full" style={{ backgroundColor: '#f43f5e' }} />
+                            EXPENSES
                         </p>
                     </div>
-                    <div className="p-6 flex flex-col gap-1 border-r-2 border-white/10">
-                        <p className="font-black text-white italic tracking-tighter leading-none mb-2" style={{ fontSize: '1.5rem' }}>{localCurrency}{totalDebt.toLocaleString()}</p>
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] flex items-center gap-2">
-                            <span className="size-1 bg-rose-500 animate-pulse" />
-                            TOTAL DEBT
+                    <div className="py-2 px-2 flex flex-col items-center justify-center text-center gap-1 border-r-2 border-white/10">
+                        <p className="font-black tracking-tighter leading-none mb-1" style={{ fontSize: '1.5rem', color: '#f43f5e' }}>-{localCurrency}{totalDebt.toLocaleString()}</p>
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] flex items-center justify-center gap-1.5 font-exo whitespace-nowrap">
+                            <span className="size-1 animate-pulse shrink-0 rounded-full" style={{ backgroundColor: '#f43f5e' }} />
+                            DEBT
                         </p>
                     </div>
-                    <div className="p-6 flex flex-col gap-1 pl-8">
-                        <p className="font-black text-white italic tracking-tighter leading-none mb-2" style={{ fontSize: '1.5rem' }}>{localCurrency}{totalUpcomingIncome.toLocaleString()}</p>
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] flex items-center gap-2">
-                            <span className="size-1 bg-emerald-500 animate-pulse" />
-                            UPCOMING INC
+                    <div className="py-2 px-2 flex flex-col items-center justify-center text-center gap-1">
+                        <p className="font-black tracking-tighter leading-none mb-1" style={{ fontSize: '1.5rem', color: '#10b981' }}>{localCurrency}{totalUpcomingIncome.toLocaleString()}</p>
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] flex items-center justify-center gap-1.5 font-exo whitespace-nowrap">
+                            <span className="size-1 animate-pulse shrink-0 rounded-full" style={{ backgroundColor: '#10b981' }} />
+                            RECEIVABLE
                         </p>
                     </div>
+                </div>
+
+                <div className="border-t border-white/10 w-full my-2" />
+                <div className="flex flex-col items-center justify-center py-2 gap-1 w-full text-center">
+                    <p className="font-black tracking-tighter leading-none mb-1" style={{ fontSize: '1.5rem', color: '#10b981' }}>{localCurrency}{totalSavings.toLocaleString()}</p>
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] flex items-center justify-center gap-1.5 font-exo whitespace-nowrap">
+                        <span className="size-1 animate-pulse shrink-0 rounded-full" style={{ backgroundColor: '#10b981' }} />
+                        SAVINGS
+                    </p>
                 </div>
             </div>
         </div>
@@ -407,54 +415,54 @@ const FinancialOverview = ({
                 >
                     <form onSubmit={handleAdd} className="space-y-5 px-1 py-2">
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">TITLE</label>
+                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">TITLE</label>
                             <input
                                 type="text" required placeholder="Enter title..."
-                                className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-bold"
+                                className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.2em] font-exo uppercase placeholder:text-white/20 transition-all"
                                 value={newTx.title} onChange={e => setNewTx({ ...newTx, title: e.target.value })}
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">AMOUNT</label>
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">AMOUNT</label>
                                 <input
                                     type="number" required step="0.01"
-                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-bold"
+                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.2em] font-exo uppercase transition-all"
                                     value={newTx.amount} onChange={e => setNewTx({ ...newTx, amount: e.target.value })}
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">TYPE</label>
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">TYPE</label>
                                 <select
-                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-bold appearance-none cursor-pointer"
+                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.15em] font-exo uppercase appearance-none cursor-pointer transition-all"
                                     value={newTx.type} onChange={e => setNewTx({ ...newTx, type: e.target.value })}
                                 >
                                     <option value="expense">Expense (-)</option>
                                     <option value="income">Income (+)</option>
                                     <option value="savings">Savings (★)</option>
                                     <option value="debt">Debt (⚠)</option>
-                                    <option value="upcoming">Upcoming Income (⌚)</option>
+                                    <option value="upcoming">Receivable (⌚)</option>
                                 </select>
                             </div>
 
                             {(newTx.type === 'debt' || newTx.type === 'upcoming') && (
-                                <div className="flex flex-col gap-3">
-                                    <div className="flex items-center gap-3 p-4 rounded-sm bg-white/[0.02] border border-white/5 cursor-pointer hover:bg-white/[0.05] transition-all" onClick={() => setIsRecurring(!isRecurring)}>
+                                <div className="flex flex-col gap-3 col-span-2">
+                                    <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5 cursor-pointer hover:bg-white/[0.05] transition-all" onClick={() => setIsRecurring(!isRecurring)}>
                                         <div className={`size-4 rounded-sm border transition-all flex items-center justify-center ${isRecurring ? 'bg-white border-white text-black' : 'border-white/20 text-transparent'}`}>
                                             <span className="material-symbols-outlined text-[12px] font-black">check</span>
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">RECURRING</span>
-                                            <span className="text-[8px] font-black uppercase tracking-widest text-white/20">MONTHLY SYNC</span>
+                                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/80 font-exo">RECURRING</span>
+                                            <span className="text-[8px] font-black uppercase tracking-widest text-white/40">MONTHLY SYNC</span>
                                         </div>
                                     </div>
 
                                     {isRecurring && (
-                                        <div className="flex flex-col gap-1.5 p-4 rounded-sm bg-white/[0.02] border border-white/5">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">DURATION (MONTHS)</label>
+                                        <div className="flex flex-col gap-1.5 p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">DURATION (MONTHS)</label>
                                             <input
                                                 type="number" min="1" max="60"
-                                                className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-bold"
+                                                className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.2em] font-exo uppercase transition-all"
                                                 value={recurringMonths} onChange={e => setRecurringMonths(parseInt(e.target.value))}
                                             />
                                         </div>
@@ -464,9 +472,9 @@ const FinancialOverview = ({
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">CATEGORY</label>
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">CATEGORY</label>
                                 <select
-                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-bold appearance-none cursor-pointer"
+                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.15em] font-exo uppercase appearance-none cursor-pointer transition-all"
                                     value={newTx.category} onChange={e => setNewTx({ ...newTx, category: e.target.value })}
                                 >
                                     {availableCategories.sort().map(cat => (
@@ -475,15 +483,15 @@ const FinancialOverview = ({
                                 </select>
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">DATE</label>
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">DATE</label>
                                 <input
                                     type="date" required
-                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-bold"
+                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.1em] font-exo uppercase transition-all"
                                     value={newTx.date} onChange={e => setNewTx({ ...newTx, date: e.target.value })}
                                 />
                             </div>
                         </div>
-                        <button type="submit" className="w-full py-4 bg-primary text-white font-black text-[10px] uppercase tracking-[0.3em] rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.01] transition-transform active:scale-[0.98] mt-4">
+                        <button type="submit" className="w-full py-4 bg-primary text-white font-black text-[10px] tracking-[0.4em] rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all active:scale-[0.98] mt-4 font-exo uppercase">
                             SAVE TRANSACTION
                         </button>
                     </form>

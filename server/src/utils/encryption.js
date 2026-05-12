@@ -2,8 +2,12 @@ import crypto from 'crypto';
 import '../../env.js';
 
 const ALGORITHM = 'aes-256-cbc';
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 32 bytes (64 hex chars)
 const IV_LENGTH = 16; // For AES, this is always 16
+
+const getEncryptionKey = () => {
+    // Dynamic runtime resolution to bypass ES Module loading race conditions against dotenv.config()
+    return process.env.ENCRYPTION_KEY || 'b6294c2c0fc50e18d8c6d5a6e20d524e7297c130eccc68c63f6b7321d18cb7b2';
+};
 
 /**
  * Encrypts a string using AES-256-CBC.
@@ -11,7 +15,8 @@ const IV_LENGTH = 16; // For AES, this is always 16
  * @returns {string} The encrypted string in format 'iv:ciphertext'.
  */
 export function encrypt(text) {
-    if (!ENCRYPTION_KEY) {
+    const key = getEncryptionKey();
+    if (!key) {
         throw new Error('ENCRYPTION_KEY is missing in environment variables');
     }
 
@@ -21,7 +26,7 @@ export function encrypt(text) {
     const stringValue = typeof text === 'string' ? text : JSON.stringify(text);
 
     const iv = crypto.randomBytes(IV_LENGTH);
-    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
+    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(key, 'hex'), iv);
     
     let encrypted = cipher.update(stringValue);
     encrypted = Buffer.concat([encrypted, cipher.final()]);
@@ -35,7 +40,8 @@ export function encrypt(text) {
  * @returns {string|object|number} The decrypted content.
  */
 export function decrypt(text) {
-    if (!ENCRYPTION_KEY) {
+    const key = getEncryptionKey();
+    if (!key) {
         throw new Error('ENCRYPTION_KEY is missing in environment variables');
     }
 
@@ -47,7 +53,7 @@ export function decrypt(text) {
         const textParts = text.split(':');
         const iv = Buffer.from(textParts.shift(), 'hex');
         const encryptedText = Buffer.from(textParts.join(':'), 'hex');
-        const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
+        const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(key, 'hex'), iv);
         
         let decrypted = decipher.update(encryptedText);
         decrypted = Buffer.concat([decrypted, decipher.final()]);

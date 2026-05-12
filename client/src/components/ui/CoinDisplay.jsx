@@ -79,6 +79,7 @@ const CoinDisplay = ({ amount = 0, className = "", variant = "vault" }) => {
                         rotate: [0, 15, -15, 0],
                     } : {}}
                     transition={{ duration: 0.5, ease: "backOut" }}
+                    className="translate-y-[3px]"
                 >
                     <span className="material-symbols-outlined text-black dark:text-white text-base">
                         toll
@@ -86,16 +87,11 @@ const CoinDisplay = ({ amount = 0, className = "", variant = "vault" }) => {
                 </motion.div>
 
                 {/* Pulse ring when popping */}
-                <AnimatePresence>
-                    {isPopping && (
-                        <motion.div
-                            initial={{ scale: 0.8, opacity: 1 }}
-                            animate={{ scale: 2.2, opacity: 0 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 rounded-lg border-2 border-black dark:border-white z-0"
-                        />
-                    )}
-                </AnimatePresence>
+                <div
+                    className={`absolute inset-0 rounded-lg border-2 border-black dark:border-white z-0 pointer-events-none transition-opacity duration-300 ${
+                        isPopping ? 'animate-ping opacity-75' : 'opacity-0'
+                    }`}
+                />
             </div>
 
             {/* Amount Section */}

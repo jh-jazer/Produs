@@ -50,17 +50,9 @@ const FinancialBreakdown = ({
         .sort((a, b) => b.amount - a.amount);
 
     return (
-        <div className="flex flex-col gap-6 h-full relative z-10">
+        <div className="flex flex-col gap-6 h-full relative z-10 pt-6 md:pt-8">
             <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.6em]">BREAKDOWN</span>
-                
-                {/* Add Entry Button - Icon Only */}
-                <button 
-                    onClick={() => setShowAddTx(true)}
-                    className="size-8 rounded-sm bg-white/5 text-white/60 flex items-center justify-center hover:bg-white hover:text-black transition-all border border-white/10 group shadow-lg shadow-black/20"
-                >
-                    <span className="material-symbols-outlined text-sm">add</span>
-                </button>
             </div>
 
             <div className="flex-1 min-h-[350px]">
@@ -77,8 +69,8 @@ const FinancialBreakdown = ({
                                 categories.slice(0, 8).map((cat, i) => (
                                     <div key={cat.label} className="space-y-2">
                                         <div className="flex justify-between items-center px-1">
-                                            <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">{cat.label}</span>
-                                            <span className="text-[9px] font-black text-white italic tracking-widest">{localCurrency}{cat.amount.toLocaleString()}</span>
+                                            <span className="font-black text-white/40 uppercase tracking-widest" style={{ fontSize: '1.25rem' }}>{cat.label}</span>
+                                            <span className="font-black tracking-widest" style={{ fontSize: '1.25rem', color: '#f43f5e' }}>-{localCurrency}{cat.amount.toLocaleString()}</span>
                                         </div>
                                         <div className="w-full bg-white/5 rounded-sm h-[2px] overflow-hidden">
                                             <motion.div 
@@ -102,19 +94,22 @@ const FinancialBreakdown = ({
                             className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar"
                         >
                             {selectedTransactions.length > 0 ? (
-                                selectedTransactions.slice().reverse().map((tx) => (
-                                    <div key={tx._id} className="flex items-center justify-between p-3 rounded-sm bg-white/[0.02] border border-white/5 transition-all group">
+                                selectedTransactions.slice(0, 50).map((tx) => (
+                                    <div key={tx._id} className="flex items-center justify-between p-2.5 rounded-sm bg-white/[0.02] border border-white/5 transition-all group">
                                         <div className="flex items-center gap-3">
-                                            <div className="size-6 rounded-sm bg-white/5 flex items-center justify-center text-white/20 border border-white/10">
-                                                <span className="material-symbols-outlined text-[10px]">{tx.type === 'income' ? 'payments' : tx.type === 'savings' ? 'savings' : 'shopping_bag'}</span>
+                                            <div className="size-7 rounded-sm bg-white/5 flex items-center justify-center text-white/20 border border-white/10 shrink-0">
+                                                <span className="material-symbols-outlined text-xs">{tx.type === 'income' ? 'payments' : tx.type === 'savings' ? 'savings' : 'shopping_bag'}</span>
                                             </div>
                                             <div className="flex flex-col">
-                                                <p className="text-[10px] font-black text-white uppercase tracking-wider truncate max-w-[80px]">{tx.title}</p>
-                                                <p className="text-[8px] font-black text-white/20 uppercase tracking-widest">{tx.category}</p>
+                                                <p className="font-black text-white uppercase tracking-wider leading-tight" style={{ fontSize: '1.2rem' }}>{tx.title}</p>
+                                                <p className="font-black text-white/30 uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>{tx.category}</p>
                                             </div>
                                         </div>
-                                        <p className="text-[10px] font-black text-white italic">
-                                            {tx.type === 'expense' ? '-' : '+'}{localCurrency}{tx.amount.toLocaleString()}
+                                        <p 
+                                            className="font-black tracking-wider"
+                                            style={{ fontSize: '1.2rem', color: tx.type === 'income' || tx.type === 'upcoming' ? '#10b981' : '#f43f5e' }}
+                                        >
+                                            {tx.type === 'expense' || tx.type === 'debt' ? '-' : ''}{localCurrency}{parseFloat(tx.amount).toLocaleString()}
                                         </p>
                                     </div>
                                 ))

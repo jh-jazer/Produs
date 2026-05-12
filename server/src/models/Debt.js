@@ -49,9 +49,8 @@ const debtSchema = new mongoose.Schema({
 });
 
 // Encryption Hooks
-debtSchema.pre('save', function(next) {
+debtSchema.pre('save', function() {
     if (this.isModified('title')) this.title = encrypt(this.title);
-    next();
 });
 
 debtSchema.post('init', function(doc) {

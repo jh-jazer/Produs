@@ -387,15 +387,11 @@ function Layout() {
                                                             {item.name}
                                                         </span>
                                                         {item.id === 'more' && (
-                                                            <button 
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setIsMoreExpanded(!isMoreExpanded);
-                                                                }}
-                                                                className={`ml-1 transition-transform duration-300 ${isMoreExpanded ? 'rotate-180' : 'rotate-0'}`}
+                                                            <span 
+                                                                className={`ml-1 inline-block transition-transform duration-300 ${isMoreExpanded ? 'rotate-180' : 'rotate-0'}`}
                                                             >
                                                                 <ChevronDown className="w-3 h-3 text-slate-400" />
-                                                            </button>
+                                                            </span>
                                                         )}
                                                         {isActive && (
                                                             <motion.div 
@@ -413,6 +409,7 @@ function Layout() {
                                             <AnimatePresence>
                                                 {isMoreExpanded && (
                                                     <motion.div 
+                                                        key="more-categories-dropdown"
                                                         initial={{ height: 0, opacity: 0 }}
                                                         animate={{ height: 'auto', opacity: 1 }}
                                                         exit={{ height: 0, opacity: 0 }}
@@ -448,6 +445,7 @@ function Layout() {
                                                                 <AnimatePresence>
                                                                     {expandedCategory === cat.id && (
                                                                         <motion.div
+                                                                            key={`tools-${cat.id}`}
                                                                             initial={{ height: 0, opacity: 0 }}
                                                                             animate={{ height: 'auto', opacity: 1 }}
                                                                             exit={{ height: 0, opacity: 0 }}

@@ -299,7 +299,7 @@ export default function Landing() {
 
             <div
               id="landing-sidebar"
-              className="hidden md:block fixed left-6 md:left-12 top-[35%] -translate-y-1/2 z-[100] pointer-events-auto hero-sidebar opacity-100 translate-x-0 transition-transform duration-1000"
+              className="hidden md:block fixed left-6 md:left-12 top-[50%] -translate-y-1/2 z-[100] pointer-events-auto hero-sidebar opacity-100 translate-x-0 transition-transform duration-1000"
             >
               <WorkspaceSidebar 
                 tabs={landingTabs}

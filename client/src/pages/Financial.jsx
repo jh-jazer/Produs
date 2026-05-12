@@ -28,13 +28,15 @@ const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) =>
       <ChippedBorder opacity={0.6} />
     </div>
     <div className="relative z-10">
-      <div className="mb-8 flex justify-between items-start">
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
-          {subtitle && <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>}
+      {title && (
+        <div className="mb-8 flex justify-between items-start">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
+            {subtitle && <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>}
+          </div>
+          {headerExtra && <div className="flex gap-2">{headerExtra}</div>}
         </div>
-        {headerExtra && <div className="flex gap-2">{headerExtra}</div>}
-      </div>
+      )}
       {children}
     </div>
   </div>
@@ -96,7 +98,7 @@ const Financial = () => {
                         <div className="w-full">
                             {/* SUMMARY DIVISION */}
                             {activeModule === 'summary' && (
-                                <HUDPanel title="FINANCIAL OVERVIEW" subtitle="NET WORTH & ASSETS">
+                                <HUDPanel>
                                     <FinancialOverview
                                         transactions={transactions}
                                         budgets={budgets}

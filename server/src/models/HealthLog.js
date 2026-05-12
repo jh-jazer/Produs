@@ -39,10 +39,9 @@ const healthLogSchema = new mongoose.Schema({
 });
 
 // Encryption Hooks
-healthLogSchema.pre('save', function(next) {
+healthLogSchema.pre('save', function() {
     if (this.isModified('title')) this.title = encrypt(this.title);
     if (this.isModified('details')) this.details = encrypt(this.details);
-    next();
 });
 
 healthLogSchema.post('init', function(doc) {

@@ -275,7 +275,7 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                                 }`}
                             >
                                 <span className="material-symbols-outlined text-sm">trending_up</span>
-                                Upcoming Income
+                                Receivable
                             </button>
                         </div>
 
@@ -375,7 +375,7 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                                 newDebt.nature === 'income' ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-primary shadow-primary/20'
                             }`}
                         >
-                            Save {newDebt.nature === 'income' ? 'Income' : 'Debt'}
+                            Save {newDebt.nature === 'income' ? 'Receivable' : 'Debt'}
                         </button>
                     </form>
                     </DashboardPanel>

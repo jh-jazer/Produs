@@ -476,8 +476,11 @@ export default function Home() {
                   ].map((s, i) => (
                     <div key={i} className="bg-foreground/[0.02] rounded-sm p-6 flex flex-col gap-2 hover:bg-foreground/[0.04] transition-all relative group/metric">
                       <ChippedBorder opacity={0.5} />
-                      <span className={`text-2xl font-black tracking-tighter italic ${s.c}`}>
-                        {user?.currency === 'PHP' ? '₱' : '$'}{Math.abs(s.v).toLocaleString()}
+                      <span 
+                        className="text-2xl font-black tracking-tighter"
+                        style={{ color: s.v > 0 ? '#10b981' : s.v < 0 ? '#f43f5e' : '#ffffff' }}
+                      >
+                        {user?.currency === 'PHP' ? '₱' : '$'}{s.v < 0 ? '-' : ''}{Math.abs(s.v).toLocaleString()}
                       </span>
                       <div className="flex flex-col -gap-1">
                         {s.l.map((word, idx) => (
@@ -496,15 +499,17 @@ export default function Home() {
             </div>
 
             {/* Bottom Grid Layout - Split Financial HUD */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 max-w-[1400px] snap-start snap-always h-auto pt-20 pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-[10vh] md:gap-8 max-w-[1400px] md:snap-start md:snap-always h-auto pt-0 md:pt-20 pb-0 md:pb-4">
               
               {/* Left Part: Financial Overview (8/12) */}
               <motion.div 
                 initial={{ opacity: 0, x: -20 }} 
                 animate={{ opacity: 1, x: 0 }} 
-                className="md:col-span-8 group relative bg-foreground/[0.03] rounded-sm p-12 hover:bg-foreground/[0.05] transition-all"
+                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-8 group relative md:bg-foreground/[0.03] rounded-sm px-4 md:px-12 pt-6 pb-10 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-center min-h-[80vh] md:min-h-0"
               >
-                <ChippedBorder opacity={0.7} />
+                <div className="hidden md:block">
+                  <ChippedBorder opacity={0.7} />
+                </div>
                 <FinancialOverview
                   transactions={transactions}
                   budgets={budgets}
@@ -524,9 +529,11 @@ export default function Home() {
                 initial={{ opacity: 0, x: 20 }} 
                 animate={{ opacity: 1, x: 0 }} 
                 transition={{ delay: 0.1 }}
-                className="md:col-span-4 group relative bg-foreground/[0.03] rounded-sm p-12 hover:bg-foreground/[0.05] transition-all"
+                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-4 group relative md:bg-foreground/[0.03] rounded-sm px-4 md:px-12 pt-6 pb-10 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-center min-h-[80vh] md:min-h-0"
               >
-                <ChippedBorder opacity={0.7} />
+                <div className="hidden md:block">
+                  <ChippedBorder opacity={0.7} />
+                </div>
                 <FinancialBreakdown
                   selectedTransactions={transactions}
                   totalExpenses={transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)}

@@ -40,6 +40,7 @@ export const addTransaction = async (req, res) => {
 
         res.status(201).json({ transaction, result });
     } catch (error) {
+        console.error("Backend addTransaction Exception:", error);
         res.status(400).json({ message: error.message });
     }
 };

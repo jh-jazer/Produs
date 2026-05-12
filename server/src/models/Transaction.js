@@ -35,9 +35,8 @@ const transactionSchema = new mongoose.Schema({
 });
 
 // Encryption Hooks
-transactionSchema.pre('save', function(next) {
+transactionSchema.pre('save', function() {
     if (this.isModified('title')) this.title = encrypt(this.title);
-    next();
 });
 
 transactionSchema.post('init', function(doc) {

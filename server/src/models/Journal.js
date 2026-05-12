@@ -36,10 +36,9 @@ const journalSchema = new mongoose.Schema({
 });
 
 // Encryption Hooks
-journalSchema.pre('save', function(next) {
+journalSchema.pre('save', function() {
     if (this.isModified('title')) this.title = encrypt(this.title);
     if (this.isModified('content')) this.content = encrypt(this.content);
-    next();
 });
 
 journalSchema.post('init', function(doc) {
