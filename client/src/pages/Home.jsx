@@ -68,6 +68,7 @@ export default function Home() {
       debts, 
       savings, 
       addFinanceItem, 
+      updateFinanceItem,
       deleteFinanceItem 
   } = useFinance();
 
@@ -539,6 +540,9 @@ export default function Home() {
                   totalExpenses={transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)}
                   localCurrency={user?.currency === 'PHP' ? '₱' : '$'}
                   setShowAddTx={setShowAddTx}
+                  updateFinanceItem={updateFinanceItem}
+                  deleteFinanceItem={deleteFinanceItem}
+                  budgets={budgets}
                 />
               </motion.div>
             </div>
