@@ -201,8 +201,7 @@ const FinancialBreakdown = ({
             </div>
 
             {/* View Toggle */}
-            <div className="flex items-center justify-between mt-auto pt-6 border-t border-white/5">
-                <span className="text-[8px] font-black text-white/10 uppercase tracking-[0.3em]">NAV_PROTOCOL</span>
+            <div className="flex items-center justify-end mt-auto pt-6 border-t border-white/5">
                 <div className="flex bg-white/5 p-1 rounded-sm border border-white/5">
                     {[
                         { id: 'categories', label: 'CHART' },
