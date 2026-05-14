@@ -218,8 +218,16 @@ const FinancialBreakdown = ({
                 </AnimatePresence>
             </div>
 
-            {/* View Toggle */}
-            <div className="flex items-center justify-end mt-auto pt-6 border-t border-white/5">
+            {/* Actions & View Toggle */}
+            <div className="flex items-center justify-between mt-auto pt-6 border-t border-white/5">
+                <button
+                    onClick={() => setShowAddTx && setShowAddTx(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-sm bg-white/5 hover:bg-white/10 border border-white/10 text-[8px] font-black uppercase tracking-[0.2em] text-white transition-all active:scale-[0.98]"
+                >
+                    <span className="material-symbols-outlined text-[14px]">add</span>
+                    <span className="hidden sm:inline">ADD</span>
+                </button>
+
                 <div className="flex bg-white/5 p-1 rounded-sm border border-white/5">
                     {[
                         { id: 'categories', label: 'CHART' },

@@ -168,6 +168,36 @@ const MobileBottomNav = () => {
                                 <AnimatePresence>
                                     {showActionDot && active && [
                                         {
+                                            id: 'goal',
+                                            label: 'Add Goal',
+                                            icon: 'sports_score',
+                                            path: '/dashboard/planner',
+                                            state: { activeTab: 'planner', openAddGoal: true },
+                                            x: -15,
+                                            y: -425,
+                                            delay: 0.30
+                                        },
+                                        {
+                                            id: 'event',
+                                            label: 'Add Event',
+                                            icon: 'event',
+                                            path: '/dashboard/calendar',
+                                            state: { activeTab: 'calendar', openAddEvent: true },
+                                            x: -15,
+                                            y: -355,
+                                            delay: 0.24
+                                        },
+                                        {
+                                            id: 'transaction',
+                                            label: 'Add Transaction',
+                                            icon: 'payments',
+                                            path: '/dashboard/financial',
+                                            state: { activeTab: 'summary', openAddTransaction: true },
+                                            x: -15,
+                                            y: -285,
+                                            delay: 0.18
+                                        },
+                                        {
                                             id: 'journal',
                                             label: 'Add Journal',
                                             icon: 'auto_stories',
@@ -178,21 +208,21 @@ const MobileBottomNav = () => {
                                             delay: 0.12
                                         },
                                         {
-                                            id: 'transaction',
-                                            label: 'Add Transaction',
-                                            icon: 'payments',
-                                            path: '/dashboard/financial',
-                                            state: { activeTab: 'summary', openAddTransaction: true },
+                                            id: 'note',
+                                            label: 'Add Note',
+                                            icon: 'edit_note',
+                                            path: '/dashboard/spiritual',
+                                            state: { activeTab: 'notes', openAddNote: true },
                                             x: -15,
                                             y: -145,
                                             delay: 0.06
                                         },
                                         {
-                                            id: 'note',
-                                            label: 'Add Note',
-                                            icon: 'edit_note',
-                                            path: '/dashboard/planner',
-                                            state: { activeTab: 'planner' },
+                                            id: 'list',
+                                            label: 'Add List',
+                                            icon: 'checklist',
+                                            path: '/dashboard/spiritual',
+                                            state: { activeTab: 'lists', openAddList: true },
                                             x: -15,
                                             y: -75,
                                             delay: 0
