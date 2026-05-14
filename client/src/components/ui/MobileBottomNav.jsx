@@ -9,6 +9,7 @@ const MobileBottomNav = () => {
     const { protocolMode, activeRpgTab, setActiveRpgTab, setIsToolsStoreModalOpen, mobileTabs } = useContext(DashboardContext);
     const [clickRipples, setClickRipples] = useState([]);
     const [showActionDot, setShowActionDot] = useState(false);
+    const [showWriteMenu, setShowWriteMenu] = useState(false);
 
     const realityPillars = [
         { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
@@ -43,9 +44,12 @@ const MobileBottomNav = () => {
             habits: 'tracker',
             planner: 'planner',
             calendar: 'calendar',
-            goals: 'goals',
-            spiritual: 'journal'
+            goals: 'goals'
         };
+
+        if (pillar.id === 'spiritual') {
+            return location.pathname.startsWith(pillar.path);
+        }
 
         if (tabIdMap[pillar.id]) {
             const currentTab = mobileTabs?.activeTab || location.state?.activeTab;
@@ -64,6 +68,7 @@ const MobileBottomNav = () => {
             }, 600);
 
             setShowActionDot(prev => !prev);
+            setShowWriteMenu(false);
             return;
         }
 
@@ -72,10 +77,33 @@ const MobileBottomNav = () => {
                 navigate('/dashboard', { replace: true });
             }
             setActiveRpgTab(pillar.id);
+            setShowActionDot(false);
+            setShowWriteMenu(false);
         } else {
             if (pillar.id === 'more') {
                 setIsToolsStoreModalOpen(true);
+                setShowActionDot(false);
+                setShowWriteMenu(false);
                 return;
+            }
+
+            if (pillar.id === 'spiritual') {
+                if (isActive(pillar)) {
+                    if (showWriteMenu) {
+                        setShowWriteMenu(false);
+                        return;
+                    } else {
+                        setShowWriteMenu(true);
+                        setShowActionDot(false);
+                        return;
+                    }
+                } else {
+                    setShowWriteMenu(false);
+                    setShowActionDot(false);
+                }
+            } else {
+                setShowActionDot(false);
+                setShowWriteMenu(false);
             }
 
             // Direct Tab Switching for Productivity Tools
@@ -106,8 +134,25 @@ const MobileBottomNav = () => {
     };
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-[150] pointer-events-none">
-            <nav className="w-full h-24 bg-white dark:bg-black shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pb-4 pointer-events-auto relative rounded-t-[2.5rem]">
+        <>
+            {/* Global Backdrop Overlay */}
+            <AnimatePresence>
+                {(showActionDot || showWriteMenu) && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => {
+                            setShowActionDot(false);
+                            setShowWriteMenu(false);
+                        }}
+                        className="md:hidden fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur-md z-[140] pointer-events-auto transition-all"
+                    />
+                )}
+            </AnimatePresence>
+
+            <div className="md:hidden fixed bottom-0 left-0 right-0 z-[150] pointer-events-none">
+                <nav className="w-full h-24 bg-white dark:bg-black shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pb-4 pointer-events-auto relative rounded-t-[2.5rem]">
                 <div className="absolute inset-0 border-t-4 border-black dark:border-white/20 rounded-t-[2.5rem] pointer-events-none" />
                 
                 {pillars.map((pillar) => {
@@ -164,12 +209,19 @@ const MobileBottomNav = () => {
                                                 setShowActionDot(false);
                                                 navigate(bubble.path, { state: bubble.state });
                                             }}
-                                            className="absolute m-auto size-16 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center z-40 border-2 border-white/20 dark:border-black/20 cursor-pointer pointer-events-auto active:scale-90 transition-all hover:scale-110"
+                                            className="absolute m-auto size-16 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center z-40 border-2 border-white/20 dark:border-black/20 cursor-pointer pointer-events-auto active:scale-90 transition-all"
                                         >
                                             <span className="material-symbols-outlined text-[26px]">
                                                 {bubble.icon}
                                             </span>
-                                            <span className="absolute left-[44px] whitespace-nowrap text-[12px] font-extrabold uppercase tracking-widest text-black dark:text-white pointer-events-none transition-all drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                                            <span 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowActionDot(false);
+                                                    navigate(bubble.path, { state: bubble.state });
+                                                }}
+                                                className="absolute left-[44px] whitespace-nowrap text-[12px] font-extrabold uppercase tracking-widest text-black dark:text-white pointer-events-auto cursor-pointer transition-all drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]"
+                                            >
                                                 {bubble.label}
                                             </span>
                                         </motion.div>
@@ -214,17 +266,84 @@ const MobileBottomNav = () => {
                         >
                             <div className="relative flex items-center justify-center">
                                 <span className={`material-symbols-outlined transition-all duration-300 text-[22px] ${
-                                    active ? 'scale-110' : ''
+                                    (active || (pillar.id === 'spiritual' && showWriteMenu)) ? 'scale-110' : ''
                                 }`}>
-                                    {pillar.icon}
+                                    {pillar.id === 'spiritual' && showWriteMenu ? 'close' : pillar.icon}
                                 </span>
                             </div>
+
+                            {/* Menu Bubbles for Write icon */}
+                            {pillar.id === 'spiritual' && (
+                                <AnimatePresence>
+                                    {showWriteMenu && [
+                                        {
+                                            id: 'journal',
+                                            label: 'Journal',
+                                            icon: 'auto_stories',
+                                            path: '/dashboard/spiritual',
+                                            state: { activeTab: 'journal' }
+                                        },
+                                        {
+                                            id: 'notes',
+                                            label: 'Notes',
+                                            icon: 'edit_note',
+                                            path: '/dashboard/spiritual',
+                                            state: { activeTab: 'notes' }
+                                        },
+                                        {
+                                            id: 'lists',
+                                            label: 'Lists',
+                                            icon: 'checklist',
+                                            path: '/dashboard/spiritual',
+                                            state: { activeTab: 'lists' }
+                                        }
+                                    ]
+                                    .filter(b => b.id !== (location.pathname.startsWith('/dashboard/spiritual') ? (mobileTabs?.activeTab || location.state?.activeTab || 'journal') : null))
+                                    .reverse()
+                                    .map((bubble, idx) => (
+                                        <motion.div
+                                            key={bubble.id}
+                                            initial={{ opacity: 0, x: 0, y: 0, scale: 0.2 }}
+                                            animate={{ opacity: 1, x: 0, y: -80 - (idx * 60), scale: 1 }}
+                                            exit={{ opacity: 0, x: 0, y: 0, scale: 0.2 }}
+                                            transition={{ type: "spring", stiffness: 420, damping: 18, delay: idx * 0.06 }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowWriteMenu(false);
+                                                if (mobileTabs) {
+                                                    mobileTabs.setActiveTab(bubble.state.activeTab);
+                                                }
+                                                navigate(bubble.path, { state: bubble.state, replace: true });
+                                            }}
+                                            className="absolute m-auto size-12 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center z-40 border border-white/20 dark:border-black/20 cursor-pointer pointer-events-auto active:scale-90 transition-all shadow-lg shadow-black/20 dark:shadow-white/10"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]">
+                                                {bubble.icon}
+                                            </span>
+                                            <span 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowWriteMenu(false);
+                                                    if (mobileTabs) {
+                                                        mobileTabs.setActiveTab(bubble.state.activeTab);
+                                                    }
+                                                    navigate(bubble.path, { state: bubble.state, replace: true });
+                                                }}
+                                                className="absolute right-[60px] whitespace-nowrap text-[11px] font-extrabold uppercase tracking-widest text-black dark:text-white pointer-events-auto cursor-pointer transition-all drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]"
+                                            >
+                                                {bubble.label}
+                                            </span>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                            )}
 
                         </button>
                     );
                 })}
             </nav>
         </div>
+        </>
     );
 };
 

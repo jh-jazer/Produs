@@ -41,13 +41,20 @@ const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) =>
 );
 
 const NotesModule = () => {
+    const location = useLocation();
     const [notes, setNotes] = useState(() => {
         const saved = localStorage.getItem('produs_notes_store');
         return saved ? JSON.parse(saved) : [
             { id: '1', title: 'Welcome to Notes', content: 'Jot down your ideas, reminders, and thoughts here.', category: 'blue', date: 'TODAY' }
         ];
     });
-    const [isWriting, setIsWriting] = useState(false);
+    const [isWriting, setIsWriting] = useState(() => location.state?.openWriteNote || false);
+
+    useEffect(() => {
+        if (location.state?.openWriteNote) {
+            setIsWriting(true);
+        }
+    }, [location.state]);
 
     useEffect(() => {
         localStorage.setItem('produs_notes_store', JSON.stringify(notes));
@@ -156,6 +163,7 @@ const NotesModule = () => {
 };
 
 const ListsModule = () => {
+    const location = useLocation();
     const [lists, setLists] = useState(() => {
         const saved = localStorage.getItem('produs_lists_store');
         return saved ? JSON.parse(saved) : [
@@ -171,7 +179,13 @@ const ListsModule = () => {
         ];
     });
     const [newItemTexts, setNewItemTexts] = useState({});
-    const [isWriting, setIsWriting] = useState(false);
+    const [isWriting, setIsWriting] = useState(() => location.state?.openWriteList || false);
+
+    useEffect(() => {
+        if (location.state?.openWriteList) {
+            setIsWriting(true);
+        }
+    }, [location.state]);
 
     useEffect(() => {
         localStorage.setItem('produs_lists_store', JSON.stringify(lists));
@@ -373,33 +387,9 @@ const Spiritual = () => {
 
     if (isLoading && entries.length === 0) return <WorkspaceSkeleton />;
 
-    const tabs = [
-        { id: 'journal', label: 'JOURNAL' },
-        { id: 'notes', label: 'NOTES' },
-        { id: 'lists', label: 'LISTS' }
-    ];
-
     return (
         <div className="w-full bg-transparent text-foreground px-0 md:px-12 pt-20 md:pt-16 pb-8 font-sans overflow-x-hidden flex flex-col items-center">
             <div className="w-full max-w-7xl mt-12 md:mt-0 flex flex-col gap-8">
-                {/* Inline Master Tab Router */}
-                <div className="grid grid-cols-3 w-full border-b border-foreground/10 pb-0">
-                    {tabs.map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`py-3 text-center text-xs font-black tracking-[0.2em] uppercase transition-all relative rounded-sm ${activeTab === tab.id ? 'text-primary bg-primary/5' : 'text-foreground/40 hover:text-foreground'}`}
-                        >
-                            {tab.label}
-                            {activeTab === tab.id && (
-                                <motion.div 
-                                    layoutId="writeHubTabIndicator" 
-                                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary"
-                                />
-                            )}
-                        </button>
-                    ))}
-                </div>
 
                 <AnimatePresence mode="wait">
                     <motion.div

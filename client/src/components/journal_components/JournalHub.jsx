@@ -16,8 +16,6 @@ const JournalHub = ({ entries = [], onAction }) => {
     useEffect(() => {
         if (location.state?.openWriteJournal) {
             setIsWriting(true);
-            // Clear navigation history state cleanly
-            window.history.replaceState({}, document.title);
         }
     }, [location.state]);
 
