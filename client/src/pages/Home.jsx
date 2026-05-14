@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext, useLocation } from 'react-router-dom';
 import { useRef } from 'react';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
@@ -28,21 +28,121 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
   />
 );
 
-const MobileLogoText = ({ show, onClick }) => {
+const MobileLogoText = ({ activeSection, onClick }) => {
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [matrixText, setMatrixText] = useState("");
+  const textToType = "PRODUS";
+  const matrixChars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*<>";
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (activeSection === 'produs') {
+      let iteration = 0;
+      let currentIdx = 0;
+      setMatrixText("");
+
+      const timer = setInterval(() => {
+        iteration++;
+        
+        if (iteration % 3 === 0) {
+          currentIdx++;
+        }
+
+        if (currentIdx > textToType.length) {
+          clearInterval(timer);
+          setMatrixText(textToType);
+        } else {
+          const chars = textToType.split("").map((actualChar, idx) => {
+            if (idx < currentIdx) {
+              return actualChar;
+            }
+            return matrixChars[Math.floor(Math.random() * matrixChars.length)];
+          });
+          
+          setMatrixText(chars.slice(0, currentIdx + 2).join(""));
+        }
+      }, 40);
+
+      return () => clearInterval(timer);
+    }
+  }, [activeSection]);
+
+  const formattedDate = currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
+  const formattedTime = currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: show ? 1 : 0 }}
-      transition={{ duration: 0.5 }}
-      className={`fixed top-10 left-6 z-[100] md:hidden ${show ? 'pointer-events-auto' : 'pointer-events-none'}`}
-      onClick={onClick}
-    >
-      <div className="relative">
-        <h1 className="wordmark text-black dark:text-white">
-          PRODUS
-        </h1>
+    <div className="fixed top-8 left-6 right-6 z-[100] md:hidden pointer-events-none flex justify-between items-start">
+      {/* Left side dynamic header */}
+      <div className="flex-1">
+        <AnimatePresence mode="wait">
+          {activeSection === 'produs' && (
+            <motion.div
+              key="produs"
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.2 }}
+              className="pointer-events-auto cursor-pointer mt-1.5"
+              onClick={onClick}
+            >
+              <h1 className="wordmark text-black dark:text-white flex items-center font-mono" style={{ fontSize: '14px' }}>
+                <span>{matrixText}</span>
+                <span className="animate-pulse inline-block w-1.5 h-3.5 bg-current ml-0.5 opacity-60 shrink-0" />
+              </h1>
+            </motion.div>
+          )}
+          {activeSection === 'priority' && (
+            <motion.div
+              key="priority"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col gap-0.5 bg-background/80 backdrop-blur-sm py-1 px-2 -ml-2 rounded-sm"
+            >
+              <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground">PRIORITY LIST</span>
+              <span className="text-[8px] font-mono uppercase tracking-widest text-foreground/40">DAILY OBJECTIVES</span>
+            </motion.div>
+          )}
+          {activeSection === 'overview' && (
+            <motion.div
+              key="overview"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col gap-0.5 bg-background/80 backdrop-blur-sm py-1 px-2 -ml-2 rounded-sm"
+            >
+              <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground">FINANCES</span>
+              <span className="text-[8px] font-mono uppercase tracking-widest text-foreground/40">REAL-TIME SYNC</span>
+            </motion.div>
+          )}
+          {activeSection === 'breakdown' && (
+            <motion.div
+              key="breakdown"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col gap-0.5 bg-background/80 backdrop-blur-sm py-1 px-2 -ml-2 rounded-sm"
+            >
+              <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground">TRANSACTIONS</span>
+              <span className="text-[8px] font-mono uppercase tracking-widest text-foreground/40">LEDGER BREAKDOWN</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </motion.div>
+
+      {/* Right side live clock/date */}
+      <div className="flex flex-col items-end gap-0.5 bg-background/80 backdrop-blur-sm py-1 px-2 mr-1 rounded-sm shrink-0 mt-0.5 font-mono">
+        <span className="text-[13px] font-black tracking-tighter leading-none text-foreground">{formattedTime}</span>
+        <span className="text-[7px] font-black uppercase tracking-[0.3em] text-foreground/40 font-sans">{formattedDate}</span>
+      </div>
+    </div>
   );
 };
 
@@ -59,7 +159,8 @@ export default function Home() {
     setIsConnectionsModalOpen,
     setIsSearchModalOpen,
     setIsIdentityEditModalOpen,
-    setIsQrModalOpen
+    setIsQrModalOpen,
+    setActiveSection: setGlobalActiveSection
   } = useOutletContext();
 
   const { 
@@ -82,6 +183,7 @@ export default function Home() {
   const fileInputRef = useRef(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAtTop, setIsAtTop] = useState(true);
+  const [activeSection, setActiveSection] = useState('produs');
   const [isInitializing, setIsInitializing] = useState(true);
   const [isIdMenuOpen, setIsIdMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -92,6 +194,15 @@ export default function Home() {
   });
 
   const [showAddTx, setShowAddTx] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.openAddTransaction) {
+      setShowAddTx(true);
+      // Consume state so it doesn't repeatedly trigger on standard component unmount/remount
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     if (user) {
@@ -139,10 +250,29 @@ export default function Home() {
     if (!container) return;
     const handleScroll = () => {
       setIsAtTop(container.scrollTop < 10);
+      
+      const priorityEl = document.getElementById('section-priority');
+      const overviewEl = document.getElementById('section-overview');
+      const breakdownEl = document.getElementById('section-breakdown');
+
+      let current = 'produs';
+      if (container.scrollTop < 50) {
+        current = 'produs';
+      } else {
+        if (breakdownEl && breakdownEl.getBoundingClientRect().top < 250) {
+          current = 'breakdown';
+        } else if (overviewEl && overviewEl.getBoundingClientRect().top < 250) {
+          current = 'overview';
+        } else if (priorityEl && priorityEl.getBoundingClientRect().top < 250) {
+          current = 'priority';
+        }
+      }
+      setActiveSection(current);
+      if (setGlobalActiveSection) setGlobalActiveSection(current);
     };
     container.addEventListener('scroll', handleScroll);
     return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [setGlobalActiveSection]);
 
   useEffect(() => {
     if (user && user.username) {
@@ -231,7 +361,6 @@ export default function Home() {
             animate={{ opacity: 1 }}
             className="p-8 pt-0 md:p-12"
           >
-            {isMobile && <MobileLogoText show={isAtTop} onClick={() => setIsLandingModalOpen(true)} />}
             {/* Reality Dashboard Layout */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 w-full mb-[10vh] md:mb-24">
 
@@ -450,7 +579,7 @@ export default function Home() {
               </div>
 
               {/* Priority HUD Component + Metrics Grid */}
-              <div className="snap-start snap-always md:col-span-3 flex flex-col gap-8 pt-16 pb-10 md:py-10">
+              <div id="section-priority" className="snap-start snap-always md:col-span-3 flex flex-col gap-8 pt-28 pb-10 md:py-10">
                 <PriorityHUD />
                 
                 {/* Metrics Overlay - Financial Vitals */}
@@ -475,7 +604,7 @@ export default function Home() {
                         c: 'text-emerald-500'
                     }
                   ].map((s, i) => (
-                    <div key={i} className="bg-foreground/[0.02] rounded-sm p-6 flex flex-col gap-2 hover:bg-foreground/[0.04] transition-all relative group/metric">
+                    <div key={i} className="bg-foreground/[0.02] rounded-sm p-6 flex flex-col gap-2 hover:bg-foreground/[0.04] transition-all relative group/metric overflow-hidden">
                       <ChippedBorder opacity={0.5} />
                       <span 
                         className="text-2xl font-black tracking-tighter"
@@ -483,12 +612,10 @@ export default function Home() {
                       >
                         {user?.currency === 'PHP' ? '₱' : '$'}{s.v < 0 ? '-' : ''}{Math.abs(s.v).toLocaleString()}
                       </span>
-                      <div className="flex flex-col -gap-1">
-                        {s.l.map((word, idx) => (
-                          <span key={idx} className="text-[9px] font-black uppercase tracking-[0.4em] text-foreground/20 group-hover/metric:text-foreground/40 transition-colors leading-tight">
-                            {word}
-                          </span>
-                        ))}
+                      <div className="flex items-center min-w-0">
+                        <span className="text-[9px] font-black uppercase tracking-[0.4em] text-foreground/20 group-hover/metric:text-foreground/40 transition-colors leading-tight truncate">
+                          {s.l.join(' ')}
+                        </span>
                       </div>
                       
                       {/* Decorative HUD Corner */}
@@ -504,9 +631,10 @@ export default function Home() {
               
               {/* Left Part: Financial Overview (8/12) */}
               <motion.div 
+                id="section-overview"
                 initial={{ opacity: 0, x: -20 }} 
                 animate={{ opacity: 1, x: 0 }} 
-                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-8 group relative md:bg-foreground/[0.03] rounded-sm px-4 md:px-12 pt-6 pb-10 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-center min-h-[80vh] md:min-h-0"
+                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-8 group relative md:bg-foreground/[0.03] rounded-sm px-4 md:px-12 pt-6 pb-10 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[80vh] md:min-h-0"
               >
                 <div className="hidden md:block">
                   <ChippedBorder opacity={0.7} />
@@ -527,10 +655,11 @@ export default function Home() {
 
               {/* Right Part: Breakdown (4/12) */}
               <motion.div 
+                id="section-breakdown"
                 initial={{ opacity: 0, x: 20 }} 
                 animate={{ opacity: 1, x: 0 }} 
                 transition={{ delay: 0.1 }}
-                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-4 group relative md:bg-foreground/[0.03] rounded-sm px-4 md:px-12 pt-6 pb-10 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-center min-h-[80vh] md:min-h-0"
+                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-4 group relative md:bg-foreground/[0.03] rounded-sm px-4 md:px-12 pt-6 pb-10 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[80vh] md:min-h-0"
               >
                 <div className="hidden md:block">
                   <ChippedBorder opacity={0.7} />

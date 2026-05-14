@@ -59,12 +59,7 @@ const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => 
             <div className="flex-1 flex flex-col min-h-[500px]">
             <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4 pt-2">
                 {children}
-                {entries.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-400 py-10 opacity-50">
-                        <span className="material-symbols-outlined text-4xl mb-2">history_edu</span>
-                        <p className="text-xs font-bold uppercase tracking-widest text-center px-4">Your story begins here. Write your first entry.</p>
-                    </div>
-                ) : (
+                {entries.length > 0 && (
                     <AnimatePresence mode="popLayout">
                         {entries.map((entry, idx) => (
                             <motion.div 
@@ -74,7 +69,7 @@ const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => 
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 transition={{ duration: 0.8, delay: Math.min(idx * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
                                 onClick={() => onSelectEntry && onSelectEntry(entry)}
-                                className="group relative rounded-3xl bg-white dark:bg-[#121212]/40 border border-slate-100 dark:border-white/10 hover:border-primary/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[160px]"
+                                className="group relative rounded-3xl bg-white dark:bg-[#121212]/40 border border-slate-100 dark:border-white/10 hover:border-primary/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px]"
                             >
                                 {/* Left Side: Image (1/4) */}
                                 <div className="w-1/4 relative shrink-0 overflow-hidden bg-slate-100 dark:bg-white/5 border-r border-slate-100 dark:border-white/5">
@@ -87,8 +82,8 @@ const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => 
                                 </div>
 
                                 {/* Right Side: Content (3/4) */}
-                                <div className="flex-1 p-5 flex flex-col justify-between">
-                                    <div>
+                                <div className="flex-1 p-4 md:p-5 flex flex-col justify-between text-left">
+                                    <div className="min-w-0">
                                         <div className="flex justify-between items-start mb-2">
                                             <div className="flex items-center gap-3">
                                                 <div className="size-8 md:size-10 flex items-center justify-center shrink-0">
@@ -118,17 +113,9 @@ const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => 
                                         </div>
 
                                         {/* Entry Title */}
-                                        {entry.title && (
-                                            <h4 className="text-sm font-black text-primary dark:text-white uppercase tracking-tight mb-1 line-clamp-1">
-                                                {entry.title}
-                                            </h4>
-                                        )}
-
-                                        {/* Entry Content Snippet */}
-                                        <div 
-                                            className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium mt-1"
-                                            dangerouslySetInnerHTML={parseMarkdown(entry.content)}
-                                        />
+                                        <h4 className="text-sm font-black text-primary dark:text-white uppercase tracking-tight mb-1 truncate block">
+                                            {entry.title || 'UNTITLED ENTRY'}
+                                        </h4>
                                     </div>
 
                                     {/* Footer Decor */}

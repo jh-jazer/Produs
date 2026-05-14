@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardPanel from '../ui/DashboardPanel';
-import ConfirmDialog from '../ui/ConfirmDialog';
+import DecisionModal from '../ui/DecisionModal';
 
 const ChippedBorder = ({ opacity = 0.8 }) => (
   <div
@@ -16,7 +16,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const EmptyState = ({ text }) => (
-  <div className="flex flex-col items-center justify-center pt-48 pb-10 opacity-40 text-center gap-6">
+  <div className="flex flex-col items-center justify-center pt-80 pb-10 opacity-40 text-center gap-6">
     <span className="material-symbols-outlined text-4xl opacity-20">terminal</span>
     <div className="flex flex-col gap-2">
       <span className="text-[10px] font-black uppercase tracking-[0.4em]">
@@ -41,6 +41,7 @@ const FinancialBreakdown = ({
     const [innerView, setInnerView] = useState('categories'); // 'categories' | 'ledger'
     const [editingTx, setEditingTx] = useState(null);
     const [confirmDelete, setConfirmDelete] = useState(null);
+    const [selectedTxId, setSelectedTxId] = useState(null);
 
     const categoryTotals = selectedTransactions
         .filter((t) => t.type === "expense")
@@ -102,18 +103,22 @@ const FinancialBreakdown = ({
     };
 
     return (
-        <div className="flex flex-col gap-6 h-full relative z-10 pt-6 md:pt-8">
-            <ConfirmDialog
+        <div className="flex flex-col gap-6 h-full relative z-10 pt-4 md:pt-0 mt-0 md:-mt-4">
+            <DecisionModal
                 isOpen={!!confirmDelete}
                 title="DELETE RECORD"
                 message="Are you sure you want to delete this transaction from your history?"
                 confirmLabel="DELETE"
+                cancelLabel="CANCEL"
                 onConfirm={() => handleDelete(confirmDelete)}
                 onCancel={() => setConfirmDelete(null)}
             />
 
-            <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.6em]">TRANSACTIONS</span>
+            <div className="flex justify-between items-start">
+                <div className="hidden md:flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-white uppercase tracking-[0.6em]">TRANSACTIONS</span>
+                    <span className="text-[8px] font-mono uppercase tracking-widest text-white/40">LEDGER BREAKDOWN</span>
+                </div>
             </div>
 
             <div className="flex-1 min-h-[350px]">
@@ -156,7 +161,11 @@ const FinancialBreakdown = ({
                         >
                             {selectedTransactions.length > 0 ? (
                                 selectedTransactions.slice(0, 50).map((tx) => (
-                                    <div key={tx._id} className="flex items-center justify-between p-2.5 rounded-sm bg-white/[0.02] border border-white/5 transition-all group hover:border-white/10">
+                                    <div 
+                                        key={tx._id} 
+                                        onClick={() => setSelectedTxId(prev => prev === tx._id ? null : tx._id)}
+                                        className={`flex items-center justify-between p-2.5 rounded-sm bg-white/[0.02] border transition-all group cursor-pointer ${selectedTxId === tx._id ? 'border-white/20 bg-white/[0.05]' : 'border-white/5 hover:border-white/10'}`}
+                                    >
                                         <div className="flex items-center gap-3">
                                             <div className="size-7 rounded-sm bg-white/5 flex items-center justify-center text-white/20 border border-white/10 shrink-0">
                                                 <span className="material-symbols-outlined text-xs">{tx.type === 'income' ? 'payments' : tx.type === 'savings' ? 'savings' : 'shopping_bag'}</span>
@@ -173,22 +182,31 @@ const FinancialBreakdown = ({
                                             >
                                                 {tx.type === 'expense' || tx.type === 'debt' ? '-' : ''}{localCurrency}{parseFloat(tx.amount).toLocaleString()}
                                             </p>
-                                            <div className="opacity-60 md:opacity-0 md:group-hover:opacity-100 flex items-center gap-1 transition-opacity">
-                                                <button 
-                                                    onClick={() => openEditModal(tx)}
-                                                    className="p-1 rounded-sm bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all"
-                                                    title="Edit Transaction"
-                                                >
-                                                    <span className="material-symbols-outlined text-xs">edit</span>
-                                                </button>
-                                                <button 
-                                                    onClick={() => setConfirmDelete(tx._id)}
-                                                    className="p-1 rounded-sm bg-white/5 hover:bg-rose-500/20 text-white/40 hover:text-rose-500 transition-all"
-                                                    title="Delete Transaction"
-                                                >
-                                                    <span className="material-symbols-outlined text-xs">delete</span>
-                                                </button>
-                                            </div>
+                                            <AnimatePresence>
+                                                {selectedTxId === tx._id && (
+                                                    <motion.div 
+                                                        initial={{ opacity: 0, scale: 0.9, x: 5 }}
+                                                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                                                        exit={{ opacity: 0, scale: 0.9, x: 5 }}
+                                                        className="flex items-center gap-1 shrink-0"
+                                                    >
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); openEditModal(tx); }}
+                                                            className="p-1.5 rounded-sm bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all"
+                                                            title="Edit Transaction"
+                                                        >
+                                                            <span className="material-symbols-outlined text-xs">edit</span>
+                                                        </button>
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); setConfirmDelete(tx._id); }}
+                                                            className="p-1.5 rounded-sm bg-white/5 hover:bg-rose-500/20 text-rose-500/60 hover:text-rose-500 transition-all"
+                                                            title="Delete Transaction"
+                                                        >
+                                                            <span className="material-symbols-outlined text-xs">delete</span>
+                                                        </button>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                     </div>
                                 ))
@@ -223,77 +241,115 @@ const FinancialBreakdown = ({
             </div>
 
             {/* Edit Transaction Modal */}
+            {/* Edit Transaction Modal */}
             {editingTx && createPortal(
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-[#000000]/80 backdrop-blur-sm" onClick={() => setEditingTx(null)}></div>
-                    <DashboardPanel
-                        className="w-full max-w-md z-10"
-                        title="EDIT TRANSACTION"
-                        subtitle="MODIFY ENTRY"
-                        headerExtra={
-                            <button onClick={() => setEditingTx(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
-                                <span className="material-symbols-outlined text-xl">close</span>
-                            </button>
-                        }
+                <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                        onClick={() => setEditingTx(null)}
+                    />
+
+                    {/* Dialog Container - Operative Panel Design */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        className="relative z-10 w-full max-w-md bg-white dark:bg-[#080808] p-8 md:p-10 rounded-sm group overflow-hidden border border-black dark:border-white/5 shadow-[0_50px_100px_-20px_rgba(0,0,0,1)]"
                     >
-                        <form onSubmit={handleUpdate} className="space-y-5 px-1 py-2">
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">TITLE</label>
-                                <input
-                                    type="text" required placeholder="Enter title..."
-                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.2em] font-exo uppercase placeholder:text-white/20 transition-all"
-                                    value={editingTx.title} onChange={e => handleEditChange('title', e.target.value)}
-                                />
+                        <ChippedBorder opacity={0.4} />
+
+                        <div className="relative z-10">
+                            {/* Header */}
+                            <div className="flex justify-between items-center mb-8">
+                                <p className="text-[12px] md:text-[14px] font-bold leading-relaxed tracking-[0.2em] text-black/80 dark:text-white/80 uppercase">
+                                    EDIT TRANSACTION
+                                </p>
+                                <button type="button" onClick={() => setEditingTx(null)} className="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white transition-colors">
+                                    <span className="material-symbols-outlined text-lg">close</span>
+                                </button>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+
+                            {/* Form */}
+                            <form onSubmit={handleUpdate} className="space-y-4">
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">AMOUNT</label>
+                                    <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">TITLE</label>
                                     <input
-                                        type="number" required step="0.01"
-                                        className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.2em] font-exo uppercase transition-all"
-                                        value={editingTx.amount} onChange={e => handleEditChange('amount', e.target.value)}
+                                        type="text" required placeholder="Enter title..."
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-black tracking-[0.2em] uppercase placeholder:text-black/20 dark:placeholder:text-white/20 transition-all"
+                                        value={editingTx.title} onChange={e => handleEditChange('title', e.target.value)}
                                     />
                                 </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">TYPE</label>
-                                    <select
-                                        className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.15em] font-exo uppercase appearance-none cursor-pointer transition-all"
-                                        value={editingTx.type} onChange={e => handleEditChange('type', e.target.value)}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">AMOUNT</label>
+                                        <input
+                                            type="number" required step="0.01"
+                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-black tracking-[0.2em] uppercase transition-all"
+                                            value={editingTx.amount} onChange={e => handleEditChange('amount', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">TYPE</label>
+                                        <select
+                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-black tracking-[0.15em] uppercase appearance-none cursor-pointer transition-all"
+                                            value={editingTx.type} onChange={e => handleEditChange('type', e.target.value)}
+                                        >
+                                            <option value="expense" className="bg-white dark:bg-[#080808] text-black dark:text-white">Expense (-)</option>
+                                            <option value="income" className="bg-white dark:bg-[#080808] text-black dark:text-white">Income (+)</option>
+                                            <option value="savings" className="bg-white dark:bg-[#080808] text-black dark:text-white">Savings (★)</option>
+                                            <option value="debt" className="bg-white dark:bg-[#080808] text-black dark:text-white">Debt (⚠)</option>
+                                            <option value="upcoming" className="bg-white dark:bg-[#080808] text-black dark:text-white">Receivable (⌚)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">CATEGORY</label>
+                                        <select
+                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-black tracking-[0.15em] uppercase appearance-none cursor-pointer transition-all"
+                                            value={editingTx.category} onChange={e => handleEditChange('category', e.target.value)}
+                                        >
+                                            {availableCategories.sort().map(cat => (
+                                                <option key={cat} value={cat} className="bg-white dark:bg-[#080808] text-black dark:text-white">{cat}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">DATE</label>
+                                        <input
+                                            type="date" required
+                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-black tracking-[0.1em] uppercase transition-all"
+                                            value={editingTx.date} onChange={e => handleEditChange('date', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex flex-row gap-6 w-full pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditingTx(null)}
+                                        className="flex-1 py-4 bg-black/5 dark:bg-white/5 border border-black dark:border-white/10 text-black/40 dark:text-white/40 font-black uppercase tracking-[0.4em] text-[9px] hover:bg-black/10 hover:text-black dark:hover:bg-white/10 dark:hover:text-white transition-all active:scale-[0.98] rounded-sm"
                                     >
-                                        <option value="expense">Expense (-)</option>
-                                        <option value="income">Income (+)</option>
-                                        <option value="savings">Savings (★)</option>
-                                        <option value="debt">Debt (⚠)</option>
-                                        <option value="upcoming">Receivable (⌚)</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">CATEGORY</label>
-                                    <select
-                                        className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.15em] font-exo uppercase appearance-none cursor-pointer transition-all"
-                                        value={editingTx.category} onChange={e => handleEditChange('category', e.target.value)}
+                                        CANCEL
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 py-4 bg-black dark:bg-white text-white dark:text-black font-black uppercase tracking-[0.4em] text-[9px] hover:bg-black/90 dark:hover:bg-white/90 transition-all active:scale-[0.98] rounded-sm relative overflow-hidden"
                                     >
-                                        {availableCategories.sort().map(cat => (
-                                            <option key={cat} value={cat}>{cat}</option>
-                                        ))}
-                                    </select>
+                                        <div className="absolute top-0 right-0 w-2 h-2 bg-white dark:bg-black rotate-45 translate-x-1 -translate-y-1" />
+                                        UPDATE
+                                    </button>
                                 </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">DATE</label>
-                                    <input
-                                        type="date" required
-                                        className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.1em] font-exo uppercase transition-all"
-                                        value={editingTx.date} onChange={e => handleEditChange('date', e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                            <button type="submit" className="w-full py-4 bg-primary text-white font-black text-[10px] tracking-[0.4em] rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all active:scale-[0.98] mt-4 font-exo uppercase">
-                                UPDATE TRANSACTION
-                            </button>
-                        </form>
-                    </DashboardPanel>
+                            </form>
+                        </div>
+                    </motion.div>
                 </div>,
                 document.body
             )}

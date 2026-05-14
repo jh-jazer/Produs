@@ -55,7 +55,7 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait" initial={false}>
       <Routes>
         {/* Public Landing Page */}
-        <Route path="/" element={<Landing />} />
+        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Landing />} />
 
         <Route path="/manual" element={<Manual />} />
         <Route path="/classes" element={<Classes />} />

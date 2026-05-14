@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useJournal } from '../../hooks/useJournal';
-import { Image as ImageIcon, Type, X } from 'lucide-react';
+import { Image as ImageIcon, Type, X, ChevronLeft } from 'lucide-react';
 import { MoodTracker } from '../dashboard/DashboardRealityWidgets';
 
 const JOURNAL_PROMPTS = [
@@ -18,7 +18,7 @@ const JOURNAL_PROMPTS = [
     "What is something you are grateful for right now?"
 ];
 
-const JournalEntry = ({ onAction, initialEntry }) => {
+const JournalEntry = ({ onAction, onBack, initialEntry }) => {
     const [mood, setMood] = useState(null);
     const [content, setContent] = useState('');
     const [title, setTitle] = useState('');
@@ -220,42 +220,78 @@ const JournalEntry = ({ onAction, initialEntry }) => {
                 accept="image/*" 
             />
 
-            {/* Image Preview at Top */}
-            {imageUrl ? (
-                <div className="relative w-full h-48 md:h-64 bg-slate-900 overflow-hidden">
-                    <img src={imageUrl} alt="Journal visuals" className="w-full h-full object-cover opacity-80" />
-                    <button 
-                        onClick={() => setImageUrl('')}
-                        className="absolute top-4 right-4 size-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-rose-500 transition-colors z-20"
-                    >
-                        <X size={16} />
-                    </button>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+            {/* Top Visual / Attach Image Section with Integrated Back Button */}
+            <div className="relative w-full border-b border-dashed border-slate-200 dark:border-white/10 bg-slate-100/50 dark:bg-[#161f2e]">
+                {/* Absolute Controls Row (Top Right) */}
+                <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
+                    {onBack && (
+                        <button 
+                            onClick={onBack}
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/80 dark:bg-black/40 backdrop-blur-md text-[10px] font-black text-slate-600 dark:text-white hover:text-primary transition-all uppercase tracking-widest border border-slate-200 dark:border-white/10 active:scale-95 shadow-sm"
+                        >
+                            <ChevronLeft size={12} />
+                            Back
+                        </button>
+                    )}
+                    {imageUrl && (
+                        <button 
+                            onClick={() => setImageUrl('')}
+                            className="size-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-rose-500 transition-colors"
+                        >
+                            <X size={16} />
+                        </button>
+                    )}
                 </div>
-            ) : (
-                <button 
-                    onClick={handleAddImage}
-                    disabled={loading}
-                    className="w-full py-8 border-b border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-primary hover:bg-primary/5 transition-all group disabled:opacity-50"
-                >
-                    <div className="size-12 rounded-full border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all">
-                        {loading ? (
-                            <div className="size-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                        ) : (
-                            <ImageIcon size={20} className="group-hover:scale-110 transition-transform" />
-                        )}
+
+                {/* Image Preview or Trigger */}
+                {imageUrl ? (
+                    <div className="relative w-full h-48 md:h-64 bg-slate-900 overflow-hidden">
+                        <img src={imageUrl} alt="Journal visuals" className="w-full h-full object-cover opacity-80" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
                     </div>
-                    <div className="text-center">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] block">
-                            {loading ? 'UPLOADING...' : 'Attach image'}
-                        </span>
-                        <span className="text-[8px] font-bold text-slate-400 tracking-widest opacity-60">Standard Upload</span>
-                    </div>
-                </button>
-            )}
+                ) : (
+                    <button 
+                        onClick={handleAddImage}
+                        disabled={loading}
+                        className="w-full py-8 flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-primary hover:bg-primary/5 transition-all group disabled:opacity-50"
+                    >
+                        <div className="size-12 rounded-full border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all">
+                            {loading ? (
+                                <div className="size-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                            ) : (
+                                <ImageIcon size={20} className="group-hover:scale-110 transition-transform" />
+                            )}
+                        </div>
+                        <div className="text-center">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] block">
+                                {loading ? 'UPLOADING...' : 'Attach image'}
+                            </span>
+                            <span className="text-[8px] font-bold text-slate-400 tracking-widest opacity-60">Standard Upload</span>
+                        </div>
+                    </button>
+                )}
+            </div>
+
+            {/* Header Block: Mood Tracker (Left) & Date (Right) */}
+            <div className="bg-white dark:bg-[#121212] px-6 pt-6 flex justify-between items-start gap-4">
+                <div className="z-20 shrink-0">
+                    <MoodTracker 
+                        user={{ settings: { mood: mood } }} 
+                        updateMood={(val) => setMood(val)} 
+                        standalone 
+                    />
+                </div>
+                <span className="text-xs font-black uppercase tracking-wider text-primary dark:text-white/80 mt-2 text-right">
+                    {new Date(initialEntry ? initialEntry.date : Date.now()).toLocaleDateString(undefined, { 
+                        month: 'long', 
+                        day: 'numeric', 
+                        weekday: 'long' 
+                    }).toUpperCase()}
+                </span>
+            </div>
 
             {/* Title Input Area */}
-            <div className="bg-white dark:bg-[#121212] px-6 pt-6 flex items-center gap-3">
+            <div className="bg-white dark:bg-[#121212] px-6 pt-3 flex items-center gap-3">
                 <input 
                     type="text" 
                     value={title}
@@ -280,14 +316,6 @@ const JournalEntry = ({ onAction, initialEntry }) => {
                     onMouseUp={checkFormatting}
                 />
 
-                {/* Integrated Mood Tracker - Lower Left */}
-                <div className="absolute bottom-4 left-4 z-20">
-                    <MoodTracker 
-                        user={{ settings: { mood: mood } }} 
-                        updateMood={(val) => setMood(val)} 
-                        standalone 
-                    />
-                </div>
             </div>
 
             {/* Google Keep Style Bottom Toolbar */}

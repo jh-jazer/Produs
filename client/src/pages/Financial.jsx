@@ -129,7 +129,7 @@ const Financial = () => {
 
                             {/* SAVINGS DIVISION */}
                             {activeModule === 'savings' && (
-                                <HUDPanel title="SAVINGS & VAULT" subtitle="EMERGENCY FUNDS">
+                                <HUDPanel title="SAVINGS ACCOUNTS" subtitle="EMERGENCY FUNDS">
                                     <SavingsPanel
                                         savings={savings}
                                         currencySymbol={currencySymbol}

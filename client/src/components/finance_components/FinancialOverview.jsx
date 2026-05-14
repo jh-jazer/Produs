@@ -2,8 +2,19 @@ import React, { useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import DashboardPanel from "../ui/DashboardPanel";
-import ConfirmDialog from "../ui/ConfirmDialog";
+import DecisionModal from "../ui/DecisionModal";
 import currencyCodes from 'currency-codes';
+
+const ChippedBorder = ({ opacity = 0.8 }) => (
+  <div
+    className="absolute inset-[-2px] rounded-sm pointer-events-none z-0"
+    style={{
+      border: '4px solid currentColor',
+      opacity,
+      clipPath: 'polygon(0% 0%, 15% 0%, 16% 2%, 18% 0%, 42% 0%, 43% 4%, 45% 0%, 78% 0%, 79% 2%, 81% 0%, 100% 0%, 100% 20%, 98% 22%, 100% 24%, 100% 55%, 97% 58%, 100% 61%, 100% 100%, 82% 100%, 81% 97%, 79% 100%, 38% 100%, 37% 96%, 35% 100%, 0% 100%, 0% 80%, 3% 78%, 0% 76%, 0% 35%, 2% 33%, 0% 31%)'
+    }}
+  />
+);
 
 const FinancialOverview = ({
   transactions = [],
@@ -165,21 +176,22 @@ const FinancialOverview = ({
 
   return (
     <div className={`flex flex-col ${compact ? 'gap-4' : 'gap-8 min-h-[400px]'} relative group`}>
-        <ConfirmDialog
+        <DecisionModal
             isOpen={!!confirmDelete}
             title="DELETE RECORD"
             message="Are you sure you want to delete this transaction from your history?"
             confirmLabel="DELETE"
+            cancelLabel="CANCEL"
             onConfirm={() => handleDelete(confirmDelete)}
             onCancel={() => setConfirmDelete(null)}
         />
 
-        <div className="flex flex-col gap-8 pt-0 -mt-24 md:-mt-4 relative">
+        <div className="flex flex-col gap-8 pt-4 md:pt-0 mt-0 md:-mt-4 relative">
             <div className="flex flex-col gap-8">
                 <div className="flex justify-between items-start mb-6">
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">FINANCIAL OVERVIEW</span>
-                        <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">REAL-TIME SYNC</span>
+                    <div className="hidden md:flex flex-col gap-1">
+                        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white">FINANCES</span>
+                        <span className="text-[8px] font-mono uppercase tracking-widest text-white/40">REAL-TIME SYNC</span>
                     </div>
                     
                     <div className="relative">
@@ -217,7 +229,7 @@ const FinancialOverview = ({
                             <div className="absolute top-4 right-4 z-20">
                                 <button 
                                     onClick={() => setShowSettings(true)}
-                                    className="size-8 flex items-center justify-center rounded-sm border border-white/10 bg-white/5 text-white/40 hover:text-white hover:bg-white/10 transition-all"
+                                    className="size-8 flex items-center justify-center rounded-sm text-white/40 hover:text-white bg-transparent transition-all"
                                 >
                                     <span className="material-symbols-outlined text-lg">more_vert</span>
                                 </button>
@@ -400,102 +412,140 @@ const FinancialOverview = ({
             </div>
         </div>
 
+        {/* Add Transaction Modal */}
         {showAddTx && createPortal(
-            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                <div className="absolute inset-0 bg-[#000000]/80 backdrop-blur-sm" onClick={() => setShowAddTx(false)}></div>
-                <DashboardPanel
-                    className="w-full max-w-md z-10"
-                    title="ADD TRANSACTION"
-                    subtitle="NEW ENTRY"
-                    headerExtra={
-                        <button onClick={() => setShowAddTx(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
-                            <span className="material-symbols-outlined text-xl">close</span>
-                        </button>
-                    }
+            <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4">
+                {/* Backdrop */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                    onClick={() => setShowAddTx(false)}
+                />
+
+                {/* Dialog Container - Operative Panel Design */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="relative z-10 w-full max-w-md bg-white dark:bg-[#080808] p-8 md:p-10 rounded-sm group overflow-hidden border border-black dark:border-white/5 shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] max-h-[90vh] overflow-y-auto custom-scrollbar"
                 >
-                    <form onSubmit={handleAdd} className="space-y-5 px-1 py-2">
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">TITLE</label>
-                            <input
-                                type="text" required placeholder="Enter title..."
-                                className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.2em] font-exo uppercase placeholder:text-white/20 transition-all"
-                                value={newTx.title} onChange={e => setNewTx({ ...newTx, title: e.target.value })}
-                            />
+                    <ChippedBorder opacity={0.4} />
+
+                    <div className="relative z-10">
+                        {/* Header */}
+                        <div className="flex justify-between items-center mb-8">
+                            <p className="text-[12px] md:text-[14px] font-bold leading-relaxed tracking-[0.2em] text-black/80 dark:text-white/80 uppercase">
+                                ADD TRANSACTION
+                            </p>
+                            <button type="button" onClick={() => setShowAddTx(false)} className="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white transition-colors">
+                                <span className="material-symbols-outlined text-lg">close</span>
+                            </button>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+
+                        {/* Form */}
+                        <form onSubmit={handleAdd} className="space-y-4">
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">AMOUNT</label>
+                                <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">TITLE</label>
                                 <input
-                                    type="number" required step="0.01"
-                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.2em] font-exo uppercase transition-all"
-                                    value={newTx.amount} onChange={e => setNewTx({ ...newTx, amount: e.target.value })}
+                                    type="text" required placeholder="Enter title..."
+                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-black tracking-[0.2em] uppercase placeholder:text-black/20 dark:placeholder:text-white/20 transition-all"
+                                    value={newTx.title} onChange={e => setNewTx({ ...newTx, title: e.target.value })}
                                 />
                             </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">TYPE</label>
-                                <select
-                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.15em] font-exo uppercase appearance-none cursor-pointer transition-all"
-                                    value={newTx.type} onChange={e => setNewTx({ ...newTx, type: e.target.value })}
-                                >
-                                    <option value="expense">Expense (-)</option>
-                                    <option value="income">Income (+)</option>
-                                    <option value="savings">Savings (★)</option>
-                                    <option value="debt">Debt (⚠)</option>
-                                    <option value="upcoming">Receivable (⌚)</option>
-                                </select>
-                            </div>
-
-                            {(newTx.type === 'debt' || newTx.type === 'upcoming') && (
-                                <div className="flex flex-col gap-3 col-span-2">
-                                    <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5 cursor-pointer hover:bg-white/[0.05] transition-all" onClick={() => setIsRecurring(!isRecurring)}>
-                                        <div className={`size-4 rounded-sm border transition-all flex items-center justify-center ${isRecurring ? 'bg-white border-white text-black' : 'border-white/20 text-transparent'}`}>
-                                            <span className="material-symbols-outlined text-[12px] font-black">check</span>
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/80 font-exo">RECURRING</span>
-                                            <span className="text-[8px] font-black uppercase tracking-widest text-white/40">MONTHLY SYNC</span>
-                                        </div>
-                                    </div>
-
-                                    {isRecurring && (
-                                        <div className="flex flex-col gap-1.5 p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">DURATION (MONTHS)</label>
-                                            <input
-                                                type="number" min="1" max="60"
-                                                className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.2em] font-exo uppercase transition-all"
-                                                value={recurringMonths} onChange={e => setRecurringMonths(parseInt(e.target.value))}
-                                            />
-                                        </div>
-                                    )}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">AMOUNT</label>
+                                    <input
+                                        type="number" required step="0.01"
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-black tracking-[0.2em] uppercase transition-all"
+                                        value={newTx.amount} onChange={e => setNewTx({ ...newTx, amount: e.target.value })}
+                                    />
                                 </div>
-                            )}
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">CATEGORY</label>
-                                <select
-                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.15em] font-exo uppercase appearance-none cursor-pointer transition-all"
-                                    value={newTx.category} onChange={e => setNewTx({ ...newTx, category: e.target.value })}
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">TYPE</label>
+                                    <select
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-black tracking-[0.15em] uppercase appearance-none cursor-pointer transition-all"
+                                        value={newTx.type} onChange={e => setNewTx({ ...newTx, type: e.target.value })}
+                                    >
+                                        <option value="expense" className="bg-white dark:bg-[#080808] text-black dark:text-white">Expense (-)</option>
+                                        <option value="income" className="bg-white dark:bg-[#080808] text-black dark:text-white">Income (+)</option>
+                                        <option value="savings" className="bg-white dark:bg-[#080808] text-black dark:text-white">Savings (★)</option>
+                                        <option value="debt" className="bg-white dark:bg-[#080808] text-black dark:text-white">Debt (⚠)</option>
+                                        <option value="upcoming" className="bg-white dark:bg-[#080808] text-black dark:text-white">Receivable (⌚)</option>
+                                    </select>
+                                </div>
+
+                                {(newTx.type === 'debt' || newTx.type === 'upcoming') && (
+                                    <div className="flex flex-col gap-3 col-span-2 pt-2">
+                                        <div className="flex items-center gap-3 p-3 rounded-sm bg-black/5 dark:bg-white/[0.02] border border-black/10 dark:border-white/5 cursor-pointer hover:bg-black/10 dark:hover:bg-white/[0.05] transition-all" onClick={() => setIsRecurring(!isRecurring)}>
+                                            <div className={`size-4 rounded-sm border transition-all flex items-center justify-center ${isRecurring ? 'bg-black border-black text-white dark:bg-white dark:border-white dark:text-black' : 'border-black/20 dark:border-white/20 text-transparent'}`}>
+                                                <span className="material-symbols-outlined text-[12px] font-black">check</span>
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-[9px] font-black uppercase tracking-[0.4em] text-black/80 dark:text-white/80">RECURRING</span>
+                                                <span className="text-[8px] font-black uppercase tracking-widest text-black/40 dark:text-white/40">MONTHLY SYNC</span>
+                                            </div>
+                                        </div>
+
+                                        {isRecurring && (
+                                            <div className="flex flex-col gap-1.5 p-3 rounded-sm bg-black/5 dark:bg-white/[0.02] border border-black/10 dark:border-white/5">
+                                                <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">DURATION (MONTHS)</label>
+                                                <input
+                                                    type="number" min="1" max="60"
+                                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-black tracking-[0.2em] uppercase transition-all"
+                                                    value={recurringMonths} onChange={e => setRecurringMonths(parseInt(e.target.value))}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">CATEGORY</label>
+                                    <select
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-black tracking-[0.15em] uppercase appearance-none cursor-pointer transition-all"
+                                        value={newTx.category} onChange={e => setNewTx({ ...newTx, category: e.target.value })}
+                                    >
+                                        {availableCategories.sort().map(cat => (
+                                            <option key={cat} value={cat} className="bg-white dark:bg-[#080808] text-black dark:text-white">{cat}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">DATE</label>
+                                    <input
+                                        type="date" required
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-black tracking-[0.1em] uppercase transition-all"
+                                        value={newTx.date} onChange={e => setNewTx({ ...newTx, date: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex flex-row gap-6 w-full pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowAddTx(false)}
+                                    className="flex-1 py-4 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black/40 dark:text-white/40 font-black uppercase tracking-[0.4em] text-[9px] hover:bg-black/10 hover:text-black dark:hover:bg-white/10 dark:hover:text-white transition-all active:scale-[0.98] rounded-sm"
                                 >
-                                    {availableCategories.sort().map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
-                                    ))}
-                                </select>
+                                    CANCEL
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 py-4 bg-black dark:bg-white text-white dark:text-black font-black uppercase tracking-[0.4em] text-[9px] hover:bg-black/90 dark:hover:bg-white/90 transition-all active:scale-[0.98] rounded-sm relative overflow-hidden"
+                                >
+                                    <div className="absolute top-0 right-0 w-2 h-2 bg-white dark:bg-black rotate-45 translate-x-1 -translate-y-1" />
+                                    SAVE
+                                </button>
                             </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] ml-1 font-exo">DATE</label>
-                                <input
-                                    type="date" required
-                                    className="w-full bg-[#000000] border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none text-white font-black tracking-[0.1em] font-exo uppercase transition-all"
-                                    value={newTx.date} onChange={e => setNewTx({ ...newTx, date: e.target.value })}
-                                />
-                            </div>
-                        </div>
-                        <button type="submit" className="w-full py-4 bg-primary text-white font-black text-[10px] tracking-[0.4em] rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all active:scale-[0.98] mt-4 font-exo uppercase">
-                            SAVE TRANSACTION
-                        </button>
-                    </form>
-                </DashboardPanel>
+                        </form>
+                    </div>
+                </motion.div>
             </div>,
             document.body
         )}

@@ -1,19 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import JournalHistory from './JournalHistory';
 import JournalEntry from './JournalEntry';
 import DashboardPanel from '../ui/DashboardPanel';
 import { Database, PenTool, ChevronLeft } from 'lucide-react';
 
 const JournalHub = ({ entries = [], onAction }) => {
-    const [isWriting, setIsWriting] = useState(false);
+    const location = useLocation();
+    const [isWriting, setIsWriting] = useState(() => location.state?.openWriteJournal || false);
     const [editingEntry, setEditingEntry] = useState(null);
     const [mood, setMood] = useState('😊');
-    const [timeLeft, setTimeLeft] = useState("");
+    const [timeLeft, setTimeLeft] = useState("00:00:00");
+
+    useEffect(() => {
+        if (location.state?.openWriteJournal) {
+            setIsWriting(true);
+            // Clear navigation history state cleanly
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state]);
 
     // Countdown logic
     React.useEffect(() => {
-        const timer = setInterval(() => {
+        const updateTimer = () => {
             const now = new Date();
             const midnight = new Date();
             midnight.setHours(24, 0, 0, 0);
@@ -26,7 +36,10 @@ const JournalHub = ({ entries = [], onAction }) => {
             setTimeLeft(
                 `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
             );
-        }, 1000);
+        };
+
+        updateTimer(); // Instantly calculate on initial render
+        const timer = setInterval(updateTimer, 1000);
         return () => clearInterval(timer);
     }, []);
 
@@ -96,10 +109,6 @@ const JournalHub = ({ entries = [], onAction }) => {
 
     return (
         <div className="w-full text-left">
-            <div className="flex justify-end mb-6">
-                {backButton}
-            </div>
-            
             <AnimatePresence mode="wait">
                 {!isWriting ? (
                     <motion.div
@@ -118,7 +127,7 @@ const JournalHub = ({ entries = [], onAction }) => {
                             {/* Write Journal Card */}
                             <button
                                 onClick={handleWriteNew}
-                                className="group relative rounded-sm bg-white/[0.03] border border-white/10 hover:border-white/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[160px] w-full mb-6"
+                                className="group relative rounded-sm bg-white/[0.03] border border-white/10 hover:border-white/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6"
                             >
                                 {/* Left Side: Image (1/4) */}
                                 <div className="w-1/4 relative shrink-0 overflow-hidden bg-white/5 border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
@@ -131,30 +140,30 @@ const JournalHub = ({ entries = [], onAction }) => {
                                 </div>
 
                                 {/* Right Side: Content (3/4) */}
-                                <div className="flex-1 p-8 flex flex-col justify-between">
-                                    <div className="flex flex-col gap-1">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="size-10 rounded-sm bg-white/5 flex items-center justify-center text-white/60 group-hover:rotate-12 transition-transform border border-white/10">
-                                                    <PenTool size={20} />
+                                <div className="flex-1 p-4 md:p-8 flex flex-col justify-between text-left">
+                                    <div className="flex flex-col gap-0.5">
+                                        <div className="flex justify-between items-start mb-2 md:mb-4">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="size-8 md:size-10 rounded-sm bg-white/5 flex items-center justify-center text-white/60 group-hover:rotate-12 transition-transform border border-white/10 shrink-0">
+                                                    <PenTool className="size-4 md:size-5" />
                                                 </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">TIME REMAINING</span>
-                                                    <span className="text-xs font-bold text-white tracking-widest">{timeLeft}</span>
+                                                <div className="flex flex-col min-w-0">
+                                                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 truncate block">TIME REMAINING FOR TODAY</span>
+                                                    <span className="text-[11px] md:text-xs font-bold text-white tracking-widest block">{timeLeft}</span>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Entry Title */}
-                                        <h4 className="text-xl font-black text-white uppercase tracking-tighter italic mt-4">
-                                            WRITE NEW ENTRY
+                                        <h4 className="text-base md:text-xl font-black text-white uppercase tracking-tighter italic mt-1 md:mt-4 truncate">
+                                            JOURNAL TODAY
                                         </h4>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">LOG YOUR THOUGHTS</span>
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-white/20 truncate block">LOG YOUR THOUGHTS</span>
                                     </div>
 
                                     {/* Footer Decor */}
-                                    <div className="flex items-center justify-end mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
-                                        <div className="h-[2px] w-12 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]" />
+                                    <div className="flex items-center justify-end mt-1 md:mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
+                                        <div className="h-[2px] w-8 md:w-12 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]" />
                                     </div>
                                 </div>
                             </button>
@@ -169,12 +178,9 @@ const JournalHub = ({ entries = [], onAction }) => {
                         transition={{ duration: 0.3 }}
                         className="space-y-6"
                     >
-                        <div className="flex flex-col gap-1 mb-8">
-                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">{panelSubtitle}</span>
-                            <h3 className="text-2xl font-black uppercase tracking-tighter italic text-white">{panelTitle}</h3>
-                        </div>
                         <JournalEntry 
                             onAction={handleAction} 
+                            onBack={() => { setIsWriting(false); setEditingEntry(null); }}
                             initialEntry={editingEntry}
                         />
                     </motion.div>

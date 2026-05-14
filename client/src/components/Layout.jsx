@@ -38,6 +38,107 @@ import useMobile from '../hooks/useMobile';
 import ProToolsModal from './ui/ProToolsModal';
 import ToolsMarketplaceModal from './ui/ToolsMarketplaceModal';
 
+const GlobalMobileHeader = ({ activeSection, onClick }) => {
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [matrixText, setMatrixText] = useState("");
+  const location = useLocation();
+  const textToType = "PRODUS";
+  const matrixChars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*<>";
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getPageConfig = () => {
+    const path = location.pathname;
+    if (path.startsWith('/dashboard/habits')) return { id: 'habits', title: 'HABITS TRACKER', subtitle: 'DAILY CONSISTENCY' };
+    if (path.startsWith('/dashboard/planner')) return { id: 'planner', title: 'DAILY PLANNER', subtitle: 'SCHEDULE & NOTES' };
+    if (path.startsWith('/dashboard/calendar')) return { id: 'calendar', title: 'CALENDAR & GOALS', subtitle: 'MONTHLY TIMELINE' };
+    if (path.startsWith('/dashboard/goals')) return { id: 'goals', title: 'GOALS', subtitle: 'MILESTONES & TARGETS' };
+    if (path.startsWith('/dashboard/spiritual')) return { id: 'spiritual', title: 'WRITE HUB', subtitle: 'JOURNAL, NOTES & LISTS' };
+    if (path.startsWith('/dashboard/financial')) return { id: 'financial', title: 'FINANCIAL HUB', subtitle: 'LEDGER & ACCOUNTS' };
+    
+    if (activeSection === 'priority') return { id: 'priority', title: 'PRIORITY LIST', subtitle: 'DAILY OBJECTIVES' };
+    if (activeSection === 'overview') return { id: 'overview', title: 'FINANCES', subtitle: 'REAL-TIME SYNC' };
+    if (activeSection === 'breakdown') return { id: 'breakdown', title: 'TRANSACTIONS', subtitle: 'LEDGER BREAKDOWN' };
+    return { id: 'produs', title: 'PRODUS', isMain: true };
+  };
+
+  const config = getPageConfig();
+
+  useEffect(() => {
+    if (config.isMain) {
+      let iteration = 0;
+      let currentIdx = 0;
+      setMatrixText("");
+
+      const timer = setInterval(() => {
+        iteration++;
+        if (iteration % 3 === 0) currentIdx++;
+
+        if (currentIdx > textToType.length) {
+          clearInterval(timer);
+          setMatrixText(textToType);
+        } else {
+          const chars = textToType.split("").map((actualChar, idx) => {
+            if (idx < currentIdx) return actualChar;
+            return matrixChars[Math.floor(Math.random() * matrixChars.length)];
+          });
+          setMatrixText(chars.slice(0, currentIdx + 2).join(""));
+        }
+      }, 40);
+
+      return () => clearInterval(timer);
+    }
+  }, [config.isMain]);
+
+  const formattedDate = currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
+  const formattedTime = currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+  return (
+    <div className="fixed top-8 left-6 right-6 z-[100] md:hidden pointer-events-none flex justify-between items-start">
+      <div className="flex-1">
+        <AnimatePresence mode="wait">
+          {config.isMain ? (
+            <motion.div
+              key="produs"
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.2 }}
+              className="pointer-events-auto cursor-pointer mt-1.5"
+              onClick={onClick}
+            >
+              <h1 className="wordmark text-black dark:text-white flex items-center font-mono" style={{ fontSize: '14px' }}>
+                <span>{matrixText}</span>
+                <span className="animate-pulse inline-block w-1.5 h-3.5 bg-current ml-0.5 opacity-60 shrink-0" />
+              </h1>
+            </motion.div>
+          ) : (
+            <motion.div
+              key={config.id}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col gap-0.5 bg-background/80 backdrop-blur-sm py-1 px-2 -ml-2 rounded-sm pointer-events-auto"
+            >
+              <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground">{config.title}</span>
+              <span className="text-[8px] font-mono uppercase tracking-widest text-foreground/40">{config.subtitle}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="flex flex-col items-end gap-0.5 bg-background/80 backdrop-blur-sm py-1 px-2 mr-1 rounded-sm shrink-0 mt-0.5 font-mono pointer-events-auto">
+        <span className="text-[13px] font-black tracking-tighter leading-none text-foreground">{formattedTime}</span>
+        <span className="text-[7px] font-black uppercase tracking-[0.3em] text-foreground/40 font-sans">{formattedDate}</span>
+      </div>
+    </div>
+  );
+};
+
 function Layout() {
     const { user, signOut } = useAuthStore();
     const { isDark, setThemeMode } = useTheme(); // boots & syncs theme
@@ -84,6 +185,7 @@ function Layout() {
     const [marketplaceCategory, setMarketplaceCategory] = useState('all');
     const [mobileTabs, setMobileTabs] = useState(null); // { tabs, activeTab, setActiveTab }
     const [activeRpgTab, setActiveRpgTab] = useState('home');
+    const [activeSection, setActiveSection] = useState('produs');
     const [expandedCategory, setExpandedCategory] = useState(null);
     const [isMoreExpanded, setIsMoreExpanded] = useState(false);
     const isNeuralSyncDismissed = useAuthStore((state) => state.isNeuralSyncDismissed);
@@ -577,6 +679,7 @@ function Layout() {
 
                 {/* Main Application Interface */}
                 <div className={`flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]`}>
+                    {isMobile && <GlobalMobileHeader activeSection={activeSection} onClick={() => setIsLandingModalOpen(true)} />}
 
                     <div 
                         ref={mainRef}
@@ -617,7 +720,9 @@ function Layout() {
                                     protocolMode, 
                                     setProtocolMode, 
                                     activeRpgTab, 
-                                    setActiveRpgTab 
+                                    setActiveRpgTab,
+                                    activeSection,
+                                    setActiveSection
                                 }} />
                             </motion.main>
                         </AnimatePresence>

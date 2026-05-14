@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DashboardContext } from '../../context/DashboardContext';
@@ -7,13 +7,15 @@ const MobileBottomNav = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { protocolMode, activeRpgTab, setActiveRpgTab, setIsToolsStoreModalOpen, mobileTabs } = useContext(DashboardContext);
+    const [clickRipples, setClickRipples] = useState([]);
+    const [showActionDot, setShowActionDot] = useState(false);
 
     const realityPillars = [
         { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
         { id: 'habits', name: 'Habits', path: '/dashboard/habits', icon: 'task_alt' },
         { id: 'planner', name: 'Planner', path: '/dashboard/planner', icon: 'calendar_today' },
-        { id: 'goals', name: 'Goal Setter', path: '/dashboard/goals', icon: 'flag' },
         { id: 'calendar', name: 'Calendar', path: '/dashboard/calendar', icon: 'event' },
+        { id: 'spiritual', name: 'Write', path: '/dashboard/spiritual', icon: 'edit' },
         { id: 'more', name: 'More', path: '/dashboard/profile', icon: 'more_horiz' },
     ];
 
@@ -41,7 +43,8 @@ const MobileBottomNav = () => {
             habits: 'tracker',
             planner: 'planner',
             calendar: 'calendar',
-            goals: 'goals'
+            goals: 'goals',
+            spiritual: 'journal'
         };
 
         if (tabIdMap[pillar.id]) {
@@ -53,6 +56,17 @@ const MobileBottomNav = () => {
     };
 
     const handleNav = (pillar) => {
+        if (pillar.id === 'home' && isActive(pillar)) {
+            const newRipple = Date.now();
+            setClickRipples(prev => [...prev, newRipple]);
+            setTimeout(() => {
+                setClickRipples(prev => prev.filter(id => id !== newRipple));
+            }, 600);
+
+            setShowActionDot(prev => !prev);
+            return;
+        }
+
         if (protocolMode === 'rpg' && pillar.id !== 'home') {
             if (location.pathname !== '/dashboard') {
                 navigate('/dashboard', { replace: true });
@@ -69,7 +83,8 @@ const MobileBottomNav = () => {
                 habits: 'tracker',
                 planner: 'planner',
                 calendar: 'calendar',
-                goals: 'goals'
+                goals: 'goals',
+                spiritual: 'journal'
             };
 
             const targetTab = tabIdMap[pillar.id];
@@ -103,17 +118,86 @@ const MobileBottomNav = () => {
                             <button
                                 key={pillar.id}
                                 onClick={() => handleNav(pillar)}
-                                className="relative -top-5 flex flex-col items-center justify-center transition-all duration-300 z-20"
+                                className="relative -top-6 mx-4 flex flex-col items-center justify-center transition-all duration-300 z-20"
                             >
-                                <div className={`size-20 rounded-full flex items-center justify-center transition-all duration-500 ${
+                                <AnimatePresence>
+                                    {showActionDot && active && [
+                                        {
+                                            id: 'journal',
+                                            label: 'Add Journal',
+                                            icon: 'auto_stories',
+                                            path: '/dashboard/spiritual',
+                                            state: { activeTab: 'journal', openWriteJournal: true },
+                                            x: -15,
+                                            y: -215,
+                                            delay: 0.12
+                                        },
+                                        {
+                                            id: 'transaction',
+                                            label: 'Add Transaction',
+                                            icon: 'payments',
+                                            path: '/dashboard/financial',
+                                            state: { activeTab: 'summary', openAddTransaction: true },
+                                            x: -15,
+                                            y: -145,
+                                            delay: 0.06
+                                        },
+                                        {
+                                            id: 'note',
+                                            label: 'Add Note',
+                                            icon: 'edit_note',
+                                            path: '/dashboard/planner',
+                                            state: { activeTab: 'planner' },
+                                            x: -15,
+                                            y: -75,
+                                            delay: 0
+                                        }
+                                    ].map((bubble) => (
+                                        <motion.div
+                                            key={bubble.id}
+                                            initial={{ opacity: 0, x: 0, y: 0, scale: 0.2 }}
+                                            animate={{ opacity: 1, x: bubble.x, y: bubble.y, scale: 1 }}
+                                            exit={{ opacity: 0, x: 0, y: 0, scale: 0.2 }}
+                                            transition={{ type: "spring", stiffness: 420, damping: 18, delay: bubble.delay }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowActionDot(false);
+                                                navigate(bubble.path, { state: bubble.state });
+                                            }}
+                                            className="absolute m-auto size-16 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center z-40 border-2 border-white/20 dark:border-black/20 cursor-pointer pointer-events-auto active:scale-90 transition-all hover:scale-110"
+                                        >
+                                            <span className="material-symbols-outlined text-[26px]">
+                                                {bubble.icon}
+                                            </span>
+                                            <span className="absolute left-[44px] whitespace-nowrap text-[12px] font-extrabold uppercase tracking-widest text-black dark:text-white pointer-events-none transition-all drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                                                {bubble.label}
+                                            </span>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+
+                                <AnimatePresence>
+                                    {clickRipples.map(id => (
+                                        <motion.div
+                                            key={id}
+                                            initial={{ opacity: 0.8, scale: 0.9 }}
+                                            animate={{ opacity: 0, scale: 1.8 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.5, ease: "easeOut" }}
+                                            className="absolute inset-0 m-auto w-24 h-24 rounded-full border-2 border-black dark:border-white pointer-events-none z-10"
+                                        />
+                                    ))}
+                                </AnimatePresence>
+
+                                <div className={`w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500 relative z-20 ${
                                     active 
                                     ? 'bg-black dark:bg-white shadow-xl' 
                                     : 'bg-white dark:bg-black border-2 border-black dark:border-white/20 shadow-lg'
                                 }`}>
-                                    <span className={`material-symbols-outlined text-[40px] ${
-                                        active ? 'text-white dark:text-black' : 'text-black dark:text-white'
+                                    <span className={`material-symbols-outlined text-[46px] ${
+                                        active ? 'text-white dark:text-black animate-fade-in-up' : 'text-black dark:text-white'
                                     }`}>
-                                        {pillar.icon}
+                                        {active ? (showActionDot ? 'close' : 'add') : pillar.icon}
                                     </span>
                                 </div>
                             </button>

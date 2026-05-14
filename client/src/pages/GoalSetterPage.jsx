@@ -38,7 +38,7 @@ const GoalSetterPage = () => {
         <div className="w-full bg-transparent text-foreground p-8 pt-12 md:p-12 md:pt-16 font-sans overflow-x-hidden flex flex-col items-center">
             <div className="w-full max-w-7xl mt-8 md:mt-0">
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                    <HUDPanel title="STRATEGIC GOALS" subtitle="LONG TERM OBJECTIVES">
+                    <HUDPanel title="GOALS" subtitle="MILESTONES & TARGETS">
                         <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
                     </HUDPanel>
                 </motion.div>

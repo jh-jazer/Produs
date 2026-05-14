@@ -23,12 +23,14 @@ const HUDPanel = ({ title, subtitle, children, className = "" }) => (
       <ChippedBorder opacity={0.6} />
     </div>
     <div className="relative z-10">
-      <div className="mb-8 flex justify-between items-start">
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
-          {subtitle && <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>}
+      {title && (
+        <div className="mb-8 hidden md:flex justify-between items-start">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
+            {subtitle && <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>}
+          </div>
         </div>
-      </div>
+      )}
       {children}
     </div>
   </div>
@@ -61,7 +63,7 @@ const HabitMatrix = () => {
         <div className="w-full bg-transparent text-foreground p-8 pt-12 md:p-12 md:pt-16 font-sans overflow-x-hidden flex flex-col items-center">
             <div className="w-full max-w-7xl mt-8 md:mt-0">
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                    <HUDPanel title="HABIT MATRIX" subtitle="CONSISTENCY LOG">
+                    <HUDPanel title="HABITS TRACKER" subtitle="DAILY CONSISTENCY">
                         <HabitTracker
                             habits={habits}
                             myHabits={myHabits}

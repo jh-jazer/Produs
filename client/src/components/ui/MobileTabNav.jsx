@@ -83,7 +83,7 @@ const MobileTabNav = ({ tabs, activeTab, setActiveTab, variant = 'floating' }) =
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: 100, opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-                    className="fixed bottom-26 left-1/2 -translate-x-1/2 z-40 lg:hidden"
+                    className="fixed bottom-32 left-1/2 -translate-x-1/2 z-40 lg:hidden"
                 >
                     {content}
                 </motion.div>

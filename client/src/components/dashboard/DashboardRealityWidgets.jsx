@@ -32,7 +32,7 @@ export const MoodTracker = ({ user, updateMood, standalone = false }) => {
         setIsExpanded(false);
     };
 
-    const bounceAnimation = needsMoodUpdate && standalone ? {
+    const bounceAnimation = needsMoodUpdate && !standalone ? {
         animate: {
             y: [0, -6, 0],
             scale: [1, 1.1, 1],
@@ -53,10 +53,10 @@ export const MoodTracker = ({ user, updateMood, standalone = false }) => {
                 animate={bounceAnimation.animate ?? { opacity: 1, scale: 1 }}
                 transition={bounceAnimation.transition}
                 onClick={() => setIsExpanded(!isExpanded)}
-                className={`flex items-center gap-2 rounded-2xl transition-all hover:scale-105 shrink-0
+                className={`flex items-center gap-2 rounded-2xl transition-all shrink-0
                     ${standalone 
                         ? 'p-1 bg-transparent border-none' 
-                        : `p-6 bg-white dark:bg-[#121212] border-2 border-${currentData.color}-500/30 shadow-xl`}`}
+                        : `p-6 bg-white dark:bg-[#121212] border-2 border-${currentData.color}-500/30 shadow-xl hover:scale-105`}`}
             >
                 <div className="relative">
                     <img

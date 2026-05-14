@@ -32,7 +32,7 @@ export default function PriorityHUD() {
   );
 
   const formattedDate = currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
-  const formattedTime = currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+  const formattedTime = currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   useEffect(() => {
     if (currentPage >= totalPages && totalPages > 0) {
@@ -51,10 +51,10 @@ export default function PriorityHUD() {
       </div>
 
       {/* Header */}
-      <div className="mb-2 flex justify-between items-start relative z-10">
+      <div className="mb-2 hidden md:flex justify-between items-start relative z-10">
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">PRIORITY LIST</span>
-          <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">DAILY OBJECTIVES</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground">PRIORITY LIST</span>
+          <span className="text-[8px] font-mono uppercase tracking-widest text-foreground/40">DAILY OBJECTIVES</span>
         </div>
         <div className="flex flex-col items-end gap-1">
           <span className="text-[14px] font-black tracking-tighter leading-none">{formattedTime}</span>
@@ -122,7 +122,7 @@ export default function PriorityHUD() {
           </div>
 
           {/* 3. Empty State */}
-          <div className={`flex-col items-center justify-center h-full opacity-40 text-center gap-6 py-8 animate-fade-in ${!isLoading && currentTasks.length === 0 ? 'flex' : 'hidden'}`}>
+          <div className={`flex-col items-center justify-center h-full min-h-[200px] opacity-40 text-center gap-6 py-16 md:py-20 animate-fade-in ${!isLoading && currentTasks.length === 0 ? 'flex' : 'hidden'}`}>
             <span className="material-symbols-outlined text-4xl opacity-20">checklist</span>
             <div className="flex flex-col gap-2">
               <span className="text-[10px] font-black uppercase tracking-[0.4em]">
