@@ -141,7 +141,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                             </div>
                             <div>
                                 <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic font-exo leading-none mb-1">Shared Account</h2>
-                                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">Collaborative Sync Protocol</p>
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">Partner Collaboration</p>
                             </div>
                         </div>
                         <button
@@ -165,7 +165,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                                         <p className="text-lg font-black text-slate-900 dark:text-white leading-tight mb-1">{user.partner.name}</p>
                                         <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2">
                                             <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                                            Active Link established
+                                            Connected
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2 w-full pt-4">
@@ -201,7 +201,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                                     </div>
                                     <div>
                                         <p className="text-base font-black text-slate-900 dark:text-white leading-tight mb-1">{user.incomingPartnerRequest.name}</p>
-                                        <p className="text-[10px] text-cyan-500 font-bold uppercase tracking-widest">Incoming Sync Request</p>
+                                        <p className="text-[10px] text-cyan-500 font-bold uppercase tracking-widest">New Partner Request</p>
                                     </div>
                                     <div className="flex gap-3 w-full pt-2">
                                         <button
@@ -209,7 +209,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                                             disabled={isLinking}
                                             className="flex-1 py-3 bg-cyan-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-cyan-600 transition-all shadow-lg shadow-cyan-500/20 active:scale-95"
                                         >
-                                            {isLinking ? '...' : 'Authorize_Sync'}
+                                            {isLinking ? '...' : 'Accept Request'}
                                         </button>
                                         <button
                                             onClick={handleRejectRequest}
@@ -231,14 +231,14 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                                     </div>
                                     <div>
                                         <p className="text-base font-black text-slate-500 dark:text-slate-400 leading-tight mb-1">{user.outgoingPartnerRequest.name}</p>
-                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest animate-pulse">Awaiting handshake...</p>
+                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest animate-pulse">Awaiting response...</p>
                                     </div>
                                     <button
                                         onClick={handleCancelRequest}
                                         disabled={isLinking}
                                         className="w-full py-3 bg-rose-500/5 text-rose-500/60 hover:text-rose-500 hover:bg-rose-500/10 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95"
                                     >
-                                        Abort Request
+                                        Cancel Request
                                     </button>
                                 </div>
                             </div>
@@ -255,7 +255,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                                     {isFetchingConnections ? (
                                         <div className="py-12 flex flex-col items-center justify-center gap-3">
                                             <Loader2 size={24} className="text-cyan-500 animate-spin" />
-                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Querying Network...</p>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Loading connections...</p>
                                         </div>
                                     ) : connections.length > 0 ? (
                                         <div className="space-y-2">
@@ -265,7 +265,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                                                     type="text"
                                                     value={searchQuery}
                                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                                    placeholder="FILTER_OPERATORS_"
+                                                    placeholder="Search users..."
                                                     className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl py-3 pl-11 pr-4 text-[10px] font-black uppercase tracking-widest outline-none focus:border-cyan-500/30 transition-all placeholder:text-slate-600"
                                                 />
                                             </div>
@@ -292,7 +292,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                                                     </div>
                                                 )) : (
                                                     <div className="py-12 text-center">
-                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">No matching operators found.</p>
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">No users found.</p>
                                                     </div>
                                                 )}
                                             </div>
@@ -301,8 +301,8 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                                         <div className="py-12 p-8 bg-black/5 dark:bg-white/[0.02] border border-dashed border-white/10 rounded-3xl text-center space-y-4 text-slate-500">
                                             <Users size={40} className="mx-auto opacity-20" />
                                             <div>
-                                                <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Network Empty</p>
-                                                <p className="text-[10px] font-bold leading-relaxed">Establish connections with other operators before initiating Shared Link sync.</p>
+                                                <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">No Connections</p>
+                                                <p className="text-[10px] font-bold leading-relaxed">Connect with others to start sharing habits and plans.</p>
                                             </div>
                                             <button 
                                                 onClick={onClose}

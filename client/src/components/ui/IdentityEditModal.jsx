@@ -58,8 +58,8 @@ const IdentityEditModal = ({ isOpen, onClose }) => {
             <DashboardModal
                 isOpen={isOpen}
                 onClose={onClose}
-                title="OPERATIVE_ID_RECONFIGURATION"
-                subtitle="Protocol: Identity Modification"
+                title="EDIT PROFILE"
+                subtitle="Update your personal information"
                 maxWidth="max-w-md"
             >
                 <form onSubmit={handleSave} className="space-y-6">
@@ -81,33 +81,33 @@ const IdentityEditModal = ({ isOpen, onClose }) => {
                                 <span className="material-symbols-outlined text-white text-xl">upload</span>
                             </div>
                         </div>
-                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground/40">Upload_Identity_Signature</p>
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground/40">Upload Profile Picture</p>
                     </div>
 
                     <div className="space-y-4">
                         {/* Name Field */}
                         <div className="space-y-1.5">
-                            <label className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30 px-1">Display_Name</label>
+                            <label className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30 px-1">Display Name</label>
                             <input 
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                                 className="w-full bg-foreground/5 border border-foreground/10 rounded-sm py-3 px-4 text-xs font-bold text-foreground focus:border-primary/50 outline-none transition-all uppercase tracking-wider"
-                                placeholder="ENTER_NAME"
+                                placeholder="Your name"
                                 required
                             />
                         </div>
 
                         {/* Username Field */}
                         <div className="space-y-1.5">
-                            <label className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30 px-1">Base_Username</label>
+                            <label className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30 px-1">Username</label>
                             <div className="relative">
                                 <input 
                                     type="text"
                                     value={formData.username}
                                     onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '') }))}
                                     className="w-full bg-foreground/5 border border-foreground/10 rounded-sm py-3 px-4 text-xs font-bold text-foreground focus:border-primary/50 outline-none transition-all tracking-wider pr-16"
-                                    placeholder="OPERATIVE_ID"
+                                    placeholder="username"
                                     maxLength={8}
                                     required
                                 />
@@ -115,17 +115,17 @@ const IdentityEditModal = ({ isOpen, onClose }) => {
                                     #{user?.username?.split('#')[1] || '0000'}
                                 </div>
                             </div>
-                            <p className="text-[8px] font-bold text-foreground/20 px-1 uppercase mt-1">Suffix preservation protocol active</p>
+                            <p className="text-[8px] font-bold text-foreground/20 px-1 uppercase mt-1">Your unique ID suffix will be kept</p>
                         </div>
 
                         {/* Bio / Quote Field */}
                         <div className="space-y-1.5">
-                            <label className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30 px-1">Identity_Manifesto</label>
+                            <label className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground/30 px-1">Bio / Status</label>
                             <textarea 
                                 value={formData.bio}
                                 onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
                                 className="w-full bg-foreground/5 border border-foreground/10 rounded-sm py-3 px-4 text-xs font-bold text-foreground focus:border-primary/50 outline-none transition-all tracking-wide min-h-[80px] resize-none"
-                                placeholder="SYSTEM_ACCESS_GRANTED"
+                                placeholder="Tell us about yourself..."
                                 maxLength={160}
                             />
                         </div>
@@ -138,14 +138,14 @@ const IdentityEditModal = ({ isOpen, onClose }) => {
                             onClick={onClose}
                             className="flex-1 py-3 px-4 rounded-sm border border-foreground/10 text-foreground/40 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-foreground/5 transition-all"
                         >
-                            Abort_
+                            Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isSaving}
                             className="flex-1 py-3 px-4 rounded-sm bg-primary text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
                         >
-                            {isSaving ? 'SYNCING...' : 'SYNC_IDENTITY_'}
+                            {isSaving ? 'Saving...' : 'Save Profile'}
                         </button>
                     </div>
                 </form>

@@ -4,8 +4,8 @@ import JournalHub from '../components/journal_components/JournalHub';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 import { useJournal } from '../hooks/useJournal';
 import { DashboardContext } from '../context/DashboardContext';
-import { useLocation } from 'react-router-dom';
-import { Plus, Trash2, CheckSquare, Square, FileText, List as ListIcon, ChevronLeft } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Plus, Trash2, CheckSquare, Square, FileText, List as ListIcon, ChevronLeft, BookOpen } from 'lucide-react';
 import NoteEntry from '../components/journal_components/NoteEntry';
 import ListEntry from '../components/journal_components/ListEntry';
 
@@ -39,6 +39,55 @@ const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) =>
     </div>
   </div>
 );
+
+const HubModule = ({ onSelect }) => {
+    return (
+        <div className="flex flex-col md:flex-row gap-6 w-full">
+            <button
+                onClick={() => onSelect('journal')}
+                className="flex-1 group relative rounded-sm bg-white/[0.03] transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+            >
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
+                <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                    <ChippedBorder opacity={1} />
+                </div>
+                <BookOpen className="relative z-10 size-8 text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
+                <h4 className="relative z-10 text-lg font-black text-white uppercase tracking-tighter italic">JOURNAL</h4>
+                <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-white/20 mt-1.5">Daily Reflections</span>
+            </button>
+
+            <div className="w-full h-[2px] md:w-[2px] md:h-32 bg-white/10 shrink-0 self-center rounded-full" />
+
+            <button
+                onClick={() => onSelect('notes')}
+                className="flex-1 group relative rounded-sm bg-white/[0.03] transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+            >
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
+                <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                    <ChippedBorder opacity={1} />
+                </div>
+                <FileText className="relative z-10 size-8 text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
+                <h4 className="relative z-10 text-lg font-black text-white uppercase tracking-tighter italic">NOTES</h4>
+                <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-white/20 mt-1.5">Scratchpad Memos</span>
+            </button>
+
+            <div className="w-full h-[2px] md:w-[2px] md:h-32 bg-white/10 shrink-0 self-center rounded-full" />
+
+            <button
+                onClick={() => onSelect('lists')}
+                className="flex-1 group relative rounded-sm bg-white/[0.03] transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+            >
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
+                <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                    <ChippedBorder opacity={1} />
+                </div>
+                <ListIcon className="relative z-10 size-8 text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
+                <h4 className="relative z-10 text-lg font-black text-white uppercase tracking-tighter italic">LISTS</h4>
+                <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-white/20 mt-1.5">Task Tracking</span>
+            </button>
+        </div>
+    );
+};
 
 const NotesModule = () => {
     const location = useLocation();
@@ -377,19 +426,43 @@ const ListsModule = () => {
 const Spiritual = () => {
     const { entries, isLoading } = useJournal();
     const location = useLocation();
-    const [activeTab, setActiveTab] = useState(() => location.state?.activeTab || 'journal');
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        if (location.state?.activeTab) {
-            setActiveTab(location.state.activeTab);
-        }
-    }, [location.state]);
+    // Derive active tab from the URL path
+    const getTabFromPath = () => {
+        if (location.pathname.endsWith('/journal')) return 'journal';
+        if (location.pathname.endsWith('/notes')) return 'notes';
+        if (location.pathname.endsWith('/lists')) return 'lists';
+        // Also support legacy state-based routing
+        if (location.state?.activeTab && location.state.activeTab !== 'hub') return location.state.activeTab;
+        return 'hub';
+    };
+
+    const activeTab = getTabFromPath();
+
+    const handleSelect = (tab) => {
+        navigate(`/dashboard/writing/${tab}`);
+    };
+
+    const handleBack = () => {
+        navigate('/dashboard/writing');
+    };
 
     if (isLoading && entries.length === 0) return <WorkspaceSkeleton />;
 
     return (
         <div className="w-full bg-transparent text-foreground px-0 md:px-12 pt-20 md:pt-16 pb-8 font-sans overflow-x-hidden flex flex-col items-center">
             <div className="w-full max-w-7xl mt-12 md:mt-0 flex flex-col gap-8">
+
+                {activeTab !== 'hub' && (
+                    <button 
+                        onClick={handleBack}
+                        className="self-start flex items-center gap-2 text-foreground/40 hover:text-foreground transition-colors mb-2 px-4 md:px-0"
+                    >
+                        <ChevronLeft className="size-4" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">BACK TO HUB</span>
+                    </button>
+                )}
 
                 <AnimatePresence mode="wait">
                     <motion.div
@@ -400,6 +473,12 @@ const Spiritual = () => {
                         transition={{ duration: 0.3 }}
                         className="w-full"
                     >
+                        {activeTab === 'hub' && (
+                            <HUDPanel title="WRITE HUB" subtitle="SELECT MODULE">
+                                <HubModule onSelect={handleSelect} />
+                            </HUDPanel>
+                        )}
+
                         {activeTab === 'journal' && (
                             <HUDPanel title="DAILY JOURNAL" subtitle="PERSONAL REFLECTIONS">
                                 <JournalHub entries={entries} onAction={() => {}} />

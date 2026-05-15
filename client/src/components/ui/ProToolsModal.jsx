@@ -24,7 +24,7 @@ const ProToolsModal = ({ isOpen, onClose }) => {
             tools: [
                 { id: 'tracker', name: 'Habit Matrix', icon: 'task_alt', path: '/dashboard/intellectual', tabId: 'tracker' },
                 { id: 'planner', name: 'Tactical Planner', icon: 'calendar_today', path: '/dashboard/intellectual', tabId: 'planner' },
-                { id: 'calendar', name: 'Temporal Sync', icon: 'event', path: '/dashboard/intellectual', tabId: 'calendar' },
+                { id: 'calendar', name: 'Event Calendar', icon: 'event', path: '/dashboard/intellectual', tabId: 'calendar' },
                 { id: 'goals', name: 'Goal Setter', icon: 'flag', path: '/dashboard/intellectual', tabId: 'goals' },
                 { id: 'priority', name: 'Priority HUD', icon: 'stars', path: '/dashboard/intellectual', tabId: 'priority' },
             ] 

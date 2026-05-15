@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import { useJournal } from '../../hooks/useJournal';
 import { sanitizeHtml } from '../../utils/sanitize';
@@ -36,6 +37,7 @@ const parseMarkdown = (text) => {
 const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => {
     const [confirmDelete, setConfirmDelete] = useState(null);
     const { deleteEntry } = useJournal();
+    const navigate = useNavigate();
 
     const handleDelete = async (id) => {
         try {
@@ -68,7 +70,7 @@ const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => 
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 transition={{ duration: 0.8, delay: Math.min(idx * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
-                                onClick={() => onSelectEntry && onSelectEntry(entry)}
+                                onClick={() => navigate(`/dashboard/writing/journal/${entry._id}`)}
                                 className="group relative rounded-3xl bg-white dark:bg-[#121212]/40 border border-slate-100 dark:border-white/10 hover:border-primary/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px]"
                             >
                                 {/* Left Side: Image (1/4) */}

@@ -24,6 +24,8 @@ import DashboardHeader from './dashboard/DashboardHeader';
 import ConnectionsModal from './ui/ConnectionsModal';
 import IdentityEditModal from './ui/IdentityEditModal';
 import QRModal from './ui/QRModal';
+import AddGoalModal from './ui/AddGoalModal';
+import AddEventModal from './ui/AddEventModal';
 import { DashboardContext } from '../context/DashboardContext';
 import StatsModal from './ui/StatsModal';
 import CoinDisplay from './ui/CoinDisplay';
@@ -37,6 +39,29 @@ import { useTheme } from '../hooks/useTheme';
 import useMobile from '../hooks/useMobile';
 import ProToolsModal from './ui/ProToolsModal';
 import ToolsMarketplaceModal from './ui/ToolsMarketplaceModal';
+import AddTransactionModal from './ui/AddTransactionModal';
+import { useFinance } from '../hooks/useFinance';
+
+const GlobalTransactionPortal = ({ isOpen, onClose }) => {
+    const { budgets, addFinanceItem } = useFinance();
+    
+    const budgetCategories = budgets.map(b => b.category);
+    const availableCategories = budgetCategories.length > 0 ? budgetCategories : [
+        'General', 'Food', 'Transport', 'Utilities', 'Entertainment',
+        'Tech', 'Home', 'Fashion', 'Hobby', 'Fitness', 'Wellness',
+        'Education', 'Travel', 'Vehicles', 'Gifts', 'Pets', 'Other'
+    ];
+    if (!availableCategories.includes('General')) availableCategories.push('General');
+
+    return (
+        <AddTransactionModal 
+            isOpen={isOpen}
+            onClose={onClose}
+            addFinanceItem={addFinanceItem}
+            availableCategories={availableCategories}
+        />
+    );
+};
 
 const GlobalMobileHeader = ({ activeSection, onClick }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -54,9 +79,16 @@ const GlobalMobileHeader = ({ activeSection, onClick }) => {
     const path = location.pathname;
     if (path.startsWith('/dashboard/habits')) return { id: 'habits', title: 'HABITS TRACKER', subtitle: 'DAILY CONSISTENCY' };
     if (path.startsWith('/dashboard/planner')) return { id: 'planner', title: 'DAILY PLANNER', subtitle: 'SCHEDULE & NOTES' };
-    if (path.startsWith('/dashboard/calendar')) return { id: 'calendar', title: 'CALENDAR & GOALS', subtitle: 'MONTHLY TIMELINE' };
+    if (path.startsWith('/dashboard/calendar')) {
+      const subtitle = activeSection === 'weekly_calendar' ? 'WEEKLY GOALS' : 
+                       activeSection === 'yearly_calendar' ? 'ANNUAL GOALS' : 'MONTHLY TIMELINE';
+      return { id: 'calendar', title: 'CALENDAR & GOALS', subtitle };
+    }
     if (path.startsWith('/dashboard/goals')) return { id: 'goals', title: 'GOALS', subtitle: 'MILESTONES & TARGETS' };
-    if (path.startsWith('/dashboard/spiritual')) return { id: 'spiritual', title: 'WRITE HUB', subtitle: 'JOURNAL, NOTES & LISTS' };
+    if (path.startsWith('/dashboard/writing/journal')) return { id: 'spiritual', title: 'JOURNAL', subtitle: 'DAILY REFLECTIONS' };
+    if (path.startsWith('/dashboard/writing/notes')) return { id: 'spiritual', title: 'NOTES', subtitle: 'SCRATCHPAD MEMOS' };
+    if (path.startsWith('/dashboard/writing/lists')) return { id: 'spiritual', title: 'LISTS', subtitle: 'TASK TRACKING' };
+    if (path.startsWith('/dashboard/spiritual') || path.startsWith('/dashboard/writing')) return { id: 'spiritual', title: 'WRITE HUB', subtitle: 'JOURNAL, NOTES & LISTS' };
     if (path.startsWith('/dashboard/financial')) return { id: 'financial', title: 'FINANCIAL HUB', subtitle: 'LEDGER & ACCOUNTS' };
     
     if (activeSection === 'priority') return { id: 'priority', title: 'PRIORITY LIST', subtitle: 'DAILY OBJECTIVES' };
@@ -139,6 +171,8 @@ const GlobalMobileHeader = ({ activeSection, onClick }) => {
   );
 };
 
+
+
 function Layout() {
     const { user, signOut } = useAuthStore();
     const { isDark, setThemeMode } = useTheme(); // boots & syncs theme
@@ -182,6 +216,10 @@ function Layout() {
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const [isToolsStoreModalOpen, setIsToolsStoreModalOpen] = useState(false);
     const [isMarketplaceModalOpen, setIsMarketplaceModalOpen] = useState(false);
+    const [isAddGoalModalOpen, setIsAddGoalModalOpen] = useState(false);
+    const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
+    const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
+    const [addEventInitialDate, setAddEventInitialDate] = useState(null);
     const [marketplaceCategory, setMarketplaceCategory] = useState('all');
     const [mobileTabs, setMobileTabs] = useState(null); // { tabs, activeTab, setActiveTab }
     const [activeRpgTab, setActiveRpgTab] = useState('home');
@@ -301,6 +339,10 @@ function Layout() {
             setIsNotificationModalOpen,
             setIsToolsStoreModalOpen,
             setIsMarketplaceModalOpen,
+            setIsAddGoalModalOpen,
+            setIsAddEventModalOpen,
+            setIsAddTransactionModalOpen,
+            setAddEventInitialDate,
             marketplaceCategory,
             setMarketplaceCategory,
             mobileTabs,
@@ -703,7 +745,7 @@ function Layout() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: "-10%", opacity: 0, scale: 0.96, pointerEvents: 'none' }}
                                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                className={`relative z-0 flex-1 flex flex-col ${protocolMode === 'rpg' ? 'justify-center pb-0 pt-0' : 'justify-start pb-48 md:pb-12 pt-0 md:pt-1'} px-0 md:pl-4 lg:pl-6 md:pr-8 lg:pr-12 w-full`}
+                                className={`relative z-0 flex-1 flex flex-col ${protocolMode === 'rpg' ? 'justify-center pb-0 pt-0' : 'justify-start pb-10 md:pb-0 pt-0 md:pt-1'} px-0 md:pl-4 lg:pl-6 md:pr-8 lg:pr-12 w-full`}
                             >
                                 <Outlet context={{ 
                                     setIsLandingModalOpen, 
@@ -876,6 +918,25 @@ function Layout() {
                     isOpen={isMarketplaceModalOpen}
                     onClose={() => setIsMarketplaceModalOpen(false)}
                     category={marketplaceCategory}
+                />
+
+                <AddGoalModal 
+                    isOpen={isAddGoalModalOpen}
+                    onClose={() => setIsAddGoalModalOpen(false)}
+                />
+
+                <AddEventModal 
+                    isOpen={isAddEventModalOpen}
+                    onClose={() => {
+                        setIsAddEventModalOpen(false);
+                        setAddEventInitialDate(null);
+                    }}
+                    initialDate={addEventInitialDate}
+                />
+
+                <GlobalTransactionPortal 
+                    isOpen={isAddTransactionModalOpen}
+                    onClose={() => setIsAddTransactionModalOpen(false)}
                 />
 
                 <MobileBottomNav />

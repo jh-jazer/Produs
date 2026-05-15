@@ -94,7 +94,7 @@ const QRModal = ({ isOpen, onClose, userId }) => {
             isOpen={isOpen}
             onClose={onClose}
             onBack={mode !== 'choice' ? () => setMode('choice') : null}
-            title="QR_PROTOCOL_v1.0"
+            title="QR SYNC"
             subtitle={
                 mode === 'choice' ? 'Select Mode' :
                 mode === 'display' ? 'My Identity' :
@@ -119,7 +119,7 @@ const QRModal = ({ isOpen, onClose, userId }) => {
                         <div className="size-20 rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center text-emerald-500">
                             <Check size={40} />
                         </div>
-                        <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">REQUEST_SENT_</p>
+                        <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">REQUEST SENT</p>
                     </div>
                 ) : (
                     <>
@@ -133,7 +133,7 @@ const QRModal = ({ isOpen, onClose, userId }) => {
                                         <QrCode size={24} />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-1">DISPLAY_MY_QR_</p>
+                                        <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-1">DISPLAY MY QR</p>
                                         <p className="text-[9px] text-slate-500 uppercase tracking-wider font-medium">Show your code to be scanned</p>
                                     </div>
                                 </button>
@@ -149,7 +149,7 @@ const QRModal = ({ isOpen, onClose, userId }) => {
                                         <Camera size={24} />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-1">SCAN_OPERATOR_</p>
+                                        <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-1">SCAN QR CODE</p>
                                         <p className="text-[9px] text-slate-500 uppercase tracking-wider font-medium">Use camera to link profile</p>
                                     </div>
                                 </button>
@@ -178,7 +178,7 @@ const QRModal = ({ isOpen, onClose, userId }) => {
                                         className="w-full py-5 rounded-3xl bg-cyan-500 text-white font-black text-[11px] uppercase tracking-[0.3em] hover:bg-cyan-600 transition-all shadow-xl shadow-cyan-500/20 flex items-center justify-center gap-3 active:scale-[0.98]"
                                     >
                                         <Download size={16} />
-                                        SAVE_PROTOCOL_
+                                        SAVE QR CODE
                                     </button>
                                 </div>
                             </div>
@@ -207,7 +207,7 @@ const QRModal = ({ isOpen, onClose, userId }) => {
                     <div className="flex items-center gap-2">
                         <div className={`size-1.5 rounded-full ${isSubmitting ? 'bg-cyan-500 animate-pulse' : 'bg-slate-300 dark:bg-slate-700'}`} />
                         <span className="text-[8px] font-black text-slate-500 dark:text-slate-600 uppercase tracking-widest">
-                            {isSubmitting ? 'SYNCING_DATA...' : 'LINK_STANDBY'}
+                            {isSubmitting ? 'SYNCING DATA...' : 'READY'}
                         </span>
                     </div>
                     <span className="text-[8px] font-mono text-slate-400 dark:text-slate-700 uppercase">SYS_REF: {Math.random().toString(36).substring(7).toUpperCase()}</span>

@@ -93,16 +93,6 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
                         />
                     ))}
                 </div>
-                {onBack && (
-                    <button 
-                        type="button"
-                        onClick={onBack}
-                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 text-[10px] font-black text-slate-600 dark:text-white hover:text-primary transition-all uppercase tracking-widest border border-slate-200 dark:border-white/10 active:scale-95 shadow-sm"
-                    >
-                        <ChevronLeft size={12} />
-                        Back
-                    </button>
-                )}
             </div>
 
             {/* Title Input Area */}
@@ -112,7 +102,7 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Note Title"
-                    className="bg-transparent border-none focus:ring-0 text-lg md:text-xl font-black text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 w-full p-0 tracking-tight outline-none"
+                    className="bg-transparent border-none focus:ring-0 text-2xl md:text-3xl font-black text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 w-full p-0 tracking-tight outline-none"
                 />
             </div>
 
@@ -120,7 +110,7 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
             <div className="relative">
                 <div 
                     ref={textareaRef}
-                    className="w-full bg-white dark:bg-[#121212] border-none focus:ring-0 px-6 py-5 min-h-[260px] text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1"
+                    className="w-full bg-white dark:bg-[#121212] border-none focus:ring-0 px-6 py-5 min-h-[260px] text-lg md:text-xl text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1"
                     data-placeholder="Write your note here..."
                     contentEditable="true"
                     suppressContentEditableWarning={true}
@@ -168,10 +158,10 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
                     <div className="flex items-center gap-2">
                         <button 
                             type="button"
-                            onClick={handleClear}
+                            onClick={onBack}
                             className="px-6 py-2.5 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 text-[11px] font-black uppercase tracking-[0.2em] transition-all active:scale-95"
                         >
-                            Clear
+                            Back
                         </button>
                         <button 
                             type="button"

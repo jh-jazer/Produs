@@ -6,17 +6,16 @@ import { DashboardContext } from '../../context/DashboardContext';
 const MobileBottomNav = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { protocolMode, activeRpgTab, setActiveRpgTab, setIsToolsStoreModalOpen, mobileTabs } = useContext(DashboardContext);
+    const { protocolMode, activeRpgTab, setActiveRpgTab, setIsToolsStoreModalOpen, setIsAddGoalModalOpen, setIsAddEventModalOpen, setIsAddTransactionModalOpen, mobileTabs } = useContext(DashboardContext);
     const [clickRipples, setClickRipples] = useState([]);
     const [showActionDot, setShowActionDot] = useState(false);
-    const [showWriteMenu, setShowWriteMenu] = useState(false);
 
     const realityPillars = [
         { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
         { id: 'habits', name: 'Habits', path: '/dashboard/habits', icon: 'task_alt' },
         { id: 'planner', name: 'Planner', path: '/dashboard/planner', icon: 'calendar_today' },
         { id: 'calendar', name: 'Calendar', path: '/dashboard/calendar', icon: 'event' },
-        { id: 'spiritual', name: 'Write', path: '/dashboard/spiritual', icon: 'edit' },
+        { id: 'writing', name: 'Write', path: '/dashboard/writing', icon: 'edit' },
         { id: 'more', name: 'More', path: '/dashboard/profile', icon: 'more_horiz' },
     ];
 
@@ -30,6 +29,15 @@ const MobileBottomNav = () => {
     ];
 
     const pillars = protocolMode === 'rpg' ? rpgPillars : realityPillars;
+
+    const ACTION_BUBBLES = [
+        { id: 'goal', label: 'Goal', icon: 'sports_score', path: '/dashboard/planner', state: { activeTab: 'planner', openAddGoal: true } },
+        { id: 'journal', label: 'Journal', icon: 'auto_stories', path: '/dashboard/writing', state: { activeTab: 'journal', openWriteJournal: true } },
+        { id: 'event', label: 'Event', icon: 'event', path: '/dashboard/calendar', state: { activeTab: 'calendar', openAddEvent: true } },
+        { id: 'note', label: 'Note', icon: 'edit_note', path: '/dashboard/writing', state: { activeTab: 'notes', openAddNote: true } },
+        { id: 'transaction', label: 'Transaction', icon: 'payments', path: '/dashboard/financial', state: { activeTab: 'summary', openAddTransaction: true } },
+        { id: 'list', label: 'List', icon: 'checklist', path: '/dashboard/writing', state: { activeTab: 'lists', openAddList: true } },
+    ];
 
     const isActive = (pillar) => {
         if (pillar.id === 'home') {
@@ -47,7 +55,7 @@ const MobileBottomNav = () => {
             goals: 'goals'
         };
 
-        if (pillar.id === 'spiritual') {
+        if (pillar.id === 'writing') {
             return location.pathname.startsWith(pillar.path);
         }
 
@@ -68,7 +76,6 @@ const MobileBottomNav = () => {
             }, 600);
 
             setShowActionDot(prev => !prev);
-            setShowWriteMenu(false);
             return;
         }
 
@@ -78,33 +85,14 @@ const MobileBottomNav = () => {
             }
             setActiveRpgTab(pillar.id);
             setShowActionDot(false);
-            setShowWriteMenu(false);
         } else {
             if (pillar.id === 'more') {
                 setIsToolsStoreModalOpen(true);
                 setShowActionDot(false);
-                setShowWriteMenu(false);
                 return;
             }
 
-            if (pillar.id === 'spiritual') {
-                if (isActive(pillar)) {
-                    if (showWriteMenu) {
-                        setShowWriteMenu(false);
-                        return;
-                    } else {
-                        setShowWriteMenu(true);
-                        setShowActionDot(false);
-                        return;
-                    }
-                } else {
-                    setShowWriteMenu(false);
-                    setShowActionDot(false);
-                }
-            } else {
-                setShowActionDot(false);
-                setShowWriteMenu(false);
-            }
+            setShowActionDot(false);
 
             // Direct Tab Switching for Productivity Tools
             const tabIdMap = {
@@ -112,7 +100,7 @@ const MobileBottomNav = () => {
                 planner: 'planner',
                 calendar: 'calendar',
                 goals: 'goals',
-                spiritual: 'journal'
+                writing: 'hub'
             };
 
             const targetTab = tabIdMap[pillar.id];
@@ -137,22 +125,60 @@ const MobileBottomNav = () => {
         <>
             {/* Global Backdrop Overlay */}
             <AnimatePresence>
-                {(showActionDot || showWriteMenu) && (
+                {showActionDot && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={() => {
-                            setShowActionDot(false);
-                            setShowWriteMenu(false);
-                        }}
-                        className="md:hidden fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur-md z-[140] pointer-events-auto transition-all"
+                        onClick={() => setShowActionDot(false)}
+                        className="md:hidden fixed inset-0 bg-white/40 dark:bg-black/60 backdrop-blur-xl z-[140] pointer-events-auto transition-all"
                     />
                 )}
             </AnimatePresence>
 
-            <div className="md:hidden fixed bottom-0 left-0 right-0 z-[150] pointer-events-none">
-                <nav className="w-full h-24 bg-white dark:bg-black shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pb-4 pointer-events-auto relative rounded-t-[2.5rem]">
+            {/* Global Action Menu */}
+            <AnimatePresence>
+                {showActionDot && (
+                    <div className="md:hidden fixed inset-0 z-[160] flex flex-col items-center justify-center pointer-events-none p-8">
+                        <div className="grid grid-cols-2 gap-6 pointer-events-auto">
+                            {ACTION_BUBBLES.map((bubble, index) => (
+                                <motion.button
+                                    key={bubble.id}
+                                    initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.5, y: 20 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 25, delay: index * 0.05 }}
+                                    onClick={() => {
+                                        setShowActionDot(false);
+                                        if (bubble.id === 'goal') {
+                                            setIsAddGoalModalOpen(true);
+                                        } else if (bubble.id === 'event') {
+                                            setIsAddEventModalOpen(true);
+                                        } else if (bubble.id === 'transaction') {
+                                            setIsAddTransactionModalOpen(true);
+                                        } else {
+                                            navigate(bubble.path, { state: bubble.state });
+                                        }
+                                    }}
+                                    className="flex flex-col items-center gap-3 group"
+                                >
+                                    <div className="size-20 rounded-3xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shadow-2xl shadow-black/20 group-active:scale-90 transition-all border border-white/10 dark:border-black/5">
+                                        <span className="material-symbols-outlined text-[32px]">
+                                            {bubble.icon}
+                                        </span>
+                                    </div>
+                                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black dark:text-white opacity-40 group-hover:opacity-100 transition-opacity">
+                                        {bubble.label}
+                                    </span>
+                                </motion.button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            <div className="md:hidden fixed inset-0 z-[150] pointer-events-none overflow-visible flex flex-col justify-end">
+                <nav className="w-full h-24 bg-white dark:bg-black shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pb-4 pointer-events-auto relative rounded-t-[2.5rem] overflow-visible">
                 <div className="absolute inset-0 border-t-4 border-black dark:border-white/20 rounded-t-[2.5rem] pointer-events-none" />
                 
                 {pillars.map((pillar) => {
@@ -165,99 +191,6 @@ const MobileBottomNav = () => {
                                 onClick={() => handleNav(pillar)}
                                 className="relative -top-6 mx-4 flex flex-col items-center justify-center transition-all duration-300 z-20"
                             >
-                                <AnimatePresence>
-                                    {showActionDot && active && [
-                                        {
-                                            id: 'goal',
-                                            label: 'Add Goal',
-                                            icon: 'sports_score',
-                                            path: '/dashboard/planner',
-                                            state: { activeTab: 'planner', openAddGoal: true },
-                                            x: -15,
-                                            y: -425,
-                                            delay: 0.30
-                                        },
-                                        {
-                                            id: 'event',
-                                            label: 'Add Event',
-                                            icon: 'event',
-                                            path: '/dashboard/calendar',
-                                            state: { activeTab: 'calendar', openAddEvent: true },
-                                            x: -15,
-                                            y: -355,
-                                            delay: 0.24
-                                        },
-                                        {
-                                            id: 'transaction',
-                                            label: 'Add Transaction',
-                                            icon: 'payments',
-                                            path: '/dashboard/financial',
-                                            state: { activeTab: 'summary', openAddTransaction: true },
-                                            x: -15,
-                                            y: -285,
-                                            delay: 0.18
-                                        },
-                                        {
-                                            id: 'journal',
-                                            label: 'Add Journal',
-                                            icon: 'auto_stories',
-                                            path: '/dashboard/spiritual',
-                                            state: { activeTab: 'journal', openWriteJournal: true },
-                                            x: -15,
-                                            y: -215,
-                                            delay: 0.12
-                                        },
-                                        {
-                                            id: 'note',
-                                            label: 'Add Note',
-                                            icon: 'edit_note',
-                                            path: '/dashboard/spiritual',
-                                            state: { activeTab: 'notes', openAddNote: true },
-                                            x: -15,
-                                            y: -145,
-                                            delay: 0.06
-                                        },
-                                        {
-                                            id: 'list',
-                                            label: 'Add List',
-                                            icon: 'checklist',
-                                            path: '/dashboard/spiritual',
-                                            state: { activeTab: 'lists', openAddList: true },
-                                            x: -15,
-                                            y: -75,
-                                            delay: 0
-                                        }
-                                    ].map((bubble) => (
-                                        <motion.div
-                                            key={bubble.id}
-                                            initial={{ opacity: 0, x: 0, y: 0, scale: 0.2 }}
-                                            animate={{ opacity: 1, x: bubble.x, y: bubble.y, scale: 1 }}
-                                            exit={{ opacity: 0, x: 0, y: 0, scale: 0.2 }}
-                                            transition={{ type: "spring", stiffness: 420, damping: 18, delay: bubble.delay }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setShowActionDot(false);
-                                                navigate(bubble.path, { state: bubble.state });
-                                            }}
-                                            className="absolute m-auto size-16 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center z-40 border-2 border-white/20 dark:border-black/20 cursor-pointer pointer-events-auto active:scale-90 transition-all"
-                                        >
-                                            <span className="material-symbols-outlined text-[26px]">
-                                                {bubble.icon}
-                                            </span>
-                                            <span 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setShowActionDot(false);
-                                                    navigate(bubble.path, { state: bubble.state });
-                                                }}
-                                                className="absolute left-[44px] whitespace-nowrap text-[12px] font-extrabold uppercase tracking-widest text-black dark:text-white pointer-events-auto cursor-pointer transition-all drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]"
-                                            >
-                                                {bubble.label}
-                                            </span>
-                                        </motion.div>
-                                    ))}
-                                </AnimatePresence>
-
                                 <AnimatePresence>
                                     {clickRipples.map(id => (
                                         <motion.div
@@ -296,77 +229,11 @@ const MobileBottomNav = () => {
                         >
                             <div className="relative flex items-center justify-center">
                                 <span className={`material-symbols-outlined transition-all duration-300 text-[22px] ${
-                                    (active || (pillar.id === 'spiritual' && showWriteMenu)) ? 'scale-110' : ''
+                                    active ? 'scale-110' : ''
                                 }`}>
-                                    {pillar.id === 'spiritual' && showWriteMenu ? 'close' : pillar.icon}
+                                    {pillar.icon}
                                 </span>
                             </div>
-
-                            {/* Menu Bubbles for Write icon */}
-                            {pillar.id === 'spiritual' && (
-                                <AnimatePresence>
-                                    {showWriteMenu && [
-                                        {
-                                            id: 'journal',
-                                            label: 'Journal',
-                                            icon: 'auto_stories',
-                                            path: '/dashboard/spiritual',
-                                            state: { activeTab: 'journal' }
-                                        },
-                                        {
-                                            id: 'notes',
-                                            label: 'Notes',
-                                            icon: 'edit_note',
-                                            path: '/dashboard/spiritual',
-                                            state: { activeTab: 'notes' }
-                                        },
-                                        {
-                                            id: 'lists',
-                                            label: 'Lists',
-                                            icon: 'checklist',
-                                            path: '/dashboard/spiritual',
-                                            state: { activeTab: 'lists' }
-                                        }
-                                    ]
-                                    .filter(b => b.id !== (location.pathname.startsWith('/dashboard/spiritual') ? (mobileTabs?.activeTab || location.state?.activeTab || 'journal') : null))
-                                    .reverse()
-                                    .map((bubble, idx) => (
-                                        <motion.div
-                                            key={bubble.id}
-                                            initial={{ opacity: 0, x: 0, y: 0, scale: 0.2 }}
-                                            animate={{ opacity: 1, x: 0, y: -80 - (idx * 60), scale: 1 }}
-                                            exit={{ opacity: 0, x: 0, y: 0, scale: 0.2 }}
-                                            transition={{ type: "spring", stiffness: 420, damping: 18, delay: idx * 0.06 }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setShowWriteMenu(false);
-                                                if (mobileTabs) {
-                                                    mobileTabs.setActiveTab(bubble.state.activeTab);
-                                                }
-                                                navigate(bubble.path, { state: bubble.state, replace: true });
-                                            }}
-                                            className="absolute m-auto size-12 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center z-40 border border-white/20 dark:border-black/20 cursor-pointer pointer-events-auto active:scale-90 transition-all shadow-lg shadow-black/20 dark:shadow-white/10"
-                                        >
-                                            <span className="material-symbols-outlined text-[20px]">
-                                                {bubble.icon}
-                                            </span>
-                                            <span 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setShowWriteMenu(false);
-                                                    if (mobileTabs) {
-                                                        mobileTabs.setActiveTab(bubble.state.activeTab);
-                                                    }
-                                                    navigate(bubble.path, { state: bubble.state, replace: true });
-                                                }}
-                                                className="absolute right-[60px] whitespace-nowrap text-[11px] font-extrabold uppercase tracking-widest text-black dark:text-white pointer-events-auto cursor-pointer transition-all drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]"
-                                            >
-                                                {bubble.label}
-                                            </span>
-                                        </motion.div>
-                                    ))}
-                                </AnimatePresence>
-                            )}
 
                         </button>
                     );

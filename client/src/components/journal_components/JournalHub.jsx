@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import JournalHistory from './JournalHistory';
 import JournalEntry from './JournalEntry';
 import DashboardPanel from '../ui/DashboardPanel';
@@ -8,6 +8,7 @@ import { Database, PenTool, ChevronLeft } from 'lucide-react';
 
 const JournalHub = ({ entries = [], onAction }) => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [isWriting, setIsWriting] = useState(() => location.state?.openWriteJournal || false);
     const [editingEntry, setEditingEntry] = useState(null);
     const [mood, setMood] = useState('😊');
@@ -51,8 +52,7 @@ const JournalHub = ({ entries = [], onAction }) => {
     };
 
     const handleWriteNew = () => {
-        setEditingEntry(null);
-        setIsWriting(true);
+        navigate('/dashboard/writing/journal/new');
     };
 
     const handleSelectEntry = (entry) => {

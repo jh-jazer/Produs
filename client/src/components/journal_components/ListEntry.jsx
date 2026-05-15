@@ -41,16 +41,6 @@ const ListEntry = ({ onSave, onBack, initialList }) => {
             {/* Top Bar: Navigation Back button */}
             <div className="bg-white dark:bg-[#121212] px-6 pt-6 flex justify-between items-center gap-4">
                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">CREATE LIST</span>
-                {onBack && (
-                    <button 
-                        type="button"
-                        onClick={onBack}
-                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 text-[10px] font-black text-slate-600 dark:text-white hover:text-primary transition-all uppercase tracking-widest border border-slate-200 dark:border-white/10 active:scale-95 shadow-sm"
-                    >
-                        <ChevronLeft size={12} />
-                        Back
-                    </button>
-                )}
             </div>
 
             {/* Title Input Area */}
@@ -60,7 +50,7 @@ const ListEntry = ({ onSave, onBack, initialList }) => {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Checklist Title"
-                    className="bg-transparent border-none focus:ring-0 text-lg md:text-xl font-black text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 w-full p-0 tracking-tight outline-none"
+                    className="bg-transparent border-none focus:ring-0 text-2xl md:text-3xl font-black text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 w-full p-0 tracking-tight outline-none"
                 />
             </div>
 
@@ -82,7 +72,7 @@ const ListEntry = ({ onSave, onBack, initialList }) => {
                                     ) : (
                                         <Square className="size-4 text-slate-400 shrink-0" />
                                     )}
-                                    <span className={`text-xs font-medium truncate ${item.done ? 'line-through text-slate-400' : 'text-slate-700 dark:text-slate-200'}`}>
+                                    <span className={`text-lg font-medium truncate ${item.done ? 'line-through text-slate-400' : 'text-slate-700 dark:text-slate-200'}`}>
                                         {item.text}
                                     </span>
                                 </button>
@@ -105,7 +95,7 @@ const ListEntry = ({ onSave, onBack, initialList }) => {
                         placeholder="Add an item..." 
                         value={newItemText}
                         onChange={(e) => setNewItemText(e.target.value)}
-                        className="flex-1 bg-transparent border-b border-slate-200 dark:border-white/10 px-2 py-1.5 text-xs outline-none text-slate-800 dark:text-slate-200 focus:border-primary font-medium"
+                        className="flex-1 bg-transparent border-b border-slate-200 dark:border-white/10 px-2 py-1.5 text-sm outline-none text-slate-800 dark:text-slate-200 focus:border-primary font-medium"
                     />
                     <button 
                         type="submit"
@@ -121,10 +111,10 @@ const ListEntry = ({ onSave, onBack, initialList }) => {
                 <div className="flex items-center gap-2">
                     <button 
                         type="button"
-                        onClick={handleClear}
+                        onClick={onBack}
                         className="px-6 py-2.5 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 text-[11px] font-black uppercase tracking-[0.2em] transition-all active:scale-95"
                     >
-                        Clear
+                        Back
                     </button>
                     <button 
                         type="button"

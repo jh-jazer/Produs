@@ -16,7 +16,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const EmptyState = ({ text }) => (
-  <div className="flex flex-col items-center justify-center pt-80 pb-10 opacity-40 text-center gap-6">
+  <div className="flex flex-col items-start justify-center pt-80 pb-10 opacity-40 text-left gap-6">
     <span className="material-symbols-outlined text-4xl opacity-20">terminal</span>
     <div className="flex flex-col gap-2">
       <span className="text-[10px] font-black uppercase tracking-[0.4em]">
@@ -38,7 +38,7 @@ const FinancialBreakdown = ({
     deleteFinanceItem,
     budgets = []
 }) => {
-    const [innerView, setInnerView] = useState('categories'); // 'categories' | 'ledger'
+    const [innerView, setInnerView] = useState('ledger'); // 'categories' | 'ledger'
     const [editingTx, setEditingTx] = useState(null);
     const [confirmDelete, setConfirmDelete] = useState(null);
     const [selectedTxId, setSelectedTxId] = useState(null);
@@ -134,7 +134,7 @@ const FinancialBreakdown = ({
                             {categories.length > 0 ? (
                                 categories.slice(0, 8).map((cat, i) => (
                                     <div key={cat.label} className="space-y-2">
-                                        <div className="flex justify-between items-center px-1">
+                                        <div className="flex flex-col gap-1 px-1 text-left">
                                             <span className="font-black text-white/40 uppercase tracking-widest" style={{ fontSize: '1.25rem' }}>{cat.label}</span>
                                             <span className="font-black tracking-widest" style={{ fontSize: '1.25rem', color: '#f43f5e' }}>-{localCurrency}{cat.amount.toLocaleString()}</span>
                                         </div>
@@ -159,6 +159,27 @@ const FinancialBreakdown = ({
                             exit={{ opacity: 0, x: -10 }}
                             className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar"
                         >
+                            {/* Add New Transaction Action Card */}
+                            <motion.div 
+                                onClick={() => setShowAddTx && setShowAddTx(true)}
+                                className="flex items-center gap-4 p-4 rounded-sm bg-black/20 dark:bg-white/[0.03] border border-dashed border-black/20 dark:border-white/10 group cursor-pointer hover:border-black/40 dark:hover:border-white/30 hover:bg-black/30 dark:hover:bg-white/[0.05] transition-all relative overflow-hidden active:scale-[0.98]"
+                            >
+                                <div className="size-10 rounded-sm bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shrink-0 shadow-lg shadow-black/20">
+                                    <span className="material-symbols-outlined text-xl">add</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/60 dark:text-white/60 group-hover:text-black dark:group-hover:text-white transition-colors">
+                                        ADD_NEW_TRANSACTION
+                                    </span>
+                                    <span className="text-[8px] font-mono uppercase tracking-widest text-black/20 dark:text-white/20">
+                                        INITIALIZE_NEW_LEDGER_ENTRY
+                                    </span>
+                                </div>
+                                
+                                {/* Decorative Glitch Corner */}
+                                <div className="absolute top-0 right-0 w-4 h-4 bg-black/5 dark:bg-white/5 rotate-45 translate-x-2 -translate-y-2" />
+                            </motion.div>
+
                             {selectedTransactions.length > 0 ? (
                                 selectedTransactions.slice(0, 50).map((tx) => (
                                     <div 
@@ -219,19 +240,11 @@ const FinancialBreakdown = ({
             </div>
 
             {/* Actions & View Toggle */}
-            <div className="flex items-center justify-between mt-auto pt-6 border-t border-white/5">
-                <button
-                    onClick={() => setShowAddTx && setShowAddTx(true)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-sm bg-white/5 hover:bg-white/10 border border-white/10 text-[8px] font-black uppercase tracking-[0.2em] text-white transition-all active:scale-[0.98]"
-                >
-                    <span className="material-symbols-outlined text-[14px]">add</span>
-                    <span className="hidden sm:inline">ADD</span>
-                </button>
-
+            <div className="flex items-center justify-end mt-auto pt-6 border-t border-white/5">
                 <div className="flex bg-white/5 p-1 rounded-sm border border-white/5">
                     {[
-                        { id: 'categories', label: 'CHART' },
-                        { id: 'ledger', label: 'LIST' }
+                        { id: 'ledger', label: 'LIST' },
+                        { id: 'categories', label: 'CHART' }
                     ].map(tab => (
                         <button
                             key={tab.id}

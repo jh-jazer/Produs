@@ -24,7 +24,7 @@ export const usePlanner = (dateInput) => {
     const fetcher = url => api.get(url).then(res => res.data);
     
     // Fetch tasks for the specific date or month
-    const swrKey = userId && queryParams ? `/planner/tasks?${queryParams}` : null;
+    const swrKey = userId ? (queryParams ? `/planner/tasks?${queryParams}` : `/planner/tasks`) : null;
     const { data: tasks, error, isLoading } = useSWR(swrKey, fetcher);
 
     const addTask = async (taskData) => {

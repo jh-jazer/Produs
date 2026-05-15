@@ -18,7 +18,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, className = "" }) => (
-  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all p-4 md:p-8 rounded-sm group overflow-hidden ${className}`}>
+  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all px-0 py-4 md:p-8 rounded-sm group overflow-hidden ${className}`}>
     <div className="hidden md:block">
       <ChippedBorder opacity={0.6} />
     </div>
@@ -60,7 +60,7 @@ const HabitMatrix = () => {
     if (isLoading && habits.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground p-8 pt-12 md:p-12 md:pt-16 font-sans overflow-x-hidden flex flex-col items-center">
+        <div className="w-full bg-transparent text-foreground px-0 pt-20 md:p-12 md:pt-16 font-sans overflow-x-hidden flex flex-col items-center">
             <div className="w-full max-w-7xl mt-8 md:mt-0">
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                     <HUDPanel title="HABITS TRACKER" subtitle="DAILY CONSISTENCY">

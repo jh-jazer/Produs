@@ -13,7 +13,7 @@ const ToolsMarketplaceModal = ({ isOpen, onClose, category = 'all' }) => {
         // Intellectual
         { id: 'tracker', name: 'Habit Matrix', category: 'Intellectual', icon: <Zap className="w-5 h-5" />, description: 'Neuroplasticity reinforcement via habit loops.', path: '/dashboard/intellectual', tabId: 'tracker' },
         { id: 'planner', name: 'Tactical Planner', category: 'Intellectual', icon: <LayoutGrid className="w-5 h-5" />, description: 'Daily block scheduling and task prioritization.', path: '/dashboard/intellectual', tabId: 'planner' },
-        { id: 'calendar', name: 'Temporal Sync', category: 'Intellectual', icon: <Box className="w-5 h-5" />, description: 'Full-spectrum temporal mapping and events.', path: '/dashboard/intellectual', tabId: 'calendar' },
+        { id: 'calendar', name: 'Event Calendar', category: 'Intellectual', icon: <Box className="w-5 h-5" />, description: 'Full-spectrum calendar and event management.', path: '/dashboard/intellectual', tabId: 'calendar' },
         { id: 'goals', name: 'Goal Setter', category: 'Intellectual', icon: <Cpu className="w-5 h-5" />, description: 'Long-term mission parameters and key goals.', path: '/dashboard/intellectual', tabId: 'goals' },
         { id: 'priority', name: 'Priority HUD', category: 'Intellectual', icon: <Zap className="w-5 h-5" />, description: 'High-density daily focus objectives.', path: '/dashboard/intellectual', tabId: 'priority' },
 

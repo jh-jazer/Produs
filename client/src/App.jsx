@@ -7,7 +7,7 @@ import Intellectual from './pages/Intellectual';
 import Home from './pages/Home';
 import Financial from './pages/Financial';
 import Physical from './pages/Physical';
-import Spiritual from './pages/Spiritual';
+import Writing from './pages/Writing';
 import Auth from './pages/Auth';
 import AuthCallback from './pages/AuthCallback';
 import Landing from './pages/Landing';
@@ -22,7 +22,7 @@ import Merchant from './pages/Merchant';
 import HabitMatrix from './pages/HabitMatrix';
 import TacticalPlanner from './pages/TacticalPlanner';
 import GoalSetterPage from './pages/GoalSetterPage';
-import TemporalSync from './pages/TemporalSync';
+import EventCalendar from './pages/EventCalendar';
 import useAuthStore from './store/useAuthStore';
 import { useEffect } from 'react';
 
@@ -74,11 +74,18 @@ function AnimatedRoutes() {
           <Route path="habits" element={<HabitMatrix />} />
           <Route path="planner" element={<TacticalPlanner />} />
           <Route path="goals" element={<GoalSetterPage />} />
-          <Route path="calendar" element={<TemporalSync />} />
+          <Route path="calendar" element={<EventCalendar />} />
           
           <Route path="financial" element={<Financial />} />
           <Route path="physical" element={<Physical />} />
-          <Route path="spiritual" element={<Spiritual />} />
+          <Route path="spiritual" element={<Writing />} />
+          <Route path="writing" element={<Writing />} />
+          <Route path="writing/journal" element={<Writing />} />
+          <Route path="writing/journal/:entryId" element={<Writing />} />
+          <Route path="writing/notes" element={<Writing />} />
+          <Route path="writing/notes/:noteId" element={<Writing />} />
+          <Route path="writing/lists" element={<Writing />} />
+          <Route path="writing/lists/:listId" element={<Writing />} />
           <Route path="merchant" element={<Merchant />} />
           
           <Route path="finance" element={<Navigate to="/dashboard/financial" replace />} />
