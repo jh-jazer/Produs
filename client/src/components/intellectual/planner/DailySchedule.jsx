@@ -265,7 +265,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                         <div className="flex flex-col relative">
                             {visibleTimes.map((t, idx) => (
                                 <div key={idx} className="flex items-center gap-6 h-[80px] relative group/line">
-                                    <span className="w-16 text-[14px] font-mono text-white/20 group-hover/line:text-white/60 transition-colors uppercase whitespace-nowrap">{t.label}</span>
+                                    <span className="w-16 text-[14px] font-mono text-white transition-colors uppercase whitespace-nowrap">{t.label}</span>
                                     <div className="flex-1 h-px bg-white/5 group-hover/line:bg-white/20 transition-all"></div>
                                     {!isReadOnly && (
                                         <button
