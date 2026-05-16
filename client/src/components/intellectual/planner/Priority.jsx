@@ -51,7 +51,7 @@ const Priority = ({
 
       {/* Active Now Section */}
       <div className="flex flex-col gap-4">
-        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/20">CURRENT STATUS</span>
+        <span className="text-[12px] font-black uppercase tracking-[0.6em] text-white/20">CURRENT STATUS</span>
         {activeTask ? (
           <motion.div 
             initial={{ opacity: 0, x: -10 }}

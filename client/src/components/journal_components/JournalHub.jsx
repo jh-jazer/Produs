@@ -70,7 +70,7 @@ const JournalHub = ({ entries = [], onAction }) => {
                     <button
                         key={m}
                         onClick={() => setMood(m)}
-                        className={`text-lg transition-all ${mood === m ? 'scale-125 ring-2 ring-cyan-500/30 rounded-full p-0.5' : 'grayscale opacity-50 hover:grayscale-0 hover:opacity-100 hover:scale-110'}`}
+                        className={`text-lg transition-all ${mood === m ? 'scale-125 ring-2 ring-black/30 dark:ring-white/30 rounded-full p-0.5' : 'grayscale opacity-50 hover:grayscale-0 hover:opacity-100 hover:scale-110'}`}
                     >
                         {m}
                     </button>
@@ -82,7 +82,7 @@ const JournalHub = ({ entries = [], onAction }) => {
     const backButton = isWriting ? (
         <button 
             onClick={() => { setIsWriting(false); setEditingEntry(null); }}
-            className="flex items-center gap-1 px-2 py-1 rounded bg-black/5 dark:bg-white/5 text-[10px] font-black text-slate-500 hover:text-primary transition-all uppercase tracking-widest border border-black/5 dark:border-white/5 active:scale-95"
+            className="flex items-center gap-1 px-2 py-1 rounded bg-black/5 dark:bg-white/5 text-[10px] font-black text-slate-500 hover:text-black dark:hover:text-white transition-all uppercase tracking-widest border border-black/5 dark:border-white/5 active:scale-95"
         >
             <ChevronLeft size={12} />
             Back
@@ -115,7 +115,7 @@ const JournalHub = ({ entries = [], onAction }) => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, x: -10 }}
                         transition={{ duration: 0.3 }}
-                        className="space-y-6"
+                        className="space-y-4"
                     >
                         <JournalHistory 
                             entries={recentEntries} 
@@ -125,10 +125,10 @@ const JournalHub = ({ entries = [], onAction }) => {
                             {/* Write Journal Card */}
                             <button
                                 onClick={handleWriteNew}
-                                className="group relative rounded-sm bg-white/[0.03] border border-white/10 hover:border-white/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6"
+                                className="group relative rounded-sm bg-black border border-white/10 hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6"
                             >
                                 {/* Left Side: Image (1/4) */}
-                                <div className="w-1/4 relative shrink-0 overflow-hidden bg-white/5 border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                                <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
                                     <img 
                                         src="/assets/journal_default_cover.png" 
                                         alt="New Entry" 
@@ -142,7 +142,7 @@ const JournalHub = ({ entries = [], onAction }) => {
                                     <div className="flex flex-col gap-0.5">
                                         <div className="flex justify-between items-start mb-2 md:mb-4">
                                             <div className="flex items-center gap-2.5">
-                                                <div className="size-8 md:size-10 rounded-sm bg-white/5 flex items-center justify-center text-white/60 group-hover:rotate-12 transition-transform border border-white/10 shrink-0">
+                                                <div className="size-8 md:size-10 rounded-sm bg-black flex items-center justify-center text-white/60 group-hover:rotate-12 transition-transform border border-white/10 shrink-0">
                                                     <PenTool className="size-4 md:size-5" />
                                                 </div>
                                                 <div className="flex flex-col min-w-0">
@@ -174,7 +174,7 @@ const JournalHub = ({ entries = [], onAction }) => {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -10 }}
                         transition={{ duration: 0.3 }}
-                        className="space-y-6"
+                        className="space-y-4"
                     >
                         <JournalEntry 
                             onAction={handleAction} 

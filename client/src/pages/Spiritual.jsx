@@ -21,13 +21,13 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
-  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all px-0 md:px-8 py-4 md:py-8 rounded-sm group overflow-hidden ${className}`}>
+  <div className={`relative bg-black hover:bg-white/[0.02] transition-all px-0 md:px-8 py-2 md:py-4 rounded-sm group overflow-hidden ${className}`}>
     <div className="hidden md:block">
       <ChippedBorder opacity={0.6} />
     </div>
     <div className="relative z-10">
       {title && (
-        <div className="mb-8 hidden md:flex justify-between items-start">
+        <div className="mb-4 hidden md:flex justify-between items-start">
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
             {subtitle && <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>}
@@ -45,13 +45,13 @@ const HubModule = ({ onSelect }) => {
         <div className="flex flex-col md:flex-row gap-6 w-full">
             <button
                 onClick={() => onSelect('journal')}
-                className="flex-1 group relative rounded-sm bg-white/[0.03] transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+                className="flex-1 group relative rounded-none md:rounded-sm bg-black border-y md:border border-white/5 md:border-white/10 transition-all shadow-none hover:shadow-xl hover:shadow-black/5 cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
             >
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
                 <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     <ChippedBorder opacity={1} />
                 </div>
-                <BookOpen className="relative z-10 size-8 text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
+                <BookOpen className="relative z-10 size-8 text-white/60 group-hover:scale-110 group-hover:text-white transition-all mb-3" />
                 <h4 className="relative z-10 text-lg font-black text-white uppercase tracking-tighter italic">JOURNAL</h4>
                 <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-white/20 mt-1.5">Daily Reflections</span>
             </button>
@@ -60,13 +60,13 @@ const HubModule = ({ onSelect }) => {
 
             <button
                 onClick={() => onSelect('notes')}
-                className="flex-1 group relative rounded-sm bg-white/[0.03] transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+                className="flex-1 group relative rounded-none md:rounded-sm bg-black border-y md:border border-white/5 md:border-white/10 transition-all shadow-none hover:shadow-xl hover:shadow-black/5 cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
             >
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
                 <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     <ChippedBorder opacity={1} />
                 </div>
-                <FileText className="relative z-10 size-8 text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
+                <FileText className="relative z-10 size-8 text-white/60 group-hover:scale-110 group-hover:text-white transition-all mb-3" />
                 <h4 className="relative z-10 text-lg font-black text-white uppercase tracking-tighter italic">NOTES</h4>
                 <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-white/20 mt-1.5">Scratchpad Memos</span>
             </button>
@@ -75,13 +75,13 @@ const HubModule = ({ onSelect }) => {
 
             <button
                 onClick={() => onSelect('lists')}
-                className="flex-1 group relative rounded-sm bg-white/[0.03] transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+                className="flex-1 group relative rounded-none md:rounded-sm bg-black border-y md:border border-white/5 md:border-white/10 transition-all shadow-none hover:shadow-xl hover:shadow-black/5 cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
             >
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
                 <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     <ChippedBorder opacity={1} />
                 </div>
-                <ListIcon className="relative z-10 size-8 text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
+                <ListIcon className="relative z-10 size-8 text-white/60 group-hover:scale-110 group-hover:text-white transition-all mb-3" />
                 <h4 className="relative z-10 text-lg font-black text-white uppercase tracking-tighter italic">LISTS</h4>
                 <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-white/20 mt-1.5">Task Tracking</span>
             </button>
@@ -124,10 +124,10 @@ const NotesModule = () => {
             {!isWriting ? (
                 <button
                     onClick={() => setIsWriting(true)}
-                    className="group relative rounded-sm bg-white/[0.03] border border-white/10 hover:border-white/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6 text-left"
+                    className="group relative rounded-none md:rounded-sm bg-black border-y md:border border-white/10 hover:border-white/30 transition-all shadow-none hover:shadow-xl hover:shadow-black/5 cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6 text-left"
                 >
                     {/* Left Side: Image (1/4) */}
-                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-white/5 border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
                         <img 
                             src="/assets/journal_default_cover.png" 
                             alt="Write Note" 
@@ -171,6 +171,7 @@ const NotesModule = () => {
                                 id: Date.now().toString(),
                                 title: newNoteData.title,
                                 content: newNoteData.content,
+                                imageUrl: newNoteData.imageUrl,
                                 category: newNoteData.category,
                                 date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()
                             };
@@ -189,21 +190,29 @@ const NotesModule = () => {
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.98 }}
-                        className={`relative p-6 bg-foreground/[0.01] hover:bg-foreground/[0.03] transition-colors border-l-4 rounded-r-sm flex flex-col justify-between min-h-[120px] group ${colors[note.category] || colors.gray}`}
+                        className="relative p-0 bg-black hover:bg-white/[0.03] transition-colors border-y md:border md:border-l-4 border-foreground/10 md:border-l-foreground/40 rounded-none md:rounded-sm flex flex-col min-h-[120px] group overflow-hidden"
                     >
-                        <div className="flex flex-col gap-2">
-                            <div className="flex justify-between items-start">
-                                <span className="text-[10px] font-black tracking-widest uppercase font-mono line-clamp-1">{note.title}</span>
-                                <button 
-                                    onClick={() => handleDeleteNote(note.id)}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-red-500 p-1"
-                                >
-                                    <Trash2 className="size-3" />
-                                </button>
+                        {note.imageUrl && (
+                            <div className="w-full h-32 overflow-hidden relative shrink-0">
+                                <img src={note.imageUrl} alt={note.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                             </div>
-                            <p className="text-xs text-foreground/80 font-sans whitespace-pre-wrap leading-relaxed mt-1">{note.content}</p>
+                        )}
+                        <div className="p-6 flex flex-col justify-between flex-1">
+                            <div className="flex flex-col gap-2">
+                                <div className="flex justify-between items-start">
+                                    <span className="text-[10px] font-black tracking-widest uppercase font-mono line-clamp-1">{note.title}</span>
+                                    <button 
+                                        onClick={() => handleDeleteNote(note.id)}
+                                        className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-red-500 p-1"
+                                    >
+                                        <Trash2 className="size-3" />
+                                    </button>
+                                </div>
+                                <p className="text-xs text-foreground/80 font-sans whitespace-pre-wrap leading-relaxed mt-1">{note.content}</p>
+                            </div>
+                            <span className="text-[8px] font-mono text-foreground/30 mt-4 tracking-wider">{note.date}</span>
                         </div>
-                        <span className="text-[8px] font-mono text-foreground/30 mt-4 tracking-wider">{note.date}</span>
                     </motion.div>
                 ))}
             </div>
@@ -288,10 +297,10 @@ const ListsModule = () => {
             {!isWriting ? (
                 <button
                     onClick={() => setIsWriting(true)}
-                    className="group relative rounded-sm bg-white/[0.03] border border-white/10 hover:border-white/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6 text-left"
+                    className="group relative rounded-none md:rounded-sm bg-black border-y md:border border-white/10 hover:border-white/30 transition-all shadow-none hover:shadow-xl hover:shadow-black/5 cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6 text-left"
                 >
                     {/* Left Side: Image (1/4) */}
-                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-white/5 border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
                         <img 
                             src="/assets/journal_default_cover.png" 
                             alt="Write List" 
@@ -334,7 +343,8 @@ const ListsModule = () => {
                             const newList = {
                                 id: Date.now().toString(),
                                 title: newListData.title.toUpperCase(),
-                                items: newListData.items
+                                items: newListData.items,
+                                imageUrl: newListData.imageUrl
                             };
                             setLists([newList, ...lists]);
                             setIsWriting(false);
@@ -351,68 +361,76 @@ const ListsModule = () => {
                     const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
                     return (
-                        <div key={list.id} className="bg-foreground/[0.01] border border-foreground/10 p-6 rounded-sm flex flex-col gap-4">
-                            <div className="flex justify-between items-center border-b border-foreground/10 pb-4">
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-xs font-black tracking-widest uppercase font-mono text-foreground">{list.title}</span>
-                                    <span className="text-[8px] font-mono text-foreground/40">{completedCount}/{totalCount} TASKS COMPLETED</span>
+                        <div key={list.id} className="bg-black border-y md:border border-foreground/10 rounded-none md:rounded-sm flex flex-col overflow-hidden group">
+                            {list.imageUrl && (
+                                <div className="w-full h-48 md:h-64 overflow-hidden relative shrink-0">
+                                    <img src={list.imageUrl} alt={list.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                                 </div>
-                                <button 
-                                    onClick={() => handleDeleteList(list.id)}
-                                    className="text-foreground/30 hover:text-red-500 transition-colors p-1.5"
-                                >
-                                    <Trash2 className="size-3.5" />
-                                </button>
-                            </div>
+                            )}
+                            <div className="p-6 flex flex-col gap-4">
+                                <div className="flex justify-between items-center border-b border-foreground/10 pb-4">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-xs font-black tracking-widest uppercase font-mono text-foreground">{list.title}</span>
+                                        <span className="text-[8px] font-mono text-foreground/40">{completedCount}/{totalCount} TASKS COMPLETED</span>
+                                    </div>
+                                    <button 
+                                        onClick={() => handleDeleteList(list.id)}
+                                        className="text-foreground/30 hover:text-red-500 transition-colors p-1.5"
+                                    >
+                                        <Trash2 className="size-3.5" />
+                                    </button>
+                                </div>
 
-                            <div className="w-full h-1 bg-foreground/5 rounded-full overflow-hidden">
-                                <div className="h-full bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
-                            </div>
+                                <div className="w-full h-1 bg-foreground/5 rounded-full overflow-hidden">
+                                    <div className="h-full bg-foreground/40 dark:bg-white/40 transition-all duration-300" style={{ width: `${progress}%` }} />
+                                </div>
 
-                            <div className="flex flex-col gap-2 mt-2">
-                                {list.items.map(item => (
-                                    <div key={item.id} className="flex items-center justify-between group/item py-1.5 px-2 hover:bg-foreground/[0.02] rounded-sm transition-colors">
+                                <div className="flex flex-col gap-2 mt-2">
+                                    {list.items.map(item => (
+                                        <div key={item.id} className="flex items-center justify-between group/item py-1.5 px-2 hover:bg-foreground/[0.02] rounded-sm transition-colors">
+                                            <button 
+                                                onClick={() => handleToggleItem(list.id, item.id)}
+                                                className="flex items-center gap-3 text-left flex-1"
+                                            >
+                                                {item.done ? (
+                                                    <CheckSquare className="size-4 text-foreground dark:text-white shrink-0" />
+                                                ) : (
+                                                    <Square className="size-4 text-foreground/30 shrink-0" />
+                                                )}
+                                                <span className={`text-xs font-sans ${item.done ? 'line-through text-foreground/40' : 'text-foreground/90'}`}>
+                                                    {item.text}
+                                                </span>
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteItem(list.id, item.id)}
+                                                className="opacity-0 group-hover/item:opacity-100 transition-opacity text-foreground/30 hover:text-red-500 p-1"
+                                            >
+                                                <Trash2 className="size-3" />
+                                            </button>
+                                        </div>
+                                    ))}
+
+                                    <div className="flex gap-2 mt-3 pt-2 border-t border-foreground/5">
+                                        <input 
+                                            type="text" 
+                                            placeholder="Add task item..." 
+                                            value={newItemTexts[list.id] || ''}
+                                            onChange={(e) => setNewItemTexts({ ...newItemTexts, [list.id]: e.target.value })}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    handleAddItem(list.id);
+                                                }
+                                            }}
+                                            className="flex-1 bg-transparent border-b border-foreground/10 px-2 py-1 text-xs outline-none text-foreground/80 focus:border-foreground/40 font-sans"
+                                        />
                                         <button 
-                                            onClick={() => handleToggleItem(list.id, item.id)}
-                                            className="flex items-center gap-3 text-left flex-1"
+                                            onClick={() => handleAddItem(list.id)}
+                                            className="text-[9px] font-black tracking-wider uppercase text-foreground/60 dark:text-white/60 px-3 py-1 hover:bg-foreground/10 rounded-sm transition-colors shrink-0 font-mono"
                                         >
-                                            {item.done ? (
-                                                <CheckSquare className="size-4 text-primary shrink-0" />
-                                            ) : (
-                                                <Square className="size-4 text-foreground/30 shrink-0" />
-                                            )}
-                                            <span className={`text-xs font-sans ${item.done ? 'line-through text-foreground/40' : 'text-foreground/90'}`}>
-                                                {item.text}
-                                            </span>
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDeleteItem(list.id, item.id)}
-                                            className="opacity-0 group-hover/item:opacity-100 transition-opacity text-foreground/30 hover:text-red-500 p-1"
-                                        >
-                                            <Trash2 className="size-3" />
+                                            ADD
                                         </button>
                                     </div>
-                                ))}
-
-                                <div className="flex gap-2 mt-3 pt-2 border-t border-foreground/5">
-                                    <input 
-                                        type="text" 
-                                        placeholder="Add task item..." 
-                                        value={newItemTexts[list.id] || ''}
-                                        onChange={(e) => setNewItemTexts({ ...newItemTexts, [list.id]: e.target.value })}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                handleAddItem(list.id);
-                                            }
-                                        }}
-                                        className="flex-1 bg-transparent border-b border-foreground/10 px-2 py-1 text-xs outline-none text-foreground/80 focus:border-primary font-sans"
-                                    />
-                                    <button 
-                                        onClick={() => handleAddItem(list.id)}
-                                        className="text-[9px] font-black tracking-wider uppercase text-primary px-3 py-1 hover:bg-primary/10 rounded-sm transition-colors shrink-0 font-mono"
-                                    >
-                                        ADD
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -451,16 +469,16 @@ const Spiritual = () => {
     if (isLoading && entries.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground px-0 md:px-12 pt-20 md:pt-16 pb-8 font-sans overflow-x-hidden flex flex-col items-center">
-            <div className="w-full max-w-7xl mt-12 md:mt-0 flex flex-col gap-8">
+        <div className="w-full bg-transparent text-foreground px-0 md:px-12 pt-6 md:pt-4 pb-8 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full max-w-7xl mt-4 md:mt-2 flex flex-col gap-6">
 
                 {activeTab !== 'hub' && (
                     <button 
                         onClick={handleBack}
-                        className="self-start flex items-center gap-2 text-foreground/40 hover:text-foreground transition-colors mb-2 px-4 md:px-0"
+                        className="self-start flex items-center gap-2 text-foreground/40 hover:text-foreground transition-colors mb-1 px-4 md:px-0"
                     >
                         <ChevronLeft className="size-4" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">BACK TO HUB</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">BACK</span>
                     </button>
                 )}
 

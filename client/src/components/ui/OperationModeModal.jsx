@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, Users, Zap, Shield, Target, Lock, X, CheckCircle2, Cpu } from 'lucide-react';
 import { DashboardContext } from '../../context/DashboardContext';
 import useAuthStore from '../../store/useAuthStore';
+import ChippedBorder from './ChippedBorder';
 
 const OperationModeModal = ({ isOpen, onClose }) => {
     const { 
@@ -16,18 +17,17 @@ const OperationModeModal = ({ isOpen, onClose }) => {
     if (!user) return null;
 
     const isIsekaiLocked = !user.rpg?.path && !user.rpg?.pendingQuestions?.length && user.level > 0;
-    const isPartnerLocked = !user.partner;
 
     const sections = [
         {
             id: 'protocol',
-            title: 'Dashboard Mode',
+            title: 'Protocol Sync',
             icon: Cpu,
             options: [
                 {
                     id: 'reality',
                     name: 'Productivity',
-                    description: 'Focus on tasks, habits, and planning.',
+                    description: 'Focus on missions, habits, and tactical planning.',
                     icon: Target,
                     active: protocolMode === 'reality',
                     locked: false,
@@ -36,7 +36,7 @@ const OperationModeModal = ({ isOpen, onClose }) => {
                 {
                     id: 'rpg',
                     name: 'RPG Mode',
-                    description: 'Gamified view with levels, XP, and stats.',
+                    description: 'Gamified interface with levels, XP, and stats.',
                     icon: Zap,
                     active: protocolMode === 'rpg',
                     locked: isIsekaiLocked,
@@ -46,13 +46,13 @@ const OperationModeModal = ({ isOpen, onClose }) => {
         },
         {
             id: 'view',
-            title: 'View Perspective',
+            title: 'Perspective',
             icon: Shield,
             options: [
                 {
                     id: 'personal',
                     name: 'Personal',
-                    description: 'Manage your individual data and missions.',
+                    description: 'Manage individual data and private objectives.',
                     icon: User,
                     active: viewMode === 'personal',
                     locked: false,
@@ -61,7 +61,7 @@ const OperationModeModal = ({ isOpen, onClose }) => {
                 {
                     id: 'partner',
                     name: 'Partner',
-                    description: 'Shared view with your connected partner.',
+                    description: 'Shared view with your linked operative.',
                     icon: Users,
                     active: viewMode === 'partner',
                     locked: false,
@@ -74,89 +74,97 @@ const OperationModeModal = ({ isOpen, onClose }) => {
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-black/60 backdrop-blur-xl"
+                        className="absolute inset-0 bg-black/80 backdrop-blur-xl"
                     />
                     
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="relative w-full max-w-2xl bg-white dark:bg-[#0a0a0a] rounded-[2rem] md:rounded-[2.5rem] border border-black/10 dark:border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[90vh]"
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        className="relative w-full max-w-lg bg-white dark:bg-[#080808] p-8 md:p-10 rounded-sm overflow-hidden border border-black dark:border-white/5 shadow-[0_50px_100px_-20px_rgba(0,0,0,1)]"
                     >
+                        <ChippedBorder opacity={0.3} />
+                        
                         {/* Header */}
-                        <div className="p-6 md:p-8 border-b border-black/[0.05] dark:border-white/[0.05] flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02] shrink-0">
-                            <div className="flex items-center gap-3 md:gap-4">
-                                <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                                    <Cpu size={20} className="md:size-6" />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg md:text-xl font-black uppercase tracking-tighter italic font-exo text-slate-900 dark:text-white leading-none">Mode Settings</h3>
-                                </div>
+                        <div className="relative z-10 mb-8 flex items-center justify-between">
+                            <div className="flex flex-col gap-1">
+                                <h3 className="text-[14px] md:text-[16px] font-black uppercase tracking-[0.4em] text-black dark:text-white leading-none italic">
+                                    Operation_Sync
+                                </h3>
+                                <p className="text-[9px] font-mono uppercase tracking-widest text-black/40 dark:text-white/40">
+                                    Configure System Parameters
+                                </p>
                             </div>
                             <button
                                 onClick={onClose}
-                                className="size-9 md:size-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-rose-500 transition-colors"
+                                className="size-8 flex items-center justify-center rounded-sm bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-all active:scale-90"
                             >
-                                <X size={18} className="md:size-5" />
+                                <X size={16} />
                             </button>
                         </div>
 
                         {/* Content */}
-                        <div className="p-6 md:p-8 space-y-8 md:space-y-10 overflow-y-auto custom-scrollbar">
+                        <div className="relative z-10 space-y-10">
                             {sections.map(section => (
                                 <div key={section.id} className="space-y-4">
-                                    <div className="flex items-center gap-3 px-1 md:px-2">
-                                        <section.icon size={14} className="text-primary" />
-                                        <div className="flex flex-col">
-                                            <h4 className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] text-slate-900 dark:text-white leading-none">
-                                                {section.title}
-                                            </h4>
-                                        </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-black dark:bg-white rounded-full opacity-40" />
+                                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 dark:text-white/40 leading-none">
+                                            {section.title}
+                                        </h4>
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {section.options.map(option => (
                                             <button
                                                 key={option.id}
                                                 onClick={option.onClick}
                                                 disabled={option.locked}
-                                                className={`group relative p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border transition-all duration-300 text-left flex items-start gap-3 md:gap-4
+                                                className={`group relative p-5 rounded-sm border transition-all duration-300 text-left flex flex-col gap-3 overflow-hidden
                                                     ${option.active 
-                                                        ? 'bg-primary/5 border-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]' 
+                                                        ? 'bg-black dark:bg-white border-black dark:border-white shadow-xl shadow-black/10 dark:shadow-white/5' 
                                                         : option.locked
-                                                            ? 'bg-slate-50/50 dark:bg-white/[0.02] border-slate-100 dark:border-white/5 opacity-40 cursor-not-allowed'
-                                                            : 'bg-white dark:bg-white/[0.03] border-slate-100 dark:border-white/10 hover:border-primary/50'}`}
+                                                            ? 'bg-black/5 dark:bg-white/[0.02] border-black/5 dark:border-white/5 opacity-30 cursor-not-allowed'
+                                                            : 'bg-transparent border-black/10 dark:border-white/10 hover:border-black dark:hover:border-white/40'}`}
                                             >
-                                                <div className={`size-10 md:size-12 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500
-                                                    ${option.active 
-                                                        ? 'bg-primary text-white shadow-lg' 
-                                                        : 'bg-slate-100 dark:bg-white/5 text-slate-400 group-hover:bg-slate-200 dark:group-hover:bg-white/10 group-hover:text-primary'}`}
-                                                >
-                                                    {option.locked ? <Lock size={18} /> : <option.icon size={20} />}
+                                                {/* Active Indicator Bar */}
+                                                {option.active && (
+                                                    <div className="absolute top-0 right-0 w-8 h-8 bg-white dark:bg-black rotate-45 translate-x-4 -translate-y-4" />
+                                                )}
+
+                                                <div className={`flex items-center justify-between transition-colors
+                                                    ${option.active ? 'text-white dark:text-black' : 'text-black dark:text-white'}`}>
+                                                    <div className={`size-8 rounded-sm flex items-center justify-center border transition-all
+                                                        ${option.active 
+                                                            ? 'bg-white/10 border-white/20 dark:bg-black/10 dark:border-black/20' 
+                                                            : 'bg-black/5 border-black/10 dark:bg-white/5 dark:border-white/10 group-hover:scale-110'}`}
+                                                    >
+                                                        {option.locked ? <Lock size={14} /> : <option.icon size={16} />}
+                                                    </div>
+                                                    {option.active && <CheckCircle2 size={12} />}
                                                 </div>
 
-                                                <div className="flex-1 space-y-1">
-                                                    <div className="flex items-center justify-between">
-                                                        <span className={`text-xs md:text-[13px] font-black tracking-widest font-exo italic transition-colors
-                                                            ${option.active ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
-                                                            {option.name}
-                                                        </span>
-                                                        {option.active && <CheckCircle2 size={12} className="text-primary md:size-3.5" />}
-                                                    </div>
-                                                    <p className="text-[9px] md:text-[10px] font-bold text-slate-400 leading-relaxed uppercase tracking-wide">
+                                                <div className="space-y-1.5">
+                                                    <span className={`text-[11px] font-black tracking-[0.2em] uppercase italic transition-colors block
+                                                        ${option.active ? 'text-white dark:text-black' : 'text-black dark:text-white'}`}>
+                                                        {option.name}
+                                                    </span>
+                                                    <p className={`text-[8px] font-bold leading-relaxed uppercase tracking-wider transition-colors
+                                                        ${option.active ? 'text-white/60 dark:text-black/60' : 'text-black/40 dark:text-white/40'}`}>
                                                         {option.description}
                                                     </p>
                                                 </div>
 
                                                 {option.locked && (
-                                                    <div className="absolute top-3 md:top-4 right-5 md:right-6 uppercase text-[7px] md:text-[8px] font-black tracking-widest text-slate-400 flex items-center gap-1.5">
-                                                        <Lock size={7} className="md:size-2" /> Restricted
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/5 backdrop-blur-[2px]">
+                                                        <Lock size={12} className="text-black/40 dark:text-white/40" />
                                                     </div>
                                                 )}
                                             </button>
@@ -166,13 +174,20 @@ const OperationModeModal = ({ isOpen, onClose }) => {
                             ))}
                         </div>
 
-                        {/* Footer */}
-                        <div className="p-6 md:p-8 pt-0 flex shrink-0">
+                        {/* Footer Actions */}
+                        <div className="relative z-10 mt-12 flex flex-col gap-4">
                             <button
                                 onClick={onClose}
-                                className="w-full md:w-auto md:ml-auto px-10 py-3.5 md:py-4 bg-slate-900 dark:bg-white text-white dark:text-black rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] hover:opacity-90 active:scale-95 transition-all shadow-lg"
+                                className="w-full py-5 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-[0.5em] hover:opacity-90 active:scale-[0.98] transition-all shadow-2xl relative overflow-hidden group"
                             >
-                                Confirm Settings
+                                <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-white dark:bg-black rotate-45 translate-x-1.5 -translate-y-1.5" />
+                                SYNC_PARAMETERS
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="w-full py-4 text-[9px] font-black uppercase tracking-[0.4em] text-black/20 dark:text-white/20 hover:text-black dark:hover:text-white transition-all"
+                            >
+                                ABORT_OPERATION
                             </button>
                         </div>
                     </motion.div>

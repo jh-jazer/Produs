@@ -45,7 +45,7 @@ export default function PriorityHUD() {
   };
 
   return (
-    <div className="flex md:col-span-3 flex-col md:bg-foreground/[0.02] rounded-sm px-4 py-2 md:p-8 min-h-[43vh] md:min-h-[380px] md:hover:bg-foreground/[0.04] transition-all group relative overflow-hidden">
+    <div className="flex md:col-span-3 flex-col md:bg-foreground/[0.02] rounded-sm px-4 py-2 md:p-8 min-h-[80vh] md:min-h-[80vh] md:hover:bg-foreground/[0.04] transition-all group relative overflow-hidden">
       <div className="hidden md:block">
         <ChippedBorder opacity={0.7} />
       </div>

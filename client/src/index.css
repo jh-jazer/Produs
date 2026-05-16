@@ -320,6 +320,12 @@ button:disabled {
   --primary-glow: rgba(59, 130, 246, 0.5);
 }
 
+/* Native Input Overrides */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
 /* Standardized Wordmark / Logo Styling */
 .wordmark {
     font-weight: 900;

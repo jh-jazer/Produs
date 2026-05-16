@@ -203,14 +203,31 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
 
     const getBtnClass = (cmd) => {
         return `p-1.5 rounded flex-shrink-0 transition-colors ${
-            activeFormats[cmd] 
-                ? 'bg-primary/20 text-primary dark:bg-primary/30' 
+            activeFormats[cmd]                        ? 'bg-black/10 text-black dark:bg-white/10 dark:text-white' 
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-[#121212]'
         }`;
     };
 
     return (
-        <div className="border border-slate-200 dark:border-white/10 rounded-[2rem] overflow-hidden flex flex-col bg-slate-50 dark:bg-[#1f293a] transition-shadow shadow-none focus-within:shadow-none focus-within:border-slate-300 dark:focus-within:border-slate-600">
+        <div className="border-y md:border border-slate-200 dark:border-white/10 rounded-none md:rounded-[2rem] overflow-hidden flex flex-col bg-slate-50 dark:bg-black transition-shadow shadow-none focus-within:shadow-none focus-within:border-slate-300 dark:focus-within:border-slate-600">
+            {/* Top Bar: Navigation & Action */}
+            <div className="bg-white dark:bg-black p-3 px-4 border-b border-slate-100 dark:border-white/10 flex items-center justify-between z-40">
+                <button 
+                    onClick={onBack}
+                    className="flex items-center gap-2 text-slate-500 hover:text-black dark:hover:text-white transition-colors text-[11px] font-black uppercase tracking-[0.2em] active:scale-95"
+                >
+                    <ChevronLeft size={16} />
+                    Back
+                </button>
+                <button 
+                    onClick={onSaveWrapper}
+                    disabled={loading || !content.trim()}
+                    className="px-6 py-2 rounded-xl bg-black dark:bg-white text-white dark:text-slate-900 text-[11px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all disabled:opacity-30 active:scale-95 shadow-lg shadow-black/5"
+                >
+                    {loading ? 'SAVING...' : 'Save'}
+                </button>
+            </div>
+
             {/* Hidden File Input */}
             <input 
                 type="file" 
@@ -221,7 +238,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
             />
 
             {/* Top Visual / Attach Image Section with Integrated Back Button */}
-            <div className="relative w-full border-b border-dashed border-slate-200 dark:border-white/10 bg-slate-100/50 dark:bg-[#161f2e]">
+            <div className="relative w-full border-b border-dashed border-slate-200 dark:border-white/10 bg-slate-100/50 dark:bg-black">
                 {/* Absolute Controls Row (Top Right) */}
                 <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
                     {imageUrl && (
@@ -244,9 +261,9 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
                     <button 
                         onClick={handleAddImage}
                         disabled={loading}
-                        className="w-full py-8 flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-primary hover:bg-primary/5 transition-all group disabled:opacity-50"
+                        className="w-full py-8 flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all group disabled:opacity-50"
                     >
-                        <div className="size-12 rounded-full border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all">
+                        <div className="size-12 rounded-full border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center group-hover:border-black dark:group-hover:border-white group-hover:bg-black/5 dark:group-hover:bg-white/5 transition-all">
                             {loading ? (
                                 <div className="size-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                             ) : (
@@ -257,14 +274,13 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] block">
                                 {loading ? 'UPLOADING...' : 'Attach image'}
                             </span>
-                            <span className="text-[8px] font-bold text-slate-400 tracking-widest opacity-60">Standard Upload</span>
                         </div>
                     </button>
                 )}
             </div>
 
             {/* Header Block: Mood Tracker (Left) & Date (Right) */}
-            <div className="bg-white dark:bg-[#121212] px-6 pt-6 flex justify-between items-start gap-4">
+            <div className="bg-white dark:bg-black px-4 pt-4 flex justify-between items-start gap-4">
                 <div className="z-20 shrink-0">
                     <MoodTracker 
                         user={{ settings: { mood: mood } }} 
@@ -272,7 +288,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
                         standalone 
                     />
                 </div>
-                <span className="text-xs font-black uppercase tracking-wider text-primary dark:text-white/80 mt-2 text-right">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white/80 mt-2 text-right">
                     {new Date(initialEntry ? initialEntry.date : Date.now()).toLocaleDateString(undefined, { 
                         month: 'long', 
                         day: 'numeric', 
@@ -282,7 +298,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
             </div>
 
             {/* Title Input Area */}
-            <div className="bg-white dark:bg-[#121212] px-6 pt-3 flex items-center gap-3">
+            <div className="bg-white dark:bg-black px-4 pt-2 flex items-center gap-3">
                 <input 
                     type="text" 
                     value={title}
@@ -295,7 +311,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
             <div className="relative">
                 <div 
                     ref={textareaRef}
-                    className="w-full bg-white dark:bg-[#121212] border-none focus:ring-0 px-6 py-5 min-h-[260px] text-lg md:text-xl text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1 [&_blockquote]:border-l-[3px] [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:my-2 [&_blockquote]:bg-primary/5 [&_blockquote]:py-1 [&_blockquote]:rounded-r-md [&_a]:text-primary [&_a]:underline [&_h1]:text-3xl [&_h1]:font-black [&_h1]:my-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:my-2"
+                    className="w-full bg-white dark:bg-black border-none focus:ring-0 px-6 py-5 min-h-[260px] text-lg md:text-xl text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1 [&_blockquote]:border-l-[3px] [&_blockquote]:border-slate-400/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:my-2 [&_blockquote]:bg-slate-400/5 [&_blockquote]:py-1 [&_blockquote]:rounded-r-md [&_a]:text-black dark:[&_a]:text-white [&_a]:underline [&_h1]:text-3xl [&_h1]:font-black [&_h1]:my-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:my-2"
                     data-placeholder="Input text"
                     contentEditable="true"
                     suppressContentEditableWarning={true}
@@ -311,9 +327,9 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
 
             {/* Google Keep Style Bottom Toolbar */}
             {/* Journal Toolbar */}
-            <div className="bg-white dark:bg-[#121212] p-4 px-6 border-t border-slate-100 dark:border-white/10 flex flex-col gap-4">
+            <div className="bg-white dark:bg-black p-4 px-6 border-t border-slate-100 dark:border-white/10 flex flex-col gap-4">
                 {/* 1. All Operation Icons Row */}
-                <div className="flex flex-wrap gap-1.5 items-center justify-between sm:justify-start w-full">
+                <div className="flex flex-wrap gap-1.5 items-center justify-between w-full">
                     <div className="flex items-center gap-1">
                         <button 
                             onClick={handleAddImage}
@@ -350,34 +366,16 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
                         <button onMouseDown={(e) => handleFormat(e, 'insertUnorderedList')} title="Bullet List" type="button" className={getBtnClass('insertUnorderedList')}><span className="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
                         <button onMouseDown={(e) => handleFormat(e, 'checkbox')} title="Task List" type="button" className="p-1.5 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex-shrink-0"><span className="material-symbols-outlined text-[20px]">check_box</span></button>
                     </div>
-                </div>
-                
-                {/* 2. Clear & Confirm Buttons Row */}
-                <div className="flex items-center justify-between pt-2 border-t border-slate-50 dark:border-white/5">
+
                     <button 
                         onClick={handleApplyPrompt} 
                         title="Prompt Bowl - Insert Reflection" 
-                        className="size-10 flex items-center justify-center hover:bg-primary/10 hover:text-primary rounded-xl text-slate-500 flex-shrink-0 transition-all active:scale-90 border border-transparent hover:border-primary/20"
+                        className="p-1.5 flex items-center justify-center hover:bg-black/10 hover:text-black dark:hover:bg-white/10 dark:hover:text-white rounded text-slate-600 dark:text-slate-400 flex-shrink-0 transition-all active:scale-90"
                     >
-                        <span className="material-symbols-outlined text-[24px]">soup_kitchen</span>
+                        <span className="material-symbols-outlined text-[22px]">soup_kitchen</span>
                     </button>
-
-                    <div className="flex items-center gap-2">
-                        <button 
-                            onClick={onBack}
-                            className="px-6 py-2.5 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 text-[11px] font-black uppercase tracking-[0.2em] transition-all active:scale-95"
-                        >
-                            Back
-                        </button>
-                        <button 
-                            onClick={onSaveWrapper}
-                            disabled={loading || !content.trim()}
-                            className="px-8 py-2.5 rounded-xl bg-black dark:bg-white text-white dark:text-slate-900 text-[11px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all disabled:opacity-30 shadow-xl shadow-black/10 active:scale-95 flex items-center gap-2"
-                        >
-                            {loading ? 'SAVING...' : 'Confirm'}
-                        </button>
-                    </div>
                 </div>
+                
             </div>
         </div>
     );

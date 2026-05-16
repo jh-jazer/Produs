@@ -119,18 +119,18 @@ const MonthlyView = ({ onBack }) => {
                             onClick={() => setSelectedMonthIdx(idx)}
                             className={`relative py-8 px-6 border rounded-sm flex flex-col gap-1 transition-all cursor-pointer group overflow-hidden ${
                                 selectedMonthIdx === idx 
-                                ? 'bg-white/10 border-white/20' 
-                                : 'bg-white/[0.02] border-white/10'
+                                ? 'bg-white/[0.08] border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.05)]' 
+                                : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05]'
                             }`}
                         >
                             {currentMonth === idx && (
                                 <div className="absolute top-2.5 right-2.5 size-1.5 rounded-full bg-white shadow-[0_0_8px_white]" />
                             )}
                             
-                            <span className={`text-[10px] font-black tracking-[0.3em] uppercase ${selectedMonthIdx === idx ? 'text-white' : 'text-white/40 group-hover:text-white/60'}`}>
+                            <span className={`text-[10px] font-black tracking-[0.3em] uppercase transition-all ${selectedMonthIdx === idx ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-white/40 group-hover:text-white/60'}`}>
                                 {month}
                             </span>
-                            <span className="text-[7px] font-mono tracking-widest text-white/10">
+                            <span className={`text-[7px] font-mono tracking-widest ${selectedMonthIdx === idx ? 'text-white/40' : 'text-white/10'}`}>
                                 {currentYear}
                             </span>
                         </motion.div>

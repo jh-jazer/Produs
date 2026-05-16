@@ -122,7 +122,7 @@ const FinancialOverview = ({
   };
 
   return (
-    <div className={`flex flex-col ${compact ? 'gap-4' : 'gap-8 min-h-[400px]'} relative group`}>
+    <div className={`flex flex-col ${compact ? 'gap-4' : 'gap-8 md:min-h-[400px]'} relative group`}>
         <DecisionModal
             isOpen={!!confirmDelete}
             title="DELETE RECORD"
@@ -171,7 +171,7 @@ const FinancialOverview = ({
                             key="balance"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="p-12 text-left rounded-sm bg-white/[0.03] border border-white/5 relative overflow-hidden"
+                            className="p-12 text-center rounded-sm bg-white/[0.03] border border-white/5 relative overflow-hidden"
                         >
                             <div className="absolute top-4 right-4 z-20">
                                 <button 
@@ -212,7 +212,7 @@ const FinancialOverview = ({
                                                         <select
                                                             value={localCurrency}
                                                             onChange={(e) => setLocalCurrency(e.target.value)}
-                                                            className="w-full bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-3 outline-none appearance-none cursor-pointer hover:bg-white/10 transition-all pr-10"
+                                                            className="w-full bg-transparent border border-white/10 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-3 outline-none appearance-none cursor-pointer transition-all pr-10"
                                                         >
                                                             {allCurrencies.map(code => {
                                                                 const symbol = getCurrencySymbol(code);
@@ -254,7 +254,7 @@ const FinancialOverview = ({
                                 })()}`}
                             </p>
 
-                            <div className="flex items-center justify-start gap-3 mt-4">
+                            <div className="flex items-center justify-center gap-3 mt-4">
                                 {foresee && (
                                     <motion.span 
                                         initial={{ opacity: 0, y: 5 }}

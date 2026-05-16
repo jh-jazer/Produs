@@ -16,7 +16,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const EmptyState = ({ text }) => (
-  <div className="flex flex-col items-start justify-center pt-80 pb-10 opacity-40 text-left gap-6">
+  <div className="flex flex-col items-start justify-center pt-10 pb-10 opacity-40 text-left gap-6">
     <span className="material-symbols-outlined text-4xl opacity-20">terminal</span>
     <div className="flex flex-col gap-2">
       <span className="text-[10px] font-black uppercase tracking-[0.4em]">
@@ -103,7 +103,7 @@ const FinancialBreakdown = ({
     };
 
     return (
-        <div className="flex flex-col gap-6 h-full relative z-10 pt-4 md:pt-0 mt-0 md:-mt-4">
+        <div className="flex flex-col gap-4 h-full relative z-10 pt-0 mt-0 md:-mt-8">
             <DecisionModal
                 isOpen={!!confirmDelete}
                 title="DELETE RECORD"
@@ -169,10 +169,7 @@ const FinancialBreakdown = ({
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/60 dark:text-white/60 group-hover:text-black dark:group-hover:text-white transition-colors">
-                                        ADD_NEW_TRANSACTION
-                                    </span>
-                                    <span className="text-[8px] font-mono uppercase tracking-widest text-black/20 dark:text-white/20">
-                                        INITIALIZE_NEW_LEDGER_ENTRY
+                                        ADD TRANSACTION
                                     </span>
                                 </div>
                                 
@@ -240,7 +237,7 @@ const FinancialBreakdown = ({
             </div>
 
             {/* Actions & View Toggle */}
-            <div className="flex items-center justify-end mt-auto pt-6 border-t border-white/5">
+            <div className="flex items-center justify-end mt-auto pt-1 md:pt-12 border-t border-white/5 -translate-y-12 md:translate-y-0">
                 <div className="flex bg-white/5 p-1 rounded-sm border border-white/5">
                     {[
                         { id: 'ledger', label: 'LIST' },

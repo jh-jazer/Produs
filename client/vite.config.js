@@ -54,9 +54,22 @@ export default defineConfig({
             icons: [{ src: '/produs-logo-192.png', sizes: '192x192' }]
           }
         ]
-      }
+      },
+      workbox: {
+        maximumFileSizeToCacheInBytes: 4000000, // 4MB
+      },
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-ui': ['framer-motion', 'lucide-react', 'recharts', 'gsap', 'lenis'],
+          'vendor-react': ['react', 'react-dom', 'react-router-dom', 'zustand', 'swr'],
+        },
+      },
+    },
+  },
   server: {
     proxy: {
       '/api': 'http://localhost:5000',

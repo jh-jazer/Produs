@@ -25,8 +25,8 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
                         </div>
                     </div>
                     <div className="flex flex-col gap-1">
-                        <h3 className="text-2xl md:text-3xl font-black text-black dark:text-white uppercase tracking-tighter italic font-exo leading-none">
-                            {user?.username?.replace(/\d+/g, '') || 'OPERATOR'}
+                        <h3 className="text-xl md:text-2xl font-black text-black dark:text-white uppercase tracking-[0.2em] font-mono leading-none">
+                            {user?.username?.replace(/[#\d]+/g, '') || 'OPERATOR'}
                         </h3>
                         <LevelDisplay 
                             level={user?.level} 
@@ -44,7 +44,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
         >
             <div className="flex flex-col gap-8 -mt-2">
                 {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-3 p-4 rounded-3xl bg-black/[0.03] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
+                <div className="grid grid-cols-3 gap-3 p-4 rounded-3xl">
                     <div className="flex flex-col items-center gap-1">
                         <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Coins</span>
                         <CoinDisplay amount={user?.rpg?.prodCoins || 0} variant="minimal" />

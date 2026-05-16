@@ -17,13 +17,13 @@ const parseMarkdown = (text) => {
     if (!text) return { __html: '' };
 
     let html = text
-        .replace(/- \[[xX]\] (.*)/g, '<div class="flex items-start gap-2 my-1"><span class="material-symbols-outlined text-emerald-500 text-[16px] mt-0.5">check_box</span> <span>$1</span></div>')
+        .replace(/- \[[xX]\] (.*)/g, '<div class="flex items-start gap-2 my-1"><span class="material-symbols-outlined text-black dark:text-white text-[16px] mt-0.5">check_box</span> <span>$1</span></div>')
         .replace(/- \[ \] (.*)/g, '<div class="flex items-start gap-2 my-1"><span class="material-symbols-outlined text-slate-400 text-[16px] mt-0.5">check_box_outline_blank</span> <span>$1</span></div>')
-        .replace(/^- (?!\[)(.*)/gm, '<div class="flex items-start gap-2 my-1 text-slate-600 dark:text-slate-300"><span class="text-primary text-[10px] mt-1 mr-1">•</span> <span>$1</span></div>')
+        .replace(/^- (?!\[)(.*)/gm, '<div class="flex items-start gap-2 my-1 text-slate-600 dark:text-slate-300"><span class="text-black dark:text-white text-[10px] mt-1 mr-1">•</span> <span>$1</span></div>')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/_(.*?)_/g, '<em>$1</em>')
-        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-bold">$1</a>')
-        .replace(/^&gt; (.*)/gm, '<blockquote class="border-l-[3px] border-primary/40 pl-3 my-2 italic text-slate-500 dark:text-slate-400 bg-primary/5 py-1 pr-2 rounded-r-md">$1</blockquote>')
+        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-black dark:text-white hover:underline font-bold">$1</a>')
+        .replace(/^&gt; (.*)/gm, '<blockquote class="border-l-[3px] border-black/40 dark:border-white/40 pl-3 my-2 italic text-slate-500 dark:text-slate-400 bg-black/5 dark:bg-white/5 py-1 pr-2 rounded-r-md">$1</blockquote>')
         .replace(/\n/g, '<br />');
 
     html = html.replace(/<\/div><br \/>/g, '</div>');
@@ -64,17 +64,17 @@ const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => 
                 {entries.length > 0 && (
                     <AnimatePresence mode="popLayout">
                         {entries.map((entry, idx) => (
-                            <motion.div 
-                                key={entry._id || idx}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ duration: 0.8, delay: Math.min(idx * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
-                                onClick={() => navigate(`/dashboard/writing/journal/${entry._id}`)}
-                                className="group relative rounded-3xl bg-white dark:bg-[#121212]/40 border border-slate-100 dark:border-white/10 hover:border-primary/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px]"
-                            >
+                                <motion.div 
+                                    key={entry._id || idx}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    transition={{ duration: 0.8, delay: Math.min(idx * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
+                                    onClick={() => navigate(`/dashboard/writing/journal/${entry._id}`)}
+                                    className="group relative rounded-3xl bg-white dark:bg-black border border-slate-100 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px]"
+                                >
                                 {/* Left Side: Image (1/4) */}
-                                <div className="w-1/4 relative shrink-0 overflow-hidden bg-slate-100 dark:bg-white/5 border-r border-slate-100 dark:border-white/5">
+                                <div className="w-1/4 relative shrink-0 overflow-hidden bg-slate-100 dark:bg-black border-r border-slate-100 dark:border-white/5">
                                     <img 
                                         src={entry.imageUrl || '/assets/journal_default_cover.png'} 
                                         alt="Journal" 
@@ -115,14 +115,14 @@ const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => 
                                         </div>
 
                                         {/* Entry Title */}
-                                        <h4 className="text-sm font-black text-primary dark:text-white uppercase tracking-tight mb-1 truncate block">
+                                        <h4 className="text-sm font-black text-black dark:text-white uppercase tracking-tight mb-1 truncate block">
                                             {entry.title || 'UNTITLED ENTRY'}
                                         </h4>
                                     </div>
 
                                     {/* Footer Decor */}
                                     <div className="flex items-center justify-end mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
-                                        <div className="h-0.5 w-8 bg-primary rounded-full" />
+                                        <div className="h-0.5 w-8 bg-black dark:bg-white rounded-full" />
                                     </div>
                                 </div>
                             </motion.div>

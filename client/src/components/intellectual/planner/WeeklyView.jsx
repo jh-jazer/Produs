@@ -147,18 +147,18 @@ const WeeklyView = ({ onBack }) => {
                             onClick={() => setSelectedWeekIdx(idx)}
                             className={`relative p-4 border rounded-sm flex flex-col gap-1 transition-all cursor-pointer group overflow-hidden ${
                                 selectedWeekIdx === idx 
-                                ? 'bg-white/10 border-white/20' 
-                                : 'bg-white/[0.02] border-white/10'
+                                ? 'bg-white/[0.08] border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.05)]' 
+                                : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05]'
                             }`}
                         >
                             {week.isCurrent && (
                                 <div className="absolute top-3 right-3 size-1.5 rounded-full bg-white shadow-[0_0_8px_white]" />
                             )}
                             
-                            <span className={`text-[10px] font-black tracking-[0.4em] uppercase ${selectedWeekIdx === idx ? 'text-white' : 'text-white/40 group-hover:text-white/60'}`}>
+                            <span className={`text-[10px] font-black tracking-[0.4em] uppercase transition-all ${selectedWeekIdx === idx ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-white/40 group-hover:text-white/60'}`}>
                                 {week.label}
                             </span>
-                            <span className="text-[8px] font-mono tracking-widest text-white/10">
+                            <span className={`text-[8px] font-mono tracking-widest ${selectedWeekIdx === idx ? 'text-white/40' : 'text-white/10'}`}>
                                 {week.dateRange}
                             </span>
                         </motion.div>

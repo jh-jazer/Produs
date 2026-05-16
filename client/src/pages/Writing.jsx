@@ -22,13 +22,13 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
-  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all px-0 md:px-8 py-4 md:py-8 rounded-sm group overflow-hidden ${className}`}>
+  <div className={`relative bg-black px-0 md:px-8 py-2 md:py-4 rounded-sm overflow-hidden ${className}`}>
     <div className="hidden md:block">
       <ChippedBorder opacity={0.6} />
     </div>
     <div className="relative z-10">
       {title && (
-        <div className="mb-8 hidden md:flex justify-between items-start">
+        <div className="mb-4 hidden md:flex justify-between items-start">
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
             {subtitle && <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>}
@@ -46,7 +46,7 @@ const HubModule = ({ onSelect }) => {
         <div className="flex flex-col md:flex-row gap-6 w-full">
             <button
                 onClick={() => onSelect('journal')}
-                className="flex-1 group relative rounded-sm bg-white/[0.03] transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+                className="flex-1 group relative rounded-sm bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
             >
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
                 <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
@@ -61,7 +61,7 @@ const HubModule = ({ onSelect }) => {
 
             <button
                 onClick={() => onSelect('notes')}
-                className="flex-1 group relative rounded-sm bg-white/[0.03] transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+                className="flex-1 group relative rounded-sm bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
             >
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
                 <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
@@ -76,7 +76,7 @@ const HubModule = ({ onSelect }) => {
 
             <button
                 onClick={() => onSelect('lists')}
-                className="flex-1 group relative rounded-sm bg-white/[0.03] transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+                className="flex-1 group relative rounded-sm bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
             >
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
                 <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
@@ -125,10 +125,10 @@ const NotesModule = () => {
         <div className="flex flex-col gap-8 w-full">
                 <button
                     onClick={() => navigate('/dashboard/writing/notes/new')}
-                    className="group relative rounded-sm bg-white/[0.03] border border-white/10 hover:border-white/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6 text-left"
+                    className="group relative rounded-sm bg-black border border-white/10 hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-4 text-left"
                 >
                     {/* Left Side: Image (1/4) */}
-                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-white/5 border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
                         <img 
                             src="/assets/journal_default_cover.png" 
                             alt="Write Note" 
@@ -173,7 +173,7 @@ const NotesModule = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.98 }}
                         onClick={() => navigate(`/dashboard/writing/notes/${note.id}`)}
-                        className={`relative p-6 bg-foreground/[0.01] hover:bg-foreground/[0.03] transition-colors border-l-4 rounded-r-sm flex flex-col justify-between min-h-[120px] group cursor-pointer ${colors[note.category] || colors.gray}`}
+                        className={`relative p-6 bg-foreground/[0.01] hover:bg-foreground/[0.03] transition-all border-l-4 rounded-r-sm flex flex-col justify-between min-h-[120px] group cursor-pointer ${colors[note.category] || colors.gray}`}
                     >
                         <div className="flex flex-col gap-2">
                             <div className="flex justify-between items-start">
@@ -272,10 +272,10 @@ const ListsModule = ({ focusListId } = {}) => {
         <div className="flex flex-col gap-8 w-full">
                 <button
                     onClick={() => navigate('/dashboard/writing/lists/new')}
-                    className="group relative rounded-sm bg-white/[0.03] border border-white/10 hover:border-white/30 transition-all shadow-none hover:shadow-xl hover:shadow-primary/5 cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6 text-left"
+                    className="group relative rounded-sm bg-black border border-white/10 hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-4 text-left"
                 >
                     {/* Left Side: Image (1/4) */}
-                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-white/5 border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
                         <img 
                             src="/assets/journal_default_cover.png" 
                             alt="Write List" 
@@ -322,7 +322,7 @@ const ListsModule = ({ focusListId } = {}) => {
                         <div 
                             key={list.id} 
                             onClick={() => navigate(`/dashboard/writing/lists/${list.id}`)}
-                            className="bg-foreground/[0.01] hover:bg-foreground/[0.03] border border-foreground/10 p-6 rounded-sm flex flex-col gap-4 cursor-pointer transition-colors">
+                            className="bg-foreground/[0.01] hover:bg-foreground/[0.03] border border-foreground/10 p-6 rounded-sm flex flex-col gap-4 cursor-pointer transition-all">
                             <div className="flex justify-between items-center border-b border-foreground/10 pb-4">
                                 <div className="flex flex-col gap-1">
                                     <span className="text-xs font-black tracking-widest uppercase font-mono text-foreground">{list.title}</span>
@@ -438,8 +438,8 @@ const Writing = () => {
     if (isLoading && entries.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground px-0 md:px-12 pt-20 md:pt-16 pb-8 font-sans overflow-x-hidden flex flex-col items-center">
-            <div className="w-full max-w-7xl mt-12 md:mt-0 flex flex-col gap-8">
+        <div className="w-full bg-transparent text-foreground px-0 md:px-12 pt-24 md:pt-20 pb-8 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full max-w-7xl mt-12 md:mt-8 flex flex-col gap-6">
 
                 {activeTab !== 'hub' && activeTab !== 'journal_entry' && activeTab !== 'note_detail' && activeTab !== 'list_detail' && (
                     <button 
@@ -449,14 +449,14 @@ const Writing = () => {
                             activeTab === 'list_detail' ? () => navigate('/dashboard/writing/lists') :
                             handleBack
                         }
-                        className="self-start flex items-center gap-2 text-foreground/40 hover:text-foreground transition-colors mb-2 px-4 md:px-0"
+                        className="self-start flex items-center gap-2 text-foreground/40 hover:text-foreground transition-colors mb-1 px-4 md:px-0"
                     >
                         <ChevronLeft className="size-4" />
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-                            {activeTab === 'journal_entry' ? 'BACK TO JOURNAL' :
-                             activeTab === 'note_detail' ? 'BACK TO NOTES' :
-                             activeTab === 'list_detail' ? 'BACK TO LISTS' :
-                             'BACK TO HUB'}
+                            {activeTab === 'journal_entry' ? 'BACK' :
+                             activeTab === 'note_detail' ? 'BACK' :
+                             activeTab === 'list_detail' ? 'BACK' :
+                             'BACK'}
                         </span>
                     </button>
                 )}

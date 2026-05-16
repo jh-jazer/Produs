@@ -116,18 +116,18 @@ const YearlyView = ({ onBack }) => {
                             onClick={() => setSelectedYear(year)}
                             className={`relative py-12 px-6 border rounded-sm flex flex-col gap-2 transition-all cursor-pointer group overflow-hidden ${
                                 selectedYear === year 
-                                ? 'bg-white/10 border-white/20' 
-                                : 'bg-white/[0.02] border-white/10'
+                                ? 'bg-white/[0.08] border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.05)]' 
+                                : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05]'
                             }`}
                         >
                             {currentYear === year && (
                                 <div className="absolute top-2.5 right-2.5 size-1 rounded-full bg-white shadow-[0_0_8px_white]" />
                             )}
                             
-                            <span className={`text-[12px] font-black tracking-[0.3em] uppercase ${selectedYear === year ? 'text-white' : 'text-white/40 group-hover:text-white/60'}`}>
+                            <span className={`text-[12px] font-black tracking-[0.3em] uppercase transition-all ${selectedYear === year ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-white/40 group-hover:text-white/60'}`}>
                                 {year}
                             </span>
-                            <span className="text-[7px] font-mono tracking-[0.5em] text-white/10 uppercase">
+                            <span className={`text-[7px] font-mono tracking-[0.5em] uppercase ${selectedYear === year ? 'text-white/40' : 'text-white/10'}`}>
                                 FISCAL PERIOD
                             </span>
                         </motion.div>

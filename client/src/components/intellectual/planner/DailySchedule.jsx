@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import useSWR from 'swr';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../../services/api';
 import ConfirmDialog from '../../ui/ConfirmDialog';
 import { usePlanner } from '../../../hooks/usePlanner';
-import { Plus } from 'lucide-react';
+import { Plus, Layout, Save } from 'lucide-react';
+import AddPlanModal from '../../ui/AddPlanModal';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
@@ -16,13 +17,54 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
     
     const [isAdding, setIsAdding] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [newHabit, setNewHabit] = useState({ title: '', startTime: '09:00', endTime: '10:00' });
     const [snapKey, setSnapKey] = useState(0);
     const [confirmDelete, setConfirmDelete] = useState(null);
     
     const { data: user, mutate: mutateUser } = useSWR('/auth/me', fetcher);
+    
+    // Local state for sleep editing
+    const [tempSleep, setTempSleep] = useState({ start: '22:00', end: '07:00' });
+    const [isSavingSleep, setIsSavingSleep] = useState(false);
+
+    useEffect(() => {
+        if (user?.settings?.sleepMode) {
+            setTempSleep({
+                start: user.settings.sleepMode.start || '22:00',
+                end: user.settings.sleepMode.end || '07:00'
+            });
+        }
+    }, [user]);
+
     const sleepStart = user?.settings?.sleepMode?.start || "22:00";
     const sleepEnd = user?.settings?.sleepMode?.end || "07:00";
+
+    // Auto-save sleep settings
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (user?.settings?.sleepMode && (
+                tempSleep.start !== user.settings.sleepMode.start || 
+                tempSleep.end !== user.settings.sleepMode.end
+            )) {
+                handleSaveSleep();
+            }
+        }, 1000); // 1s debounce
+        return () => clearTimeout(timer);
+    }, [tempSleep]);
+
+    const handleSaveSleep = async () => {
+        try {
+            setIsSavingSleep(true);
+            await api.put('/auth/settings', {
+                sleepMode: tempSleep
+            });
+            await mutateUser();
+            setSnapKey(prev => prev + 1);
+        } catch (err) {
+            console.error("Failed to save sleep settings:", err);
+        } finally {
+            setIsSavingSleep(false);
+        }
+    };
 
     const isOverlapping = (start1, end1, start2, end2) => {
         const toMin = (s) => {
@@ -39,11 +81,8 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
         return s1 < e2 && s2 < e1;
     };
 
-    const handleAddTask = async () => {
-        if (!newHabit.title.trim()) return;
-        await addTask({ ...newHabit, type: 'task' });
-        setNewHabit({ title: '', startTime: '09:00', endTime: '10:00' });
-        setIsAdding(false);
+    const handleAddTask = async (planData) => {
+        await addTask(planData);
     };
 
     const handleDeleteTask = async (id) => {
@@ -86,20 +125,59 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
 
     const times = [];
     for (let i = 0; i <= 23; i++) {
-        times.push({ label: `${String(i).padStart(2, '0')}:00`, val: `${String(i).padStart(2, '0')}:00`, hour: i });
+        const hour12 = i % 12 || 12;
+        const ampm = i >= 12 ? 'PM' : 'AM';
+        times.push({ label: `${hour12} ${ampm}`, val: `${String(i).padStart(2, '0')}:00`, hour: i });
     }
     const visibleTimes = times.filter(t => !isDuringSleep(t.hour));
     const scheduleItems = tasks?.filter(t => t.startTime) || [];
 
     return (
-        <div className="flex flex-col gap-8 font-sans h-full relative">
-            <div className="absolute -top-16 right-0 flex gap-2 z-20">
-                <button onClick={() => setIsAdding(true)} className="size-10 flex items-center justify-center border border-white/10 hover:bg-white hover:text-black transition-all">
-                    <Plus size={16} />
-                </button>
-                <button onClick={onFlip} className="size-10 flex items-center justify-center border border-white/10 text-white/40 hover:border-white/30 transition-all">
-                    <span className="material-symbols-outlined text-sm font-bold italic">west</span>
-                </button>
+        <div className="flex flex-col gap-3 font-sans h-full relative">
+            <div className="flex flex-col gap-2 mb-2">
+                {/* First Row: Sleep Time + Add Icon */}
+                <div className="flex items-end justify-between gap-4">
+                    <div className="flex items-end gap-3">
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-mono uppercase text-white/20">START</span>
+                            <input 
+                                type="time" 
+                                value={tempSleep.start} 
+                                onChange={e => setTempSleep({...tempSleep, start: e.target.value})}
+                                className="bg-white/5 border border-white/10 h-[38px] w-[110px] px-1 text-white font-mono text-[14px] focus:border-white/40 transition-colors outline-none whitespace-nowrap"
+                            />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-mono uppercase text-white/20 whitespace-nowrap">END</span>
+                            <input 
+                                type="time" 
+                                value={tempSleep.end} 
+                                onChange={e => setTempSleep({...tempSleep, end: e.target.value})}
+                                className="bg-white/5 border border-white/10 h-[38px] w-[110px] px-1 text-white font-mono text-[14px] focus:border-white/40 transition-colors outline-none whitespace-nowrap"
+                            />
+                        </div>
+                        {isSavingSleep && (
+                            <div className="flex items-center gap-2 mb-2 ml-2">
+                                <div className="size-1.5 rounded-full bg-white animate-pulse" />
+                                <span className="text-[8px] font-mono text-white/20 uppercase tracking-widest">Syncing...</span>
+                            </div>
+                        )}
+                    </div>
+
+                    <button onClick={() => setIsAdding(true)} className="size-[38px] flex items-center justify-center border border-white/40 hover:bg-white hover:text-black transition-all" title="ADD ACTIVITY">
+                        <Plus size={16} />
+                    </button>
+                </div>
+
+                {/* Second Row: Template Icons */}
+                <div className="flex gap-3 w-full">
+                    <button onClick={() => {}} className="h-[38px] flex-1 border border-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 group/btn" title="TEMPLATES STORE">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">TEMPLATES STORE</span>
+                    </button>
+                    <button onClick={() => {}} className="h-[38px] flex-1 border border-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 group/btn" title="SAVE AS TEMPLATE">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">SAVE AS TEMPLATE</span>
+                    </button>
+                </div>
             </div>
             <ConfirmDialog
                 isOpen={!!confirmDelete}
@@ -116,7 +194,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                     <div className="flex flex-col relative">
                         {visibleTimes.map((t, idx) => (
                             <div key={idx} className="flex items-center gap-6 h-[80px] relative group/line">
-                                <span className="w-12 text-[10px] font-mono text-white/20 group-hover/line:text-white/60 transition-colors uppercase">{t.label}</span>
+                                <span className="w-16 text-[14px] font-mono text-white/20 group-hover/line:text-white/60 transition-colors uppercase whitespace-nowrap">{t.label}</span>
                                 <div className="flex-1 h-px bg-white/5 group-hover/line:bg-white/20 transition-all"></div>
                                 {!isReadOnly && (
                                     <button
@@ -153,15 +231,15 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                                     const newStartTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
                                     if (newStartTime !== task.startTime) await moveTaskAtTime(task, newStartTime);
                                 }}
-                                className="absolute left-20 right-0 bg-white text-black p-4 group overflow-hidden flex flex-col justify-center cursor-grab active:cursor-grabbing border border-black"
+                                className="absolute left-24 right-0 bg-white text-black p-4 group overflow-hidden flex flex-col justify-center cursor-grab active:cursor-grabbing border border-black"
                                 style={{ top: `${top}px`, height: `${height}px` }}
                             >
                                 <div className="absolute top-0 right-0 p-2 opacity-5 rotate-12">
                                     <span className="material-symbols-outlined text-4xl">terminal</span>
                                 </div>
                                 <div className="relative z-10 flex flex-col">
-                                    <span className="text-[11px] font-black uppercase tracking-tighter truncate">{task.title}</span>
-                                    {height > 40 && <span className="text-[9px] font-mono font-bold opacity-60">{task.startTime} - {task.endTime}</span>}
+                                    <span className="text-[15px] font-black uppercase tracking-tighter truncate">{task.title}</span>
+                                    {height > 40 && <span className="text-[11px] font-mono font-bold opacity-60">{task.startTime} - {task.endTime}</span>}
                                 </div>
                                 {!isReadOnly && (
                                     <button 
@@ -178,46 +256,11 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
             </div>
 
             {/* Quick Add Modal */}
-            {isAdding && createPortal(
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-8 backdrop-blur-md">
-                    <div className="absolute inset-0 bg-black/80" onClick={() => setIsAdding(false)} />
-                    <div className="relative w-full max-w-md bg-[#0a0a0a] border-4 border-white p-8 shadow-[0_0_100px_rgba(255,255,255,0.1)]">
-                        <div className="flex justify-between items-start mb-8">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">ADD NEW ACTIVITY</span>
-                                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Schedule Task</h3>
-                            </div>
-                            <button onClick={() => setIsAdding(false)} className="text-white/40 hover:text-white"><span className="material-symbols-outlined">close</span></button>
-                        </div>
-
-                        <div className="flex flex-col gap-6">
-                            <input 
-                                value={newHabit.title}
-                                onChange={e => setNewHabit({...newHabit, title: e.target.value})}
-                                placeholder="ACTIVITY NAME..."
-                                className="w-full bg-white/5 border border-white/10 p-4 text-sm font-black uppercase tracking-widest focus:border-white transition-all outline-none"
-                                autoFocus
-                            />
-                            
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col gap-2">
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-white/20">START TIME</span>
-                                    <input type="time" value={newHabit.startTime} onChange={e => setNewHabit({...newHabit, startTime: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-white font-mono text-sm" />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-white/20">END TIME</span>
-                                    <input type="time" value={newHabit.endTime} onChange={e => setNewHabit({...newHabit, endTime: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-white font-mono text-sm" />
-                                </div>
-                            </div>
-
-                            <button onClick={handleAddTask} className="mt-4 w-full py-6 bg-white text-black font-black uppercase tracking-[0.5em] text-xs hover:bg-white/90 active:scale-95 transition-all">
-                                SAVE ACTIVITY
-                            </button>
-                        </div>
-                    </div>
-                </div>,
-                document.body
-            )}
+            <AddPlanModal 
+                isOpen={isAdding} 
+                onClose={() => setIsAdding(false)} 
+                onAdd={handleAddTask} 
+            />
         </div>
     );
 };

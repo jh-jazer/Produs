@@ -179,6 +179,10 @@ export default function Home() {
   const upcomingIncome = debts.filter(d => d.nature === 'income');
   const totalUpcomingIncome = upcomingIncome.reduce((sum, d) => sum + (d.amount || 0), 0);
 
+  const currentBalance = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0) - 
+                        transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+  const netProjection = currentBalance + totalUpcomingIncome - totalDebt;
+
   const isMobile = useMobile();
   const fileInputRef = useRef(null);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -359,7 +363,7 @@ export default function Home() {
             key="reality"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="p-8 pt-0 md:p-12"
+            className="px-0 pt-0 md:pl-8 md:pr-12 md:py-6"
           >
             {/* Reality Dashboard Layout */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 w-full mb-[10vh] md:mb-24">
@@ -371,7 +375,7 @@ export default function Home() {
                     <div className="w-4 h-1 bg-white z-[60] shadow-[0_0_15px_rgba(255,255,255,0.5)] shrink-0" />
                     <div className="w-[12px] h-[15vh] md:h-5 bg-white opacity-80 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50" />
                     <div className="relative -mt-4 perspective-[1000px] cursor-pointer pointer-events-auto" onClick={() => setIsFlipped(!isFlipped)}>
-                      <motion.div animate={{ rotateY: isFlipped ? 180 : 0 }} transition={{ type: "spring", stiffness: 260, damping: 20 }} style={{ transformStyle: "preserve-3d", originY: 0 }} className="relative w-[82vw] md:w-[286px] min-h-[70vh] md:min-h-[446px]">
+                      <motion.div animate={{ rotateY: isFlipped ? 180 : 0 }} transition={{ type: "spring", stiffness: 260, damping: 20 }} style={{ transformStyle: "preserve-3d", originY: 0 }} className="relative w-[82vw] md:w-[320px] min-h-[70vh] md:min-h-[446px]">
                         {/* FRONT FACE */}
                         <div className="absolute inset-0 bg-gray-300 dark:bg-[#121212] text-black dark:text-white p-8 rounded-sm flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden" }}>
                           <ChippedBorder opacity={1} />
@@ -392,7 +396,7 @@ export default function Home() {
                                     fileInputRef.current?.click();
                                   }
                                 }}
-                                className={`size-48 md:size-44 bg-black/5 dark:bg-black rounded-sm overflow-hidden border border-black/10 dark:border-white/10 shrink-0 relative transition-all ${isEditing ? 'ring-2 ring-primary cursor-pointer' : ''}`}
+                                className={`size-48 md:size-52 bg-black/5 dark:bg-black rounded-sm overflow-hidden border border-black/10 dark:border-white/10 shrink-0 relative transition-all ${isEditing ? 'ring-2 ring-primary cursor-pointer' : ''}`}
                               >
                                 <input
                                   type="file"
@@ -430,9 +434,9 @@ export default function Home() {
                                   </div>
                                 )}
                               </div>
-                              <div className="flex flex-col items-center gap-1 w-full px-4">
+                              <div className="flex flex-col items-center gap-1 w-full px-0">
                                 {isEditing ? (
-                                  <div className="flex flex-col items-center gap-2 w-full">
+                                  <div className="flex flex-col items-center gap-2 w-full px-8">
                                     <div className="relative w-full">
                                       <input
                                         type="text"
@@ -455,19 +459,36 @@ export default function Home() {
                                   </div>
                                 ) : (
                                   <>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 dark:text-white/40">{user?.username?.split('#')[0].toUpperCase() || 'OPERATIVE'}</span>
-                                    <span className="text-[9px] font-mono italic opacity-60 tracking-tight max-w-[200px] leading-tight">
-                                      "{user?.bio || 'System_Access_Granted'}"
-                                    </span>
+                                    <div className="flex flex-col items-center w-full px-8">
+                                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 dark:text-white/40">{user?.username?.split('#')[0].toUpperCase() || 'OPERATIVE'}</span>
+                                      <span className="text-[9px] font-mono italic opacity-60 tracking-tight max-w-[200px] leading-tight mb-2">
+                                        "{user?.bio || 'System_Access_Granted'}"
+                                      </span>
+                                    </div>
                                   </>
                                 )}
                               </div>
                             </div>
 
+                            {/* Financial Vitals inside ID - Bottom Bar */}
+                            <div className="absolute bottom-8 left-0 w-full px-8 py-3 flex items-start justify-between gap-2 border-t border-black/10 dark:border-white/10">
+                              {[
+                                { l: 'CURRENT', v: currentBalance },
+                                { l: 'PROJECTION', v: netProjection },
+                                { l: 'SAVINGS', v: totalSavings }
+                              ].map((m, i) => (
+                                <div key={i} className="flex flex-col items-center flex-1 min-w-0">
+                                  <span className="text-[13px] font-black tracking-tighter leading-none" style={{ color: m.v > 0 ? '#10b981' : m.v < 0 ? '#f43f5e' : 'inherit' }}>
+                                    {user?.currency === 'PHP' ? '₱' : '$'}{m.v < 0 ? '-' : ''}{Math.abs(m.v).toLocaleString()}
+                                  </span>
+                                  <span className="text-[8px] font-black text-black/20 dark:text-white/20 uppercase tracking-[0.1em] mt-1.5 text-center truncate w-full">{m.l}</span>
+                                </div>
+                              ))}
+                            </div>
                             {/* ID Action Menu (Kinetic Transformation) */}
-                            <div className="absolute bottom-6 right-6 z-40 flex items-center gap-3">
+                            <div className="absolute top-8 right-8 z-40 flex flex-col items-center">
                               {isEditing ? (
-                                <div className="flex items-center gap-3">
+                                <div className="flex flex-col items-center gap-3 bg-black/5 dark:bg-white/5 backdrop-blur-md p-2 rounded-sm border border-black/10 dark:border-white/10">
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setIsEditing(false); }}
                                     className="p-1 text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white transition-all hover:scale-125"
@@ -475,7 +496,7 @@ export default function Home() {
                                   >
                                     <span className="material-symbols-outlined text-sm">close</span>
                                   </button>
-                                  <div className="w-[1px] h-3 bg-black/10 dark:bg-white/10" />
+                                  <div className="h-[1px] w-3 bg-black/10 dark:bg-white/10" />
                                   <button
                                     onClick={(e) => { e.stopPropagation(); handleSaveInline(); }}
                                     className="p-1 text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white transition-all hover:scale-125"
@@ -485,14 +506,29 @@ export default function Home() {
                                   </button>
                                 </div>
                               ) : (
-                                <>
+                                <div className="flex flex-col items-center">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setIsIdMenuOpen(!isIdMenuOpen);
+                                    }}
+                                    className={`p-2 transition-all group/menu z-50`}
+                                  >
+                                    <motion.span
+                                      animate={{ rotate: isIdMenuOpen ? 90 : 0 }}
+                                      className={`material-symbols-outlined text-sm transition-opacity ${isIdMenuOpen ? 'text-black dark:text-white' : 'text-black dark:text-white opacity-40 dark:opacity-20 group-hover/menu:opacity-100'}`}
+                                    >
+                                      more_vert
+                                    </motion.span>
+                                  </button>
+
                                   <AnimatePresence>
                                     {isIdMenuOpen && (
                                       <motion.div
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: 20 }}
-                                        className="flex items-center gap-2 pr-2 border-r border-black/10 dark:border-white/10"
+                                        initial={{ opacity: 0, y: -20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        className="flex flex-col items-center gap-3 bg-black/5 dark:bg-white/5 backdrop-blur-md p-2 rounded-sm border border-black/10 dark:border-white/10 mt-6"
                                       >
                                         <button
                                           onClick={(e) => { e.stopPropagation(); setIsIdMenuOpen(false); setIsEditing(true); }}
@@ -529,24 +565,10 @@ export default function Home() {
                                       </motion.div>
                                     )}
                                   </AnimatePresence>
-
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setIsIdMenuOpen(!isIdMenuOpen);
-                                    }}
-                                    className={`p-2 transition-all group/menu`}
-                                  >
-                                    <motion.span
-                                      animate={{ rotate: isIdMenuOpen ? -90 : 0 }}
-                                      className={`material-symbols-outlined text-sm transition-opacity ${isIdMenuOpen ? 'text-black dark:text-white' : 'text-black dark:text-white opacity-40 dark:opacity-20 group-hover/menu:opacity-100'}`}
-                                    >
-                                      more_vert
-                                    </motion.span>
-                                  </button>
-                                </>
+                                </div>
                               )}
                             </div>
+
                           </div>
                         </div>
                         {/* BACK FACE */}
@@ -578,63 +600,20 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Priority HUD Component + Metrics Grid */}
-              <div id="section-priority" className="snap-start snap-always md:col-span-3 flex flex-col gap-8 pt-28 pb-10 md:py-10">
+              <div id="section-priority" className="snap-start snap-always md:col-span-3 flex flex-col gap-8 pt-28 pb-0 pr-14 md:pr-0 md:py-10 md:min-h-[80vh]">
                 <PriorityHUD />
-                
-                {/* Metrics Overlay - Financial Vitals */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[
-                    { 
-                        l: ['CURRENT', 'BALANCE'], 
-                        v: (transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0) - 
-                            transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)),
-                        c: 'text-white'
-                    },
-                    { 
-                        l: ['NET', 'PROJECTION'], 
-                        v: (transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0) - 
-                            transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0) + 
-                            totalUpcomingIncome - totalDebt),
-                        c: 'text-primary'
-                    },
-                    { 
-                        l: ['VAULT', 'SAVINGS'], 
-                        v: totalSavings,
-                        c: 'text-emerald-500'
-                    }
-                  ].map((s, i) => (
-                    <div key={i} className="bg-foreground/[0.02] rounded-sm p-6 flex flex-col gap-2 hover:bg-foreground/[0.04] transition-all relative group/metric overflow-hidden">
-                      <ChippedBorder opacity={0.5} />
-                      <span 
-                        className="text-2xl font-black tracking-tighter"
-                        style={{ color: s.v > 0 ? '#10b981' : s.v < 0 ? '#f43f5e' : '#ffffff' }}
-                      >
-                        {user?.currency === 'PHP' ? '₱' : '$'}{s.v < 0 ? '-' : ''}{Math.abs(s.v).toLocaleString()}
-                      </span>
-                      <div className="flex items-center min-w-0">
-                        <span className="text-[9px] font-black uppercase tracking-[0.4em] text-foreground/20 group-hover/metric:text-foreground/40 transition-colors leading-tight truncate">
-                          {s.l.join(' ')}
-                        </span>
-                      </div>
-                      
-                      {/* Decorative HUD Corner */}
-                      <div className="absolute top-2 right-2 size-1 bg-foreground/10 group-hover/metric:bg-primary/40 transition-colors" />
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
 
             {/* Bottom Grid Layout - Split Financial HUD */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-[10vh] md:gap-8 max-w-[1400px] md:snap-start md:snap-always h-auto pt-0 md:pt-20 pb-0 md:pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-8 max-w-full md:snap-start md:snap-always h-auto pt-0 md:pt-20 pb-0 md:pb-4">
               
               {/* Left Part: Financial Overview (8/12) */}
               <motion.div 
                 id="section-overview"
                 initial={{ opacity: 0, x: -20 }} 
                 animate={{ opacity: 1, x: 0 }} 
-                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-8 group relative md:bg-foreground/[0.03] rounded-sm px-4 md:px-12 pt-6 pb-10 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[80vh] md:min-h-0"
+                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-8 group relative md:bg-foreground/[0.03] rounded-sm px-0 md:px-8 pt-6 pb-0 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[80vh] md:min-h-[500px]"
               >
                 <div className="hidden md:block">
                   <ChippedBorder opacity={0.7} />
@@ -659,7 +638,7 @@ export default function Home() {
                 initial={{ opacity: 0, x: 20 }} 
                 animate={{ opacity: 1, x: 0 }} 
                 transition={{ delay: 0.1 }}
-                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-4 group relative md:bg-foreground/[0.03] rounded-sm px-4 md:px-12 pt-6 pb-10 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[80vh] md:min-h-0"
+                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-4 group relative md:bg-foreground/[0.03] border border-black/10 dark:border-white/20 rounded-sm pl-2 pr-14 md:px-8 pt-4 pb-10 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[90vh] md:min-h-0"
               >
                 <div className="hidden md:block">
                   <ChippedBorder opacity={0.7} />

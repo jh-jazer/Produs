@@ -21,7 +21,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, className = "" }) => (
-  <div className={`relative pt-20 md:pt-8 pb-0 px-0 rounded-sm overflow-hidden ${className}`}>
+  <div className={`relative pt-20 md:pt-12 pb-0 px-0 md:px-12 rounded-sm overflow-hidden ${className}`}>
     <div className="hidden md:block">
       <ChippedBorder opacity={0.6} />
     </div>
@@ -68,7 +68,7 @@ const EventCalendar = () => {
             <div className="w-full mt-4 md:mt-6">
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full">
                     <HUDPanel title="CALENDAR & GOALS" subtitle={getSubtitle()}>
-                        <div className="flex flex-col w-full gap-12">
+                        <div className="flex flex-col w-full gap-14">
                             {calendarView === 'monthly' && (
                                 <FullCalendar onDateSelect={setActiveDate} selectedDate={activeDate} viewMode={viewMode} isReadOnly={viewMode === 'partner'} />
                             )}
@@ -88,6 +88,7 @@ const EventCalendar = () => {
                                 onYearClick={() => setCalendarView('yearly')}
                                 onBackToCalendar={() => setCalendarView('monthly')}
                                 isCalendarActive={calendarView === 'monthly'}
+                                calendarView={calendarView}
                             />
                         </div>
                     </HUDPanel>
