@@ -247,20 +247,38 @@ function HabitTracker({
                         Array(3).fill(0).map((_, i) => <div key={i} className="h-16 w-full animate-pulse bg-white/5 my-1" />)
                     ) : localTeamHabits.length > 0 ? (
                         localTeamHabits.map(renderHabitRow)
-                    ) : (
-                        <div className="flex flex-col items-center justify-center py-20 opacity-40 text-center gap-6">
-                            <span className="material-symbols-outlined text-5xl opacity-20">rule</span>
-                            <div className="flex flex-col gap-2">
-                                <span className="text-xs font-black uppercase tracking-[0.4em]">No_Active_Habits</span>
-                                <span className="text-[10px] font-mono opacity-40 uppercase">System_Modules_Offline</span>
+                    ) : habits.length === 0 ? (
+                        /* Truly empty — first time */
+                        <motion.button
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            onClick={() => setAddModalOpen(true)}
+                            className="w-full flex flex-col items-center justify-center py-16 gap-5 border border-dashed border-white/10 hover:border-white/30 hover:bg-white/[0.02] transition-all group/empty"
+                        >
+                            <div className="size-12 border-2 border-dashed border-white/20 group-hover/empty:border-white/50 flex items-center justify-center transition-all">
+                                <span className="material-symbols-outlined text-white/30 group-hover/empty:text-white/80 transition-colors">add</span>
                             </div>
-                            <button
-                                onClick={() => setAddModalOpen(true)}
-                                className="px-8 py-4 bg-white text-black text-xs font-black uppercase tracking-[0.2em] hover:opacity-90 active:scale-95 transition-all flex items-center gap-3"
-                            >
-                                Sync_Core_Modules
-                            </button>
-                        </div>
+                            <div className="flex flex-col items-center gap-1">
+                                <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white/40 group-hover/empty:text-white/80 transition-colors">Add your first habit</span>
+                                <span className="text-[8px] font-mono text-white/20 uppercase tracking-widest">Start building your daily protocol</span>
+                            </div>
+                        </motion.button>
+                    ) : (
+                        /* Has habits but none match filter */
+                        <motion.button
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            onClick={() => setAddModalOpen(true)}
+                            className="w-full flex items-center gap-4 px-4 py-4 border-b border-dashed border-white/5 hover:border-white/20 hover:bg-white/[0.02] transition-all group/add"
+                        >
+                            <div className="size-8 border border-dashed border-white/20 group-hover/add:border-white/50 flex items-center justify-center transition-all shrink-0">
+                                <span className="material-symbols-outlined text-sm text-white/30 group-hover/add:text-white/80 transition-colors">add</span>
+                            </div>
+                            <div className="flex flex-col items-start gap-0.5">
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 group-hover/add:text-white/70 transition-colors">Add a new habit</span>
+                                <span className="text-[8px] font-mono text-white/20 uppercase tracking-widest">Extend your protocol</span>
+                            </div>
+                        </motion.button>
                     )}
                 </div>
             </div>
