@@ -155,25 +155,21 @@ export default function HabitChecklistHUD() {
               </motion.div>
             </AnimatePresence>
           ) : (
-            /* Empty state */
-            <div className="flex flex-col items-center justify-center h-full opacity-40 text-center gap-6 py-8">
-              <span className="material-symbols-outlined text-4xl opacity-20">rule</span>
-              <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-black uppercase tracking-[0.4em]">
-                  No_Active_Habits
-                </span>
-                <span className="text-[8px] font-mono opacity-40 uppercase">
-                  System_Modules_Offline
-                </span>
+            /* Empty state - Add Habit Card */
+            <motion.button
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={() => setAddModalOpen(true)}
+              className="w-full flex items-center gap-4 p-4 border border-dashed border-foreground/10 hover:border-foreground/30 hover:bg-foreground/[0.03] transition-all group/add rounded-sm"
+            >
+              <div className="size-8 border-2 border-dashed border-foreground/20 group-hover/add:border-foreground/50 flex items-center justify-center transition-all shrink-0">
+                <span className="material-symbols-outlined text-sm text-foreground/30 group-hover/add:text-foreground/80 transition-colors">add</span>
               </div>
-              <button
-                onClick={handleSyncHabits}
-                disabled={isSyncing}
-                className="px-6 py-3 bg-foreground text-background text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-3"
-              >
-                {isSyncing ? 'Syncing...' : 'Sync_Core_Modules'}
-              </button>
-            </div>
+              <div className="flex flex-col items-start gap-0.5">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/30 group-hover/add:text-foreground/70 transition-colors">Add a Habit</span>
+                <span className="text-[8px] font-mono text-foreground/20 uppercase tracking-widest">Build your daily protocol</span>
+              </div>
+            </motion.button>
           )}
         </div>
 

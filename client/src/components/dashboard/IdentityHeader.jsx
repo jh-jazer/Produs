@@ -40,6 +40,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     // Modals State
     const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+    const [qrMode, setQrMode] = useState('choice');
     const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
     const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
     const [profileModalUser, setProfileModalUser] = useState(null);
@@ -251,7 +252,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-2">
-                                    <button onClick={() => setIsQrModalOpen(true)} className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-black/40 dark:text-white/40 hover:text-primary transition-all">
+                                    <button onClick={() => { setQrMode('display'); setIsQrModalOpen(true); }} className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-black/40 dark:text-white/40 hover:text-primary transition-all">
                                         <QrCode size={18} />
                                     </button>
                                     <button onClick={() => setIsConnectionsModalOpen(true)} className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-black/40 dark:text-white/40 hover:text-primary transition-all">
@@ -278,6 +279,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                 isOpen={isQrModalOpen}
                 onClose={() => setIsQrModalOpen(false)}
                 userId={user._id}
+                initialMode={qrMode}
             />
 
             <PartnerModal

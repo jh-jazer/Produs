@@ -160,6 +160,7 @@ export default function Home() {
     setIsSearchModalOpen,
     setIsIdentityEditModalOpen,
     setIsQrModalOpen,
+    setQrModalMode,
     setActiveSection: setGlobalActiveSection
   } = useOutletContext();
 
@@ -332,6 +333,7 @@ export default function Home() {
               onBackToReality={() => setProtocolMode('reality')}
               isLoading={false}
               hasStarted={user?.rpg?.completedAnswers?.length > 0}
+              userId={user?._id}
             />
           </motion.div>
         ) : protocolMode === 'rpg' && !isInitializing ? (
@@ -385,7 +387,7 @@ export default function Home() {
                           <div className="flex flex-col gap-6 w-full items-center mt-4">
                             <div className="flex flex-col items-center">
                               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/20 dark:text-white/20">{(user?.rpg?.archetype?.name && user.rpg.archetype.name !== 'None' ? user.rpg.archetype.name.toUpperCase() : 'ROOKIE')}_ID</span>
-                              <span className="text-sm font-black tracking-tighter uppercase opacity-80">OP_HASH_{codenameHash}</span>
+                              <span className="text-sm font-black tracking-tighter uppercase opacity-80">{codenameHash}</span>
                             </div>
                             <div className="h-[1px] bg-black/10 dark:bg-white/10 w-full" />
                             <div className="flex flex-col items-center gap-6">
@@ -423,9 +425,6 @@ export default function Home() {
                                     {/* Texture Overlay */}
                                     <div className="absolute inset-0 bg-black/5 pointer-events-none mix-blend-overlay" />
                                   </div>
-                                  <div className="absolute bottom-1.5 left-0 right-0 text-center">
-                                    <span className="text-[6px] font-black opacity-20 uppercase tracking-widest font-mono">ID_VERIFIED</span>
-                                  </div>
                                 </div>
                                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/5 dark:via-white/5 to-transparent h-1/2 w-full top-0 animate-scanline" />
                                 {isEditing && (
@@ -459,14 +458,32 @@ export default function Home() {
                                   </div>
                                 ) : (
                                   <>
-                                    <div className="flex flex-col items-center w-full px-8">
+                                    <div className="flex flex-col items-center w-full px-4">
                                       <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 dark:text-white/40">{user?.username?.split('#')[0].toUpperCase() || 'OPERATIVE'}</span>
-                                      <span className="text-[9px] font-mono italic opacity-60 tracking-tight max-w-[200px] leading-tight mb-2">
+                                      <span className="text-[9px] font-mono italic opacity-60 tracking-tight leading-tight mb-2 text-center">
                                         "{user?.bio || 'System_Access_Granted'}"
                                       </span>
                                     </div>
                                   </>
                                 )}
+                              </div>
+                            </div>
+
+                            {/* Network Connectivity Status */}
+                            <div className="flex flex-col items-center mb-10 w-full px-8">
+                              <div className="w-full flex items-start justify-between border-y border-black/[0.03] dark:border-white/[0.03] py-4 px-2">
+                                <div className="flex flex-col items-center">
+                                  <span className="text-[7px] font-black text-black/20 dark:text-white/20 uppercase tracking-[0.4em] mb-1.5">NETWORKS</span>
+                                  <span className="text-[14px] font-black tracking-widest text-black dark:text-white leading-none">
+                                    {user?.connections?.length || 0}
+                                  </span>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                  <span className="text-[7px] font-black text-black/20 dark:text-white/20 uppercase tracking-[0.4em] mb-1.5">LINKED TO:</span>
+                                  <span className={`text-[10px] font-black tracking-widest leading-none uppercase ${user?.partner?.username ? 'text-emerald-500' : 'text-black dark:text-white'}`}>
+                                    {user?.partner?.username ? `@${user.partner.username.split('#')[0].toUpperCase()}` : 'X'}
+                                  </span>
+                                </div>
                               </div>
                             </div>
 
@@ -545,13 +562,6 @@ export default function Home() {
                                           <span className="material-symbols-outlined text-[16px] text-black dark:text-white opacity-40 hover:opacity-100">search</span>
                                         </button>
                                         <button
-                                          onClick={(e) => { e.stopPropagation(); setIsIdMenuOpen(false); setIsQrModalOpen(true); }}
-                                          className="p-1 transition-colors"
-                                          title="SCAN_ID"
-                                        >
-                                          <span className="material-symbols-outlined text-[16px] text-black dark:text-white opacity-40 hover:opacity-100">qr_code_scanner</span>
-                                        </button>
-                                        <button
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             setIsIdMenuOpen(false);
@@ -571,23 +581,74 @@ export default function Home() {
 
                           </div>
                         </div>
-                        {/* BACK FACE */}
                         <div className="absolute inset-0 bg-gray-300 dark:bg-[#0f0f0f] text-black dark:text-white p-8 rounded-sm flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
                           <ChippedBorder opacity={1} />
                           <div className="absolute top-0 left-1/2 -translate-x-1/2 size-8 bg-black/10 dark:bg-[#000000] rounded-full border-[7px] border-white dark:border-[#0f0f0f] z-20 flex items-center justify-center">
                             <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-black/20 dark:border-white/20" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
                           </div>
-                          <div className="flex flex-col gap-8 w-full items-center mt-10">
-                            <div className="flex flex-col items-center">
+                          <div className="flex flex-col gap-6 w-full items-center mt-10">
+                            <div className="flex flex-col items-center gap-1">
                               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/20 dark:text-white/20">System Metadata</span>
-                              <span className="text-[9px] font-mono opacity-40 uppercase tracking-widest">Global_Unique_Identifier</span>
+                              <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">Global_Unique_Identifier</span>
                             </div>
-                            <div className="p-5 md:p-4 bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-sm relative">
-                              <QRCodeSVG value={user?._id || 'PRODUS_OPERATIVE'} size={160} md:size={140} bgColor={"transparent"} fgColor={document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.8)'} level={"L"} />
+                            <div className="p-4 bg-white rounded-sm shadow-[0_0_50px_rgba(255,255,255,0.05)] relative z-10">
+                              <QRCodeSVG 
+                                id="operator-qr-svg"
+                                value={user?._id || 'PRODUS_OPERATIVE'} 
+                                size={140} 
+                                bgColor={"#FFFFFF"} 
+                                fgColor={"#000000"} 
+                                level={"H"} 
+                              />
                             </div>
-                            <div className="flex flex-col items-center gap-2 w-full">
-                              <span className="text-[9px] font-black uppercase tracking-[0.4em] text-black/10 dark:text-white/10">Full Access Key</span>
-                              <div className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 p-3 rounded-sm font-mono text-[9px] break-all leading-relaxed opacity-60">{user?._id || 'SESSION_DATA_NOT_FOUND'}</div>
+                            <div className="flex flex-col items-center gap-4 w-full">
+                              <div className="flex flex-col items-center gap-1">
+                                <span className="text-[8px] font-black uppercase tracking-[0.4em] text-black/10 dark:text-white/10">Full Access Key</span>
+                                <div className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 p-2.5 rounded-sm font-mono text-[9px] break-all leading-relaxed opacity-60 text-center uppercase tracking-tighter">
+                                  {user?._id || 'SESSION_DATA_NOT_FOUND'}
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 gap-2.5 w-full pt-1">
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const svg = document.getElementById('operator-qr-svg');
+                                    if (!svg) return;
+                                    const svgData = new XMLSerializer().serializeToString(svg);
+                                    const canvas = document.createElement("canvas");
+                                    const ctx = canvas.getContext("2d");
+                                    const img = new Image();
+                                    img.onload = () => {
+                                      canvas.width = img.width;
+                                      canvas.height = img.height;
+                                      ctx.fillStyle = "white";
+                                      ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                      ctx.drawImage(img, 0, 0);
+                                      const link = document.createElement("a");
+                                      link.download = `operator_key_${user?._id?.slice(-6).toUpperCase()}.png`;
+                                      link.href = canvas.toDataURL("image/png");
+                                      link.click();
+                                    };
+                                    img.src = "data:image/svg+xml;base64," + btoa(svgData);
+                                  }}
+                                  className="w-full py-3.5 bg-black dark:bg-white text-white dark:text-black font-black text-[9px] uppercase tracking-[0.4em] hover:bg-black/90 dark:hover:bg-white/90 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">download</span>
+                                  SAVE QR CODE
+                                </button>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setQrModalMode('scan');
+                                    setIsQrModalOpen(true);
+                                  }}
+                                  className="w-full py-3.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white font-black text-[9px] uppercase tracking-[0.4em] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">qr_code_scanner</span>
+                                  SCAN QR CODE
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>

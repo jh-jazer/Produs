@@ -1,63 +1,161 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Target, Zap, Shield, Sparkles } from 'lucide-react';
-import SystemWindow from '../ui/SystemWindow';
+import { Sparkles, ArrowLeft, Terminal } from 'lucide-react';
 
-const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading, hasStarted = false }) => {
+const ChippedBorder = ({ opacity = 0.8, color = 'white' }) => (
+    <div 
+      className="absolute inset-[-1px] rounded-sm pointer-events-none z-0"
+      style={{
+        border: `2px solid ${color}`,
+        opacity,
+        clipPath: 'polygon(0% 0%, 15% 0%, 16% 2%, 18% 0%, 42% 0%, 43% 4%, 45% 0%, 78% 0%, 79% 2%, 81% 0%, 100% 0%, 100% 20%, 98% 22%, 100% 24%, 100% 55%, 97% 58%, 100% 61%, 100% 100%, 82% 100%, 81% 97%, 79% 100%, 38% 100%, 37% 96%, 35% 100%, 0% 100%, 0% 80%, 3% 78%, 0% 76%, 0% 35%, 2% 33%, 0% 31%)'
+      }}
+    />
+);
+
+const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading, hasStarted = false, userId }) => {
+    const [currentTime, setCurrentTime] = useState(new Date());
+    const [loadingStep, setLoadingStep] = useState(0);
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    useEffect(() => {
+        if (isLoading) {
+            const interval = setInterval(() => {
+                setLoadingStep(prev => (prev < 4 ? prev + 1 : prev));
+            }, 800);
+            return () => clearInterval(interval);
+        } else {
+            setLoadingStep(0);
+        }
+    }, [isLoading]);
+
+    const formattedTime = currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const userShortId = userId ? userId.slice(-8).toLowerCase() : 'UNKNOWN';
+
     return (
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
-            <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-xl"
-            >
-                <SystemWindow 
-                    variant="glass"
-                    subtitle="Assessment Required"
-                    module="Getting Started"
-                    status="Locked"
-                >
-                    <div className="space-y-4 py-2">
-                        <div className="flex flex-col items-center gap-6 text-center">
-                            
-                            
-                            <div className="space-y-3">
-                                <p className="text-sm font-black text-[var(--foreground)] uppercase tracking-widest italic font-exo">
-                                    Complete the assessment to synchronize your profile and unlock full system access.
-                                </p>
-                                <p className="text-[10px] text-slate-400 font-medium leading-relaxed uppercase tracking-[0.2em] max-w-sm mx-auto">
-                                </p>
+            <AnimatePresence mode="wait">
+                {isLoading ? (
+                    <motion.div 
+                        key="loading"
+                        initial={{ opacity: 0, filter: 'grayscale(1)' }}
+                        animate={{ opacity: 1, filter: 'grayscale(1)' }}
+                        exit={{ opacity: 0 }}
+                        className="relative w-full max-w-md bg-black border border-white/20 rounded-sm p-10 shadow-2xl overflow-hidden flex flex-col gap-8"
+                    >
+                        <ChippedBorder opacity={0.3} color="white" />
+                        
+                        <div className="flex flex-col gap-1 border-b border-white/10 pb-4">
+                            <span className="text-[10px] font-black text-white/40 tracking-[0.4em] uppercase">SYSTEM_DIAGNOSTIC</span>
+                            <span className="text-[9px] font-mono text-white/20 uppercase tracking-widest">{formattedTime}</span>
+                        </div>
+
+                        <div className="flex flex-col gap-4 font-mono text-[10px] tracking-widest">
+                            {loadingStep >= 1 && (
+                                <div className="flex flex-col gap-1 animate-in fade-in slide-in-from-left-2 duration-300">
+                                    <span className="text-white/60">DIAGNOSTIC_RUNNING</span>
+                                    <span className="text-white/20 text-[8px]">[{formattedTime}]</span>
+                                </div>
+                            )}
+                            {loadingStep >= 2 && (
+                                <div className="flex flex-col gap-1 animate-in fade-in slide-in-from-left-2 duration-300">
+                                    <span className="text-white/60">INITIALIZING_UPLINK...</span>
+                                    <span className="text-white/20 text-[8px]">[{formattedTime}]</span>
+                                </div>
+                            )}
+                            {loadingStep >= 3 && (
+                                <div className="flex flex-col gap-1 animate-in fade-in slide-in-from-left-2 duration-300">
+                                    <span className="text-white/60">AUTHENTICATING_USER_ID: {userShortId}</span>
+                                    <span className="text-white/20 text-[8px]">[{formattedTime}]</span>
+                                </div>
+                            )}
+                            {loadingStep >= 4 && (
+                                <div className="flex flex-col gap-1 animate-in fade-in slide-in-from-left-2 duration-300">
+                                    <span className="text-white/60">CALIBRATING_NEURAL_FREQ</span>
+                                    <span className="text-white/20 text-[8px]">[{formattedTime}]</span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex items-center gap-4 mt-4">
+                            <div className="flex-1 h-1 bg-white/5 overflow-hidden">
+                                <motion.div 
+                                    className="h-full bg-white"
+                                    initial={{ width: "0%" }}
+                                    animate={{ width: `${(loadingStep / 4) * 100}%` }}
+                                    transition={{ duration: 0.5 }}
+                                />
+                            </div>
+                            <span className="text-[9px] font-black text-white/40">{Math.round((loadingStep / 4) * 100)}%</span>
+                        </div>
+                    </motion.div>
+                ) : (
+                    <motion.div 
+                        key="ready"
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 1.1 }}
+                        className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-sm p-8 shadow-2xl overflow-hidden"
+                    >
+                        <ChippedBorder opacity={0.2} />
+                        
+                        <div className="relative z-10 flex flex-col gap-10">
+                            {/* Header */}
+                            <div className="flex justify-between items-start">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[10px] font-black text-white/40 tracking-[0.4em] uppercase">GUARDIAN APPLICATION</span>
+                                    <span className="text-[9px] font-mono text-white/20 uppercase tracking-widest">{formattedTime}</span>
+                                </div>
+                                <div className="size-8 bg-white/5 border border-white/10 flex items-center justify-center text-white/20">
+                                    <Sparkles size={14} />
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-6">
+                                <div className="space-y-4">
+                                    <p className="text-[11px] font-black text-white uppercase tracking-[0.2em] leading-relaxed italic border-l-2 border-white/20 pl-4">
+                                        To find your hero, we will make you relive what happened and we will find you someone who chose the same decisions.
+                                    </p>
+                                </div>
+
+                                <div className="flex flex-col gap-3 pt-4">
+                                    <button
+                                        onClick={!isLoading ? onAwaken : undefined}
+                                        disabled={isLoading}
+                                        className="w-full py-4 bg-white text-black font-black text-[10px] uppercase tracking-[0.4em] rounded-sm hover:bg-white/90 disabled:opacity-20 transition-all flex items-center justify-center gap-3 active:scale-[0.98] shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                                    >
+                                        <Sparkles size={14} />
+                                        {hasStarted ? 'CONTINUE ASSESSMENT' : "LET'S START THIS"}
+                                    </button>
+
+                                    <button
+                                        onClick={onBackToReality}
+                                        className="w-full py-4 bg-white/[0.02] border border-white/10 text-white/40 font-black text-[10px] uppercase tracking-[0.4em] hover:text-white hover:bg-white/[0.05] transition-all flex items-center justify-center gap-3"
+                                    >
+                                        <ArrowLeft size={14} />
+                                        I AM NOT READY
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* System Footer Metadata */}
+                            <div className="flex justify-between items-center opacity-10">
+                                <span className="text-[6px] font-black tracking-[0.5em] uppercase">SECURE_SYNC_PROTOCOL</span>
+                                <span className="text-[6px] font-mono">v1.4.2_AWAKEN</span>
                             </div>
                         </div>
 
-                        
-
-                        <div className="flex flex-col gap-3">
-                            <motion.button
-                                whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(34,211,238,0.3)" }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={!isLoading ? onAwaken : undefined}
-                                disabled={isLoading}
-                                className={`w-full py-4 bg-cyan-500 text-black font-black text-[11px] uppercase tracking-[0.4em] rounded-2xl shadow-lg flex items-center justify-center gap-3 group transition-all ${isLoading ? 'opacity-50 cursor-wait' : ''}`}
-                            >
-                                <Sparkles size={10} className={`${isLoading ? 'animate-spin' : 'group-hover:rotate-12'} transition-transform`} />
-                                {isLoading ? 'LOADING...' : (hasStarted ? 'CONTINUE ASSESSMENT' : 'START ASSESSMENT')}
-                            </motion.button>
-
-                            <motion.button
-                                whileHover={{ scale: 1.02, bg: "rgba(0,0,0,0.05)" }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={onBackToReality}
-                                className="w-full py-3 border border-black/10 dark:border-white/10 text-[var(--foreground)]/60 hover:text-[var(--foreground)] font-black text-[9px] uppercase tracking-[0.3em] rounded-2xl flex items-center justify-center gap-3 transition-all"
-                            >
-                                GO BACK
-                            </motion.button>
+                        {/* Background Decor */}
+                        <div className="absolute bottom-[-20px] right-[-20px] opacity-[0.02] pointer-events-none select-none">
+                            <span className="material-symbols-outlined text-[160px]">shield</span>
                         </div>
-                        
-                        
-                    </div>
-                </SystemWindow>
-            </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

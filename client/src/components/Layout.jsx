@@ -217,6 +217,7 @@ function Layout() {
     const [isLandingModalOpen, setIsLandingModalOpen] = useState(false);
     const [isIdentityEditModalOpen, setIsIdentityEditModalOpen] = useState(false);
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+    const [qrModalMode, setQrModalMode] = useState('choice');
     const [isToolsStoreModalOpen, setIsToolsStoreModalOpen] = useState(false);
     const [isMarketplaceModalOpen, setIsMarketplaceModalOpen] = useState(false);
     const [isAddGoalModalOpen, setIsAddGoalModalOpen] = useState(false);
@@ -339,6 +340,7 @@ function Layout() {
             setIsConnectionsModalOpen,
             setIsIdentityEditModalOpen,
             setIsQrModalOpen,
+            setQrModalMode,
             setIsSearchModalOpen,
             setIsNotificationModalOpen,
             setIsToolsStoreModalOpen,
@@ -664,6 +666,7 @@ function Layout() {
                                     setIsConnectionsModalOpen,
                                     setIsIdentityEditModalOpen,
                                     setIsQrModalOpen,
+                                    setQrModalMode,
                                     setIsProfileModalOpen,
                                     setIsSettingsModalOpen,
                                     unreadCount, 
@@ -745,7 +748,7 @@ function Layout() {
                 {isStatsModalOpen && <StatsModal isOpen={isStatsModalOpen} onClose={() => setIsStatsModalOpen(false)} user={user} />}
                 {isOnboardingOpen && <OnboardingModal isOpen={isOnboardingOpen} onClose={() => setIsOnboardingOpen(false)} />}
                 <OperationModeModal isOpen={isOperationModalOpen} onClose={() => setIsOperationModalOpen(false)} />
-                <QRModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} userId={user?._id} />
+                <QRModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} userId={user?._id} initialMode={qrModalMode} />
 
                 <DecisionModal
                     isOpen={isLandingModalOpen}
