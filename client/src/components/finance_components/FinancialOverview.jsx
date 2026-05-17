@@ -267,7 +267,7 @@ const FinancialOverview = ({
                                     color: displayedBalance > 0 ? '#10b981' : displayedBalance < 0 ? '#f43f5e' : '#ffffff'
                                 }}
                             >
-                                {localCurrency}{displayedBalance < 0 ? '-' : ''}{Math.abs(displayedBalance).toLocaleString()}
+                                {displayedBalance < 0 ? '-' : ''}{localCurrency}{Math.abs(displayedBalance).toLocaleString()}
                             </p>
                             <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mt-2">
                                 TOTAL BALANCE {selectedYear === 'all' ? '(ALL TIME)' : `- ${(() => {

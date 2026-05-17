@@ -37,7 +37,7 @@ const AddTransactionModal = ({ isOpen, onClose, addFinanceItem, availableCategor
                     title: newTx.title, 
                     amount: amountNum, 
                     nature: 'debt',
-                    date: newTx.date,
+                    dueDate: newTx.date,
                     isMonthly: isRecurring,
                     monthsLeft: recurringMonths 
                 });
@@ -46,7 +46,7 @@ const AddTransactionModal = ({ isOpen, onClose, addFinanceItem, availableCategor
                     title: newTx.title, 
                     amount: amountNum, 
                     nature: 'income',
-                    date: newTx.date,
+                    dueDate: newTx.date,
                     isMonthly: isRecurring,
                     monthsLeft: recurringMonths 
                 });

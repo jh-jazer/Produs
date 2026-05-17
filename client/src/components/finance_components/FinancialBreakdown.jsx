@@ -45,19 +45,28 @@ const FinancialBreakdown = ({
     const [confirmDelete, setConfirmDelete] = useState(null);
     const [selectedTxId, setSelectedTxId] = useState(null);
 
-    const isMonthPaid = (tx, monthLabel) => {
+    const isMonthPaid = (tx, monthLabel, legacyLabel) => {
         const expectedTitle = tx.type === 'debt' 
             ? `Paid: ${tx.title} (${monthLabel})`
             : `Received: ${tx.title} (${monthLabel})`;
+        const legacyExpectedTitle = legacyLabel ? (tx.type === 'debt' 
+            ? `Paid: ${tx.title} (${legacyLabel})`
+            : `Received: ${tx.title} (${legacyLabel})`) : null;
         const expectedType = tx.type === 'debt' ? 'expense' : 'income';
-        return allTransactions.some(t => t.title === expectedTitle && t.type === expectedType);
+        return allTransactions.some(t => 
+            t.type === expectedType && 
+            (t.title === expectedTitle || (legacyExpectedTitle && t.title === legacyExpectedTitle))
+        );
     };
 
-    const handleToggleCheckbox = async (tx, monthLabel, checked) => {
+    const handleToggleCheckbox = async (tx, monthLabel, checked, legacyLabel) => {
         try {
             const expectedTitle = tx.type === 'debt' 
                 ? `Paid: ${tx.title} (${monthLabel})`
                 : `Received: ${tx.title} (${monthLabel})`;
+            const legacyExpectedTitle = legacyLabel ? (tx.type === 'debt' 
+                ? `Paid: ${tx.title} (${legacyLabel})`
+                : `Received: ${tx.title} (${legacyLabel})`) : null;
             const expectedType = tx.type === 'debt' ? 'expense' : 'income';
 
             if (checked) {
@@ -78,7 +87,10 @@ const FinancialBreakdown = ({
                     date: dateString
                 });
             } else {
-                const match = allTransactions.find(t => t.title === expectedTitle && t.type === expectedType);
+                const match = allTransactions.find(t => 
+                    t.type === expectedType && 
+                    (t.title === expectedTitle || (legacyExpectedTitle && t.title === legacyExpectedTitle))
+                );
                 if (match) {
                     await deleteFinanceItem('transaction', match._id);
                 }
@@ -421,8 +433,17 @@ const FinancialBreakdown = ({
                                                             for (let i = 0; i < duration; i++) {
                                                                 const mIdx = (startMonth + i) % 12;
                                                                 const yVal = startYear + Math.floor((startMonth + i) / 12);
-                                                                const label = `${monthNames[mIdx].toUpperCase()} ${yVal}`;
-                                                                const isPaid = isMonthPaid(tx, label);
+                                                                
+                                                                // Calculate correct day without month day-overflow (e.g. Feb 31st overflow)
+                                                                const d = new Date(startYear, startMonth + i, 1);
+                                                                const lastDay = new Date(startYear, startMonth + i + 1, 0).getDate();
+                                                                const dayToUse = Math.min(startDate.getDate() || 1, lastDay);
+                                                                
+                                                                const monthName = monthNames[mIdx].toUpperCase();
+                                                                const label = `${monthName} ${dayToUse}, ${yVal}`;
+                                                                const legacyLabel = `${monthName} ${yVal}`;
+                                                                
+                                                                const isPaid = isMonthPaid(tx, label, legacyLabel);
                                                                 elements.push(
                                                                     <div key={i} className="flex justify-between items-center text-[9px] text-white/50 py-1.5 hover:bg-white/[0.02] px-1.5 rounded-sm">
                                                                         <div className="flex items-center gap-3">
@@ -431,7 +452,7 @@ const FinancialBreakdown = ({
                                                                                 checked={isPaid}
                                                                                 onChange={(e) => {
                                                                                     e.stopPropagation();
-                                                                                    handleToggleCheckbox(tx, label, e.target.checked);
+                                                                                    handleToggleCheckbox(tx, label, e.target.checked, legacyLabel);
                                                                                 }}
                                                                                 onClick={(e) => e.stopPropagation()}
                                                                                 className="size-5 accent-emerald-500 rounded-sm cursor-pointer border border-white/20 bg-white/5 shrink-0"

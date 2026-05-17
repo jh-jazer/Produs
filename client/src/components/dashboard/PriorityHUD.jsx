@@ -140,10 +140,11 @@ export default function PriorityHUD() {
               let daysLabel = '';
               let daysRemaining = Infinity;
 
-              if (item && item.dueDate) {
-                const d = new Date(item.dueDate);
+              const targetDate = item.dueDate || item.createdAt;
+              if (item && targetDate) {
+                const d = new Date(targetDate);
                 dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
-                daysRemaining = getDaysRemaining(item.dueDate);
+                daysRemaining = getDaysRemaining(targetDate);
                 if (daysRemaining < 0) {
                   daysLabel = `${Math.abs(daysRemaining)}D OVERDUE`;
                 } else if (daysRemaining === 0) {
