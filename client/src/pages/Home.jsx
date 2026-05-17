@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useOutletContext, useLocation } from 'react-router-dom';
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 import useMobile from '../hooks/useMobile';
@@ -170,9 +170,20 @@ export default function Home() {
       debts, 
       savings, 
       addFinanceItem, 
-      updateFinanceItem,
-      deleteFinanceItem 
+      updateFinanceItem: rawUpdateFinanceItem,
+      deleteFinanceItem: rawDeleteFinanceItem 
   } = useFinance();
+
+  const updateFinanceItem = async (type, id, payload) => {
+    const realId = typeof id === 'string' && id.includes('-inst-') ? id.split('-inst-')[0] : id;
+    return rawUpdateFinanceItem(type, realId, payload);
+  };
+
+  const deleteFinanceItem = async (type, id) => {
+    const actualId = id !== undefined ? id : type;
+    const realId = typeof actualId === 'string' && actualId.includes('-inst-') ? actualId.split('-inst-')[0] : actualId;
+    return rawDeleteFinanceItem(realId);
+  };
 
   const totalSavings = savings.reduce((sum, s) => sum + (s.amount || 0), 0);
   const actualDebts = debts.filter(d => d.nature === 'debt' || !d.nature);
@@ -183,6 +194,278 @@ export default function Home() {
   const currentBalance = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0) - 
                         transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
   const netProjection = currentBalance + totalUpcomingIncome - totalDebt;
+
+  const formatDate = (dateInput) => {
+    if (!dateInput) return new Date().toISOString().split('T')[0];
+    try {
+      const d = new Date(dateInput);
+      if (isNaN(d.getTime())) return new Date().toISOString().split('T')[0];
+      return d.toISOString().split('T')[0];
+    } catch (e) {
+      return new Date().toISOString().split('T')[0];
+    }
+  };
+
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(t => {
+      const d = new Date(t.date);
+      if (selectedYear !== 'all' && d.getFullYear() !== parseInt(selectedYear)) return false;
+      if (selectedMonth !== 'all' && d.getMonth() !== parseInt(selectedMonth)) return false;
+      return true;
+    });
+  }, [transactions, selectedYear, selectedMonth]);
+
+  const getFilteredAmount = (d) => {
+    const amt = parseFloat(d.amount) || 0;
+    const dateStr = d.dueDate || formatDate(d.createdAt);
+    const startDate = new Date(dateStr);
+    const startYear = startDate.getFullYear();
+    const startMonth = startDate.getMonth();
+    const duration = d.monthsLeft || 1;
+
+    const targetYear = selectedYear === 'all' ? null : parseInt(selectedYear);
+    const targetMonth = selectedMonth === 'all' ? null : parseInt(selectedMonth);
+
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    const isMonthInstancePaid = (offset) => {
+      const mIdx = (startMonth + offset) % 12;
+      const yVal = startYear + Math.floor((startMonth + offset) / 12);
+      const label = `${monthNames[mIdx].toUpperCase()} ${yVal}`;
+      const expectedTitle = d.nature === 'income' 
+          ? `Received: ${d.title} (${label})`
+          : `Paid: ${d.title} (${label})`;
+      const expectedType = d.nature === 'income' ? 'income' : 'expense';
+      return transactions.some(t => t.title === expectedTitle && t.type === expectedType);
+    };
+
+    if (!d.isMonthly) {
+      const label = `${monthNames[startMonth].toUpperCase()} ${startYear}`;
+      const expectedTitle = d.nature === 'income' 
+          ? `Received: ${d.title} (${label})`
+          : `Paid: ${d.title} (${label})`;
+      const expectedType = d.nature === 'income' ? 'income' : 'expense';
+      const isPaid = transactions.some(t => t.title === expectedTitle && t.type === expectedType);
+      return isPaid ? 0 : amt;
+    }
+
+    // If viewing all time
+    if (targetYear === null && targetMonth === null) {
+      let sum = 0;
+      for (let i = 0; i < duration; i++) {
+        if (!isMonthInstancePaid(i)) {
+          sum += amt;
+        }
+      }
+      return sum;
+    }
+
+    // If viewing a specific calendar month
+    if (targetYear !== null && targetMonth !== null) {
+      const startAbs = startYear * 12 + startMonth;
+      const targetAbs = targetYear * 12 + targetMonth;
+      if (targetAbs >= startAbs && targetAbs < startAbs + duration) {
+        const offset = targetAbs - startAbs;
+        return isMonthInstancePaid(offset) ? 0 : amt;
+      }
+      return 0;
+    }
+
+    // If viewing a specific year (all months)
+    if (targetYear !== null && targetMonth === null) {
+      let sum = 0;
+      const startAbs = startYear * 12 + startMonth;
+      const endAbs = startAbs + duration - 1;
+      const yearStartAbs = targetYear * 12;
+      const yearEndAbs = targetYear * 12 + 11;
+
+      const overlapStart = Math.max(startAbs, yearStartAbs);
+      const overlapEnd = Math.min(endAbs, yearEndAbs);
+
+      if (overlapStart <= overlapEnd) {
+        for (let abs = overlapStart; abs <= overlapEnd; abs++) {
+          const offset = abs - startAbs;
+          if (!isMonthInstancePaid(offset)) {
+            sum += amt;
+          }
+        }
+      }
+      return sum;
+    }
+
+    // If viewing a specific month across all years
+    if (targetYear === null && targetMonth !== null) {
+      let sum = 0;
+      for (let i = 0; i < duration; i++) {
+        if ((startMonth + i) % 12 === targetMonth) {
+          if (!isMonthInstancePaid(i)) {
+            sum += amt;
+          }
+        }
+      }
+      return sum;
+    }
+
+    return amt;
+  };
+
+  const getOverallUnpaidTotal = (d) => {
+    const amt = parseFloat(d.amount) || 0;
+    const dateStr = d.dueDate || formatDate(d.createdAt);
+    const startDate = new Date(dateStr);
+    const startYear = startDate.getFullYear();
+    const startMonth = startDate.getMonth();
+    const duration = d.monthsLeft || 1;
+
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    const isMonthInstancePaid = (offset) => {
+      const mIdx = (startMonth + offset) % 12;
+      const yVal = startYear + Math.floor((startMonth + offset) / 12);
+      const label = `${monthNames[mIdx].toUpperCase()} ${yVal}`;
+      const expectedTitle = d.nature === 'income' 
+          ? `Received: ${d.title} (${label})`
+          : `Paid: ${d.title} (${label})`;
+      const expectedType = d.nature === 'income' ? 'income' : 'expense';
+      return transactions.some(t => t.title === expectedTitle && t.type === expectedType);
+    };
+
+    if (!d.isMonthly) {
+      const label = `${monthNames[startMonth].toUpperCase()} ${startYear}`;
+      const expectedTitle = d.nature === 'income' 
+          ? `Received: ${d.title} (${label})`
+          : `Paid: ${d.title} (${label})`;
+      const expectedType = d.nature === 'income' ? 'income' : 'expense';
+      const isPaid = transactions.some(t => t.title === expectedTitle && t.type === expectedType);
+      return isPaid ? 0 : amt;
+    }
+
+    let sum = 0;
+    for (let i = 0; i < duration; i++) {
+      if (!isMonthInstancePaid(i)) {
+        sum += amt;
+      }
+    }
+    return sum;
+  };
+
+  const filteredDebts = useMemo(() => {
+    return debts.filter(d => {
+      const dateStr = d.dueDate || formatDate(d.createdAt);
+      const startDate = new Date(dateStr);
+      const startYear = startDate.getFullYear();
+      const startMonth = startDate.getMonth();
+
+      const targetYear = selectedYear === 'all' ? null : parseInt(selectedYear);
+      const targetMonth = selectedMonth === 'all' ? null : parseInt(selectedMonth);
+
+      // If standard non-recurring debt
+      if (!d.isMonthly) {
+        const matchYear = targetYear === null || startYear === targetYear;
+        const matchMonth = targetMonth === null || startMonth === targetMonth;
+        return matchYear && matchMonth;
+      }
+
+      // If recurring debt
+      const duration = d.monthsLeft || 1;
+      const startAbs = startYear * 12 + startMonth;
+      const endAbs = startAbs + duration - 1;
+
+      if (targetYear !== null && targetMonth !== null) {
+        const targetAbs = targetYear * 12 + targetMonth;
+        return targetAbs >= startAbs && targetAbs <= endAbs;
+      }
+
+      if (targetYear !== null && targetMonth === null) {
+        const yearStartAbs = targetYear * 12;
+        const yearEndAbs = targetYear * 12 + 11;
+        return startAbs <= yearEndAbs && endAbs >= yearStartAbs;
+      }
+
+      if (targetYear === null && targetMonth !== null) {
+        for (let i = 0; i < duration; i++) {
+          if ((startMonth + i) % 12 === targetMonth) return true;
+        }
+        return false;
+      }
+
+      return true;
+    });
+  }, [debts, selectedYear, selectedMonth]);
+
+  const filteredSavings = useMemo(() => {
+    return savings.filter(s => {
+      const dateStr = formatDate(s.createdAt);
+      const sDate = new Date(dateStr);
+      if (selectedYear !== 'all' && sDate.getFullYear() !== parseInt(selectedYear)) return false;
+      if (selectedMonth !== 'all' && sDate.getMonth() !== parseInt(selectedMonth)) return false;
+      return true;
+    });
+  }, [savings, selectedYear, selectedMonth]);
+
+  const totalSavingsForMonth = useMemo(() => {
+    return filteredSavings.reduce((sum, s) => sum + (s.amount || 0), 0);
+  }, [filteredSavings]);
+
+  const actualDebtsForMonth = useMemo(() => {
+    return filteredDebts.filter(d => d.nature === 'debt' || !d.nature);
+  }, [filteredDebts]);
+
+  const totalDebtForMonth = useMemo(() => {
+    return actualDebtsForMonth.reduce((sum, d) => sum + getFilteredAmount(d), 0);
+  }, [actualDebtsForMonth, selectedYear, selectedMonth]);
+
+  const upcomingIncomeForMonth = useMemo(() => {
+    return filteredDebts.filter(d => d.nature === 'income');
+  }, [filteredDebts]);
+
+  const totalUpcomingIncomeForMonth = useMemo(() => {
+    return upcomingIncomeForMonth.reduce((sum, d) => sum + getFilteredAmount(d), 0);
+  }, [upcomingIncomeForMonth, selectedYear, selectedMonth]);
+
+  const combinedTransactions = useMemo(() => {
+    const txItems = filteredTransactions.map(t => ({
+      ...t,
+      rawType: 'transaction'
+    }));
+
+    const debtItems = filteredDebts.map(d => ({
+      _id: d._id,
+      title: d.title,
+      amount: getOverallUnpaidTotal(d),
+      monthlyAmount: d.amount,
+      type: d.nature === 'income' ? 'upcoming' : 'debt',
+      category: d.nature === 'income' ? 'Receivable' : 'Debt',
+      date: d.dueDate || formatDate(d.createdAt),
+      rawType: 'debt',
+      isMonthly: d.isMonthly,
+      monthsLeft: d.monthsLeft,
+      startDate: d.dueDate || formatDate(d.createdAt)
+    }));
+
+    const savingItems = filteredSavings.map(s => ({
+      _id: s._id,
+      title: s.title,
+      amount: s.amount,
+      type: 'savings',
+      category: s.category || 'Savings',
+      date: formatDate(s.createdAt),
+      rawType: 'saving'
+    }));
+
+    return [...txItems, ...debtItems, ...savingItems].sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
+  }, [filteredTransactions, filteredDebts, filteredSavings]);
 
   const isMobile = useMobile();
   const fileInputRef = useRef(null);
@@ -661,7 +944,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div id="section-priority" className="snap-start snap-always md:col-span-3 flex flex-col gap-8 pt-28 pb-0 pr-14 md:pr-0 md:py-10 md:min-h-[80vh]">
+              <div id="section-priority" className="snap-start snap-always md:col-span-5 w-full flex flex-col gap-8 pt-28 pb-0 md:py-10 md:min-h-[80vh]">
                 <PriorityHUD />
               </div>
             </div>
@@ -683,13 +966,17 @@ export default function Home() {
                   transactions={transactions}
                   budgets={budgets}
                   currencySymbol={user?.currency === 'PHP' ? '₱' : '$'}
-                  totalSavings={totalSavings}
-                  totalDebt={totalDebt}
-                  totalUpcomingIncome={totalUpcomingIncome}
+                  totalSavings={totalSavingsForMonth}
+                  totalDebt={totalDebtForMonth}
+                  totalUpcomingIncome={totalUpcomingIncomeForMonth}
                   addFinanceItem={addFinanceItem}
                   deleteFinanceItem={deleteFinanceItem}
                   showAddTx={showAddTx}
                   setShowAddTx={setShowAddTx}
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                  selectedMonth={selectedMonth}
+                  setSelectedMonth={setSelectedMonth}
                 />
               </motion.div>
 
@@ -699,18 +986,17 @@ export default function Home() {
                 initial={{ opacity: 0, x: 20 }} 
                 animate={{ opacity: 1, x: 0 }} 
                 transition={{ delay: 0.1 }}
-                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-4 group relative md:bg-foreground/[0.03] border border-black/10 dark:border-white/20 rounded-sm pl-2 pr-14 md:px-8 pt-4 pb-10 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[90vh] md:min-h-0"
+                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-4 group relative md:bg-foreground/[0.03] rounded-sm pl-2 pr-14 md:px-8 pt-4 pb-10 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[90vh] md:min-h-0"
               >
-                <div className="hidden md:block">
-                  <ChippedBorder opacity={0.7} />
-                </div>
                 <FinancialBreakdown
-                  selectedTransactions={transactions}
-                  totalExpenses={transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)}
+                  selectedTransactions={combinedTransactions}
+                  totalExpenses={filteredTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)}
                   localCurrency={user?.currency === 'PHP' ? '₱' : '$'}
                   setShowAddTx={setShowAddTx}
                   updateFinanceItem={updateFinanceItem}
                   deleteFinanceItem={deleteFinanceItem}
+                  addFinanceItem={addFinanceItem}
+                  allTransactions={transactions}
                   budgets={budgets}
                 />
               </motion.div>

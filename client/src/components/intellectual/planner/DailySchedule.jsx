@@ -7,6 +7,8 @@ import ConfirmDialog from '../../ui/ConfirmDialog';
 import { usePlanner } from '../../../hooks/usePlanner';
 import { Plus } from 'lucide-react';
 import AddPlanModal from '../../ui/AddPlanModal';
+import TemplateStoreModal from '../../ui/TemplateStoreModal';
+import SaveTemplateModal from '../../ui/SaveTemplateModal';
 
 const fetcher = url => api.get(url).then(res => res.data);
 
@@ -34,6 +36,8 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
     const { tasks, addTask, updateTask, deleteTask, isLoading } = usePlanner(selectedDate);
 
     const [isAdding, setIsAdding] = useState(false);
+    const [isStoreOpen, setIsStoreOpen] = useState(false);
+    const [isSaveOpen, setIsSaveOpen] = useState(false);
     const [snapKey, setSnapKey] = useState(0);
     const [confirmDelete, setConfirmDelete] = useState(null);
 
@@ -109,6 +113,47 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
 
     const handleAddTask = async (planData) => {
         await addTask(planData);
+    };
+
+    const handleApplyTemplate = async (activities) => {
+        for (const act of activities) {
+            await addTask({
+                title: act.title,
+                startTime: act.startTime,
+                endTime: act.endTime,
+                type: 'task'
+            });
+        }
+        setSnapKey(prev => prev + 1);
+    };
+
+    const handleSaveAsTemplate = ({ name, description }) => {
+        const activeActivities = scheduleItems.map(item => ({
+            title: item.title,
+            startTime: item.startTime,
+            endTime: item.endTime
+        }));
+        if (activeActivities.length === 0) return;
+        
+        const customTemplate = {
+            id: 'custom-' + Date.now(),
+            name,
+            description,
+            badge: 'CUSTOM ARCHIVE',
+            activities: activeActivities
+        };
+        
+        const stored = localStorage.getItem('produs_custom_schedule_templates');
+        let templates = [];
+        if (stored) {
+            try {
+                templates = JSON.parse(stored);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        templates.push(customTemplate);
+        localStorage.setItem('produs_custom_schedule_templates', JSON.stringify(templates));
     };
 
     const handleDeleteTask = async (id) => {
@@ -232,10 +277,10 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
 
                 {/* Third Row: Template Buttons */}
                 <div className="flex gap-3 w-full">
-                    <button onClick={() => {}} className="h-[38px] flex-1 border border-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 group/btn" title="TEMPLATES STORE">
+                    <button onClick={() => setIsStoreOpen(true)} className="h-[38px] flex-1 border border-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 group/btn" title="TEMPLATES STORE">
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">TEMPLATES STORE</span>
                     </button>
-                    <button onClick={() => {}} className="h-[38px] flex-1 border border-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 group/btn" title="SAVE AS TEMPLATE">
+                    <button onClick={() => setIsSaveOpen(true)} className="h-[38px] flex-1 border border-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 group/btn" title="SAVE AS TEMPLATE">
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">SAVE AS TEMPLATE</span>
                     </button>
                 </div>
@@ -341,6 +386,21 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                 isOpen={isAdding}
                 onClose={() => setIsAdding(false)}
                 onAdd={handleAddTask}
+            />
+
+            {/* Templates Store Modal */}
+            <TemplateStoreModal
+                isOpen={isStoreOpen}
+                onClose={() => setIsStoreOpen(false)}
+                onApply={handleApplyTemplate}
+            />
+
+            {/* Save Template Modal */}
+            <SaveTemplateModal
+                isOpen={isSaveOpen}
+                onClose={() => setIsSaveOpen(false)}
+                onSave={handleSaveAsTemplate}
+                currentActivitiesCount={scheduleItems.length}
             />
         </div>
     );

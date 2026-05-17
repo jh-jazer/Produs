@@ -29,13 +29,33 @@ const FinancialOverview = ({
   compact = false,
   showAddTx,
   setShowAddTx,
+  selectedYear = 'all',
+  setSelectedYear,
+  selectedMonth = 'all',
+  setSelectedMonth
 }) => {
   const [foresee, setForesee] = useState(false);
   const [localCurrency, setLocalCurrency] = useState(currencySymbol);
   const [showSettings, setShowSettings] = useState(false);
   const [viewMode, setViewMode] = useState("current"); 
-  const [selectedMonthOffset, setSelectedMonthOffset] = useState(0); 
   const [confirmDelete, setConfirmDelete] = useState(null);
+
+  const dropdownOptions = useMemo(() => {
+    const options = [{ value: 'all', label: 'ALL TIME' }];
+    const currentYear = new Date().getFullYear();
+    const endYear = currentYear + 4;
+    
+    for (let y = currentYear; y <= endYear; y++) {
+      for (let m = 0; m < 12; m++) {
+        const d = new Date(y, m, 1);
+        options.push({
+          value: `${y}-${m}`,
+          label: d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase()
+        });
+      }
+    }
+    return options;
+  }, []);
 
   // Categories helper
   const budgetCategories = budgets.map(b => b.category);
@@ -71,14 +91,13 @@ const FinancialOverview = ({
 
   // Current selected month totals
   const selectedTransactions = useMemo(() => {
-    if (selectedMonthOffset === 'all') return transactions;
-    const targetDate = new Date();
-    targetDate.setMonth(targetDate.getMonth() + parseInt(selectedMonthOffset));
-    return transactions.filter((t) => {
+    return transactions.filter(t => {
       const d = new Date(t.date);
-      return d.getMonth() === targetDate.getMonth() && d.getFullYear() === targetDate.getFullYear();
+      if (selectedYear !== 'all' && d.getFullYear() !== parseInt(selectedYear)) return false;
+      if (selectedMonth !== 'all' && selectedYear !== 'all' && d.getMonth() !== parseInt(selectedMonth)) return false;
+      return true;
     });
-  }, [transactions, selectedMonthOffset]);
+  }, [transactions, selectedYear, selectedMonth]);
 
   const totalIncome = selectedTransactions
     .filter((t) => t.type === "income")
@@ -140,29 +159,6 @@ const FinancialOverview = ({
                         <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white">FINANCES</span>
                         <span className="text-[8px] font-mono uppercase tracking-widest text-white/40">REAL-TIME SYNC</span>
                     </div>
-                    
-                    <div className="relative">
-                        <select
-                            value={selectedMonthOffset}
-                            onChange={(e) => setSelectedMonthOffset(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
-                            className="bg-white/5 border border-white/10 text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-2 outline-none appearance-none cursor-pointer hover:bg-white/10 transition-all pr-10"
-                        >
-                            <option value="all" className="bg-black text-white">ALL TIME</option>
-                            {[-5, -4, -3, -2, -1, 0].map((offset) => {
-                                const date = new Date();
-                                date.setMonth(date.getMonth() + offset);
-                                const label = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase();
-                                return (
-                                    <option key={offset} value={offset} className="bg-black text-white">
-                                        {label}
-                                    </option>
-                                );
-                            })}
-                        </select>
-                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none text-xs">
-                            expand_more
-                        </span>
-                    </div>
                 </div>
 
                 <div className="relative min-h-[80px] flex flex-col justify-center">
@@ -173,13 +169,40 @@ const FinancialOverview = ({
                             animate={{ opacity: 1, scale: 1 }}
                             className="p-12 text-center rounded-sm bg-white/[0.03] border border-white/5 relative overflow-hidden"
                         >
-                            <div className="absolute top-4 right-4 z-20">
+                            <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
                                 <button 
                                     onClick={() => setShowSettings(true)}
-                                    className="size-8 flex items-center justify-center rounded-sm text-white/40 hover:text-white bg-transparent transition-all"
+                                    className="size-8 flex items-center justify-center rounded-sm text-white/40 hover:text-white transition-colors"
                                 >
                                     <span className="material-symbols-outlined text-lg">more_vert</span>
                                 </button>
+
+                                <div className="relative">
+                                    <select
+                                        value={selectedYear === 'all' ? 'all' : `${selectedYear}-${selectedMonth}`}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (val === 'all') {
+                                                setSelectedYear('all');
+                                                setSelectedMonth('all');
+                                            } else {
+                                                const [y, m] = val.split('-');
+                                                setSelectedYear(parseInt(y));
+                                                setSelectedMonth(parseInt(m));
+                                            }
+                                        }}
+                                        className="bg-white/5 border border-white/10 text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-2 outline-none appearance-none cursor-pointer hover:bg-white/10 transition-all pr-10"
+                                    >
+                                        {dropdownOptions.map(opt => (
+                                            <option key={opt.value} value={opt.value} className="bg-black text-white">
+                                                {opt.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none text-xs">
+                                        expand_more
+                                    </span>
+                                </div>
 
                                 {showSettings && createPortal(
                                     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
@@ -238,7 +261,7 @@ const FinancialOverview = ({
 
                             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                             <p 
-                                className="font-black tracking-tighter leading-none"
+                                className="font-black tracking-tighter leading-none pt-10"
                                 style={{ 
                                     fontSize: '3.5rem',
                                     color: displayedBalance > 0 ? '#10b981' : displayedBalance < 0 ? '#f43f5e' : '#ffffff'
@@ -247,10 +270,9 @@ const FinancialOverview = ({
                                 {localCurrency}{displayedBalance < 0 ? '-' : ''}{Math.abs(displayedBalance).toLocaleString()}
                             </p>
                             <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mt-2">
-                                TOTAL BALANCE {selectedMonthOffset === 'all' ? '(ALL TIME)' : `- ${(() => {
-                                    const d = new Date();
-                                    d.setMonth(d.getMonth() + parseInt(selectedMonthOffset));
-                                    return d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+                                TOTAL BALANCE {selectedYear === 'all' ? '(ALL TIME)' : `- ${(() => {
+                                    const d = new Date(selectedYear, selectedMonth, 1);
+                                    return `${d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()} ${selectedYear}`;
                                 })()}`}
                             </p>
 
@@ -262,7 +284,7 @@ const FinancialOverview = ({
                                         className="px-2 py-1 rounded-sm text-[8px] font-black bg-white/10 text-white border border-white/20 uppercase tracking-widest flex items-center gap-2"
                                     >
                                         <span className="size-1 bg-white animate-pulse rounded-full" />
-                                        PROJECTION ACTIVE (INC + UPCOMING - DEBT)
+                                        PROJECTION ACTIVE (BAL + RECEIVABLES - DEBT)
                                     </motion.span>
                                 )}
                             </div>
@@ -285,12 +307,18 @@ const FinancialOverview = ({
                                     const maxVal = Math.max(...historyData.map(h => Math.max(h.inc, h.exp)), 1);
                                     const incHeight = (col.inc / maxVal) * 100;
                                     const expHeight = (col.exp / maxVal) * 100;
-                                    const isActive = selectedMonthOffset === col.offset;
+                                    
+                                    const colDate = new Date();
+                                    colDate.setMonth(colDate.getMonth() + col.offset);
+                                    const isActive = selectedYear === colDate.getFullYear() && selectedMonth === colDate.getMonth();
 
                                     return (
                                         <div 
                                             key={idx} 
-                                            onClick={() => setSelectedMonthOffset(col.offset)}
+                                            onClick={() => {
+                                                setSelectedYear(colDate.getFullYear());
+                                                setSelectedMonth(colDate.getMonth());
+                                            }}
                                             className={`flex-1 flex flex-col justify-end gap-2 group cursor-pointer rounded-t-xl transition-all duration-300 p-1
                                             ${isActive ? 'bg-primary/5 dark:bg-primary/10 ring-1 ring-primary/20' : 'hover:bg-slate-50 dark:hover:bg-white/5'}`}
                                         >

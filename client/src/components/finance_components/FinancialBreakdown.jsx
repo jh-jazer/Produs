@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardPanel from '../ui/DashboardPanel';
@@ -36,12 +36,108 @@ const FinancialBreakdown = ({
     setShowAddTx,
     updateFinanceItem,
     deleteFinanceItem,
+    addFinanceItem,
+    allTransactions = [],
     budgets = []
 }) => {
     const [innerView, setInnerView] = useState('ledger'); // 'categories' | 'ledger'
     const [editingTx, setEditingTx] = useState(null);
     const [confirmDelete, setConfirmDelete] = useState(null);
     const [selectedTxId, setSelectedTxId] = useState(null);
+
+    const isMonthPaid = (tx, monthLabel) => {
+        const expectedTitle = tx.type === 'debt' 
+            ? `Paid: ${tx.title} (${monthLabel})`
+            : `Received: ${tx.title} (${monthLabel})`;
+        const expectedType = tx.type === 'debt' ? 'expense' : 'income';
+        return allTransactions.some(t => t.title === expectedTitle && t.type === expectedType);
+    };
+
+    const handleToggleCheckbox = async (tx, monthLabel, checked) => {
+        try {
+            const expectedTitle = tx.type === 'debt' 
+                ? `Paid: ${tx.title} (${monthLabel})`
+                : `Received: ${tx.title} (${monthLabel})`;
+            const expectedType = tx.type === 'debt' ? 'expense' : 'income';
+
+            if (checked) {
+                const amountNum = parseFloat(tx.monthlyAmount || tx.amount);
+                if (isNaN(amountNum) || amountNum <= 0) return;
+
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                const dateString = `${yyyy}-${mm}-${dd}`;
+
+                await addFinanceItem('transaction', {
+                    title: expectedTitle,
+                    amount: amountNum,
+                    type: expectedType,
+                    category: tx.type === 'debt' ? 'Debt' : 'Receivable',
+                    date: dateString
+                });
+            } else {
+                const match = allTransactions.find(t => t.title === expectedTitle && t.type === expectedType);
+                if (match) {
+                    await deleteFinanceItem('transaction', match._id);
+                }
+            }
+        } catch (err) {
+            console.error("Error toggling payment:", err);
+        }
+    };
+
+    const [typeFilter, setTypeFilter] = useState('all'); // 'all' | 'expense' | 'income' | 'savings' | 'debt' | 'upcoming'
+    const [monthYearFilter, setMonthYearFilter] = useState('all'); // 'all' | 'YYYY-MM'
+
+    const uniqueMonthYears = useMemo(() => {
+        const months = new Set();
+        selectedTransactions.forEach(tx => {
+            if (tx.date) {
+                try {
+                    const d = new Date(tx.date);
+                    if (!isNaN(d.getTime())) {
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        months.add(`${yyyy}-${mm}`);
+                    }
+                } catch (e) {}
+            }
+        });
+        return Array.from(months).sort((a, b) => b.localeCompare(a));
+    }, [selectedTransactions]);
+
+    const formatMonthYearLabel = (ym) => {
+        const [yyyy, mm] = ym.split('-');
+        const monthNames = [
+            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ];
+        const mName = monthNames[parseInt(mm) - 1];
+        return `${mName.toUpperCase()} ${yyyy}`;
+    };
+
+    const filteredList = useMemo(() => {
+        return selectedTransactions.filter(tx => {
+            if (typeFilter !== 'all') {
+                if (tx.type !== typeFilter) return false;
+            }
+            if (monthYearFilter !== 'all') {
+                if (!tx.date) return false;
+                try {
+                    const d = new Date(tx.date);
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const ym = `${yyyy}-${mm}`;
+                    if (ym !== monthYearFilter) return false;
+                } catch (e) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }, [selectedTransactions, typeFilter, monthYearFilter]);
 
     const categoryTotals = selectedTransactions
         .filter((t) => t.type === "expense")
@@ -85,13 +181,35 @@ const FinancialBreakdown = ({
         const amountNum = parseFloat(editingTx.amount);
         if (isNaN(amountNum) || amountNum <= 0) return;
 
-        await updateFinanceItem(editingTx._id, 'transaction', {
-            title: editingTx.title,
-            amount: amountNum,
-            type: editingTx.type,
-            category: editingTx.category,
-            date: editingTx.date
-        });
+        const rawType = editingTx.rawType || 'transaction';
+        let updates = {};
+
+        if (rawType === 'debt') {
+            updates = {
+                title: editingTx.title,
+                amount: amountNum,
+                nature: editingTx.type === 'upcoming' ? 'income' : 'debt',
+                dueDate: editingTx.date,
+                isMonthly: !!editingTx.isMonthly,
+                monthsLeft: editingTx.isMonthly ? (parseInt(editingTx.monthsLeft) || 1) : 1
+            };
+        } else if (rawType === 'saving') {
+            updates = {
+                title: editingTx.title,
+                amount: amountNum,
+                category: editingTx.category
+            };
+        } else {
+            updates = {
+                title: editingTx.title,
+                amount: amountNum,
+                type: editingTx.type,
+                category: editingTx.category,
+                date: editingTx.date
+            };
+        }
+
+        await updateFinanceItem(editingTx._id, rawType, updates);
         setEditingTx(null);
     };
 
@@ -121,7 +239,7 @@ const FinancialBreakdown = ({
                 </div>
             </div>
 
-            <div className="flex-1 min-h-[350px]">
+            <div className="flex-1 min-h-[520px]">
                 <AnimatePresence mode="wait">
                     {innerView === 'categories' ? (
                         <motion.div
@@ -157,80 +275,224 @@ const FinancialBreakdown = ({
                             initial={{ opacity: 0, x: 10 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -10 }}
-                            className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar"
+                            className="flex flex-col h-full gap-3"
                         >
-                            {/* Add New Transaction Action Card */}
-                            <motion.div 
-                                onClick={() => setShowAddTx && setShowAddTx(true)}
-                                className="flex items-center gap-4 p-4 rounded-sm bg-black/20 dark:bg-white/[0.03] border border-dashed border-black/20 dark:border-white/10 group cursor-pointer hover:border-black/40 dark:hover:border-white/30 hover:bg-black/30 dark:hover:bg-white/[0.05] transition-all relative overflow-hidden active:scale-[0.98]"
-                            >
-                                <div className="size-10 rounded-sm bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shrink-0 shadow-lg shadow-black/20">
-                                    <span className="material-symbols-outlined text-xl">add</span>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/60 dark:text-white/60 group-hover:text-black dark:group-hover:text-white transition-colors">
-                                        ADD TRANSACTION
-                                    </span>
-                                </div>
-                                
-                                {/* Decorative Glitch Corner */}
-                                <div className="absolute top-0 right-0 w-4 h-4 bg-black/5 dark:bg-white/5 rotate-45 translate-x-2 -translate-y-2" />
-                            </motion.div>
-
-                            {selectedTransactions.length > 0 ? (
-                                selectedTransactions.slice(0, 50).map((tx) => (
-                                    <div 
-                                        key={tx._id} 
-                                        onClick={() => setSelectedTxId(prev => prev === tx._id ? null : tx._id)}
-                                        className={`flex items-center justify-between p-2.5 rounded-sm bg-white/[0.02] border transition-all group cursor-pointer ${selectedTxId === tx._id ? 'border-white/20 bg-white/[0.05]' : 'border-white/5 hover:border-white/10'}`}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className="size-7 rounded-sm bg-white/5 flex items-center justify-center text-white/20 border border-white/10 shrink-0">
-                                                <span className="material-symbols-outlined text-xs">{tx.type === 'income' ? 'payments' : tx.type === 'savings' ? 'savings' : 'shopping_bag'}</span>
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <p className="font-black text-white uppercase tracking-wider leading-tight" style={{ fontSize: '1.2rem' }}>{tx.title}</p>
-                                                <p className="font-black text-white/30 uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>{tx.category}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <p 
-                                                className="font-black tracking-wider"
-                                                style={{ fontSize: '1.2rem', color: tx.type === 'income' || tx.type === 'upcoming' ? '#10b981' : '#f43f5e' }}
-                                            >
-                                                {tx.type === 'expense' || tx.type === 'debt' ? '-' : ''}{localCurrency}{parseFloat(tx.amount).toLocaleString()}
-                                            </p>
-                                            <AnimatePresence>
-                                                {selectedTxId === tx._id && (
-                                                    <motion.div 
-                                                        initial={{ opacity: 0, scale: 0.9, x: 5 }}
-                                                        animate={{ opacity: 1, scale: 1, x: 0 }}
-                                                        exit={{ opacity: 0, scale: 0.9, x: 5 }}
-                                                        className="flex items-center gap-1 shrink-0"
-                                                    >
-                                                        <button 
-                                                            onClick={(e) => { e.stopPropagation(); openEditModal(tx); }}
-                                                            className="p-1.5 rounded-sm bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all"
-                                                            title="Edit Transaction"
-                                                        >
-                                                            <span className="material-symbols-outlined text-xs">edit</span>
-                                                        </button>
-                                                        <button 
-                                                            onClick={(e) => { e.stopPropagation(); setConfirmDelete(tx._id); }}
-                                                            className="p-1.5 rounded-sm bg-white/5 hover:bg-rose-500/20 text-rose-500/60 hover:text-rose-500 transition-all"
-                                                            title="Delete Transaction"
-                                                        >
-                                                            <span className="material-symbols-outlined text-xs">delete</span>
-                                                        </button>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
+                            {/* Dynamic Filters Bar */}
+                            <div className="grid grid-cols-2 gap-3 mb-1">
+                                <div className="flex flex-col gap-1 text-left">
+                                    <label className="text-[7.5px] font-black text-white/30 uppercase tracking-[0.25em]">FILTER TYPE</label>
+                                    <div className="relative">
+                                        <select
+                                            className="w-full bg-white/[0.03] border border-white/5 hover:border-white/10 rounded-sm px-3 py-2.5 text-[9px] font-black text-white/60 hover:text-white outline-none tracking-widest uppercase cursor-pointer transition-all appearance-none"
+                                            value={typeFilter}
+                                            onChange={e => setTypeFilter(e.target.value)}
+                                        >
+                                            <option value="all" className="bg-[#080808] text-white">ALL TYPES</option>
+                                            <option value="expense" className="bg-[#080808] text-white">EXPENSES</option>
+                                            <option value="income" className="bg-[#080808] text-white">INCOMES</option>
+                                            <option value="savings" className="bg-[#080808] text-white">SAVINGS</option>
+                                            <option value="debt" className="bg-[#080808] text-white">DEBTS</option>
+                                            <option value="upcoming" className="bg-[#080808] text-white">RECEIVABLES</option>
+                                        </select>
+                                        <span className="material-symbols-outlined text-[10px] text-white/40 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
                                     </div>
-                                ))
-                            ) : (
-                                <EmptyState text="NO ENTRIES FOUND" />
-                            )}
+                                </div>
+                                <div className="flex flex-col gap-1 text-left">
+                                    <label className="text-[7.5px] font-black text-white/30 uppercase tracking-[0.25em]">FILTER DATE</label>
+                                    <div className="relative">
+                                        <select
+                                            className="w-full bg-white/[0.03] border border-white/5 hover:border-white/10 rounded-sm px-3 py-2.5 text-[9px] font-black text-white/60 hover:text-white outline-none tracking-widest uppercase cursor-pointer transition-all appearance-none"
+                                            value={monthYearFilter}
+                                            onChange={e => setMonthYearFilter(e.target.value)}
+                                        >
+                                            <option value="all" className="bg-[#080808] text-white">ALL DATES</option>
+                                            {uniqueMonthYears.map(ym => (
+                                                <option key={ym} value={ym} className="bg-[#080808] text-white">
+                                                    {formatMonthYearLabel(ym)}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <span className="material-symbols-outlined text-[10px] text-white/40 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Scrolling list wrapper */}
+                            <div className="space-y-2 max-h-[520px] overflow-y-auto pr-2 custom-scrollbar flex-1">
+                                {/* Add New Transaction Action Card */}
+                                <motion.div 
+                                    onClick={() => setShowAddTx && setShowAddTx(true)}
+                                    className="flex items-center gap-4 p-4 rounded-sm bg-black/20 dark:bg-white/[0.03] border border-dashed border-black/20 dark:border-white/10 group cursor-pointer hover:border-black/40 dark:hover:border-white/30 hover:bg-black/30 dark:hover:bg-white/[0.05] transition-all relative overflow-hidden active:scale-[0.98]"
+                                >
+                                    <div className="size-10 rounded-sm bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shrink-0 shadow-lg shadow-black/20">
+                                        <span className="material-symbols-outlined text-xl">add</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/60 dark:text-white/60 group-hover:text-black dark:group-hover:text-white transition-colors">
+                                            ADD TRANSACTION
+                                         </span>
+                                    </div>
+                                    <div className="absolute top-0 right-0 w-4 h-4 bg-black/5 dark:bg-white/5 rotate-45 translate-x-2 -translate-y-2" />
+                                </motion.div>
+
+                                {filteredList.length > 0 ? (
+                                    filteredList.slice(0, 100).map((tx) => (
+                                        <div 
+                                            key={tx._id} 
+                                            onClick={() => setSelectedTxId(prev => prev === tx._id ? null : tx._id)}
+                                            className={`flex flex-col p-2.5 rounded-sm bg-white/[0.02] border transition-all group cursor-pointer ${selectedTxId === tx._id ? 'border-white/20 bg-white/[0.05]' : 'border-white/5 hover:border-white/10'}`}
+                                        >
+                                            <div className="flex items-center justify-between w-full">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="size-7 rounded-sm bg-white/5 flex items-center justify-center text-white/20 border border-white/10 shrink-0">
+                                                        <span className="material-symbols-outlined text-xs">
+                                                            {tx.type === 'income' ? 'payments' : 
+                                                             tx.type === 'savings' ? 'savings' : 
+                                                             tx.type === 'debt' ? 'warning' : 
+                                                             tx.type === 'upcoming' ? 'schedule' : 'shopping_bag'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex flex-col text-left">
+                                                        <p className="font-black text-white uppercase tracking-wider leading-tight" style={{ fontSize: '1.2rem' }}>
+                                                            {tx.title}
+                                                            {tx.isMonthly && (
+                                                                <span className="ml-2 text-[7.5px] px-1.5 py-0.5 rounded-sm bg-white/10 text-white/60 border border-white/5 font-black uppercase tracking-widest inline-block align-middle">
+                                                                    {tx.monthsLeft}M
+                                                                </span>
+                                                            )}
+                                                        </p>
+                                                        <p className="font-black text-white/30 uppercase tracking-widest" style={{ fontSize: '0.85rem' }}>{tx.category}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <p 
+                                                        className="font-black tracking-wider"
+                                                        style={{ fontSize: '1.2rem', color: tx.type === 'income' || tx.type === 'upcoming' ? '#10b981' : '#f43f5e' }}
+                                                    >
+                                                        {tx.type === 'expense' || tx.type === 'debt' ? '-' : ''}{localCurrency}{parseFloat(tx.amount).toLocaleString()}
+                                                    </p>
+                                                    <AnimatePresence>
+                                                        {selectedTxId === tx._id && (
+                                                            <motion.div 
+                                                                initial={{ opacity: 0, scale: 0.9, x: 5 }}
+                                                                animate={{ opacity: 1, scale: 1, x: 0 }}
+                                                                exit={{ opacity: 0, scale: 0.9, x: 5 }}
+                                                                className="flex items-center gap-1 shrink-0"
+                                                            >
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); openEditModal(tx); }}
+                                                                    className="p-1.5 rounded-sm bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all"
+                                                                    title="Edit Transaction"
+                                                                >
+                                                                    <span className="material-symbols-outlined text-xs">edit</span>
+                                                                </button>
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); setConfirmDelete(tx._id); }}
+                                                                    className="p-1.5 rounded-sm bg-white/5 hover:bg-rose-500/20 text-rose-500/60 hover:text-rose-500 transition-all"
+                                                                    title="Delete Transaction"
+                                                                >
+                                                                    <span className="material-symbols-outlined text-xs">delete</span>
+                                                                </button>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+                                            </div>
+
+                                            {selectedTxId === tx._id && tx.isMonthly && (
+                                                <motion.div 
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    className="w-full mt-3 pt-3 border-t border-white/5 space-y-2 text-left"
+                                                >
+                                                    <p className="text-[7.5px] font-black uppercase tracking-widest text-white/30 mb-2">RECURRING TIMELINE</p>
+                                                    <div className="space-y-1.5 pl-2 border-l border-white/10">
+                                                        {(() => {
+                                                            const duration = tx.monthsLeft || 1;
+                                                            const startDate = new Date(tx.startDate || tx.date);
+                                                            const startYear = startDate.getFullYear();
+                                                            const startMonth = startDate.getMonth();
+                                                            const monthNames = [
+                                                                'January', 'February', 'March', 'April', 'May', 'June',
+                                                                'July', 'August', 'September', 'October', 'November', 'December'
+                                                            ];
+                                                            const elements = [];
+                                                            for (let i = 0; i < duration; i++) {
+                                                                const mIdx = (startMonth + i) % 12;
+                                                                const yVal = startYear + Math.floor((startMonth + i) / 12);
+                                                                const label = `${monthNames[mIdx].toUpperCase()} ${yVal}`;
+                                                                const isPaid = isMonthPaid(tx, label);
+                                                                elements.push(
+                                                                    <div key={i} className="flex justify-between items-center text-[9px] text-white/50 py-1.5 hover:bg-white/[0.02] px-1.5 rounded-sm">
+                                                                        <div className="flex items-center gap-3">
+                                                                            <input 
+                                                                                type="checkbox"
+                                                                                checked={isPaid}
+                                                                                onChange={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleToggleCheckbox(tx, label, e.target.checked);
+                                                                                }}
+                                                                                onClick={(e) => e.stopPropagation()}
+                                                                                className="size-5 accent-emerald-500 rounded-sm cursor-pointer border border-white/20 bg-white/5 shrink-0"
+                                                                            />
+                                                                            <span className={`font-mono ${isPaid ? 'line-through opacity-40 text-emerald-500/60' : ''}`}>{label}</span>
+                                                                        </div>
+                                                                        <span className={`font-black ${isPaid ? 'text-emerald-500' : 'text-white/80'}`}>
+                                                                            {localCurrency}{isPaid ? '0' : parseFloat(tx.monthlyAmount || tx.amount).toLocaleString()}
+                                                                        </span>
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            return elements;
+                                                        })()}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+
+                                            {selectedTxId === tx._id && !tx.isMonthly && (tx.type === 'debt' || tx.type === 'upcoming') && (
+                                                <motion.div 
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    className="w-full mt-3 pt-3 border-t border-white/5 space-y-2 text-left"
+                                                >
+                                                    <p className="text-[7.5px] font-black uppercase tracking-widest text-white/30 mb-2 font-mono">STATUS</p>
+                                                    {(() => {
+                                                        const dateStr = tx.startDate || tx.date;
+                                                        const startDate = new Date(dateStr);
+                                                        const monthNames = [
+                                                            'January', 'February', 'March', 'April', 'May', 'June',
+                                                            'July', 'August', 'September', 'October', 'November', 'December'
+                                                        ];
+                                                        const label = `${monthNames[startDate.getMonth()].toUpperCase()} ${startDate.getFullYear()}`;
+                                                        const isPaid = isMonthPaid(tx, label);
+                                                        return (
+                                                            <div className="flex items-center gap-3 pl-2 py-1.5 hover:bg-white/[0.02] px-1.5 rounded-sm">
+                                                                <input 
+                                                                    type="checkbox"
+                                                                    checked={isPaid}
+                                                                    onChange={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleToggleCheckbox(tx, label, e.target.checked);
+                                                                    }}
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                    className="size-5 accent-emerald-500 rounded-sm cursor-pointer border border-white/20 bg-white/5"
+                                                                />
+                                                                <span className={`text-[10px] font-black uppercase tracking-wider ${isPaid ? 'line-through text-emerald-500/60' : 'text-white'}`}>
+                                                                    MARK AS {tx.type === 'debt' ? 'PAID' : 'RECEIVED'} ({label})
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    })()}
+                                                </motion.div>
+                                            )}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <EmptyState text="NO ENTRIES FOUND" />
+                                )}
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -347,6 +609,44 @@ const FinancialBreakdown = ({
                                         />
                                     </div>
                                 </div>
+
+                                {/* Recurrence settings for Debt/Receivable */}
+                                {(editingTx.type === 'debt' || editingTx.type === 'upcoming') && (
+                                    <div className="border-t border-black/5 dark:border-white/5 pt-4 space-y-4">
+                                        <p className="text-[7.5px] font-black uppercase tracking-widest text-black/30 dark:text-white/30 mb-2">RECURRENCE PARAMETERS</p>
+                                        <div className="flex items-center gap-3">
+                                            <input
+                                                type="checkbox"
+                                                id="edit-is-monthly"
+                                                className="size-4 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 accent-black dark:accent-white rounded-sm cursor-pointer"
+                                                checked={!!editingTx.isMonthly}
+                                                onChange={e => handleEditChange('isMonthly', e.target.checked)}
+                                            />
+                                            <label htmlFor="edit-is-monthly" className="text-[9px] font-black text-black/60 dark:text-white/60 uppercase tracking-widest cursor-pointer select-none">
+                                                RECURRING MONTHLY
+                                            </label>
+                                        </div>
+
+                                        {editingTx.isMonthly && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                className="flex flex-col gap-1.5"
+                                            >
+                                                <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">DURATION (MONTHS)</label>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    required
+                                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-black tracking-[0.2em] uppercase transition-all"
+                                                    value={editingTx.monthsLeft || ''}
+                                                    onChange={e => handleEditChange('monthsLeft', parseInt(e.target.value) || '')}
+                                                />
+                                            </motion.div>
+                                        )}
+                                    </div>
+                                )}
 
                                 {/* Actions */}
                                 <div className="flex flex-row gap-6 w-full pt-4">
