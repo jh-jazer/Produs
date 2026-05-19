@@ -194,10 +194,8 @@ export default function PriorityHUD() {
   const isHUDLoading = plannerLoading || goalsLoading || financeLoading;
 
   return (
-    <div className="flex md:col-span-5 w-full flex-col md:bg-foreground/[0.02] rounded-sm px-0 py-2 md:py-8 md:px-0 min-h-[500px] md:hover:bg-foreground/[0.04] transition-all group relative overflow-hidden">
-      <div className="hidden md:block">
-        <ChippedBorder opacity={0.7} />
-      </div>
+    <div className="flex md:col-span-5 w-full flex-col bg-foreground/[0.03] rounded-sm p-6 md:p-8 min-h-[82vh] md:min-h-[500px] hover:bg-foreground/[0.05] transition-all group relative">
+      <ChippedBorder opacity={0.7} />
 
       {/* Header */}
       <div className="mb-8 hidden md:flex justify-between items-start relative z-10">

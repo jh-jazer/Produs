@@ -648,13 +648,13 @@ export default function Home() {
             key="reality"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="px-0 pt-0 md:pl-8 md:pr-12 md:py-6"
+            className="px-6 pt-0 md:pl-8 md:pr-12 md:py-6"
           >
             {/* Reality Dashboard Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-8 w-full mb-[10vh] md:mb-24">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-32 md:gap-8 w-full mb-32 md:mb-24">
 
               {/* Column 1-2: Integrated Swinging ID Assembly */}
-              <div className="md:col-span-2 relative min-h-[90dvh] md:min-h-[unset] h-auto md:h-16 flex flex-col items-center justify-center mb-0 snap-start snap-always">
+              <div className="md:col-span-2 relative min-h-[82vh] md:min-h-[unset] h-auto md:h-16 flex flex-col items-center justify-center mb-0 snap-start snap-always">
                 <div className="absolute inset-0 flex flex-col items-center">
                   <motion.div style={{ transformOrigin: "top center" }} className="absolute top-0 md:mt-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
                     <div className="w-4 h-1 bg-white z-[60] shadow-[0_0_15px_rgba(255,255,255,0.5)] shrink-0" />
@@ -662,8 +662,12 @@ export default function Home() {
                     <div className="relative -mt-4 perspective-[1000px] cursor-pointer pointer-events-auto" onClick={() => setIsFlipped(!isFlipped)}>
                       <motion.div animate={{ rotateY: isFlipped ? 180 : 0 }} transition={{ type: "spring", stiffness: 260, damping: 20 }} style={{ transformStyle: "preserve-3d", originY: 0 }} className="relative w-[82vw] md:w-[320px] min-h-[70vh] md:min-h-[446px]">
                         {/* FRONT FACE */}
-                        <div className="absolute inset-0 bg-gray-300 dark:bg-[#121212] text-black dark:text-white p-8 rounded-sm flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden" }}>
+                        <div className="absolute inset-0 bg-gray-300 dark:bg-[#121212] text-black dark:text-white p-6 md:p-8 rounded-sm flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden" }}>
                           <ChippedBorder opacity={1} />
+                          {/* PRODUS WATERMARK */}
+                          <div className="absolute inset-0 flex items-end justify-center pointer-events-none opacity-[0.03] dark:opacity-[0.02] select-none z-0 pb-20 md:pb-24" style={{ transform: 'translateX(100px)' }}>
+                            <span className="font-sans font-black text-[70px] md:text-[90px] tracking-[0.1em] uppercase">PRODUS</span>
+                          </div>
                           <div className="absolute top-0 left-1/2 -translate-x-1/2 size-8 bg-black/10 dark:bg-[#000000] rounded-full border-[7px] border-white dark:border-[#121212] z-20 flex items-center justify-center">
                             <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-black/30 dark:border-white/30" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
                           </div>
@@ -864,8 +868,12 @@ export default function Home() {
 
                           </div>
                         </div>
-                        <div className="absolute inset-0 bg-gray-300 dark:bg-[#0f0f0f] text-black dark:text-white p-8 rounded-sm flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+                        <div className="absolute inset-0 bg-gray-300 dark:bg-[#0f0f0f] text-black dark:text-white p-6 md:p-8 rounded-sm flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
                           <ChippedBorder opacity={1} />
+                          {/* PRODUS WATERMARK */}
+                          <div className="absolute inset-0 flex items-end justify-center pointer-events-none opacity-[0.03] dark:opacity-[0.02] select-none z-0 pb-20 md:pb-24" style={{ transform: 'translateX(100px)' }}>
+                            <span className="font-sans font-black text-[70px] md:text-[90px] tracking-[0.1em] uppercase">PRODUS</span>
+                          </div>
                           <div className="absolute top-0 left-1/2 -translate-x-1/2 size-8 bg-black/10 dark:bg-[#000000] rounded-full border-[7px] border-white dark:border-[#0f0f0f] z-20 flex items-center justify-center">
                             <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-black/20 dark:border-white/20" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
                           </div>
@@ -950,18 +958,16 @@ export default function Home() {
             </div>
 
             {/* Bottom Grid Layout - Split Financial HUD */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-8 max-w-full md:snap-start md:snap-always h-auto pt-0 md:pt-20 pb-0 md:pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-32 md:gap-8 max-w-full md:snap-start md:snap-always h-auto pt-0 md:pt-20 pb-40 md:pb-4">
               
               {/* Left Part: Financial Overview (8/12) */}
               <motion.div 
                 id="section-overview"
                 initial={{ opacity: 0, x: -20 }} 
                 animate={{ opacity: 1, x: 0 }} 
-                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-8 group relative md:bg-foreground/[0.03] rounded-sm px-0 md:px-8 pt-6 pb-0 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[80vh] md:min-h-[500px]"
+                className="snap-start snap-always scroll-mt-28 md:scroll-mt-0 md:snap-align-none md:col-span-8 group relative bg-foreground/[0.03] rounded-sm p-6 md:p-12 hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[82vh] md:min-h-[500px]"
               >
-                <div className="hidden md:block">
-                  <ChippedBorder opacity={0.7} />
-                </div>
+                <ChippedBorder opacity={0.7} />
                 <FinancialOverview
                   transactions={transactions}
                   budgets={budgets}
@@ -986,8 +992,9 @@ export default function Home() {
                 initial={{ opacity: 0, x: 20 }} 
                 animate={{ opacity: 1, x: 0 }} 
                 transition={{ delay: 0.1 }}
-                className="snap-start snap-always scroll-mt-20 md:scroll-mt-0 md:snap-align-none md:col-span-4 group relative md:bg-foreground/[0.03] rounded-sm pl-2 pr-14 md:px-8 pt-4 pb-10 md:p-12 md:hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[90vh] md:min-h-0"
+                className="snap-start snap-always scroll-mt-28 md:scroll-mt-0 md:snap-align-none md:col-span-4 group relative bg-foreground/[0.03] rounded-sm p-6 md:p-12 hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[82vh] md:min-h-0"
               >
+                <ChippedBorder opacity={0.7} />
                 <FinancialBreakdown
                   selectedTransactions={combinedTransactions}
                   totalExpenses={filteredTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)}

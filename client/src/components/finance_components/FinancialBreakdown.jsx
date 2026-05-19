@@ -22,9 +22,6 @@ const EmptyState = ({ text }) => (
       <span className="text-[10px] font-black uppercase tracking-[0.4em]">
         {text}
       </span>
-      <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">
-        SYSTEM_IDLE
-      </span>
     </div>
   </div>
 );

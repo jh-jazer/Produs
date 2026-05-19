@@ -696,7 +696,7 @@ function Layout() {
                     </button>
                 </div>
 
-                {isOverview && (
+                {isOverview && (!isMobile || activeSection === 'produs') && (
                     <HudButtons 
                         onRpgClick={() => setProtocolMode(prev => prev === 'rpg' ? 'reality' : 'rpg')}
                         onPartnerClick={() => setViewMode(prev => prev === 'personal' ? 'partner' : 'personal')}
