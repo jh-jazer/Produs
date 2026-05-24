@@ -71,10 +71,10 @@ const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => 
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     transition={{ duration: 0.8, delay: Math.min(idx * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
                                     onClick={() => navigate(`/dashboard/writing/journal/${entry._id}`)}
-                                    className="group relative rounded-3xl bg-white dark:bg-black border border-slate-100 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px]"
+                                    className="group relative rounded-3xl bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 backdrop-blur-sm transition-all shadow-none hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px]"
                                 >
                                 {/* Left Side: Image (1/4) */}
-                                <div className="w-1/4 relative shrink-0 overflow-hidden bg-slate-100 dark:bg-black border-r border-slate-100 dark:border-white/5">
+                                <div className="w-1/4 relative shrink-0 overflow-hidden bg-transparent border-r border-black/10 dark:border-white/5">
                                     <img 
                                         src={entry.imageUrl || '/assets/journal_default_cover.png'} 
                                         alt="Journal" 

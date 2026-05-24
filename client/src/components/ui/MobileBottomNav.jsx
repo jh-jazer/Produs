@@ -12,7 +12,7 @@ const MobileBottomNav = () => {
 
     const realityPillars = [
         { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
-        { id: 'habits', name: 'Habits', path: '/dashboard/habits', icon: 'task_alt' },
+        { id: 'habits', name: 'Habits', path: '/dashboard/habits', icon: 'check_circle' },
         { id: 'planner', name: 'Planner', path: '/dashboard/planner', icon: 'calendar_today' },
         { id: 'calendar', name: 'Calendar', path: '/dashboard/calendar', icon: 'event' },
         { id: 'writing', name: 'Write', path: '/dashboard/writing', icon: 'edit' },

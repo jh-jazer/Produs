@@ -10,12 +10,14 @@ import { QRCodeSVG } from 'qrcode.react';
 // Components
 import RPGImmersiveOverlay from '../components/rpg/RPGImmersiveOverlay';
 import AwakeningOverlay from '../components/dashboard/AwakeningOverlay';
-import PriorityHUD from '../components/dashboard/PriorityHUD';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 import Avatar from '../components/ui/Avatar';
 import FinancialOverview from '../components/finance_components/FinancialOverview';
 import FinancialBreakdown from '../components/finance_components/FinancialBreakdown';
 import { useFinance } from '../hooks/useFinance';
+import { usePlanner } from '../hooks/usePlanner';
+import { useHabits } from '../hooks/useHabits';
+import { useGoals } from '../hooks/useGoals';
 
 const ChippedBorder = ({ opacity = 0.8 }) => (
   <div
@@ -29,15 +31,9 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const MobileLogoText = ({ activeSection, onClick }) => {
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [matrixText, setMatrixText] = useState("");
   const textToType = "PRODUS";
   const matrixChars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*<>";
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     if (activeSection === 'produs') {
@@ -71,8 +67,6 @@ const MobileLogoText = ({ activeSection, onClick }) => {
     }
   }, [activeSection]);
 
-  const formattedDate = currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
-  const formattedTime = currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   return (
     <div className="fixed top-8 left-6 right-6 z-[100] md:hidden pointer-events-none flex justify-between items-start">
@@ -95,19 +89,7 @@ const MobileLogoText = ({ activeSection, onClick }) => {
               </h1>
             </motion.div>
           )}
-          {activeSection === 'priority' && (
-            <motion.div
-              key="priority"
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              transition={{ duration: 0.2 }}
-              className="flex flex-col gap-0.5 bg-background/80 backdrop-blur-sm py-1 px-2 -ml-2 rounded-sm"
-            >
-              <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground">PRIORITY LIST</span>
-              <span className="text-[8px] font-mono uppercase tracking-widest text-foreground/40">DAILY OBJECTIVES</span>
-            </motion.div>
-          )}
+
           {activeSection === 'overview' && (
             <motion.div
               key="overview"
@@ -137,11 +119,7 @@ const MobileLogoText = ({ activeSection, onClick }) => {
         </AnimatePresence>
       </div>
 
-      {/* Right side live clock/date */}
-      <div className="flex flex-col items-end gap-0.5 bg-background/80 backdrop-blur-sm py-1 px-2 mr-1 rounded-sm shrink-0 mt-0.5 font-mono">
-        <span className="text-[13px] font-black tracking-tighter leading-none text-foreground">{formattedTime}</span>
-        <span className="text-[7px] font-black uppercase tracking-[0.3em] text-foreground/40 font-sans">{formattedDate}</span>
-      </div>
+
     </div>
   );
 };
@@ -161,7 +139,9 @@ export default function Home() {
     setIsIdentityEditModalOpen,
     setIsQrModalOpen,
     setQrModalMode,
-    setActiveSection: setGlobalActiveSection
+    setActiveSection: setGlobalActiveSection,
+    isIdPulledDown,
+    setIsIdPulledDown
   } = useOutletContext();
 
   const { 
@@ -208,6 +188,101 @@ export default function Home() {
 
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [activePriorityIndex, setActivePriorityIndex] = useState(8);
+  
+  const carouselRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const { tasks: plannerTasks = [] } = usePlanner(new Date());
+  
+  const currDate = new Date();
+  const currYear = currDate.getFullYear();
+  const currMonth = currDate.getMonth() + 1;
+  const { tasks: monthlyTasks = [] } = usePlanner({ year: currYear, month: currMonth });
+  const { habits = [] } = useHabits();
+  const { goals = [] } = useGoals();
+
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    
+    setTimeout(() => {
+      if (carouselRef.current) {
+        carouselRef.current.scrollLeft = carouselRef.current.scrollWidth / 3;
+      }
+    }, 100);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const priorityCards = useMemo(() => {
+    const todayStr = currentTime.toISOString().split('T')[0];
+    const currentHourStr = currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+
+    // 1. Habits Tracker
+    const undoneHabits = habits.filter(h => {
+      const todayCheck = h.checks?.find(c => c.date === todayStr);
+      return !todayCheck || !todayCheck.completed;
+    }).slice(0, 3);
+    
+    const habitsActivities = undoneHabits.length > 0 ? undoneHabits.map(h => ({
+      title: h.title,
+      time: `STREAK: ${h.streak || 0} DAYS`,
+      status: 'PENDING'
+    })) : [{ title: 'ALL CLEAR', time: 'TODAY', status: 'STANDBY' }];
+
+    // 2. Daily Activities
+    const sortedTasks = [...plannerTasks].filter(t => !t.completed && t.startTime).sort((a, b) => a.startTime.localeCompare(b.startTime));
+    const upcomingTasks = sortedTasks.filter(t => (t.startTime <= currentHourStr && currentHourStr <= t.endTime) || t.startTime > currentHourStr);
+    
+    const dailyActivities = upcomingTasks.length > 0 ? upcomingTasks.slice(0, 3).map(t => ({
+      title: t.title,
+      time: `${t.startTime} - ${t.endTime}`,
+      status: t.startTime <= currentHourStr && currentHourStr <= t.endTime ? 'URGENT' : 'PENDING'
+    })) : [{ title: 'NONE YET', time: 'CURRENT', status: 'STANDBY' }];
+
+    // 3. Calendar (Upcoming events this month)
+    const upcomingEvents = monthlyTasks.filter(t => t.type === 'event' && t.date && t.date >= todayStr && !t.completed).sort((a, b) => a.date.localeCompare(b.date));
+    const calendarActivities = upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map(t => ({
+      title: t.title,
+      time: new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase(),
+      status: t.date === todayStr ? 'URGENT' : 'PENDING'
+    })) : [{ title: 'NO UPCOMING', time: 'THIS MONTH', status: 'STANDBY' }];
+
+    // 4-6. Targets helper
+    const getTargetActivities = (period) => {
+      const periodGoals = goals.filter(g => g.period === period && !g.completed);
+      return periodGoals.length > 0 ? periodGoals.slice(0, 3).map(g => ({
+        title: g.title,
+        time: 'ACTIVE TARGET',
+        status: 'PENDING'
+      })) : [{ title: 'NO TARGET', time: period.toUpperCase(), status: 'STANDBY' }];
+    };
+
+    // 7-8. Finance helpers
+    const getFinanceActivities = (nature) => {
+      const items = debts.filter(d => (d.nature || 'debt') === nature);
+      return items.length > 0 ? items.slice(0, 3).map(d => ({
+        title: d.title,
+        time: `$${(d.amount || 0).toLocaleString()} / $${(d.total || 0).toLocaleString()}`,
+        status: nature === 'debt' ? 'URGENT' : 'PENDING'
+      })) : [{ title: 'ALL CLEAR', time: nature === 'debt' ? 'LIABILITIES' : 'RECEIVABLES', status: 'STANDBY' }];
+    };
+
+    return [
+      { type: 'multi', header: 'HABITS TRACKER', activities: habitsActivities },
+      { type: 'multi', header: 'DAILY ACTIVITY', activities: dailyActivities },
+      { type: 'multi', header: 'CALENDAR', activities: calendarActivities },
+      { type: 'multi', header: 'THIS WEEK TARGET', activities: getTargetActivities('weekly') },
+      { type: 'multi', header: 'THIS MONTH TARGET', activities: getTargetActivities('monthly') },
+      { type: 'multi', header: 'THIS YEAR TARGET', activities: getTargetActivities('yearly') },
+      { type: 'multi', header: 'DEBTS & LIABILITIES', activities: getFinanceActivities('debt') },
+      { type: 'multi', header: 'RECEIVABLE ASSETS', activities: getFinanceActivities('income') }
+    ];
+  }, [plannerTasks, monthlyTasks, habits, goals, debts, currentTime]);
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
@@ -475,7 +550,7 @@ export default function Home() {
   const [isInitializing, setIsInitializing] = useState(true);
   const [isIdMenuOpen, setIsIdMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [isIdPulledDown, setIsIdPulledDown] = useState(false);
+
   const [editData, setEditData] = useState({
     username: user?.username?.split('#')[0] || '',
     bio: user?.bio || '',
@@ -540,7 +615,6 @@ export default function Home() {
     const handleScroll = () => {
       setIsAtTop(container.scrollTop < 10);
       
-      const priorityEl = document.getElementById('section-priority');
       const overviewEl = document.getElementById('section-overview');
       const breakdownEl = document.getElementById('section-breakdown');
 
@@ -552,8 +626,6 @@ export default function Home() {
           current = 'breakdown';
         } else if (overviewEl && overviewEl.getBoundingClientRect().top < 250) {
           current = 'overview';
-        } else if (priorityEl && priorityEl.getBoundingClientRect().top < 250) {
-          current = 'priority';
         }
       }
       setActiveSection(current);
@@ -649,14 +721,151 @@ export default function Home() {
             key="reality"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="px-6 pt-0 md:pl-8 md:pr-12 md:py-6"
+            className="px-6 pt-0 md:pl-8 md:pr-12 md:py-6 min-h-screen"
+            onClick={() => setActivePriorityIndex(null)}
           >
             {/* Reality Dashboard Layout */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-32 md:gap-8 w-full mb-32 md:mb-24">
 
-              {/* Column 1-2: Integrated Swinging ID Assembly */}
-              <div className="md:col-span-2 relative min-h-[82vh] md:min-h-[unset] h-auto md:h-16 flex flex-col items-center justify-center mb-0 snap-start snap-always">
+              {/* Column 1-5: Integrated Swinging ID Assembly */}
+              <div className="md:col-span-5 relative min-h-[82vh] h-auto flex flex-col items-center justify-center mb-0 snap-start snap-always">
                 <div className="absolute inset-0 flex flex-col items-center">
+                  
+                  {/* Hidden ID Welcome Message */}
+                  {!isIdPulledDown && (
+                    <motion.div
+                      initial={{ opacity: 0, filter: 'blur(10px)', x: -20 }}
+                      animate={{ opacity: 1, filter: 'blur(0px)', x: 0 }}
+                      exit={{ opacity: 0, filter: 'blur(10px)', x: -20 }}
+                      transition={{ duration: 0.6, delay: 0.3 }}
+                      className="absolute top-[25%] md:top-[30%] left-6 md:left-12 flex flex-col items-start pointer-events-none text-left"
+                    >
+                      <h3 className="text-2xl md:text-4xl font-black tracking-tighter text-black dark:text-white uppercase">
+                        Welcome, {user?.username?.split('#')[0] || 'Operator'}
+                      </h3>
+                      <p className="text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] text-black/40 dark:text-white/40 mt-1">
+                        {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                      </p>
+                      <div className="mt-[25vh] flex flex-col gap-1 items-start">
+                        <div className="text-2xl md:text-4xl font-black uppercase tracking-[0.25em] text-black dark:text-white leading-none">
+                          PRIORITIES
+                        </div>
+                        <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.25em] text-black/50 dark:text-white/50">
+                          {activePriorityIndex !== null ? [...priorityCards, ...priorityCards, ...priorityCards][activePriorityIndex]?.header || 'OVERVIEW' : 'OVERVIEW'}
+                        </div>
+                      </div>
+
+                      {/* Horizontal Scroll Cards */}
+                      <div 
+                        className="w-screen relative mt-6 -ml-12 md:-ml-20 cursor-default"
+                        onClick={() => setActivePriorityIndex(null)}
+                      >
+                        {/* Gradient masks for smooth fade edges */}
+                        <div className="absolute left-0 top-0 bottom-0 w-4 md:w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+                        <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+                        
+                        <div 
+                          ref={carouselRef}
+                          className={`w-full overflow-x-auto pb-4 pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${isDragging ? 'cursor-grabbing' : 'snap-x snap-mandatory cursor-grab'}`}
+                          onMouseDown={(e) => {
+                            setIsDragging(true);
+                            setStartX(e.pageX - carouselRef.current.offsetLeft);
+                            setScrollLeft(carouselRef.current.scrollLeft);
+                          }}
+                          onMouseLeave={() => setIsDragging(false)}
+                          onMouseUp={() => setIsDragging(false)}
+                          onMouseMove={(e) => {
+                            if (!isDragging) return;
+                            e.preventDefault();
+                            const x = e.pageX - carouselRef.current.offsetLeft;
+                            const walk = (x - startX) * 1.5;
+                            carouselRef.current.scrollLeft = scrollLeft - walk;
+                          }}
+                          onScroll={(e) => {
+                            const el = e.currentTarget;
+                            const setWidth = el.scrollWidth / 3;
+                            
+                            // Seamless teleport for infinite scroll
+                            if (el.scrollLeft >= setWidth * 2 - 10) {
+                              el.scrollLeft -= setWidth;
+                            } else if (el.scrollLeft <= 0) {
+                              el.scrollLeft += setWidth;
+                            }
+
+                            // Auto-activate centered card on swipe
+                            const center = el.scrollLeft + el.clientWidth / 2;
+                            const flexContainer = el.children[0];
+                            if (flexContainer) {
+                              let closestIndex = 0;
+                              let minDiff = Infinity;
+                              Array.from(flexContainer.children).forEach((child, i) => {
+                                const childCenter = child.offsetLeft + child.clientWidth / 2;
+                                const diff = Math.abs(childCenter - center);
+                                if (diff < minDiff) {
+                                  minDiff = diff;
+                                  closestIndex = i;
+                                }
+                              });
+                              setActivePriorityIndex(prev => prev === closestIndex ? prev : closestIndex);
+                            }
+                          }}
+                        >
+                          <div className="flex gap-4 w-max px-[9vw] md:px-[15vw]">
+                            {[...priorityCards, ...priorityCards, ...priorityCards].map((card, i) => {
+                              const isActive = activePriorityIndex === i;
+                              const isAnyActive = activePriorityIndex !== null;
+                              
+                              return (
+                                <div 
+                                  key={i} 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActivePriorityIndex(i);
+                                    e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                                  }}
+                                  className={`snap-center w-[82vw] md:w-[70vw] h-72 md:h-96 rounded-3xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-black/50 backdrop-blur-md p-8 md:p-10 flex flex-col justify-between shrink-0 hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-500 cursor-pointer group shadow-lg origin-center ${
+                                    isAnyActive ? (isActive ? 'scale-105 opacity-100 z-20' : 'scale-[0.85] opacity-40 z-10') : 'scale-100 opacity-100'
+                                  }`}
+                                >
+                                  {card.type === 'multi' ? (
+                                    <div className="flex flex-col h-full justify-end gap-4">
+                                        {card.activities.map((act, idx) => (
+                                          <div key={idx} className={`flex flex-col gap-1 ${idx > 0 ? 'pt-2 md:pt-4 border-t border-black/10 dark:border-white/10' : ''}`}>
+                                            <div className="flex items-center gap-3 md:gap-4">
+                                              <span className={`shrink-0 w-3 h-3 md:w-3 md:h-3 rounded-full ${
+                                                act.status === 'URGENT' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]' :
+                                                act.status === 'PENDING' ? 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.6)]' :
+                                                'bg-black/20 dark:bg-white/20'
+                                              }`} />
+                                              <span className="text-xl md:text-3xl font-black uppercase tracking-wider text-black dark:text-white group-hover:text-primary transition-colors leading-tight truncate">
+                                                {act.title}
+                                              </span>
+                                            </div>
+                                            <span className="text-xs md:text-sm font-mono text-black/50 dark:text-white/50">
+                                              {act.time}
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                  ) : (
+                                    <>
+                                      <div className="flex justify-between items-start">
+                                        <span className="text-sm md:text-base font-mono text-black/50 dark:text-white/50">{card.time}</span>
+                                      </div>
+                                      <span className="text-3xl md:text-5xl font-black uppercase tracking-wider text-black dark:text-white group-hover:text-primary transition-colors leading-tight md:leading-none">
+                                        {card.title}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                            );
+                          })}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
                   {/* Sash Cord Pull Handle */}
                   {!isIdPulledDown && (
                     <motion.div 
@@ -664,7 +873,7 @@ export default function Home() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -50 }}
                       transition={{ type: "spring", stiffness: 150, damping: 18 }}
-                      className="absolute top-0 md:mt-12 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center cursor-pointer pointer-events-auto"
+                      className="absolute top-0 md:mt-12 right-16 z-40 flex flex-col items-center cursor-pointer pointer-events-auto"
                       onClick={() => setIsIdPulledDown(true)}
                     >
                       {/* Anchor Mount */}
@@ -1032,9 +1241,6 @@ export default function Home() {
                 </div>
               </div>
 
-              <div id="section-priority" className="snap-start snap-always md:col-span-5 w-full flex flex-col gap-8 pt-28 pb-0 md:py-10 md:min-h-[80vh]">
-                <PriorityHUD />
-              </div>
             </div>
 
             {/* Bottom Grid Layout - Split Financial HUD */}
@@ -1045,7 +1251,7 @@ export default function Home() {
                 id="section-overview"
                 initial={{ opacity: 0, x: -20 }} 
                 animate={{ opacity: 1, x: 0 }} 
-                className="snap-start snap-always scroll-mt-28 md:scroll-mt-0 md:snap-align-none md:col-span-8 group relative bg-foreground/[0.03] rounded-sm p-6 md:p-12 hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[82vh] md:min-h-[500px]"
+                className="snap-start snap-always scroll-mt-28 md:scroll-mt-0 md:snap-align-none md:col-span-8 group relative border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/40 backdrop-blur-md hover:bg-white/50 dark:hover:bg-black/50 rounded-sm p-6 md:p-12 transition-all flex flex-col justify-start min-h-[82vh] md:min-h-[500px]"
               >
                 <ChippedBorder opacity={0.7} />
                 <FinancialOverview
@@ -1072,7 +1278,7 @@ export default function Home() {
                 initial={{ opacity: 0, x: 20 }} 
                 animate={{ opacity: 1, x: 0 }} 
                 transition={{ delay: 0.1 }}
-                className="snap-start snap-always scroll-mt-28 md:scroll-mt-0 md:snap-align-none md:col-span-4 group relative bg-foreground/[0.03] rounded-sm p-6 md:p-12 hover:bg-foreground/[0.05] transition-all flex flex-col justify-start min-h-[82vh] md:min-h-0"
+                className="snap-start snap-always scroll-mt-28 md:scroll-mt-0 md:snap-align-none md:col-span-4 group relative border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/40 backdrop-blur-md hover:bg-white/50 dark:hover:bg-black/50 rounded-sm p-6 md:p-12 transition-all flex flex-col justify-start min-h-[82vh] md:min-h-0"
               >
                 <ChippedBorder opacity={0.7} />
                 <FinancialBreakdown

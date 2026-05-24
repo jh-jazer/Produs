@@ -22,7 +22,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
-  <div className={`relative bg-black px-0 md:px-8 py-2 md:py-4 rounded-sm overflow-hidden ${className}`}>
+  <div className={`relative border border-black/10 dark:border-white/10 bg-white/20 dark:bg-black/20 backdrop-blur-md px-0 md:px-8 py-2 md:py-4 rounded-sm overflow-hidden ${className}`}>
     <div className="hidden md:block">
       <ChippedBorder opacity={0.6} />
     </div>
@@ -46,7 +46,7 @@ const HubModule = ({ onSelect }) => {
         <div className="flex flex-col md:flex-row gap-6 w-full">
             <button
                 onClick={() => onSelect('journal')}
-                className="flex-1 group relative rounded-sm bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+                className="flex-1 group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
             >
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
                 <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
@@ -61,7 +61,7 @@ const HubModule = ({ onSelect }) => {
 
             <button
                 onClick={() => onSelect('notes')}
-                className="flex-1 group relative rounded-sm bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+                className="flex-1 group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
             >
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
                 <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
@@ -76,7 +76,7 @@ const HubModule = ({ onSelect }) => {
 
             <button
                 onClick={() => onSelect('lists')}
-                className="flex-1 group relative rounded-sm bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+                className="flex-1 group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
             >
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
                 <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
@@ -125,7 +125,7 @@ const NotesModule = () => {
         <div className="flex flex-col gap-8 w-full">
                 <button
                     onClick={() => navigate('/dashboard/writing/notes/new')}
-                    className="group relative rounded-sm bg-black border border-white/10 hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-4 text-left"
+                    className="group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-4 text-left"
                 >
                     {/* Left Side: Image (1/4) */}
                     <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
@@ -173,7 +173,7 @@ const NotesModule = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.98 }}
                         onClick={() => navigate(`/dashboard/writing/notes/${note.id}`)}
-                        className={`relative p-6 bg-foreground/[0.01] hover:bg-foreground/[0.03] transition-all border-l-4 rounded-r-sm flex flex-col justify-between min-h-[120px] group cursor-pointer ${colors[note.category] || colors.gray}`}
+                        className={`relative p-6 bg-white/10 dark:bg-white/[0.01] hover:bg-white/20 dark:hover:bg-white/[0.03] backdrop-blur-sm border border-black/10 dark:border-white/10 border-l-4 rounded-r-sm flex flex-col justify-between min-h-[120px] group cursor-pointer ${colors[note.category] || colors.gray}`}
                     >
                         <div className="flex flex-col gap-2">
                             <div className="flex justify-between items-start">
@@ -272,7 +272,7 @@ const ListsModule = ({ focusListId } = {}) => {
         <div className="flex flex-col gap-8 w-full">
                 <button
                     onClick={() => navigate('/dashboard/writing/lists/new')}
-                    className="group relative rounded-sm bg-black border border-white/10 hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-4 text-left"
+                    className="group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-4 text-left"
                 >
                     {/* Left Side: Image (1/4) */}
                     <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
@@ -322,7 +322,7 @@ const ListsModule = ({ focusListId } = {}) => {
                         <div 
                             key={list.id} 
                             onClick={() => navigate(`/dashboard/writing/lists/${list.id}`)}
-                            className="bg-foreground/[0.01] hover:bg-foreground/[0.03] border border-foreground/10 p-6 rounded-sm flex flex-col gap-4 cursor-pointer transition-all">
+                            className="bg-white/10 dark:bg-white/[0.01] hover:bg-white/20 dark:hover:bg-white/[0.03] border border-black/10 dark:border-white/10 backdrop-blur-sm p-6 rounded-sm flex flex-col gap-4 cursor-pointer transition-all">
                             <div className="flex justify-between items-center border-b border-foreground/10 pb-4">
                                 <div className="flex flex-col gap-1">
                                     <span className="text-xs font-black tracking-widest uppercase font-mono text-foreground">{list.title}</span>

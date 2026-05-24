@@ -167,7 +167,7 @@ const FinancialOverview = ({
                             key="balance"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="p-12 text-center rounded-sm bg-white/[0.03] border border-white/5 relative overflow-hidden"
+                            className="p-12 text-center rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/5 dark:border-white/10 backdrop-blur-sm relative overflow-hidden shadow-md"
                         >
                             <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
                                 <button 

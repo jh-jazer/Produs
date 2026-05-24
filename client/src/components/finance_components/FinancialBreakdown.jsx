@@ -333,7 +333,7 @@ const FinancialBreakdown = ({
                                         {/* Add New Transaction Action Card */}
                                         <motion.div 
                                             onClick={() => setShowAddTx && setShowAddTx(true)}
-                                            className="flex items-center gap-4 p-4 rounded-sm bg-black/20 dark:bg-white/[0.03] border border-dashed border-black/20 dark:border-white/10 group cursor-pointer hover:border-black/40 dark:hover:border-white/30 hover:bg-black/30 dark:hover:bg-white/[0.05] transition-all relative overflow-hidden active:scale-[0.98]"
+                                            className="flex items-center gap-4 p-4 rounded-sm bg-white/10 dark:bg-white/[0.02] border border-dashed border-black/20 dark:border-white/10 group cursor-pointer hover:border-black/40 dark:hover:border-white/30 hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm transition-all relative overflow-hidden active:scale-[0.98]"
                                         >
                                             <div className="size-10 rounded-sm bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shrink-0 shadow-lg shadow-black/20">
                                                 <span className="material-symbols-outlined text-xl">add</span>
@@ -350,7 +350,7 @@ const FinancialBreakdown = ({
                                             <div 
                                                 key={tx._id} 
                                                 onClick={() => setSelectedTxId(prev => prev === tx._id ? null : tx._id)}
-                                                className={`flex flex-col p-2.5 rounded-sm bg-white/[0.02] border transition-all group cursor-pointer ${selectedTxId === tx._id ? 'border-white/20 bg-white/[0.05]' : 'border-white/5 hover:border-white/10'}`}
+                                                className={`flex flex-col p-2.5 rounded-sm bg-white/10 dark:bg-white/[0.01] border transition-all group cursor-pointer ${selectedTxId === tx._id ? 'border-black/20 dark:border-white/20 bg-white/20 dark:bg-white/[0.05]' : 'border-black/5 dark:border-white/5 hover:border-black/10 dark:hover:border-white/10 hover:bg-white/15 dark:hover:bg-white/[0.03]'}`}
                                             >
                                                 <div className="flex items-center justify-between w-full">
                                                     <div className="flex items-center gap-3">
@@ -533,7 +533,7 @@ const FinancialBreakdown = ({
 
             {/* Actions & View Toggle */}
             <div className="flex items-center justify-end mt-auto pt-1 md:pt-12 border-t border-white/5 -translate-y-12 md:translate-y-0">
-                <div className="flex bg-white/5 p-1 rounded-sm border border-white/5">
+                <div className="flex bg-white/10 dark:bg-white/5 p-1 rounded-sm border border-black/10 dark:border-white/5 backdrop-blur-sm">
                     {[
                         { id: 'ledger', label: 'LIST' },
                         { id: 'categories', label: 'CHART' }

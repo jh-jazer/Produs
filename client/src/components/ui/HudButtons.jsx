@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, isPartnerActive, variant = 'dashboard' }) {
+export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, isPartnerActive, variant = 'dashboard', isShrunk = false }) {
   if (variant === 'landing') {
     return (
       <div className="fixed top-12 md:top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none">
@@ -21,18 +21,24 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
     );
   }
 
-  const baseStyles = "w-[6vw] md:w-[4.2vw] h-[8vh] flex items-center justify-center pointer-events-auto group overflow-hidden transition-all rounded-l-md border-y-2 border-l-2";
+  const baseStyles = "h-[8vh] flex items-center justify-center pointer-events-auto group overflow-hidden transition-colors rounded-l-md border-y-2 border-l-2";
   const activeStyles = "bg-black dark:bg-white border-black dark:border-white text-white dark:text-black shadow-[0_0_30px_rgba(0,0,0,0.2)] dark:shadow-[0_0_30_rgba(255,255,255,0.2)]";
   const inactiveStyles = "bg-white dark:bg-[#080808] border-black dark:border-white/20 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:border-black dark:hover:border-white/40";
 
   return (
-    <div className="fixed top-24 md:top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none">
+    <motion.div
+      animate={{ x: isShrunk ? 8 : 0 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className="fixed top-24 md:top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none"
+    >
       {/* RPG Protocol Button */}
       <motion.button
         whileHover={{ x: -2 }}
         whileTap={{ scale: 0.95 }}
         onClick={onRpgClick}
-        className={`${baseStyles} ${isRpgActive ? activeStyles : inactiveStyles}`}
+        animate={{ width: isShrunk ? '10vw' : '12vw' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className={`md:w-[4.2vw] ${baseStyles} ${isRpgActive ? activeStyles : inactiveStyles}`}
       >
         <div className="flex flex-row items-center justify-center gap-1 pr-1">
           <span className={`material-symbols-outlined transition-opacity text-lg !hidden md:!inline-block ${isRpgActive ? 'text-black' : 'text-current'}`}>videogame_asset</span>
@@ -45,13 +51,15 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
         whileHover={{ x: -2 }}
         whileTap={{ scale: 0.95 }}
         onClick={onPartnerClick}
-        className={`${baseStyles} ${isPartnerActive ? activeStyles : inactiveStyles}`}
+        animate={{ width: isShrunk ? '10vw' : '12vw' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className={`md:w-[4.2vw] ${baseStyles} ${isPartnerActive ? activeStyles : inactiveStyles}`}
       >
         <div className="flex flex-row items-center justify-center gap-1 pr-1">
           <span className={`material-symbols-outlined transition-opacity text-lg !hidden md:!inline-block ${isPartnerActive ? 'text-black' : 'text-current'}`}>group</span>
           <span className={`text-[10px] md:text-[7px] font-black tracking-tighter uppercase [writing-mode:vertical-rl] rotate-180 ${isPartnerActive ? 'text-black' : 'text-current'}`}>LINK</span>
         </div>
       </motion.button>
-    </div>
+    </motion.div>
   );
 }

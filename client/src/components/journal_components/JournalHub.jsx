@@ -125,7 +125,7 @@ const JournalHub = ({ entries = [], onAction }) => {
                             {/* Write Journal Card */}
                             <button
                                 onClick={handleWriteNew}
-                                className="group relative rounded-sm bg-black border border-white/10 hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6"
+                                className="group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6"
                             >
                                 {/* Left Side: Image (1/4) */}
                                 <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">

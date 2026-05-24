@@ -84,16 +84,10 @@ const GlobalTransactionPortal = ({ isOpen, onClose }) => {
 };
 
 const GlobalMobileHeader = ({ activeSection, onClick }) => {
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [matrixText, setMatrixText] = useState("");
   const location = useLocation();
   const textToType = "PRODUS";
   const matrixChars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*<>";
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const getPageConfig = () => {
     const path = location.pathname;
@@ -145,8 +139,6 @@ const GlobalMobileHeader = ({ activeSection, onClick }) => {
     }
   }, [config.isMain]);
 
-  const formattedDate = currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
-  const formattedTime = currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   return (
     <div className="fixed top-8 left-6 right-16 z-[100] md:hidden pointer-events-none flex justify-between items-start">
@@ -183,10 +175,6 @@ const GlobalMobileHeader = ({ activeSection, onClick }) => {
         </AnimatePresence>
       </div>
 
-      <div className="flex flex-col items-end gap-0.5 bg-background/80 backdrop-blur-sm py-1 px-2 mr-1 rounded-sm shrink-0 mt-0.5 font-mono pointer-events-auto">
-        <span className="text-[13px] font-black tracking-tighter leading-none text-foreground">{formattedTime}</span>
-        <span className="text-[7px] font-black uppercase tracking-[0.3em] text-foreground/40 font-sans">{formattedDate}</span>
-      </div>
     </div>
   );
 };
@@ -232,6 +220,7 @@ function Layout() {
     const [activeSection, setActiveSection] = useState('produs');
     const [expandedCategory, setExpandedCategory] = useState(null);
     const [isMoreExpanded, setIsMoreExpanded] = useState(false);
+    const [isIdPulledDown, setIsIdPulledDown] = useState(false);
 
     const { data: freshUser } = useSWR(user ? '/auth/me' : null);
     const syncUser = useAuthStore((state) => state.syncUser);
@@ -677,7 +666,9 @@ function Layout() {
                                     activeRpgTab, 
                                     setActiveRpgTab,
                                     activeSection,
-                                    setActiveSection
+                                    setActiveSection,
+                                    isIdPulledDown,
+                                    setIsIdPulledDown
                                 }} />
                             </motion.main>
                         </AnimatePresence>
@@ -702,6 +693,7 @@ function Layout() {
                         onPartnerClick={() => setViewMode(prev => prev === 'personal' ? 'partner' : 'personal')}
                         isRpgActive={protocolMode === 'rpg'}
                         isPartnerActive={viewMode === 'partner'}
+                        isShrunk={isMobile && isIdPulledDown}
                     />
                 )}
 

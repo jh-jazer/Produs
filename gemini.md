@@ -72,3 +72,6 @@ Since we are in March, these seasonal challenges focus on "Spring Cleaning" your
 ## ?? Terminology Rules
 - **Always use standard, easy-to-understand terminology** for UI elements and navigation (e.g., use "Merchant", "Settings", "Notifications", "Sign Out").
 - **Do NOT** use overly tactical, sci-fi, or hard-to-understand terms (e.g., avoid "TERMINAL_SHOP", "SYSTEM_ALERTS", "TERMINATE_SESSION") unless explicitly requested by the user.
+
+## 🎨 Styling & Fonts Rules
+- **CRITICAL:** Always check `client/src/variables.css` first when asked about fonts, colors, or CSS variables. This file is the single source of truth for the project's design tokens and must be adhered to.
