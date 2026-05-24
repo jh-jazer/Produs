@@ -456,7 +456,7 @@ const NeuralSyncPage = () => {
     }
 
     return (
-        <div className="min-h-screen w-screen bg-black text-slate-100 selection:bg-rose-500/30 overflow-x-hidden pt-6 pb-20 relative">
+        <div className="min-h-screen w-screen bg-dark-mode-image text-slate-100 selection:bg-rose-500/30 overflow-x-hidden pt-6 pb-20 relative">
             {/* Cinematic Overlay Background */}
             <div className="fixed inset-0 pointer-events-none z-0">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,163,255,0.05)_0%,transparent_70%)]" />

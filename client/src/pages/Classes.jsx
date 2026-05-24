@@ -192,7 +192,7 @@ export default function Classes() {
   }, [viewItems, filter]);
 
   return (
-    <div className="dark min-h-screen bg-black text-white font-sans selection:bg-primary/30 overflow-x-hidden">
+    <div className="dark min-h-screen bg-dark-mode-image text-white font-sans selection:bg-primary/30 overflow-x-hidden">
       <LandingHeader activeTab={activeLandingTab} />
       {/* Hero Sidebar */}
       <div className="hidden md:block fixed left-6 md:left-12 top-[50%] -translate-y-1/2 z-[100] pointer-events-auto">

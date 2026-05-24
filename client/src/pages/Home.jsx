@@ -475,6 +475,7 @@ export default function Home() {
   const [isInitializing, setIsInitializing] = useState(true);
   const [isIdMenuOpen, setIsIdMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isIdPulledDown, setIsIdPulledDown] = useState(false);
   const [editData, setEditData] = useState({
     username: user?.username?.split('#')[0] || '',
     bio: user?.bio || '',
@@ -656,9 +657,70 @@ export default function Home() {
               {/* Column 1-2: Integrated Swinging ID Assembly */}
               <div className="md:col-span-2 relative min-h-[82vh] md:min-h-[unset] h-auto md:h-16 flex flex-col items-center justify-center mb-0 snap-start snap-always">
                 <div className="absolute inset-0 flex flex-col items-center">
-                  <motion.div style={{ transformOrigin: "top center" }} className="absolute top-0 md:mt-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
-                    <div className="w-4 h-1 bg-white z-[60] shadow-[0_0_15px_rgba(255,255,255,0.5)] shrink-0" />
-                    <div className="w-[12px] h-[15vh] md:h-5 bg-white opacity-80 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50" />
+                  {/* Sash Cord Pull Handle */}
+                  {!isIdPulledDown && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -50 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -50 }}
+                      transition={{ type: "spring", stiffness: 150, damping: 18 }}
+                      className="absolute top-0 md:mt-12 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center cursor-pointer pointer-events-auto"
+                      onClick={() => setIsIdPulledDown(true)}
+                    >
+                      {/* Anchor Mount */}
+                      <div className="w-4 h-1.5 bg-white/80 rounded-t-sm shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
+                      {/* Cord Line */}
+                      <div className="w-[2px] h-[180px] bg-gradient-to-b from-white/80 via-white/50 to-white/20" />
+                      {/* Pulsing ring handle */}
+                      <motion.div 
+                        whileHover={{ scale: 1.15, y: 3 }}
+                        whileTap={{ scale: 0.95, y: 15 }}
+                        className="size-9 rounded-full border-2 border-white/60 bg-black/90 backdrop-blur-md flex items-center justify-center shadow-lg shadow-black/40 group relative"
+                      >
+                        <div className="size-3.5 rounded-full bg-white animate-pulse shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
+                        
+                        {/* Permanently visible indicator text below the ring */}
+                        <span className="absolute top-11 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8.5px] font-mono font-black uppercase tracking-[0.25em] text-white/50 group-hover:text-white transition-all duration-300 select-none">
+                          PULL ID
+                        </span>
+                      </motion.div>
+                    </motion.div>
+                  )}
+
+                  <motion.div 
+                    initial={{ y: -600, opacity: 0 }}
+                    animate={{ 
+                      y: isIdPulledDown ? 0 : -600, 
+                      opacity: isIdPulledDown ? 1 : 0 
+                    }}
+                    transition={{ 
+                      type: "spring", 
+                      stiffness: isIdPulledDown ? 120 : 200, 
+                      damping: isIdPulledDown ? 14 : 28,
+                      mass: isIdPulledDown ? 1.2 : 1
+                    }}
+                    style={{ 
+                      transformOrigin: "top center",
+                      pointerEvents: isIdPulledDown ? 'auto' : 'none'
+                    }}
+                    className="absolute top-0 md:mt-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center"
+                  >
+                    <div 
+                      className="flex flex-col items-center cursor-pointer group/retract relative"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsIdPulledDown(false);
+                      }}
+                      title="RETRACT ID"
+                    >
+                      <div className="w-4 h-1 bg-white z-[60] shadow-[0_0_15px_rgba(255,255,255,0.5)] shrink-0 group-hover/retract:bg-white group-hover/retract:scale-x-125 transition-all" />
+                      <div className="w-[12px] h-[15vh] md:h-5 bg-white opacity-80 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50 group-hover/retract:bg-white group-hover/retract:opacity-100 transition-all" />
+                      
+                      <span className="absolute -top-6 whitespace-nowrap bg-black/90 text-white text-[7px] font-mono font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded-sm border border-white/10 opacity-0 group-hover/retract:opacity-100 transition-opacity pointer-events-none">
+                        RETRACT ID
+                      </span>
+                    </div>
+
                     <div className="relative -mt-4 perspective-[1000px] cursor-pointer pointer-events-auto" onClick={() => setIsFlipped(!isFlipped)}>
                       <motion.div animate={{ rotateY: isFlipped ? 180 : 0 }} transition={{ type: "spring", stiffness: 260, damping: 20 }} style={{ transformStyle: "preserve-3d", originY: 0 }} className="relative w-[82vw] md:w-[320px] min-h-[70vh] md:min-h-[446px]">
                         {/* FRONT FACE */}
@@ -789,8 +851,22 @@ export default function Home() {
                                 </div>
                               ))}
                             </div>
+                            {/* Retract ID Button (X Icon) on the right side */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsIdPulledDown(false);
+                              }}
+                              className="absolute top-8 right-8 z-40 p-2 text-black dark:text-white opacity-40 dark:opacity-20 hover:opacity-100 transition-all hover:scale-125 cursor-pointer"
+                              title="RETRACT ID"
+                            >
+                              <span className="material-symbols-outlined text-sm font-bold">
+                                close
+                              </span>
+                            </button>
+
                             {/* ID Action Menu (Kinetic Transformation) */}
-                            <div className="absolute top-8 right-8 z-40 flex flex-col items-center">
+                            <div className="absolute top-8 left-8 z-40 flex flex-col items-center">
                               {isEditing ? (
                                 <div className="flex flex-col items-center gap-3 bg-black/5 dark:bg-white/5 backdrop-blur-md p-2 rounded-sm border border-black/10 dark:border-white/10">
                                   <button
@@ -847,6 +923,13 @@ export default function Home() {
                                           title="SEARCH_ID"
                                         >
                                           <span className="material-symbols-outlined text-[16px] text-black dark:text-white opacity-40 hover:opacity-100">search</span>
+                                        </button>
+                                        <button
+                                          onClick={(e) => { e.stopPropagation(); setIsIdMenuOpen(false); setIsIdPulledDown(false); }}
+                                          className="p-1 transition-colors"
+                                          title="RETRACT_ID"
+                                        >
+                                          <span className="material-symbols-outlined text-[16px] text-black dark:text-white opacity-40 hover:opacity-100">arrow_upward</span>
                                         </button>
                                         <button
                                           onClick={(e) => {
@@ -945,9 +1028,6 @@ export default function Home() {
                         </div>
                       </motion.div>
                     </div>
-                    <motion.div animate={{ opacity: isAtTop ? [0, 0.6, 0.3, 0.8, 0] : 0, y: isAtTop ? [0, 5, 0] : 0 }} transition={{ opacity: { duration: 3, repeat: Infinity, ease: "linear" }, y: { duration: 2, repeat: Infinity, ease: "easeInOut" } }} className="absolute -bottom-[35px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none">
-                      <span className="text-[9px] font-black uppercase tracking-[0.5em] whitespace-nowrap">Scroll Down</span>
-                    </motion.div>
                   </motion.div>
                 </div>
               </div>

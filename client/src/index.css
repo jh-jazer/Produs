@@ -1,7 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Bangers&family=Bebas+Neue&family=Comic+Neue:ital,wght@0,400;0,700;1,400;1,700&family=Kalam:wght@300;400;700&family=Outfit:wght@100..900&family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap");
 /* Design token layer — must be first */
 @import "./variables.css";
-
-@import url("https://fonts.googleapis.com/css2?family=Bangers&family=Bebas+Neue&family=Comic+Neue:ital,wght@0,400;0,700;1,400;1,700&family=Kalam:wght@300;400;700&family=Outfit:wght@100..900&family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -87,14 +86,27 @@
     --accent-bg: color-mix(in srgb, var(--primary) 15%, transparent);
     --accent-border: color-mix(in srgb, var(--primary) 30%, transparent);
     --accent-glow: color-mix(in srgb, var(--primary) 50%, transparent);
-    --bg-image: none;
+    --bg-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/background/darkportrait.jpeg");
+    --bg-size: cover;
+    --bg-position: center;
+    --bg-repeat: no-repeat;
+    --bg-attachment: fixed;
+}
+
+@media (min-width: 48rem) and (orientation: landscape) {
+    .dark {
+        --bg-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/background/darklandscape.jpeg");
+    }
 }
 
 html,
 body {
     background-color: var(--background);
     background-image: var(--bg-image);
-    background-size: var(--bg-size);
+    background-size: var(--bg-size, cover);
+    background-position: var(--bg-position, center);
+    background-repeat: var(--bg-repeat, no-repeat);
+    background-attachment: var(--bg-attachment, fixed);
     color: var(--foreground);
     /* Transition removed for immediate paint to avoid white flashes */
     overflow-x: hidden;
@@ -119,6 +131,21 @@ button:disabled {
 }
 
 @layer utilities {
+    .bg-dark-mode-image {
+        background-color: #000000;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/background/darkportrait.jpeg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+
+    @media (min-width: 48rem) and (orientation: landscape) {
+        .bg-dark-mode-image {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/background/darklandscape.jpeg");
+        }
+    }
+
     .custom-scrollbar::-webkit-scrollbar {
         width: 4px;
         height: 4px;

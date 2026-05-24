@@ -84,7 +84,7 @@ function Auth() {
     };
 
     return (
-        <div className="dark min-h-screen relative flex items-center justify-center p-6 bg-black overflow-hidden font-sans selection:bg-primary selection:text-white">
+        <div className="dark min-h-screen relative flex items-center justify-center p-6 bg-dark-mode-image overflow-hidden font-sans selection:bg-primary selection:text-white">
             
             {/* Background Atmosphere */}
             <div className="absolute inset-0 pointer-events-none">

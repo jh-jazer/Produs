@@ -277,10 +277,10 @@ export default function PriorityHUD() {
               {renderGoalColumn("ANNUAL TARGETS", yearlyGoals, toggleGoalStatus)}
             </div>
 
-            {/* PART 3: SIDE TO SIDE CLOSEST DEBT / RECEIVABLE (DOUBLE) */}
+            {/* PART 3: SIDE TO SIDE DEBT / RECEIVABLE (DOUBLE) */}
             <div className="grid grid-cols-2 gap-4 w-full">
-              {renderFinanceColumn("CLOSEST DEBT LIABILITIES", closestDebts, true)}
-              {renderFinanceColumn("CLOSEST RECEIVABLE ASSETS", closestReceivables, false)}
+              {renderFinanceColumn("DEBT LIABILITIES", closestDebts, true)}
+              {renderFinanceColumn("RECEIVABLE ASSETS", closestReceivables, false)}
             </div>
 
           </div>
