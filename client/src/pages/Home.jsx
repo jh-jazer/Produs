@@ -863,6 +863,31 @@ export default function Home() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Scroll Down Indicator */}
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ 
+                          opacity: [0.3, 0.7, 0.3], 
+                          y: [0, 4, 0] 
+                        }}
+                        transition={{ 
+                          duration: 2.5, 
+                          repeat: Infinity, 
+                          ease: "easeInOut" 
+                        }}
+                        className="w-screen relative mt-2 md:mt-3 -ml-12 md:-ml-20 flex flex-col items-center gap-1 cursor-pointer pointer-events-auto z-40"
+                        onClick={() => {
+                          const overviewEl = document.getElementById('section-overview');
+                          if (overviewEl) {
+                            overviewEl.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }}
+                      >
+                        <span className="text-[8px] font-mono font-black uppercase tracking-[0.3em] text-black/40 dark:text-white/40 select-none">
+                          SCROLL DOWN
+                        </span>
+                      </motion.div>
                     </motion.div>
                   )}
 
