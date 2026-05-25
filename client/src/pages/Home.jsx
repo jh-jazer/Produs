@@ -97,7 +97,7 @@ const MobileLogoText = ({ activeSection, onClick }) => {
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user, updateSettings, syncUser } = useAuthStore();
+  const { user, updateSettings, syncUser, viewMode } = useAuthStore();
   const setNeuralSyncDismissed = useAuthStore((state) => state.setNeuralSyncDismissed);
   const {
     protocolMode,
@@ -874,7 +874,7 @@ export default function Home() {
                       {/* Spacer 1 to center Start Focus button */}
                       <div className="flex-1 md:hidden" />
 
-                      <button
+                      <motion.button
                         onClick={(e) => {
                           e.stopPropagation();
                           setFocusSelectedTime(25);
@@ -883,11 +883,36 @@ export default function Home() {
                           setFocusStage('select');
                           setShowFocusTimer(true);
                         }}
-                        className="mt-0 md:mt-[9vh] px-8 h-[8vh] bg-transparent text-black dark:text-white font-black uppercase text-[10px] tracking-[0.25em] border border-black dark:border-white rounded-sm hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 pointer-events-auto flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,0,0,0.05)] dark:shadow-[0_0_20px_rgba(255,255,255,0.05)] active:scale-95 z-20"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.96 }}
+                        className="mt-0 md:mt-[9vh] relative group pointer-events-auto z-20 overflow-hidden"
                       >
-                        <span className="material-symbols-outlined text-[14px]">hourglass_empty</span>
-                        START FOCUS
-                      </button>
+                        {/* Outer glow pulse ring */}
+                        <motion.span
+                          className="absolute inset-0 rounded-sm bg-primary/20 dark:bg-primary/30"
+                          animate={{ scale: [1, 1.06, 1], opacity: [0.6, 0, 0.6] }}
+                          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                        />
+
+                        {/* Button body */}
+                        <span className="relative flex items-center gap-3 px-8 h-[8vh] min-h-[44px] bg-primary text-white font-black uppercase text-[10px] tracking-[0.3em] rounded-sm shadow-[0_0_30px_var(--tw-shadow-color)] shadow-primary/40 group-hover:shadow-primary/60 transition-shadow duration-300">
+                          {/* Animated hourglass */}
+                          <motion.span
+                            className="material-symbols-outlined text-[15px] leading-none"
+                            animate={{ rotate: [0, 0, 180, 180, 360] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', times: [0, 0.4, 0.5, 0.9, 1] }}
+                          >
+                            hourglass_empty
+                          </motion.span>
+                          START FOCUS
+                          {/* Shimmer sweep */}
+                          <motion.span
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 pointer-events-none"
+                            animate={{ x: ['-100%', '200%'] }}
+                            transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
+                          />
+                        </span>
+                      </motion.button>
 
                       {/* Spacer 2 to center Start Focus button */}
                       <div className="flex-1 md:hidden" />
@@ -1143,22 +1168,29 @@ export default function Home() {
                       className="absolute top-0 md:-mt-6 right-16 md:right-0 z-40 flex flex-col items-center cursor-pointer pointer-events-auto"
                       onClick={() => setIsIdPulledDown(!isIdPulledDown)}
                     >
-                      {/* Anchor Mount */}
+                      {/* Anchor Mount - stays fixed */}
                       <div className="w-4 h-1.5 bg-white/80 rounded-t-sm shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
-                      {/* Cord Line */}
-                      <div className="w-[2px] h-[180px] bg-gradient-to-b from-white/80 via-white/50 to-white/20" />
-                      {/* Pulsing ring handle */}
-                      <motion.div 
-                        whileHover={{ scale: 1.15, y: 3 }}
-                        whileTap={{ scale: 0.95, y: 15 }}
-                        className="size-9 rounded-full border-2 border-white/60 bg-black/90 backdrop-blur-md flex items-center justify-center shadow-lg shadow-black/40 group relative"
+                      {/* Cord + Ring together — sway as one unit from anchor */}
+                      <motion.div
+                        className="flex flex-col items-center origin-top"
+                        animate={{ rotateZ: [0, 2, -1.5, 1, 0] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', repeatType: 'mirror' }}
                       >
-                        <div className="size-3.5 rounded-full bg-white animate-pulse shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
-                        
-                        {/* Permanently visible indicator text below the ring */}
-                        <span className="absolute top-11 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8.5px] font-mono font-black uppercase tracking-[0.25em] text-white/50 group-hover:text-white transition-all duration-300 select-none">
-                          {isIdPulledDown ? "RETRACT ID" : "PULL ID"}
-                        </span>
+                        {/* Cord Line */}
+                        <div className="w-[2px] h-[180px] bg-gradient-to-b from-white/80 via-white/50 to-white/20" />
+                        {/* Pulsing ring handle */}
+                        <motion.div 
+                          whileHover={{ scale: 1.15, y: 3 }}
+                          whileTap={{ scale: 0.95, y: 15 }}
+                          className="size-9 rounded-full border-2 border-white/60 bg-black/90 backdrop-blur-md flex items-center justify-center shadow-lg shadow-black/40 group relative"
+                        >
+                          <div className="size-3.5 rounded-full bg-white animate-pulse shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
+                          
+                          {/* Permanently visible indicator text below the ring */}
+                          <span className="absolute top-11 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8.5px] font-mono font-black uppercase tracking-[0.25em] text-white/50 group-hover:text-white transition-all duration-300 select-none">
+                            {isIdPulledDown ? "RETRACT ID" : "PULL ID"}
+                          </span>
+                        </motion.div>
                       </motion.div>
                     </motion.div>
                   )}
@@ -1190,7 +1222,11 @@ export default function Home() {
                       title="RETRACT ID"
                     >
                       <div className="w-4 h-1 bg-white z-[60] shadow-[0_0_15px_rgba(255,255,255,0.5)] shrink-0 group-hover/retract:bg-white group-hover/retract:scale-x-125 transition-all" />
-                      <div className="w-[12px] h-[15vh] md:h-20 bg-white opacity-80 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50 group-hover/retract:bg-white group-hover/retract:opacity-100 transition-all" />
+                      <motion.div
+                        className="w-[12px] h-[15vh] md:h-20 bg-white opacity-80 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50 group-hover/retract:bg-white group-hover/retract:opacity-100 transition-all origin-top"
+                        animate={{ rotateZ: [0, 1.5, -1, 0.8, 0] }}
+                        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', repeatType: 'mirror', delay: 0.5 }}
+                      />
                       
                       <span className="absolute -top-6 whitespace-nowrap bg-black/90 text-white text-[7px] font-mono font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded-sm border border-white/10 opacity-0 group-hover/retract:opacity-100 transition-opacity pointer-events-none">
                         RETRACT ID
