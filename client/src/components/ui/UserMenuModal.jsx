@@ -46,7 +46,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-3 p-4 rounded-3xl">
                     <div className="flex flex-col items-center gap-1">
-                        <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Coins</span>
+                        <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Points</span>
                         <CoinDisplay amount={user?.rpg?.prodCoins || 0} variant="minimal" />
                     </div>
                     <div className="flex flex-col items-center gap-1 border-x border-black/10 dark:border-white/10">

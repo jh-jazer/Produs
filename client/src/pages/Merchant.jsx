@@ -123,7 +123,7 @@ const Merchant = () => {
                         <div className="relative group bg-foreground/[0.02] p-6 rounded-sm overflow-hidden flex items-center justify-between">
                             <ChippedBorder opacity={0.2} />
                             <div className="relative z-10 w-full">
-                                <p className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40 mb-2">PROD COINS</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40 mb-2">PROD POINTS</p>
                                 <CoinDisplay amount={user?.rpg?.prodCoins || 0} />
                             </div>
                             <div className="absolute right-0 top-0 size-32 bg-foreground/5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-1000" />

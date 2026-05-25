@@ -107,7 +107,7 @@ const DevTools = () => {
                                         <div className="size-9 md:size-10 rounded-full bg-[#FFD700] flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
                                             <span className="material-symbols-outlined text-lg md:text-xl text-black font-black">currency_bitcoin</span>
                                         </div>
-                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#B8860B] dark:text-[#FFD700]">Coins</span>
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#B8860B] dark:text-[#FFD700]">Points</span>
                                     </button>
                                     <button onClick={() => setView('stats')} className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5">
                                         <div className="size-9 md:size-10 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">

@@ -16,7 +16,7 @@ const MobileBottomNav = () => {
         { id: 'planner', name: 'Planner', path: '/dashboard/planner', icon: 'calendar_today' },
         { id: 'calendar', name: 'Calendar', path: '/dashboard/calendar', icon: 'event' },
         { id: 'writing', name: 'Write', path: '/dashboard/writing', icon: 'edit' },
-        { id: 'profile', name: 'Profile', path: '#', icon: 'person' },
+        { id: 'financial', name: 'Finances', path: '/dashboard/financial', icon: 'account_balance' },
     ];
 
     const rpgPillars = [
@@ -25,7 +25,7 @@ const MobileBottomNav = () => {
         { id: 'items', name: 'Items', path: '/dashboard', icon: 'inventory_2' },
         { id: 'skills', name: 'Skills', path: '/dashboard', icon: 'model_training' },
         { id: 'roam', name: 'Roam', path: '/dashboard', icon: 'explore' },
-        { id: 'profile', name: 'Profile', path: '#', icon: 'person' },
+        { id: 'financial', name: 'Finances', path: '/dashboard/financial', icon: 'account_balance' },
     ];
 
     const pillars = protocolMode === 'rpg' ? rpgPillars : realityPillars;
@@ -40,8 +40,8 @@ const MobileBottomNav = () => {
     ];
 
     const isActive = (pillar) => {
-        if (pillar.id === 'profile') {
-            return isUserMenuOpen;
+        if (pillar.id === 'financial') {
+            return location.pathname.startsWith('/dashboard/financial');
         }
         if (pillar.id === 'home') {
             return location.pathname === '/dashboard' && (protocolMode !== 'rpg' || activeRpgTab === 'home');
@@ -71,9 +71,9 @@ const MobileBottomNav = () => {
     };
 
     const handleNav = (pillar) => {
-        if (pillar.id === 'profile') {
-            setIsUserMenuOpen(true);
+        if (pillar.id === 'financial') {
             setShowActionDot(false);
+            navigate('/dashboard/financial');
             return;
         }
 
@@ -180,7 +180,7 @@ const MobileBottomNav = () => {
                 )}
             </AnimatePresence>
 
-            <div className="md:hidden fixed inset-0 z-[150] pointer-events-none overflow-visible flex flex-col justify-end">
+            <div className="md:hidden fixed inset-0 z-[150] pointer-events-none overflow-visible flex flex-col justify-end layout-mobile-bottom-nav">
                 <nav className="w-full h-24 bg-white dark:bg-black shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex items-center justify-around px-4 pb-4 pointer-events-auto relative rounded-t-[2.5rem] overflow-visible">
                 <div className="absolute inset-0 border-t-4 border-black dark:border-white/20 rounded-t-[2.5rem] pointer-events-none" />
                 

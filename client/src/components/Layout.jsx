@@ -142,7 +142,7 @@ const GlobalMobileHeader = ({ activeSection, onClick }) => {
 
 
   return (
-    <div className="fixed top-8 left-6 right-16 z-[100] md:hidden pointer-events-none flex justify-between items-start">
+    <div className="fixed top-8 left-6 right-16 z-[100] md:hidden pointer-events-none flex justify-between items-start layout-mobile-header">
       <div className="flex-1">
         <AnimatePresence mode="wait">
           {config.isMain ? (
@@ -348,7 +348,7 @@ function Layout() {
         }}>
             <div className="bg-transparent font-sans text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden">
                 {/* Mobile Top Bar */}
-                <div className="hidden fixed top-0 left-0 right-0 h-20 flex items-center px-4 z-[135] bg-transparent transition-all duration-300 pointer-events-none">
+                <div className="hidden fixed top-0 left-0 right-0 h-20 flex items-center px-4 z-[135] bg-transparent transition-all duration-300 pointer-events-none layout-mobile-top-bar">
                     <div className="flex items-center w-full pointer-events-auto">
                     
                     {/* Profile Avatar + LVL Badge (Left Side) */}
@@ -447,7 +447,7 @@ function Layout() {
                     )}
                 </AnimatePresence>
 
-                <aside className="hidden md:flex relative z-[150] h-full flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1] md:w-[18vw]">
+                <aside className="hidden md:flex relative z-[150] h-full flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1] md:w-[18vw] layout-sidebar-left">
                     <div className="h-24 flex items-center px-2 shrink-0">
                         <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => setIsLandingModalOpen(true)}>
                             <div className="p-2 md:p-4 transition-all duration-[600ms] opacity-100 translate-y-0">
@@ -678,21 +678,18 @@ function Layout() {
                     </div>
                 </div>
                 
-                <aside className="hidden md:flex w-[4vw] flex-col items-center justify-between py-12 bg-white/50 dark:bg-black/50 backdrop-blur-sm relative shrink-0">
+                <aside className="hidden md:flex w-[4vw] flex-col items-center justify-between py-12 bg-white/50 dark:bg-black/50 backdrop-blur-sm relative shrink-0 layout-sidebar-right">
                     <div className="flex flex-col items-center gap-8 w-full h-full">
                         {protocolMode === 'reality' && <div className="flex-1 w-full" />}
                     </div>
                 </aside>
 
-                <div className="md:hidden fixed top-8 right-0 z-[101]">
+                <div className="md:hidden fixed top-8 right-0 z-[101] layout-mobile-profile-btn">
                     <button 
-                        onClick={() => setIsNotificationModalOpen(true)} 
+                        onClick={() => setIsUserMenuOpen(true)} 
                         className="pl-4 pr-4 py-2 text-black dark:text-white/60 hover:text-black dark:hover:text-white transition-all active:scale-90 relative"
                     >
-                        <Bell size={20} strokeWidth={2.5} />
-                        {unreadCount > 0 && (
-                            <span className="absolute top-1.5 right-3.5 size-2 rounded-full bg-red-500 dark:bg-rose-500 animate-pulse" />
-                        )}
+                        <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>person</span>
                     </button>
                 </div>
 

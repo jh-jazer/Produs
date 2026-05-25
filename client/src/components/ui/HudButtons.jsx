@@ -7,7 +7,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
 
   if (variant === 'landing') {
     return (
-      <div className="fixed top-12 md:top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none">
+      <div className="fixed top-12 md:top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none hud-buttons-container">
         <motion.button
           whileHover={{ x: -2 }}
           whileTap={{ scale: 0.95 }}
@@ -32,7 +32,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
     <motion.div
       animate={{ x: isShrunk ? 8 : 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="fixed top-24 md:top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none"
+      className="fixed top-24 md:top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none hud-buttons-container"
     >
       {/* RPG Protocol Button */}
       <motion.button

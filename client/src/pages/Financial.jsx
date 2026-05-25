@@ -23,7 +23,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
-    <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all p-4 md:p-8 rounded-sm group overflow-hidden ${className}`}>
+    <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all px-0 md:px-12 py-4 md:py-8 rounded-sm group overflow-hidden ${className}`}>
         <div className="hidden md:block">
             <ChippedBorder opacity={0.6} />
         </div>
@@ -72,8 +72,9 @@ const Financial = () => {
         // SWR handles refreshing
     };
 
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+    const [selectedYear, setSelectedYear] = useState('all');
+    const [selectedMonth, setSelectedMonth] = useState('all');
+    const [showAddTx, setShowAddTx] = useState(false);
 
     const formatDate = (dateInput) => {
         if (!dateInput) return new Date().toISOString().split('T')[0];
@@ -259,11 +260,31 @@ const Financial = () => {
 
     const netBalance = totalSavingsForMonth - totalDebtForMonth;
 
+    const combinedTransactions = useMemo(() => {
+        const debtTxs = debts.map(d => ({
+            _id: `debt-${d._id}`,
+            title: d.title,
+            amount: d.amount,
+            type: d.nature === 'income' ? 'upcoming' : 'debt',
+            category: d.nature === 'income' ? 'Receivable' : 'Debt',
+            date: d.dueDate || d.createdAt
+        }));
+        const savingsTxs = savings.map(s => ({
+            _id: `savings-${s._id}`,
+            title: s.title,
+            amount: s.amount,
+            type: 'savings',
+            category: 'Savings',
+            date: s.createdAt
+        }));
+        return [...transactions, ...debtTxs, ...savingsTxs];
+    }, [transactions, debts, savings]);
+
     if (isLoading && transactions.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground p-8 pt-12 md:p-12 md:pt-16 font-sans overflow-x-hidden flex flex-col items-center">
-            <div className="w-full max-w-7xl">
+        <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-0 md:pt-20 md:pb-0 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full mt-4 md:mt-6">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeModule}
@@ -287,10 +308,15 @@ const Financial = () => {
                                         totalUpcomingIncome={totalUpcomingIncomeForMonth}
                                         addFinanceItem={addFinanceItem}
                                         deleteFinanceItem={deleteFinanceItem}
+                                        updateFinanceItem={updateFinanceItem}
+                                        showAddTx={showAddTx}
+                                        setShowAddTx={setShowAddTx}
                                         selectedYear={selectedYear}
                                         setSelectedYear={setSelectedYear}
                                         selectedMonth={selectedMonth}
                                         setSelectedMonth={setSelectedMonth}
+                                        selectedTransactions={combinedTransactions}
+                                        allTransactions={transactions}
                                     />
                                 </HUDPanel>
                             )}

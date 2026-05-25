@@ -530,3 +530,27 @@ body, p {
   line-height: var(--leading-relaxed);
   color:       var(--color-fg);
 }
+
+/* Hide navigation, headers, sidebars, and HUD buttons when Focus Timer is active */
+body.focus-mode-active .layout-sidebar-left,
+body.focus-mode-active .layout-sidebar-right,
+body.focus-mode-active .layout-mobile-profile-btn,
+body.focus-mode-active .layout-mobile-bottom-nav,
+body.focus-mode-active .layout-mobile-header,
+body.focus-mode-active .layout-mobile-top-bar,
+body.focus-mode-active .hud-buttons-container {
+  display: none !important;
+}
+
+/* Explicitly scale the welcome text to be huge and bypass constraints */
+.welcome-title-text {
+  font-size: 4.8rem !important; /* ~46px on mobile viewports */
+  line-height: 0.95 !important;
+}
+
+@media (min-width: 768px) {
+  .welcome-title-text {
+    font-size: 11rem !important; /* ~105px on desktop viewports */
+    line-height: 0.9 !important;
+  }
+}

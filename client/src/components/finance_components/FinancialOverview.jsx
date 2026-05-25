@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import DashboardPanel from "../ui/DashboardPanel";
 import DecisionModal from "../ui/DecisionModal";
 import AddTransactionModal from "../ui/AddTransactionModal";
@@ -26,19 +26,24 @@ const FinancialOverview = ({
   totalUpcomingIncome = 0,
   addFinanceItem,
   deleteFinanceItem,
+  updateFinanceItem,
   compact = false,
   showAddTx,
   setShowAddTx,
   selectedYear = 'all',
   setSelectedYear,
   selectedMonth = 'all',
-  setSelectedMonth
+  setSelectedMonth,
+  selectedTransactions = [],
+  allTransactions = []
 }) => {
   const [foresee, setForesee] = useState(false);
   const [localCurrency, setLocalCurrency] = useState(currencySymbol);
   const [showSettings, setShowSettings] = useState(false);
   const [viewMode, setViewMode] = useState("current"); 
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [selectedTxId, setSelectedTxId] = useState(null);
 
   const dropdownOptions = useMemo(() => {
     const options = [{ value: 'all', label: 'ALL TIME' }];
@@ -90,7 +95,7 @@ const FinancialOverview = ({
   }, [transactions]);
 
   // Current selected month totals
-  const selectedTransactions = useMemo(() => {
+  const filteredForTotals = useMemo(() => {
     return transactions.filter(t => {
       const d = new Date(t.date);
       if (selectedYear !== 'all' && d.getFullYear() !== parseInt(selectedYear)) return false;
@@ -99,11 +104,11 @@ const FinancialOverview = ({
     });
   }, [transactions, selectedYear, selectedMonth]);
 
-  const totalIncome = selectedTransactions
+  const totalIncome = filteredForTotals
     .filter((t) => t.type === "income")
     .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
 
-  const totalExpenses = selectedTransactions
+  const totalExpenses = filteredForTotals
     .filter((t) => t.type === "expense")
     .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
 
@@ -141,7 +146,7 @@ const FinancialOverview = ({
   };
 
   return (
-    <div className={`flex flex-col ${compact ? 'gap-4' : 'gap-4'} relative group`}>
+    <div className={`flex flex-col ${compact ? 'gap-4' : 'gap-8 md:min-h-[400px]'} relative group`}>
         <DecisionModal
             isOpen={!!confirmDelete}
             title="DELETE RECORD"
@@ -153,8 +158,10 @@ const FinancialOverview = ({
         />
 
 
-        <div className="relative">
-                <div className="relative flex flex-col justify-center">
+        <div className="flex flex-col gap-8 pt-4 md:pt-0 mt-0 md:-mt-4 relative">
+            <div className="flex flex-col gap-8">
+
+                <div className="relative min-h-[80px] flex flex-col justify-center">
                     {viewMode === 'current' ? (
                         <motion.div 
                             key="balance"
@@ -285,25 +292,38 @@ const FinancialOverview = ({
                                     )}
                                 </div>
 
-                                {/* Col 3: 5 metric rows */}
+                                {/* Col 3: 5 metric rows — click to filter */}
                                 <div className="flex flex-col justify-center divide-y divide-white/10">
                                     {[
-                                        { label: 'INCOME',      value: totalIncome,         color: '#10b981', sign: ''  },
-                                        { label: 'EXPENSES',    value: totalExpenses,        color: '#f43f5e', sign: '-' },
-                                        { label: 'DEBT',        value: totalDebt,            color: '#f43f5e', sign: '-' },
-                                        { label: 'RECEIVABLE',  value: totalUpcomingIncome,  color: '#10b981', sign: ''  },
-                                        { label: 'SAVINGS',     value: totalSavings,         color: '#10b981', sign: ''  },
-                                    ].map(({ label, value, color, sign }) => (
-                                        <div key={label} className="flex flex-col items-start px-5 py-3.5 gap-0.5">
-                                            <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] flex items-center gap-1.5 whitespace-nowrap">
-                                                <span className="size-1.5 rounded-full shrink-0 animate-pulse" style={{ backgroundColor: color }} />
-                                                {label}
-                                            </p>
-                                            <p className="font-black tracking-tighter leading-none" style={{ fontSize: '1.05rem', color }}>
-                                                {sign}{localCurrency}{value.toLocaleString()}
-                                            </p>
-                                        </div>
-                                    ))}
+                                        { label: 'INCOME',     value: totalIncome,        color: '#10b981', sign: '',  type: 'income'   },
+                                        { label: 'EXPENSES',   value: totalExpenses,       color: '#f43f5e', sign: '-', type: 'expense'  },
+                                        { label: 'DEBT',       value: totalDebt,           color: '#f43f5e', sign: '-', type: 'debt'     },
+                                        { label: 'RECEIVABLE', value: totalUpcomingIncome, color: '#10b981', sign: '',  type: 'upcoming' },
+                                        { label: 'SAVINGS',    value: totalSavings,        color: '#10b981', sign: '',  type: 'savings'  },
+                                    ].map(({ label, value, color, sign, type }) => {
+                                        const isActive = typeFilter === type;
+                                        return (
+                                            <button
+                                                key={label}
+                                                onClick={() => setTypeFilter(isActive ? 'all' : type)}
+                                                className={`flex flex-col items-start px-5 py-3.5 gap-0.5 w-full text-left transition-all ${
+                                                    isActive
+                                                        ? 'bg-white/[0.04] border-l-2'
+                                                        : 'border-l-2 border-l-transparent hover:bg-white/[0.02]'
+                                                }`}
+                                                style={isActive ? { borderLeftColor: color } : {}}
+                                            >
+                                                <p className="text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-1.5 whitespace-nowrap transition-colors"
+                                                   style={{ color: isActive ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.3)' }}>
+                                                    <span className="size-1.5 rounded-full shrink-0 animate-pulse" style={{ backgroundColor: color }} />
+                                                    {label}
+                                                </p>
+                                                <p className="font-black tracking-tighter leading-none" style={{ fontSize: '1.05rem', color }}>
+                                                    {sign}{localCurrency}{value.toLocaleString()}
+                                                </p>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </motion.div>
@@ -362,6 +382,88 @@ const FinancialOverview = ({
                         </motion.div>
                     )}
                 </div>
+
+                {/* Compact Ledger Breakdown */}
+                {(() => {
+                    const filteredList = selectedTransactions.filter(tx => {
+                        if (typeFilter !== 'all' && tx.type !== typeFilter) return false;
+                        if (selectedYear !== 'all') {
+                            try {
+                                const d = new Date(tx.date);
+                                if (d.getFullYear() !== parseInt(selectedYear)) return false;
+                                if (selectedMonth !== 'all' && d.getMonth() !== parseInt(selectedMonth)) return false;
+                            } catch { return false; }
+                        }
+                        return true;
+                    });
+
+                    return (
+                        <div className="mt-4 border-t border-white/10 flex flex-col gap-3 pt-4">
+                            {/* Scrollable list */}
+                            <div className="flex flex-col gap-2 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+                                {/* Add button */}
+                                <div
+                                    onClick={() => setShowAddTx && setShowAddTx(true)}
+                                    className="flex items-center gap-3 px-3 py-2.5 rounded-sm border border-dashed border-white/10 hover:border-white/30 hover:bg-white/[0.03] cursor-pointer transition-all group"
+                                >
+                                    <div className="size-7 rounded-sm bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-white group-hover:text-black transition-all">
+                                        <span className="material-symbols-outlined text-sm">add</span>
+                                    </div>
+                                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 group-hover:text-white transition-colors">ADD TRANSACTION</span>
+                                </div>
+
+                                {filteredList.length > 0 ? filteredList.slice(0, 100).map(tx => (
+                                    <div
+                                        key={tx._id}
+                                        onClick={() => setSelectedTxId(prev => prev === tx._id ? null : tx._id)}
+                                        className={`flex items-center justify-between px-3 py-2.5 rounded-sm border cursor-pointer transition-all ${
+                                            selectedTxId === tx._id
+                                                ? 'border-white/20 bg-white/[0.05]'
+                                                : 'border-white/5 hover:border-white/10 hover:bg-white/[0.02]'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <div className="size-6 rounded-sm bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                                                <span className="material-symbols-outlined text-xs text-white/30">
+                                                    {tx.type === 'income' ? 'payments' : tx.type === 'savings' ? 'savings' : tx.type === 'debt' ? 'warning' : tx.type === 'upcoming' ? 'schedule' : 'shopping_bag'}
+                                                </span>
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-[10px] font-black uppercase tracking-wider text-white truncate leading-tight">{tx.title}</span>
+                                                <span className="text-[8px] font-black text-white/30 uppercase tracking-widest">{tx.category}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 shrink-0">
+                                            <span className="text-[11px] font-black tracking-wider" style={{ color: tx.type === 'income' || tx.type === 'upcoming' ? '#10b981' : '#f43f5e' }}>
+                                                {tx.type === 'expense' || tx.type === 'debt' ? '-' : ''}{localCurrency}{parseFloat(tx.amount).toLocaleString()}
+                                            </span>
+                                            <AnimatePresence>
+                                                {selectedTxId === tx._id && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, scale: 0.9 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        exit={{ opacity: 0, scale: 0.9 }}
+                                                        className="flex items-center gap-1"
+                                                    >
+                                                        <button onClick={e => { e.stopPropagation(); setConfirmDelete(tx._id); }} className="p-1 rounded-sm bg-white/5 hover:bg-rose-500/20 text-rose-500/60 hover:text-rose-500 transition-all">
+                                                            <span className="material-symbols-outlined text-xs">delete</span>
+                                                        </button>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <div className="flex flex-col items-center justify-center py-8 text-white/20 gap-2">
+                                        <span className="material-symbols-outlined text-2xl opacity-30">receipt_long</span>
+                                        <span className="text-[9px] font-black uppercase tracking-widest">NO TRANSACTIONS</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })()}
+            </div>
         </div>
 
         {/* Add Transaction Modal */}
