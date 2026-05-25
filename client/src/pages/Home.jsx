@@ -944,7 +944,7 @@ export default function Home() {
                                       setActivePriorityIndex(i);
                                       e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                                     }}
-                                    className={`snap-center w-[82vw] h-72 rounded-3xl border backdrop-blur-md p-8 flex flex-col justify-between shrink-0 transition-all duration-500 cursor-pointer group origin-center scale-105 opacity-100 ${
+                                    className={`snap-center w-[94vw] h-72 rounded-3xl border-2 backdrop-blur-md p-8 flex flex-col justify-between shrink-0 transition-all duration-500 cursor-pointer group origin-center scale-105 opacity-100 ${
                                       isActive 
                                         ? 'border-primary/50 dark:border-primary/60 bg-white/80 dark:bg-white/[0.08] shadow-lg shadow-primary/[0.08]' 
                                         : 'border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] shadow-md hover:border-primary/30 hover:bg-white/50 dark:hover:bg-white/[0.04]'
@@ -992,18 +992,10 @@ export default function Home() {
                         </div>
                       ) : (
                         /* Desktop Single Card slideshow Layout */
-                        <div className="flex items-center gap-6 mt-6 pointer-events-auto select-none w-full max-w-[780px]">
-                          {/* Previous Button */}
-                          <button
-                            onClick={handlePrevCard}
-                            className="size-10 rounded-full border border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center transition-all active:scale-90"
-                          >
-                            <span className="material-symbols-outlined text-black dark:text-white text-base">chevron_left</span>
-                          </button>
-
+                        <div className="flex items-center gap-6 mt-6 pointer-events-auto select-none w-full max-w-[1180px]">
                           {/* Active Card */}
                           <div 
-                            className="w-full md:flex-1 md:max-w-[660px] h-72 md:h-96 rounded-3xl border border-primary/50 dark:border-primary/60 bg-white/80 dark:bg-white/[0.08] backdrop-blur-md p-8 md:p-12 flex flex-col justify-between transition-all duration-500 cursor-default shadow-lg shadow-primary/[0.08] origin-center scale-105 opacity-100 z-20"
+                            className="w-full md:flex-1 md:max-w-[1060px] h-72 md:h-96 rounded-3xl border-2 border-primary/50 dark:border-primary/60 bg-white/80 dark:bg-white/[0.08] backdrop-blur-md p-8 md:p-12 flex flex-col justify-between transition-all duration-500 cursor-default shadow-lg shadow-primary/[0.08] origin-center scale-105 opacity-100 z-20"
                           >
                             {priorityCards[desktopIndex].type === 'multi' ? (
                               <div className="flex flex-col h-full justify-end gap-4 md:gap-6">
@@ -1040,7 +1032,7 @@ export default function Home() {
                           {/* Next Button */}
                           <button
                             onClick={handleNextCard}
-                            className="size-10 rounded-full border border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center transition-all active:scale-90"
+                            className="size-10 ml-10 rounded-full border border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center transition-all active:scale-90"
                           >
                             <span className="material-symbols-outlined text-black dark:text-white text-base">chevron_right</span>
                           </button>

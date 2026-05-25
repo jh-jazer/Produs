@@ -283,8 +283,8 @@ function Layout() {
         { id: 'habits', name: 'Habit Tracker', path: '/dashboard/habits', icon: Zap },
         { id: 'planner', name: 'Daily Planner', path: '/dashboard/planner', icon: LayoutIcon },
         { id: 'calendar', name: 'Calendar & Goals', path: '/dashboard/calendar', icon: Calendar },
+        { id: 'financial', name: 'Financial Hub', path: '/dashboard/financial', icon: CreditCard },
         { id: 'writing', name: 'Write Hub', path: '/dashboard/writing', icon: PenTool },
-        { id: 'more', name: 'More', path: '#', icon: ChevronDown, isHeader: true },
     ];
 
     const proToolsCategories = [
@@ -703,7 +703,7 @@ function Layout() {
                     />
                 )}
 
-                {protocolMode === 'reality' && (
+                {protocolMode === 'reality' && location.pathname !== '/dashboard' && (
                     <div className="hidden md:block">
                         <ScrollIndicator variant="dashboard" containerRef={mainRef} />
                     </div>
