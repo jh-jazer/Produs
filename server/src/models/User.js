@@ -140,6 +140,12 @@ const userSchema = new mongoose.Schema({
         dailyQuiz: {
             lastCompleted: { type: String, default: null }
         },
+        dailyReward: {
+            lastClaimed: { type: String, default: null }
+        },
+        streakReward: {
+            lastClaimed: { type: String, default: null }
+        },
         inventory: {
             themes: { type: [String], default: ['classic'] },
             items: { type: [Object], default: [] }

@@ -85,7 +85,7 @@ const DailyQuiz = ({ onComplete }) => {
     const submitQuiz = async (finalAnswers) => {
         setIsSubmitting(true);
         try {
-            const { data } = await api.post('/api/rpg/daily-quiz');
+            const { data } = await api.post('/rpg/daily-quiz');
             setReward(data);
             setShowResults(true);
             

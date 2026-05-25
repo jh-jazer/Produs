@@ -449,3 +449,145 @@ export const purchaseItem = async (req, res) => {
         res.status(500).json({ message: 'Operational failure during acquisition sequence.' });
     }
 };
+
+// @route   POST /api/rpg/claim-daily
+// @desc    Claim daily bounty reward
+// @access  Private
+export const claimDailyReward = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const today = new Date().toISOString().split('T')[0];
+
+        if (!user.rpg.dailyReward) {
+            user.rpg.dailyReward = { lastClaimed: null };
+        }
+
+        if (user.rpg.dailyReward.lastClaimed === today) {
+            return res.status(400).json({ message: 'Daily bounty already claimed for today.' });
+        }
+
+        // Award points (+50 ProdPoints/prodCoins)
+        user.rpg.prodCoins = (user.rpg.prodCoins || 0) + 50;
+
+        // Set last claimed date
+        user.rpg.dailyReward = { lastClaimed: today };
+
+        // Award XP (if enabled, will be 0 according to user settings)
+        await awardXP(user, 'luk', 100);
+
+        // Record activity log
+        await Activity.create({
+            user: user._id,
+            type: 'system',
+            action: 'Claimed Daily Bounty reward',
+            stat: 'none',
+            amount: 50
+        });
+
+        user.markModified('rpg');
+        await user.save();
+
+        res.json({
+            title: "DAILY BOUNTY CLASSIFIED",
+            subtitle: "SYSTEM REWARD UNLOCKED",
+            icon: "stars",
+            rewards: ["+50 ProdPoints Granted"],
+            prodCoins: user.rpg.prodCoins,
+            rpg: user.rpg
+        });
+    } catch (error) {
+        console.error('Daily claim failed:', error);
+        res.status(500).json({ message: 'Server error during daily bounty claim.' });
+    }
+};
+
+// @route   POST /api/rpg/claim-streak
+// @desc    Claim streak reward milestone
+// @access  Private
+export const claimStreakReward = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const today = new Date().toISOString().split('T')[0];
+
+        if (!user.rpg.streakReward) {
+            user.rpg.streakReward = { lastClaimed: null };
+        }
+
+        if (user.rpg.streakReward.lastClaimed === today) {
+            return res.status(400).json({ message: 'Streak reward already claimed for today.' });
+        }
+
+        const currentStreak = user.rpg.loginStreak || 1;
+        let points = 0;
+        let xpReward = 0;
+        let title = "";
+        let subtitle = "";
+        let icon = "";
+        let rewards = [];
+        let actionDescription = "";
+
+        if (currentStreak >= 365) {
+            points = 1000;
+            xpReward = 500;
+            title = "365-DAY CHRONO MILESTONE";
+            subtitle = "EPIC LEGEND REWARD";
+            icon = "military_tech";
+            rewards = ["+1,000 ProdPoints Granted", "ECLIPSE Avatar Frame Unlocked"];
+            actionDescription = "Claimed Epic 365-Day Chrono Matrix";
+        } else {
+            const day = Math.min(currentStreak, 364);
+            points = 10 + day * 5;
+            xpReward = day % 7 === 0 ? day * 10 : 0;
+            let desc = `+${points} ProdPoints Granted`;
+
+            if (day % 7 === 0) {
+                points = day * 15;
+                desc = `+${points} Points & +${day * 10} XP Granted`;
+            } else if (day % 30 === 0) {
+                points = day * 20;
+                desc = `+${points} Points & Premium Buff Granted`;
+            }
+
+            title = `DAY ${currentStreak} STREAK CLAIMED`;
+            subtitle = "CHRONO MILESTONE SECURED";
+            icon = "local_fire_department";
+            rewards = [desc];
+            actionDescription = `Claimed Day ${currentStreak} Streak milestone`;
+        }
+
+        // Award points (prodCoins)
+        user.rpg.prodCoins = (user.rpg.prodCoins || 0) + points;
+
+        // Set last claimed date
+        user.rpg.streakReward = { lastClaimed: today };
+
+        // Award XP (if enabled, will be 0 according to user settings)
+        if (xpReward > 0) {
+            await awardXP(user, 'luk', xpReward);
+        }
+
+        // Record activity log
+        await Activity.create({
+            user: user._id,
+            type: 'system',
+            action: actionDescription,
+            stat: 'none',
+            amount: points
+        });
+
+        user.markModified('rpg');
+        await user.save();
+
+        res.json({
+            title,
+            subtitle,
+            icon,
+            rewards,
+            prodCoins: user.rpg.prodCoins,
+            rpg: user.rpg
+        });
+    } catch (error) {
+        console.error('Streak claim failed:', error);
+        res.status(500).json({ message: 'Server error during streak reward claim.' });
+    }
+};

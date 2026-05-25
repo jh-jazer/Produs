@@ -6,11 +6,13 @@ import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 import useMobile from '../hooks/useMobile';
 import { QRCodeSVG } from 'qrcode.react';
+import { useSWRConfig } from 'swr';
 
 // Components
 import RPGImmersiveOverlay from '../components/rpg/RPGImmersiveOverlay';
 import AwakeningOverlay from '../components/dashboard/AwakeningOverlay';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
+import HomeSkeleton from '../components/ui/HomeSkeleton';
 import Avatar from '../components/ui/Avatar';
 import { useFinance } from '../hooks/useFinance';
 import { usePlanner } from '../hooks/usePlanner';
@@ -190,8 +192,20 @@ export default function Home() {
     return user?.rpg?.loginStreak || 1;
   }, [user]);
 
-  const [claimedDaily, setClaimedDaily] = useState(false);
-  const [claimedStreak, setClaimedStreak] = useState(false);
+  const { mutate } = useSWRConfig();
+
+  const todayStr = useMemo(() => {
+    return new Date().toISOString().split('T')[0];
+  }, [currentTime]);
+
+  const claimedDaily = useMemo(() => {
+    return user?.rpg?.dailyReward?.lastClaimed === todayStr;
+  }, [user, todayStr]);
+
+  const claimedStreak = useMemo(() => {
+    return user?.rpg?.streakReward?.lastClaimed === todayStr;
+  }, [user, todayStr]);
+
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [claimRewardInfo, setClaimRewardInfo] = useState(null);
   const [showWeeklyModal, setShowWeeklyModal] = useState(false);
@@ -243,63 +257,37 @@ export default function Home() {
     return totalPoints;
   };
 
-  const handleClaimDaily = () => {
+  const handleClaimDaily = async () => {
     if (claimedDaily) return;
-    setClaimRewardInfo({
-      title: "DAILY BOUNTY CLASSIFIED",
-      subtitle: "SYSTEM REWARD UNLOCKED",
-      icon: "stars",
-      rewards: ["+50 ProdPoints Granted"]
-    });
-    setShowClaimModal(true);
-    setClaimedDaily(true);
-    localStorage.setItem('claimedDailyReward', 'true');
-    if (user) {
-      const currentCoins = user.rpg?.prodCoins || 0;
-      syncUser({
-        rpg: {
-          ...user.rpg,
-          prodCoins: currentCoins + 50
-        }
+    try {
+      const { data } = await api.post('/rpg/claim-daily');
+      setClaimRewardInfo({
+        title: data.title,
+        subtitle: data.subtitle,
+        icon: data.icon,
+        rewards: data.rewards
       });
-      // Log to activities history
-      api.post('/rpg/log-activity', {
-        type: 'system',
-        action: 'Claimed Daily Bounty reward',
-        stat: 'none',
-        amount: 50
-      }).catch(err => console.error("Failed logging daily claim:", err));
+      setShowClaimModal(true);
+      mutate('/auth/me');
+    } catch (err) {
+      console.error("Failed to claim daily reward:", err);
     }
   };
 
-  const handleClaimStreak = () => {
+  const handleClaimStreak = async () => {
     if (claimedStreak) return;
-    setClaimRewardInfo({
-      title: "365-DAY CHRONO MILESTONE",
-      subtitle: "EPIC LEGEND REWARD",
-      icon: "military_tech",
-      rewards: ["+1,000 ProdPoints Granted", "ECLIPSE Avatar Frame Unlocked"]
-    });
-    setShowClaimModal(true);
-    setClaimedStreak(true);
-    localStorage.setItem('claimedStreakReward', 'true');
-    if (user) {
-      const currentCoins = user.rpg?.prodCoins || 0;
-      const currentExp = user.exp || 0;
-      syncUser({
-        rpg: {
-          ...user.rpg,
-          prodCoins: currentCoins + 1000
-        },
-        exp: currentExp + 500
+    try {
+      const { data } = await api.post('/rpg/claim-streak');
+      setClaimRewardInfo({
+        title: data.title,
+        subtitle: data.subtitle,
+        icon: data.icon,
+        rewards: data.rewards
       });
-      // Log to activities history
-      api.post('/rpg/log-activity', {
-        type: 'system',
-        action: 'Claimed Epic 365-Day Chrono Matrix',
-        stat: 'none',
-        amount: 1000
-      }).catch(err => console.error("Failed logging epic streak claim:", err));
+      setShowClaimModal(true);
+      mutate('/auth/me');
+    } catch (err) {
+      console.error("Failed to claim streak reward:", err);
     }
   };
 
@@ -830,9 +818,9 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="p-8 pt-0 md:p-12"
+            className="px-6 pt-0 md:pl-8 md:pr-12 md:py-6 h-[calc(100dvh-6rem)] md:h-auto md:min-h-screen overflow-hidden md:overflow-visible"
           >
-            <WorkspaceSkeleton />
+            <HomeSkeleton />
           </motion.div>
         ) : (
           <motion.div
@@ -1894,47 +1882,7 @@ export default function Home() {
                 <button
                   onClick={() => {
                     setShowStreakModal(false);
-                    // Calculate and award rewards for the user's current streak day
-                    const day = Math.min(currentStreak, 364);
-                    let points = 10 + day * 5;
-                    let desc = `+${points} ProdPoints Granted`;
-                    if (day % 7 === 0) {
-                      points = day * 15;
-                      desc = `+${points} Points & +${day * 10} XP Granted`;
-                    } else if (day % 30 === 0) {
-                      points = day * 20;
-                      desc = `+${points} Points & Premium Buff Granted`;
-                    }
-                    
-                    setClaimRewardInfo({
-                      title: `DAY ${currentStreak} STREAK CLAIMED`,
-                      subtitle: "CHRONO MILESTONE SECURED",
-                      icon: "local_fire_department",
-                      rewards: [desc]
-                    });
-                    setShowClaimModal(true);
-                    setClaimedStreak(true);
-                    localStorage.setItem('claimedStreakReward', 'true');
-                    
-                    if (user) {
-                      const currentCoins = user.rpg?.prodCoins || 0;
-                      const currentExp = user.exp || 0;
-                      const xpReward = day % 7 === 0 ? day * 10 : 0;
-                      syncUser({
-                        rpg: {
-                          ...user.rpg,
-                          prodCoins: currentCoins + points
-                        },
-                        exp: currentExp + xpReward
-                      });
-                      // Log to activities history
-                      api.post('/rpg/log-activity', {
-                        type: 'system',
-                        action: `Claimed Day ${currentStreak} Streak milestone`,
-                        stat: 'none',
-                        amount: points
-                      }).catch(err => console.error("Failed logging intermediate streak claim:", err));
-                    }
+                    handleClaimStreak();
                   }}
                   className="w-full bg-amber-500 text-black font-black uppercase tracking-[0.3em] text-[10px] py-4 rounded-sm hover:bg-amber-400 active:scale-95 transition-all z-10 shadow-[0_0_25px_rgba(245,158,11,0.2)]"
                 >

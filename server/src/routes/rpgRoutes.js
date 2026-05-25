@@ -1,4 +1,4 @@
-import { completeDailyQuiz, getActivityHistory, markActivitiesRead, logActivity, syncNeural, getSSSLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening, purchaseItem } from '../controllers/rpgController.js';
+import { completeDailyQuiz, getActivityHistory, markActivitiesRead, logActivity, syncNeural, getSSSLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening, purchaseItem, claimDailyReward, claimStreakReward } from '../controllers/rpgController.js';
 import { getQuestionById } from '../controllers/narrativeController.js';
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
@@ -20,6 +20,14 @@ router.post('/log-activity', protect, logActivity);
 // @route   POST /api/rpg/daily-quiz
 // @desc    Complete daily reflection quiz
 router.post('/daily-quiz', protect, completeDailyQuiz);
+
+// @route   POST /api/rpg/claim-daily
+// @desc    Claim daily bounty reward
+router.post('/claim-daily', protect, claimDailyReward);
+
+// @route   POST /api/rpg/claim-streak
+// @desc    Claim streak reward milestone
+router.post('/claim-streak', protect, claimStreakReward);
 
 // @route   POST /api/rpg/sync-neural
 // @desc    Synchronize a level-unlocked neural question
