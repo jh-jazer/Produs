@@ -1,4 +1,4 @@
-import { completeDailyQuiz, getActivityHistory, syncNeural, getSSSLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening, purchaseItem } from '../controllers/rpgController.js';
+import { completeDailyQuiz, getActivityHistory, markActivitiesRead, logActivity, syncNeural, getSSSLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening, purchaseItem } from '../controllers/rpgController.js';
 import { getQuestionById } from '../controllers/narrativeController.js';
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
@@ -8,6 +8,14 @@ const router = express.Router();
 // @route   GET /api/rpg/history
 // @desc    Get recent XP activity history
 router.get('/history', protect, getActivityHistory);
+
+// @route   POST /api/rpg/mark-read
+// @desc    Mark all activities read
+router.post('/mark-read', protect, markActivitiesRead);
+
+// @route   POST /api/rpg/log-activity
+// @desc    Create a custom activity log
+router.post('/log-activity', protect, logActivity);
 
 // @route   POST /api/rpg/daily-quiz
 // @desc    Complete daily reflection quiz

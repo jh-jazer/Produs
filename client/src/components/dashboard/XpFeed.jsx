@@ -1,14 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Zap, Flame, Award, Plus, Sparkles } from 'lucide-react';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import api from '../../services/api';
 
-const XpFeed = ({ user }) => {
+const XpFeed = ({ user, markAllRead = false }) => {
     const fetcher = url => api.get(url).then(res => res.data);
-    const { data: history, isLoading } = useSWR('/rpg/history', fetcher, {
+    const { data: history, isLoading, mutate } = useSWR('/rpg/history', fetcher, {
         refreshInterval: 10000 // Refresh every 10s to show live gains
     });
+    const { mutate: globalMutate } = useSWRConfig();
+
+    useEffect(() => {
+        if (markAllRead && history && history.some(e => !e.read)) {
+            api.post('/rpg/mark-read')
+                .then(() => {
+                    mutate();
+                    globalMutate('/rpg/history-unread');
+                })
+                .catch(err => console.error("Failed to mark activities as read:", err));
+        }
+    }, [markAllRead, history]);
 
     const statColors = {
         str: 'rose-500',
@@ -54,10 +66,14 @@ const XpFeed = ({ user }) => {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.05 }}
-                        className="group relative p-4 rounded-sm border border-foreground/5 bg-transparent hover:bg-foreground/5 transition-all flex items-center gap-4"
+                        className={`group relative p-4 rounded-sm border transition-all flex items-center gap-4 ${
+                            !event.read 
+                                ? 'bg-primary/5 border-primary/30 shadow-[0_0_12px_rgba(255,255,255,0.02)]' 
+                                : 'border-foreground/5 bg-transparent hover:bg-foreground/5'
+                        }`}
                     >
                         {/* Stat Badge */}
-                        <div className={`size-10 rounded-sm bg-${color}/10 border border-${color}/20 flex items-center justify-center text-${color} shrink-0`}>
+                        <div className={`size-10 rounded-sm bg-${color}/10 border ${!event.read ? 'border-primary/40' : `border-${color}/20`} flex items-center justify-center text-${color} shrink-0`}>
                             <Plus size={16} />
                         </div>
 

@@ -20,6 +20,39 @@ export const getActivityHistory = async (req, res) => {
     }
 };
 
+// @route   POST /api/rpg/mark-read
+// @desc    Mark all activities as read
+// @access  Private
+export const markActivitiesRead = async (req, res) => {
+    try {
+        await Activity.updateMany({ user: req.user._id, read: false }, { read: true });
+        res.json({ message: 'All activities marked read.' });
+    } catch (error) {
+        console.error('Failed to mark activities read:', error);
+        res.status(500).json({ message: 'Server error marking activities read.' });
+    }
+};
+
+// @route   POST /api/rpg/log-activity
+// @desc    Create a custom activity log (e.g. daily/streak rewards claimed)
+// @access  Private
+export const logActivity = async (req, res) => {
+    try {
+        const { type, action, stat, amount } = req.body;
+        const newAct = await Activity.create({
+            user: req.user._id,
+            type: type || 'system',
+            action: action || 'Sync activity',
+            stat: stat || 'none',
+            amount: amount || 0
+        });
+        res.status(201).json(newAct);
+    } catch (error) {
+        console.error('Failed to write activity:', error);
+        res.status(500).json({ message: 'Failed to record activity log.' });
+    }
+};
+
 // @route   POST /api/rpg/daily-quiz
 // @desc    Complete daily reflection quiz
 // @access  Private

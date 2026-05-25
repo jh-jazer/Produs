@@ -106,6 +106,32 @@ export const loginUser = async (req, res) => {
             // Ensure core habits exist (Handles migration for existing users)
             await initializeSystemHabits(user._id);
 
+            // Record login and compute streak
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (!user.rpg.loginDates) {
+                user.rpg.loginDates = [];
+            }
+            if (!user.rpg.loginDates.includes(todayStr)) {
+                user.rpg.loginDates.push(todayStr);
+                user.rpg.loginDates.sort((a, b) => b.localeCompare(a));
+                
+                // Calculate streak
+                let streak = 0;
+                let checkDate = new Date();
+                while (true) {
+                    const dateStr = checkDate.toISOString().split('T')[0];
+                    if (user.rpg.loginDates.includes(dateStr)) {
+                        streak++;
+                        checkDate.setDate(checkDate.getDate() - 1);
+                    } else {
+                        break;
+                    }
+                }
+                user.rpg.loginStreak = streak;
+                user.markModified('rpg.loginDates');
+                user.markModified('rpg.loginStreak');
+            }
+
             const levelInfo = calculateLevel(user.exp);
             syncUserEnergy(user);
             await user.save();
@@ -183,6 +209,32 @@ export const getMe = async (req, res) => {
             .populate('incomingPartnerRequest', 'name username email avatar');
         
         if (user) {
+            // Record login and compute streak
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (!user.rpg.loginDates) {
+                user.rpg.loginDates = [];
+            }
+            if (!user.rpg.loginDates.includes(todayStr)) {
+                user.rpg.loginDates.push(todayStr);
+                user.rpg.loginDates.sort((a, b) => b.localeCompare(a));
+                user.markModified('rpg.loginDates');
+            }
+            
+            // Calculate streak
+            let streak = 0;
+            let checkDate = new Date();
+            while (true) {
+                const dateStr = checkDate.toISOString().split('T')[0];
+                if (user.rpg.loginDates.includes(dateStr)) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+            user.rpg.loginStreak = streak;
+            user.markModified('rpg.loginStreak');
+
             const levelInfo = calculateLevel(user.exp);
             syncUserEnergy(user);
             await user.save();

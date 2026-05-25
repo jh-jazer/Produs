@@ -147,6 +147,14 @@ const userSchema = new mongoose.Schema({
         energy: {
             current: { type: Number, default: 10 },
             lastUpdated: { type: Date, default: Date.now }
+        },
+        loginStreak: {
+            type: Number,
+            default: 1
+        },
+        loginDates: {
+            type: [String],
+            default: []
         }
     },
     timezone: {

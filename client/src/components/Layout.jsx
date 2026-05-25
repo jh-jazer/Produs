@@ -267,7 +267,13 @@ function Layout() {
         refreshInterval: 30000
     });
 
+    const { data: activitiesHistory = [] } = useSWR(user ? '/rpg/history' : null, (url) => api.get(url).then(res => res.data), {
+        refreshInterval: 10000
+    });
+
     const unreadCount = notifications.filter(n => !n.read).length;
+    const unreadActivitiesCount = activitiesHistory.filter(act => !act.read).length;
+    const hasAnyUnread = unreadCount > 0 || unreadActivitiesCount > 0;
 
     const handleSignOut = () => {
         signOut();
@@ -625,6 +631,9 @@ function Layout() {
                                 )}
                                 <button onClick={() => setIsUserMenuOpen(true)} className="size-10 rounded-full overflow-hidden active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center relative z-10">
                                     <Avatar config={user?.avatar} />
+                                    {hasAnyUnread && (
+                                        <div className="absolute top-1 right-1 size-2 rounded-full bg-white border border-black shadow-[0_0_6px_rgba(255,255,255,0.8)] z-30" />
+                                    )}
                                 </button>
                                 {user?.level > 0 && (
                                     <div className="absolute -bottom-1 -right-1 bg-white dark:bg-white text-black text-[7px] font-black px-1 py-0.5 rounded-md shadow-lg border border-black/10 scale-110 z-20 pointer-events-none">{user.level}</div>
@@ -690,6 +699,9 @@ function Layout() {
                         className="pl-4 pr-4 py-2 text-black dark:text-white/60 hover:text-black dark:hover:text-white transition-all active:scale-90 relative"
                     >
                         <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>person</span>
+                        {hasAnyUnread && (
+                            <span className="absolute top-1 right-3 size-2 rounded-full bg-white border border-black dark:border-neutral-900 shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
+                        )}
                     </button>
                 </div>
 
@@ -733,6 +745,7 @@ function Layout() {
                     onClose={() => setIsUserMenuOpen(false)}
                     user={user}
                     unreadCount={unreadCount}
+                    hasAnyUnread={hasAnyUnread}
                     onOpenSettings={() => setIsSettingsModalOpen(true)}
                     onOpenNotifications={() => setIsNotificationModalOpen(true)}
                     onOpenBugReport={() => setIsBugModalOpen(true)}

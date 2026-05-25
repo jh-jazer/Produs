@@ -181,7 +181,7 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                                 exit={{ opacity: 0, y: -10 }}
                                 className="min-h-full flex flex-col"
                             >
-                                <XpFeed user={user} />
+                                <XpFeed user={user} markAllRead={true} />
                             </motion.div>
                         )}
                     </AnimatePresence>

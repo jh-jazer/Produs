@@ -6,7 +6,7 @@ import EnergyDisplay from './EnergyDisplay';
 import LevelDisplay from './LevelDisplay';
 import Avatar from './Avatar';
 
-const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onOpenNotifications, onOpenBugReport, onOpenStats, onSignOut }) => {
+const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpenSettings, onOpenNotifications, onOpenBugReport, onOpenStats, onSignOut }) => {
     const navigate = useNavigate();
 
     return (
@@ -73,7 +73,12 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, onOpenSettings, onO
                     <button onClick={() => { onClose(); onOpenNotifications(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all flex items-center justify-between group">
                         <div className="flex items-center gap-4">
                             <span className="material-symbols-outlined text-lg opacity-40 group-hover:opacity-100 group-hover:text-black dark:group-hover:text-white transition-all">notifications</span>
-                            <span>NOTIFICATIONS</span>
+                            <span className="flex items-center gap-2">
+                                NOTIFICATIONS
+                                {hasAnyUnread && (
+                                    <span className="size-2 rounded-full bg-black dark:bg-white animate-pulse" />
+                                )}
+                            </span>
                         </div>
                         {unreadCount > 0 && (
                             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white text-[8px] font-black border border-black/10 dark:border-white/10">

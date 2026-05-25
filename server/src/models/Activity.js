@@ -32,6 +32,10 @@ const activitySchema = new mongoose.Schema({
     metadata: {
         type: Object,
         default: {}
+    },
+    read: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true

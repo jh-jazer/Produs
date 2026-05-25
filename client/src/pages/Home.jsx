@@ -187,16 +187,17 @@ export default function Home() {
   }, [currentTime]);
 
   const currentStreak = useMemo(() => {
-    const habitStreaks = habits.map(h => h.streak || 0);
-    return habits.length > 0 ? Math.max(...habitStreaks, 1) : 12;
-  }, [habits]);
+    return user?.rpg?.loginStreak || 1;
+  }, [user]);
 
-  const [claimedDaily, setClaimedDaily] = useState(() => localStorage.getItem('claimedDailyReward') === 'true');
-  const [claimedStreak, setClaimedStreak] = useState(() => localStorage.getItem('claimedStreakReward') === 'true');
+  const [claimedDaily, setClaimedDaily] = useState(false);
+  const [claimedStreak, setClaimedStreak] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [claimRewardInfo, setClaimRewardInfo] = useState(null);
   const [showWeeklyModal, setShowWeeklyModal] = useState(false);
   const [showStreakModal, setShowStreakModal] = useState(false);
+
+
   const [showFocusTimer, setShowFocusTimer] = useState(false);
   const [focusTimeLeft, setFocusTimeLeft] = useState(1500);
   const [focusSelectedTime, setFocusSelectedTime] = useState(25);
@@ -248,21 +249,26 @@ export default function Home() {
       title: "DAILY BOUNTY CLASSIFIED",
       subtitle: "SYSTEM REWARD UNLOCKED",
       icon: "stars",
-      rewards: ["+50 ProdPoints Granted", "+100 XP Injected"]
+      rewards: ["+50 ProdPoints Granted"]
     });
     setShowClaimModal(true);
     setClaimedDaily(true);
     localStorage.setItem('claimedDailyReward', 'true');
     if (user) {
       const currentCoins = user.rpg?.prodCoins || 0;
-      const currentExp = user.exp || 0;
       syncUser({
         rpg: {
           ...user.rpg,
           prodCoins: currentCoins + 50
-        },
-        exp: currentExp + 100
+        }
       });
+      // Log to activities history
+      api.post('/rpg/log-activity', {
+        type: 'system',
+        action: 'Claimed Daily Bounty reward',
+        stat: 'none',
+        amount: 50
+      }).catch(err => console.error("Failed logging daily claim:", err));
     }
   };
 
@@ -287,6 +293,13 @@ export default function Home() {
         },
         exp: currentExp + 500
       });
+      // Log to activities history
+      api.post('/rpg/log-activity', {
+        type: 'system',
+        action: 'Claimed Epic 365-Day Chrono Matrix',
+        stat: 'none',
+        amount: 1000
+      }).catch(err => console.error("Failed logging epic streak claim:", err));
     }
   };
 
@@ -846,7 +859,13 @@ export default function Home() {
                       className="absolute top-[12%] bottom-2 md:bottom-auto md:top-[5%] left-6 md:left-12 right-6 md:right-12 flex flex-col items-start pointer-events-none text-left"
                     >
                       <h3 className="welcome-title-text font-black tracking-tighter text-black dark:text-white uppercase">
-                        Welcome, {user?.username?.split('#')[0] || 'Operator'}
+                        {(() => {
+                          if (!claimedDaily) return "Welcome";
+                          const hour = currentTime.getHours();
+                          if (hour < 12) return "Good Morning";
+                          if (hour < 18) return "Good Afternoon";
+                          return "Good Evening";
+                        })()}, {user?.username?.split('#')[0] || 'Operator'}
                       </h3>
                       <p className="text-[10px] md:text-sm font-mono uppercase tracking-[0.2em] text-black/40 dark:text-white/40 mt-1 md:mt-2">
                         {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
@@ -873,7 +892,7 @@ export default function Home() {
                       {/* Spacer 2 to center Start Focus button */}
                       <div className="flex-1 md:hidden" />
 
-                      <div className="mt-0 md:mt-[9vh] flex flex-col gap-1 items-start">
+                      <div className="mt-0 md:mt-[9vh] flex flex-col gap-1 items-start -translate-y-8 md:translate-y-0">
                         <div className="text-2xl md:text-4xl font-black uppercase tracking-[0.25em] text-black dark:text-white leading-none">
                           PRIORITIES
                         </div>
@@ -888,7 +907,7 @@ export default function Home() {
                       {/* Horizontal Scroll Cards / Desktop Slideshow Layout */}
                       {isMobile ? (
                         <div 
-                          className="w-screen relative mt-3 -ml-12 cursor-default"
+                          className="w-screen relative mt-3 -ml-12 cursor-default -translate-y-8"
                           onClick={() => setActivePriorityIndex(null)}
                         >
                           {/* Gradient masks for smooth fade edges */}
@@ -1553,7 +1572,7 @@ export default function Home() {
       </AnimatePresence>
 
       {/* Mobile Reward HUD Buttons */}
-      {isMobile && !showWeeklyModal && !showStreakModal && (protocolMode !== 'rpg' || activeRpgTab === 'home') && !isIdPulledDown && (
+      {isMobile && !showWeeklyModal && !showStreakModal && protocolMode !== 'rpg' && viewMode !== 'partner' && !isIdPulledDown && (
         <div className="fixed top-[35vh] right-0 z-[100] flex flex-col items-end gap-4 pointer-events-none">
           {/* Daily Reward Button */}
           <motion.button
@@ -1640,11 +1659,11 @@ export default function Home() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 z-10 mt-2">
                 {[
                   { day: 1, reward: "+50 POINTS", type: 'POINTS' },
-                  { day: 2, reward: "+100 XP", type: 'XP' },
+                  { day: 2, reward: "+100 POINTS", type: 'POINTS' },
                   { day: 3, reward: "+100 POINTS", type: 'POINTS' },
-                  { day: 4, reward: "+150 XP", type: 'XP' },
+                  { day: 4, reward: "+150 POINTS", type: 'POINTS' },
                   { day: 5, reward: "+200 POINTS", type: 'POINTS' },
-                  { day: 6, reward: "+250 XP", type: 'XP' },
+                  { day: 6, reward: "+250 POINTS", type: 'POINTS' },
                   { day: 7, reward: "+500 POINTS & ECLIPSE FRAME", type: 'LEGENDARY' }
                 ].map((item) => {
                   const isCurrentClaimable = item.day === 1 && !claimedDaily;
@@ -1803,11 +1822,17 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                         {isUnlocked ? (
-                          <span className="text-[7.5px] font-mono font-black text-emerald-500 uppercase tracking-widest px-2 py-0.5 bg-emerald-500/15 border border-emerald-500/20 rounded-sm">
-                            SECURED
-                          </span>
+                          claimedStreak ? (
+                            <span className="text-[7.5px] font-mono font-black text-emerald-500 uppercase tracking-widest px-2 py-0.5 bg-emerald-500/15 border border-emerald-500/20 rounded-sm">
+                              CLAIMED
+                            </span>
+                          ) : (
+                            <span className="text-[7.5px] font-mono font-black text-amber-500 uppercase tracking-widest px-2 py-0.5 bg-amber-500/15 border border-amber-500/20 rounded-sm animate-pulse">
+                              CLAIM
+                            </span>
+                          )
                         ) : (
                           <span className="text-[7.5px] font-mono font-black text-white/40 uppercase tracking-widest px-2 py-0.5 bg-white/5 border border-white/10 rounded-sm">
                             LOCKED
@@ -1819,7 +1844,7 @@ export default function Home() {
                 })}
               </div>
 
-              {currentStreak >= 365 && !claimedStreak && (
+              {currentStreak >= 365 && !claimedStreak ? (
                 <button
                   onClick={() => {
                     setShowStreakModal(false);
@@ -1829,6 +1854,60 @@ export default function Home() {
                 >
                   CLAIM EPIC ECLIPSE FRAME
                 </button>
+              ) : !claimedStreak ? (
+                <button
+                  onClick={() => {
+                    setShowStreakModal(false);
+                    // Calculate and award rewards for the user's current streak day
+                    const day = Math.min(currentStreak, 364);
+                    let points = 10 + day * 5;
+                    let desc = `+${points} ProdPoints Granted`;
+                    if (day % 7 === 0) {
+                      points = day * 15;
+                      desc = `+${points} Points & +${day * 10} XP Granted`;
+                    } else if (day % 30 === 0) {
+                      points = day * 20;
+                      desc = `+${points} Points & Premium Buff Granted`;
+                    }
+                    
+                    setClaimRewardInfo({
+                      title: `DAY ${currentStreak} STREAK CLAIMED`,
+                      subtitle: "CHRONO MILESTONE SECURED",
+                      icon: "local_fire_department",
+                      rewards: [desc]
+                    });
+                    setShowClaimModal(true);
+                    setClaimedStreak(true);
+                    localStorage.setItem('claimedStreakReward', 'true');
+                    
+                    if (user) {
+                      const currentCoins = user.rpg?.prodCoins || 0;
+                      const currentExp = user.exp || 0;
+                      const xpReward = day % 7 === 0 ? day * 10 : 0;
+                      syncUser({
+                        rpg: {
+                          ...user.rpg,
+                          prodCoins: currentCoins + points
+                        },
+                        exp: currentExp + xpReward
+                      });
+                      // Log to activities history
+                      api.post('/rpg/log-activity', {
+                        type: 'system',
+                        action: `Claimed Day ${currentStreak} Streak milestone`,
+                        stat: 'none',
+                        amount: points
+                      }).catch(err => console.error("Failed logging intermediate streak claim:", err));
+                    }
+                  }}
+                  className="w-full bg-amber-500 text-black font-black uppercase tracking-[0.3em] text-[10px] py-4 rounded-sm hover:bg-amber-400 active:scale-95 transition-all z-10 shadow-[0_0_25px_rgba(245,158,11,0.2)]"
+                >
+                  CLAIM STREAK REWARDS
+                </button>
+              ) : (
+                <div className="w-full bg-white/5 border border-white/10 text-white/50 font-black uppercase tracking-[0.2em] text-[9px] py-4 rounded-sm text-center z-10 font-mono">
+                  STREAK REWARD CLAIMED. KEEP THE STREAK GOING!
+                </div>
               )}
             </motion.div>
           </div>
