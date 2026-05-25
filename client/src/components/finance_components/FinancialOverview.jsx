@@ -404,7 +404,7 @@ const FinancialOverview = ({
                                 {/* Add button */}
                                 <div
                                     onClick={() => setShowAddTx && setShowAddTx(true)}
-                                    className="flex items-center gap-3 px-3 py-2.5 rounded-sm border border-dashed border-white/10 hover:border-white/30 hover:bg-white/[0.03] cursor-pointer transition-all group"
+                                    className="flex items-center gap-3 px-3 py-4 rounded-sm border border-dashed border-white/10 hover:border-white/30 hover:bg-white/[0.03] cursor-pointer transition-all group"
                                 >
                                     <div className="size-7 rounded-sm bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-white group-hover:text-black transition-all">
                                         <span className="material-symbols-outlined text-sm">add</span>

@@ -19,7 +19,7 @@ const GoalCard = ({ title, period, year, month, week, isActive }) => {
     const progress = goals.length ? Math.round((completedCount / goals.length) * 100) : 0;
 
     return (
-        <div className={`flex-1 relative py-[1vh] px-6 rounded-sm flex justify-between items-center group transition-all ${
+        <div className={`flex-1 relative py-6 md:py-8 px-6 rounded-sm flex justify-between items-center group transition-all ${
             isActive 
             ? 'bg-white/[0.08] border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.05)]' 
             : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04]'

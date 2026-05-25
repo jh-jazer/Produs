@@ -826,14 +826,14 @@ export default function Home() {
             key="reality"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="px-6 pt-0 md:pl-8 md:pr-12 md:py-6 min-h-screen"
+            className="px-6 pt-0 md:pl-8 md:pr-12 md:py-6 h-[calc(100dvh-6rem)] md:h-auto md:min-h-screen overflow-hidden md:overflow-visible"
             onClick={() => setActivePriorityIndex(null)}
           >
             {/* Reality Dashboard Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-32 md:gap-8 w-full mb-32 md:mb-24">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-32 md:gap-8 w-full h-full md:h-auto mb-0 md:mb-24">
 
               {/* Column 1-5: Integrated Swinging ID Assembly */}
-              <div className="md:col-span-5 relative min-h-[82vh] h-auto flex flex-col items-center justify-center mb-0 snap-start snap-always">
+              <div className="md:col-span-5 relative h-full md:min-h-[82vh] w-full flex flex-col items-center justify-center mb-0 snap-start snap-always">
                 <div className="absolute inset-0 flex flex-col items-center">
                   
                   {/* Hidden ID Welcome Message */}
@@ -843,7 +843,7 @@ export default function Home() {
                       animate={{ opacity: 1, filter: 'blur(0px)', x: 0 }}
                       exit={{ opacity: 0, filter: 'blur(10px)', x: -20 }}
                       transition={{ duration: 0.6, delay: 0.3 }}
-                      className="absolute top-[13%] md:top-[5%] left-6 md:left-12 right-6 md:right-12 flex flex-col items-start pointer-events-none text-left"
+                      className="absolute top-[12%] bottom-2 md:bottom-auto md:top-[5%] left-6 md:left-12 right-6 md:right-12 flex flex-col items-start pointer-events-none text-left"
                     >
                       <h3 className="welcome-title-text font-black tracking-tighter text-black dark:text-white uppercase">
                         Welcome, {user?.username?.split('#')[0] || 'Operator'}
@@ -852,6 +852,9 @@ export default function Home() {
                         {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                       </p>
                       
+                      {/* Spacer 1 to center Start Focus button */}
+                      <div className="flex-1 md:hidden" />
+
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -861,13 +864,16 @@ export default function Home() {
                           setFocusStage('select');
                           setShowFocusTimer(true);
                         }}
-                        className="mt-[9vh] md:mt-[9vh] px-8 h-[8vh] bg-transparent text-black dark:text-white font-black uppercase text-[10px] tracking-[0.25em] border border-black dark:border-white rounded-sm hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 pointer-events-auto flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,0,0,0.05)] dark:shadow-[0_0_20px_rgba(255,255,255,0.05)] active:scale-95 z-20"
+                        className="mt-0 md:mt-[9vh] px-8 h-[8vh] bg-transparent text-black dark:text-white font-black uppercase text-[10px] tracking-[0.25em] border border-black dark:border-white rounded-sm hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 pointer-events-auto flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,0,0,0.05)] dark:shadow-[0_0_20px_rgba(255,255,255,0.05)] active:scale-95 z-20"
                       >
                         <span className="material-symbols-outlined text-[14px]">hourglass_empty</span>
                         START FOCUS
                       </button>
 
-                      <div className="mt-[9vh] md:mt-[9vh] flex flex-col gap-1 items-start">
+                      {/* Spacer 2 to center Start Focus button */}
+                      <div className="flex-1 md:hidden" />
+
+                      <div className="mt-0 md:mt-[9vh] flex flex-col gap-1 items-start">
                         <div className="text-2xl md:text-4xl font-black uppercase tracking-[0.25em] text-black dark:text-white leading-none">
                           PRIORITIES
                         </div>
@@ -882,7 +888,7 @@ export default function Home() {
                       {/* Horizontal Scroll Cards / Desktop Slideshow Layout */}
                       {isMobile ? (
                         <div 
-                          className="w-screen relative mt-6 -ml-12 cursor-default"
+                          className="w-screen relative mt-3 -ml-12 cursor-default"
                           onClick={() => setActivePriorityIndex(null)}
                         >
                           {/* Gradient masks for smooth fade edges */}
@@ -891,7 +897,7 @@ export default function Home() {
                           
                           <div 
                             ref={carouselRef}
-                            className={`w-full overflow-x-auto pb-4 pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${isDragging ? 'cursor-grabbing' : 'snap-x snap-mandatory cursor-grab'}`}
+                            className={`w-full overflow-x-auto pt-3 pb-4 pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${isDragging ? 'cursor-grabbing' : 'snap-x snap-mandatory cursor-grab'}`}
                             onMouseDown={(e) => {
                               setIsDragging(true);
                               setStartX(e.pageX - carouselRef.current.offsetLeft);
@@ -944,10 +950,10 @@ export default function Home() {
                                       setActivePriorityIndex(i);
                                       e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                                     }}
-                                    className={`snap-center w-[94vw] h-72 rounded-3xl border-2 backdrop-blur-md p-8 flex flex-col justify-between shrink-0 transition-all duration-500 cursor-pointer group origin-center scale-105 opacity-100 ${
+                                    className={`snap-center w-[94vw] h-64 md:h-72 rounded-3xl border-2 backdrop-blur-md p-6 md:p-8 flex flex-col justify-between shrink-0 transition-all duration-500 cursor-pointer group origin-center scale-105 opacity-100 ${
                                       isActive 
-                                        ? 'border-primary/50 dark:border-primary/60 bg-white/80 dark:bg-white/[0.08] shadow-lg shadow-primary/[0.08]' 
-                                        : 'border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] shadow-md hover:border-primary/30 hover:bg-white/50 dark:hover:bg-white/[0.04]'
+                                        ? 'border-black/40 dark:border-white/40 bg-white/80 dark:bg-white/[0.08] shadow-lg shadow-black/[0.05] dark:shadow-white/[0.02]' 
+                                        : 'border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] shadow-md hover:border-black/30 dark:hover:border-white/30 hover:bg-white/50 dark:hover:bg-white/[0.04]'
                                     }`}
                                   >
                                     {card.type === 'multi' ? (
@@ -995,7 +1001,7 @@ export default function Home() {
                         <div className="flex items-center gap-6 mt-6 pointer-events-auto select-none w-full max-w-[1180px]">
                           {/* Active Card */}
                           <div 
-                            className="w-full md:flex-1 md:max-w-[1060px] h-72 md:h-96 rounded-3xl border-2 border-primary/50 dark:border-primary/60 bg-white/80 dark:bg-white/[0.08] backdrop-blur-md p-8 md:p-12 flex flex-col justify-between transition-all duration-500 cursor-default shadow-lg shadow-primary/[0.08] origin-center scale-105 opacity-100 z-20"
+                            className="w-full md:flex-1 md:max-w-[1060px] h-72 md:h-96 rounded-3xl border-2 border-black/40 dark:border-white/40 bg-white/80 dark:bg-white/[0.08] backdrop-blur-md p-8 md:p-12 flex flex-col justify-between transition-all duration-500 cursor-default shadow-lg shadow-black/[0.05] dark:shadow-white/[0.02] origin-center scale-105 opacity-100 z-20"
                           >
                             {priorityCards[desktopIndex].type === 'multi' ? (
                               <div className="flex flex-col h-full justify-end gap-4 md:gap-6">
@@ -1420,7 +1426,7 @@ export default function Home() {
                               <QRCodeSVG 
                                 id="operator-qr-svg"
                                 value={user?._id || 'PRODUS_OPERATIVE'} 
-                                size={140} 
+                                size={180} 
                                 bgColor={"#FFFFFF"} 
                                 fgColor={"#000000"} 
                                 level={"H"} 
