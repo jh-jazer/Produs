@@ -6,7 +6,7 @@ import { DashboardContext } from '../../context/DashboardContext';
 const MobileBottomNav = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { protocolMode, activeRpgTab, setActiveRpgTab, setIsToolsStoreModalOpen, setIsAddGoalModalOpen, setIsAddEventModalOpen, setIsAddTransactionModalOpen, mobileTabs } = useContext(DashboardContext);
+    const { protocolMode, activeRpgTab, setActiveRpgTab, setIsToolsStoreModalOpen, setIsAddGoalModalOpen, setIsAddEventModalOpen, setIsAddTransactionModalOpen, mobileTabs, isUserMenuOpen, setIsUserMenuOpen } = useContext(DashboardContext);
     const [clickRipples, setClickRipples] = useState([]);
     const [showActionDot, setShowActionDot] = useState(false);
 
@@ -16,7 +16,7 @@ const MobileBottomNav = () => {
         { id: 'planner', name: 'Planner', path: '/dashboard/planner', icon: 'calendar_today' },
         { id: 'calendar', name: 'Calendar', path: '/dashboard/calendar', icon: 'event' },
         { id: 'writing', name: 'Write', path: '/dashboard/writing', icon: 'edit' },
-        { id: 'more', name: 'More', path: '/dashboard/profile', icon: 'more_horiz' },
+        { id: 'profile', name: 'Profile', path: '#', icon: 'person' },
     ];
 
     const rpgPillars = [
@@ -25,7 +25,7 @@ const MobileBottomNav = () => {
         { id: 'items', name: 'Items', path: '/dashboard', icon: 'inventory_2' },
         { id: 'skills', name: 'Skills', path: '/dashboard', icon: 'model_training' },
         { id: 'roam', name: 'Roam', path: '/dashboard', icon: 'explore' },
-        { id: 'more', name: 'More', path: '/dashboard/profile', icon: 'more_horiz' },
+        { id: 'profile', name: 'Profile', path: '#', icon: 'person' },
     ];
 
     const pillars = protocolMode === 'rpg' ? rpgPillars : realityPillars;
@@ -40,6 +40,9 @@ const MobileBottomNav = () => {
     ];
 
     const isActive = (pillar) => {
+        if (pillar.id === 'profile') {
+            return isUserMenuOpen;
+        }
         if (pillar.id === 'home') {
             return location.pathname === '/dashboard' && (protocolMode !== 'rpg' || activeRpgTab === 'home');
         }
@@ -68,6 +71,12 @@ const MobileBottomNav = () => {
     };
 
     const handleNav = (pillar) => {
+        if (pillar.id === 'profile') {
+            setIsUserMenuOpen(true);
+            setShowActionDot(false);
+            return;
+        }
+
         if (pillar.id === 'home' && isActive(pillar)) {
             const newRipple = Date.now();
             setClickRipples(prev => [...prev, newRipple]);
@@ -86,12 +95,6 @@ const MobileBottomNav = () => {
             setActiveRpgTab(pillar.id);
             setShowActionDot(false);
         } else {
-            if (pillar.id === 'more') {
-                setIsToolsStoreModalOpen(true);
-                setShowActionDot(false);
-                return;
-            }
-
             setShowActionDot(false);
 
             // Direct Tab Switching for Productivity Tools

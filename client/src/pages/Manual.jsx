@@ -37,6 +37,8 @@ export default function Manual() {
             activeTab={activeLandingTab}
             setActiveTab={handleLandingTabClick}
             namespace="Manual"
+            widthClass="md:w-20"
+            buttonWidthClass="md:w-16"
           />
       </div>
 

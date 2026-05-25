@@ -141,7 +141,7 @@ const FinancialOverview = ({
   };
 
   return (
-    <div className={`flex flex-col ${compact ? 'gap-4' : 'gap-8 md:min-h-[400px]'} relative group`}>
+    <div className={`flex flex-col ${compact ? 'gap-4' : 'gap-4'} relative group`}>
         <DecisionModal
             isOpen={!!confirmDelete}
             title="DELETE RECORD"
@@ -152,141 +152,159 @@ const FinancialOverview = ({
             onCancel={() => setConfirmDelete(null)}
         />
 
-        <div className="flex flex-col gap-8 pt-4 md:pt-0 mt-0 md:-mt-4 relative">
-            <div className="flex flex-col gap-8">
-                <div className="flex justify-between items-start mb-6">
-                    <div className="hidden md:flex flex-col gap-1">
-                        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white">FINANCES</span>
-                        <span className="text-[8px] font-mono uppercase tracking-widest text-white/40">REAL-TIME SYNC</span>
-                    </div>
-                </div>
 
-                <div className="relative min-h-[80px] flex flex-col justify-center">
+        <div className="relative">
+                <div className="relative flex flex-col justify-center">
                     {viewMode === 'current' ? (
                         <motion.div 
                             key="balance"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="p-12 text-center rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/5 dark:border-white/10 backdrop-blur-sm relative overflow-hidden shadow-md"
+                            className="rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/5 dark:border-white/10 backdrop-blur-sm relative overflow-hidden shadow-md"
                         >
-                            <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
-                                <button 
-                                    onClick={() => setShowSettings(true)}
-                                    className="size-8 flex items-center justify-center rounded-sm text-white/40 hover:text-white transition-colors"
-                                >
-                                    <span className="material-symbols-outlined text-lg">more_vert</span>
-                                </button>
+                            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-                                <div className="relative">
-                                    <select
-                                        value={selectedYear === 'all' ? 'all' : `${selectedYear}-${selectedMonth}`}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            if (val === 'all') {
-                                                setSelectedYear('all');
-                                                setSelectedMonth('all');
-                                            } else {
-                                                const [y, m] = val.split('-');
-                                                setSelectedYear(parseInt(y));
-                                                setSelectedMonth(parseInt(m));
-                                            }
+                            {/* 3-Column Layout */}
+                            <div className="grid grid-cols-3 min-h-[260px]">
+
+                                {/* Col 1+2 merged: Big Total Balance */}
+                                <div className="col-span-2 flex flex-col items-center justify-center text-center px-8 pt-14 pb-8 border-r border-white/10 relative">
+                                    {/* Controls row */}
+                                    <div className="absolute top-4 left-4 flex items-center gap-2">
+                                        <button 
+                                            onClick={() => setShowSettings(true)}
+                                            className="size-8 flex items-center justify-center rounded-sm text-white/40 hover:text-white transition-colors"
+                                        >
+                                            <span className="material-symbols-outlined text-lg">more_vert</span>
+                                        </button>
+                                        <div className="relative">
+                                            <select
+                                                value={selectedYear === 'all' ? 'all' : `${selectedYear}-${selectedMonth}`}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (val === 'all') {
+                                                        setSelectedYear('all');
+                                                        setSelectedMonth('all');
+                                                    } else {
+                                                        const [y, m] = val.split('-');
+                                                        setSelectedYear(parseInt(y));
+                                                        setSelectedMonth(parseInt(m));
+                                                    }
+                                                }}
+                                                className="bg-white/5 border border-white/10 text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-2 outline-none appearance-none cursor-pointer hover:bg-white/10 transition-all pr-10"
+                                            >
+                                                {dropdownOptions.map(opt => (
+                                                    <option key={opt.value} value={opt.value} className="bg-black text-white">
+                                                        {opt.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none text-xs">
+                                                expand_more
+                                            </span>
+                                        </div>
+                                        {showSettings && createPortal(
+                                            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+                                                <div className="absolute inset-0 bg-[#000000]/80 backdrop-blur-sm" onClick={() => setShowSettings(false)} />
+                                                <DashboardPanel
+                                                    className="w-full max-w-sm z-10"
+                                                    title="FINANCIAL CONFIG"
+                                                    subtitle="SYSTEM SETTINGS"
+                                                    headerExtra={
+                                                        <button onClick={() => setShowSettings(false)} className="text-white/20 hover:text-white transition-colors">
+                                                            <span className="material-symbols-outlined">close</span>
+                                                        </button>
+                                                    }
+                                                >
+                                                    <div className="flex flex-col gap-2">
+                                                        <div className="p-2 bg-white/[0.02] border-b border-white/5">
+                                                            <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/20 px-2">PROJECTION MODES</span>
+                                                        </div>
+                                                        <button 
+                                                            onClick={() => setForesee(!foresee)}
+                                                            className="w-full flex items-center justify-between px-4 py-4 hover:bg-white hover:text-black transition-all group"
+                                                        >
+                                                            <span className="text-[10px] font-black uppercase tracking-widest">FORESEE PROJECTION</span>
+                                                            <div className={`size-4 rounded-full border-2 transition-all ${foresee ? 'bg-current border-transparent' : 'border-current opacity-20'}`} />
+                                                        </button>
+                                                        <div className="p-4 flex flex-col gap-4">
+                                                            <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/20">CURRENCY SYSTEM</span>
+                                                            <div className="relative">
+                                                                <select
+                                                                    value={localCurrency}
+                                                                    onChange={(e) => setLocalCurrency(e.target.value)}
+                                                                    className="w-full bg-transparent border border-white/10 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-3 outline-none appearance-none cursor-pointer transition-all pr-10"
+                                                                >
+                                                                    {allCurrencies.map(code => {
+                                                                        const symbol = getCurrencySymbol(code);
+                                                                        const currencyInfo = currencyCodes.code(code);
+                                                                        return (
+                                                                            <option key={code} value={symbol} className="bg-black text-white">
+                                                                                {code} - {currencyInfo ? currencyInfo.currency.toUpperCase() : ''} ({symbol})
+                                                                            </option>
+                                                                        );
+                                                                    })}
+                                                                </select>
+                                                                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none">
+                                                                    expand_more
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </DashboardPanel>
+                                            </div>,
+                                            document.body
+                                        )}
+                                    </div>
+
+                                    {/* Big Balance */}
+                                    <p 
+                                        className="font-black tracking-tighter leading-none"
+                                        style={{ 
+                                            fontSize: '3.5rem',
+                                            color: displayedBalance > 0 ? '#10b981' : displayedBalance < 0 ? '#f43f5e' : '#ffffff'
                                         }}
-                                        className="bg-white/5 border border-white/10 text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-2 outline-none appearance-none cursor-pointer hover:bg-white/10 transition-all pr-10"
                                     >
-                                        {dropdownOptions.map(opt => (
-                                            <option key={opt.value} value={opt.value} className="bg-black text-white">
-                                                {opt.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none text-xs">
-                                        expand_more
-                                    </span>
+                                        {displayedBalance < 0 ? '-' : ''}{localCurrency}{Math.abs(displayedBalance).toLocaleString()}
+                                    </p>
+                                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mt-2">
+                                        TOTAL BALANCE {selectedYear === 'all' ? '(ALL TIME)' : `- ${(() => {
+                                            const d = new Date(selectedYear, selectedMonth, 1);
+                                            return `${d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()} ${selectedYear}`;
+                                        })()}`}
+                                    </p>
+                                    {foresee && (
+                                        <motion.span 
+                                            initial={{ opacity: 0, y: 5 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="mt-4 px-2 py-1 rounded-sm text-[8px] font-black bg-white/10 text-white border border-white/20 uppercase tracking-widest flex items-center gap-2"
+                                        >
+                                            <span className="size-1 bg-white animate-pulse rounded-full" />
+                                            PROJECTION ACTIVE
+                                        </motion.span>
+                                    )}
                                 </div>
 
-                                {showSettings && createPortal(
-                                    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                                        <div className="absolute inset-0 bg-[#000000]/80 backdrop-blur-sm" onClick={() => setShowSettings(false)} />
-                                        <DashboardPanel
-                                            className="w-full max-w-sm z-10"
-                                            title="FINANCIAL CONFIG"
-                                            subtitle="SYSTEM SETTINGS"
-                                            headerExtra={
-                                                <button onClick={() => setShowSettings(false)} className="text-white/20 hover:text-white transition-colors">
-                                                    <span className="material-symbols-outlined">close</span>
-                                                </button>
-                                            }
-                                        >
-                                            <div className="flex flex-col gap-2">
-                                                <div className="p-2 bg-white/[0.02] border-b border-white/5">
-                                                    <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/20 px-2">PROJECTION MODES</span>
-                                                </div>
-                                                <button 
-                                                    onClick={() => setForesee(!foresee)}
-                                                    className="w-full flex items-center justify-between px-4 py-4 hover:bg-white hover:text-black transition-all group"
-                                                >
-                                                    <span className="text-[10px] font-black uppercase tracking-widest">FORESEE PROJECTION</span>
-                                                    <div className={`size-4 rounded-full border-2 transition-all ${foresee ? 'bg-current border-transparent' : 'border-current opacity-20'}`} />
-                                                </button>
-
-                                                <div className="p-4 flex flex-col gap-4">
-                                                    <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/20">CURRENCY SYSTEM</span>
-                                                    <div className="relative">
-                                                        <select
-                                                            value={localCurrency}
-                                                            onChange={(e) => setLocalCurrency(e.target.value)}
-                                                            className="w-full bg-transparent border border-white/10 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-3 outline-none appearance-none cursor-pointer transition-all pr-10"
-                                                        >
-                                                            {allCurrencies.map(code => {
-                                                                const symbol = getCurrencySymbol(code);
-                                                                const currencyInfo = currencyCodes.code(code);
-                                                                return (
-                                                                    <option key={code} value={symbol} className="bg-black text-white">
-                                                                        {code} - {currencyInfo ? currencyInfo.currency.toUpperCase() : ''} ({symbol})
-                                                                    </option>
-                                                                );
-                                                            })}
-                                                        </select>
-                                                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none">
-                                                            expand_more
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </DashboardPanel>
-                                    </div>,
-                                    document.body
-                                )}
-                            </div>
-
-                            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                            <p 
-                                className="font-black tracking-tighter leading-none pt-10"
-                                style={{ 
-                                    fontSize: '3.5rem',
-                                    color: displayedBalance > 0 ? '#10b981' : displayedBalance < 0 ? '#f43f5e' : '#ffffff'
-                                }}
-                            >
-                                {displayedBalance < 0 ? '-' : ''}{localCurrency}{Math.abs(displayedBalance).toLocaleString()}
-                            </p>
-                            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mt-2">
-                                TOTAL BALANCE {selectedYear === 'all' ? '(ALL TIME)' : `- ${(() => {
-                                    const d = new Date(selectedYear, selectedMonth, 1);
-                                    return `${d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()} ${selectedYear}`;
-                                })()}`}
-                            </p>
-
-                            <div className="flex items-center justify-center gap-3 mt-4">
-                                {foresee && (
-                                    <motion.span 
-                                        initial={{ opacity: 0, y: 5 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className="px-2 py-1 rounded-sm text-[8px] font-black bg-white/10 text-white border border-white/20 uppercase tracking-widest flex items-center gap-2"
-                                    >
-                                        <span className="size-1 bg-white animate-pulse rounded-full" />
-                                        PROJECTION ACTIVE (BAL + RECEIVABLES - DEBT)
-                                    </motion.span>
-                                )}
+                                {/* Col 3: 5 metric rows */}
+                                <div className="flex flex-col justify-center divide-y divide-white/10">
+                                    {[
+                                        { label: 'INCOME',      value: totalIncome,         color: '#10b981', sign: ''  },
+                                        { label: 'EXPENSES',    value: totalExpenses,        color: '#f43f5e', sign: '-' },
+                                        { label: 'DEBT',        value: totalDebt,            color: '#f43f5e', sign: '-' },
+                                        { label: 'RECEIVABLE',  value: totalUpcomingIncome,  color: '#10b981', sign: ''  },
+                                        { label: 'SAVINGS',     value: totalSavings,         color: '#10b981', sign: ''  },
+                                    ].map(({ label, value, color, sign }) => (
+                                        <div key={label} className="flex flex-col items-start px-5 py-3.5 gap-0.5">
+                                            <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] flex items-center gap-1.5 whitespace-nowrap">
+                                                <span className="size-1.5 rounded-full shrink-0 animate-pulse" style={{ backgroundColor: color }} />
+                                                {label}
+                                            </p>
+                                            <p className="font-black tracking-tighter leading-none" style={{ fontSize: '1.05rem', color }}>
+                                                {sign}{localCurrency}{value.toLocaleString()}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </motion.div>
                     ) : (
@@ -344,47 +362,6 @@ const FinancialOverview = ({
                         </motion.div>
                     )}
                 </div>
-
-                <div className="grid grid-cols-2 border-t border-white/10 pt-3">
-                    <div className="py-2 px-2 flex flex-col items-center justify-center text-center gap-1 border-r-2 border-b border-white/10">
-                        <p className="font-black tracking-tighter leading-none mb-1" style={{ fontSize: '1.5rem', color: '#10b981' }}>{localCurrency}{totalIncome.toLocaleString()}</p>
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] flex items-center justify-center gap-1.5 font-exo whitespace-nowrap">
-                            <span className="size-1 animate-pulse shrink-0 rounded-full" style={{ backgroundColor: '#10b981' }} />
-                            INCOME
-                        </p>
-                    </div>
-                    <div className="py-2 px-2 flex flex-col items-center justify-center text-center gap-1 border-b border-white/10">
-                        <p className="font-black tracking-tighter leading-none mb-1" style={{ fontSize: '1.5rem', color: '#f43f5e' }}>-{localCurrency}{totalExpenses.toLocaleString()}</p>
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] flex items-center justify-center gap-1.5 font-exo whitespace-nowrap">
-                            <span className="size-1 animate-pulse shrink-0 rounded-full" style={{ backgroundColor: '#f43f5e' }} />
-                            EXPENSES
-                        </p>
-                    </div>
-                    <div className="py-2 px-2 flex flex-col items-center justify-center text-center gap-1 border-r-2 border-white/10">
-                        <p className="font-black tracking-tighter leading-none mb-1" style={{ fontSize: '1.5rem', color: '#f43f5e' }}>-{localCurrency}{totalDebt.toLocaleString()}</p>
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] flex items-center justify-center gap-1.5 font-exo whitespace-nowrap">
-                            <span className="size-1 animate-pulse shrink-0 rounded-full" style={{ backgroundColor: '#f43f5e' }} />
-                            DEBT
-                        </p>
-                    </div>
-                    <div className="py-2 px-2 flex flex-col items-center justify-center text-center gap-1">
-                        <p className="font-black tracking-tighter leading-none mb-1" style={{ fontSize: '1.5rem', color: '#10b981' }}>{localCurrency}{totalUpcomingIncome.toLocaleString()}</p>
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] flex items-center justify-center gap-1.5 font-exo whitespace-nowrap">
-                            <span className="size-1 animate-pulse shrink-0 rounded-full" style={{ backgroundColor: '#10b981' }} />
-                            RECEIVABLE
-                        </p>
-                    </div>
-                </div>
-
-                <div className="border-t border-white/10 w-full my-2" />
-                <div className="flex flex-col items-center justify-center py-2 gap-1 w-full text-center">
-                    <p className="font-black tracking-tighter leading-none mb-1" style={{ fontSize: '1.5rem', color: '#10b981' }}>{localCurrency}{totalSavings.toLocaleString()}</p>
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] flex items-center justify-center gap-1.5 font-exo whitespace-nowrap">
-                        <span className="size-1 animate-pulse shrink-0 rounded-full" style={{ backgroundColor: '#10b981' }} />
-                        SAVINGS
-                    </p>
-                </div>
-            </div>
         </div>
 
         {/* Add Transaction Modal */}

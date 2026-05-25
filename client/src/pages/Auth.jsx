@@ -118,7 +118,7 @@ function Auth() {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: 20 }}
                             transition={{ duration: 0.4, ease: "easeInOut" }}
-                            className="w-full max-w-[320px] mx-auto md:mx-0"
+                            className="w-full max-w-[320px] mx-auto"
                         >
                             {/* Branding */}
                             <div className="flex items-center mb-8 cursor-default">

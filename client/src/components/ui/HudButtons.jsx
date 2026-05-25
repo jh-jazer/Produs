@@ -1,7 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import useMobile from '../../hooks/useMobile';
 
 export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, isPartnerActive, variant = 'dashboard', isShrunk = false }) {
+  const isMobile = useMobile();
+
   if (variant === 'landing') {
     return (
       <div className="fixed top-12 md:top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none">
@@ -36,7 +39,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
         whileHover={{ x: -2 }}
         whileTap={{ scale: 0.95 }}
         onClick={onRpgClick}
-        animate={{ width: isShrunk ? '10vw' : '12vw' }}
+        animate={{ width: isMobile ? (isShrunk ? '10vw' : '12vw') : (isShrunk ? '3.5vw' : '4.2vw') }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         className={`md:w-[4.2vw] ${baseStyles} ${isRpgActive ? activeStyles : inactiveStyles}`}
       >
@@ -51,7 +54,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
         whileHover={{ x: -2 }}
         whileTap={{ scale: 0.95 }}
         onClick={onPartnerClick}
-        animate={{ width: isShrunk ? '10vw' : '12vw' }}
+        animate={{ width: isMobile ? (isShrunk ? '10vw' : '12vw') : (isShrunk ? '3.5vw' : '4.2vw') }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         className={`md:w-[4.2vw] ${baseStyles} ${isPartnerActive ? activeStyles : inactiveStyles}`}
       >

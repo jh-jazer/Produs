@@ -306,6 +306,8 @@ export default function Landing() {
                 activeTab={activeLandingTab}
                 setActiveTab={handleLandingTabClick}
                 namespace="Landing"
+                widthClass="md:w-20"
+                buttonWidthClass="md:w-16"
               />
             </div>
           </>

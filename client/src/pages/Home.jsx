@@ -188,7 +188,7 @@ export default function Home() {
 
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [activePriorityIndex, setActivePriorityIndex] = useState(8);
+  const [activePriorityIndex, setActivePriorityIndex] = useState(9);
   
   const carouselRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -211,7 +211,12 @@ export default function Home() {
     
     setTimeout(() => {
       if (carouselRef.current) {
-        carouselRef.current.scrollLeft = carouselRef.current.scrollWidth / 3;
+        const flexContainer = carouselRef.current.children[0];
+        if (flexContainer && flexContainer.children[9]) {
+          flexContainer.children[9].scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
+        } else {
+          carouselRef.current.scrollLeft = (carouselRef.current.scrollWidth / 3) + (carouselRef.current.clientWidth * 0.82);
+        }
       }
     }, 100);
 
@@ -283,6 +288,22 @@ export default function Home() {
       { type: 'multi', header: 'RECEIVABLE ASSETS', activities: getFinanceActivities('income') }
     ];
   }, [plannerTasks, monthlyTasks, habits, goals, debts, currentTime]);
+
+  const desktopIndex = (activePriorityIndex === null) 
+      ? 1 
+      : (activePriorityIndex % priorityCards.length);
+
+  const handleNextCard = (e) => {
+    e.stopPropagation();
+    const nextIndex = (desktopIndex + 1) % priorityCards.length;
+    setActivePriorityIndex(nextIndex);
+  };
+
+  const handlePrevCard = (e) => {
+    e.stopPropagation();
+    const prevIndex = (desktopIndex - 1 + priorityCards.length) % priorityCards.length;
+    setActivePriorityIndex(prevIndex);
+  };
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
@@ -738,131 +759,184 @@ export default function Home() {
                       animate={{ opacity: 1, filter: 'blur(0px)', x: 0 }}
                       exit={{ opacity: 0, filter: 'blur(10px)', x: -20 }}
                       transition={{ duration: 0.6, delay: 0.3 }}
-                      className="absolute top-[25%] md:top-[30%] left-6 md:left-12 flex flex-col items-start pointer-events-none text-left"
+                      className="absolute top-[25%] md:top-[12%] left-6 md:left-12 right-6 md:right-12 flex flex-col items-start pointer-events-none text-left"
                     >
-                      <h3 className="text-2xl md:text-4xl font-black tracking-tighter text-black dark:text-white uppercase">
+                      <h3 className="text-2xl md:text-6xl font-black tracking-tighter text-black dark:text-white uppercase">
                         Welcome, {user?.username?.split('#')[0] || 'Operator'}
                       </h3>
-                      <p className="text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] text-black/40 dark:text-white/40 mt-1">
+                      <p className="text-[10px] md:text-sm font-mono uppercase tracking-[0.2em] text-black/40 dark:text-white/40 mt-1 md:mt-2">
                         {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                       </p>
-                      <div className="mt-[25vh] flex flex-col gap-1 items-start">
+                      <div className="mt-[25vh] md:mt-[15vh] flex flex-col gap-1 items-start">
                         <div className="text-2xl md:text-4xl font-black uppercase tracking-[0.25em] text-black dark:text-white leading-none">
                           PRIORITIES
                         </div>
                         <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.25em] text-black/50 dark:text-white/50">
-                          {activePriorityIndex !== null ? [...priorityCards, ...priorityCards, ...priorityCards][activePriorityIndex]?.header || 'OVERVIEW' : 'OVERVIEW'}
+                          {isMobile 
+                            ? (activePriorityIndex !== null ? [...priorityCards, ...priorityCards, ...priorityCards][activePriorityIndex]?.header || 'DAILY ACTIVITY' : 'DAILY ACTIVITY')
+                            : priorityCards[desktopIndex].header
+                          }
                         </div>
                       </div>
 
-                      {/* Horizontal Scroll Cards */}
-                      <div 
-                        className="w-screen relative mt-6 -ml-12 md:-ml-20 cursor-default"
-                        onClick={() => setActivePriorityIndex(null)}
-                      >
-                        {/* Gradient masks for smooth fade edges */}
-                        <div className="absolute left-0 top-0 bottom-0 w-4 md:w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-                        <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-                        
+                      {/* Horizontal Scroll Cards / Desktop Slideshow Layout */}
+                      {isMobile ? (
                         <div 
-                          ref={carouselRef}
-                          className={`w-full overflow-x-auto pb-4 pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${isDragging ? 'cursor-grabbing' : 'snap-x snap-mandatory cursor-grab'}`}
-                          onMouseDown={(e) => {
-                            setIsDragging(true);
-                            setStartX(e.pageX - carouselRef.current.offsetLeft);
-                            setScrollLeft(carouselRef.current.scrollLeft);
-                          }}
-                          onMouseLeave={() => setIsDragging(false)}
-                          onMouseUp={() => setIsDragging(false)}
-                          onMouseMove={(e) => {
-                            if (!isDragging) return;
-                            e.preventDefault();
-                            const x = e.pageX - carouselRef.current.offsetLeft;
-                            const walk = (x - startX) * 1.5;
-                            carouselRef.current.scrollLeft = scrollLeft - walk;
-                          }}
-                          onScroll={(e) => {
-                            const el = e.currentTarget;
-                            const setWidth = el.scrollWidth / 3;
-                            
-                            // Seamless teleport for infinite scroll
-                            if (el.scrollLeft >= setWidth * 2 - 10) {
-                              el.scrollLeft -= setWidth;
-                            } else if (el.scrollLeft <= 0) {
-                              el.scrollLeft += setWidth;
-                            }
-
-                            // Auto-activate centered card on swipe
-                            const center = el.scrollLeft + el.clientWidth / 2;
-                            const flexContainer = el.children[0];
-                            if (flexContainer) {
-                              let closestIndex = 0;
-                              let minDiff = Infinity;
-                              Array.from(flexContainer.children).forEach((child, i) => {
-                                const childCenter = child.offsetLeft + child.clientWidth / 2;
-                                const diff = Math.abs(childCenter - center);
-                                if (diff < minDiff) {
-                                  minDiff = diff;
-                                  closestIndex = i;
-                                }
-                              });
-                              setActivePriorityIndex(prev => prev === closestIndex ? prev : closestIndex);
-                            }
-                          }}
+                          className="w-screen relative mt-6 -ml-12 cursor-default"
+                          onClick={() => setActivePriorityIndex(null)}
                         >
-                          <div className="flex gap-4 w-max px-[9vw] md:px-[15vw]">
-                            {[...priorityCards, ...priorityCards, ...priorityCards].map((card, i) => {
-                              const isActive = activePriorityIndex === i;
-                              const isAnyActive = activePriorityIndex !== null;
+                          {/* Gradient masks for smooth fade edges */}
+                          <div className="absolute left-0 top-0 bottom-0 w-4 md:w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+                          <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+                          
+                          <div 
+                            ref={carouselRef}
+                            className={`w-full overflow-x-auto pb-4 pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${isDragging ? 'cursor-grabbing' : 'snap-x snap-mandatory cursor-grab'}`}
+                            onMouseDown={(e) => {
+                              setIsDragging(true);
+                              setStartX(e.pageX - carouselRef.current.offsetLeft);
+                              setScrollLeft(carouselRef.current.scrollLeft);
+                            }}
+                            onMouseLeave={() => setIsDragging(false)}
+                            onMouseUp={() => setIsDragging(false)}
+                            onMouseMove={(e) => {
+                              if (!isDragging) return;
+                              e.preventDefault();
+                              const x = e.pageX - carouselRef.current.offsetLeft;
+                              const walk = (x - startX) * 1.5;
+                              carouselRef.current.scrollLeft = scrollLeft - walk;
+                            }}
+                            onScroll={(e) => {
+                              const el = e.currentTarget;
+                              const setWidth = el.scrollWidth / 3;
                               
-                              return (
-                                <div 
-                                  key={i} 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setActivePriorityIndex(i);
-                                    e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                                  }}
-                                  className={`snap-center w-[82vw] md:w-[70vw] h-72 md:h-96 rounded-3xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-black/50 backdrop-blur-md p-8 md:p-10 flex flex-col justify-between shrink-0 hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-500 cursor-pointer group shadow-lg origin-center ${
-                                    isAnyActive ? (isActive ? 'scale-105 opacity-100 z-20' : 'scale-[0.85] opacity-40 z-10') : 'scale-100 opacity-100'
-                                  }`}
-                                >
-                                  {card.type === 'multi' ? (
-                                    <div className="flex flex-col h-full justify-end gap-4">
+                              if (el.scrollLeft >= setWidth * 2 - 10) {
+                                el.scrollLeft -= setWidth;
+                              } else if (el.scrollLeft <= 0) {
+                                el.scrollLeft += setWidth;
+                              }
+
+                              const center = el.scrollLeft + el.clientWidth / 2;
+                              const flexContainer = el.children[0];
+                              if (flexContainer) {
+                                let closestIndex = 0;
+                                let minDiff = Infinity;
+                                Array.from(flexContainer.children).forEach((child, i) => {
+                                  const childCenter = child.offsetLeft + child.clientWidth / 2;
+                                  const diff = Math.abs(childCenter - center);
+                                  if (diff < minDiff) {
+                                    minDiff = diff;
+                                    closestIndex = i;
+                                  }
+                                });
+                                setActivePriorityIndex(prev => prev === closestIndex ? prev : closestIndex);
+                              }
+                            }}
+                          >
+                            <div className="flex gap-12 w-max px-[9vw]">
+                              {[...priorityCards, ...priorityCards, ...priorityCards].map((card, i) => {
+                                return (
+                                  <div 
+                                    key={i} 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActivePriorityIndex(i);
+                                      e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                                    }}
+                                    className="snap-center w-[82vw] h-72 rounded-3xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-black/50 backdrop-blur-md p-8 flex flex-col justify-between shrink-0 hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-500 cursor-pointer group shadow-lg origin-center scale-105 opacity-100"
+                                  >
+                                    {card.type === 'multi' ? (
+                                      <div className="flex flex-col h-full justify-end gap-4">
                                         {card.activities.map((act, idx) => (
-                                          <div key={idx} className={`flex flex-col gap-1 ${idx > 0 ? 'pt-2 md:pt-4 border-t border-black/10 dark:border-white/10' : ''}`}>
-                                            <div className="flex items-center gap-3 md:gap-4">
-                                              <span className={`shrink-0 w-3 h-3 md:w-3 md:h-3 rounded-full ${
+                                          <div key={idx} className={`flex flex-col gap-1 ${idx > 0 ? 'pt-2 border-t border-black/10 dark:border-white/10' : ''}`}>
+                                            <div className="flex items-center gap-3">
+                                              <span className={`shrink-0 w-3 h-3 rounded-full ${
                                                 act.status === 'URGENT' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]' :
                                                 act.status === 'PENDING' ? 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.6)]' :
                                                 'bg-black/20 dark:bg-white/20'
                                               }`} />
-                                              <span className="text-xl md:text-3xl font-black uppercase tracking-wider text-black dark:text-white group-hover:text-primary transition-colors leading-tight truncate">
+                                              <span className="text-xl font-black uppercase tracking-wider text-black dark:text-white group-hover:text-primary transition-colors leading-tight truncate">
                                                 {act.title}
                                               </span>
                                             </div>
-                                            <span className="text-xs md:text-sm font-mono text-black/50 dark:text-white/50">
+                                            <span className="text-xs font-mono text-black/50 dark:text-white/50">
                                               {act.time}
                                             </span>
                                           </div>
                                         ))}
                                       </div>
-                                  ) : (
-                                    <>
-                                      <div className="flex justify-between items-start">
-                                        <span className="text-sm md:text-base font-mono text-black/50 dark:text-white/50">{card.time}</span>
-                                      </div>
-                                      <span className="text-3xl md:text-5xl font-black uppercase tracking-wider text-black dark:text-white group-hover:text-primary transition-colors leading-tight md:leading-none">
-                                        {card.title}
-                                      </span>
-                                    </>
-                                  )}
-                                </div>
-                            );
-                          })}
+                                    ) : (
+                                      <>
+                                        <div className="flex justify-between items-start">
+                                          <span className="text-sm font-mono text-black/50 dark:text-white/50">{card.time}</span>
+                                        </div>
+                                        <span className="text-3xl font-black uppercase tracking-wider text-black dark:text-white group-hover:text-primary transition-colors leading-tight">
+                                          {card.title}
+                                        </span>
+                                      </>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      ) : (
+                        /* Desktop Single Card slideshow Layout */
+                        <div className="flex items-center gap-6 mt-6 pointer-events-auto select-none w-full max-w-[780px]">
+                          {/* Previous Button */}
+                          <button
+                            onClick={handlePrevCard}
+                            className="size-10 rounded-full border border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center transition-all active:scale-90"
+                          >
+                            <span className="material-symbols-outlined text-black dark:text-white text-base">chevron_left</span>
+                          </button>
+
+                          {/* Active Card */}
+                          <div 
+                            className="w-full md:flex-1 md:max-w-[660px] h-72 md:h-96 rounded-3xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-black/50 backdrop-blur-md p-8 md:p-12 flex flex-col justify-between hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-500 cursor-default shadow-lg origin-center scale-105 opacity-100 z-20"
+                          >
+                            {priorityCards[desktopIndex].type === 'multi' ? (
+                              <div className="flex flex-col h-full justify-end gap-4 md:gap-6">
+                                {priorityCards[desktopIndex].activities.map((act, idx) => (
+                                  <div key={idx} className={`flex flex-col gap-1 ${idx > 0 ? 'pt-2 md:pt-4 border-t border-black/10 dark:border-white/10' : ''}`}>
+                                    <div className="flex items-center gap-3 md:gap-4">
+                                      <span className={`shrink-0 w-2.5 h-2.5 md:w-3 md:h-3 rounded-full ${
+                                        act.status === 'URGENT' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]' :
+                                        act.status === 'PENDING' ? 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.6)]' :
+                                        'bg-black/20 dark:bg-white/20'
+                                      }`} />
+                                      <span className="text-xl md:text-3xl font-black uppercase tracking-wider text-black dark:text-white hover:text-primary transition-colors leading-none truncate">
+                                        {act.title}
+                                      </span>
+                                    </div>
+                                    <span className="text-xs md:text-sm font-mono text-black/50 dark:text-white/50">
+                                      {act.time}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex justify-between items-start">
+                                  <span className="text-xs md:text-base font-mono text-black/50 dark:text-white/50">{priorityCards[desktopIndex].time}</span>
+                                </div>
+                                <span className="text-3xl md:text-5xl font-black uppercase tracking-wider text-black dark:text-white hover:text-primary transition-colors leading-none">
+                                  {priorityCards[desktopIndex].title}
+                                </span>
+                              </>
+                            )}
+                          </div>
+
+                          {/* Next Button */}
+                          <button
+                            onClick={handleNextCard}
+                            className="size-10 rounded-full border border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center transition-all active:scale-90"
+                          >
+                            <span className="material-symbols-outlined text-black dark:text-white text-base">chevron_right</span>
+                          </button>
+                        </div>
+                      )}
 
                       {/* Scroll Down Indicator */}
                       <motion.div 
@@ -898,7 +972,7 @@ export default function Home() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -50 }}
                       transition={{ type: "spring", stiffness: 150, damping: 18 }}
-                      className="absolute top-0 md:mt-12 right-16 z-40 flex flex-col items-center cursor-pointer pointer-events-auto"
+                      className="absolute top-0 md:-mt-6 right-16 z-40 flex flex-col items-center cursor-pointer pointer-events-auto"
                       onClick={() => setIsIdPulledDown(true)}
                     >
                       {/* Anchor Mount */}
@@ -937,7 +1011,7 @@ export default function Home() {
                       transformOrigin: "top center",
                       pointerEvents: isIdPulledDown ? 'auto' : 'none'
                     }}
-                    className="absolute top-0 md:mt-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center"
+                    className="absolute top-0 md:-mt-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center"
                   >
                     <div 
                       className="flex flex-col items-center cursor-pointer group/retract relative"
@@ -948,7 +1022,7 @@ export default function Home() {
                       title="RETRACT ID"
                     >
                       <div className="w-4 h-1 bg-white z-[60] shadow-[0_0_15px_rgba(255,255,255,0.5)] shrink-0 group-hover/retract:bg-white group-hover/retract:scale-x-125 transition-all" />
-                      <div className="w-[12px] h-[15vh] md:h-5 bg-white opacity-80 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50 group-hover/retract:bg-white group-hover/retract:opacity-100 transition-all" />
+                      <div className="w-[12px] h-[15vh] md:h-20 bg-white opacity-80 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50 group-hover/retract:bg-white group-hover/retract:opacity-100 transition-all" />
                       
                       <span className="absolute -top-6 whitespace-nowrap bg-black/90 text-white text-[7px] font-mono font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded-sm border border-white/10 opacity-0 group-hover/retract:opacity-100 transition-opacity pointer-events-none">
                         RETRACT ID

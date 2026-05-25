@@ -201,6 +201,8 @@ export default function Classes() {
             activeTab={activeLandingTab}
             setActiveTab={handleLandingTabClick}
             namespace="Classes"
+            widthClass="md:w-20"
+            buttonWidthClass="md:w-16"
           />
       </div>
       <main className="max-w-4xl mx-auto px-6 pt-32 pb-32 relative z-10">

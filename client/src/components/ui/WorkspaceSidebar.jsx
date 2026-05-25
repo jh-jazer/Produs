@@ -9,11 +9,18 @@ import { motion, AnimatePresence } from 'framer-motion';
  * @param {function} setActiveTab - State setter for active tab
  * @param {string} namespace - Unique string for Framer Motion layoutIds (e.g. 'Intellectual')
  */
-const WorkspaceSidebar = ({ tabs, activeTab, setActiveTab, namespace }) => {
+const WorkspaceSidebar = ({ 
+    tabs, 
+    activeTab, 
+    setActiveTab, 
+    namespace,
+    widthClass = "md:w-16",
+    buttonWidthClass = "md:w-12"
+}) => {
     const [hoveredTab, setHoveredTab] = useState(null);
 
     return (
-        <div className="sticky top-0 md:top-8 z-[100] -mx-8 md:mx-0 px-8 md:px-0 pt-6 pb-0 md:py-0 bg-black/40 md:bg-transparent backdrop-blur-md md:backdrop-blur-none border-b md:border-b-0 md:border-r border-white/5 mb-2 md:mb-0 md:w-16 shrink-0 h-fit">
+        <div className={`sticky top-0 md:top-8 z-[100] -mx-8 md:mx-0 px-8 md:px-0 pt-6 pb-0 md:py-0 bg-black/40 md:bg-transparent backdrop-blur-md md:backdrop-blur-none border-b md:border-b-0 md:border-r border-white/5 mb-2 md:mb-0 shrink-0 h-fit ${widthClass}`}>
             <div className="flex flex-nowrap md:flex-col items-center md:items-center gap-2 overflow-x-auto md:overflow-x-visible scrollbar-hide pb-2 md:pb-0">
                 {tabs.map((tab) => (
                     <motion.button
@@ -25,7 +32,7 @@ const WorkspaceSidebar = ({ tabs, activeTab, setActiveTab, namespace }) => {
                             height: (hoveredTab === tab.id && window.innerWidth >= 768) ? 180 : 48 
                         }}
                         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                        className={`group relative px-4 md:px-0 py-2 md:py-0 rounded-sm transition-all flex flex-row md:flex-col items-center justify-center gap-3 md:gap-6 overflow-hidden shrink-0 md:w-12 ${
+                        className={`group relative px-4 md:px-0 py-2 md:py-0 rounded-sm transition-all flex flex-row md:flex-col items-center justify-center gap-3 md:gap-6 overflow-hidden shrink-0 ${buttonWidthClass} ${
                             activeTab === tab.id 
                             ? 'bg-white text-black' 
                             : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5'

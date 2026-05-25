@@ -81,6 +81,8 @@ export default function PatchNotes() {
             activeTab={activeLandingTab}
             setActiveTab={handleLandingTabClick}
             namespace="Patches"
+            widthClass="md:w-20"
+            buttonWidthClass="md:w-16"
           />
       </div>
 

@@ -13,6 +13,7 @@ import {
     Search,
     Handshake,
     User,
+    Bell,
     Lock,
     Zap,
     Cpu,
@@ -341,7 +342,9 @@ function Layout() {
             marketplaceCategory,
             setMarketplaceCategory,
             mobileTabs,
-            setMobileTabs
+            setMobileTabs,
+            isUserMenuOpen,
+            setIsUserMenuOpen
         }}>
             <div className="bg-transparent font-sans text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden">
                 {/* Mobile Top Bar */}
@@ -682,8 +685,14 @@ function Layout() {
                 </aside>
 
                 <div className="md:hidden fixed top-8 right-0 z-[101]">
-                    <button onClick={() => setIsUserMenuOpen(true)} className="pl-4 pr-4 py-2 text-black dark:text-white/60 hover:text-black dark:hover:text-white transition-all active:scale-90">
-                        <User size={20} strokeWidth={2.5} />
+                    <button 
+                        onClick={() => setIsNotificationModalOpen(true)} 
+                        className="pl-4 pr-4 py-2 text-black dark:text-white/60 hover:text-black dark:hover:text-white transition-all active:scale-90 relative"
+                    >
+                        <Bell size={20} strokeWidth={2.5} />
+                        {unreadCount > 0 && (
+                            <span className="absolute top-1.5 right-3.5 size-2 rounded-full bg-red-500 dark:bg-rose-500 animate-pulse" />
+                        )}
                     </button>
                 </div>
 

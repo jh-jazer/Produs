@@ -77,13 +77,12 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
         <DashboardModal
             isOpen={isOpen}
             onClose={onClose}
-            title="SYSTEM_MONITOR_LIVE"
-            subtitle="Intelligence_Hub"
+            title="NOTIFICATIONS"
             maxWidth="max-w-md"
         >
-            <div className="flex flex-col h-full -mt-4">
+            <div className="flex flex-col h-[500px] md:h-[550px] -mt-4">
                 {/* Tab Navigation */}
-                <div className="flex gap-8 mb-6 border-b border-foreground/10 pb-4">
+                <div className="grid grid-cols-2 mb-6 border-b border-foreground/10 pb-4">
                     {[
                         { id: 'alerts', label: 'ALERTS_', icon: Bell },
                         { id: 'activity', label: 'ACTIVITY_', icon: Zap }
@@ -91,7 +90,7 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 transition-all relative ${
+                            className={`flex items-center justify-center gap-2 transition-all relative ${
                                 activeTab === tab.id 
                                 ? 'text-foreground' 
                                 : 'text-foreground/40 hover:text-foreground/60'
@@ -120,10 +119,10 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
-                                className="space-y-3"
+                                className="space-y-3 min-h-full flex flex-col"
                             >
                                 <div className="flex items-center justify-between mb-4">
-                                    <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1">SYSTEM_NOTIFICATIONS</div>
+                                    <div />
                                     {notifications.some(n => !n.read) && (
                                         <button
                                             onClick={handleMarkAllAsRead}
@@ -168,7 +167,7 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                                         </motion.div>
                                     ))
                                 ) : (
-                                    <div className="py-20 flex flex-col items-center justify-center text-center opacity-40">
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center opacity-40">
                                         <Bell size={40} className="mb-4 text-foreground/20" />
                                         <p className="text-[10px] font-mono uppercase tracking-widest">No Alerts at Present</p>
                                     </div>
@@ -180,6 +179,7 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
+                                className="min-h-full flex flex-col"
                             >
                                 <XpFeed user={user} />
                             </motion.div>

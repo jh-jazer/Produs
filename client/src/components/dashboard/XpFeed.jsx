@@ -29,7 +29,7 @@ const XpFeed = ({ user }) => {
     );
 
     if (!history || history.length === 0) return (
-        <div className="w-full py-12 flex flex-col items-center justify-center text-center space-y-4 opacity-40">
+        <div className="w-full flex-1 flex flex-col items-center justify-center text-center space-y-4 opacity-40">
             <Clock size={40} className="text-foreground/20" />
             <p className="text-[10px] font-mono uppercase tracking-widest">No Recent Activity Logged</p>
         </div>
