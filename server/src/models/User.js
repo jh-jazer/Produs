@@ -141,7 +141,8 @@ const userSchema = new mongoose.Schema({
             lastCompleted: { type: String, default: null }
         },
         dailyReward: {
-            lastClaimed: { type: String, default: null }
+            lastClaimed: { type: String, default: null },
+            claimsCount: { type: Number, default: 0 }
         },
         streakReward: {
             lastClaimed: { type: String, default: null }

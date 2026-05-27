@@ -4,10 +4,16 @@ export const initializeSystemHabits = async (userId) => {
     const habits = [
         {
             user: userId,
+            name: 'Focus Today',
+            icon: 'hourglass_empty',
+            color: 'blue',
+            systemId: 'focus'
+        },
+        {
+            user: userId,
             name: 'Daily Planning',
             icon: 'event_note',
             color: 'amber',
-            category: 'AGI',
             systemId: 'planner'
         },
         {
@@ -15,7 +21,6 @@ export const initializeSystemHabits = async (userId) => {
             name: 'Finance Tracking',
             icon: 'payments',
             color: 'purple',
-            category: 'WIS',
             systemId: 'finance'
         },
         {
@@ -23,7 +28,6 @@ export const initializeSystemHabits = async (userId) => {
             name: 'Journaling',
             icon: 'history_edu',
             color: 'blue',
-            category: 'INT',
             systemId: 'journal'
         },
         {
@@ -31,7 +35,6 @@ export const initializeSystemHabits = async (userId) => {
             name: 'Workout',
             icon: 'fitness_center',
             color: 'red',
-            category: 'STR',
             systemId: 'workout'
         }
     ];
@@ -53,7 +56,7 @@ export const initializeSystemHabits = async (userId) => {
             await Habit.insertMany(missingHabits);
         }
 
-        // Update existing habits to ensure name, icon, and category are synchronized
+        // Update existing habits to ensure name and icon are synchronized
         for (const habit of habits) {
             await Habit.updateOne(
                 { user: userId, systemId: habit.systemId },
@@ -61,8 +64,7 @@ export const initializeSystemHabits = async (userId) => {
                     $set: {
                         name: habit.name,
                         icon: habit.icon,
-                        color: habit.color,
-                        category: habit.category
+                        color: habit.color
                     }
                 }
             );

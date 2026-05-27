@@ -32,12 +32,7 @@ const TodayActivity = ({ user }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {habits.slice(0, 6).map((habit) => {
                     const isCompleted = habit.checks?.some(c => c.date === today && c.completed);
-                    let statKey = habit.category?.toLowerCase() || 'int';
-                    // Map legacy categories to new stat keys for display if needed
-                    if (statKey === 'dex') statKey = 'agi';
-                    if (statKey === 'end') statKey = 'vit';
-                    if (statKey === 'cha') statKey = 'luk';
-                    const colorClass = statColors[statKey] || 'slate-400';
+                    const colorClass = statColors.int;
 
                     return (
                         <motion.button
@@ -67,9 +62,6 @@ const TodayActivity = ({ user }) => {
                                     {habit.name}
                                 </p>
                                 <div className="flex items-center gap-2 mt-0.5">
-                                    <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest bg-${colorClass}/10 text-${colorClass}`}>
-                                        +{statKey}
-                                    </span>
                                     {habit.streak > 0 && (
                                         <span className="text-[8px] font-black text-orange-500/60 uppercase tracking-widest flex items-center gap-0.5">
                                             <Flame size={8} /> {habit.streak} Day Streak

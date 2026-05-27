@@ -459,18 +459,46 @@ export const claimDailyReward = async (req, res) => {
         const today = new Date().toISOString().split('T')[0];
 
         if (!user.rpg.dailyReward) {
-            user.rpg.dailyReward = { lastClaimed: null };
+            user.rpg.dailyReward = { lastClaimed: null, claimsCount: 0 };
         }
 
         if (user.rpg.dailyReward.lastClaimed === today) {
             return res.status(400).json({ message: 'Daily bounty already claimed for today.' });
         }
 
-        // Award points (+50 ProdPoints/prodCoins)
-        user.rpg.prodCoins = (user.rpg.prodCoins || 0) + 50;
+        // Increment claims count
+        const oldClaimsCount = user.rpg.dailyReward.claimsCount || 0;
+        const newClaimsCount = oldClaimsCount + 1;
+        user.rpg.dailyReward.claimsCount = newClaimsCount;
+
+        // Calculate cycle day for the claim (ranges 1 to 7)
+        const currentWeeklyDay = ((newClaimsCount - 1) % 7) + 1;
+
+        let points = 50;
+        let rewardsList = ["+50 ProdPoints Granted"];
+
+        if (currentWeeklyDay === 2 || currentWeeklyDay === 3) {
+            points = 100;
+            rewardsList = [`+${points} ProdPoints Granted`];
+        } else if (currentWeeklyDay === 4) {
+            points = 150;
+            rewardsList = [`+${points} ProdPoints Granted`];
+        } else if (currentWeeklyDay === 5) {
+            points = 200;
+            rewardsList = [`+${points} ProdPoints Granted`];
+        } else if (currentWeeklyDay === 6) {
+            points = 250;
+            rewardsList = [`+${points} ProdPoints Granted`];
+        } else if (currentWeeklyDay === 7) {
+            points = 500;
+            rewardsList = [`+${points} ProdPoints Granted`, "ECLIPSE Avatar Frame Unlocked"];
+        }
+
+        // Award points
+        user.rpg.prodCoins = (user.rpg.prodCoins || 0) + points;
 
         // Set last claimed date
-        user.rpg.dailyReward = { lastClaimed: today };
+        user.rpg.dailyReward.lastClaimed = today;
 
         // Award XP (if enabled, will be 0 according to user settings)
         await awardXP(user, 'luk', 100);
@@ -479,19 +507,19 @@ export const claimDailyReward = async (req, res) => {
         await Activity.create({
             user: user._id,
             type: 'system',
-            action: 'Claimed Daily Bounty reward',
+            action: `Claimed Day ${currentWeeklyDay} Daily Bounty reward`,
             stat: 'none',
-            amount: 50
+            amount: points
         });
 
         user.markModified('rpg');
         await user.save();
 
         res.json({
-            title: "DAILY BOUNTY CLASSIFIED",
+            title: `DAY ${currentWeeklyDay} DAILY BOUNTY CLASSIFIED`,
             subtitle: "SYSTEM REWARD UNLOCKED",
             icon: "stars",
-            rewards: ["+50 ProdPoints Granted"],
+            rewards: rewardsList,
             prodCoins: user.rpg.prodCoins,
             rpg: user.rpg
         });

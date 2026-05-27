@@ -98,7 +98,7 @@ function Auth() {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="relative z-10 w-full max-w-[900px] h-[85vh] max-h-[700px] bg-[#080808]/80 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col md:flex-row"
+                className="relative z-10 w-full max-w-[900px] h-auto md:h-[85vh] max-h-[700px] bg-[#080808]/80 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col md:flex-row"
             >
                 {/* Status Bar */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-white/5 overflow-hidden z-50">

@@ -14,7 +14,7 @@ const LandingHeader = ({ activeTab }) => {
   const navigate = useNavigate();
 
   const landingTabs = [
-    { id: "hub", label: "HUB", icon: "home", path: "/" },
+    { id: "hub", label: "HUB", icon: "home", path: "/landing" },
     { id: "about", label: "ABOUT", icon: "info", path: "/manual" },
     { id: "classes", label: "CLASSES", icon: "school", path: "/classes" },
     { id: "patches", label: "PATCHES", icon: "history", path: "/updates" }

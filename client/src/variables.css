@@ -550,7 +550,7 @@ body.focus-mode-active .hud-buttons-container {
 
 @media (min-width: 768px) {
   .welcome-title-text {
-    font-size: 7rem !important; /* ~67px on desktop viewports */
+    font-size: 4.5rem !important; /* Reduced from 7rem */
     line-height: 0.95 !important;
   }
 }

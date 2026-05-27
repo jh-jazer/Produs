@@ -171,7 +171,7 @@ export const MoodTracker = ({ user, updateMood, standalone = false }) => {
  * Replaces StatRadar in Reality Mode
  */
 export const CoreStreaksList = ({ habits = [] }) => {
-    const coreIds = ['journal', 'finance', 'planner', 'workout'];
+    const coreIds = ['focus', 'journal', 'finance', 'planner', 'workout'];
     const coreHabits = coreIds.map(id => habits.find(h => h.systemId === id)).filter(Boolean);
 
     return (
@@ -214,8 +214,8 @@ export const CoreStreaksList = ({ habits = [] }) => {
 export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, toggleHabitCheck }) => {
     const navigate = useNavigate();
     const now = new Date();
-    
-    const CORE_REDIRECTS = {
+        const CORE_REDIRECTS = {
+        'focus': '/dashboard',
         'planner': '/dashboard/planner',
         'finance': '/dashboard/finance',
         'journal': '/dashboard/journal',
@@ -239,9 +239,9 @@ export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, togg
     }), []);
  
     const { goals, toggleGoal, isLoading: isLoadingGoals } = useGoals(filters);
-
+ 
     const todayIso = now.toISOString().split('T')[0];
-
+ 
     return (
         <DashboardPanel 
             title={activeTab === 'objectives' ? "Today's Objectives" : "Daily Habits"} 
@@ -265,7 +265,7 @@ export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, togg
                         </button>
                     ))}
                 </div>
-
+ 
                 <div className="space-y-3 min-h-[200px]">
                     {activeTab === 'objectives' ? (
                         isLoadingGoals ? (
@@ -328,8 +328,12 @@ export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, togg
                                         animate={{ opacity: 1, x: 0 }}
                                         onClick={() => {
                                             if (isSystemHabit) {
-                                                const path = CORE_REDIRECTS[habit.systemId];
-                                                if (path) navigate(path);
+                                                if (habit.systemId === 'focus') {
+                                                    navigate('/dashboard', { state: { openFocusTimer: true } });
+                                                } else {
+                                                    const path = CORE_REDIRECTS[habit.systemId];
+                                                    if (path) navigate(path);
+                                                }
                                             } else {
                                                 toggleHabitCheck(habit._id, todayIso);
                                             }

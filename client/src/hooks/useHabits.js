@@ -106,10 +106,15 @@ export const useHabits = () => {
         }
     };
 
-    const processedHabits = habits?.map(habit => ({
-        ...habit,
-        streak: calculateStreak(habit.checks || [])
-    })) || [];
+    const processedHabits = habits?.map(habit => {
+        const idVal = habit.user || habit.userId;
+        return {
+            ...habit,
+            userId: idVal,
+            user: idVal,
+            streak: calculateStreak(habit.checks || [])
+        };
+    }) || [];
 
     return {
         habits: processedHabits,

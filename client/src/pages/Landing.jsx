@@ -94,7 +94,7 @@ export default function Landing() {
   const [progress, setProgress] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const landingTabs = [
-    { id: "hub", label: "HUB", icon: "home", path: "/" },
+    { id: "hub", label: "HUB", icon: "home", path: "/landing" },
     { id: "about", label: "ABOUT", icon: "info", path: "/manual" },
     { id: "classes", label: "CLASSES", icon: "school", path: "/classes" },
     { id: "patches", label: "PATCHES", icon: "history", path: "/updates" }

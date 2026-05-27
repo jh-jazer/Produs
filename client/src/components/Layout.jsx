@@ -766,7 +766,7 @@ function Layout() {
                     message="Terminate operative session and return to central hub protocol?"
                     confirmLabel="CONFIRM_EXIT"
                     cancelLabel="STAY_HERE"
-                    onConfirm={() => { setIsLandingModalOpen(false); navigate('/'); }}
+                    onConfirm={() => { setIsLandingModalOpen(false); navigate('/landing'); }}
                     onCancel={() => setIsLandingModalOpen(false)}
                 />
 

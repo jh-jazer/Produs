@@ -17,14 +17,14 @@ export const ICON_OPTIONS = [
 ];
 
 const AddHabitModal = ({ isOpen, onClose, onAdd }) => {
-    const [newHabit, setNewHabit] = useState({ name: '', icon: 'local_drink', color: 'white', isShared: false, category: 'INT' });
+    const [newHabit, setNewHabit] = useState({ name: '', icon: 'local_drink', color: 'white', isShared: false });
 
     if (!isOpen) return null;
 
     const handleAdd = async () => {
         if (!newHabit.name.trim()) return;
         await onAdd({ ...newHabit, name: newHabit.name.trim() });
-        setNewHabit({ name: '', icon: 'local_drink', color: 'white', isShared: false, category: 'INT' });
+        setNewHabit({ name: '', icon: 'local_drink', color: 'white', isShared: false });
         onClose();
     };
 
@@ -72,21 +72,7 @@ const AddHabitModal = ({ isOpen, onClose, onAdd }) => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                        <span className="text-[9px] font-black uppercase tracking-widest text-white/20">CATEGORY</span>
-                        <div className="grid grid-cols-6 gap-1">
-                            {['STR', 'INT', 'WIS', 'DEX', 'CHA', 'END'].map(cat => (
-                                <button 
-                                    key={cat} 
-                                    type="button"
-                                    onClick={() => setNewHabit({...newHabit, category: cat})}
-                                    className={`p-3 border text-[10px] font-black tracking-widest transition-all ${newHabit.category === cat ? 'bg-white text-black border-white' : 'border-white/10 text-white/40'}`}
-                                >
-                                    {cat}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+
 
                     <button onClick={handleAdd} className="mt-4 w-full py-6 bg-white text-black font-black uppercase tracking-[0.5em] text-xs hover:bg-white/90 active:scale-95 transition-all">
                         ADD HABIT

@@ -27,7 +27,7 @@ function Profile() {
     const isLoading = isHabitsLoading || isTasksLoading || isWishlistLoading;
 
     const coreHabits = React.useMemo(() => {
-        const systemIds = ['journal', 'finance', 'planner', 'workout'];
+        const systemIds = ['focus', 'journal', 'finance', 'planner', 'workout'];
         return systemIds.map(id => allHabits.find(h => h.systemId === id)).filter(Boolean);
     }, [allHabits]);
 

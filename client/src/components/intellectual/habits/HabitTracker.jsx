@@ -7,27 +7,6 @@ import ConfirmDialog from '../../ui/ConfirmDialog';
 
 import AddHabitModal, { ICON_OPTIONS } from './AddHabitModal';
 
-const SUGGESTIONS = [
-    {
-        category: 'STR',
-        habits: [
-            { name: 'Workout Session', icon: 'fitness_center' },
-            { name: '7h+ Sleep', icon: 'bedtime' },
-            { name: 'Healthy Nutrition', icon: 'restaurant' },
-            { name: 'Hydration (2L)', icon: 'local_drink' },
-        ]
-    },
-    {
-        category: 'INT',
-        habits: [
-            { name: 'Deep Work Box', icon: 'psychology' },
-            { name: 'Read 20 Pages', icon: 'menu_book' },
-            { name: 'Skill Practice', icon: 'brush' },
-            { name: 'Journaling', icon: 'history_edu' },
-        ]
-    }
-];
-
 const EMPTY_ARRAY = [];
 const EMPTY_OBJECT = {};
 
@@ -61,6 +40,7 @@ function HabitTracker({
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     const CORE_REDIRECTS = {
+        'focus': '/dashboard',
         'planner': '/dashboard/planner',
         'finance': '/dashboard/finance',
         'journal': '/dashboard/journal',
@@ -73,7 +53,7 @@ function HabitTracker({
     const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
     const { teamHabits, partnerHabitsOnly } = React.useMemo(() => {
-        const CORE_ORDER = ['planner', 'finance', 'journal', 'workout'];
+        const CORE_ORDER = ['focus', 'planner', 'finance', 'journal', 'workout'];
         const sortHabits = (a, b) => {
             const sysA = a.myPart ? a.myPart.systemId : a.systemId;
             const sysB = b.myPart ? b.myPart.systemId : b.systemId;
@@ -82,6 +62,7 @@ function HabitTracker({
             if (sysA && sysB) return CORE_ORDER.indexOf(sysA) - CORE_ORDER.indexOf(sysB);
             return 0;
         };
+// ... rest of the code is unchanged. Let's make sure the target matches exactly.
 
         if (!isPartnerView) {
             const sorted = [...habits].sort(sortHabits);
@@ -158,7 +139,11 @@ function HabitTracker({
                         if (isSystemHabit && !editMode) {
                             const sysId = habit.myPart ? habit.myPart.systemId : habit.systemId;
                             const path = CORE_REDIRECTS[sysId];
-                            if (path) navigate(path);
+                            if (sysId === 'focus') {
+                                navigate('/dashboard', { state: { openFocusTimer: true } });
+                            } else if (path) {
+                                navigate(path);
+                            }
                         }
                     }}
                 >
@@ -215,11 +200,11 @@ function HabitTracker({
 
     return (
         <div className="flex flex-col gap-8 font-sans relative">
-            <div className="absolute -top-16 right-0 flex gap-2 z-20">
+            <div className="relative flex justify-end gap-2 md:absolute md:-top-16 md:right-0 mb-4 md:mb-0 z-20 px-4 md:px-0">
                 <button onClick={() => setAddModalOpen(true)} className="size-10 flex items-center justify-center border border-white/10 hover:bg-white hover:text-black transition-all">
                     <Plus size={16} />
                 </button>
-                <button onClick={() => setEditMode(!editMode)} className={`size-10 flex items-center justify-center border transition-all ${editMode ? 'bg-white text-black border-white' : 'border-white/10 text-white/40 hover:border-white/30'}`}>
+                <button onClick={() => setEditMode(!editMode)} className={`size-10 flex items-center justify-center border transition-all ${editMode ? 'bg-white text-black border-white' : 'border-white/10 text-white/40'}`}>
                     <Edit2 size={16} />
                 </button>
             </div>

@@ -66,7 +66,7 @@ export const syncFeature = async (req, res) => {
         // FORCE HYDRATE SYSTEM HABITS
         // Some users might have initialized their CRDTs before system habits were properly seeded.
         if (feature === 'habits') {
-            const systemHabits = await Habit.find({ user: userId, systemId: { $in: ['journal', 'finance', 'planner', 'workout'] } }).lean();
+            const systemHabits = await Habit.find({ user: userId, systemId: { $in: ['journal', 'finance', 'planner', 'workout', 'focus'] } }).lean();
             const serializedSys = JSON.parse(JSON.stringify(systemHabits));
             serializedSys.forEach(item => {
                 const id = item._id.toString();
@@ -208,7 +208,7 @@ async function updateLegacyModels(feature, userId, doc) {
         for (const entry of entries) {
             try {
                 const query = (entry._id && entry._id.startsWith('local-'))
-                    ? { name: entry.name, category: entry.category, user: userId }
+                    ? { name: entry.name, user: userId }
                     : { _id: entry._id, user: userId };
                 
                 await Habit.findOneAndUpdate(

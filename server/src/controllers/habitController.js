@@ -10,6 +10,10 @@ export const getHabits = async (req, res) => {
     try {
         let targetUserId = req.user._id;
 
+        if (req.query.view !== 'partner') {
+            await initializeSystemHabits(targetUserId);
+        }
+
         if (req.query.view === 'partner') {
             const currentUser = await User.findById(req.user._id);
             if (!currentUser || !currentUser.partner) {
@@ -35,7 +39,7 @@ export const getHabits = async (req, res) => {
 // @route   POST /api/habits
 // @access  Private
 export const createHabit = async (req, res) => {
-    const { name, icon, color, category, isShared } = req.body;
+    const { name, icon, color, isShared } = req.body;
     try {
         if (isShared) {
             const currentUser = await User.findById(req.user._id);
@@ -48,14 +52,14 @@ export const createHabit = async (req, res) => {
             // Create for both
             const habitSelf = await Habit.create({
                 user: req.user._id,
-                name, icon, color, category,
+                name, icon, color,
                 isShared: true,
                 sharedGroupId
             });
 
             await Habit.create({
                 user: currentUser.partner,
-                name, icon, color, category,
+                name, icon, color,
                 isShared: true,
                 sharedGroupId
             });
@@ -67,8 +71,7 @@ export const createHabit = async (req, res) => {
             user: req.user._id,
             name,
             icon,
-            color,
-            category
+            color
         });
         res.status(201).json(habit);
     } catch (error) {
@@ -133,7 +136,7 @@ export const toggleCheck = async (req, res) => {
 // @route   PUT /api/habits/:id
 // @access  Private
 export const updateHabit = async (req, res) => {
-    const { name, icon, color, category } = req.body;
+    const { name, icon, color } = req.body;
     try {
         const habit = await Habit.findById(req.params.id);
         if (!habit) {
@@ -148,7 +151,7 @@ export const updateHabit = async (req, res) => {
         if (habit.isShared && habit.sharedGroupId) {
             // Update all habits in shared group
             // Prevent name change if it's a system habit
-            const updatePayload = { icon, color, category };
+            const updatePayload = { icon, color };
             if (!habit.systemId) {
                 updatePayload.name = name;
             }
@@ -168,7 +171,6 @@ export const updateHabit = async (req, res) => {
         
         habit.icon = icon || habit.icon;
         habit.color = color || habit.color;
-        habit.category = category || habit.category;
 
         const updatedHabit = await habit.save();
         res.json(updatedHabit);

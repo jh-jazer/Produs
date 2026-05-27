@@ -20,8 +20,6 @@ const habitSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        enum: ['STR', 'INT', 'WIS', 'DEX', 'CHA', 'END', 'Other'],
-        required: true,
         default: 'INT'
     },
     streak: {

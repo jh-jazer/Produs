@@ -174,7 +174,7 @@ export default function Home() {
   const currYear = currDate.getFullYear();
   const currMonth = currDate.getMonth() + 1;
   const { tasks: monthlyTasks = [] } = usePlanner({ year: currYear, month: currMonth });
-  const { habits = [] } = useHabits();
+  const { habits = [], toggleCheck: toggleHabitCheck } = useHabits();
   const { goals = [] } = useGoals();
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -219,6 +219,24 @@ export default function Home() {
   const [focusStage, setFocusStage] = useState('select');
   const [lootBoxOpened, setLootBoxOpened] = useState(false);
   const [showFocusCancelConfirm, setShowFocusCancelConfirm] = useState(false);
+  const [hasCompletedFocusHabitThisSession, setHasCompletedFocusHabitThisSession] = useState(false);
+
+  // Auto-complete Focus habit when focus time reaches 5 mins (300 seconds)
+  useEffect(() => {
+    if (isFocusRunning && showFocusTimer) {
+      const elapsedSeconds = (focusSelectedTime * 60) - focusTimeLeft;
+      if (elapsedSeconds >= 300 && !hasCompletedFocusHabitThisSession) {
+        setHasCompletedFocusHabitThisSession(true);
+        const focusHabit = habits.find(h => h.systemId === 'focus');
+        if (focusHabit) {
+          const isAlreadyCompleted = focusHabit.checks?.some(c => c.date === todayStr && c.completed);
+          if (!isAlreadyCompleted) {
+            toggleHabitCheck(focusHabit._id, todayStr);
+          }
+        }
+      }
+    }
+  }, [focusTimeLeft, isFocusRunning, showFocusTimer, focusSelectedTime, habits, todayStr, hasCompletedFocusHabitThisSession, toggleHabitCheck]);
 
   // Focus Timer Countdown Effect
   useEffect(() => {
@@ -319,7 +337,7 @@ export default function Home() {
     }).slice(0, 3);
     
     const habitsActivities = undoneHabits.length > 0 ? undoneHabits.map(h => ({
-      title: h.title,
+      title: h.name,
       time: `STREAK: ${h.streak || 0} DAYS`,
       status: 'PENDING'
     })) : [{ title: 'ALL CLEAR', time: 'TODAY', status: 'STANDBY' }];
@@ -675,6 +693,14 @@ export default function Home() {
   }, [location.state]);
 
   useEffect(() => {
+    if (location.state?.openFocusTimer) {
+      setShowFocusTimer(true);
+      // Consume state so it doesn't repeatedly trigger on standard component unmount/remount
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
+  useEffect(() => {
     if (user) {
       setEditData({
         username: user.username?.split('#')[0] || '',
@@ -871,19 +897,27 @@ export default function Home() {
                           setFocusStage('select');
                           setShowFocusTimer(true);
                         }}
-                        whileHover={{ scale: 1.03 }}
+                        animate={{
+                          scale: [1, 1.02, 1],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        whileHover={{ scale: 1.04 }}
                         whileTap={{ scale: 0.96 }}
                         className="mt-0 md:mt-[9vh] relative group pointer-events-auto z-20 overflow-hidden"
                       >
                         {/* Outer glow pulse ring */}
                         <motion.span
-                          className="absolute inset-0 rounded-sm bg-primary/20 dark:bg-primary/30"
+                          className="absolute inset-0 rounded-sm bg-black/10 dark:bg-white/20"
                           animate={{ scale: [1, 1.06, 1], opacity: [0.6, 0, 0.6] }}
                           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                         />
 
                         {/* Button body */}
-                        <span className="relative flex items-center gap-3 px-8 h-[8vh] min-h-[44px] bg-primary text-white font-black uppercase text-[10px] tracking-[0.3em] rounded-sm shadow-[0_0_30px_var(--tw-shadow-color)] shadow-primary/40 group-hover:shadow-primary/60 transition-shadow duration-300">
+                        <span className="relative flex items-center gap-3 px-8 h-[8vh] min-h-[44px] bg-black dark:bg-white text-white dark:text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-sm shadow-[0_0_30px_rgba(0,0,0,0.15)] dark:shadow-[0_0_30px_rgba(255,255,255,0.15)] group-hover:shadow-[0_0_45px_rgba(0,0,0,0.25)] dark:group-hover:shadow-[0_0_45px_rgba(255,255,255,0.25)] transition-shadow duration-300">
                           {/* Animated hourglass */}
                           <motion.span
                             className="material-symbols-outlined text-[15px] leading-none"
@@ -982,11 +1016,7 @@ export default function Home() {
                                       setActivePriorityIndex(i);
                                       e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                                     }}
-                                    className={`snap-center w-[94vw] h-64 md:h-72 rounded-3xl border-2 backdrop-blur-md p-6 md:p-8 flex flex-col justify-between shrink-0 transition-all duration-500 cursor-pointer group origin-center scale-105 opacity-100 ${
-                                      isActive 
-                                        ? 'border-black/40 dark:border-white/40 bg-white/80 dark:bg-white/[0.08] shadow-lg shadow-black/[0.05] dark:shadow-white/[0.02]' 
-                                        : 'border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] shadow-md hover:border-black/30 dark:hover:border-white/30 hover:bg-white/50 dark:hover:bg-white/[0.04]'
-                                    }`}
+                                    className="snap-center w-[94vw] h-64 md:h-72 rounded-3xl border-2 border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] shadow-md backdrop-blur-md p-6 md:p-8 flex flex-col justify-between shrink-0 transition-all duration-500 cursor-pointer group origin-center scale-105 opacity-100"
                                   >
                                     {card.type === 'multi' ? (
                                       <div className="flex flex-col h-full justify-end gap-4">
@@ -998,9 +1028,7 @@ export default function Home() {
                                                 act.status === 'PENDING' ? 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.6)]' :
                                                 'bg-black/20 dark:bg-white/20'
                                               }`} />
-                                              <span className={`text-xl font-black uppercase tracking-wider leading-tight truncate transition-colors duration-300 ${
-                                                isActive ? 'text-primary' : 'text-black dark:text-white group-hover:text-primary'
-                                              }`}>
+                                              <span className="text-xl font-black uppercase tracking-wider leading-tight truncate transition-colors duration-300 text-black dark:text-white">
                                                 {act.title}
                                               </span>
                                             </div>
@@ -1015,9 +1043,7 @@ export default function Home() {
                                         <div className="flex justify-between items-start">
                                           <span className="text-sm font-mono text-black/50 dark:text-white/50">{card.time}</span>
                                         </div>
-                                        <span className={`text-3xl font-black uppercase tracking-wider leading-tight transition-colors duration-300 ${
-                                          isActive ? 'text-primary' : 'text-black dark:text-white group-hover:text-primary'
-                                        }`}>
+                                        <span className="text-3xl font-black uppercase tracking-wider leading-tight transition-colors duration-300 text-black dark:text-white">
                                           {card.title}
                                         </span>
                                       </>
@@ -1033,7 +1059,7 @@ export default function Home() {
                         <div className="flex items-center gap-6 mt-6 pointer-events-auto select-none w-full max-w-[1180px]">
                           {/* Active Card */}
                           <div 
-                            className="w-full md:flex-1 md:max-w-[1060px] h-72 md:h-96 rounded-3xl border-2 border-black/40 dark:border-white/40 bg-white/80 dark:bg-white/[0.08] backdrop-blur-md p-8 md:p-12 flex flex-col justify-between transition-all duration-500 cursor-default shadow-lg shadow-black/[0.05] dark:shadow-white/[0.02] origin-center scale-105 opacity-100 z-20"
+                            className="w-full md:flex-1 md:max-w-[1060px] h-72 md:h-96 rounded-3xl border-2 border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] backdrop-blur-md p-8 md:p-12 flex flex-col justify-between transition-all duration-500 cursor-default shadow-md origin-center scale-105 opacity-100 z-20"
                           >
                             {priorityCards[desktopIndex].type === 'multi' ? (
                               <div className="flex flex-col h-full justify-end gap-4 md:gap-6">
@@ -1045,7 +1071,7 @@ export default function Home() {
                                         act.status === 'PENDING' ? 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.6)]' :
                                         'bg-black/20 dark:bg-white/20'
                                       }`} />
-                                      <span className="text-xl md:text-3xl font-black uppercase tracking-wider text-primary leading-none truncate">
+                                      <span className="text-xl md:text-3xl font-black uppercase tracking-wider text-black dark:text-white leading-none truncate">
                                         {act.title}
                                       </span>
                                     </div>
@@ -1060,7 +1086,7 @@ export default function Home() {
                                 <div className="flex justify-between items-start">
                                   <span className="text-xs md:text-base font-mono text-black/50 dark:text-white/50">{priorityCards[desktopIndex].time}</span>
                                 </div>
-                                <span className="text-3xl md:text-5xl font-black uppercase tracking-wider text-primary leading-none">
+                                <span className="text-3xl md:text-5xl font-black uppercase tracking-wider text-black dark:text-white leading-none">
                                   {priorityCards[desktopIndex].title}
                                 </span>
                               </>
@@ -1645,7 +1671,7 @@ export default function Home() {
       {/* Weekly Rewards Modal */}
       <AnimatePresence>
         {showWeeklyModal && (
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center pt-24 pb-28 px-4 md:p-6 select-none">
+          <div className="fixed inset-0 md:left-[18vw] md:right-[4vw] z-[99999] flex items-center justify-center pt-24 pb-28 px-4 md:p-6 select-none">
             <style>{`
               .hud-buttons-container {
                 display: none !important;
@@ -1655,7 +1681,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-md"
+              className="fixed inset-0 md:left-[18vw] md:right-[4vw] bg-black/80 backdrop-blur-md"
               onClick={() => setShowWeeklyModal(false)}
             />
             <motion.div
@@ -1690,9 +1716,14 @@ export default function Home() {
                   { day: 6, reward: "+250 POINTS", type: 'POINTS' },
                   { day: 7, reward: "+500 POINTS & ECLIPSE FRAME", type: 'LEGENDARY' }
                 ].map((item) => {
-                  const isCurrentClaimable = item.day === 1 && !claimedDaily;
-                  const isAlreadyClaimed = item.day === 1 && claimedDaily;
-                  const isLocked = item.day > 1;
+                  const claimsCount = user?.rpg?.dailyReward?.claimsCount || 0;
+                  const activeWeeklyDay = claimedDaily 
+                    ? (((claimsCount - 1) % 7) + 1)
+                    : ((claimsCount % 7) + 1);
+
+                  const isCurrentClaimable = item.day === activeWeeklyDay && !claimedDaily;
+                  const isAlreadyClaimed = item.day < activeWeeklyDay || (item.day === activeWeeklyDay && claimedDaily);
+                  const isLocked = item.day > activeWeeklyDay;
 
                   return (
                     <div 
@@ -1752,7 +1783,7 @@ export default function Home() {
       {/* 365 Streak Progression Modal */}
       <AnimatePresence>
         {showStreakModal && (
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center pt-24 pb-28 px-4 md:p-6 select-none">
+          <div className="fixed inset-0 md:left-[18vw] md:right-[4vw] z-[99999] flex items-center justify-center pt-24 pb-28 px-4 md:p-6 select-none">
             <style>{`
               .hud-buttons-container {
                 display: none !important;
@@ -1762,7 +1793,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-md"
+              className="fixed inset-0 md:left-[18vw] md:right-[4vw] bg-black/80 backdrop-blur-md"
               onClick={() => setShowStreakModal(false)}
             />
             <motion.div
@@ -1799,6 +1830,7 @@ export default function Home() {
                 {Array.from({ length: 365 }, (_, index) => {
                   const day = index + 1;
                   const isUnlocked = day <= currentStreak;
+                  const isClaimed = day < currentStreak || (day === currentStreak && claimedStreak);
                   
                   let reward = `+${10 + day * 5} ProdPoints`;
                   let rank = 'ROOKIE STEP';
@@ -1848,7 +1880,7 @@ export default function Home() {
 
               <div className="flex items-center gap-2">
                         {isUnlocked ? (
-                          claimedStreak ? (
+                          isClaimed ? (
                             <span className="text-[7.5px] font-mono font-black text-emerald-500 uppercase tracking-widest px-2 py-0.5 bg-emerald-500/15 border border-emerald-500/20 rounded-sm">
                               CLAIMED
                             </span>
@@ -1972,6 +2004,7 @@ export default function Home() {
                     onClick={() => {
                       setFocusStage('countdown');
                       setIsFocusRunning(true);
+                      setHasCompletedFocusHabitThisSession(false);
                     }}
                     className="w-full bg-white text-black font-black uppercase tracking-[0.3em] text-[10px] py-4 rounded-sm hover:bg-white/80 active:scale-95 transition-all shadow-[0_0_35px_rgba(255,255,255,0.2)]"
                   >
