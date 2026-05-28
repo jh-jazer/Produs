@@ -45,7 +45,7 @@ function HabitTracker({
         'planner': '/dashboard/planner',
         'finance': '/dashboard/finance',
         'journal': '/dashboard/journal',
-        'workout': '/dashboard/health'
+        'workout': '/dashboard/planner'
     };
 
     const today = new Date();
@@ -54,7 +54,7 @@ function HabitTracker({
     const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
     const { teamHabits, partnerHabitsOnly } = React.useMemo(() => {
-        const CORE_ORDER = ['focus', 'planner', 'finance', 'journal', 'workout'];
+        const CORE_ORDER = ['focus', 'planner', 'workout', 'journal', 'finance'];
         const sortHabits = (a, b) => {
             const sysA = a.myPart ? a.myPart.systemId : a.systemId;
             const sysB = b.myPart ? b.myPart.systemId : b.systemId;
@@ -318,6 +318,7 @@ function HabitTracker({
                 isOpen={addModalOpen} 
                 onClose={() => setAddModalOpen(false)} 
                 onAdd={handleAddHabit} 
+                isSystemMode={habitFilter === 'system'}
             />
         </div>
     );

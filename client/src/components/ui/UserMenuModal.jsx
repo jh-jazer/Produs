@@ -1,8 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import DashboardModal from './DashboardModal';
-import CoinDisplay from './CoinDisplay';
-import CoreDisplay from './CoreDisplay';
-import EnergyDisplay from './EnergyDisplay';
 import LevelDisplay from './LevelDisplay';
 import Avatar from './Avatar';
 
@@ -29,7 +26,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
                         {/* EXP Progress Ring */}
                         <svg viewBox="0 0 100 100" className="absolute inset-0 size-full -rotate-90 pointer-events-none drop-shadow-md">
                             {/* Track */}
-                            <circle cx="50" cy="50" r="47" fill="transparent" stroke="currentColor" strokeWidth="2" className="text-black/10 dark:text-white/10" />
+                            <circle cx="50" cy="50" r="47" fill="transparent" stroke="currentColor" strokeWidth="2" className="text-foreground/10" />
                             {/* Progress Indicator */}
                             <circle 
                                 cx="50" cy="50" r="47" 
@@ -39,26 +36,26 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
                                 strokeLinecap="round"
                                 strokeDasharray={circumference}
                                 strokeDashoffset={circumference * (1 - progressPct / 100)}
-                                className="text-black dark:text-white transition-all duration-1000 ease-[0.16,1,0.3,1]"
+                                className="text-foreground transition-all duration-1000 ease-[0.16,1,0.3,1]"
                             />
                         </svg>
 
-                        <div className="size-full rounded-full overflow-hidden bg-black/5 dark:bg-white/10 relative z-10">
+                        <div className="size-full rounded-full overflow-hidden bg-foreground/10 relative z-10">
                             <Avatar config={user?.avatar} />
                         </div>
                         {/* Level badge anchored to avatar */}
-                        <div className="absolute -bottom-1 -right-1 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black px-2 py-0.5 rounded-md shadow-lg border border-black/10 dark:border-white/10 z-10">
+                        <div className="absolute -bottom-1 -right-1 bg-foreground text-background text-[8px] font-black px-1 py-0.5 rounded-md shadow-lg border border-foreground/10 z-10">
                             {user?.guardianLevel || 0}
                         </div>
                     </div>
                     <div className="flex flex-col gap-1 w-full">
-                        <h3 className="text-xl md:text-2xl font-black text-black dark:text-white uppercase tracking-[0.2em] font-mono leading-none">
+                        <h3 className="text-xl md:text-2xl font-black text-foreground uppercase tracking-[0.2em] font-mono leading-none">
                             {user?.username?.replace(/[#\d]+/g, '') || 'OPERATOR'}
                         </h3>
                         <div className="flex flex-col gap-3 mt-1 w-full">
                             {/* Guardian Level */}
                             <div className="flex flex-col gap-0.5">
-                                <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Guardian Protocol</span>
+                                <span className="text-[8px] font-black uppercase tracking-widest text-foreground/50 dark:text-slate-400">Guardian Protocol</span>
                                 <LevelDisplay 
                                     level={user?.guardianLevel} 
                                     exp={user?.guardianExp} 
@@ -67,12 +64,13 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
                                     showXP={true}
                                     variant="default"
                                     className="scale-[0.85] origin-left"
+                                Aminochrome={false}
                                 />
                             </div>
 
                             {/* Hero Level */}
                             <div className={`flex flex-col gap-0.5 transition-opacity ${!user?.hero?.level ? 'opacity-30 grayscale pointer-events-none' : 'opacity-90'}`}>
-                                <span className="text-[8px] font-black uppercase tracking-widest text-amber-500/80">
+                                <span className="text-[8px] font-black uppercase tracking-widest text-foreground/50 dark:text-amber-500/80">
                                     Hero {user?.hero?.name && user.hero.name !== 'Unnamed Hero' ? `(${user.hero.name})` : '(Locked)'}
                                 </span>
                                 <LevelDisplay 
@@ -89,57 +87,37 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
                     </div>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-3 p-4 rounded-3xl">
-                    <div className="flex flex-col items-center gap-1">
-                        <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Points</span>
-                        <CoinDisplay amount={user?.rpg?.prodCoins || 0} variant="minimal" />
-                    </div>
-                    <div className="flex flex-col items-center gap-1 border-x border-black/10 dark:border-white/10">
-                        <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Cores</span>
-                        <CoreDisplay amount={user?.rpg?.cores || 0} variant="minimal" />
-                    </div>
-                    <div className="flex flex-col items-center gap-1">
-                        <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Energy</span>
-                        <EnergyDisplay 
-                            current={user?.rpg?.energy?.current ?? (10 + (user?.guardianLevel || 0))} 
-                            max={10 + (user?.guardianLevel || 0)} 
-                            variant="minimal" 
-                        />
-                    </div>
-                </div>
-
                 {/* Navigation Actions */}
                 <div className="flex flex-col gap-1">
-                    <button onClick={() => { onClose(); navigate('/dashboard/merchant'); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all flex items-center gap-4 group">
-                        <span className="material-symbols-outlined text-lg opacity-40 group-hover:opacity-100 group-hover:text-black dark:group-hover:text-white transition-all">shopping_bag</span>
+                    <button onClick={() => { onClose(); navigate('/dashboard/merchant'); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-foreground/60 hover:bg-foreground/5 rounded-2xl transition-all flex items-center gap-4 group">
+                        <span className="material-symbols-outlined text-lg text-foreground opacity-40 group-hover:opacity-100 transition-all">shopping_bag</span>
                         <span>MERCHANT</span>
                     </button>
 
-                    <button onClick={() => { onClose(); onOpenNotifications(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all flex items-center justify-between group">
+                    <button onClick={() => { onClose(); onOpenNotifications(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-foreground/60 hover:bg-foreground/5 rounded-2xl transition-all flex items-center justify-between group">
                         <div className="flex items-center gap-4">
-                            <span className="material-symbols-outlined text-lg opacity-40 group-hover:opacity-100 group-hover:text-black dark:group-hover:text-white transition-all">notifications</span>
+                            <span className="material-symbols-outlined text-lg text-foreground opacity-40 group-hover:opacity-100 transition-all">notifications</span>
                             <span className="flex items-center gap-2">
                                 NOTIFICATIONS
                                 {hasAnyUnread && (
-                                    <span className="size-2 rounded-full bg-black dark:bg-white animate-pulse" />
+                                    <span className="size-2 rounded-full bg-foreground animate-pulse" />
                                 )}
                             </span>
                         </div>
                         {unreadCount > 0 && (
-                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/5 dark:bg-white/10 text-black dark:text-white text-[8px] font-black border border-black/10 dark:border-white/10">
-                                <span className="size-1 rounded-full bg-black dark:bg-white animate-pulse" />
+                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-foreground/5 text-foreground text-[8px] font-black border border-foreground/10">
+                                <span className="size-1 rounded-full bg-foreground animate-pulse" />
                                 {unreadCount}
                             </div>
                         )}
                     </button>
 
-                    <button onClick={() => { onClose(); onOpenSettings(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all flex items-center gap-4 group">
-                        <span className="material-symbols-outlined text-lg opacity-40 group-hover:opacity-100 group-hover:text-black dark:group-hover:text-white transition-all">settings</span>
+                    <button onClick={() => { onClose(); onOpenSettings(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-foreground/60 hover:bg-foreground/5 rounded-2xl transition-all flex items-center gap-4 group">
+                        <span className="material-symbols-outlined text-lg text-foreground opacity-40 group-hover:opacity-100 transition-all">settings</span>
                         <span>SETTINGS</span>
                     </button>
 
-                    <div className="my-2 border-t border-black/[0.05] dark:border-white/[0.05]" />
+                    <div className="my-2 border-t border-foreground/[0.05]" />
 
                     <button onClick={onSignOut} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-rose-500 hover:bg-rose-500/5 rounded-2xl transition-all flex items-center gap-4 group">
                         <span className="material-symbols-outlined text-lg opacity-60 group-hover:opacity-100 transition-all">logout</span>

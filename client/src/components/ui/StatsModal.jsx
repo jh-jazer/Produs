@@ -119,7 +119,7 @@ export default function StatsModal({ isOpen, onClose, user }) {
         <div className="px-1 -mt-4">
           <div className="flex items-end justify-between mb-2">
              <div className="flex flex-col">
-               <span className="text-lg font-bold">LVL {Math.max(1, user?.guardianLevel || 1)} <span className="text-xs font-medium text-black/30 dark:text-white/30 ml-2">{currentLevelProgress} / {nextLevelThreshold} EXP</span></span>
+               <span className="text-lg font-bold">LVL {Math.max(1, user?.guardianLevel || 1)} <span className="text-xs font-medium text-black/30 dark:text-white/30 ml-2">{currentLevelProgress} / {nextLevelThreshold} XP</span></span>
              </div>
              <span className="text-[9px] font-black uppercase tracking-widest text-black/20 dark:text-white/20">
                Next: LVL {Math.max(1, user?.guardianLevel || 1) + 1}
@@ -136,11 +136,11 @@ export default function StatsModal({ isOpen, onClose, user }) {
             </motion.div>
           </div>
         </div>
-
+ 
         {/* Daily XP Cap Progress */}
         <div className="px-1 mt-0">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[9px] font-black uppercase tracking-wider text-black/40 dark:text-white/40">Daily EXP Prowess</span>
+            <span className="text-[9px] font-black uppercase tracking-wider text-black/40 dark:text-white/40">Daily XP Prowess</span>
             <span className="text-[9px] font-bold text-black/30 dark:text-white/30">{dailyXP} / 315</span>
           </div>
           <div className="h-1 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">

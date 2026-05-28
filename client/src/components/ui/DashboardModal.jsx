@@ -50,7 +50,7 @@ const DashboardModal = ({
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.8 }}
                             onClick={onClose}
-                            className="absolute -top-4 -right-4 size-10 md:size-12 bg-white dark:bg-[#121212] border-2 border-white/20 z-[1010] flex items-center justify-center text-black dark:text-white hover:bg-rose-500 hover:text-white transition-all group active:scale-95 shadow-2xl"
+                            className="absolute -top-4 -right-4 size-10 md:size-12 bg-white dark:bg-[#121212] border-2 border-black/20 dark:border-white/20 z-[1010] flex items-center justify-center text-black dark:text-white hover:bg-rose-500 hover:text-white transition-all group active:scale-95 shadow-2xl"
                             title="Close Nexus"
                             style={{ clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 20% 100%, 0% 80%)' }}
                         >
@@ -66,7 +66,7 @@ const DashboardModal = ({
                             onClick={e => e.stopPropagation()}
                         >
                             <ChippedBorder opacity={0.6} thickness="4px" />
-                            <div className="absolute inset-0 border border-white/10 pointer-events-none z-40" />
+                            <div className="absolute inset-0 border border-black/20 dark:border-white/20 pointer-events-none z-40" />
                         {/* Header Section */}
                         <div className="p-8 md:p-10 border-b border-black/5 dark:border-white/5 flex items-center justify-between relative z-20">
                             <div className="space-y-1">

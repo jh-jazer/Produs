@@ -83,7 +83,7 @@ const MobileLogoText = ({ activeSection, onClick }) => {
               className="pointer-events-auto cursor-pointer mt-1.5"
               onClick={onClick}
             >
-              <h1 className="wordmark text-black dark:text-white flex items-center font-mono" style={{ fontSize: '14px' }}>
+              <h1 className="wordmark text-foreground flex items-center font-mono" style={{ fontSize: '14px' }}>
                 <span>{matrixText}</span>
                 <span className="animate-pulse inline-block w-1.5 h-3.5 bg-current ml-0.5 opacity-60 shrink-0" />
               </h1>
@@ -922,7 +922,9 @@ export default function Home() {
                             if (hour < 12) return "Good Morning";
                             if (hour < 18) return "Good Afternoon";
                             return "Good Evening";
-                          })()}, {user?.username?.split('#')[0] || 'Operator'}
+                          })()}
+                          <br />
+                          {user?.username?.split('#')[0] || 'Operator'}
                         </h3>
                         <p className="text-[10px] md:text-sm font-mono uppercase tracking-[0.2em] text-black dark:text-white/40 mt-1 md:mt-2">
                           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
@@ -1068,8 +1070,13 @@ export default function Home() {
                                     key={i} 
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setActivePriorityIndex(i);
-                                      e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                                      const totalLength = [...priorityCards, ...priorityCards, ...priorityCards].length;
+                                      if (i === activePriorityIndex) {
+                                        setActivePriorityIndex((i + 1) % totalLength);
+                                      } else {
+                                        setActivePriorityIndex(i);
+                                        e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                                      }
                                     }}
                                     className="snap-center w-[85vw] md:w-[94vw] h-64 md:h-72 rounded-3xl border-2 border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] shadow-md backdrop-blur-md p-6 md:p-8 flex flex-col justify-between shrink-0 transition-all duration-500 cursor-pointer group origin-center scale-105 opacity-100"
                                   >
@@ -1114,7 +1121,8 @@ export default function Home() {
                         <div className="flex items-center gap-6 mt-6 pointer-events-auto select-none w-full max-w-[1180px]">
                           {/* Active Card */}
                           <div 
-                            className="w-full md:flex-1 md:max-w-[1060px] h-72 md:h-96 rounded-3xl border-2 border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] backdrop-blur-md p-8 md:p-12 flex flex-col justify-between transition-all duration-500 cursor-default shadow-md origin-center scale-105 opacity-100 z-20"
+                            onClick={handleNextCard}
+                            className="w-full md:flex-1 md:max-w-[1060px] h-72 md:h-96 rounded-3xl border-2 border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] backdrop-blur-md p-8 md:p-12 flex flex-col justify-between transition-all duration-500 cursor-pointer shadow-md origin-center scale-105 opacity-100 z-20"
                           >
                             {priorityCards[desktopIndex].type === 'multi' ? (
                               <div className="flex flex-col h-full justify-end gap-4 md:gap-6">
@@ -1736,7 +1744,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 md:left-[18vw] md:right-[4vw] bg-black/80 backdrop-blur-md"
+              className="fixed inset-0 md:left-[18vw] md:right-[4vw] bg-black/60 dark:bg-black/80 backdrop-blur-md"
               onClick={() => setShowWeeklyModal(false)}
             />
             <motion.div
@@ -1744,18 +1752,18 @@ export default function Home() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="relative w-full max-w-xl bg-[#0f0f11] border border-white/10 p-6 md:p-8 rounded-sm shadow-[0_0_50px_rgba(16,185,129,0.15)] flex flex-col gap-6 max-h-full overflow-y-auto pointer-events-auto custom-scrollbar"
+              className="relative w-full max-w-xl bg-white dark:bg-[#0f0f11] border border-black/10 dark:border-white/10 p-6 md:p-8 rounded-sm shadow-[0_0_50px_rgba(16,185,129,0.1)] dark:shadow-[0_0_50px_rgba(16,185,129,0.15)] flex flex-col gap-6 max-h-full overflow-y-auto pointer-events-auto custom-scrollbar"
             >
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
               
               <div className="flex justify-between items-start z-10">
                 <div className="flex flex-col gap-1 text-left">
-                  <span className="text-[9px] font-black uppercase tracking-[0.4em] text-white/40">7-DAY MATRIX REGISTRY</span>
-                  <h3 className="text-xl md:text-2xl font-black uppercase tracking-wider text-white">WEEKLY BOUNTY HUNTER</h3>
+                  <span className="text-[9px] font-black uppercase tracking-[0.4em] text-black/40 dark:text-white/40">7-DAY MATRIX REGISTRY</span>
+                  <h3 className="text-xl md:text-2xl font-black uppercase tracking-wider text-black dark:text-white">WEEKLY BOUNTY HUNTER</h3>
                 </div>
                 <button
                   onClick={() => setShowWeeklyModal(false)}
-                  className="p-1 rounded-sm hover:bg-white/5 text-white/60 hover:text-white transition-colors"
+                  className="p-1 rounded-sm hover:bg-black/5 dark:hover:bg-white/5 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-colors"
                 >
                   <span className="material-symbols-outlined text-lg">close</span>
                 </button>
@@ -1791,22 +1799,22 @@ export default function Home() {
                         isCurrentClaimable
                           ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.15)] animate-pulse'
                           : isAlreadyClaimed
-                          ? 'border-white/5 bg-white/[0.02] opacity-55'
-                          : 'border-white/10 bg-white/[0.01]'
+                          ? 'border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] opacity-55'
+                          : 'border-black/10 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.01]'
                       }`}
                     >
                       <div className="flex justify-between items-start">
-                        <span className="text-[9px] font-mono tracking-widest text-white/40">DAY {item.day}</span>
+                        <span className="text-[9px] font-mono tracking-widest text-black/40 dark:text-white/40">DAY {item.day}</span>
                         {isAlreadyClaimed && <span className="material-symbols-outlined text-emerald-500 text-[14px]">check_circle</span>}
                         {isCurrentClaimable && <span className="material-symbols-outlined text-emerald-400 text-[14px] animate-bounce">stars</span>}
-                        {isLocked && <span className="material-symbols-outlined text-white/20 text-[14px]">lock</span>}
+                        {isLocked && <span className="material-symbols-outlined text-black/20 dark:text-white/20 text-[14px]">lock</span>}
                       </div>
 
                       <div className={`flex flex-col gap-0.5 text-left ${item.day === 7 ? 'mt-4' : 'mt-2'}`}>
-                        <span className={`text-[11px] font-black uppercase tracking-wider ${isCurrentClaimable ? 'text-emerald-400' : 'text-white'}`}>
+                        <span className={`text-[11px] font-black uppercase tracking-wider ${isCurrentClaimable ? 'text-emerald-600 dark:text-emerald-400' : 'text-black dark:text-white'}`}>
                           {item.reward}
                         </span>
-                        <span className="text-[7.5px] font-mono text-white/30 tracking-widest uppercase">
+                        <span className="text-[7.5px] font-mono text-black/30 dark:text-white/30 tracking-widest uppercase">
                           {item.type}
                         </span>
                       </div>
@@ -1826,7 +1834,7 @@ export default function Home() {
                   CLAIM TODAY'S BOUNTY
                 </button>
               ) : (
-                <div className="w-full bg-white/5 border border-white/10 text-white/50 font-black uppercase tracking-[0.2em] text-[9px] py-4 rounded-sm text-center z-10 mt-2 font-mono">
+                <div className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black/50 dark:text-white/50 font-black uppercase tracking-[0.2em] text-[9px] py-4 rounded-sm text-center z-10 mt-2 font-mono">
                   TODAY'S BOUNTY SECURED. NEXT CLAIM IN {timeUntilMidnight}
                 </div>
               )}
@@ -1848,7 +1856,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 md:left-[18vw] md:right-[4vw] bg-black/80 backdrop-blur-md"
+              className="fixed inset-0 md:left-[18vw] md:right-[4vw] bg-black/60 dark:bg-black/80 backdrop-blur-md"
               onClick={() => setShowStreakModal(false)}
             />
             <motion.div
@@ -1856,27 +1864,27 @@ export default function Home() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="relative w-full max-w-xl bg-[#0f0f11] border border-white/10 p-6 md:p-8 rounded-sm shadow-[0_0_50px_rgba(245,158,11,0.15)] flex flex-col gap-6 max-h-full overflow-y-auto pointer-events-auto custom-scrollbar"
+              className="relative w-full max-w-xl bg-white dark:bg-[#0f0f11] border border-black/10 dark:border-white/10 p-6 md:p-8 rounded-sm shadow-[0_0_50px_rgba(245,158,11,0.1)] dark:shadow-[0_0_50px_rgba(245,158,11,0.15)] flex flex-col gap-6 max-h-full overflow-y-auto pointer-events-auto custom-scrollbar"
             >
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
               
               <div className="flex justify-between items-start z-10">
                 <div className="flex flex-col gap-1 text-left">
-                  <span className="text-[9px] font-black uppercase tracking-[0.4em] text-amber-500/60">365-DAY CHRONO MATRIX</span>
-                  <h3 className="text-xl md:text-2xl font-black uppercase tracking-wider text-white">STREAK CHRONICLE</h3>
+                  <span className="text-[9px] font-black uppercase tracking-[0.4em] text-amber-600 dark:text-amber-500/60">365-DAY CHRONO MATRIX</span>
+                  <h3 className="text-xl md:text-2xl font-black uppercase tracking-wider text-black dark:text-white">STREAK CHRONICLE</h3>
                 </div>
                 <button
                   onClick={() => setShowStreakModal(false)}
-                  className="p-1 rounded-sm hover:bg-white/5 text-white/60 hover:text-white transition-colors"
+                  className="p-1 rounded-sm hover:bg-black/5 dark:hover:bg-white/5 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-colors"
                 >
                   <span className="material-symbols-outlined text-lg">close</span>
                 </button>
               </div>
 
-              <div className="flex justify-between items-center bg-white/[0.02] border border-white/5 p-4 rounded-sm z-10 text-left">
+              <div className="flex justify-between items-center bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 p-4 rounded-sm z-10 text-left">
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[8px] font-mono tracking-widest text-white/30 uppercase">OPERATIVE STREAK</span>
-                  <span className="text-xl font-black text-amber-400 font-sans tracking-wide">{currentStreak} CONSECUTIVE DAYS</span>
+                  <span className="text-[8px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">OPERATIVE STREAK</span>
+                  <span className="text-xl font-black text-amber-600 dark:text-amber-400 font-sans tracking-wide">{currentStreak} CONSECUTIVE DAYS</span>
                 </div>
                 <span className="material-symbols-outlined text-amber-500 text-3xl animate-pulse">local_fire_department</span>
               </div>
@@ -1912,22 +1920,22 @@ export default function Home() {
                           ? 'border-emerald-500/30 bg-emerald-500/[0.02]' 
                           : isStreak365Target
                           ? 'border-amber-500/50 bg-amber-500/5 shadow-[0_0_15px_rgba(245,158,11,0.1)]'
-                          : 'border-white/5 bg-white/[0.005] opacity-50'
+                          : 'border-black/5 dark:border-white/5 bg-black/[0.005] dark:bg-white/[0.005] opacity-50'
                       }`}
                     >
                       <div className="flex items-center gap-4 text-left">
                         <div className={`size-8 rounded-full border flex items-center justify-center shrink-0 ${
                           isUnlocked 
                             ? 'border-emerald-500 text-emerald-500 bg-emerald-500/10' 
-                            : 'border-white/10 text-white/20'
+                            : 'border-black/10 dark:border-white/10 text-black/20 dark:text-white/20'
                         }`}>
                           <span className="text-[10px] font-mono font-black">D{day}</span>
                         </div>
                         <div className="flex flex-col">
-                          <span className={`text-xs font-black uppercase tracking-wider ${isUnlocked ? 'text-white' : 'text-white/60'}`}>
+                          <span className={`text-xs font-black uppercase tracking-wider ${isUnlocked ? 'text-black dark:text-white' : 'text-black/60 dark:text-white/60'}`}>
                             {reward}
                           </span>
-                          <span className="text-[7px] font-mono tracking-widest text-white/30 uppercase">
+                          <span className="text-[7px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">
                             {rank}
                           </span>
                         </div>
@@ -1936,16 +1944,16 @@ export default function Home() {
               <div className="flex items-center gap-2">
                         {isUnlocked ? (
                           isClaimed ? (
-                            <span className="text-[7.5px] font-mono font-black text-emerald-500 uppercase tracking-widest px-2 py-0.5 bg-emerald-500/15 border border-emerald-500/20 rounded-sm">
+                            <span className="text-[7.5px] font-mono font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest px-2 py-0.5 bg-emerald-500/15 border border-emerald-500/20 rounded-sm">
                               CLAIMED
                             </span>
                           ) : (
-                            <span className="text-[7.5px] font-mono font-black text-amber-500 uppercase tracking-widest px-2 py-0.5 bg-amber-500/15 border border-amber-500/20 rounded-sm animate-pulse">
+                            <span className="text-[7.5px] font-mono font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest px-2 py-0.5 bg-amber-500/15 border border-amber-500/20 rounded-sm animate-pulse">
                               CLAIM
                             </span>
                           )
                         ) : (
-                          <span className="text-[7.5px] font-mono font-black text-white/40 uppercase tracking-widest px-2 py-0.5 bg-white/5 border border-white/10 rounded-sm">
+                          <span className="text-[7.5px] font-mono font-black text-black/40 dark:text-white/40 uppercase tracking-widest px-2 py-0.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm">
                             LOCKED
                           </span>
                         )}
@@ -1976,7 +1984,7 @@ export default function Home() {
                   CLAIM STREAK REWARDS
                 </button>
               ) : (
-                <div className="w-full bg-white/5 border border-white/10 text-white/50 font-black uppercase tracking-[0.2em] text-[9px] py-4 rounded-sm text-center z-10 font-mono">
+                <div className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black/50 dark:text-white/50 font-black uppercase tracking-[0.2em] text-[9px] py-4 rounded-sm text-center z-10 font-mono">
                   STREAK REWARD CLAIMED. KEEP THE STREAK GOING!
                 </div>
               )}
@@ -1992,82 +2000,78 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[999999] bg-black text-white flex flex-col items-center justify-center p-6 select-none font-mono"
+            className="fixed inset-0 z-[999999] bg-white text-black dark:bg-black dark:text-white flex flex-col items-center justify-center p-6 select-none font-mono"
           >
             {/* Subtle matrix-grid overlay for background aesthetics */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
             {/* Stage 1: Select Focus Time */}
             {focusStage === 'select' && (
-              <div className="flex flex-col items-center gap-8 max-w-md text-center z-10">
-                <span className="material-symbols-outlined text-5xl text-white/40">hourglass_empty</span>
-                <div className="flex flex-col gap-2">
-                  <span className="text-[10px] tracking-[0.4em] text-white/40 uppercase">FOCUS TIMER</span>
-                  <h3 className="text-2xl font-black uppercase tracking-wider text-white">SET FOCUS DURATION</h3>
-                </div>
+              <div className="flex flex-col items-center gap-8 w-[320px] sm:w-[360px] text-center z-10">
 
-                {/* Pre-sets */}
-                <div className="flex gap-4">
-                  {[15, 25, 50].map((mins) => (
-                    <button
-                      key={mins}
+
+                {/* Custom Minutes controls - Circular */}
+                <div className="relative size-60 md:size-64 flex items-center justify-center">
+                  {/* Decorative background circle */}
+                  <svg viewBox="0 0 100 100" className="absolute inset-0 size-full pointer-events-none">
+                    <circle 
+                      cx="50" 
+                      cy="50" 
+                      r="45" 
+                      fill="transparent" 
+                      stroke="currentColor" 
+                      strokeWidth="1.5" 
+                      className="text-black/30 dark:text-white/30" 
+                    />
+                  </svg>
+
+                  {/* Controls centered inside the circle */}
+                  <div className="flex items-center gap-4 z-10">
+                    <button 
                       onClick={() => {
-                        setFocusSelectedTime(mins);
-                        setFocusTimeLeft(mins * 60);
+                        const newMins = Math.max(5, focusSelectedTime - 5);
+                        setFocusSelectedTime(newMins);
+                        setFocusTimeLeft(newMins * 60);
                       }}
-                      className={`px-6 py-3 border font-black text-xs uppercase tracking-wider transition-all duration-200 rounded-sm ${
-                        focusSelectedTime === mins
-                          ? 'border-white bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]'
-                          : 'border-white/10 bg-transparent text-white/60 hover:text-white hover:border-white/30'
-                      }`}
+                      className="size-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 active:scale-90 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all text-2xl font-bold"
                     >
-                      {mins} MINS
+                      -
                     </button>
-                  ))}
-                </div>
-
-                {/* Custom Minutes controls */}
-                <div className="flex items-center gap-4 border border-white/10 p-2 rounded-sm bg-white/[0.02]">
-                  <button 
-                    onClick={() => {
-                      const newMins = Math.max(5, focusSelectedTime - 5);
-                      setFocusSelectedTime(newMins);
-                      setFocusTimeLeft(newMins * 60);
-                    }}
-                    className="size-8 flex items-center justify-center hover:bg-white/5 active:scale-90 text-white/60 hover:text-white transition-all text-xl"
-                  >
-                    -
-                  </button>
-                  <span className="text-xl font-mono font-black w-24 text-center">{focusSelectedTime} MINS</span>
-                  <button 
-                    onClick={() => {
-                      const newMins = Math.min(180, focusSelectedTime + 5);
-                      setFocusSelectedTime(newMins);
-                      setFocusTimeLeft(newMins * 60);
-                    }}
-                    className="size-8 flex items-center justify-center hover:bg-white/5 active:scale-90 text-white/60 hover:text-white transition-all text-xl"
-                  >
-                    +
-                  </button>
+                    <div className="flex flex-col items-center justify-center w-24">
+                      <span className="text-4xl font-mono font-black leading-none">{focusSelectedTime}</span>
+                      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-black/40 dark:text-white/40 mt-1">MINS</span>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        const newMins = Math.min(180, focusSelectedTime + 5);
+                        setFocusSelectedTime(newMins);
+                        setFocusTimeLeft(newMins * 60);
+                      }}
+                      className="size-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 active:scale-90 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all text-2xl font-bold"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
 
                 {/* Rewards Preview */}
                 <div className="w-full flex flex-col items-center gap-1.5 py-1 select-none">
-                  <span className="text-[9px] font-black tracking-[0.3em] text-white/35 uppercase">
+                  <span className="text-[9px] font-black tracking-[0.3em] text-black/35 dark:text-white/35 uppercase">
                     POSSIBLE REWARDS
                   </span>
                   <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-[10px] font-black tracking-widest font-mono">
-                    <span className="text-amber-400">+{calculateFocusPoints(focusSelectedTime)} PRODPOINTS</span>
-                    <span className="text-white/20">•</span>
-                    <span className="text-blue-400">+{Math.round(focusSelectedTime * 1.5)} EXP</span>
-                    <span className="text-white/20">•</span>
-                    <span className="text-purple-400">{focusSelectedTime >= 50 ? 'HIGH' : focusSelectedTime >= 25 ? 'MED' : 'LOW'} LOOT DROP</span>
+                    <span className="text-amber-500 dark:text-amber-400">+{calculateFocusPoints(focusSelectedTime)} PRODPOINTS</span>
+                    <span className="text-black/20 dark:text-white/20">•</span>
+                    <span className="text-blue-600 dark:text-blue-400">+{Math.round(focusSelectedTime * 1.5)} EXP</span>
+                    <span className="text-black/20 dark:text-white/20">•</span>
+                    {(() => {
+                      if (focusSelectedTime >= 90) return <span className="text-amber-500 dark:text-amber-400">LEGENDARY LOOT DROP</span>;
+                      if (focusSelectedTime >= 50) return <span className="text-purple-500 dark:text-purple-400">EPIC LOOT DROP</span>;
+                      if (focusSelectedTime >= 25) return <span className="text-blue-500 dark:text-blue-400">RARE LOOT DROP</span>;
+                      return <span className="text-emerald-500 dark:text-emerald-400">UNCOMMON LOOT DROP</span>;
+                    })()}
                   </div>
-                  {focusSelectedTime >= 25 && (
-                    <span className="text-[8.5px] text-emerald-400/80 font-bold tracking-wider uppercase mt-1">
-                      Habit completion eligible after 5 minutes
-                    </span>
-                  )}
+                  {/* Removed habit completion eligible text */}
                 </div>
 
                 <div className="flex flex-col gap-3 w-full">
@@ -2077,13 +2081,13 @@ export default function Home() {
                       setIsFocusRunning(true);
                       setHasCompletedFocusHabitThisSession(false);
                     }}
-                    className="w-full bg-white text-black font-black uppercase tracking-[0.3em] text-[10px] py-4 rounded-sm hover:bg-white/80 active:scale-95 transition-all shadow-[0_0_35px_rgba(255,255,255,0.2)]"
+                    className="w-full bg-black text-white dark:bg-white dark:text-black font-black uppercase tracking-[0.3em] text-[10px] py-4 rounded-sm hover:opacity-80 active:scale-95 transition-all shadow-[0_0_35px_rgba(0,0,0,0.1)] dark:shadow-[0_0_35px_rgba(255,255,255,0.2)]"
                   >
                     START FOCUS TIMER
                   </button>
                   <button
                     onClick={() => setShowFocusTimer(false)}
-                    className="w-full bg-transparent text-white/40 hover:text-white/60 font-black uppercase tracking-[0.2em] text-[9px] py-3 rounded-sm transition-all"
+                    className="w-full bg-transparent text-black/40 dark:text-white/40 hover:text-black/60 dark:hover:text-white/60 font-black uppercase tracking-[0.2em] text-[9px] py-3 rounded-sm transition-all"
                   >
                     CANCEL
                   </button>
@@ -2096,23 +2100,52 @@ export default function Home() {
               const minutesElapsed = Math.floor(((focusSelectedTime * 60) - focusTimeLeft) / 60);
               const pointsEarnedSoFar = calculateFocusPoints(minutesElapsed);
               return (
-                <div className="flex flex-col items-center gap-8 max-w-md text-center z-10">
-                  <motion.div
-                    animate={isFocusRunning ? { rotate: 180 } : {}}
-                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut", repeatDelay: 1 }}
-                    className="size-24 flex items-center justify-center border border-white/20 rounded-full bg-white/5"
-                  >
-                    <span className="material-symbols-outlined text-4xl text-white">
-                      hourglass_top
-                    </span>
-                  </motion.div>
+                <div className="flex flex-col items-center gap-8 w-[320px] sm:w-[360px] text-center z-10">
+                  <div className="relative size-60 md:size-64 flex items-center justify-center">
+                    {/* Background track circle */}
+                    <svg viewBox="0 0 100 100" className="absolute inset-0 size-full pointer-events-none">
+                      <circle cx="50" cy="50" r="45" fill="transparent" stroke="currentColor" strokeWidth="1" className="text-black/20 dark:text-white/20" />
+                    </svg>
+
+                    {/* Revolving progress circle */}
+                    <motion.svg 
+                      viewBox="0 0 100 100" 
+                      className="absolute inset-0 size-full pointer-events-none"
+                      animate={isFocusRunning ? { rotate: [0, 360] } : { rotate: 0 }}
+                      transition={isFocusRunning ? { repeat: Infinity, duration: 15, ease: "linear" } : { duration: 0.5 }}
+                    >
+                      <circle 
+                        cx="50" cy="50" r="45" 
+                        fill="transparent" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round"
+                        strokeDasharray={2 * Math.PI * 45}
+                        strokeDashoffset={2 * Math.PI * 45 * (1 - focusTimeLeft / (focusSelectedTime * 60))}
+                        className="text-black dark:text-white transition-all duration-300 drop-shadow-[0_0_8px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+                      />
+                    </motion.svg>
+
+                    {/* Centered duration text display */}
+                    <div className="flex flex-col items-center justify-center z-10">
+                      <motion.div
+                        animate={isFocusRunning ? { rotate: 180 } : {}}
+                        transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", repeatDelay: 2 }}
+                        className="mb-1"
+                      >
+                        <span className="material-symbols-outlined text-xl text-black dark:text-white">
+                          hourglass_top
+                        </span>
+                      </motion.div>
+                      <span className="text-[8px] md:text-[9px] tracking-[0.4em] text-black dark:text-white uppercase">ACTIVE FOCUS</span>
+                      <h3 className="text-3xl md:text-4xl font-mono font-black tracking-widest text-black dark:text-white mt-1 leading-none">
+                        {Math.floor(focusTimeLeft / 60).toString().padStart(2, '0')}:{(focusTimeLeft % 60).toString().padStart(2, '0')}
+                      </h3>
+                    </div>
+                  </div>
 
                   <div className="flex flex-col gap-2">
-                    <span className="text-[10px] tracking-[0.4em] text-white/40 uppercase">FOCUS TIMER ACTIVE</span>
-                    <h3 className="text-6xl font-mono font-black tracking-widest text-white mt-2">
-                      {Math.floor(focusTimeLeft / 60).toString().padStart(2, '0')}:{(focusTimeLeft % 60).toString().padStart(2, '0')}
-                    </h3>
-                    <div className="mt-4 flex items-center justify-center gap-2 text-emerald-400 font-black uppercase tracking-[0.2em] text-[10px] bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-sm shadow-[0_0_15px_rgba(16,185,129,0.05)]">
+                    <div className="mt-2 flex items-center justify-center gap-2 text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-[0.2em] text-[10px] bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-sm shadow-[0_0_15px_rgba(16,185,129,0.05)]">
                       <span className="material-symbols-outlined text-sm animate-pulse">toll</span>
                       POINTS ACCRUED: {pointsEarnedSoFar}
                     </div>
@@ -2124,7 +2157,7 @@ export default function Home() {
                         setFocusTimeLeft((prev) => prev + 5 * 60);
                         setFocusSelectedTime((prev) => prev + 5);
                       }}
-                      className="flex-1 bg-white/10 border border-white/20 hover:bg-white/20 text-white font-black uppercase tracking-[0.2em] text-[9px] py-3.5 rounded-sm transition-all active:scale-95"
+                      className="flex-1 bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 hover:bg-black/20 dark:hover:bg-white/20 text-black dark:text-white font-black uppercase tracking-[0.2em] text-[9px] py-3.5 rounded-sm transition-all active:scale-95"
                     >
                       +5 MINS
                     </button>
@@ -2133,7 +2166,7 @@ export default function Home() {
                         setIsFocusRunning(false);
                         setShowFocusCancelConfirm(true);
                       }}
-                      className="flex-1 bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 text-rose-400 font-black uppercase tracking-[0.2em] text-[9px] py-3.5 rounded-sm transition-all active:scale-95"
+                      className="flex-1 bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-black uppercase tracking-[0.2em] text-[9px] py-3.5 rounded-sm transition-all active:scale-95"
                     >
                       CANCEL
                     </button>
@@ -2146,9 +2179,9 @@ export default function Home() {
             {focusStage === 'complete' && (
               <div className="flex flex-col items-center gap-8 max-w-md text-center z-10 w-full">
                 <div className="flex flex-col gap-2">
-                  <span className="text-[10px] tracking-[0.4em] text-emerald-400 uppercase">SESSION COMPLETE</span>
-                  <h3 className="text-3xl font-black uppercase tracking-wider text-white">CONGRATULATIONS!</h3>
-                  <p className="text-xs text-white/50 max-w-xs mt-2 uppercase tracking-wide">
+                  <span className="text-[10px] tracking-[0.4em] text-emerald-600 dark:text-emerald-400 uppercase">SESSION COMPLETE</span>
+                  <h3 className="text-3xl font-black uppercase tracking-wider text-black dark:text-white">CONGRATULATIONS!</h3>
+                  <p className="text-xs text-black/50 dark:text-white/50 max-w-xs mt-2 uppercase tracking-wide">
                     {lootBoxOpened ? 'Your rewards have been claimed' : 'Unlock your focus rewards container'}
                   </p>
                 </div>
@@ -2161,7 +2194,7 @@ export default function Home() {
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0.8, opacity: 0 }}
                       onClick={() => setLootBoxOpened(true)}
-                      className="cursor-pointer group flex flex-col items-center gap-4 p-8 border border-dashed border-white/20 hover:border-white/40 bg-white/[0.02] hover:bg-white/[0.04] rounded-sm transition-all w-full"
+                      className="cursor-pointer group flex flex-col items-center gap-4 p-8 border border-dashed border-black/20 dark:border-white/20 hover:border-black/40 dark:hover:border-white/40 bg-black/[0.02] dark:bg-white/[0.02] hover:bg-black/[0.04] dark:hover:bg-white/[0.04] rounded-sm transition-all w-full"
                     >
                       <motion.div
                         animate={{ 
@@ -2173,15 +2206,15 @@ export default function Home() {
                           repeat: Infinity, 
                           ease: "easeInOut" 
                         }}
-                        className="size-32 flex items-center justify-center border border-white/10 rounded-sm bg-white/5 shadow-[0_0_30px_rgba(255,255,255,0.05)] group-hover:shadow-[0_0_40px_rgba(255,255,255,0.1)] relative overflow-hidden"
+                        className="size-32 flex items-center justify-center border border-black/10 dark:border-white/10 rounded-sm bg-black/5 dark:bg-white/5 shadow-[0_0_30px_rgba(0,0,0,0.05)] dark:shadow-[0_0_30px_rgba(255,255,255,0.05)] group-hover:shadow-[0_0_40px_rgba(0,0,0,0.1)] dark:group-hover:shadow-[0_0_40px_rgba(255,255,255,0.1)] relative overflow-hidden"
                       >
                         {/* Shimmer overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                        <span className="material-symbols-outlined text-6xl text-white opacity-80 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-black/10 dark:via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                        <span className="material-symbols-outlined text-6xl text-black dark:text-white opacity-80 group-hover:opacity-100 transition-opacity">
                           redeem
                         </span>
                       </motion.div>
-                      <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/60 group-hover:text-white transition-colors animate-pulse">
+                      <span className="text-[9px] font-black uppercase tracking-[0.3em] text-black/60 dark:text-white/60 group-hover:text-black dark:group-hover:text-white transition-colors animate-pulse">
                         TAP TO UNLOCK LOOT BOX
                       </span>
                     </motion.div>
@@ -2198,22 +2231,22 @@ export default function Home() {
                         initial={{ rotate: -15, scale: 0.5 }}
                         animate={{ rotate: 0, scale: 1 }}
                         transition={{ type: "spring", delay: 0.1 }}
-                        className="size-20 flex items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500 text-emerald-400"
+                        className="size-20 flex items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500 text-emerald-600 dark:text-emerald-400"
                       >
                         <span className="material-symbols-outlined text-4xl">celebration</span>
                       </motion.div>
 
-                      <div className="p-6 bg-white/5 border border-white/10 w-full rounded-sm flex flex-col gap-2 relative overflow-hidden">
+                      <div className="p-6 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 w-full rounded-sm flex flex-col gap-2 relative overflow-hidden">
                         {/* Diagonal gold stripes decoration */}
                         <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500/10 to-transparent rotate-45 translate-x-12 -translate-y-12 pointer-events-none" />
                         
-                        <span className="text-[9px] font-black uppercase tracking-widest text-white/30">REWARDS SECURED</span>
+                        <span className="text-[9px] font-black uppercase tracking-widest text-black/30 dark:text-white/30">REWARDS SECURED</span>
                         <div className="flex flex-col gap-2">
-                          <div className="flex items-center justify-center gap-2 text-amber-400 text-sm font-black uppercase tracking-wider">
+                          <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 text-sm font-black uppercase tracking-wider">
                             <span className="material-symbols-outlined text-base">toll</span>
                             +{calculateFocusPoints(focusSelectedTime)} ProdPoints Claimed
                           </div>
-                          <div className="flex items-center justify-center gap-2 text-emerald-400 text-sm font-black uppercase tracking-wider">
+                          <div className="flex items-center justify-center gap-2 text-emerald-600 dark:text-emerald-400 text-sm font-black uppercase tracking-wider">
                             <span className="material-symbols-outlined text-base">bolt</span>
                             +{Math.round(focusSelectedTime * 2)} XP Injected
                           </div>
@@ -2239,7 +2272,7 @@ export default function Home() {
                             });
                           }
                         }}
-                        className="w-full bg-white text-black font-black uppercase tracking-[0.3em] text-[10px] py-4 rounded-sm hover:bg-white/80 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+                        className="w-full bg-black text-white dark:bg-white dark:text-black font-black uppercase tracking-[0.3em] text-[10px] py-4 rounded-sm hover:opacity-80 active:scale-95 transition-all shadow-[0_0_20px_rgba(0,0,0,0.15)] dark:shadow-[0_0_20px_rgba(255,255,255,0.15)]"
                       >
                         FINISH
                       </button>
@@ -2255,18 +2288,18 @@ export default function Home() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 bg-black/90 backdrop-blur-md z-[1000000] flex items-center justify-center p-6"
+                  className="absolute inset-0 bg-white/90 dark:bg-black/90 backdrop-blur-md z-[1000000] flex items-center justify-center p-6"
                 >
                   <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
-                    className="max-w-xs w-full border border-white/10 bg-neutral-900 p-6 flex flex-col gap-6 text-center rounded-sm"
+                    className="max-w-xs w-full border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-900 p-6 flex flex-col gap-6 text-center rounded-sm shadow-xl"
                   >
                     <div className="flex flex-col gap-2">
                       <span className="text-[9px] font-black tracking-widest text-rose-500 uppercase">ABORT PROCESS</span>
-                      <h4 className="text-lg font-black uppercase text-white tracking-wide">ARE YOU SURE?</h4>
-                      <p className="text-[10px] text-white/40 uppercase tracking-wider leading-relaxed">
+                      <h4 className="text-lg font-black uppercase text-black dark:text-white tracking-wide">ARE YOU SURE?</h4>
+                      <p className="text-[10px] text-black/40 dark:text-white/40 uppercase tracking-wider leading-relaxed">
                         Aborting will forfeit all points accrued during this focus session.
                       </p>
                     </div>
@@ -2288,7 +2321,7 @@ export default function Home() {
                           setShowFocusCancelConfirm(false);
                           setIsFocusRunning(true);
                         }}
-                        className="w-full bg-white/5 border border-white/10 text-white font-black uppercase tracking-[0.2em] text-[9px] py-3 rounded-sm active:scale-95 hover:bg-white/10 transition-all"
+                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white font-black uppercase tracking-[0.2em] text-[9px] py-3 rounded-sm active:scale-95 hover:bg-black/10 dark:hover:bg-white/10 transition-all"
                       >
                         NO, KEEP FOCUSING
                       </button>

@@ -18,10 +18,10 @@ export const initializeSystemHabits = async (userId) => {
         },
         {
             user: userId,
-            name: 'Finance Tracking',
-            icon: 'payments',
-            color: 'purple',
-            systemId: 'finance'
+            name: 'Goal Setting',
+            icon: 'track_changes',
+            color: 'red',
+            systemId: 'workout'
         },
         {
             user: userId,
@@ -32,10 +32,10 @@ export const initializeSystemHabits = async (userId) => {
         },
         {
             user: userId,
-            name: 'Workout',
-            icon: 'fitness_center',
-            color: 'red',
-            systemId: 'workout'
+            name: 'Finance Tracking',
+            icon: 'payments',
+            color: 'purple',
+            systemId: 'finance'
         }
     ];
 

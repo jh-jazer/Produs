@@ -144,7 +144,7 @@ const TemplateStoreModal = ({ isOpen, onClose, onApply }) => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 20 }}
                             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                            className="relative z-10 w-full max-w-4xl bg-white dark:bg-[#080808] p-6 md:p-8 rounded-sm group overflow-hidden border border-black dark:border-white/5 shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] max-h-[90vh] flex flex-col"
+                            className="relative z-10 w-full max-w-4xl bg-white dark:bg-[#080808] p-6 md:p-8 rounded-sm group overflow-hidden border border-black/30 dark:border-white/20 shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] max-h-[90vh] flex flex-col"
                         >
                             <ChippedBorder opacity={0.4} />
 
@@ -208,7 +208,7 @@ const TemplateStoreModal = ({ isOpen, onClose, onApply }) => {
                                                     className={`p-4 border rounded-sm cursor-pointer transition-all ${
                                                         selectedTemplate?.id === tpl.id
                                                             ? 'border-black dark:border-white bg-black/5 dark:bg-white/5'
-                                                            : 'border-black/5 dark:border-white/5 hover:border-black/20 dark:hover:border-white/20 bg-black/[0.01] dark:bg-white/[0.005]'
+                                                            : 'border-black/15 dark:border-white/15 hover:border-black/40 dark:hover:border-white/40 bg-black/[0.01] dark:bg-white/[0.005]'
                                                     }`}
                                                 >
                                                     <div className="flex justify-between items-start gap-2">
@@ -256,10 +256,10 @@ const TemplateStoreModal = ({ isOpen, onClose, onApply }) => {
                                     </div>
 
                                     {/* Right Panel: Template Preview */}
-                                    <div className="md:col-span-7 border border-black/10 dark:border-white/10 rounded-sm bg-black/[0.02] dark:bg-white/[0.01] p-5 flex flex-col overflow-hidden">
+                                    <div className="md:col-span-7 border border-black/20 dark:border-white/20 rounded-sm bg-black/[0.02] dark:bg-white/[0.01] p-5 flex flex-col overflow-hidden">
                                         {selectedTemplate ? (
                                             <>
-                                                <div className="mb-4 shrink-0 border-b border-black/5 dark:border-white/5 pb-3">
+                                                <div className="mb-4 shrink-0 border-b border-black/15 dark:border-white/15 pb-3">
                                                     <span className="text-[12px] font-black uppercase tracking-widest text-black dark:text-white">
                                                         {selectedTemplate.name}
                                                     </span>
@@ -273,7 +273,7 @@ const TemplateStoreModal = ({ isOpen, onClose, onApply }) => {
                                                     {selectedTemplate.activities.map((act, i) => (
                                                         <div 
                                                             key={i} 
-                                                            className="flex items-center justify-between p-3 border border-black/5 dark:border-white/5 bg-white dark:bg-[#0c0c0c] rounded-sm"
+                                                            className="flex items-center justify-between p-3 border border-black/15 dark:border-white/15 bg-white dark:bg-[#0c0c0c] rounded-sm"
                                                         >
                                                             <span className="text-[10.5px] font-black uppercase tracking-wider text-black dark:text-white truncate max-w-[280px]">
                                                                 {act.title}

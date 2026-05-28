@@ -378,6 +378,10 @@ export const createGoal = async (req, res) => {
             user: req.user._id
         });
         await goal.save();
+
+        // Auto-check Goal Setting habit
+        await checkSystemHabit(req.user._id, 'workout');
+
         res.status(201).json(goal);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -392,6 +396,10 @@ export const updateGoal = async (req, res) => {
             { new: true }
         );
         if (!goal) return res.status(404).json({ message: 'Goal not found' });
+
+        // Auto-check Goal Setting habit
+        await checkSystemHabit(req.user._id, 'workout');
+
         res.json(goal);
     } catch (error) {
         res.status(400).json({ message: error.message });

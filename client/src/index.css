@@ -33,6 +33,7 @@
     --color-habit-focus: #0891b2;
     --color-habit-social: #ff4d00;
     --color-accent: var(--accent);
+    --color-foreground: var(--foreground);
 }
 
 @variant dark (&:where(.dark, .dark *));
@@ -370,6 +371,11 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     letter-spacing: 0.6em;
     line-height: 1;
     font-size: 10px;
+    color: var(--foreground);
+}
+
+.dark .wordmark {
+    color: #ffffff !important;
 }
 
 @media (min-width: 768px) {

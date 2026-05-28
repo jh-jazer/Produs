@@ -171,7 +171,7 @@ const GlobalMobileHeader = ({ activeSection, onClick, protocolMode }) => {
                   className="pointer-events-auto cursor-pointer mt-1.5"
                   onClick={onClick}
                 >
-                  <h1 className="wordmark text-black dark:text-white flex items-center font-mono" style={{ fontSize: '14px' }}>
+                  <h1 className="wordmark text-foreground flex items-center font-mono" style={{ fontSize: '14px' }}>
                     <span>{matrixText}</span>
                     <span className="animate-pulse inline-block w-1.5 h-3.5 bg-current ml-0.5 opacity-60 shrink-0" />
                   </h1>
@@ -194,30 +194,20 @@ const GlobalMobileHeader = ({ activeSection, onClick, protocolMode }) => {
                     {/* Show guardian level in normal mode, hero level in RPG mode */}
                     {protocolMode === 'rpg' ? (
                       user?.hero && (
-                        <div className="absolute -bottom-0.5 -right-0.5 bg-amber-500 text-white text-[11px] font-black px-2 py-0.5 rounded-md shadow-md border border-amber-400/20">
+                        <div className="absolute -bottom-0.5 -right-0.5 bg-amber-500 text-white text-[8px] font-black px-1 py-0.5 rounded-md shadow-md border border-amber-400/20 z-20">
                           {user.hero.level}
                         </div>
                       )
                     ) : (
                       (user?.guardianLevel || 0) > 0 && (
-                        <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-white text-[11px] font-black px-2 py-0.5 rounded-md shadow-md border border-primary/20">
+                        <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-white text-[8px] font-black px-1 py-0.5 rounded-md shadow-md border border-primary/20 z-20">
                           {user.guardianLevel}
                         </div>
                       )
                     )}
                   </div>
                   
-                  {/* EXP Display */}
-                  <div className="flex items-center justify-between gap-1.5 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 px-3.5 py-2 rounded-md select-none min-w-[110px]">
-                    <span className="text-sm font-black uppercase tracking-wider text-primary dark:text-emerald-400 flex items-baseline leading-none">
-                      {protocolMode === 'rpg' ? user?.hero?.exp || 0 : user?.rpg?.exp || 0}
-                      <span className="text-[10px] text-black/30 dark:text-white/30 mx-0.5">/</span>
-                      <span className="text-[11px] opacity-70 text-black dark:text-white">{protocolMode === 'rpg' ? 100 : 1000}</span>
-                    </span>
-                    <span className="text-[11px] font-bold text-black dark:text-white/40 uppercase tracking-[0.2em]">
-                      EXP
-                    </span>
-                  </div>
+
                   <div className="flex items-stretch gap-1.5">
                     {/* Prod points Display */}
                     <div className="flex items-center justify-between gap-1.5 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 px-3.5 py-2 rounded-md select-none min-w-[96px]">
@@ -496,7 +486,7 @@ function Layout() {
                         className={`flex items-center gap-2.5 active:scale-95 transition-all cursor-pointer group ${isOverview ? 'opacity-100 flex' : 'opacity-0 pointer-events-none hidden md:flex'}`}
                         onClick={() => setIsLandingModalOpen(true)}
                     >
-                        <span className="wordmark text-black dark:text-white mt-1">PRODUS</span>
+                        <span className="wordmark text-foreground mt-1">PRODUS</span>
                     </div>
 
                     {!isOverview && mobileTabs && (
@@ -555,7 +545,7 @@ function Layout() {
                     <div className="h-24 flex items-center px-2 shrink-0">
                         <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => setIsLandingModalOpen(true)}>
                             <div className="p-2 md:p-4 transition-all duration-[600ms] opacity-100 translate-y-0">
-                                <span className="wordmark text-black dark:text-white">PRODUS</span>
+                                <span className="wordmark text-foreground">PRODUS</span>
                             </div>
                         </div>
                     </div>
@@ -745,11 +735,11 @@ function Layout() {
                                 {/* Level badge — guardian or hero */}
                                 {protocolMode === 'rpg' ? (
                                     (user?.hero?.level || 0) > 0 && (
-                                        <div className="absolute -bottom-1 -right-1 bg-amber-500 text-white text-[7px] font-black px-1 py-0.5 rounded-md shadow-lg border border-amber-400/20 scale-110 z-20 pointer-events-none">{user.hero.level}</div>
+                                        <div className="absolute -bottom-1 -right-1 bg-amber-500 text-white text-[7px] font-black px-1 py-0.5 rounded-md shadow-lg border border-amber-400/20 scale-95 z-20 pointer-events-none">{user.hero.level}</div>
                                     )
                                 ) : (
                                     (user?.guardianLevel || 0) > 0 && (
-                                        <div className="absolute -bottom-1 -right-1 bg-white dark:bg-white text-black text-[7px] font-black px-1 py-0.5 rounded-md shadow-lg border border-black/10 scale-110 z-20 pointer-events-none">{user.guardianLevel}</div>
+                                        <div className="absolute -bottom-1 -right-1 bg-white dark:bg-white text-black text-[7px] font-black px-1 py-0.5 rounded-md shadow-lg border border-black/10 scale-95 z-20 pointer-events-none">{user.guardianLevel}</div>
                                     )
                                 )}
                             </div>
