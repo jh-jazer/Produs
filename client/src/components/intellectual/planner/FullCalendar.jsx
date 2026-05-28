@@ -67,7 +67,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
 
             <div className="grid grid-cols-7 gap-2 md:gap-3 border-b border-black/10 dark:border-white/10 mb-4 pb-2">
                 {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => (
-                    <div key={day} className="text-center text-[9px] font-black text-black/50 dark:text-white/50 uppercase tracking-[0.3em]">{day}</div>
+                    <div key={day} className="text-center text-[9px] font-black text-black dark:text-white/50 uppercase tracking-[0.3em]">{day}</div>
                 ))}
             </div>
 

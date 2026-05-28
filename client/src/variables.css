@@ -554,3 +554,31 @@ body.focus-mode-active .hud-buttons-container {
     line-height: 0.95 !important;
   }
 }
+
+
+/* =============================================================================
+   15. MOBILE LIGHT MODE VISIBILITY
+   Force pure black text in light mode on mobile for maximum readability.
+   Only applies below md breakpoint and only when NOT in dark mode.
+   ============================================================================= */
+
+@media (max-width: 767px) {
+  body:not(.dark) {
+    --color-fg: #000000;
+    --color-fg-muted: #000000;
+    --color-fg-subtle: #111111;
+  }
+
+  body:not(.dark) h1,
+  body:not(.dark) h2,
+  body:not(.dark) h3,
+  body:not(.dark) h4,
+  body:not(.dark) h5,
+  body:not(.dark) h6,
+  body:not(.dark) p,
+  body:not(.dark) span,
+  body:not(.dark) label,
+  body:not(.dark) button {
+    --tw-text-opacity: 1;
+  }
+}

@@ -251,7 +251,7 @@ const GlobalMobileHeader = ({ activeSection, onClick, protocolMode }) => {
               transition={{ duration: 0.2 }}
               className="flex flex-col gap-0.5 bg-background/80 backdrop-blur-sm py-1 px-2 -ml-2 rounded-sm pointer-events-auto"
             >
-              <span className="text-2xl font-black uppercase tracking-[0.3em] text-foreground/95">{config.title}</span>
+              <span className="text-2xl font-black uppercase tracking-[0.3em] text-black dark:text-white">{config.title}</span>
             </motion.div>
           )}
         </AnimatePresence>

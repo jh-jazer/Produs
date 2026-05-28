@@ -21,20 +21,20 @@ const GoalCard = ({ title, period, year, month, week, isActive }) => {
     return (
         <div className={`flex-1 relative py-6 md:py-8 px-6 rounded-sm flex justify-between items-center group transition-all ${
             isActive 
-            ? 'bg-white/[0.08] border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.05)]' 
-            : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04]'
+            ? 'bg-black/[0.06] dark:bg-white/[0.08] border-black/30 dark:border-white/30 shadow-[0_0_20px_rgba(0,0,0,0.05)] dark:shadow-[0_0_20px_rgba(255,255,255,0.05)]' 
+            : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/5 dark:border-white/5 hover:bg-black/[0.04] dark:hover:bg-white/[0.04]'
         }`}>
             <ChippedBorder opacity={isActive ? 1 : 0.3} />
             <div className="flex flex-col relative z-10">
                 <span className={`text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] transition-all ${
-                    isActive ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-white/40 group-hover:text-white'
+                    isActive ? 'text-black dark:text-white dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-black/40 dark:text-white/40 group-hover:text-black dark:group-hover:text-white'
                 }`}>{title}</span>
                 <span className={`text-[8px] font-black uppercase tracking-widest mt-1 transition-opacity ${
-                    isActive ? 'text-white/40' : 'text-white/20'
+                    isActive ? 'text-black/50 dark:text-white/40' : 'text-black/30 dark:text-white/20'
                 }`}>{goals.length} GOALS SET</span>
             </div>
             <span className={`text-[12px] md:text-[16px] font-mono font-black relative z-10 transition-all ${
-                isActive ? 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]' : 'text-white'
+                isActive ? 'text-black dark:text-white dark:drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]' : 'text-black dark:text-white'
             }`}>{progress}%</span>
         </div>
     );
@@ -74,7 +74,7 @@ const GoalOverview = ({ onWeekClick, onMonthClick, onYearClick, onBackToCalendar
                         onClick={onBackToCalendar}
                         className="w-full py-4 rounded-sm hover:bg-white/[0.02] group transition-all"
                     >
-                        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/20 group-hover:text-white transition-colors">
+                        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-black/20 dark:text-white/20 group-hover:text-black dark:group-hover:text-white transition-colors">
                             BACK TO CALENDAR
                         </span>
                     </motion.button>
