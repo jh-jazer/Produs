@@ -31,8 +31,7 @@ const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) =>
             {title && (
                 <div className="mb-8 flex justify-between items-start">
                     <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
-                        {subtitle && <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>}
+                        <span className="text-2xl md:text-3xl font-black uppercase tracking-[0.3em] text-foreground/95">{title}</span>
                     </div>
                     {headerExtra && <div className="flex gap-2">{headerExtra}</div>}
                 </div>

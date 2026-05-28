@@ -47,7 +47,7 @@ const DashboardHeader = ({ user }) => {
                                 } ${
                                     protocolMode === 'rpg' 
                                         ? 'bg-cyan-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)]' 
-                                        : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                                        : 'bg-transparent text-black hover:text-black hover:bg-white/5'
                                 }`}
                             >
                                 <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
@@ -68,7 +68,7 @@ const DashboardHeader = ({ user }) => {
                             } ${
                                 viewMode === 'partner' 
                                     ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]' 
-                                    : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                                    : 'bg-transparent text-black hover:text-black hover:bg-white/5'
                             }`}
                         >
                             {viewMode === 'partner' ? <Handshake size={14} /> : <User size={14} />}

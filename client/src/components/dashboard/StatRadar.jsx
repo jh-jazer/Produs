@@ -27,15 +27,15 @@ const StatRadar = ({ user }) => {
             {/* Radar Visual */}
             <div className="h-[300px] w-full relative">
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] dark:opacity-[0.07]">
-                    <Shield size={200} className="text-slate-900 dark:text-white" />
+                    <Shield size={200} className="text-black dark:text-white" />
                 </div>
                 
                 <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
-                        <PolarGrid stroke="currentColor" className="text-slate-200 dark:text-white/10" strokeDasharray="4 4" />
+                        <PolarGrid stroke="currentColor" className="text-black dark:text-white/10" strokeDasharray="4 4" />
                         <PolarAngleAxis 
                             dataKey="subject" 
-                            tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 900, fontFamily: 'monospace', className: 'text-slate-400 dark:text-slate-500' }}
+                            tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 900, fontFamily: 'monospace', className: 'text-black dark:text-black' }}
                         />
                         <Radar
                             name="Stats"
@@ -59,7 +59,7 @@ const StatRadar = ({ user }) => {
                             <div key={subject} className="relative group">
                                 <div className="flex flex-col gap-1">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest font-mono">
+                                        <span className="text-[10px] font-black text-black uppercase tracking-widest font-mono">
                                             {subject}
                                         </span>
                                         {earnedToday > 0 && (
@@ -73,10 +73,10 @@ const StatRadar = ({ user }) => {
                                         )}
                                     </div>
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-2xl font-black text-slate-900 dark:text-white font-exo italic tracking-tighter">
+                                        <span className="text-2xl font-black text-black dark:text-white font-exo italic tracking-tighter">
                                             {value}
                                         </span>
-                                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest font-mono">
+                                        <span className="text-[8px] font-bold text-black uppercase tracking-widest font-mono">
                                             TOTAL
                                         </span>
                                     </div>

@@ -79,10 +79,10 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
             />
             <div className="min-h-[300px] flex flex-col gap-6">
                 <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">CASH FLOW TRACKER</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/35 dark:text-white/20">CASH FLOW TRACKER</span>
                     <button
                         onClick={() => setShowAdd(true)}
-                        className="size-8 rounded-sm border border-white/10 text-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center"
+                        className="size-8 rounded-sm border border-black/10 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all flex items-center justify-center"
                     >
                         <span className="material-symbols-outlined text-lg">add</span>
                     </button>
@@ -138,37 +138,37 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                 const displayNet = displayIncome - displayDebt;
 
                     return (
-                        <div className="p-8 rounded-sm border border-white/5 bg-white/[0.02] flex flex-col gap-4">
+                        <div className="p-8 rounded-sm border border-black/10 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] flex flex-col gap-4">
                             <div className="flex items-center justify-between mb-4">
-                                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">TIME FRAME</span>
+                                <span className="text-[10px] font-black text-black/35 dark:text-white/20 uppercase tracking-[0.4em]">TIME FRAME</span>
                                 <select 
                                     value={summaryView}
                                     onChange={(e) => setSummaryView(e.target.value)}
-                                    className="text-[10px] font-black uppercase bg-white/5 border border-white/10 rounded-sm px-3 py-1 outline-none text-white cursor-pointer hover:bg-white/10 transition-all"
+                                    className="text-[10px] font-black uppercase bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-3 py-1 outline-none text-black dark:text-white cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-all"
                                 >
-                                    <option value="overall">TOTAL OVERVIEW</option>
+                                    <option value="overall" className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white">TOTAL OVERVIEW</option>
                                     {availableMonths.map(m => (
-                                        <option key={m} value={m}>{m.toUpperCase()} REPORT</option>
+                                        <option key={m} value={m} className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white">{m.toUpperCase()} REPORT</option>
                                     ))}
                                 </select>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">INCOMING</span>
-                                    <span className="text-xl font-black text-white italic">+{currencySymbol}{displayIncome.toLocaleString()}</span>
+                                    <span className="text-[8px] font-black text-black/40 dark:text-white/20 uppercase tracking-widest">INCOMING</span>
+                                    <span className="text-xl font-black text-black dark:text-white italic">+{currencySymbol}{displayIncome.toLocaleString()}</span>
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">OUTBOUND</span>
-                                    <span className="text-xl font-black text-white/40 italic">-{currencySymbol}{displayDebt.toLocaleString()}</span>
+                                    <span className="text-[8px] font-black text-black/40 dark:text-white/20 uppercase tracking-widest">OUTBOUND</span>
+                                    <span className="text-xl font-black text-black/50 dark:text-white/40 italic">-{currencySymbol}{displayDebt.toLocaleString()}</span>
                                 </div>
                             </div>
 
-                            <div className="mt-4 pt-6 border-t border-white/5 flex justify-between items-center">
+                            <div className="mt-4 pt-6 border-t border-black/10 dark:border-white/5 flex justify-between items-center">
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.4em]">NET CASH FLOW</span>
+                                    <span className="text-[10px] font-black text-black/25 dark:text-white/10 uppercase tracking-[0.4em]">NET CASH FLOW</span>
                                 </div>
-                                <span className={`text-3xl font-black tracking-tighter italic ${displayNet >= 0 ? 'text-white' : 'text-rose-500'}`}>
+                                <span className={`text-3xl font-black tracking-tighter italic ${displayNet >= 0 ? 'text-black dark:text-white' : 'text-rose-500'}`}>
                                     {displayNet >= 0 ? '+' : '-'}{currencySymbol}{Math.abs(displayNet).toLocaleString()}
                                 </span>
                             </div>
@@ -186,22 +186,22 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                         sortedDebts.map(debt => {
                             const isIncome = debt.nature === 'income';
                             return (
-                                <div key={debt._id} className="group p-5 rounded-sm border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all">
+                                <div key={debt._id} className="group p-5 rounded-sm border border-black/10 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all">
                                     <div className="flex justify-between items-start">
                                         <div className="flex flex-col gap-2">
                                             <div className="flex items-center gap-3">
-                                                <span className={`material-symbols-outlined text-sm ${isIncome ? 'text-white' : 'text-white/20'}`}>
+                                                <span className={`material-symbols-outlined text-sm ${isIncome ? 'text-black dark:text-white' : 'text-black/30 dark:text-white/20'}`}>
                                                     {isIncome ? 'trending_up' : 'trending_down'}
                                                 </span>
-                                                <span className="text-[11px] font-black text-white uppercase tracking-wider">{debt.title}</span>
+                                                <span className="text-[11px] font-black text-black dark:text-white uppercase tracking-wider">{debt.title}</span>
                                                 <button
                                                     onClick={() => setConfirmDelete(debt._id)}
-                                                    className="opacity-0 group-hover:opacity-100 text-white/10 hover:text-rose-500 transition-all p-1"
+                                                    className="opacity-0 group-hover:opacity-100 text-black/20 dark:text-white/10 hover:text-rose-500 transition-all p-1"
                                                 >
                                                     <span className="material-symbols-outlined text-base">delete</span>
                                                 </button>
                                             </div>
-                                            <div className="flex items-center gap-4 text-[9px] font-black text-white/20 uppercase tracking-widest">
+                                            <div className="flex items-center gap-4 text-[9px] font-black text-black/35 dark:text-white/20 uppercase tracking-widest">
                                                 {debt.dueDate && (
                                                     <span className="flex items-center gap-1">
                                                         <span className="material-symbols-outlined text-[10px]">calendar_today</span>
@@ -212,13 +212,13 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end gap-1">
-                                            <span className={`text-xl font-black italic ${isIncome ? 'text-white' : 'text-white/20'}`}>
+                                            <span className={`text-xl font-black italic ${isIncome ? 'text-black dark:text-white' : 'text-black/45 dark:text-white/20'}`}>
                                                 {isIncome ? '+' : '-'}{currencySymbol}{debt.amount.toLocaleString()}
                                             </span>
                                             {!isIncome && (
                                                 <button
                                                     onClick={() => { setShowPayModal(debt); setPayAmount(''); }}
-                                                    className="px-3 py-1 bg-white/5 hover:bg-white hover:text-black border border-white/10 rounded-sm text-[8px] font-black uppercase tracking-widest transition-all mt-2"
+                                                    className="px-3 py-1 bg-black/5 dark:bg-white/5 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black border border-black/10 dark:border-white/10 rounded-sm text-[8px] font-black uppercase tracking-widest transition-all mt-2 text-black dark:text-white"
                                                 >
                                                     PAY
                                                 </button>

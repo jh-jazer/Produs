@@ -74,25 +74,25 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
             />
             <div className="w-full overflow-hidden relative flex flex-col gap-8">
                 <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">SAVINGS TRACKER</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/35 dark:text-white/20">SAVINGS TRACKER</span>
                     <button
                         onClick={() => setShowAdd(true)}
-                        className="size-8 rounded-sm border border-white/10 text-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center"
+                        className="size-8 rounded-sm border border-black/10 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all flex items-center justify-center"
                     >
                         <span className="material-symbols-outlined text-lg">add</span>
                     </button>
                 </div>
 
-                <div className="p-8 rounded-sm border border-white/5 bg-white/[0.02]">
+                <div className="p-8 rounded-sm border border-black/10 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02]">
                     <div className="flex flex-col gap-2">
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">TOTAL SAVINGS</p>
-                        <p className="text-4xl font-black text-white italic tracking-tighter">{currencySymbol}{totalSavings.toLocaleString()}</p>
+                        <p className="text-[10px] font-black text-black/35 dark:text-white/20 uppercase tracking-[0.4em]">TOTAL SAVINGS</p>
+                        <p className="text-4xl font-black text-black dark:text-white italic tracking-tighter">{currencySymbol}{totalSavings.toLocaleString()}</p>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {savings.length === 0 ? (
-                        <div className="col-span-full py-12 flex flex-col items-center justify-center opacity-10 gap-4 border border-dashed border-white/5 rounded-sm">
+                        <div className="col-span-full py-12 flex flex-col items-center justify-center opacity-10 gap-4 border border-dashed border-black/10 dark:border-white/5 rounded-sm">
                             <span className="material-symbols-outlined text-4xl">account_balance_wallet</span>
                             <p className="text-[10px] font-black uppercase tracking-[0.4em]">NO SAVINGS GOALS</p>
                         </div>
@@ -100,38 +100,38 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                         savings.map(s => {
                             const progress = (s.amount / s.target) * 100;
                             return (
-                                <div key={s._id} className="p-6 rounded-sm border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-white/10 transition-all group">
+                                <div key={s._id} className="p-6 rounded-sm border border-black/10 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] hover:border-black/25 dark:hover:border-white/10 transition-all group">
                                     <div className="flex justify-between items-start mb-6">
                                         <div>
                                             <div className="flex items-center gap-3">
-                                                <h4 className="text-[11px] font-black text-white uppercase tracking-wider">{s.title}</h4>
+                                                <h4 className="text-[11px] font-black text-black dark:text-white uppercase tracking-wider">{s.title}</h4>
                                                 {s.isPending && (
-                                                    <span className="animate-spin material-symbols-outlined text-[10px] text-white/20">sync</span>
+                                                    <span className="animate-spin material-symbols-outlined text-[10px] text-black/20 dark:text-white/20">sync</span>
                                                 )}
                                             </div>
-                                            <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mt-1">{s.category}</p>
+                                            <p className="text-[8px] font-black text-black/35 dark:text-white/20 uppercase tracking-widest mt-1">{s.category}</p>
                                         </div>
                                         <button
                                             onClick={() => setConfirmDelete(s._id)}
-                                            className="text-white/10 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
+                                            className="text-black/20 dark:text-white/10 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
                                         >
                                             <span className="material-symbols-outlined text-sm">delete</span>
                                         </button>
                                     </div>
 
                                     <div className="flex items-baseline justify-between mb-2">
-                                        <p className="text-lg font-black text-white italic">
+                                        <p className="text-lg font-black text-black dark:text-white italic">
                                             {currencySymbol}{s.amount.toLocaleString()}
-                                            <span className="text-white/20 text-[10px] font-black ml-2 uppercase">/ {currencySymbol}{s.target.toLocaleString()}</span>
+                                            <span className="text-black/35 dark:text-white/20 text-[10px] font-black ml-2 uppercase">/ {currencySymbol}{s.target.toLocaleString()}</span>
                                         </p>
-                                        <span className="text-[10px] font-black text-white/40 italic">{Math.min(100, Math.round(progress))}%</span>
+                                        <span className="text-[10px] font-black text-black/45 dark:text-white/40 italic">{Math.min(100, Math.round(progress))}%</span>
                                     </div>
 
-                                    <div className="w-full bg-white/5 h-[2px] rounded-sm overflow-hidden mb-6">
+                                    <div className="w-full bg-black/5 dark:bg-white/5 h-[2px] rounded-sm overflow-hidden mb-6">
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${Math.min(100, progress)}%` }}
-                                            className={`h-full bg-white/40 rounded-sm transition-all duration-700 ${s.isPending ? 'opacity-50 animate-pulse' : ''}`}
+                                            className={`h-full bg-black/40 dark:bg-white/40 rounded-sm transition-all duration-700 ${s.isPending ? 'opacity-50 animate-pulse' : ''}`}
                                         />
                                     </div>
 
@@ -140,7 +140,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                                             setFundingGoal(s);
                                             setFundAmount('');
                                         }}
-                                        className="w-full py-2 border border-white/5 bg-white/5 rounded-sm text-[9px] font-black uppercase tracking-[0.2em] text-white/40 hover:bg-white hover:text-black hover:border-white transition-all flex items-center justify-center gap-2"
+                                        className="w-full py-2 border border-black/10 dark:border-white/5 bg-black/5 dark:bg-white/5 rounded-sm text-[9px] font-black uppercase tracking-[0.2em] text-black/45 dark:text-white/40 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black hover:border-black dark:hover:border-white transition-all flex items-center justify-center gap-2"
                                     >
                                         <span className="material-symbols-outlined text-sm">add</span>
                                         ADD SAVINGS
@@ -152,12 +152,12 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                 </div>
 
                 {savings.length > 0 && (
-                    <div className="pt-8 border-t border-white/5 flex items-center justify-between opacity-40">
+                    <div className="pt-8 border-t border-black/10 dark:border-white/5 flex items-center justify-between opacity-40">
                         <div className="flex flex-col gap-1">
-                            <p className="text-[8px] font-black text-white uppercase tracking-widest">OVERALL PROGRESS</p>
-                            <p className="text-[10px] font-black text-white italic">{Math.round(overallProgress)}% TOWARDS GOAL</p>
+                            <p className="text-[8px] font-black text-black dark:text-white uppercase tracking-widest">OVERALL PROGRESS</p>
+                            <p className="text-[10px] font-black text-black dark:text-white italic">{Math.round(overallProgress)}% TOWARDS GOAL</p>
                         </div>
-                        <span className="text-[8px] font-black text-white border border-white/20 px-3 py-1 rounded-sm uppercase tracking-widest">STABLE</span>
+                        <span className="text-[8px] font-black text-black dark:text-white border border-black/20 dark:border-white/20 px-3 py-1 rounded-sm uppercase tracking-widest">STABLE</span>
                     </div>
                 )}
             </div>

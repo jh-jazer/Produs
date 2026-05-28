@@ -25,12 +25,12 @@ const getArchetypeDisplay = (user) => {
   const { name, tier, stage } = user.rpg.archetype;
   
   // Show archetype if onboarding is complete, regardless of level
-  if (user.level < 5 && !user.onboardingCompleted) {
+  if ((user?.guardianLevel || 0) < 5 && !user.onboardingCompleted) {
     return {
       name: 'Potential',
       icon: '✨',
       tierName: stage || 'Shut-in',
-      tier: user.level,
+      tier: user.guardianLevel,
       isUnawakened: true
     };
   }
@@ -69,7 +69,7 @@ export default function StatsModal({ isOpen, onClose, user }) {
 
   if (!isOpen) return null;
 
-  const currentLevelProgress = (user?.exp || 0) - (user?.totalRequired || 0);
+  const currentLevelProgress = (user?.guardianExp || 0) - (user?.totalRequired || 0);
   const nextLevelThreshold = user?.nextLevelExp || 100;
   const progress = Math.min(100, Math.max(0, (currentLevelProgress / nextLevelThreshold) * 100));
 
@@ -106,7 +106,7 @@ export default function StatsModal({ isOpen, onClose, user }) {
                 {user?.username || 'User'}
               </h2>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 dark:text-white/40 mt-2 leading-none">
-                LEVEL {Math.max(1, user?.level || 1)} • {display.isUnawakened ? display.tierName : `${display.name} — ${display.tierName}`}
+                LEVEL {Math.max(1, user?.guardianLevel || 1)} • {display.isUnawakened ? display.tierName : `${display.name} — ${display.tierName}`}
               </p>
             </div>
           </div>
@@ -119,10 +119,10 @@ export default function StatsModal({ isOpen, onClose, user }) {
         <div className="px-1 -mt-4">
           <div className="flex items-end justify-between mb-2">
              <div className="flex flex-col">
-               <span className="text-lg font-bold">LVL {Math.max(1, user?.level || 1)} <span className="text-xs font-medium text-black/30 dark:text-white/30 ml-2">{currentLevelProgress} / {nextLevelThreshold} EXP</span></span>
+               <span className="text-lg font-bold">LVL {Math.max(1, user?.guardianLevel || 1)} <span className="text-xs font-medium text-black/30 dark:text-white/30 ml-2">{currentLevelProgress} / {nextLevelThreshold} EXP</span></span>
              </div>
              <span className="text-[9px] font-black uppercase tracking-widest text-black/20 dark:text-white/20">
-               Next: LVL {Math.max(1, user?.level || 1) + 1}
+               Next: LVL {Math.max(1, user?.guardianLevel || 1) + 1}
              </span>
           </div>
           <div className="h-1.5 w-full bg-black/5 dark:bg-white/10 rounded-full overflow-hidden relative">
@@ -153,7 +153,7 @@ export default function StatsModal({ isOpen, onClose, user }) {
         </div>
 
         {/* Level 5 Unlock Callout */}
-        {user?.level === 5 && !display.isUnawakened && (
+        {(user?.guardianLevel || 0) === 5 && !display.isUnawakened && (
             <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -167,7 +167,7 @@ export default function StatsModal({ isOpen, onClose, user }) {
 
         {/* Circular Radar Stats */}
         <div className="flex justify-center pb-1 relative transition-all duration-1000 overflow-hidden">
-             <RadarChart stats={stats} isLoading={isLoadingStats} isUnawakened={display.isUnawakened} userLevel={user?.level} />
+                     <RadarChart stats={stats} isLoading={isLoadingStats} isUnawakened={display.isUnawakened} userLevel={user?.guardianLevel} />
         </div>
 
         {/* Consistency Grid Section */}

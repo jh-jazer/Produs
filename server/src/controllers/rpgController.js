@@ -80,8 +80,8 @@ export const completeDailyQuiz = async (req, res) => {
             xpAwarded: result.xpAwarded,
             leveledUp: result.leveledUp,
             stats: user.rpg.stats,
-            level: user.level,
-            exp: user.exp
+            guardianLevel: user.guardianLevel || 0,
+            guardianExp: user.guardianExp || 0
         });
     } catch (error) {
         console.error('Daily quiz completion failed:', error);
@@ -179,7 +179,7 @@ export const syncNeural = async (req, res) => {
         let oldRank = user.rpg.specialistRank || 'F';
         let newRank = oldRank;
 
-        if (user.level > 0) {
+        if (user.guardianLevel > 0) {
             user.rpg.path = results.path;
             user.rpg.tier1 = results.tier1;
             user.rpg.style = results.style;
@@ -195,7 +195,7 @@ export const syncNeural = async (req, res) => {
 
             // 6. Record Speed Records (SSS)
             if (newRank === 'SSS' && !user.rpg.levelReachedSSS) {
-                user.rpg.levelReachedSSS = user.level;
+                user.rpg.levelReachedSSS = user.guardianLevel;
             }
         }
 
@@ -223,8 +223,8 @@ export const syncNeural = async (req, res) => {
 
         res.json({
             ...user.rpg.toObject(),
-            level: user.level,
-            exp: user.exp,
+            guardianLevel: user.guardianLevel || 0,
+            guardianExp: user.guardianExp || 0,
             newRank: (safeOldRank !== safeNewRank) ? safeNewRank : null,
             message: 'Neural synapse stabilized.',
             debug
@@ -246,7 +246,7 @@ export const initiateAwakening = async (req, res) => {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        if (user.level !== 0) {
+        if (user.hero.level !== 0) {
             return res.status(400).json({ message: 'User is already awakened.' });
         }
 
@@ -438,8 +438,8 @@ export const purchaseItem = async (req, res) => {
             prodCoins: user.rpg.prodCoins,
             inventory: user.rpg.inventory,
             user: {
-                level: user.level,
-                exp: user.exp,
+                guardianLevel: user.guardianLevel || 0,
+                guardianExp: user.guardianExp || 0,
                 rpg: user.rpg
             }
         });
@@ -617,5 +617,45 @@ export const claimStreakReward = async (req, res) => {
     } catch (error) {
         console.error('Streak claim failed:', error);
         res.status(500).json({ message: 'Server error during streak reward claim.' });
+    }
+};
+
+// ─── Hero Endpoints ─────────────────────────────────────────────────────────
+
+// @route   GET /api/rpg/hero
+// @desc    Get the current user's hero data
+// @access  Private
+export const getHero = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('hero guardianLevel');
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json({ hero: user.hero || {}, guardianLevel: user.guardianLevel || 0 });
+    } catch (error) {
+        console.error('Failed to fetch hero:', error);
+        res.status(500).json({ message: 'Server error fetching hero data.' });
+    }
+};
+
+
+// @route   POST /api/rpg/hero/award-exp
+// @desc    Award EXP to the user's hero (RPG mode actions)
+// @access  Private
+export const awardHeroExpController = async (req, res) => {
+    try {
+        const { amount } = req.body;
+        if (!amount || amount <= 0) return res.status(400).json({ message: 'Amount must be positive.' });
+
+        const { addHeroExp } = await import('../utils/levelUtils.js');
+        const result = await addHeroExp(req.user._id, amount);
+        if (!result) return res.status(404).json({ message: 'User not found' });
+
+        res.json({
+            hero: result.user.hero,
+            levelUp: result.levelUp,
+            cappedLevel: result.cappedLevel
+        });
+    } catch (error) {
+        console.error('Failed to award hero EXP:', error);
+        res.status(500).json({ message: 'Server error awarding hero EXP.' });
     }
 };

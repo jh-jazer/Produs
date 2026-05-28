@@ -138,7 +138,7 @@ export default function SideEnergyBar() {
                 className={`flex items-center size-10 justify-center transition-all duration-300 rounded-xl relative group/toggle
                     ${protocolMode === 'rpg' 
                         ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
-                        : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'}
+                        : 'bg-transparent text-black hover:text-black hover:bg-white/5'}
                 `}
             >
                 <Cpu size={14} className={protocolMode === 'rpg' ? 'animate-pulse' : ''} />
@@ -157,7 +157,7 @@ export default function SideEnergyBar() {
                 className={`flex items-center size-10 justify-center transition-all duration-300 rounded-xl relative group/toggle
                     ${viewMode === 'partner' 
                         ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]' 
-                        : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'}
+                        : 'bg-transparent text-black hover:text-black hover:bg-white/5'}
                 `}
             >
                 {viewMode === 'partner' ? <Handshake size={14} /> : <User size={14} />}

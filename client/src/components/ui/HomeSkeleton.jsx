@@ -11,19 +11,19 @@ const HomeSkeleton = () => {
                     <div className="absolute inset-0 flex flex-col items-center">
                         
                         {/* Welcome container absolute positioning mirroring Home.jsx */}
-                        <div className="absolute top-[12%] bottom-2 md:bottom-auto md:top-[5%] left-6 md:left-12 right-6 md:right-12 flex flex-col items-start text-left pointer-events-none">
+                        <div className="absolute top-[7%] bottom-2 md:bottom-auto md:top-[0.5%] left-6 md:left-12 right-6 md:right-12 flex flex-col items-start text-left pointer-events-none">
                             
                             {/* Welcome Message Skeleton */}
-                            <div className="flex flex-col gap-2.5 w-full max-w-xl">
+                            <div className="flex flex-col gap-2.5 w-full max-w-xl mt-8 md:mt-[4.5vh] relative top-20 md:top-0">
                                 {/* Huge "Welcome, Username" line */}
                                 <div className="h-10 md:h-16 w-3/4 max-w-[480px] bg-black/10 dark:bg-white/10 rounded-sm" />
                                 {/* Date line */}
                                 <div className="h-3 md:h-4.5 w-1/3 max-w-[200px] bg-black/5 dark:bg-white/5 rounded-sm" />
                             </div>
 
-                            {/* Start Focus Button Skeleton with exact spacing md:mt-[9vh] */}
-                            <div className="mt-8 md:mt-[9vh] shrink-0">
-                                <div className="h-12 md:h-14 w-48 bg-black/10 dark:bg-white/10 rounded-sm" />
+                            {/* Start Focus Button Skeleton with exact spacing md:mt-[-1.5vh] */}
+                            <div className="mt-2 md:mt-[-1.5vh] shrink-0">
+                                <div className="h-12 md:h-14 w-[55vw] max-w-[240px] md:w-48 bg-black/10 dark:bg-white/10 rounded-sm" />
                             </div>
 
                             {/* Priorities Header Skeleton with exact spacing md:mt-[9vh] */}

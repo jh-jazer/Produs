@@ -78,13 +78,13 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
     return (
         <div className="min-h-[300px] flex flex-col gap-6">
             <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">BUDGET OVERVIEW</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/35 dark:text-white/20">BUDGET OVERVIEW</span>
                 <button
                     onClick={() => {
                         setEditBudgets(budgetList.map(b => ({ ...b })));
                         setIsEditing(true);
                     }}
-                    className="size-8 rounded-sm border border-white/10 text-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center"
+                    className="size-8 rounded-sm border border-black/10 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all flex items-center justify-center"
                 >
                     <span className="material-symbols-outlined text-lg">settings</span>
                 </button>
@@ -103,20 +103,20 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
                                     <div key={b.category} className="space-y-2">
                                         <div className="flex justify-between items-center px-1">
                                             <div className="flex items-center gap-3">
-                                                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{b.category}</span>
+                                                <span className="text-[10px] font-black text-black/40 dark:text-white/40 uppercase tracking-widest">{b.category}</span>
                                                 {b.isPending && (
-                                                    <span className="animate-spin material-symbols-outlined text-[10px] text-white/20">sync</span>
+                                                    <span className="animate-spin material-symbols-outlined text-[10px] text-black/20 dark:text-white/20">sync</span>
                                                 )}
                                             </div>
-                                            <span className="text-[11px] font-black text-white italic">
+                                            <span className="text-[11px] font-black text-black dark:text-white italic">
                                                 {currencySymbol}{spent.toLocaleString()} / {currencySymbol}{b.limit.toLocaleString()}
                                             </span>
                                         </div>
-                                        <div className="w-full bg-white/5 rounded-sm h-[2px] overflow-hidden relative">
+                                        <div className="w-full bg-black/5 dark:bg-white/5 rounded-sm h-[2px] overflow-hidden relative">
                                             <motion.div
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${percent}%` }}
-                                                className={`h-full transition-all duration-700 ${isCritical ? 'bg-rose-500' : 'bg-white/40'} ${b.isPending ? 'opacity-50 animate-pulse' : ''}`}
+                                                className={`h-full transition-all duration-700 ${isCritical ? 'bg-rose-500' : 'bg-black/40 dark:bg-white/40'} ${b.isPending ? 'opacity-50 animate-pulse' : ''}`}
                                             />
                                         </div>
                                     </div>
@@ -124,10 +124,10 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
                             })}
                         </div>
 
-                        <div className="mt-auto pt-8 border-t border-white/5">
-                            <div className="p-8 rounded-sm border border-white/5 bg-white/[0.02]">
-                                <p className="text-[10px] font-black text-white/20 mb-4 uppercase tracking-[0.4em]">MONTHLY REMAINING</p>
-                                <p className="text-4xl font-black text-white italic tracking-tighter">
+                        <div className="mt-auto pt-8 border-t border-black/10 dark:border-white/5">
+                            <div className="p-8 rounded-sm border border-black/10 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02]">
+                                <p className="text-[10px] font-black text-black/35 dark:text-white/20 mb-4 uppercase tracking-[0.4em]">MONTHLY REMAINING</p>
+                                <p className="text-4xl font-black text-black dark:text-white italic tracking-tighter">
                                     {currencySymbol}{remainingBudget.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 </p>
                             </div>

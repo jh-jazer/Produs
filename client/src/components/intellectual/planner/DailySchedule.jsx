@@ -207,29 +207,29 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                     <div className="flex items-center gap-2">
                         {/* Sleep */}
                         <div className="flex flex-col gap-0.5">
-                            <span className="text-[8px] font-mono uppercase text-white/20 tracking-widest">SLEEP</span>
+                            <span className="text-[8px] font-mono uppercase text-black/40 dark:text-white/20 tracking-widest">SLEEP</span>
                             <input
                                 type="time"
                                 value={tempSleep.start}
                                 onChange={e => setTempSleep({ ...tempSleep, start: e.target.value })}
-                                className="bg-white/5 border border-white/10 h-[36px] w-[100px] px-1 text-white font-mono text-[12px] focus:border-white/40 transition-colors outline-none"
+                                className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 h-[36px] w-[100px] px-1 text-black dark:text-white font-mono text-[12px] focus:border-black/40 dark:focus:border-white/40 transition-colors outline-none"
                             />
                         </div>
 
                         {/* Wake */}
                         <div className="flex flex-col gap-0.5">
-                            <span className="text-[8px] font-mono uppercase text-white/20 tracking-widest">WAKE</span>
+                            <span className="text-[8px] font-mono uppercase text-black/40 dark:text-white/20 tracking-widest">WAKE</span>
                             <input
                                 type="time"
                                 value={tempSleep.end}
                                 onChange={e => setTempSleep({ ...tempSleep, end: e.target.value })}
-                                className="bg-white/5 border border-white/10 h-[36px] w-[100px] px-1 text-white font-mono text-[12px] focus:border-white/40 transition-colors outline-none"
+                                className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 h-[36px] w-[100px] px-1 text-black dark:text-white font-mono text-[12px] focus:border-black/40 dark:focus:border-white/40 transition-colors outline-none"
                             />
                         </div>
 
                         {isSavingSleep && (
                             <div className="flex items-center gap-1 self-end pb-1">
-                                <div className="size-1 rounded-full bg-white animate-pulse" />
+                                <div className="size-1 rounded-full bg-black dark:bg-white animate-pulse" />
                             </div>
                         )}
                     </div>
@@ -238,23 +238,23 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                     <div className="flex items-center gap-2">
                         {/* Day Dropdown */}
                         <div className="flex flex-col gap-0.5 w-[90px]">
-                            <span className="text-[8px] font-mono uppercase text-white/20 tracking-widest">DAY</span>
+                            <span className="text-[8px] font-mono uppercase text-black/40 dark:text-white/20 tracking-widest">DAY</span>
                             <div className="relative">
                                 <select
                                     value={selectedDay}
                                     onChange={e => setSelectedDay(Number(e.target.value))}
-                                    className="w-full h-[36px] bg-white/5 border border-white/10 hover:border-white/40 text-white font-black text-[10px] uppercase tracking-[0.3em] px-3 pr-8 outline-none appearance-none cursor-pointer transition-colors"
+                                    className="w-full h-[36px] bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 text-black dark:text-white font-black text-[10px] uppercase tracking-[0.3em] px-3 pr-8 outline-none appearance-none cursor-pointer transition-colors"
                                 >
                                     {DAYS.map((day, i) => {
                                         const isToday = i === todayDayIndex;
                                         return (
-                                            <option key={day} value={i} className="bg-[#0a0a0a] text-white">
+                                            <option key={day} value={i} className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white">
                                                 {isToday ? '• ' : ''}{day}
                                             </option>
                                         );
                                     })}
                                 </select>
-                                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
+                                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-black/40 dark:text-white/40">
                                     <span className="material-symbols-outlined text-[14px]">expand_more</span>
                                 </div>
                             </div>
@@ -262,10 +262,10 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
 
                         {/* Add Button */}
                         <div className="flex flex-col gap-0.5">
-                            <span className="text-[8px] font-mono uppercase text-white/20 tracking-widest opacity-0">ADD</span>
+                            <span className="text-[8px] font-mono uppercase text-black/40 dark:text-white/20 tracking-widest opacity-0">ADD</span>
                             <button
                                 onClick={() => setIsAdding(true)}
-                                className="size-[36px] shrink-0 flex items-center justify-center border border-white/40 hover:bg-white hover:text-black transition-all"
+                                className="size-[36px] shrink-0 flex items-center justify-center border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm"
                                 title="ADD ACTIVITY"
                             >
                                 <Plus size={14} />
@@ -277,10 +277,10 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
 
                 {/* Third Row: Template Buttons */}
                 <div className="flex gap-3 w-full">
-                    <button onClick={() => setIsStoreOpen(true)} className="h-[38px] flex-1 border border-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 group/btn" title="TEMPLATES STORE">
+                    <button onClick={() => setIsStoreOpen(true)} className="h-[38px] flex-1 border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm flex items-center justify-center gap-2 group/btn" title="TEMPLATES STORE">
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">TEMPLATES STORE</span>
                     </button>
-                    <button onClick={() => setIsSaveOpen(true)} className="h-[38px] flex-1 border border-white/40 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 group/btn" title="SAVE AS TEMPLATE">
+                    <button onClick={() => setIsSaveOpen(true)} className="h-[38px] flex-1 border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm flex items-center justify-center gap-2 group/btn" title="SAVE AS TEMPLATE">
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">SAVE AS TEMPLATE</span>
                     </button>
                 </div>
@@ -310,12 +310,12 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                         <div className="flex flex-col relative">
                             {visibleTimes.map((t, idx) => (
                                 <div key={idx} className="flex items-center gap-6 h-[80px] relative group/line">
-                                    <span className="w-16 text-[14px] font-mono text-white/20 group-hover/line:text-white/60 transition-colors uppercase whitespace-nowrap">{t.label}</span>
-                                    <div className="flex-1 h-px bg-white/5 group-hover/line:bg-white/20 transition-all"></div>
+                                    <span className="w-16 text-[14px] font-mono text-black/30 dark:text-white/20 group-hover/line:text-black/60 dark:group-hover/line:text-white/60 transition-colors uppercase whitespace-nowrap">{t.label}</span>
+                                    <div className="flex-1 h-px bg-black/5 dark:bg-white/5 group-hover/line:bg-black/25 dark:group-hover/line:bg-white/20 transition-all"></div>
                                     {!isReadOnly && (
                                         <button
                                             onClick={() => setIsAdding(true)}
-                                            className="absolute left-16 opacity-0 group-hover/line:opacity-100 size-6 flex items-center justify-center border border-white/20 text-white hover:bg-white hover:text-black transition-all z-20"
+                                            className="absolute left-16 opacity-0 group-hover/line:opacity-100 size-6 flex items-center justify-center border border-black/20 dark:border-white/20 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all z-20 rounded-sm"
                                         >
                                             <Plus size={12} />
                                         </button>
@@ -328,8 +328,8 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                         {isLoading ? (
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="flex flex-col items-center gap-2 opacity-20">
-                                    <div className="size-1.5 rounded-full bg-white animate-pulse" />
-                                    <span className="text-[8px] font-mono uppercase tracking-widest text-white">Loading...</span>
+                                    <div className="size-1.5 rounded-full bg-black dark:bg-white animate-pulse" />
+                                    <span className="text-[8px] font-mono uppercase tracking-widest text-black dark:text-white">Loading...</span>
                                 </div>
                             </div>
                         ) : (

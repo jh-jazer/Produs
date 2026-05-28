@@ -30,8 +30,7 @@ const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) =>
       {title && (
         <div className="mb-4 hidden md:flex justify-between items-start">
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40">{title}</span>
-            {subtitle && <span className="text-[8px] font-mono uppercase tracking-widest opacity-20">{subtitle}</span>}
+            <span className="text-2xl md:text-3xl font-black uppercase tracking-[0.3em] text-foreground/95">{title}</span>
           </div>
           {headerExtra && <div className="flex gap-2">{headerExtra}</div>}
         </div>
@@ -48,43 +47,43 @@ const HubModule = ({ onSelect }) => {
                 onClick={() => onSelect('journal')}
                 className="flex-1 group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
             >
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
-                <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 pointer-events-none" />
+                <div className="absolute inset-0 text-black dark:text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     <ChippedBorder opacity={1} />
                 </div>
-                <BookOpen className="relative z-10 size-8 text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
-                <h4 className="relative z-10 text-lg font-black text-white uppercase tracking-tighter italic">JOURNAL</h4>
-                <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-white/20 mt-1.5">Daily Reflections</span>
+                <BookOpen className="relative z-10 size-8 text-black/60 dark:text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
+                <h4 className="relative z-10 text-lg font-black text-black dark:text-white uppercase tracking-tighter italic">JOURNAL</h4>
+                <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mt-1.5">Daily Reflections</span>
             </button>
 
-            <div className="w-full h-[2px] md:w-[2px] md:h-32 bg-white/10 shrink-0 self-center rounded-full" />
+            <div className="w-full h-[2px] md:w-[2px] md:h-32 bg-black/10 dark:bg-white/10 shrink-0 self-center rounded-full" />
 
             <button
                 onClick={() => onSelect('notes')}
                 className="flex-1 group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
             >
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
-                <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 pointer-events-none" />
+                <div className="absolute inset-0 text-black dark:text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     <ChippedBorder opacity={1} />
                 </div>
-                <FileText className="relative z-10 size-8 text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
-                <h4 className="relative z-10 text-lg font-black text-white uppercase tracking-tighter italic">NOTES</h4>
-                <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-white/20 mt-1.5">Scratchpad Memos</span>
+                <FileText className="relative z-10 size-8 text-black/60 dark:text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
+                <h4 className="relative z-10 text-lg font-black text-black dark:text-white uppercase tracking-tighter italic">NOTES</h4>
+                <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mt-1.5">Scratchpad Memos</span>
             </button>
 
-            <div className="w-full h-[2px] md:w-[2px] md:h-32 bg-white/10 shrink-0 self-center rounded-full" />
+            <div className="w-full h-[2px] md:w-[2px] md:h-32 bg-black/10 dark:bg-white/10 shrink-0 self-center rounded-full" />
 
             <button
                 onClick={() => onSelect('lists')}
                 className="flex-1 group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
             >
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none" />
-                <div className="absolute inset-0 text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 pointer-events-none" />
+                <div className="absolute inset-0 text-black dark:text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     <ChippedBorder opacity={1} />
                 </div>
-                <ListIcon className="relative z-10 size-8 text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
-                <h4 className="relative z-10 text-lg font-black text-white uppercase tracking-tighter italic">LISTS</h4>
-                <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-white/20 mt-1.5">Task Tracking</span>
+                <ListIcon className="relative z-10 size-8 text-black/60 dark:text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
+                <h4 className="relative z-10 text-lg font-black text-black dark:text-white uppercase tracking-tighter italic">LISTS</h4>
+                <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mt-1.5">Task Tracking</span>
             </button>
         </div>
     );
@@ -125,10 +124,10 @@ const NotesModule = () => {
         <div className="flex flex-col gap-8 w-full">
                 <button
                     onClick={() => navigate('/dashboard/writing/notes/new')}
-                    className="group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-4 text-left"
+                    className="group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-4 text-left"
                 >
                     {/* Left Side: Image (1/4) */}
-                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-black/10 dark:border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
                         <img 
                             src="/assets/journal_default_cover.png" 
                             alt="Write Note" 
@@ -142,25 +141,25 @@ const NotesModule = () => {
                         <div className="flex flex-col gap-0.5">
                             <div className="flex justify-between items-start mb-2 md:mb-4">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="size-8 md:size-10 rounded-sm bg-white/5 flex items-center justify-center text-white/60 group-hover:rotate-12 transition-transform border border-white/10 shrink-0">
+                                    <div className="size-8 md:size-10 rounded-sm bg-black dark:bg-white flex items-center justify-center text-white/60 dark:text-black/60 group-hover:rotate-12 transition-transform border border-black/10 dark:border-white/10 shrink-0">
                                         <FileText className="size-4 md:size-5" />
                                     </div>
                                     <div className="flex flex-col min-w-0">
-                                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 truncate block">NOTES</span>
+                                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 truncate block">NOTES</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Entry Title */}
-                            <h4 className="text-base md:text-xl font-black text-white uppercase tracking-tighter italic mt-1 md:mt-4 truncate">
+                            <h4 className="text-base md:text-xl font-black text-black dark:text-white uppercase tracking-tighter italic mt-1 md:mt-4 truncate">
                                 WRITE NEW NOTE
                             </h4>
-                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-white/20 truncate block">CREATE A NEW NOTE</span>
+                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-black/35 dark:text-white/20 truncate block">CREATE A NEW NOTE</span>
                         </div>
 
                         {/* Footer Decor */}
                         <div className="flex items-center justify-end mt-1 md:mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
-                            <div className="h-[2px] w-8 md:w-12 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]" />
+                            <div className="h-[2px] w-8 md:w-12 bg-black dark:bg-white rounded-full animate-pulse shadow-[0_0_8px_rgba(0,0,0,0.2)] dark:shadow-[0_0_8px_white]" />
                         </div>
                     </div>
                 </button>
@@ -272,10 +271,10 @@ const ListsModule = ({ focusListId } = {}) => {
         <div className="flex flex-col gap-8 w-full">
                 <button
                     onClick={() => navigate('/dashboard/writing/lists/new')}
-                    className="group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-4 text-left"
+                    className="group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-4 text-left"
                 >
                     {/* Left Side: Image (1/4) */}
-                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-black/10 dark:border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
                         <img 
                             src="/assets/journal_default_cover.png" 
                             alt="Write List" 
@@ -289,25 +288,25 @@ const ListsModule = ({ focusListId } = {}) => {
                         <div className="flex flex-col gap-0.5">
                             <div className="flex justify-between items-start mb-2 md:mb-4">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="size-8 md:size-10 rounded-sm bg-white/5 flex items-center justify-center text-white/60 group-hover:rotate-12 transition-transform border border-white/10 shrink-0">
+                                    <div className="size-8 md:size-10 rounded-sm bg-black dark:bg-white flex items-center justify-center text-white/60 dark:text-black/60 group-hover:rotate-12 transition-transform border border-black/10 dark:border-white/10 shrink-0">
                                         <ListIcon className="size-4 md:size-5" />
                                     </div>
                                     <div className="flex flex-col min-w-0">
-                                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 truncate block">LISTS</span>
+                                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 truncate block">LISTS</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Entry Title */}
-                            <h4 className="text-base md:text-xl font-black text-white uppercase tracking-tighter italic mt-1 md:mt-4 truncate">
-                                WRITE NEW LISTS
+                            <h4 className="text-base md:text-xl font-black text-black dark:text-white uppercase tracking-tighter italic mt-1 md:mt-4 truncate">
+                                WRITE NEW LIST
                             </h4>
-                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-white/20 truncate block">CREATE A NEW LIST</span>
+                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-black/35 dark:text-white/20 truncate block">CREATE A NEW LIST</span>
                         </div>
 
                         {/* Footer Decor */}
                         <div className="flex items-center justify-end mt-1 md:mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
-                            <div className="h-[2px] w-8 md:w-12 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]" />
+                            <div className="h-[2px] w-8 md:w-12 bg-black dark:bg-white rounded-full animate-pulse shadow-[0_0_8px_rgba(0,0,0,0.2)] dark:shadow-[0_0_8px_white]" />
                         </div>
                     </div>
                 </button>

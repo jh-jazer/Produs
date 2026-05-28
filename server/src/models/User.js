@@ -55,13 +55,21 @@ const userSchema = new mongoose.Schema({
     banner: {
         type: String
     },
-    level: {
+    // Guardian progression — earned via all normal-mode productivity activities
+    guardianLevel: {
         type: Number,
-        default: 0
+        default: 1
     },
-    exp: {
+    guardianExp: {
         type: Number,
-        default: 0
+        default: 100
+    },
+    // Hero progression — the fictional RPG character the user guides.
+    // Hero level is capped at guardianLevel. Name is derived from the user's archetype (neural sync).
+    hero: {
+        name:  { type: String, default: 'Unnamed Hero' },
+        level: { type: Number, default: 0 },
+        exp:   { type: Number, default: 0 }
     },
     onboardingCompleted: {
         type: Boolean,

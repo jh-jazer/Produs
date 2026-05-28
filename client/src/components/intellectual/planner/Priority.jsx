@@ -41,22 +41,22 @@ const Priority = ({
   };
 
   return (
-    <div className={`flex flex-col text-white font-sans ${isCompact ? "gap-6" : "gap-8"} relative`}>
+    <div className={`flex flex-col text-foreground font-sans ${isCompact ? "gap-6" : "gap-8"} relative`}>
       <button 
         onClick={onFlip}
-        className="absolute -top-16 right-0 size-10 flex items-center justify-center border border-white/20 hover:bg-white hover:text-black transition-all active:scale-95 z-20"
+        className="absolute -top-16 right-0 size-10 flex items-center justify-center border border-black/20 dark:border-white/20 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all active:scale-95 z-20 rounded-sm"
       >
         <span className="material-symbols-outlined text-sm font-bold italic">east</span>
       </button>
 
       {/* Active Now Section */}
       <div className="flex flex-col gap-4">
-        <span className="text-[12px] font-black uppercase tracking-[0.6em] text-white/20">CURRENT STATUS</span>
+        <span className="text-[12px] font-black uppercase tracking-[0.6em] text-black/35 dark:text-white/20">CURRENT STATUS</span>
         {activeTask ? (
           <motion.div 
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            className="p-6 bg-white text-black rounded-sm relative overflow-hidden group shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
+            className="p-6 bg-black text-white dark:bg-white dark:text-black rounded-sm relative overflow-hidden group shadow-md"
           >
             <div className="absolute top-[-10px] right-[-10px] opacity-10 rotate-12 scale-150">
               <span className="material-symbols-outlined text-[80px]">bolt</span>
@@ -71,9 +71,9 @@ const Priority = ({
             </div>
           </motion.div>
         ) : (
-          <div className="p-8 border-2 border-dashed border-white/5 rounded-sm flex flex-col items-center justify-center text-center gap-2 opacity-30">
+          <div className="p-8 border-2 border-dashed border-black/10 dark:border-white/5 rounded-sm flex flex-col items-center justify-center text-center gap-2 opacity-30">
             <span className="material-symbols-outlined text-3xl">terminal</span>
-            <span className="text-[10px] font-black uppercase tracking-widest">NO ACTIVE TASKS</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">NO ACTIVE TASKS</span>
           </div>
         )}
       </div>
@@ -81,13 +81,13 @@ const Priority = ({
       {/* Briefing Section */}
       {!isCompact && (
         <div className="flex flex-col gap-6">
-          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-white/20">DAILY BRIEFING</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.6em] text-black/35 dark:text-white/20">DAILY BRIEFING</span>
           <div className="flex flex-col gap-3">
             {events.length > 0 && events.map((event) => (
-              <div key={event._id} className="flex items-center gap-4 p-4 bg-white/[0.03] border border-white/5 rounded-sm group hover:bg-white/[0.05] transition-all">
-                <div className="size-2 bg-white/40 rounded-full group-hover:scale-125 transition-transform" />
+              <div key={event._id} className="flex items-center gap-4 p-4 bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/5 rounded-sm group hover:bg-black/5 dark:hover:bg-white/[0.05] transition-all">
+                <div className="size-2 bg-black/40 dark:bg-white/40 rounded-full group-hover:scale-125 transition-transform" />
                 <span className="text-xs font-bold uppercase tracking-wide flex-1 opacity-80">{event.title}</span>
-                <span className="text-[9px] font-black uppercase tracking-widest text-white/20">EVENT</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-black/30 dark:text-white/20">EVENT</span>
               </div>
             ))}
 
@@ -99,26 +99,26 @@ const Priority = ({
                   onClick={() => handleToggle(task)}
                   className={`flex items-center gap-4 p-4 border transition-all cursor-pointer rounded-sm ${
                     task.completed 
-                      ? "bg-white/[0.02] border-white/5 opacity-30" 
-                      : "bg-white/[0.04] border-white/10 hover:border-white/30"
+                      ? "bg-black/[0.01] dark:bg-white/[0.02] border-black/5 dark:border-white/5 opacity-30" 
+                      : "bg-black/[0.03] dark:bg-white/[0.04] border-black/15 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30"
                   }`}
                 >
                   <div className={`size-4 border-2 rounded-sm shrink-0 flex items-center justify-center transition-all ${
-                    task.completed ? "bg-white border-white" : "border-white/20"
+                    task.completed ? "bg-black border-black text-white dark:bg-white dark:border-white dark:text-black shadow-md" : "border-black/25 dark:border-white/20"
                   }`}>
-                    {task.completed && <span className="material-symbols-outlined text-black text-[10px] font-bold">check</span>}
+                    {task.completed && <span className="material-symbols-outlined text-[10px] font-black">check</span>}
                   </div>
-                  <span className={`text-[11px] font-black uppercase tracking-wider flex-1 ${task.completed ? "line-through opacity-40" : "opacity-90"}`}>
+                  <span className={`text-[11px] font-black uppercase tracking-wider flex-1 ${task.completed ? "line-through opacity-40 text-black/40 dark:text-white/30" : "opacity-90 text-black/80 dark:text-white/80"}`}>
                     {task.title}
                   </span>
                   {task.startTime && (
-                    <span className="text-[9px] font-mono opacity-20 uppercase">{task.startTime}</span>
+                    <span className="text-[9px] font-mono opacity-40 dark:opacity-20 uppercase text-black dark:text-white">{task.startTime}</span>
                   )}
                 </motion.div>
               ))
             ) : (
               events.length === 0 && (
-                <div className="flex flex-col items-center gap-2 py-8 opacity-10">
+                <div className="flex flex-col items-center gap-2 py-8 opacity-30">
                   <span className="material-symbols-outlined text-2xl">inbox</span>
                   <span className="text-[9px] font-black uppercase tracking-widest">CLEAR FOR TODAY</span>
                 </div>

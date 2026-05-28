@@ -84,9 +84,13 @@ const GlobalTransactionPortal = ({ isOpen, onClose }) => {
     );
 };
 
-const GlobalMobileHeader = ({ activeSection, onClick }) => {
+const GlobalMobileHeader = ({ activeSection, onClick, protocolMode }) => {
   const [matrixText, setMatrixText] = useState("");
+  const [showProfile, setShowProfile] = useState(false);
+  const { user } = useAuthStore();
+  const { setIsUserMenuOpen } = useContext(DashboardContext);
   const location = useLocation();
+  const navigate = useNavigate();
   const textToType = "PRODUS";
   const matrixChars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*<>";
 
@@ -119,6 +123,7 @@ const GlobalMobileHeader = ({ activeSection, onClick }) => {
       let iteration = 0;
       let currentIdx = 0;
       setMatrixText("");
+      setShowProfile(false);
 
       const timer = setInterval(() => {
         iteration++;
@@ -136,7 +141,16 @@ const GlobalMobileHeader = ({ activeSection, onClick }) => {
         }
       }, 40);
 
-      return () => clearInterval(timer);
+      const profileTimer = setTimeout(() => {
+        setShowProfile(true);
+      }, 2500);
+
+      return () => {
+        clearInterval(timer);
+        clearTimeout(profileTimer);
+      };
+    } else {
+      setShowProfile(false);
     }
   }, [config.isMain]);
 
@@ -146,20 +160,88 @@ const GlobalMobileHeader = ({ activeSection, onClick }) => {
       <div className="flex-1">
         <AnimatePresence mode="wait">
           {config.isMain ? (
-            <motion.div
-              key="produs"
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              transition={{ duration: 0.2 }}
-              className="pointer-events-auto cursor-pointer mt-1.5"
-              onClick={onClick}
-            >
-              <h1 className="wordmark text-black dark:text-white flex items-center font-mono" style={{ fontSize: '14px' }}>
-                <span>{matrixText}</span>
-                <span className="animate-pulse inline-block w-1.5 h-3.5 bg-current ml-0.5 opacity-60 shrink-0" />
-              </h1>
-            </motion.div>
+            <AnimatePresence mode="wait">
+              {!showProfile ? (
+                <motion.div
+                  key="produs"
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 5 }}
+                  transition={{ duration: 0.3 }}
+                  className="pointer-events-auto cursor-pointer mt-1.5"
+                  onClick={onClick}
+                >
+                  <h1 className="wordmark text-black dark:text-white flex items-center font-mono" style={{ fontSize: '14px' }}>
+                    <span>{matrixText}</span>
+                    <span className="animate-pulse inline-block w-1.5 h-3.5 bg-current ml-0.5 opacity-60 shrink-0" />
+                  </h1>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="profile"
+                  initial={{ opacity: 0, scale: 0.95, y: 5 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                  transition={{ duration: 0.3 }}
+                  className="pointer-events-auto flex items-center gap-3.5 mt-1 cursor-pointer"
+                  onClick={() => setIsUserMenuOpen(true)}
+                >
+                  {/* Profile Image + Level Badge */}
+                  <div className="relative size-14 shrink-0">
+                    <div className="size-full rounded-full overflow-hidden border-2 border-black/40 dark:border-white/15 bg-black/5 dark:bg-white/10 flex items-center justify-center">
+                      <Avatar config={user?.avatar} />
+                    </div>
+                    {/* Show guardian level in normal mode, hero level in RPG mode */}
+                    {protocolMode === 'rpg' ? (
+                      user?.hero && (
+                        <div className="absolute -bottom-0.5 -right-0.5 bg-amber-500 text-white text-[11px] font-black px-2 py-0.5 rounded-md shadow-md border border-amber-400/20">
+                          {user.hero.level}
+                        </div>
+                      )
+                    ) : (
+                      (user?.guardianLevel || 0) > 0 && (
+                        <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-white text-[11px] font-black px-2 py-0.5 rounded-md shadow-md border border-primary/20">
+                          {user.guardianLevel}
+                        </div>
+                      )
+                    )}
+                  </div>
+                  
+                  {/* EXP Display */}
+                  <div className="flex items-center justify-between gap-1.5 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 px-3.5 py-2 rounded-md select-none min-w-[110px]">
+                    <span className="text-sm font-black uppercase tracking-wider text-primary dark:text-emerald-400 flex items-baseline leading-none">
+                      {protocolMode === 'rpg' ? user?.hero?.exp || 0 : user?.rpg?.exp || 0}
+                      <span className="text-[10px] text-black/30 dark:text-white/30 mx-0.5">/</span>
+                      <span className="text-[11px] opacity-70 text-black dark:text-white">{protocolMode === 'rpg' ? 100 : 1000}</span>
+                    </span>
+                    <span className="text-[11px] font-bold text-black dark:text-white/40 uppercase tracking-[0.2em]">
+                      EXP
+                    </span>
+                  </div>
+                  <div className="flex items-stretch gap-1.5">
+                    {/* Prod points Display */}
+                    <div className="flex items-center justify-between gap-1.5 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 px-3.5 py-2 rounded-md select-none min-w-[96px]">
+                      <span className="text-sm font-black uppercase tracking-wider text-amber-500">
+                        {user?.rpg?.prodCoins || 0}
+                      </span>
+                      <span className="text-[11px] font-bold text-black dark:text-white/40 uppercase tracking-[0.2em]">PTS</span>
+                    </div>
+
+                    {/* Merchant Quick Access */}
+                    <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/dashboard/merchant');
+                      }}
+                      className="flex items-center justify-center px-3 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 rounded-md hover:bg-black/10 dark:hover:bg-white/10 hover:scale-95 transition-all shadow-sm cursor-pointer"
+                      title="Market"
+                    >
+                      <span className="material-symbols-outlined text-black dark:text-white text-[20px]">shopping_bag</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           ) : (
             <motion.div
               key={config.id}
@@ -169,8 +251,7 @@ const GlobalMobileHeader = ({ activeSection, onClick }) => {
               transition={{ duration: 0.2 }}
               className="flex flex-col gap-0.5 bg-background/80 backdrop-blur-sm py-1 px-2 -ml-2 rounded-sm pointer-events-auto"
             >
-              <span className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground">{config.title}</span>
-              <span className="text-[8px] font-mono uppercase tracking-widest text-foreground/40">{config.subtitle}</span>
+              <span className="text-2xl font-black uppercase tracking-[0.3em] text-foreground/95">{config.title}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -352,7 +433,7 @@ function Layout() {
             isUserMenuOpen,
             setIsUserMenuOpen
         }}>
-            <div className="bg-transparent font-sans text-[#111111] dark:text-slate-100 h-[100dvh] flex flex-row overflow-hidden">
+            <div className="bg-transparent font-sans text-[#111111] dark:text-black h-[100dvh] flex flex-row overflow-hidden">
                 {/* Mobile Top Bar */}
                 <div className="hidden fixed top-0 left-0 right-0 h-20 flex items-center px-4 z-[135] bg-transparent transition-all duration-300 pointer-events-none layout-mobile-top-bar">
                     <div className="flex items-center w-full pointer-events-auto">
@@ -362,40 +443,52 @@ function Layout() {
                         className="relative flex items-center active:scale-95 transition-all mr-4 shrink-0 p-[1.5px]"
                         onClick={() => setIsUserMenuOpen(true)}
                     >
-                        {user?.level > 0 && (
-                            <div className="absolute inset-0 size-full">
-                                <svg className="size-full -rotate-90">
-                                    <circle
-                                        cx="18" cy="18" r="17"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="1.2"
-                                        className="text-black/5 dark:text-white/10"
-                                    />
-                                    <motion.circle
-                                        cx="18" cy="18" r="17"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                        strokeDasharray="106.81" 
-                                        initial={{ strokeDashoffset: 106.81 }}
-                                        animate={{ 
-                                            strokeDashoffset: 106.81 - (106.81 * Math.min(100, Math.max(0, (((user.exp || 0) - (user.totalRequired || 0)) / (user.nextLevelExp || 100)) * 100))) / 100 
-                                        }}
-                                        transition={{ duration: 1.5, ease: "easeOut" }}
-                                        className="text-primary drop-shadow-[0_0_3px_rgba(var(--primary-rgb),0.3)]"
-                                    />
-                                </svg>
-                            </div>
-                        )}
+                        {/* EXP progress ring: guardian (reality) or hero (rpg) */}
+                        {(protocolMode === 'rpg'
+                            ? (user?.hero?.level || 0) > 0
+                            : (user?.guardianLevel || 0) > 0
+                        ) && (() => {
+                            const isRpg = protocolMode === 'rpg';
+                            const expVal = isRpg ? (user?.hero?.exp || 0) : (user?.guardianExp || 0);
+                            const lvlInfo = isRpg
+                                ? { totalRequired: 0, xpToNext: 100 } // hero calc done client-side simply
+                                : { totalRequired: user?.totalRequired || 0, xpToNext: user?.nextLevelExp || 100 };
+                            const progress = Math.min(100, Math.max(0, ((expVal - lvlInfo.totalRequired) / lvlInfo.xpToNext) * 100));
+                            const ringColor = isRpg ? 'text-amber-500' : 'text-primary';
+                            return (
+                                <div className="absolute inset-0 size-full">
+                                    <svg className="size-full -rotate-90">
+                                        <circle cx="18" cy="18" r="17" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-black dark:text-white/10" />
+                                        <motion.circle
+                                            cx="18" cy="18" r="17"
+                                            fill="none" stroke="currentColor"
+                                            strokeWidth="1.5" strokeLinecap="round"
+                                            strokeDasharray="106.81"
+                                            initial={{ strokeDashoffset: 106.81 }}
+                                            animate={{ strokeDashoffset: 106.81 - (106.81 * progress) / 100 }}
+                                            transition={{ duration: 1.5, ease: "easeOut" }}
+                                            className={`${ringColor} drop-shadow-[0_0_3px_rgba(var(--primary-rgb),0.3)]`}
+                                        />
+                                    </svg>
+                                </div>
+                            );
+                        })()}
                         <div className="size-9 rounded-full overflow-hidden bg-black/5 dark:bg-white/10 flex items-center justify-center shrink-0 relative z-10">
                             <Avatar config={user?.avatar} />
                         </div>
-                        {user?.level > 0 && (
-                            <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-lg border border-primary/20 scale-100 z-20">
-                                {user.level}
-                            </div>
+                        {/* Level badge */}
+                        {protocolMode === 'rpg' ? (
+                            (user?.hero?.level || 0) > 0 && (
+                                <div className="absolute -bottom-0.5 -right-0.5 bg-amber-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-lg border border-amber-400/20 scale-100 z-20">
+                                    {user.hero.level}
+                                </div>
+                            )
+                        ) : (
+                            (user?.guardianLevel || 0) > 0 && (
+                                <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-lg border border-primary/20 scale-100 z-20">
+                                    {user.guardianLevel}
+                                </div>
+                            )
                         )}
                     </button>
 
@@ -417,15 +510,20 @@ function Layout() {
                         </div>
                     )}
 
-                    {user?.level > 0 && (
+                    {/* EXP progress bar at bottom of mobile header */}
+                    {(protocolMode === 'rpg' ? (user?.hero?.level || 0) : (user?.guardianLevel || 0)) > 0 && (
                         <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-transparent overflow-hidden">
                             <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ 
-                                    width: `${Math.min(100, Math.max(0, (((user.exp || 0) - (user.totalRequired || 0)) / (user.nextLevelExp || 100)) * 100))}%` 
+                                    width: protocolMode === 'rpg'
+                                        ? `${Math.min(100, Math.max(0, ((user?.hero?.exp || 0) / (user?.nextLevelExp || 100)) * 100))}%`
+                                        : `${Math.min(100, Math.max(0, (((user?.guardianExp || 0) - (user?.totalRequired || 0)) / (user?.nextLevelExp || 100)) * 100))}%`
                                 }}
                                 transition={{ duration: 1, ease: 'easeOut' }}
-                                className="h-full bg-primary shadow-[0_0_8px_var(--primary-glow)]"
+                                className={`h-full shadow-[0_0_8px_var(--primary-glow)] ${
+                                    protocolMode === 'rpg' ? 'bg-amber-500' : 'bg-primary'
+                                }`}
                             />
                         </div>
                     )}
@@ -476,7 +574,7 @@ function Layout() {
                                 </div>
                                 <div className="flex flex-col items-start gap-0.5">
                                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black dark:text-white">QUICK ADD</span>
-                                    <span className="text-[8px] font-mono uppercase tracking-widest text-slate-500 dark:text-white/40">OPERATION HUB</span>
+                                    <span className="text-[8px] font-mono uppercase tracking-widest text-black dark:text-white/40">OPERATION HUB</span>
                                 </div>
                             </motion.button>
 
@@ -513,12 +611,12 @@ function Layout() {
 
                                             <div className="relative flex items-center w-full h-full">
                                                 <div className="pl-6 md:pl-8 flex items-center gap-2">
-                                                    <span className={`font-sans font-black uppercase tracking-[0.4em] text-[10px] whitespace-nowrap transition-all duration-300 ${isActive ? 'text-black dark:text-white' : 'text-slate-500 group-hover/nav:text-black dark:group-hover/nav:text-white'}`}>
+                                                    <span className={`font-sans font-black uppercase tracking-[0.4em] text-[10px] whitespace-nowrap transition-all duration-300 ${isActive ? 'text-black dark:text-white' : 'text-black group-hover/nav:text-black dark:group-hover/nav:text-white'}`}>
                                                         {item.name}
                                                     </span>
                                                     {item.id === 'more' && (
                                                         <span className={`ml-1 inline-block transition-transform duration-300 ${isMoreExpanded ? 'rotate-180' : 'rotate-0'}`}>
-                                                            <ChevronDown className="w-3 h-3 text-slate-400" />
+                                                            <ChevronDown className="w-3 h-3 text-black" />
                                                         </span>
                                                     )}
                                                     {isActive && (
@@ -547,7 +645,7 @@ function Layout() {
                                                                     className="flex items-center gap-2 py-1 transition-all duration-300 hover:translate-x-1"
                                                                     style={{ color: expandedCategory === cat.id ? (isDark ? cat.color.dark : cat.color.light) : 'inherit' }}
                                                                 >
-                                                                    <span className={`text-[9px] font-black uppercase tracking-[0.3em] italic ${expandedCategory === cat.id ? '' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                                                                    <span className={`text-[9px] font-black uppercase tracking-[0.3em] italic ${expandedCategory === cat.id ? '' : 'text-black hover:text-black dark:hover:text-black'}`}>
                                                                         {cat.name}
                                                                     </span>
                                                                     <div className={`size-1 rounded-full transition-all duration-300 ${expandedCategory === cat.id ? 'scale-125' : 'scale-50 opacity-20'}`} style={{ backgroundColor: isDark ? cat.color.dark : cat.color.light }} />
@@ -602,7 +700,7 @@ function Layout() {
                     <div className="mt-auto p-4 md:p-6 flex flex-col items-start gap-4 shrink-0 pl-[20px]">
                         <div className="mb-2 flex flex-col gap-4 transition-all duration-500">
                             <div className="flex flex-col items-start gap-1 cursor-pointer" onClick={() => navigate('/dashboard/merchant')} title="Open Merchant">
-                                <EnergyDisplay current={user?.rpg?.energy?.current ?? (10 + (user?.level || 0))} max={10 + (user?.level || 0)} variant="minimal" className="scale-[0.8] origin-left" />
+                                <EnergyDisplay current={user?.rpg?.energy?.current ?? (10 + (user?.guardianLevel || 0))} max={10 + (user?.guardianLevel || 0)} variant="minimal" className="scale-[0.8] origin-left" />
                                 <CoreDisplay amount={user?.rpg?.cores || 0} className="sidebar-core-display scale-[0.8] origin-left" variant="minimal" />
                                 <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display scale-[0.8] origin-left" variant="minimal" />
                             </div>
@@ -610,33 +708,49 @@ function Layout() {
                         <ThemeToggle className="mb-1" />
                         <div className="relative flex items-center gap-4 group" ref={profileRef}>
                             <div className="relative shrink-0 p-[2px]">
-                                {user?.level > 0 && (
-                                    <div className="absolute inset-0 size-full">
-                                        <svg className="size-full -rotate-90">
-                                            <circle cx="20" cy="20" r="19" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-black/5 dark:text-white/10" />
-                                            <motion.circle
-                                                cx="20" cy="20" r="19"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeDasharray="119.38"
-                                                initial={{ strokeDashoffset: 119.38 }}
-                                                animate={{ strokeDashoffset: 119.38 - (119.38 * Math.min(100, Math.max(0, (((user.exp || 0) - (user.totalRequired || 0)) / (user.nextLevelExp || 100)) * 100))) / 100 }}
-                                                transition={{ duration: 1.5, ease: "easeOut" }}
-                                                className="text-black dark:text-white drop-shadow-[0_0_3px_rgba(255,255,255,0.3)]"
-                                            />
-                                        </svg>
-                                    </div>
-                                )}
+                                {/* Desktop sidebar EXP ring — mode-aware */}
+                                {(protocolMode === 'rpg' ? (user?.hero?.level || 0) : (user?.guardianLevel || 0)) > 0 && (() => {
+                                    const isRpg = protocolMode === 'rpg';
+                                    const expVal = isRpg ? (user?.hero?.exp || 0) : (user?.guardianExp || 0);
+                                    const totalReq = isRpg ? 0 : (user?.totalRequired || 0);
+                                    const nxtLvl  = user?.nextLevelExp || 100;
+                                    const progress = Math.min(100, Math.max(0, ((expVal - totalReq) / nxtLvl) * 100));
+                                    const ringClass = isRpg
+                                        ? 'text-amber-500 drop-shadow-[0_0_3px_rgba(245,158,11,0.4)]'
+                                        : 'text-black dark:text-white drop-shadow-[0_0_3px_rgba(255,255,255,0.3)]';
+                                    return (
+                                        <div className="absolute inset-0 size-full">
+                                            <svg className="size-full -rotate-90">
+                                                <circle cx="20" cy="20" r="19" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-black dark:text-white/10" />
+                                                <motion.circle
+                                                    cx="20" cy="20" r="19"
+                                                    fill="none" stroke="currentColor"
+                                                    strokeWidth="2" strokeLinecap="round"
+                                                    strokeDasharray="119.38"
+                                                    initial={{ strokeDashoffset: 119.38 }}
+                                                    animate={{ strokeDashoffset: 119.38 - (119.38 * progress) / 100 }}
+                                                    transition={{ duration: 1.5, ease: "easeOut" }}
+                                                    className={ringClass}
+                                                />
+                                            </svg>
+                                        </div>
+                                    );
+                                })()}
                                 <button onClick={() => setIsUserMenuOpen(true)} className="size-10 rounded-full overflow-hidden active:scale-95 bg-black/10 dark:bg-white/10 flex items-center justify-center relative z-10">
                                     <Avatar config={user?.avatar} />
                                     {hasAnyUnread && (
                                         <div className="absolute top-1 right-1 size-2 rounded-full bg-white border border-black shadow-[0_0_6px_rgba(255,255,255,0.8)] z-30" />
                                     )}
                                 </button>
-                                {user?.level > 0 && (
-                                    <div className="absolute -bottom-1 -right-1 bg-white dark:bg-white text-black text-[7px] font-black px-1 py-0.5 rounded-md shadow-lg border border-black/10 scale-110 z-20 pointer-events-none">{user.level}</div>
+                                {/* Level badge — guardian or hero */}
+                                {protocolMode === 'rpg' ? (
+                                    (user?.hero?.level || 0) > 0 && (
+                                        <div className="absolute -bottom-1 -right-1 bg-amber-500 text-white text-[7px] font-black px-1 py-0.5 rounded-md shadow-lg border border-amber-400/20 scale-110 z-20 pointer-events-none">{user.hero.level}</div>
+                                    )
+                                ) : (
+                                    (user?.guardianLevel || 0) > 0 && (
+                                        <div className="absolute -bottom-1 -right-1 bg-white dark:bg-white text-black text-[7px] font-black px-1 py-0.5 rounded-md shadow-lg border border-black/10 scale-110 z-20 pointer-events-none">{user.guardianLevel}</div>
+                                    )
                                 )}
                             </div>
                             <div className="flex flex-col whitespace-nowrap overflow-hidden max-w-[140px]">
@@ -647,7 +761,7 @@ function Layout() {
                 </aside>
 
                 <div className="flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]">
-                    {isMobile && <GlobalMobileHeader activeSection={activeSection} onClick={() => setIsLandingModalOpen(true)} />}
+                    {isMobile && <GlobalMobileHeader activeSection={activeSection} onClick={() => setIsLandingModalOpen(true)} protocolMode={protocolMode} />}
                     <div ref={mainRef} className={`flex-1 overflow-x-hidden ${protocolMode === 'rpg' ? 'overflow-y-hidden' : 'overflow-y-auto'} custom-scrollbar flex flex-col relative mt-0 ${isMobile ? 'snap-y snap-mandatory' : ''}`}>
                         <ConnectionsModal isOpen={isConnectionsModalOpen} onClose={() => setIsConnectionsModalOpen(false)} onProfileClick={(username) => navigate(`/dashboard/profile/${username}`)} />
                         <IdentityEditModal isOpen={isIdentityEditModalOpen} onClose={() => setIsIdentityEditModalOpen(false)} />
@@ -694,15 +808,26 @@ function Layout() {
                 </aside>
 
                 <div className="md:hidden fixed top-8 right-0 z-[101] layout-mobile-profile-btn">
-                    <button 
-                        onClick={() => setIsUserMenuOpen(true)} 
-                        className="pl-4 pr-4 py-2 text-black dark:text-white/60 hover:text-black dark:hover:text-white transition-all active:scale-90 relative"
-                    >
-                        <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>person</span>
-                        {hasAnyUnread && (
-                            <span className="absolute top-1 right-3 size-2 rounded-full bg-white border border-black dark:border-neutral-900 shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
-                        )}
-                    </button>
+                    {isOverview ? (
+                        <button 
+                            onClick={() => setThemeMode(isDark ? 'light' : 'dark')} 
+                            className="pl-4 pr-6 py-2 text-black dark:text-white/60 hover:text-black dark:hover:text-white transition-all active:scale-90 relative"
+                        >
+                            <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
+                                {isDark ? 'light_mode' : 'dark_mode'}
+                            </span>
+                        </button>
+                    ) : (
+                        <button 
+                            onClick={() => setIsUserMenuOpen(true)} 
+                            className="pl-4 pr-6 py-2 text-black dark:text-white/60 hover:text-black dark:hover:text-white transition-all active:scale-90 relative"
+                        >
+                            <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>person</span>
+                            {hasAnyUnread && (
+                                <span className="absolute top-1 right-4 size-2 rounded-full bg-white border border-black dark:border-neutral-900 shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
+                            )}
+                        </button>
+                    )}
                 </div>
 
                 {isOverview && (!isMobile || activeSection === 'produs') && (
@@ -727,8 +852,8 @@ function Layout() {
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSearchModalOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-md" />
                             <motion.div initial={{ opacity: 0, scale: 0.95, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} className="relative w-full max-w-lg bg-white dark:bg-[#000000] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-black/[0.08] dark:border-white/10 overflow-hidden flex flex-col max-h-[80vh] ar-corners">
                                 <div className="flex items-center justify-between p-4 border-b border-black/[0.06] dark:border-white/[0.06] bg-black/[0.02] dark:bg-white/[0.02]">
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] ml-4 text-black/40 dark:text-white/40">Database Search</h4>
-                                    <button onClick={() => setIsSearchModalOpen(false)} className="size-8 flex items-center justify-center rounded-full text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/[0.06] dark:hover:bg-white/[0.06] transition-colors"><span className="material-symbols-outlined text-[20px]">close</span></button>
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] ml-4 text-black dark:text-white/40">Database Search</h4>
+                                    <button onClick={() => setIsSearchModalOpen(false)} className="size-8 flex items-center justify-center rounded-full text-black dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/[0.06] dark:hover:bg-white/[0.06] transition-colors"><span className="material-symbols-outlined text-[20px]">close</span></button>
                                 </div>
                                 <div className="p-4 flex-1 overflow-y-auto">
                                     <UserSearch onSelect={() => setIsSearchModalOpen(false)} />

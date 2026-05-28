@@ -50,14 +50,14 @@ const TodayActivity = ({ user }) => {
                             <div className={`size-10 rounded-2xl flex items-center justify-center transition-all ${
                                 isCompleted 
                                 ? `bg-${colorClass}/20 text-${colorClass} shadow-[0_0_15px_color-mix(in srgb, var(--primary) 20%, transparent)]` 
-                                : 'bg-slate-800/50 text-slate-600 group-hover/item:text-slate-400'
+                                : 'bg-slate-800/50 text-black group-hover/item:text-black'
                             }`}>
                                 {isCompleted ? <CheckCircle2 size={24} /> : <Circle size={24} />}
                             </div>
 
                             <div className="flex-1 text-left min-w-0">
                                 <p className={`text-[11px] font-black uppercase tracking-tight italic font-exo truncate ${
-                                    isCompleted ? 'text-slate-500 line-through' : 'text-slate-300 group-hover/item:text-white'
+                                    isCompleted ? 'text-black line-through' : 'text-black group-hover/item:text-white'
                                 }`}>
                                     {habit.name}
                                 </p>
@@ -80,10 +80,10 @@ const TodayActivity = ({ user }) => {
 
                 {habits.length === 0 && (
                     <div className="col-span-full py-12 flex flex-col items-center justify-center text-center opacity-40">
-                         <div className="size-12 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-600 mb-4">
+                         <div className="size-12 rounded-2xl bg-slate-800 flex items-center justify-center text-black mb-4">
                             <Plus size={24} />
                          </div>
-                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No Active Habits Today</p>
+                         <p className="text-[10px] font-black text-black uppercase tracking-widest">No Active Habits Today</p>
                     </div>
                 )}
             </div>

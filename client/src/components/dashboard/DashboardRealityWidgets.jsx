@@ -129,7 +129,7 @@ export const MoodTracker = ({ user, updateMood, standalone = false }) => {
                                             : 'bg-white dark:bg-black/20 border-transparent grayscale opacity-50 hover:grayscale-0 hover:opacity-100 dark:hover:bg-white/5'}`}
                                 >
                                     <img src={data.gif} alt={data.label} className="w-10 h-10 md:w-12 md:h-12" />
-                                    <span className={`text-[8px] font-black uppercase tracking-widest truncate w-full text-center ${currentMood === key ? `text-${data.color}-500` : 'text-slate-400'}`}>
+                                    <span className={`text-[8px] font-black uppercase tracking-widest truncate w-full text-center ${currentMood === key ? `text-${data.color}-500` : 'text-black'}`}>
                                         {data.label}
                                     </span>
                                 </motion.button>
@@ -144,7 +144,7 @@ export const MoodTracker = ({ user, updateMood, standalone = false }) => {
                 <motion.p 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] mt-6 animate-pulse"
+                    className="text-[9px] font-black text-black uppercase tracking-[0.4em] mt-6 animate-pulse"
                 >
                     // Click_to_Update_Status
                 </motion.p>
@@ -188,10 +188,10 @@ export const CoreStreaksList = ({ habits = [] }) => {
                                 <span className="material-symbols-outlined text-3xl">{habit.icon}</span>
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white truncate">{habit.name}</h4>
+                                <h4 className="text-sm font-black uppercase tracking-tight text-black dark:text-white truncate">{habit.name}</h4>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-2xl font-black text-cyan-500 italic font-exo">{habit.streak}</span>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Day Streak</span>
+                                    <span className="text-[10px] font-bold text-black uppercase tracking-widest">Day Streak</span>
                                 </div>
                             </div>
                         </div>
@@ -199,7 +199,7 @@ export const CoreStreaksList = ({ habits = [] }) => {
                     </div>
                 )) : (
                     <div className="col-span-2 py-12 text-center border-2 border-dashed border-slate-100 dark:border-white/5 rounded-[2rem]">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No core habits established yet.</p>
+                        <p className="text-xs font-bold text-black uppercase tracking-widest italic">No core habits established yet.</p>
                     </div>
                 )}
             </div>
@@ -259,7 +259,7 @@ export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, togg
                             className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all
                                 ${activeTab === tab 
                                     ? 'bg-white dark:bg-[#121212] text-primary shadow-sm' 
-                                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                                    : 'text-black hover:text-black dark:hover:text-black'}`}
                         >
                             {tab}
                         </button>
@@ -294,20 +294,20 @@ export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, togg
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h4 className={`text-sm font-black uppercase tracking-tight truncate transition-all
-                                            ${goal.completed ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
+                                            ${goal.completed ? 'text-black line-through' : 'text-black dark:text-white'}`}>
                                             {goal.title}
                                         </h4>
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                                        <p className="text-[9px] font-bold text-black uppercase tracking-widest mt-0.5">
                                             {goal.completed ? 'Objective Secured' : 'Active Priority'}
                                         </p>
                                     </div>
-                                    <Zap size={14} className={`${goal.completed ? 'text-slate-300' : 'text-primary opacity-0 group-hover:opacity-100'} transition-all`} />
+                                    <Zap size={14} className={`${goal.completed ? 'text-black' : 'text-primary opacity-0 group-hover:opacity-100'} transition-all`} />
                                 </motion.div>
                             ))
                         ) : (
                             <div className="py-20 text-center border-2 border-dashed border-slate-100 dark:border-white/5 rounded-[2.5rem] flex flex-col items-center gap-3">
-                                <Target size={32} className="text-slate-200 dark:text-white/5" />
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] italic">No missions defined for this period.</p>
+                                <Target size={32} className="text-black dark:text-white/5" />
+                                <p className="text-[10px] font-bold text-black uppercase tracking-[0.2em] italic">No missions defined for this period.</p>
                             </div>
                         )
                     ) : (
@@ -361,7 +361,7 @@ export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, togg
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-0.5">
                                                 <h4 className={`text-sm font-black uppercase tracking-tight truncate transition-all flex items-center gap-1.5
-                                                    ${isCompleted ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
+                                                    ${isCompleted ? 'text-black line-through' : 'text-black dark:text-white'}`}>
                                                     {habit.name}
                                                     {isSystemHabit && !isCompleted && (
                                                         <ArrowUpRight size={10} className="text-cyan-500 opacity-40 group-hover:opacity-100 transition-opacity" />
@@ -373,7 +373,7 @@ export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, togg
                                                     </span>
                                                 )}
                                             </div>
-                                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                            <p className="text-[9px] font-bold text-black uppercase tracking-widest">
                                                 {isCompleted 
                                                     ? 'Habit Stabilized' 
                                                     : isSystemHabit 
@@ -384,15 +384,15 @@ export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, togg
                                         {isSystemHabit ? (
                                             <Zap size={14} className={`${isCompleted ? 'text-emerald-500' : 'text-cyan-500 opacity-20 group-hover:opacity-100 animate-pulse'} transition-all`} />
                                         ) : (
-                                            <Flame size={14} className={`${isCompleted ? 'text-emerald-500' : 'text-slate-300 opacity-0 group-hover:opacity-100'} transition-all`} />
+                                            <Flame size={14} className={`${isCompleted ? 'text-emerald-500' : 'text-black opacity-0 group-hover:opacity-100'} transition-all`} />
                                         )}
                                     </motion.div>
                                 );
                             })
                         ) : (
                             <div className="py-20 text-center border-2 border-dashed border-slate-100 dark:border-white/5 rounded-[2.5rem] flex flex-col items-center gap-3">
-                                <Activity size={32} className="text-slate-200 dark:text-white/5" />
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] italic">No active habits found.</p>
+                                <Activity size={32} className="text-black dark:text-white/5" />
+                                <p className="text-[10px] font-bold text-black uppercase tracking-[0.2em] italic">No active habits found.</p>
                             </div>
                         )
                     )}
@@ -428,10 +428,10 @@ export const RealityAchievements = ({ habits = [], wishlist = [] }) => {
                         </div>
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2 mb-0.5">
-                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-900 dark:text-white truncate">{ms.label}</h4>
+                                <h4 className="text-[11px] font-black uppercase tracking-widest text-black dark:text-white truncate">{ms.label}</h4>
                                 <span className={`text-[8px] font-black uppercase font-mono text-${ms.color}-500`}>{ms.value}</span>
                             </div>
-                            <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate">{ms.desc}</p>
+                            <p className="text-[9px] font-bold text-black dark:text-black uppercase tracking-widest truncate">{ms.desc}</p>
                         </div>
                     </div>
                 ))}
@@ -458,13 +458,13 @@ export const WishlistPreview = ({ wishlist = [] }) => {
                             {item.imageUrl ? (
                                 <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                             ) : (
-                                <div className="size-full flex items-center justify-center text-slate-300 dark:text-slate-700">
+                                <div className="size-full flex items-center justify-center text-black dark:text-black">
                                     <ShoppingBag size={32} />
                                 </div>
                             )}
                         </div>
                         <div className="p-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white truncate mb-1">{item.title}</h4>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white truncate mb-1">{item.title}</h4>
                             <div className="flex items-center justify-between">
                                 <span className="text-[10px] font-black text-amber-500 font-exo italic">// {item.budgetPrice > 0 ? `$${item.budgetPrice}` : 'PENDING'}</span>
                                 <div className={`size-2 rounded-full ${item.priority === 'high' ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]' : 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]'}`} />

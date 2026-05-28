@@ -86,14 +86,14 @@ const FeaturedGoals = ({ onHabitAdded }) => {
                                     <div className="size-8 rounded-xl flex items-center justify-center bg-emerald-500/10 border border-emerald-500/30 text-emerald-500">
                                        <span className="material-symbols-outlined text-lg">{challenge.icon}</span>
                                     </div>
-                                    <h3 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-wider font-exo leading-tight">{challenge.name}</h3>
-                                    <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed line-clamp-2">{challenge.description}</p>
+                                    <h3 className="text-[10px] font-black text-black dark:text-white uppercase tracking-wider font-exo leading-tight">{challenge.name}</h3>
+                                    <p className="text-[7px] font-bold text-black uppercase tracking-widest leading-relaxed line-clamp-2">{challenge.description}</p>
                                 </div>
 
                                 <div className="flex items-center justify-between relative z-10">
                                     <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">ACTIVE_LINK</span>
                                     <div className="flex flex-col items-end">
-                                        <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest leading-none">Progression</span>
+                                        <span className="text-[7px] font-black text-black uppercase tracking-widest leading-none">Progression</span>
                                         <span className="text-[9px] font-black text-white uppercase font-mono italic">{challenge.progress}/{challenge.target}</span>
                                     </div>
                                 </div>
@@ -110,12 +110,12 @@ const FeaturedGoals = ({ onHabitAdded }) => {
                                 onClick={() => setIsDiscoveryOpen(true)}
                                 className="h-40 rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-white/10 hover:border-primary/40 hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-3 group relative overflow-hidden"
                             >
-                                <div className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
+                                <div className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-black group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
                                     <Plus className="group-hover:rotate-90 transition-transform duration-500" />
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em] group-hover:text-primary transition-colors">LINK_NEW_PROTOCOL_</p>
-                                    <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest opacity-60">System Capacity Available</p>
+                                    <p className="text-[10px] font-black text-black dark:text-black uppercase tracking-[0.2em] group-hover:text-primary transition-colors">LINK_NEW_PROTOCOL_</p>
+                                    <p className="text-[7px] font-bold text-black uppercase tracking-widest opacity-60">System Capacity Available</p>
                                 </div>
                                 
                                 {/* Decoration */}
@@ -148,10 +148,10 @@ const FeaturedGoals = ({ onHabitAdded }) => {
                             <div className="flex-1 space-y-3">
                                 <div className="space-y-1">
                                     <div className="flex items-center justify-between">
-                                        <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider font-exo">{challenge.name}</h3>
+                                        <h3 className="text-xs font-black text-black dark:text-white uppercase tracking-wider font-exo">{challenge.name}</h3>
                                         <span className="text-[8px] font-black text-primary uppercase font-mono italic">{challenge.category}</span>
                                     </div>
-                                    <p className="text-[9px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-relaxed">{challenge.description}</p>
+                                    <p className="text-[9px] font-medium text-black dark:text-black uppercase tracking-widest leading-relaxed">{challenge.description}</p>
                                 </div>
                                 <button
                                     onClick={() => handleJoin(challenge.id)}

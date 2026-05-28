@@ -41,7 +41,7 @@ const StreakStatus = ({ user }) => {
                             </h3>
                             <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest font-mono">[ ACTIVE ]</span>
                         </div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest max-w-[450px] leading-relaxed">
+                        <p className="text-[10px] font-bold text-black uppercase tracking-widest max-w-[450px] leading-relaxed">
                             {protocol.flavor}
                         </p>
 
@@ -49,7 +49,7 @@ const StreakStatus = ({ user }) => {
                             {protocol.perk.split('|').map((p, i) => (
                                 <div key={i} className="flex items-center gap-2">
                                     <div className="size-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">{p.trim()}</span>
+                                    <span className="text-[9px] font-bold text-black uppercase tracking-tighter">{p.trim()}</span>
                                 </div>
                             ))}
                         </div>
@@ -58,12 +58,12 @@ const StreakStatus = ({ user }) => {
                     <div className="flex items-center gap-10 mt-8 pt-8 border-t border-cyan-500/20 dark:border-white/5 overflow-x-auto no-scrollbar">
                         {Object.entries(protocol.multipliers).map(([stat, val]) => (
                             <div key={stat} className="flex flex-col min-w-fit">
-                                <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">{stat} Multiplier</span>
+                                <span className="text-[8px] font-black text-black uppercase tracking-widest">{stat} Multiplier</span>
                                 <span className={`text-xl font-black ${val >= 1 ? 'text-emerald-500' : 'text-orange-500'} font-exo italic tracking-tighter`}>{val}x</span>
                             </div>
                         ))}
                         <div className="flex flex-col ml-auto">
-                            <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Current Stage</span>
+                            <span className="text-[8px] font-black text-black uppercase tracking-widest">Current Stage</span>
                             <span className="text-xl font-black text-white font-exo italic uppercase tracking-tighter">{user?.rpg?.archetype?.stage || 'BASELINE'}</span>
                         </div>
                     </div>
@@ -81,7 +81,7 @@ const StreakStatus = ({ user }) => {
                         criticalStreaks.slice(0, 3).map(h => (
                             <div key={h._id} className="flex items-center justify-between p-4 rounded-[1.5rem] bg-orange-500/5 border border-orange-500/10 group/streak transition-all hover:bg-orange-500/10">
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-tight line-clamp-1">{h.name}</span>
+                                    <span className="text-[10px] font-black text-black uppercase tracking-tight line-clamp-1">{h.name}</span>
                                     <span className="text-[8px] font-bold text-orange-500 uppercase tracking-widest mt-0.5">Day {h.streak} at risk</span>
                                 </div>
                                 <AlertCircle size={14} className="text-orange-500 animate-pulse" />
@@ -92,13 +92,13 @@ const StreakStatus = ({ user }) => {
                             <div className="size-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                                 <CheckCircle2 size={20} />
                             </div>
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-tight">All Streaks Safe</span>
+                            <span className="text-[9px] font-black text-black uppercase tracking-widest leading-tight">All Streaks Safe</span>
                         </div>
                     )}
                 </div>
 
                 <div className="pt-8 mt-auto">
-                    <div className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Active Chains</div>
+                    <div className="text-[8px] font-black text-black uppercase tracking-[0.2em] mb-4">Active Chains</div>
                     <div className="flex flex-wrap gap-2">
                         {activeStreaks.slice(0, 4).map(h => (
                             <div key={h._id} className="flex items-center gap-1.5 px-3 py-2 rounded-xl glass-card hover:border-orange-500/50 transition-colors">

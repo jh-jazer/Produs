@@ -172,25 +172,25 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
 
                         {/* 2. Operative Identity */}
                         <div className="flex flex-col items-start">
-                            <p className="text-[9px] font-black text-black/60 dark:text-white/60 uppercase tracking-[0.2em] leading-none mb-1">{(user.username || user.name || 'OPERATOR').split('#')[0].replace(/\d+/g, '')}</p>
+                            <p className="text-[9px] font-black text-black dark:text-white/60 uppercase tracking-[0.2em] leading-none mb-1">{(user.username || user.name || 'OPERATOR').split('#')[0].replace(/\d+/g, '')}</p>
                             <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em] leading-none">{archeName || 'UNAWAKENED'}</p>
                         </div>
 
                         {/* 3. System ID */}
                         <div className="flex items-center gap-3 ml-auto">
-                            <span className="text-[9px] font-black text-black/30 dark:text-white/30 uppercase tracking-[0.4em] font-sans">
+                            <span className="text-[9px] font-black text-black dark:text-white/30 uppercase tracking-[0.4em] font-sans">
                                 ID: {isIdVisible ? user._id : '••••••••••••••••'}
                             </span>
                             <div className="flex items-center gap-1">
                                 <button 
                                     onClick={() => setIsIdVisible(!isIdVisible)}
-                                    className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded transition-colors text-black/30 dark:text-white/30 hover:text-black dark:hover:text-white"
+                                    className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded transition-colors text-black dark:text-white/30 hover:text-black dark:hover:text-white"
                                 >
                                     {isIdVisible ? <EyeOff size={11} /> : <Eye size={11} />}
                                 </button>
                                 <button 
                                     onClick={handleCopyId}
-                                    className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded transition-colors text-black/30 dark:text-white/30 hover:text-black dark:hover:text-white"
+                                    className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded transition-colors text-black dark:text-white/30 hover:text-black dark:hover:text-white"
                                 >
                                     {hasCopiedId ? <Check size={11} className="text-green-500" /> : <Copy size={11} />}
                                 </button>
@@ -243,7 +243,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                         <div className="flex items-center gap-3">
                             {isEditing ? (
                                 <div className="flex items-center gap-2">
-                                    <button onClick={() => setIsEditing(false)} className="px-5 py-2.5 bg-black/5 dark:bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10 transition-all">
+                                    <button onClick={() => setIsEditing(false)} className="px-5 py-2.5 bg-black/5 dark:bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-black dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10 transition-all">
                                         Cancel_
                                     </button>
                                     <button onClick={handleSaveProfile} className="px-5 py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
@@ -252,10 +252,10 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-2">
-                                    <button onClick={() => { setQrMode('display'); setIsQrModalOpen(true); }} className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-black/40 dark:text-white/40 hover:text-primary transition-all">
+                                    <button onClick={() => { setQrMode('display'); setIsQrModalOpen(true); }} className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-black dark:text-white/40 hover:text-primary transition-all">
                                         <QrCode size={18} />
                                     </button>
-                                    <button onClick={() => setIsConnectionsModalOpen(true)} className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-black/40 dark:text-white/40 hover:text-primary transition-all">
+                                    <button onClick={() => setIsConnectionsModalOpen(true)} className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-black dark:text-white/40 hover:text-primary transition-all">
                                         <Users size={18} />
                                     </button>
                                     <button onClick={() => setIsEditing(true)} className="h-10 px-5 bg-black dark:bg-white text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all">

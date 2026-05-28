@@ -55,7 +55,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
     };
 
     return (
-        <div className="flex flex-col font-sans text-white relative h-[400px] md:h-[508px]">
+        <div className="flex flex-col font-sans text-foreground relative h-[400px] md:h-[508px]">
             <ConfirmDialog
                 isOpen={!!confirmDelete}
                 title="DELETE EVENT"
@@ -65,9 +65,9 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                 onCancel={() => setConfirmDelete(null)}
             />
 
-            <div className="grid grid-cols-7 gap-2 md:gap-3 border-b border-white/10 mb-4 pb-2">
+            <div className="grid grid-cols-7 gap-2 md:gap-3 border-b border-black/10 dark:border-white/10 mb-4 pb-2">
                 {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => (
-                    <div key={day} className="text-center text-[9px] font-black text-white uppercase tracking-[0.3em]">{day}</div>
+                    <div key={day} className="text-center text-[9px] font-black text-black/50 dark:text-white/50 uppercase tracking-[0.3em]">{day}</div>
                 ))}
             </div>
 
@@ -102,7 +102,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                         <div
                             key={d}
                             onClick={() => { onDateSelect(date); setAddModal({ startDate: date, endDate: date }); }}
-                            className={`h-[60px] md:h-[80px] border border-white/20 hover:border-white/60 rounded-sm p-2 flex flex-col items-end transition-all cursor-pointer group relative hover:bg-white/[0.08] ${isSelected ? 'bg-white/[0.05]' : ''}`}
+                            className={`h-[60px] md:h-[80px] border border-black/15 dark:border-white/20 hover:border-black/40 dark:hover:border-white/60 rounded-sm p-2 flex flex-col items-end transition-all cursor-pointer group relative hover:bg-black/5 dark:hover:bg-white/[0.08] ${isSelected ? 'bg-black/[0.03] dark:bg-white/[0.05]' : ''}`}
                         >
                             {hasRangeEvent && (
                                 <div 
@@ -110,21 +110,21 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                     style={{ background: indicatorGradient }}
                                 />
                             )}
-                            <span className={`size-12 md:size-16 flex items-center justify-center text-2xl md:text-4xl font-black transition-all ${isToday ? 'bg-white text-black' : isSelected ? 'text-white' : 'text-white/60 group-hover:text-white'}`}>
+                            <span className={`size-12 md:size-16 flex items-center justify-center text-2xl md:text-4xl font-black transition-all rounded-sm ${isToday ? 'bg-black text-white dark:bg-white dark:text-black' : isSelected ? 'text-black dark:text-white' : 'text-black/40 dark:text-white/60 group-hover:text-black dark:group-hover:text-white'}`}>
                                 {d}
                             </span>
                             <div className="absolute bottom-2 left-2.5 flex items-center h-4">
                                 {singleEvents.length === 1 && (
-                                    <div className="size-1 md:size-1.5 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+                                    <div className="size-1 md:size-1.5 bg-black dark:bg-white rounded-full shadow-sm" />
                                 )}
                                 {singleEvents.length > 1 && singleEvents.length <= 9 && (
                                     <div className="flex items-center gap-0.5">
-                                        <span className="text-[9px] md:text-[10px] font-black text-white/40 italic tracking-tighter">{singleEvents.length}</span>
-                                        <div className="size-1 bg-white/40 rounded-full shadow-[0_0_5px_rgba(255,255,255,0.2)] mt-0.5" />
+                                        <span className="text-[9px] md:text-[10px] font-black text-black/35 dark:text-white/40 italic tracking-tighter">{singleEvents.length}</span>
+                                        <div className="size-1 bg-black/30 dark:bg-white/40 rounded-full mt-0.5" />
                                     </div>
                                 )}
                                 {singleEvents.length > 9 && (
-                                    <span className="text-[9px] md:text-[10px] font-black text-white/40 italic tracking-tighter bg-white/5 px-1 rounded-sm border border-white/5">
+                                    <span className="text-[9px] md:text-[10px] font-black text-black/35 dark:text-white/40 italic tracking-tighter bg-black/5 dark:bg-white/5 px-1 rounded-sm border border-black/5 dark:border-white/5">
                                         9+
                                     </span>
                                 )}
@@ -135,15 +135,15 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                 
                 <div className="col-start-4 col-span-4 row-start-6 flex justify-end items-end p-2 h-[50px] md:h-[60px]">
                     <div className="flex items-center gap-6 md:gap-8 mr-2">
-                        <button onClick={prevMonth} className="text-white hover:text-white/40 transition-all">
+                        <button onClick={prevMonth} className="text-black dark:text-white hover:text-black/40 dark:hover:text-white/40 transition-all">
                             <span className="material-symbols-outlined text-xl md:text-2xl">chevron_left</span>
                         </button>
                         <div className="flex flex-col items-center">
-                            <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.5em] whitespace-nowrap text-white">
+                            <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.5em] whitespace-nowrap text-black dark:text-white">
                                 {months[month]} {year}
                             </span>
                         </div>
-                        <button onClick={nextMonth} className="text-white hover:text-white/40 transition-all">
+                        <button onClick={nextMonth} className="text-black dark:text-white hover:text-black/40 dark:hover:text-white/40 transition-all">
                             <span className="material-symbols-outlined text-xl md:text-2xl">chevron_right</span>
                         </button>
                     </div>

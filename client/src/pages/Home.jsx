@@ -162,6 +162,7 @@ export default function Home() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [activePriorityIndex, setActivePriorityIndex] = useState(9);
+  const autoSlideTimerRef = useRef(null);
   
   const carouselRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -400,13 +401,54 @@ export default function Home() {
     e.stopPropagation();
     const nextIndex = (desktopIndex + 1) % priorityCards.length;
     setActivePriorityIndex(nextIndex);
+    // Reset auto-slide timer on manual interaction
+    if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
+    autoSlideTimerRef.current = setInterval(() => {
+      setActivePriorityIndex(prev => {
+        const cur = (prev === null ? 1 : prev) % priorityCards.length;
+        return (cur + 1) % priorityCards.length;
+      });
+    }, 4000);
   };
 
   const handlePrevCard = (e) => {
     e.stopPropagation();
     const prevIndex = (desktopIndex - 1 + priorityCards.length) % priorityCards.length;
     setActivePriorityIndex(prevIndex);
+    // Reset auto-slide timer on manual interaction
+    if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
+    autoSlideTimerRef.current = setInterval(() => {
+      setActivePriorityIndex(prev => {
+        const cur = (prev === null ? 1 : prev) % priorityCards.length;
+        return (cur + 1) % priorityCards.length;
+      });
+    }, 4000);
   };
+
+  // Auto-slide priority cards every 4 seconds
+  useEffect(() => {
+    if (priorityCards.length === 0) return;
+    autoSlideTimerRef.current = setInterval(() => {
+      setActivePriorityIndex(prev => {
+        const cur = (prev === null ? 1 : prev) % priorityCards.length;
+        return (cur + 1) % priorityCards.length;
+      });
+    }, 4000);
+    return () => clearInterval(autoSlideTimerRef.current);
+  }, [priorityCards.length]);
+
+  // Scroll carousel to active card whenever index changes
+  useEffect(() => {
+    if (activePriorityIndex === null) return;
+    const el = carouselRef.current;
+    if (!el) return;
+    const flexContainer = el.children[0];
+    if (!flexContainer) return;
+    const targetCard = flexContainer.children[activePriorityIndex];
+    if (targetCard) {
+      targetCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }, [activePriorityIndex]);
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
@@ -870,23 +912,36 @@ export default function Home() {
                       animate={{ opacity: 1, filter: 'blur(0px)', x: 0 }}
                       exit={{ opacity: 0, filter: 'blur(10px)', x: -20 }}
                       transition={{ duration: 0.6, delay: 0.3 }}
-                      className="absolute top-[12%] bottom-2 md:bottom-auto md:top-[5%] left-6 md:left-12 right-6 md:right-12 flex flex-col items-start pointer-events-none text-left"
+                      className="absolute top-[7%] bottom-2 md:bottom-auto md:top-[0.5%] left-6 md:left-12 right-6 md:right-12 flex flex-col items-start pointer-events-none text-left"
                     >
-                      <h3 className="welcome-title-text font-black tracking-tighter text-black dark:text-white uppercase">
-                        {(() => {
-                          if (!claimedDaily) return "Welcome";
-                          const hour = currentTime.getHours();
-                          if (hour < 12) return "Good Morning";
-                          if (hour < 18) return "Good Afternoon";
-                          return "Good Evening";
-                        })()}, {user?.username?.split('#')[0] || 'Operator'}
-                      </h3>
-                      <p className="text-[10px] md:text-sm font-mono uppercase tracking-[0.2em] text-black/40 dark:text-white/40 mt-1 md:mt-2">
-                        {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                      </p>
+                      <div className="relative top-20 md:top-0">
+                        <h3 className="welcome-title-text font-black tracking-tighter text-black dark:text-white uppercase mt-8 md:mt-[4.5vh]">
+                          {(() => {
+                            if (!claimedDaily) return "Welcome";
+                            const hour = currentTime.getHours();
+                            if (hour < 12) return "Good Morning";
+                            if (hour < 18) return "Good Afternoon";
+                            return "Good Evening";
+                          })()}, {user?.username?.split('#')[0] || 'Operator'}
+                        </h3>
+                        <p className="text-[10px] md:text-sm font-mono uppercase tracking-[0.2em] text-black dark:text-white/40 mt-1 md:mt-2">
+                          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                        </p>
+                      </div>
                       
                       {/* Spacer 1 to center Start Focus button */}
                       <div className="flex-1 md:hidden" />
+
+                      {/* Focus Rewards Preview */}
+                      <div className="mt-1 md:mt-[-3.5vh] flex flex-col gap-1 pointer-events-auto select-none items-start">
+                        <div className="flex items-center gap-1.5 text-[9px] font-black tracking-widest font-mono uppercase">
+                          <span className="text-black/40 dark:text-white/40">GET :</span>
+                          <span className="text-blue-600 dark:text-blue-400">EXP,</span>
+                          <span className="text-amber-600 dark:text-amber-400">PTS</span>
+                          <span className="text-black/40 dark:text-white/40">&</span>
+                          <span className="text-purple-600 dark:text-purple-400">LEGENDARY DROPS</span>
+                        </div>
+                      </div>
 
                       <motion.button
                         onClick={(e) => {
@@ -907,7 +962,7 @@ export default function Home() {
                         }}
                         whileHover={{ scale: 1.04 }}
                         whileTap={{ scale: 0.96 }}
-                        className="mt-0 md:mt-[9vh] relative group pointer-events-auto z-20 overflow-hidden"
+                        className="mt-1.5 md:mt-[0.5vh] w-[55vw] max-w-[240px] md:w-auto relative group pointer-events-auto z-20 overflow-hidden"
                       >
                         {/* Outer glow pulse ring */}
                         <motion.span
@@ -917,7 +972,7 @@ export default function Home() {
                         />
 
                         {/* Button body */}
-                        <span className="relative flex items-center gap-3 px-8 h-[8vh] min-h-[44px] bg-black dark:bg-white text-white dark:text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-sm shadow-[0_0_30px_rgba(0,0,0,0.15)] dark:shadow-[0_0_30px_rgba(255,255,255,0.15)] group-hover:shadow-[0_0_45px_rgba(0,0,0,0.25)] dark:group-hover:shadow-[0_0_45px_rgba(255,255,255,0.25)] transition-shadow duration-300">
+                        <span className="relative w-full flex items-center justify-center md:justify-start gap-3 md:px-8 h-[8vh] min-h-[44px] bg-black dark:bg-white text-white dark:text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-sm shadow-[0_0_30px_rgba(0,0,0,0.15)] dark:shadow-[0_0_30px_rgba(255,255,255,0.15)] group-hover:shadow-[0_0_45px_rgba(0,0,0,0.25)] dark:group-hover:shadow-[0_0_45px_rgba(255,255,255,0.25)] transition-shadow duration-300">
                           {/* Animated hourglass */}
                           <motion.span
                             className="material-symbols-outlined text-[15px] leading-none"
@@ -943,7 +998,7 @@ export default function Home() {
                         <div className="text-2xl md:text-4xl font-black uppercase tracking-[0.25em] text-black dark:text-white leading-none">
                           PRIORITIES
                         </div>
-                        <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.25em] text-black/50 dark:text-white/50">
+                        <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.25em] text-black dark:text-white/50">
                           {isMobile 
                             ? (activePriorityIndex !== null ? [...priorityCards, ...priorityCards, ...priorityCards][activePriorityIndex]?.header || 'DAILY ACTIVITY' : 'DAILY ACTIVITY')
                             : priorityCards[desktopIndex].header
@@ -1005,7 +1060,7 @@ export default function Home() {
                               }
                             }}
                           >
-                            <div className="flex gap-12 w-max px-[9vw]">
+                            <div className="flex gap-20 md:gap-12 w-max px-[7.5vw] md:px-[9vw]">
                               {[...priorityCards, ...priorityCards, ...priorityCards].map((card, i) => {
                                 const isActive = i === activePriorityIndex;
                                 return (
@@ -1016,7 +1071,7 @@ export default function Home() {
                                       setActivePriorityIndex(i);
                                       e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                                     }}
-                                    className="snap-center w-[94vw] h-64 md:h-72 rounded-3xl border-2 border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] shadow-md backdrop-blur-md p-6 md:p-8 flex flex-col justify-between shrink-0 transition-all duration-500 cursor-pointer group origin-center scale-105 opacity-100"
+                                    className="snap-center w-[85vw] md:w-[94vw] h-64 md:h-72 rounded-3xl border-2 border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] shadow-md backdrop-blur-md p-6 md:p-8 flex flex-col justify-between shrink-0 transition-all duration-500 cursor-pointer group origin-center scale-105 opacity-100"
                                   >
                                     {card.type === 'multi' ? (
                                       <div className="flex flex-col h-full justify-end gap-4">
@@ -1032,7 +1087,7 @@ export default function Home() {
                                                 {act.title}
                                               </span>
                                             </div>
-                                            <span className="text-xs font-mono text-black/50 dark:text-white/50">
+                                            <span className="text-xs font-mono text-black dark:text-white/50">
                                               {act.time}
                                             </span>
                                           </div>
@@ -1041,7 +1096,7 @@ export default function Home() {
                                     ) : (
                                       <>
                                         <div className="flex justify-between items-start">
-                                          <span className="text-sm font-mono text-black/50 dark:text-white/50">{card.time}</span>
+                                          <span className="text-sm font-mono text-black dark:text-white/50">{card.time}</span>
                                         </div>
                                         <span className="text-3xl font-black uppercase tracking-wider leading-tight transition-colors duration-300 text-black dark:text-white">
                                           {card.title}
@@ -1075,7 +1130,7 @@ export default function Home() {
                                         {act.title}
                                       </span>
                                     </div>
-                                    <span className="text-xs md:text-sm font-mono text-black/50 dark:text-white/50">
+                                    <span className="text-xs md:text-sm font-mono text-black dark:text-white/50">
                                       {act.time}
                                     </span>
                                   </div>
@@ -1084,7 +1139,7 @@ export default function Home() {
                             ) : (
                               <>
                                 <div className="flex justify-between items-start">
-                                  <span className="text-xs md:text-base font-mono text-black/50 dark:text-white/50">{priorityCards[desktopIndex].time}</span>
+                                  <span className="text-xs md:text-base font-mono text-black dark:text-white/50">{priorityCards[desktopIndex].time}</span>
                                 </div>
                                 <span className="text-3xl md:text-5xl font-black uppercase tracking-wider text-black dark:text-white leading-none">
                                   {priorityCards[desktopIndex].title}
@@ -1119,17 +1174,17 @@ export default function Home() {
                             {/* Pulsing indicator corner */}
                             <div className="absolute top-3 right-3 flex items-center gap-1.5">
                               <span className={`size-2 rounded-full ${claimedDaily ? 'bg-white/20' : 'bg-emerald-500 animate-pulse'}`} />
-                              <span className="text-[8px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">
+                              <span className="text-[8px] font-mono tracking-widest text-black dark:text-white/30 uppercase">
                                 {claimedDaily ? 'CLAIMED' : 'READY'}
                               </span>
                             </div>
 
-                            <span className="text-[8px] font-mono font-black uppercase tracking-[0.25em] text-black/40 dark:text-white/40">SYSTEM BOUNTY</span>
+                            <span className="text-[8px] font-mono font-black uppercase tracking-[0.25em] text-black dark:text-white/40">SYSTEM BOUNTY</span>
                             <div className="flex items-center gap-3">
                               <span className={`material-symbols-outlined text-2xl ${claimedDaily ? 'text-white/30' : 'text-emerald-500 transition-transform group-hover/reward:scale-110 duration-300'}`}>workspace_premium</span>
                               <div className="flex flex-col">
                                 <h4 className="text-xs font-black uppercase tracking-wider text-black dark:text-white leading-tight">DAILY REWARD</h4>
-                                <p className="text-[9px] font-mono text-black/40 dark:text-white/40 uppercase tracking-widest mt-0.5">
+                                <p className="text-[9px] font-mono text-black dark:text-white/40 uppercase tracking-widest mt-0.5">
                                   {claimedDaily ? '+50 POINTS & +100 XP' : 'CLAIM POINTS & XP'}
                                 </p>
                               </div>
@@ -1148,17 +1203,17 @@ export default function Home() {
                             {/* Pulsing indicator corner */}
                             <div className="absolute top-3 right-3 flex items-center gap-1.5">
                               <span className={`size-2 rounded-full ${claimedStreak ? 'bg-white/20' : 'bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.4)]'}`} />
-                              <span className="text-[8px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">
+                              <span className="text-[8px] font-mono tracking-widest text-black dark:text-white/30 uppercase">
                                 {claimedStreak ? 'UNLOCKED' : 'READY'}
                               </span>
                             </div>
 
-                            <span className="text-[8px] font-mono font-black uppercase tracking-[0.25em] text-black/40 dark:text-white/40">ANNUAL MILESTONE</span>
+                            <span className="text-[8px] font-mono font-black uppercase tracking-[0.25em] text-black dark:text-white/40">ANNUAL MILESTONE</span>
                             <div className="flex items-center gap-3">
                               <span className={`material-symbols-outlined text-2xl ${claimedStreak ? 'text-white/30' : 'text-amber-500 transition-transform group-hover/reward:scale-110 duration-300'}`}>military_tech</span>
                               <div className="flex flex-col">
                                 <h4 className="text-xs font-black uppercase tracking-wider text-black dark:text-white leading-tight">365 STREAK</h4>
-                                <p className="text-[9px] font-mono text-black/40 dark:text-white/40 uppercase tracking-widest mt-0.5">
+                                <p className="text-[9px] font-mono text-black dark:text-white/40 uppercase tracking-widest mt-0.5">
                                   {claimedStreak ? 'ECLIPSE REWARD SECURED' : 'UNLOCK EPIC FRAME'}
                                 </p>
                               </div>
@@ -1183,7 +1238,7 @@ export default function Home() {
                       onClick={() => setIsIdPulledDown(!isIdPulledDown)}
                     >
                       {/* Anchor Mount - stays fixed */}
-                      <div className="w-4 h-1.5 bg-white/80 rounded-t-sm shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
+                      <div className="w-4 h-1.5 bg-black dark:bg-white/80 rounded-t-sm shadow-[0_0_8px_rgba(0,0,0,0.4)] dark:shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
                       {/* Cord + Ring together — sway as one unit from anchor */}
                       <motion.div
                         className="flex flex-col items-center origin-top"
@@ -1191,17 +1246,17 @@ export default function Home() {
                         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', repeatType: 'mirror' }}
                       >
                         {/* Cord Line */}
-                        <div className="w-[2px] h-[180px] bg-gradient-to-b from-white/80 via-white/50 to-white/20" />
+                        <div className="w-[2px] h-[180px] bg-gradient-to-b from-black/80 via-black/50 to-black/20 dark:from-white/80 dark:via-white/50 dark:to-white/20" />
                         {/* Pulsing ring handle */}
                         <motion.div 
                           whileHover={{ scale: 1.15, y: 3 }}
                           whileTap={{ scale: 0.95, y: 15 }}
-                          className="size-9 rounded-full border-2 border-white/60 bg-black/90 backdrop-blur-md flex items-center justify-center shadow-lg shadow-black/40 group relative"
+                          className="size-9 rounded-full border-2 border-black/60 dark:border-white/60 bg-white/90 dark:bg-black/90 backdrop-blur-md flex items-center justify-center shadow-lg shadow-black/20 dark:shadow-black/40 group relative"
                         >
-                          <div className="size-3.5 rounded-full bg-white animate-pulse shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
+                          <div className="size-3.5 rounded-full bg-black dark:bg-white animate-pulse shadow-[0_0_12px_rgba(0,0,0,0.8)] dark:shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
                           
                           {/* Permanently visible indicator text below the ring */}
-                          <span className="absolute top-11 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8.5px] font-mono font-black uppercase tracking-[0.25em] text-white/50 group-hover:text-white transition-all duration-300 select-none">
+                          <span className="absolute top-11 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8.5px] font-mono font-black uppercase tracking-[0.25em] text-black/50 dark:text-white/50 group-hover:text-black dark:group-hover:text-white transition-all duration-300 select-none">
                             {isIdPulledDown ? "RETRACT ID" : "PULL ID"}
                           </span>
                         </motion.div>
@@ -1235,9 +1290,9 @@ export default function Home() {
                       }}
                       title="RETRACT ID"
                     >
-                      <div className="w-4 h-1 bg-white z-[60] shadow-[0_0_15px_rgba(255,255,255,0.5)] shrink-0 group-hover/retract:bg-white group-hover/retract:scale-x-125 transition-all" />
+                      <div className="w-4 h-1 bg-black dark:bg-white z-[60] shadow-[0_0_15px_rgba(0,0,0,0.5)] dark:shadow-[0_0_15px_rgba(255,255,255,0.5)] shrink-0 group-hover/retract:bg-black dark:group-hover/retract:bg-white group-hover/retract:scale-x-125 transition-all" />
                       <motion.div
-                        className="w-[12px] h-[15vh] md:h-20 bg-white opacity-80 shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50 group-hover/retract:bg-white group-hover/retract:opacity-100 transition-all origin-top"
+                        className="w-[12px] h-[15vh] md:h-20 bg-black dark:bg-white opacity-80 shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50 group-hover/retract:bg-black dark:group-hover/retract:bg-white group-hover/retract:opacity-100 transition-all origin-top"
                         animate={{ rotateZ: [0, 1.5, -1, 0.8, 0] }}
                         transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', repeatType: 'mirror', delay: 0.5 }}
                       />
@@ -1261,7 +1316,7 @@ export default function Home() {
                           </div>
                           <div className="flex flex-col gap-6 w-full items-center mt-4">
                             <div className="flex flex-col items-center">
-                              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/20 dark:text-white/20">{(user?.rpg?.archetype?.name && user.rpg.archetype.name !== 'None' ? user.rpg.archetype.name.toUpperCase() : 'ROOKIE')}_ID</span>
+                              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black dark:text-white/20">{(user?.rpg?.archetype?.name && user.rpg.archetype.name !== 'None' ? user.rpg.archetype.name.toUpperCase() : 'ROOKIE')}_ID</span>
                               <span className="text-sm font-black tracking-tighter uppercase opacity-80">{codenameHash}</span>
                             </div>
                             <div className="h-[1px] bg-black/10 dark:bg-white/10 w-full" />
@@ -1334,7 +1389,7 @@ export default function Home() {
                                 ) : (
                                   <>
                                     <div className="flex flex-col items-center w-full px-4">
-                                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 dark:text-white/40">{user?.username?.split('#')[0].toUpperCase() || 'OPERATIVE'}</span>
+                                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black dark:text-white/40">{user?.username?.split('#')[0].toUpperCase() || 'OPERATIVE'}</span>
                                       <span className="text-[9px] font-mono italic opacity-60 tracking-tight leading-tight mb-2 text-center">
                                         "{user?.bio || 'System_Access_Granted'}"
                                       </span>
@@ -1348,13 +1403,13 @@ export default function Home() {
                             <div className="flex flex-col items-center mb-10 w-full px-8">
                               <div className="w-full flex items-start justify-between border-y border-black/[0.03] dark:border-white/[0.03] py-4 px-2">
                                 <div className="flex flex-col items-center">
-                                  <span className="text-[7px] font-black text-black/20 dark:text-white/20 uppercase tracking-[0.4em] mb-1.5">NETWORKS</span>
+                                  <span className="text-[7px] font-black text-black dark:text-white/20 uppercase tracking-[0.4em] mb-1.5">NETWORKS</span>
                                   <span className="text-[14px] font-black tracking-widest text-black dark:text-white leading-none">
                                     {user?.connections?.length || 0}
                                   </span>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                  <span className="text-[7px] font-black text-black/20 dark:text-white/20 uppercase tracking-[0.4em] mb-1.5">LINKED TO:</span>
+                                  <span className="text-[7px] font-black text-black dark:text-white/20 uppercase tracking-[0.4em] mb-1.5">LINKED TO:</span>
                                   <span className={`text-[10px] font-black tracking-widest leading-none uppercase ${user?.partner?.username ? 'text-emerald-500' : 'text-black dark:text-white'}`}>
                                     {user?.partner?.username ? `@${user.partner.username.split('#')[0].toUpperCase()}` : 'X'}
                                   </span>
@@ -1373,7 +1428,7 @@ export default function Home() {
                                   <span className="text-[13px] font-black tracking-tighter leading-none" style={{ color: m.v > 0 ? '#10b981' : m.v < 0 ? '#f43f5e' : 'inherit' }}>
                                     {user?.currency === 'PHP' ? '₱' : '$'}{m.v < 0 ? '-' : ''}{Math.abs(m.v).toLocaleString()}
                                   </span>
-                                  <span className="text-[8px] font-black text-black/20 dark:text-white/20 uppercase tracking-[0.1em] mt-1.5 text-center truncate w-full">{m.l}</span>
+                                  <span className="text-[8px] font-black text-black dark:text-white/20 uppercase tracking-[0.1em] mt-1.5 text-center truncate w-full">{m.l}</span>
                                 </div>
                               ))}
                             </div>
@@ -1397,7 +1452,7 @@ export default function Home() {
                                 <div className="flex flex-col items-center gap-3 bg-black/5 dark:bg-white/5 backdrop-blur-md p-2 rounded-sm border border-black/10 dark:border-white/10">
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setIsEditing(false); }}
-                                    className="p-1 text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white transition-all hover:scale-125"
+                                    className="p-1 text-black hover:text-black dark:text-white/40 dark:hover:text-white transition-all hover:scale-125"
                                     title="ABORT_CHANGES"
                                   >
                                     <span className="material-symbols-outlined text-sm">close</span>
@@ -1405,7 +1460,7 @@ export default function Home() {
                                   <div className="h-[1px] w-3 bg-black/10 dark:bg-white/10" />
                                   <button
                                     onClick={(e) => { e.stopPropagation(); handleSaveInline(); }}
-                                    className="p-1 text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white transition-all hover:scale-125"
+                                    className="p-1 text-black hover:text-black dark:text-white/40 dark:hover:text-white transition-all hover:scale-125"
                                     title="SYNC_CHANGES"
                                   >
                                     <span className="material-symbols-outlined text-sm">check</span>
@@ -1488,7 +1543,7 @@ export default function Home() {
                           </div>
                           <div className="flex flex-col gap-6 w-full items-center mt-10">
                             <div className="flex flex-col items-center gap-1">
-                              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/20 dark:text-white/20">System Metadata</span>
+                              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black dark:text-white/20">System Metadata</span>
                               <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">Global_Unique_Identifier</span>
                             </div>
                             <div className="p-4 bg-white rounded-sm shadow-[0_0_50px_rgba(255,255,255,0.05)] relative z-10">
@@ -1503,7 +1558,7 @@ export default function Home() {
                             </div>
                             <div className="flex flex-col items-center gap-4 w-full">
                               <div className="flex flex-col items-center gap-1">
-                                <span className="text-[8px] font-black uppercase tracking-[0.4em] text-black/10 dark:text-white/10">Full Access Key</span>
+                                <span className="text-[8px] font-black uppercase tracking-[0.4em] text-black dark:text-white/10">Full Access Key</span>
                                 <div className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 p-2.5 rounded-sm font-mono text-[9px] break-all leading-relaxed opacity-60 text-center uppercase tracking-tighter">
                                   {user?._id || 'SESSION_DATA_NOT_FOUND'}
                                 </div>
@@ -1633,7 +1688,7 @@ export default function Home() {
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className={`h-[8vh] flex flex-col items-center justify-center pointer-events-auto group overflow-hidden transition-colors rounded-l-md border-y-2 border-l-2 cursor-pointer ${
               claimedDaily 
-                ? 'bg-transparent border-black/10 dark:border-white/20 text-black/60 dark:text-white/60 hover:text-emerald-500 dark:hover:text-emerald-400' 
+                ? 'bg-transparent border-black/40 dark:border-white/40 text-black dark:text-white/60 hover:text-emerald-500 dark:hover:text-emerald-400' 
                 : 'bg-emerald-500/10 border-emerald-500 text-emerald-500 dark:text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)] font-black animate-pulse'
             }`}
           >
@@ -1654,7 +1709,7 @@ export default function Home() {
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className={`h-[8vh] flex flex-col items-center justify-center pointer-events-auto group overflow-hidden transition-colors rounded-l-md border-y-2 border-l-2 cursor-pointer ${
               claimedStreak 
-                ? 'bg-transparent border-black/10 dark:border-white/20 text-black/60 dark:text-white/60 hover:text-amber-500 dark:hover:text-amber-400' 
+                ? 'bg-transparent border-black/40 dark:border-white/40 text-black dark:text-white/60 hover:text-amber-500 dark:hover:text-amber-400' 
                 : 'bg-amber-500/10 border-amber-500 text-amber-500 dark:text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.15)] font-black animate-pulse'
             }`}
           >
@@ -1996,10 +2051,26 @@ export default function Home() {
                   </button>
                 </div>
 
-                <div className="flex flex-col gap-3 w-full mt-4">
-                  <div className="text-[10px] font-black tracking-widest text-emerald-400 mb-1">
-                    ESTIMATED REWARD: +{calculateFocusPoints(focusSelectedTime)} PRODPOINTS
+                {/* Rewards Preview */}
+                <div className="w-full flex flex-col items-center gap-1.5 py-1 select-none">
+                  <span className="text-[9px] font-black tracking-[0.3em] text-white/35 uppercase">
+                    POSSIBLE REWARDS
+                  </span>
+                  <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-[10px] font-black tracking-widest font-mono">
+                    <span className="text-amber-400">+{calculateFocusPoints(focusSelectedTime)} PRODPOINTS</span>
+                    <span className="text-white/20">•</span>
+                    <span className="text-blue-400">+{Math.round(focusSelectedTime * 1.5)} EXP</span>
+                    <span className="text-white/20">•</span>
+                    <span className="text-purple-400">{focusSelectedTime >= 50 ? 'HIGH' : focusSelectedTime >= 25 ? 'MED' : 'LOW'} LOOT DROP</span>
                   </div>
+                  {focusSelectedTime >= 25 && (
+                    <span className="text-[8.5px] text-emerald-400/80 font-bold tracking-wider uppercase mt-1">
+                      Habit completion eligible after 5 minutes
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-3 w-full">
                   <button
                     onClick={() => {
                       setFocusStage('countdown');

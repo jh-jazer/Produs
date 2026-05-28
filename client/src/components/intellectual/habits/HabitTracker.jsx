@@ -38,6 +38,7 @@ function HabitTracker({
     const [editingHabit, setEditingHabit] = useState(null);
     const [localTeamHabits, setLocalTeamHabits] = useState([]);
     const [confirmDelete, setConfirmDelete] = useState(null);
+    const [habitFilter, setHabitFilter] = useState('system'); // 'system' | 'personal'
 
     const CORE_REDIRECTS = {
         'focus': '/dashboard',
@@ -96,11 +97,21 @@ function HabitTracker({
         setLocalTeamHabits(teamHabits);
     }, [teamHabits]);
 
+    const filteredHabits = React.useMemo(() => {
+        return localTeamHabits.filter(habit => {
+            const isSystemHabit = !!(habit.myPart ? habit.myPart.systemId : habit.systemId);
+            if (habitFilter === 'system') return isSystemHabit;
+            if (habitFilter === 'personal') return !isSystemHabit;
+            return true;
+        });
+    }, [localTeamHabits, habitFilter]);
+
     const daysToDisplay = React.useMemo(() => {
         const days = [];
         const start = new Date(activeDate);
-        start.setDate(activeDate.getDate() - 3);
-        for (let i = 0; i < 4; i++) {
+        start.setHours(0, 0, 0, 0);
+        start.setDate(start.getDate() - 2);
+        for (let i = 0; i < 3; i++) {
             const d = new Date(start);
             d.setDate(start.getDate() + i);
             days.push(d);
@@ -125,12 +136,12 @@ function HabitTracker({
         return (
             <div 
                 key={habit._id} 
-                className={`group/row relative flex items-center gap-4 py-4 border-b border-white/5 transition-all
+                className={`group/row relative flex items-center gap-4 py-4 border-b border-black/5 dark:border-white/5 transition-all
                     ${editMode ? 'pl-2 cursor-grab active:cursor-grabbing' : 'px-4'}
-                    hover:bg-white/[0.02]`}
+                    hover:bg-black/5 dark:hover:bg-white/[0.02]`}
             >
                 {editMode && !isPartnerView && (
-                    <span className="material-symbols-outlined text-white/20 hover:text-white transition-colors pr-1">drag_indicator</span>
+                    <span className="material-symbols-outlined text-black/20 dark:text-white/20 hover:text-black dark:hover:text-white transition-colors pr-1">drag_indicator</span>
                 )}
 
                 <div 
@@ -147,15 +158,17 @@ function HabitTracker({
                         }
                     }}
                 >
-                    <div className="relative shrink-0 flex items-center justify-center size-8 bg-white/5 rounded-sm border border-white/10 group-hover/row:border-white/30 transition-all">
-                        <span className="material-symbols-outlined text-white/60 text-lg group-hover/row:scale-110 transition-transform">{habit.icon}</span>
-                        {isSystemHabit && <div className="absolute -top-1 -right-1 size-2 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]" />}
+                    <div className="relative shrink-0 flex items-center justify-center size-8 bg-black/5 dark:bg-white/5 rounded-sm border border-black/10 dark:border-white/10 group-hover/row:border-black/30 dark:group-hover/row:border-white/30 transition-all">
+                        <span className="material-symbols-outlined text-black/60 dark:text-white/60 text-lg group-hover/row:scale-110 transition-transform">{habit.icon}</span>
+                        {isSystemHabit && <div className="absolute -top-1 -right-1 size-2 bg-black dark:bg-white rounded-full animate-pulse" />}
                     </div>
-                    <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-black uppercase tracking-wider text-white/80 group-hover/row:text-white transition-colors truncate">{habit.name}</span>
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
-                            {isSystemHabit ? 'SYSTEM SYNC' : (habit.streak > 0 ? `${habit.streak} DAY STREAK` : 'NO STREAK')}
-                        </span>
+                    <div className="flex items-center gap-1 min-w-0">
+                        <span className="text-[15px] font-black uppercase tracking-tighter text-black/80 dark:text-white/80 group-hover/row:text-black dark:group-hover/row:text-white transition-colors truncate">{habit.name}</span>
+                        {!isSystemHabit && habit.streak > 0 && (
+                            <span className="text-[15px] font-black italic text-amber-500 shrink-0 ml-1 flex items-center select-none" title={`${habit.streak} day streak`}>
+                                {habit.streak}🔥
+                            </span>
+                        )}
                     </div>
                 </div>
 
@@ -167,20 +180,20 @@ function HabitTracker({
                         const isFuture = date > today;
 
                         return (
-                            <div key={idx} className={`relative flex items-center justify-center size-8 ${idx < 3 ? 'hidden md:flex' : 'flex'}`}>
+                            <div key={idx} className="relative flex items-center justify-center size-10">
                                 <button
                                     onClick={() => handleToggle(habit._id, date)}
                                     disabled={editMode || isFuture || isReadOnly || isSystemHabit}
-                                    className={`relative size-6 transition-all rounded-sm flex items-center justify-center border
+                                    className={`relative size-8 transition-all rounded-sm flex items-center justify-center border
                                         ${myChecked 
-                                            ? 'bg-white border-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)]' 
-                                            : isToday ? 'border-white/40 hover:border-white' : 'border-white/5 hover:border-white/20'}
+                                            ? 'bg-black border-black text-white dark:bg-white dark:border-white dark:text-black shadow-md' 
+                                            : isToday ? 'border-black dark:border-white hover:bg-black/10 dark:hover:bg-white/10' : 'border-black/55 dark:border-white/60 hover:border-black dark:hover:border-white'}
                                         ${isFuture ? 'opacity-10 cursor-not-allowed' : ''}
                                         ${isSystemHabit ? 'cursor-default' : 'active:scale-90'}
                                     `}
                                 >
-                                    {myChecked && <span className="material-symbols-outlined text-[10px] font-black">check</span>}
-                                    {isToday && !myChecked && <div className="size-1 bg-white/20 rounded-full animate-ping" />}
+                                    {myChecked && <span className="material-symbols-outlined text-[14px] font-black">check</span>}
+                                    {isToday && !myChecked && <div className="size-1.5 bg-black/20 dark:bg-white/20 rounded-full animate-ping" />}
                                 </button>
                             </div>
                         );
@@ -189,7 +202,7 @@ function HabitTracker({
 
                 {editMode && (
                     <div className="w-16 shrink-0 flex items-center justify-end gap-2">
-                        <button onClick={() => setConfirmDelete(habit.isGrouped ? habit.myPart._id : habit._id)} className="text-white/20 hover:text-white transition-colors">
+                        <button onClick={() => setConfirmDelete(habit.isGrouped ? habit.myPart._id : habit._id)} className="text-black/20 dark:text-white/20 hover:text-black dark:hover:text-white transition-colors">
                             <span className="material-symbols-outlined text-sm">delete</span>
                         </button>
                     </div>
@@ -200,13 +213,39 @@ function HabitTracker({
 
     return (
         <div className="flex flex-col gap-8 font-sans relative">
-            <div className="relative flex justify-end gap-2 md:absolute md:-top-16 md:right-0 mb-4 md:mb-0 z-20 px-4 md:px-0">
-                <button onClick={() => setAddModalOpen(true)} className="size-10 flex items-center justify-center border border-white/10 hover:bg-white hover:text-black transition-all">
-                    <Plus size={16} />
-                </button>
-                <button onClick={() => setEditMode(!editMode)} className={`size-10 flex items-center justify-center border transition-all ${editMode ? 'bg-white text-black border-white' : 'border-white/10 text-white/40'}`}>
-                    <Edit2 size={16} />
-                </button>
+            <div className="relative flex items-center justify-between gap-2 md:absolute md:-top-16 md:left-0 md:right-0 mb-4 md:mb-0 z-20 px-4 md:px-0">
+                {/* Habit type filter toggle */}
+                <div className="flex items-center border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/[0.02] p-1 rounded-sm h-[36px]">
+                    <button
+                        onClick={() => setHabitFilter('system')}
+                        className={`h-full px-6 flex items-center justify-center text-[10px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer ${
+                            habitFilter === 'system'
+                                ? 'bg-black text-white dark:bg-white dark:text-black font-black shadow-sm'
+                                : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.04]'
+                        }`}
+                    >
+                        System
+                    </button>
+                    <button
+                        onClick={() => setHabitFilter('personal')}
+                        className={`h-full px-6 flex items-center justify-center text-[10px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer ${
+                            habitFilter === 'personal'
+                                ? 'bg-black text-white dark:bg-white dark:text-black font-black shadow-sm'
+                                : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.04]'
+                        }`}
+                    >
+                        Personal
+                    </button>
+                </div>
+
+                <div className="flex gap-2">
+                    <button onClick={() => setAddModalOpen(true)} className="size-[36px] flex items-center justify-center border border-black/60 dark:border-white/40 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all shrink-0 rounded-sm">
+                        <Plus size={14} />
+                    </button>
+                    <button onClick={() => setEditMode(!editMode)} className={`size-[36px] flex items-center justify-center border transition-all shrink-0 rounded-sm ${editMode ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-sm' : 'border-black/60 dark:border-white/40 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white'}`}>
+                        <Edit2 size={14} />
+                    </button>
+                </div>
             </div>
             <ConfirmDialog
                 isOpen={!!confirmDelete}
@@ -218,34 +257,39 @@ function HabitTracker({
             />
 
             <div className="flex flex-col">
-                <div className="flex items-center gap-4 px-4 py-4 border-b border-white/10 text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
+                <div className="flex items-center gap-4 px-4 py-4 border-b border-black/10 dark:border-white/10 text-[10px] font-black uppercase tracking-[0.2em] text-black/50 dark:text-white/30">
                     <div className="flex-1">HABIT LIST</div>
                     <div className="flex-1 flex justify-end md:justify-between items-center max-w-[300px]">
-                        {daysToDisplay.map((d, i) => (
-                            <span key={i} className={`w-8 text-center ${i < 3 ? 'hidden md:inline-block' : ''}`}>{d.getDate()}</span>
-                        ))}
+                        {daysToDisplay.map((d, i) => {
+                            const isToday = d.toDateString() === today.toDateString();
+                            return (
+                                <span key={i} className={`w-10 text-center font-bold ${isToday ? 'text-black dark:text-white font-black' : 'text-black/60 dark:text-white/50'}`}>
+                                    {d.getDate()}
+                                </span>
+                            );
+                        })}
                     </div>
                 </div>
 
                 <div className="flex flex-col">
                     {isLoading ? (
                         Array(3).fill(0).map((_, i) => <div key={i} className="h-16 w-full animate-pulse bg-white/5 my-1" />)
-                    ) : localTeamHabits.length > 0 ? (
-                        localTeamHabits.map(renderHabitRow)
+                    ) : filteredHabits.length > 0 ? (
+                        filteredHabits.map(renderHabitRow)
                     ) : habits.length === 0 ? (
                         /* Truly empty — first time */
                         <motion.button
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
                             onClick={() => setAddModalOpen(true)}
-                            className="w-full flex flex-col items-center justify-center py-16 gap-5 border border-dashed border-white/10 hover:border-white/30 hover:bg-white/[0.02] transition-all group/empty"
+                            className="w-full flex flex-col items-center justify-center py-16 gap-5 border border-dashed border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 hover:bg-black/5 dark:hover:bg-white/[0.02] transition-all group/empty"
                         >
-                            <div className="size-12 border-2 border-dashed border-white/20 group-hover/empty:border-white/50 flex items-center justify-center transition-all">
-                                <span className="material-symbols-outlined text-white/30 group-hover/empty:text-white/80 transition-colors">add</span>
+                            <div className="size-12 border-2 border-dashed border-black/30 dark:border-white/20 group-hover/empty:border-black/50 dark:group-hover/empty:border-white/50 flex items-center justify-center transition-all">
+                                <span className="material-symbols-outlined text-black/40 dark:text-white/30 group-hover/empty:text-black/80 dark:group-hover/empty:text-white/80 transition-colors">add</span>
                             </div>
                             <div className="flex flex-col items-center gap-1">
-                                <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white/40 group-hover/empty:text-white/80 transition-colors">Add your first habit</span>
-                                <span className="text-[8px] font-mono text-white/20 uppercase tracking-widest">Start building your daily protocol</span>
+                                <span className="text-[11px] font-black uppercase tracking-[0.4em] text-black/60 dark:text-white/40 group-hover/empty:text-black/80 dark:group-hover/empty:text-white/80 transition-colors">Add your first habit</span>
+                                <span className="text-[8px] font-mono text-black/40 dark:text-white/20 uppercase tracking-widest">Start building your daily protocol</span>
                             </div>
                         </motion.button>
                     ) : (
@@ -254,44 +298,20 @@ function HabitTracker({
                             initial={{ opacity: 0, y: 4 }}
                             animate={{ opacity: 1, y: 0 }}
                             onClick={() => setAddModalOpen(true)}
-                            className="w-full flex items-center gap-4 px-4 py-4 border-b border-dashed border-white/5 hover:border-white/20 hover:bg-white/[0.02] transition-all group/add"
+                            className="w-full flex items-center gap-4 px-4 py-4 border-b border-dashed border-black/5 dark:border-white/5 hover:border-black/20 dark:hover:border-white/20 hover:bg-black/5 dark:hover:bg-white/[0.02] transition-all group/add"
                         >
-                            <div className="size-8 border border-dashed border-white/20 group-hover/add:border-white/50 flex items-center justify-center transition-all shrink-0">
-                                <span className="material-symbols-outlined text-sm text-white/30 group-hover/add:text-white/80 transition-colors">add</span>
+                            <div className="size-8 border border-dashed border-black/30 dark:border-white/20 group-hover/add:border-black/50 dark:group-hover/add:border-white/50 flex items-center justify-center transition-all shrink-0">
+                                <span className="material-symbols-outlined text-sm text-black/40 dark:text-white/30 group-hover/add:text-black/80 dark:group-hover/add:text-white/80 transition-colors">add</span>
                             </div>
                             <div className="flex flex-col items-start gap-0.5">
-                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 group-hover/add:text-white/70 transition-colors">Add a new habit</span>
-                                <span className="text-[8px] font-mono text-white/20 uppercase tracking-widest">Extend your protocol</span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/50 dark:text-white/30 group-hover/add:text-black/70 dark:group-hover/add:text-white/70 transition-colors">Add a new habit</span>
+                                <span className="text-[8px] font-mono text-black/40 dark:text-white/20 uppercase tracking-widest">Extend your protocol</span>
                             </div>
                         </motion.button>
                     )}
                 </div>
             </div>
 
-            {/* Momentum HUD Cards */}
-            {!isLoading && habits.some(h => h.streak > 0) && (
-                <div className="flex flex-col gap-4 mt-8">
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">HABIT MOMENTUM</span>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {habits.filter(h => h.streak > 0).sort((a,b) => b.streak - a.streak).slice(0, 3).map(h => (
-                            <div key={h._id} className="p-6 bg-white/[0.03] border border-white/10 rounded-sm relative overflow-hidden group">
-                                <div className="absolute right-[-10px] bottom-[-10px] opacity-5 rotate-12 transition-transform group-hover:scale-125">
-                                    <span className="material-symbols-outlined text-[80px]">{h.icon}</span>
-                                </div>
-                                <div className="relative z-10 flex flex-col gap-2">
-                                    <div className="flex justify-between items-start">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-white/60">{h.name}</span>
-                                        <span className="text-xl font-black italic">{h.streak}D</span>
-                                    </div>
-                                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                        <motion.div initial={{ width: 0 }} animate={{ width: '60%' }} className="h-full bg-white" />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
 
             {/* Add Habit Modal - Tactical */}
             <AddHabitModal 

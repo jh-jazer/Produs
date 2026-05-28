@@ -26,7 +26,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
 
   const baseStyles = "h-[8vh] flex items-center justify-center pointer-events-auto group overflow-hidden transition-colors rounded-l-md border-y-2 border-l-2";
   const activeStyles = "bg-black/10 dark:bg-white/10 border-black dark:border-white text-black dark:text-white shadow-[0_0_30px_rgba(0,0,0,0.05)] dark:shadow-[0_0_30px_rgba(255,255,255,0.05)]";
-  const inactiveStyles = "bg-transparent border-black/10 dark:border-white/20 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:border-black dark:hover:border-white/40 hover:bg-black/5 dark:hover:bg-white/5";
+  const inactiveStyles = "bg-transparent border-black/40 dark:border-white/20 text-black dark:text-white/40 hover:text-black dark:hover:text-white hover:border-black dark:hover:border-white/40 hover:bg-black/5 dark:hover:bg-white/5";
 
   return (
     <motion.div

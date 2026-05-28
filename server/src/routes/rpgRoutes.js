@@ -1,4 +1,4 @@
-import { completeDailyQuiz, getActivityHistory, markActivitiesRead, logActivity, syncNeural, getSSSLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening, purchaseItem, claimDailyReward, claimStreakReward } from '../controllers/rpgController.js';
+import { completeDailyQuiz, getActivityHistory, markActivitiesRead, logActivity, syncNeural, getSSSLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening, purchaseItem, claimDailyReward, claimStreakReward, getHero, awardHeroExpController } from '../controllers/rpgController.js';
 import { getQuestionById } from '../controllers/narrativeController.js';
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
@@ -57,5 +57,16 @@ router.get('/narrative-history', protect, getNarrativeHistory);
 // @route   POST /api/rpg/purchase
 // @desc    Acquire tactical assets or themes
 router.post('/purchase', protect, purchaseItem);
+
+// ─── Hero Routes ─────────────────────────────────────────────────────────────
+
+// @route   GET /api/rpg/hero
+// @desc    Get current user's hero
+router.get('/hero', protect, getHero);
+
+
+// @route   POST /api/rpg/hero/award-exp
+// @desc    Award EXP to hero (RPG mode)
+router.post('/hero/award-exp', protect, awardHeroExpController);
 
 export default router;

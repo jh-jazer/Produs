@@ -57,7 +57,7 @@ const EvolutionPreview = ({ user }) => {
                         </div>
                     </div>
                     <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">{currentArchetype}</span>
+                        <span className="text-[10px] font-black text-black dark:text-white uppercase tracking-widest">{currentArchetype}</span>
                         <span className="text-[7px] font-black text-accent uppercase tracking-[0.2em] mt-1 font-mono">[ CURRENT ]</span>
                     </div>
                 </div>
@@ -68,7 +68,7 @@ const EvolutionPreview = ({ user }) => {
                         <span className="text-[10px] font-black text-accent uppercase tracking-[0.3em] font-mono flex items-center gap-2">
                             <TrendingUp size={12} /> STATUS: EVOLVING
                         </span>
-                        <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic font-exo">
+                        <h3 className="text-xl font-black text-black dark:text-white uppercase tracking-tight italic font-exo">
                             {path.isMax ? 'Peak Potential Reached' : `Path to ${path.nextName}`}
                         </h3>
                     </div>
@@ -82,24 +82,24 @@ const EvolutionPreview = ({ user }) => {
                             />
                         </div>
                         <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest">
-                            <span className="text-slate-500">{currentTier}</span>
+                            <span className="text-black">{currentTier}</span>
                             <span className="text-accent">
                                 {path.isMax ? 'MAX_LEVEL' : `${path.levelsRemaining} Levels to next milestone`}
                             </span>
                         </div>
                     </div>
 
-                    <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-wider italic">
+                    <p className="text-[10px] font-medium text-black dark:text-black leading-relaxed uppercase tracking-wider italic">
                         " {nextProtocol?.flavor?.slice(0, 100)}... "
                     </p>
                 </div>
 
                 {/* Legacy Indicator */}
                 <div className="flex flex-col items-center gap-3 shrink-0 opacity-20">
-                    <div className="size-20 rounded-3xl border-2 border-dashed border-slate-300 dark:border-white/10 flex items-center justify-center text-slate-300 dark:text-white/20">
+                    <div className="size-20 rounded-3xl border-2 border-dashed border-slate-300 dark:border-white/10 flex items-center justify-center text-black dark:text-white/20">
                         <Plus size={32} />
                     </div>
-                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">NEXT FORM</span>
+                    <span className="text-[10px] font-black text-black uppercase tracking-widest">NEXT FORM</span>
                 </div>
             </div>
         </DashboardPanel>

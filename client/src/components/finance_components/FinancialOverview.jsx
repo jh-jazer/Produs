@@ -167,7 +167,7 @@ const FinancialOverview = ({
                             key="balance"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/5 dark:border-white/10 backdrop-blur-sm relative overflow-hidden shadow-md"
+                            className="rounded-sm bg-black/5 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 backdrop-blur-sm relative overflow-hidden shadow-md"
                         >
                             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
@@ -175,12 +175,12 @@ const FinancialOverview = ({
                             <div className="grid grid-cols-3 min-h-[260px]">
 
                                 {/* Col 1+2 merged: Big Total Balance */}
-                                <div className="col-span-2 flex flex-col items-center justify-center text-center px-8 pt-14 pb-8 border-r border-white/10 relative">
+                                <div className="col-span-2 flex flex-col items-center justify-center text-center px-8 pt-14 pb-8 border-r border-black/10 dark:border-white/10 relative">
                                     {/* Controls row */}
                                     <div className="absolute top-4 left-4 flex items-center gap-2">
                                         <button 
                                             onClick={() => setShowSettings(true)}
-                                            className="size-8 flex items-center justify-center rounded-sm text-white/40 hover:text-white transition-colors"
+                                            className="size-8 flex items-center justify-center rounded-sm text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white transition-colors"
                                         >
                                             <span className="material-symbols-outlined text-lg">more_vert</span>
                                         </button>
@@ -198,15 +198,15 @@ const FinancialOverview = ({
                                                         setSelectedMonth(parseInt(m));
                                                     }
                                                 }}
-                                                className="bg-white/5 border border-white/10 text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-2 outline-none appearance-none cursor-pointer hover:bg-white/10 transition-all pr-10"
+                                                className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-2 outline-none appearance-none cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-all pr-10"
                                             >
                                                 {dropdownOptions.map(opt => (
-                                                    <option key={opt.value} value={opt.value} className="bg-black text-white">
+                                                    <option key={opt.value} value={opt.value} className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white">
                                                         {opt.label}
                                                     </option>
                                                 ))}
                                             </select>
-                                            <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none text-xs">
+                                            <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-black/30 dark:text-white/20 pointer-events-none text-xs">
                                                 expand_more
                                             </span>
                                         </div>
@@ -269,12 +269,12 @@ const FinancialOverview = ({
                                         className="font-black tracking-tighter leading-none"
                                         style={{ 
                                             fontSize: '3.5rem',
-                                            color: displayedBalance > 0 ? '#10b981' : displayedBalance < 0 ? '#f43f5e' : '#ffffff'
+                                            color: displayedBalance > 0 ? '#10b981' : displayedBalance < 0 ? '#f43f5e' : 'currentColor'
                                         }}
                                     >
                                         {displayedBalance < 0 ? '-' : ''}{localCurrency}{Math.abs(displayedBalance).toLocaleString()}
                                     </p>
-                                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em] mt-2">
+                                    <p className="text-[10px] font-black text-black/35 dark:text-white/20 uppercase tracking-[0.6em] mt-2">
                                         TOTAL BALANCE {selectedYear === 'all' ? '(ALL TIME)' : `- ${(() => {
                                             const d = new Date(selectedYear, selectedMonth, 1);
                                             return `${d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()} ${selectedYear}`;
@@ -284,16 +284,16 @@ const FinancialOverview = ({
                                         <motion.span 
                                             initial={{ opacity: 0, y: 5 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="mt-4 px-2 py-1 rounded-sm text-[8px] font-black bg-white/10 text-white border border-white/20 uppercase tracking-widest flex items-center gap-2"
+                                            className="mt-4 px-2 py-1 rounded-sm text-[8px] font-black bg-black/10 dark:bg-white/10 text-black dark:text-white border border-black/20 dark:border-white/20 uppercase tracking-widest flex items-center gap-2"
                                         >
-                                            <span className="size-1 bg-white animate-pulse rounded-full" />
+                                            <span className="size-1 bg-black dark:bg-white animate-pulse rounded-full" />
                                             PROJECTION ACTIVE
                                         </motion.span>
                                     )}
                                 </div>
-
+ 
                                 {/* Col 3: 5 metric rows — click to filter */}
-                                <div className="flex flex-col justify-center divide-y divide-white/10">
+                                <div className="flex flex-col justify-center divide-y divide-black/10 dark:divide-white/10">
                                     {[
                                         { label: 'INCOME',     value: totalIncome,        color: '#10b981', sign: '',  type: 'income'   },
                                         { label: 'EXPENSES',   value: totalExpenses,       color: '#f43f5e', sign: '-', type: 'expense'  },
@@ -308,13 +308,12 @@ const FinancialOverview = ({
                                                 onClick={() => setTypeFilter(isActive ? 'all' : type)}
                                                 className={`flex flex-col items-start px-5 py-3.5 gap-0.5 w-full text-left transition-all ${
                                                     isActive
-                                                        ? 'bg-white/[0.04] border-l-2'
-                                                        : 'border-l-2 border-l-transparent hover:bg-white/[0.02]'
+                                                        ? 'bg-black/[0.04] dark:bg-white/[0.04] border-l-2'
+                                                        : 'border-l-2 border-l-transparent hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'
                                                 }`}
                                                 style={isActive ? { borderLeftColor: color } : {}}
                                             >
-                                                <p className="text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-1.5 whitespace-nowrap transition-colors"
-                                                   style={{ color: isActive ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.3)' }}>
+                                                <p className={`text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-1.5 whitespace-nowrap transition-colors ${isActive ? 'text-black/70 dark:text-white/70' : 'text-black/35 dark:text-white/30'}`}>
                                                     <span className="size-1.5 rounded-full shrink-0 animate-pulse" style={{ backgroundColor: color }} />
                                                     {label}
                                                 </p>
@@ -397,40 +396,39 @@ const FinancialOverview = ({
                         return true;
                     });
 
-                    return (
-                        <div className="mt-4 border-t border-white/10 flex flex-col gap-3 pt-4">
+                    return (                        <div className="mt-4 border-t border-black/10 dark:border-white/10 flex flex-col gap-3 pt-4">
                             {/* Scrollable list */}
                             <div className="flex flex-col gap-2 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
                                 {/* Add button */}
                                 <div
                                     onClick={() => setShowAddTx && setShowAddTx(true)}
-                                    className="flex items-center gap-3 px-3 py-4 rounded-sm border border-dashed border-white/10 hover:border-white/30 hover:bg-white/[0.03] cursor-pointer transition-all group"
+                                    className="flex items-center gap-3 px-3 py-4 rounded-sm border border-dashed border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 hover:bg-black/[0.02] dark:hover:bg-white/[0.03] cursor-pointer transition-all group"
                                 >
-                                    <div className="size-7 rounded-sm bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-white group-hover:text-black transition-all">
+                                    <div className="size-7 rounded-sm bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-black dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black transition-all">
                                         <span className="material-symbols-outlined text-sm">add</span>
                                     </div>
-                                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 group-hover:text-white transition-colors">ADD TRANSACTION</span>
+                                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-black/45 dark:text-white/40 group-hover:text-black dark:group-hover:text-white transition-colors">ADD TRANSACTION</span>
                                 </div>
-
+ 
                                 {filteredList.length > 0 ? filteredList.slice(0, 100).map(tx => (
                                     <div
                                         key={tx._id}
                                         onClick={() => setSelectedTxId(prev => prev === tx._id ? null : tx._id)}
                                         className={`flex items-center justify-between px-3 py-2.5 rounded-sm border cursor-pointer transition-all ${
                                             selectedTxId === tx._id
-                                                ? 'border-white/20 bg-white/[0.05]'
-                                                : 'border-white/5 hover:border-white/10 hover:bg-white/[0.02]'
+                                                ? 'border-black/20 dark:border-white/20 bg-black/[0.05] dark:bg-white/[0.05]'
+                                                : 'border-black/5 dark:border-white/5 hover:border-black/10 dark:hover:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'
                                         }`}
                                     >
                                         <div className="flex items-center gap-3 min-w-0">
-                                            <div className="size-6 rounded-sm bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                                                <span className="material-symbols-outlined text-xs text-white/30">
+                                            <div className="size-6 rounded-sm bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center shrink-0">
+                                                <span className="material-symbols-outlined text-xs text-black/30 dark:text-white/30">
                                                     {tx.type === 'income' ? 'payments' : tx.type === 'savings' ? 'savings' : tx.type === 'debt' ? 'warning' : tx.type === 'upcoming' ? 'schedule' : 'shopping_bag'}
                                                 </span>
                                             </div>
                                             <div className="flex flex-col min-w-0">
-                                                <span className="text-[10px] font-black uppercase tracking-wider text-white truncate leading-tight">{tx.title}</span>
-                                                <span className="text-[8px] font-black text-white/30 uppercase tracking-widest">{tx.category}</span>
+                                                <span className="text-[10px] font-black uppercase tracking-wider text-black dark:text-white truncate leading-tight">{tx.title}</span>
+                                                <span className="text-[8px] font-black text-black/40 dark:text-white/30 uppercase tracking-widest">{tx.category}</span>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 shrink-0">
@@ -445,7 +443,7 @@ const FinancialOverview = ({
                                                         exit={{ opacity: 0, scale: 0.9 }}
                                                         className="flex items-center gap-1"
                                                     >
-                                                        <button onClick={e => { e.stopPropagation(); setConfirmDelete(tx._id); }} className="p-1 rounded-sm bg-white/5 hover:bg-rose-500/20 text-rose-500/60 hover:text-rose-500 transition-all">
+                                                        <button onClick={e => { e.stopPropagation(); setConfirmDelete(tx._id); }} className="p-1 rounded-sm bg-black/5 dark:bg-white/5 hover:bg-rose-500/20 text-rose-500/60 hover:text-rose-500 transition-all">
                                                             <span className="material-symbols-outlined text-xs">delete</span>
                                                         </button>
                                                     </motion.div>
@@ -454,7 +452,7 @@ const FinancialOverview = ({
                                         </div>
                                     </div>
                                 )) : (
-                                    <div className="flex flex-col items-center justify-center py-8 text-white/20 gap-2">
+                                    <div className="flex flex-col items-center justify-center py-8 text-black/35 dark:text-white/20 gap-2">
                                         <span className="material-symbols-outlined text-2xl opacity-30">receipt_long</span>
                                         <span className="text-[9px] font-black uppercase tracking-widest">NO TRANSACTIONS</span>
                                     </div>

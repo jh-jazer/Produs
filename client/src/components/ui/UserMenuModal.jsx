@@ -9,40 +9,86 @@ import Avatar from './Avatar';
 const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpenSettings, onOpenNotifications, onOpenBugReport, onOpenStats, onSignOut }) => {
     const navigate = useNavigate();
 
+    const exp = user?.guardianExp || 0;
+    const totalRequired = user?.totalRequired || 0;
+    const nextLevelExp = user?.nextLevelExp || 100;
+    const progressPct = Math.min(100, Math.max(0, ((exp - totalRequired) / nextLevelExp) * 100));
+    const circumference = 2 * Math.PI * 47;
+
+
     return (
         <DashboardModal
             isOpen={isOpen}
             onClose={onClose}
-            subtitle={
-                <div className="flex items-center gap-5 mt-2">
-                    <div className="size-16 md:size-20 rounded-full border-2 border-black/10 dark:border-white/10 p-1 flex items-center justify-center shrink-0 relative group">
-                        <div className="size-full rounded-full overflow-hidden bg-black/5 dark:bg-white/10 ring-1 ring-black/5 dark:ring-white/10">
+            maxWidth="max-w-md"
+        >
+            <div className="flex flex-col gap-8 -mt-2">
+                {/* User Identity Header */}
+                <div className="flex items-center gap-5">
+                    <div className="size-16 md:size-20 rounded-full p-1.5 flex items-center justify-center shrink-0 relative group">
+                        {/* EXP Progress Ring */}
+                        <svg viewBox="0 0 100 100" className="absolute inset-0 size-full -rotate-90 pointer-events-none drop-shadow-md">
+                            {/* Track */}
+                            <circle cx="50" cy="50" r="47" fill="transparent" stroke="currentColor" strokeWidth="2" className="text-black/10 dark:text-white/10" />
+                            {/* Progress Indicator */}
+                            <circle 
+                                cx="50" cy="50" r="47" 
+                                fill="transparent" 
+                                stroke="currentColor" 
+                                strokeWidth="3" 
+                                strokeLinecap="round"
+                                strokeDasharray={circumference}
+                                strokeDashoffset={circumference * (1 - progressPct / 100)}
+                                className="text-black dark:text-white transition-all duration-1000 ease-[0.16,1,0.3,1]"
+                            />
+                        </svg>
+
+                        <div className="size-full rounded-full overflow-hidden bg-black/5 dark:bg-white/10 relative z-10">
                             <Avatar config={user?.avatar} />
                         </div>
                         {/* Level badge anchored to avatar */}
                         <div className="absolute -bottom-1 -right-1 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black px-2 py-0.5 rounded-md shadow-lg border border-black/10 dark:border-white/10 z-10">
-                            {user?.level || 0}
+                            {user?.guardianLevel || 0}
                         </div>
                     </div>
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-1 w-full">
                         <h3 className="text-xl md:text-2xl font-black text-black dark:text-white uppercase tracking-[0.2em] font-mono leading-none">
                             {user?.username?.replace(/[#\d]+/g, '') || 'OPERATOR'}
                         </h3>
-                        <LevelDisplay 
-                            level={user?.level} 
-                            exp={user?.exp} 
-                            totalRequired={user?.totalRequired} 
-                            nextLevelExp={user?.nextLevelExp} 
-                            showXP={true}
-                            variant="monochrome"
-                            className="scale-90 origin-left opacity-60"
-                        />
+                        <div className="flex flex-col gap-3 mt-1 w-full">
+                            {/* Guardian Level */}
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Guardian Protocol</span>
+                                <LevelDisplay 
+                                    level={user?.guardianLevel} 
+                                    exp={user?.guardianExp} 
+                                    totalRequired={user?.totalRequired} 
+                                    nextLevelExp={user?.nextLevelExp} 
+                                    showXP={true}
+                                    variant="default"
+                                    className="scale-[0.85] origin-left"
+                                />
+                            </div>
+
+                            {/* Hero Level */}
+                            <div className={`flex flex-col gap-0.5 transition-opacity ${!user?.hero?.level ? 'opacity-30 grayscale pointer-events-none' : 'opacity-90'}`}>
+                                <span className="text-[8px] font-black uppercase tracking-widest text-amber-500/80">
+                                    Hero {user?.hero?.name && user.hero.name !== 'Unnamed Hero' ? `(${user.hero.name})` : '(Locked)'}
+                                </span>
+                                <LevelDisplay 
+                                    level={Math.max(1, user?.hero?.level || 0)} 
+                                    exp={user?.hero?.exp || 0} 
+                                    totalRequired={0} 
+                                    nextLevelExp={100} 
+                                    showXP={true}
+                                    variant="default"
+                                    className="scale-[0.85] origin-left"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
-            }
-            maxWidth="max-w-md"
-        >
-            <div className="flex flex-col gap-8 -mt-2">
+
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-3 p-4 rounded-3xl">
                     <div className="flex flex-col items-center gap-1">
@@ -56,8 +102,8 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
                     <div className="flex flex-col items-center gap-1">
                         <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Energy</span>
                         <EnergyDisplay 
-                            current={user?.rpg?.energy?.current ?? (10 + (user?.level || 0))} 
-                            max={10 + (user?.level || 0)} 
+                            current={user?.rpg?.energy?.current ?? (10 + (user?.guardianLevel || 0))} 
+                            max={10 + (user?.guardianLevel || 0)} 
                             variant="minimal" 
                         />
                     </div>

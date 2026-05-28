@@ -226,12 +226,12 @@ const MobileBottomNav = () => {
                         <button
                             key={pillar.id}
                             onClick={() => handleNav(pillar)}
-                            className={`relative flex flex-col items-center justify-center transition-all duration-300 flex-1 ${
+                            className={`relative flex flex-col items-center justify-center transition-all duration-300 flex-1 pt-3 ${
                                 active ? 'text-black dark:text-white' : 'text-black dark:text-white/40'
                             }`}
                         >
                             <div className="relative flex items-center justify-center">
-                                <span className={`material-symbols-outlined transition-all duration-300 text-[22px] ${
+                                <span className={`material-symbols-outlined transition-all duration-300 text-[28px] ${
                                     active ? 'scale-110' : ''
                                 }`}>
                                     {pillar.icon}

@@ -125,10 +125,10 @@ const JournalHub = ({ entries = [], onAction }) => {
                             {/* Write Journal Card */}
                             <button
                                 onClick={handleWriteNew}
-                                className="group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6"
+                                className="group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-6"
                             >
                                 {/* Left Side: Image (1/4) */}
-                                <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                                <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-black/10 dark:border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
                                     <img 
                                         src="/assets/journal_default_cover.png" 
                                         alt="New Entry" 
@@ -142,26 +142,26 @@ const JournalHub = ({ entries = [], onAction }) => {
                                     <div className="flex flex-col gap-0.5">
                                         <div className="flex justify-between items-start mb-2 md:mb-4">
                                             <div className="flex items-center gap-2.5">
-                                                <div className="size-8 md:size-10 rounded-sm bg-black flex items-center justify-center text-white/60 group-hover:rotate-12 transition-transform border border-white/10 shrink-0">
+                                                <div className="size-8 md:size-10 rounded-sm bg-black dark:bg-white flex items-center justify-center text-white/60 dark:text-black/60 group-hover:rotate-12 transition-transform border border-black/10 dark:border-white/10 shrink-0">
                                                     <PenTool className="size-4 md:size-5" />
                                                 </div>
                                                 <div className="flex flex-col min-w-0">
-                                                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 truncate block">TIME REMAINING FOR TODAY</span>
-                                                    <span className="text-[11px] md:text-xs font-bold text-white tracking-widest block">{timeLeft}</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 truncate block">TIME REMAINING FOR TODAY</span>
+                                                    <span className="text-[11px] md:text-xs font-bold text-black dark:text-white tracking-widest block">{timeLeft}</span>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Entry Title */}
-                                        <h4 className="text-base md:text-xl font-black text-white uppercase tracking-tighter italic mt-1 md:mt-4 truncate">
+                                        <h4 className="text-base md:text-xl font-black text-black dark:text-white uppercase tracking-tighter italic mt-1 md:mt-4 truncate">
                                             JOURNAL TODAY
                                         </h4>
-                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-white/20 truncate block">LOG YOUR THOUGHTS</span>
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-black/35 dark:text-white/20 truncate block">LOG YOUR THOUGHTS</span>
                                     </div>
 
                                     {/* Footer Decor */}
                                     <div className="flex items-center justify-end mt-1 md:mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
-                                        <div className="h-[2px] w-8 md:w-12 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]" />
+                                        <div className="h-[2px] w-8 md:w-12 bg-black dark:bg-white rounded-full animate-pulse shadow-[0_0_8px_rgba(0,0,0,0.2)] dark:shadow-[0_0_8px_white]" />
                                     </div>
                                 </div>
                             </button>

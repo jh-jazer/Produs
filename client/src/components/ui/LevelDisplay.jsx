@@ -23,7 +23,9 @@ export default function LevelDisplay({
         onClick={onClick}
     >
       {/* 1. Level Identifier */}
-      <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black/40 dark:text-white/40 whitespace-nowrap shrink-0">
+      <span className={`text-[8px] font-black uppercase tracking-[0.2em] whitespace-nowrap shrink-0 ${
+          isMonochrome ? 'text-black/40 dark:text-white/40' : 'text-black/80 dark:text-white/80'
+      }`}>
           LVL {level}
       </span>
 

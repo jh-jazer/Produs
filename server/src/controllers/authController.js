@@ -58,7 +58,7 @@ export const registerUser = async (req, res) => {
             // Initialize mandatory system habits
             await initializeSystemHabits(user._id);
 
-            const levelInfo = calculateLevel(user.exp);
+            const levelInfo = calculateLevel(user.guardianExp || 0);
             syncUserEnergy(user);
             await user.save();
 
@@ -72,11 +72,14 @@ export const registerUser = async (req, res) => {
                 timezone: user.timezone,
                 currency: user.currency,
                 settings: user.settings,
-                level: user.level,
-                exp: user.exp,
-                rpg: user.rpg,
+                // Guardian (normal-mode user progression)
+                guardianLevel: user.guardianLevel || 0,
+                guardianExp: user.guardianExp || 0,
                 totalRequired: levelInfo.totalRequired,
                 nextLevelExp: levelInfo.xpToNext,
+                // Hero (RPG fictional character)
+                hero: user.hero,
+                rpg: user.rpg,
                 token: generateToken(user._id),
             });
         } else {
@@ -132,7 +135,7 @@ export const loginUser = async (req, res) => {
                 user.markModified('rpg.loginStreak');
             }
 
-            const levelInfo = calculateLevel(user.exp);
+            const levelInfo = calculateLevel(user.guardianExp || 0);
             syncUserEnergy(user);
             await user.save();
 
@@ -146,11 +149,14 @@ export const loginUser = async (req, res) => {
                 timezone: user.timezone,
                 currency: user.currency,
                 settings: user.settings,
-                level: user.level,
-                exp: user.exp,
-                rpg: user.rpg,
+                // Guardian
+                guardianLevel: user.guardianLevel || 0,
+                guardianExp: user.guardianExp || 0,
                 totalRequired: levelInfo.totalRequired,
                 nextLevelExp: levelInfo.xpToNext,
+                // Hero
+                hero: user.hero,
+                rpg: user.rpg,
                 token: generateToken(user._id),
             });
         } else {
@@ -235,7 +241,7 @@ export const getMe = async (req, res) => {
             user.rpg.loginStreak = streak;
             user.markModified('rpg.loginStreak');
 
-            const levelInfo = calculateLevel(user.exp);
+            const levelInfo = calculateLevel(user.guardianExp || 0);
             syncUserEnergy(user);
             await user.save();
 
@@ -254,11 +260,14 @@ export const getMe = async (req, res) => {
                 partner: user.partner,
                 outgoingPartnerRequest: user.outgoingPartnerRequest,
                 incomingPartnerRequest: user.incomingPartnerRequest,
-                level: user.level,
-                exp: user.exp,
-                rpg: user.rpg,
+                // Guardian
+                guardianLevel: user.guardianLevel || 0,
+                guardianExp: user.guardianExp || 0,
                 totalRequired: levelInfo.totalRequired,
                 nextLevelExp: levelInfo.xpToNext,
+                // Hero
+                hero: user.hero,
+                rpg: user.rpg,
                 connections: user.connections || [],
                 outgoingConnectionRequests: user.outgoingConnectionRequests || [],
                 incomingConnectionRequests: user.incomingConnectionRequests || []
@@ -640,7 +649,7 @@ export const completeOnboarding = async (req, res) => {
 
             await user.save();
 
-            const levelInfo = calculateLevel(user.exp);
+            const levelInfo = calculateLevel(user.guardianExp || 0);
             res.json({
                 _id: user.id,
                 name: user.name,
@@ -651,11 +660,14 @@ export const completeOnboarding = async (req, res) => {
                 timezone: user.timezone,
                 currency: user.currency,
                 settings: user.settings,
-                level: user.level,
-                exp: user.exp,
-                rpg: user.rpg,
+                // Guardian
+                guardianLevel: user.guardianLevel || 0,
+                guardianExp: user.guardianExp || 0,
                 totalRequired: levelInfo.totalRequired,
                 nextLevelExp: levelInfo.xpToNext,
+                // Hero
+                hero: user.hero,
+                rpg: user.rpg,
             });
         } else {
             res.status(404).json({ message: 'User not found' });
@@ -705,7 +717,7 @@ export const finalizeAwakening = async (req, res) => {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        if (user.level !== 0) {
+        if (user.hero.level !== 0) {
             return res.status(400).json({ message: 'User is already awakened' });
         }
 
@@ -720,9 +732,6 @@ export const finalizeAwakening = async (req, res) => {
         user.rpg.alignment = results.alignment;
         user.rpg.finalLabel = results.finalLabel;
         
-        // Grant Level 1
-        user.level = 1;
-        user.exp = 100;
 
         // Finalize Archetype Identity
         user.rpg.archetype = {
@@ -743,15 +752,27 @@ export const finalizeAwakening = async (req, res) => {
         user.rpg.pendingQuestions = []; // Ensure all questions are cleared
         
         // Trigger immediate unlock of Level 1 Node (16.0)
-        checkNeuralSync(user, user.level, 0);
+        checkNeuralSync(user, user.guardianLevel, 0);
+
+        // Auto-assign Hero identity from the archetype determined by neural sync
+        // and grant Level 1 to Hero to mark them as awakened.
+        const heroName = results.finalLabel || results.tier1 || results.path || 'The Initiate';
+        if (!user.hero) user.hero = { name: heroName, level: 1, exp: 100 };
+        else {
+            user.hero.name = heroName;
+            user.hero.level = 1;
+            user.hero.exp = 100;
+        }
+        user.markModified('hero');
 
         user.markModified('rpg');
         await user.save();
 
-        const levelInfo = calculateLevel(user.exp);
+        const levelInfo = calculateLevel(user.guardianExp || 0);
         res.json({
-            level: user.level,
-            exp: user.exp,
+            guardianLevel: user.guardianLevel || 0,
+            guardianExp: user.guardianExp || 0,
+            hero: user.hero,
             rpg: {
                 ...user.rpg.toObject(),
                 flavor: protocol?.flavor || ""
