@@ -165,9 +165,6 @@ export default function Home() {
   const autoSlideTimerRef = useRef(null);
   
   const carouselRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
 
   const { tasks: plannerTasks = [] } = usePlanner(new Date());
   
@@ -1018,23 +1015,9 @@ export default function Home() {
                           <div className="absolute left-0 top-0 bottom-0 w-4 md:w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
                           <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
                           
-                          <div 
+                           <div 
                             ref={carouselRef}
-                            className={`w-full overflow-x-auto pt-3 pb-4 pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${isDragging ? 'cursor-grabbing' : 'snap-x snap-mandatory cursor-grab'}`}
-                            onMouseDown={(e) => {
-                              setIsDragging(true);
-                              setStartX(e.pageX - carouselRef.current.offsetLeft);
-                              setScrollLeft(carouselRef.current.scrollLeft);
-                            }}
-                            onMouseLeave={() => setIsDragging(false)}
-                            onMouseUp={() => setIsDragging(false)}
-                            onMouseMove={(e) => {
-                              if (!isDragging) return;
-                              e.preventDefault();
-                              const x = e.pageX - carouselRef.current.offsetLeft;
-                              const walk = (x - startX) * 1.5;
-                              carouselRef.current.scrollLeft = scrollLeft - walk;
-                            }}
+                            className="w-full overflow-x-hidden pt-3 pb-4 pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] cursor-default"
                             onScroll={(e) => {
                               const el = e.currentTarget;
                               const setWidth = el.scrollWidth / 3;

@@ -167,15 +167,15 @@ const FinancialOverview = ({
                             key="balance"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="rounded-sm bg-black/5 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 backdrop-blur-sm relative overflow-hidden shadow-md"
+                            className="rounded-sm bg-transparent md:bg-black/5 dark:md:bg-white/[0.02] border-0 md:border md:border-black/10 dark:md:border-white/10 backdrop-blur-none md:backdrop-blur-sm relative overflow-hidden shadow-none md:shadow-md"
                         >
-                            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                            <div className="hidden md:block absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
                             {/* 3-Column Layout */}
                             <div className="grid grid-cols-3 min-h-[260px]">
 
                                 {/* Col 1+2 merged: Big Total Balance */}
-                                <div className="col-span-2 flex flex-col items-center justify-center text-center px-8 pt-14 pb-8 border-r border-black/10 dark:border-white/10 relative">
+                                <div className="col-span-2 flex flex-col items-center justify-center text-center px-8 pt-14 pb-8 border-r-0 md:border-r border-black/10 dark:border-white/10 relative">
                                     {/* Controls row */}
                                     <div className="absolute top-4 left-4 flex items-center gap-2">
                                         <button 
@@ -293,7 +293,7 @@ const FinancialOverview = ({
                                 </div>
  
                                 {/* Col 3: 5 metric rows — click to filter */}
-                                <div className="flex flex-col justify-center divide-y divide-black/10 dark:divide-white/10">
+                                <div className="flex flex-col justify-center divide-y-0 md:divide-y divide-black/10 dark:divide-white/10">
                                     {[
                                         { label: 'INCOME',     value: totalIncome,        color: '#10b981', sign: '',  type: 'income'   },
                                         { label: 'EXPENSES',   value: totalExpenses,       color: '#f43f5e', sign: '-', type: 'expense'  },
@@ -308,8 +308,8 @@ const FinancialOverview = ({
                                                 onClick={() => setTypeFilter(isActive ? 'all' : type)}
                                                 className={`flex flex-col items-start px-5 py-3.5 gap-0.5 w-full text-left transition-all ${
                                                     isActive
-                                                        ? 'bg-black/[0.04] dark:bg-white/[0.04] border-l-2'
-                                                        : 'border-l-2 border-l-transparent hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'
+                                                        ? 'bg-transparent md:bg-black/[0.04] dark:md:bg-white/[0.04] border-l-2'
+                                                        : 'border-l-2 border-l-transparent hover:bg-transparent md:hover:bg-black/[0.02] dark:md:hover:bg-white/[0.02]'
                                                 }`}
                                                 style={isActive ? { borderLeftColor: color } : {}}
                                             >
@@ -395,14 +395,13 @@ const FinancialOverview = ({
                         }
                         return true;
                     });
-
-                    return (                        <div className="mt-4 border-t border-black/10 dark:border-white/10 flex flex-col gap-3 pt-4">
+                    return (                        <div className="mt-4 border-t border-transparent md:border-black/10 dark:md:border-white/10 flex flex-col gap-3 pt-4">
                             {/* Scrollable list */}
-                            <div className="flex flex-col gap-2 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+                            <div className="flex flex-col gap-2 min-h-[260px] max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
                                 {/* Add button */}
                                 <div
                                     onClick={() => setShowAddTx && setShowAddTx(true)}
-                                    className="flex items-center gap-3 px-3 py-4 rounded-sm border border-dashed border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 hover:bg-black/[0.02] dark:hover:bg-white/[0.03] cursor-pointer transition-all group"
+                                    className="flex items-center gap-3 px-3 py-4 rounded-sm border border-transparent md:border-dashed md:border-black/10 dark:md:border-white/10 md:hover:border-black/30 dark:md:hover:border-white/30 bg-transparent md:hover:bg-black/[0.02] dark:md:hover:bg-white/[0.03] cursor-pointer transition-all group"
                                 >
                                     <div className="size-7 rounded-sm bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-black dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black transition-all">
                                         <span className="material-symbols-outlined text-sm">add</span>
@@ -416,8 +415,8 @@ const FinancialOverview = ({
                                         onClick={() => setSelectedTxId(prev => prev === tx._id ? null : tx._id)}
                                         className={`flex items-center justify-between px-3 py-2.5 rounded-sm border cursor-pointer transition-all ${
                                             selectedTxId === tx._id
-                                                ? 'border-black/20 dark:border-white/20 bg-black/[0.05] dark:bg-white/[0.05]'
-                                                : 'border-black/5 dark:border-white/5 hover:border-black/10 dark:hover:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'
+                                                ? 'border-transparent md:border-black/20 dark:md:border-white/20 bg-transparent md:bg-black/[0.05] dark:md:bg-white/[0.05]'
+                                                : 'border-transparent md:border-black/5 dark:md:border-white/5 md:hover:border-black/10 dark:md:hover:border-white/10 bg-transparent md:hover:bg-black/[0.02] dark:md:hover:bg-white/[0.02]'
                                         }`}
                                     >
                                         <div className="flex items-center gap-3 min-w-0">
@@ -452,7 +451,7 @@ const FinancialOverview = ({
                                         </div>
                                     </div>
                                 )) : (
-                                    <div className="flex flex-col items-center justify-center py-8 text-black/35 dark:text-white/20 gap-2">
+                                    <div className="flex flex-col items-center justify-center py-8 text-black/35 dark:text-white/20 gap-2 min-h-[200px]">
                                         <span className="material-symbols-outlined text-2xl opacity-30">receipt_long</span>
                                         <span className="text-[9px] font-black uppercase tracking-widest">NO TRANSACTIONS</span>
                                     </div>

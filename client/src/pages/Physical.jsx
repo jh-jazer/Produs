@@ -55,10 +55,36 @@ const Physical = () => {
         isLoading
     } = useHealth();
 
+    const navigate = useNavigate();
     const { setMobileTabs } = useContext(DashboardContext);
-    
+    const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'workout');
+
+    useEffect(() => {
+        if (location.state?.activeTab) {
+            setActiveTab(location.state.activeTab);
+        }
+    }, [location.state?.activeTab]);
+
+    useEffect(() => {
+        setMobileTabs({
+            tabs: [
+                { id: 'workout', label: 'Workout', icon: 'fitness_center' },
+                { id: 'nutrition', label: 'Nutrition', icon: 'restaurant' },
+                { id: 'bmi', label: 'BMI', icon: 'monitor_weight' },
+                { id: 'water', label: 'Water', icon: 'water_drop' },
+                { id: 'sleep', label: 'Sleep', icon: 'bedtime' },
+            ],
+            activeTab,
+            setActiveTab: (tabId) => {
+                setActiveTab(tabId);
+                navigate(location.pathname, { replace: true, state: { ...location.state, activeTab: tabId } });
+            }
+        });
+        return () => setMobileTabs(null);
+    }, [activeTab, setMobileTabs, location.pathname, navigate, location.state]);
+
     // The active module is now driven by navigation state or external triggers
-    const activeModule = location.state?.activeTab || 'workout';
+    const activeModule = activeTab;
 
     if (isLoading && workouts.length === 0 && metrics.length === 0 && nutrition.length === 0) return <WorkspaceSkeleton />;
 

@@ -13,9 +13,8 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
     }}
   />
 );
-
 const HUDPanel = ({ title, subtitle, children, className = "" }) => (
-  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all p-4 md:p-8 rounded-sm group overflow-hidden ${className}`}>
+  <div className={`relative bg-transparent md:bg-foreground/[0.02] md:hover:bg-foreground/[0.04] transition-all p-4 md:p-8 rounded-sm group overflow-hidden ${className}`}>
     <div className="hidden md:block">
       <ChippedBorder opacity={0.6} />
     </div>

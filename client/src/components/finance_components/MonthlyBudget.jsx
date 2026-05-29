@@ -123,9 +123,8 @@ const MonthlyBudget = ({ budgets, transactions, currencySymbol, onAction, addFin
                                 );
                             })}
                         </div>
-
                         <div className="mt-auto pt-8 border-t border-black/10 dark:border-white/5">
-                            <div className="p-8 rounded-sm border border-black/10 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02]">
+                            <div className="p-8 rounded-sm border border-transparent md:border-black/10 dark:md:border-white/5 bg-transparent md:bg-black/[0.02] dark:md:bg-white/[0.02]">
                                 <p className="text-[10px] font-black text-black/35 dark:text-white/20 mb-4 uppercase tracking-[0.4em]">MONTHLY REMAINING</p>
                                 <p className="text-4xl font-black text-black dark:text-white italic tracking-tighter">
                                     {currencySymbol}{remainingBudget.toLocaleString(undefined, { minimumFractionDigits: 2 })}

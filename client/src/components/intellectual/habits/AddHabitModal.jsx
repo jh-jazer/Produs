@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 export const ICON_OPTIONS = [
@@ -54,16 +54,22 @@ const SYSTEM_HABITS = [
     }
 ];
 
-const AddHabitModal = ({ isOpen, onClose, onAdd, isSystemMode = false }) => {
-    const [newHabit, setNewHabit] = useState({ name: '', icon: 'local_drink', color: 'white', isShared: false });
+const AddHabitModal = ({ isOpen, onClose, onAdd, isSystemMode = false, defaultShared = false }) => {
+    const [newHabit, setNewHabit] = useState({ name: '', icon: 'local_drink', color: 'white', isShared: defaultShared });
     const [selectedSystemHabit, setSelectedSystemHabit] = useState(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            setNewHabit({ name: '', icon: 'local_drink', color: 'white', isShared: defaultShared });
+        }
+    }, [isOpen, defaultShared]);
 
     if (!isOpen) return null;
 
     const handleAdd = async () => {
         if (!newHabit.name.trim()) return;
         await onAdd({ ...newHabit, name: newHabit.name.trim() });
-        setNewHabit({ name: '', icon: 'local_drink', color: 'white', isShared: false });
+        setNewHabit({ name: '', icon: 'local_drink', color: 'white', isShared: defaultShared });
         onClose();
     };
 
@@ -195,6 +201,28 @@ const AddHabitModal = ({ isOpen, onClose, onAdd, isSystemMode = false }) => {
                                     </button>
                                 ))}
                             </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm">
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--color-fg)' }}>
+                                    SHARE WITH PARTNER
+                                </span>
+                                <span className="text-[7.5px] font-mono uppercase tracking-widest" style={{ color: 'var(--color-fg)', opacity: 0.4 }}>
+                                    Link habit with linked workspace
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setNewHabit({ ...newHabit, isShared: !newHabit.isShared })}
+                                className={`h-8 px-4 flex items-center justify-center text-[9px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer border ${
+                                    newHabit.isShared
+                                        ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-sm'
+                                        : 'border-black/20 dark:border-white/20 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.04]'
+                                }`}
+                            >
+                                {newHabit.isShared ? 'ACTIVE' : 'OFF'}
+                            </button>
                         </div>
 
                         <button 

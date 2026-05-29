@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowLeft, Terminal } from 'lucide-react';
+import { Sparkles, ArrowLeft, Terminal, Lock } from 'lucide-react';
+import useAuthStore from '../../store/useAuthStore';
 
 const ChippedBorder = ({ opacity = 0.8, color = 'white' }) => (
     <div 
@@ -14,6 +15,8 @@ const ChippedBorder = ({ opacity = 0.8, color = 'white' }) => (
 );
 
 const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading, hasStarted = false, userId }) => {
+    const { user } = useAuthStore();
+    const isAdmin = user?.isAdmin || user?.email === 'ernestodesabillejr@gmail.com';
     const [currentTime, setCurrentTime] = useState(new Date());
     const [loadingStep, setLoadingStep] = useState(0);
 
@@ -116,30 +119,73 @@ const AwakeningOverlay = ({ onAwaken, onBackToReality, isLoading, hasStarted = f
                             </div>
 
                             <div className="flex flex-col gap-6">
-                                <div className="space-y-4">
-                                    <p className="text-[11px] font-black text-white uppercase tracking-[0.2em] leading-relaxed italic border-l-2 border-white/20 pl-4">
-                                        To find your hero, we will make you relive what happened and we will find you someone who chose the same decisions.
-                                    </p>
-                                </div>
+                                {isAdmin ? (
+                                    <>
+                                        <div className="space-y-4">
+                                            <p className="text-[11px] font-black text-white uppercase tracking-[0.2em] leading-relaxed italic border-l-2 border-white/20 pl-4">
+                                                To find your hero, we will make you relive what happened and we will find you someone who chose the same decisions.
+                                            </p>
+                                        </div>
 
-                                <div className="flex flex-col gap-3 pt-4">
-                                    <button
-                                        onClick={!isLoading ? onAwaken : undefined}
-                                        disabled={isLoading}
-                                        className="w-full py-4 bg-white text-black font-black text-[10px] uppercase tracking-[0.4em] rounded-sm hover:bg-white/90 disabled:opacity-20 transition-all flex items-center justify-center gap-3 active:scale-[0.98] shadow-[0_0_30px_rgba(255,255,255,0.1)]"
-                                    >
-                                        <Sparkles size={14} />
-                                        {hasStarted ? 'CONTINUE ASSESSMENT' : "LET'S START THIS"}
-                                    </button>
+                                        <div className="flex flex-col gap-3 pt-4">
+                                            <button
+                                                onClick={!isLoading ? onAwaken : undefined}
+                                                disabled={isLoading}
+                                                className="w-full py-4 bg-white text-black font-black text-[10px] uppercase tracking-[0.4em] rounded-sm hover:bg-white/90 disabled:opacity-20 transition-all flex items-center justify-center gap-3 active:scale-[0.98] shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                                            >
+                                                <Sparkles size={14} />
+                                                {hasStarted ? 'CONTINUE ASSESSMENT' : "LET'S START THIS"}
+                                            </button>
 
-                                    <button
-                                        onClick={onBackToReality}
-                                        className="w-full py-4 bg-white/[0.02] border border-white/10 text-white/40 font-black text-[10px] uppercase tracking-[0.4em] hover:text-white hover:bg-white/[0.05] transition-all flex items-center justify-center gap-3"
-                                    >
-                                        <ArrowLeft size={14} />
-                                        I AM NOT READY
-                                    </button>
-                                </div>
+                                            <button
+                                                onClick={onBackToReality}
+                                                className="w-full py-4 bg-white/[0.02] border border-white/10 text-white/40 font-black text-[10px] uppercase tracking-[0.4em] hover:text-white hover:bg-white/[0.05] transition-all flex items-center justify-center gap-3"
+                                            >
+                                                <ArrowLeft size={14} />
+                                                I AM NOT READY
+                                            </button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="relative p-6 rounded-sm bg-white/[0.01] border border-white/5 overflow-hidden">
+                                            <div className="space-y-4 filter blur-[2px] opacity-25 pointer-events-none select-none">
+                                                <p className="text-[11px] font-black text-white uppercase tracking-[0.2em] leading-relaxed italic border-l-2 border-white/20 pl-4">
+                                                    To find your hero, we will make you relive what happened and we will find you someone who chose the same decisions.
+                                                </p>
+                                            </div>
+
+                                            {/* Lock Overlay inside the box */}
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/40 backdrop-blur-sm z-20">
+                                                <div className="size-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white shadow-lg">
+                                                    <Lock size={18} className="text-white" />
+                                                </div>
+                                                <div className="flex flex-col items-center gap-0.5">
+                                                    <span className="text-[11px] font-black uppercase tracking-[0.3em] text-white">COMING SOON</span>
+                                                    <span className="text-[7px] font-mono uppercase tracking-widest text-white/30">GUARDIAN PROTOCOL LOCKED</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col gap-3 pt-4">
+                                            <button
+                                                disabled={true}
+                                                className="w-full py-4 bg-white/10 text-white/25 border border-white/5 font-black text-[10px] uppercase tracking-[0.4em] rounded-sm transition-all flex items-center justify-center gap-3 cursor-not-allowed"
+                                            >
+                                                <Lock size={12} />
+                                                LOCKED
+                                            </button>
+
+                                            <button
+                                                onClick={onBackToReality}
+                                                className="w-full py-4 bg-white/[0.02] border border-white/10 text-white/40 font-black text-[10px] uppercase tracking-[0.4em] hover:text-white hover:bg-white/[0.05] transition-all flex items-center justify-center gap-3 pointer-events-auto"
+                                            >
+                                                <ArrowLeft size={14} />
+                                                RETURN TO REALITY
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {/* System Footer Metadata */}

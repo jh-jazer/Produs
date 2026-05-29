@@ -23,7 +23,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
-    <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all px-0 md:px-12 py-4 md:py-8 rounded-sm group overflow-hidden ${className}`}>
+    <div className={`relative bg-transparent md:bg-foreground/[0.02] md:hover:bg-foreground/[0.04] transition-all px-0 md:px-12 py-4 md:py-8 rounded-sm group overflow-hidden ${className}`}>
         <div className="hidden md:block">
             <ChippedBorder opacity={0.6} />
         </div>
@@ -62,10 +62,36 @@ const Financial = () => {
         isLoading
     } = useFinance();
 
+    const navigate = useNavigate();
     const { setMobileTabs } = useContext(DashboardContext);
+    const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'summary');
+
+    useEffect(() => {
+        if (location.state?.activeTab) {
+            setActiveTab(location.state.activeTab);
+        }
+    }, [location.state?.activeTab]);
+
+    useEffect(() => {
+        setMobileTabs({
+            tabs: [
+                { id: 'summary', label: 'Summary', icon: 'account_balance' },
+                { id: 'budget', label: 'Budget', icon: 'pie_chart' },
+                { id: 'savings', label: 'Savings', icon: 'shield' },
+                { id: 'wishlist', label: 'Wishlist', icon: 'shopping_cart' },
+                { id: 'debts', label: 'Debts', icon: 'trending_up' },
+            ],
+            activeTab,
+            setActiveTab: (tabId) => {
+                setActiveTab(tabId);
+                navigate(location.pathname, { replace: true, state: { ...location.state, activeTab: tabId } });
+            }
+        });
+        return () => setMobileTabs(null);
+    }, [activeTab, setMobileTabs, location.pathname, navigate, location.state]);
 
     // The active module is now driven by navigation state or external triggers
-    const activeModule = location.state?.activeTab || 'summary';
+    const activeModule = activeTab;
 
     const handleAction = () => {
         // SWR handles refreshing

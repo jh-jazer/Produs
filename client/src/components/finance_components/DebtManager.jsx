@@ -138,7 +138,7 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                 const displayNet = displayIncome - displayDebt;
 
                     return (
-                        <div className="p-8 rounded-sm border border-black/10 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] flex flex-col gap-4">
+                        <div className="p-8 rounded-sm border border-transparent md:border-black/10 dark:md:border-white/5 bg-transparent md:bg-black/[0.02] dark:md:bg-white/[0.02] flex flex-col gap-4">
                             <div className="flex items-center justify-between mb-4">
                                 <span className="text-[10px] font-black text-black/35 dark:text-white/20 uppercase tracking-[0.4em]">TIME FRAME</span>
                                 <select 
@@ -186,7 +186,7 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                         sortedDebts.map(debt => {
                             const isIncome = debt.nature === 'income';
                             return (
-                                <div key={debt._id} className="group p-5 rounded-sm border border-black/10 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all">
+                                <div key={debt._id} className="group p-5 rounded-sm border border-transparent md:border-black/10 dark:md:border-white/5 bg-transparent md:bg-black/[0.01] dark:md:bg-white/[0.01] md:hover:bg-black/[0.03] dark:md:hover:bg-white/[0.03] transition-all">
                                     <div className="flex justify-between items-start">
                                         <div className="flex flex-col gap-2">
                                             <div className="flex items-center gap-3">
@@ -218,7 +218,7 @@ const DebtManager = ({ debts, currencySymbol, onAction, addFinanceItem, updateFi
                                             {!isIncome && (
                                                 <button
                                                     onClick={() => { setShowPayModal(debt); setPayAmount(''); }}
-                                                    className="px-3 py-1 bg-black/5 dark:bg-white/5 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black border border-black/10 dark:border-white/10 rounded-sm text-[8px] font-black uppercase tracking-widest transition-all mt-2 text-black dark:text-white"
+                                                    className="px-3 py-1 bg-transparent md:bg-black/5 dark:md:bg-white/5 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black border border-transparent md:border-black/10 dark:md:border-white/10 rounded-sm text-[8px] font-black uppercase tracking-widest transition-all mt-2 text-black dark:text-white"
                                                 >
                                                     PAY
                                                 </button>

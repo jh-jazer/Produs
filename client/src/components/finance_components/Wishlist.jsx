@@ -207,16 +207,18 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
                     </div>
                 </div>
 
+
+
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="p-6 rounded-sm bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/5">
+                    <div className="p-6 rounded-sm bg-transparent md:bg-black/[0.02] dark:md:bg-white/[0.02] border border-transparent md:border-black/10 dark:md:border-white/5">
                         <p className="text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mb-2">ESTIMATED TOTAL</p>
                         <p className="text-xl font-black text-black dark:text-white italic">{currencySymbol}{totalBudget.toLocaleString()}</p>
                     </div>
-                    <div className="p-6 rounded-sm bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/5">
+                    <div className="p-6 rounded-sm bg-transparent md:bg-black/[0.02] dark:md:bg-white/[0.02] border border-transparent md:border-black/10 dark:md:border-white/5">
                         <p className="text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mb-2">TOTAL SPENT</p>
                         <p className="text-xl font-black text-black dark:text-white italic">{currencySymbol}{totalActualPaid.toLocaleString()}</p>
                     </div>
-                    <div className="p-6 rounded-sm bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/5">
+                    <div className="p-6 rounded-sm bg-transparent md:bg-black/[0.02] dark:md:bg-white/[0.02] border border-transparent md:border-black/10 dark:md:border-white/5">
                         <p className="text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mb-2">TOTAL SAVED</p>
                         <p className="text-xl font-black text-black dark:text-white italic">{currencySymbol}{totalSavings.toLocaleString()}</p>
                     </div>
@@ -224,7 +226,7 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
 
                 <div className="space-y-4">
                     {!filteredItems.length && (
-                        <div className="text-center py-12 bg-black/[0.01] dark:bg-white/[0.02] rounded-sm border border-dashed border-black/10 dark:border-white/5 opacity-40">
+                        <div className="text-center py-12 bg-transparent md:bg-black/[0.01] dark:md:bg-white/[0.02] rounded-sm border border-transparent md:border-dashed md:border-black/10 dark:md:border-white/5 opacity-40">
                             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-black/50 dark:text-white/40">NO ITEMS FOUND</p>
                         </div>
                     )}
@@ -234,8 +236,8 @@ const Wishlist = ({ items, budgets = [], currencySymbol, onAction, addFinanceIte
                             layout
                             key={item._id}
                             className={`group flex items-center justify-between p-4 rounded-sm border transition-all ${item.purchased
-                                ? 'bg-black/[0.01] dark:bg-white/[0.01] border-black/5 dark:border-white/5 opacity-40'
-                                : 'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/5 hover:border-black/30 dark:hover:border-white/20 hover:bg-black/5 dark:hover:bg-white/[0.04]'
+                                ? 'bg-transparent md:bg-black/[0.01] dark:md:bg-white/[0.01] border-transparent md:border-black/5 dark:md:border-white/5 opacity-40'
+                                : 'bg-transparent md:bg-black/[0.02] dark:md:bg-white/[0.02] border-transparent md:border-black/10 dark:md:border-white/5 md:hover:border-black/30 dark:md:hover:border-white/20 md:hover:bg-black/5 dark:md:hover:bg-white/[0.04]'
                                 }`}
                         >
                             <div className="flex items-center gap-6 flex-1">

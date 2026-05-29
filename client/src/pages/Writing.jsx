@@ -22,7 +22,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
-  <div className={`relative border border-black/10 dark:border-white/10 bg-white/20 dark:bg-black/20 backdrop-blur-md px-0 md:px-8 py-2 md:py-4 rounded-sm overflow-hidden ${className}`}>
+  <div className={`relative border border-transparent md:border-black/10 dark:md:border-white/10 bg-transparent md:bg-white/20 dark:md:bg-black/20 backdrop-blur-none md:backdrop-blur-md px-0 md:px-8 py-2 md:py-4 rounded-sm overflow-hidden ${className}`}>
     <div className="hidden md:block">
       <ChippedBorder opacity={0.6} />
     </div>

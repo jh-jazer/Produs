@@ -83,7 +83,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                     </button>
                 </div>
 
-                <div className="p-8 rounded-sm border border-black/10 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02]">
+                <div className="p-8 rounded-sm border border-transparent md:border-black/10 dark:md:border-white/5 bg-transparent md:bg-black/[0.02] dark:md:bg-white/[0.02]">
                     <div className="flex flex-col gap-2">
                         <p className="text-[10px] font-black text-black/35 dark:text-white/20 uppercase tracking-[0.4em]">TOTAL SAVINGS</p>
                         <p className="text-4xl font-black text-black dark:text-white italic tracking-tighter">{currencySymbol}{totalSavings.toLocaleString()}</p>
@@ -92,7 +92,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {savings.length === 0 ? (
-                        <div className="col-span-full py-12 flex flex-col items-center justify-center opacity-10 gap-4 border border-dashed border-black/10 dark:border-white/5 rounded-sm">
+                        <div className="col-span-full py-12 flex flex-col items-center justify-center opacity-10 gap-4 border border-transparent md:border-dashed md:border-black/10 dark:md:border-white/5 rounded-sm">
                             <span className="material-symbols-outlined text-4xl">account_balance_wallet</span>
                             <p className="text-[10px] font-black uppercase tracking-[0.4em]">NO SAVINGS GOALS</p>
                         </div>
@@ -100,7 +100,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                         savings.map(s => {
                             const progress = (s.amount / s.target) * 100;
                             return (
-                                <div key={s._id} className="p-6 rounded-sm border border-black/10 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] hover:border-black/25 dark:hover:border-white/10 transition-all group">
+                                <div key={s._id} className="p-6 rounded-sm border border-transparent md:border-black/10 dark:md:border-white/5 bg-transparent md:bg-black/[0.01] dark:md:bg-white/[0.01] md:hover:bg-black/[0.03] dark:md:hover:bg-white/[0.03] md:hover:border-black/25 dark:md:hover:border-white/10 transition-all group">
                                     <div className="flex justify-between items-start mb-6">
                                         <div>
                                             <div className="flex items-center gap-3">
@@ -140,7 +140,7 @@ const SavingsPanel = ({ savings, currencySymbol, onAction, addFinanceItem, updat
                                             setFundingGoal(s);
                                             setFundAmount('');
                                         }}
-                                        className="w-full py-2 border border-black/10 dark:border-white/5 bg-black/5 dark:bg-white/5 rounded-sm text-[9px] font-black uppercase tracking-[0.2em] text-black/45 dark:text-white/40 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black hover:border-black dark:hover:border-white transition-all flex items-center justify-center gap-2"
+                                        className="w-full py-2 border border-transparent md:border-black/10 dark:md:border-white/5 bg-transparent md:bg-black/5 dark:md:bg-white/5 rounded-sm text-[9px] font-black uppercase tracking-[0.2em] text-black/45 dark:text-white/40 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black hover:border-black dark:hover:border-white transition-all flex items-center justify-center gap-2"
                                     >
                                         <span className="material-symbols-outlined text-sm">add</span>
                                         ADD SAVINGS

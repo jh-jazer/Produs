@@ -100,8 +100,16 @@ function HabitTracker({
     const filteredHabits = React.useMemo(() => {
         return localTeamHabits.filter(habit => {
             const isSystemHabit = !!(habit.myPart ? habit.myPart.systemId : habit.systemId);
+            const isSharedHabit = !!(
+                habit.isShared || 
+                habit.isGrouped || 
+                (habit.myPart && habit.myPart.isShared) || 
+                (habit.partnerPart && habit.partnerPart.isShared)
+            );
+
             if (habitFilter === 'system') return isSystemHabit;
-            if (habitFilter === 'personal') return !isSystemHabit;
+            if (habitFilter === 'personal') return !isSystemHabit && !isSharedHabit;
+            if (habitFilter === 'link') return isSharedHabit;
             return true;
         });
     }, [localTeamHabits, habitFilter]);
@@ -213,7 +221,7 @@ function HabitTracker({
 
     return (
         <div className="flex flex-col gap-8 font-sans relative">
-            <div className="relative flex items-center justify-between gap-2 md:absolute md:-top-16 md:left-0 md:right-0 mb-4 md:mb-0 z-20 px-4 md:px-0">
+            <div className="relative flex items-center justify-between gap-2 mb-4 z-20 px-4 md:px-0">
                 {/* Habit type filter toggle */}
                 <div className="flex items-center border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/[0.02] p-1 rounded-sm h-[36px]">
                     <button
@@ -235,6 +243,16 @@ function HabitTracker({
                         }`}
                     >
                         Personal
+                    </button>
+                    <button
+                        onClick={() => setHabitFilter('link')}
+                        className={`h-full px-6 flex items-center justify-center text-[10px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer ${
+                            habitFilter === 'link'
+                                ? 'bg-black text-white dark:bg-white dark:text-black font-black shadow-sm'
+                                : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.04]'
+                        }`}
+                    >
+                        Link
                     </button>
                 </div>
 
@@ -319,6 +337,7 @@ function HabitTracker({
                 onClose={() => setAddModalOpen(false)} 
                 onAdd={handleAddHabit} 
                 isSystemMode={habitFilter === 'system'}
+                defaultShared={habitFilter === 'link'}
             />
         </div>
     );

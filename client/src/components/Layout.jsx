@@ -601,12 +601,12 @@ function Layout() {
 
                                             <div className="relative flex items-center w-full h-full">
                                                 <div className="pl-6 md:pl-8 flex items-center gap-2">
-                                                    <span className={`font-sans font-black uppercase tracking-[0.4em] text-[10px] whitespace-nowrap transition-all duration-300 ${isActive ? 'text-black dark:text-white' : 'text-black group-hover/nav:text-black dark:group-hover/nav:text-white'}`}>
+                                                    <span className={`font-sans font-black uppercase tracking-[0.4em] text-[10px] whitespace-nowrap transition-all duration-300 ${isActive ? 'text-black dark:text-white' : 'text-black/50 dark:text-white/40 group-hover/nav:text-black dark:group-hover/nav:text-white'}`}>
                                                         {item.name}
                                                     </span>
                                                     {item.id === 'more' && (
                                                         <span className={`ml-1 inline-block transition-transform duration-300 ${isMoreExpanded ? 'rotate-180' : 'rotate-0'}`}>
-                                                            <ChevronDown className="w-3 h-3 text-black" />
+                                                            <ChevronDown className={`w-3 h-3 transition-colors ${isActive ? 'text-black dark:text-white' : 'text-black/50 dark:text-white/40 group-hover/nav:text-black dark:group-hover/nav:text-white'}`} />
                                                         </span>
                                                     )}
                                                     {isActive && (
