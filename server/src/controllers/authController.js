@@ -1012,6 +1012,15 @@ export const sendPartnerRequest = async (req, res) => {
         await currentUser.save();
         await partnerToRequest.save();
 
+        // Notify the target user
+        await Notification.create({
+            user: partnerToRequest._id,
+            text: `${currentUser.name} (@${currentUser.username}) sent you a partner link request.`,
+            type: 'partner',
+            icon: 'favorite',
+            color: 'text-rose-500',
+        });
+
         const updatedUser = await User.findById(req.user.id).populate('outgoingPartnerRequest', 'name username email avatar');
 
         res.json({ message: 'Partner request sent successfully', outgoingRequest: updatedUser.outgoingPartnerRequest });
@@ -1064,6 +1073,15 @@ export const acceptPartnerRequest = async (req, res) => {
         await currentUser.save();
         await requester.save();
 
+        // Notify the original requester that their partner request was accepted
+        await Notification.create({
+            user: requester._id,
+            text: `${currentUser.name} (@${currentUser.username}) accepted your partner link request!`,
+            type: 'partner',
+            icon: 'favorite',
+            color: 'text-rose-500',
+        });
+
         const updatedUser = await User.findById(req.user.id).populate('partner', 'name username email avatar');
 
         res.json({ message: 'Partner link accepted', partner: updatedUser.partner });
@@ -1093,6 +1111,17 @@ export const rejectPartnerRequest = async (req, res) => {
 
         currentUser.incomingPartnerRequest = null;
         await currentUser.save();
+
+        if (requester) {
+            // Notify the original requester that their partner request was declined
+            await Notification.create({
+                user: requester._id,
+                text: `${currentUser.name} (@${currentUser.username}) declined your partner link request.`,
+                type: 'partner',
+                icon: 'heart_broken',
+                color: 'text-rose-500',
+            });
+        }
 
         res.json({ message: 'Partner request rejected' });
 

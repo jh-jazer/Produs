@@ -85,6 +85,25 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
         }
     };
 
+    const handlePartnerRequest = async (action) => {
+        try {
+            setHandlingId('partner');
+            const endpoint = `/auth/partner/${action}`;
+            await api.post(endpoint);
+            
+            // Sync user data
+            const res = await api.get('/auth/me');
+            syncUser(res.data);
+            
+            // Refresh notifications SWR
+            mutate();
+        } catch (err) {
+            console.error(`Failed to ${action} partner request`, err);
+        } finally {
+            setHandlingId(null);
+        }
+    };
+
     const handleMarkAsRead = async (id) => {
         try {
             await api.patch(`/notifications/${id}`, { read: true });
@@ -218,6 +237,31 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                                                     <p className="text-[8px] font-mono text-foreground/40 uppercase tracking-widest mt-1.5 flex items-center gap-2">
                                                         <Clock size={8} /> {timeAgo(notification.createdAt)}
                                                     </p>
+
+                                                    {notification.type === 'partner' && !notification.read && user?.incomingPartnerRequest && (
+                                                        <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
+                                                            <button
+                                                                onClick={async () => {
+                                                                    await handlePartnerRequest('accept');
+                                                                    handleMarkAsRead(notification._id);
+                                                                }}
+                                                                disabled={handlingId !== null}
+                                                                className="px-3 py-1.5 bg-rose-500 text-white rounded-sm text-[8px] font-black uppercase tracking-widest hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+                                                            >
+                                                                {handlingId === 'partner' ? '...' : 'Accept'}
+                                                            </button>
+                                                            <button
+                                                                onClick={async () => {
+                                                                    await handlePartnerRequest('reject');
+                                                                    handleMarkAsRead(notification._id);
+                                                                }}
+                                                                disabled={handlingId !== null}
+                                                                className="px-3 py-1.5 bg-foreground/5 hover:bg-foreground/10 text-foreground border border-foreground/10 rounded-sm text-[8px] font-black uppercase tracking-widest active:scale-95 transition-all disabled:opacity-50"
+                                                            >
+                                                                Decline
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 {!notification.read && (
                                                     <button
