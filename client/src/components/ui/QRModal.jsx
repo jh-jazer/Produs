@@ -23,6 +23,8 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [isCameraActive, setIsCameraActive] = useState(false);
+    // 'none' | 'pending' | 'connected'
+    const [requestStatus, setRequestStatus] = useState('none');
     const scannerRef = useRef(null);
     const qrCanvasRef = useRef(null);
     const fileInputRef = useRef(null);
@@ -34,6 +36,7 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
             setScanResult(null);
             setScannedUser(null);
             setError(null);
+            setRequestStatus('none');
         }
     }, [isOpen, initialMode]);
 
@@ -97,8 +100,17 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
 
         setIsSubmitting(true);
         try {
-            const { data: userProfile } = await api.get(`/auth/profile/${id}`);
+            const [{ data: userProfile }, { data: connectionsData }] = await Promise.all([
+                api.get(`/auth/profile/${id}`),
+                api.get('/auth/connections'),
+            ]);
             setScannedUser(userProfile);
+
+            // Determine relationship status
+            const isConnected = connectionsData.connections?.some(c => c._id === id);
+            const isPending  = connectionsData.outgoing?.some(c => c._id === id);
+            setRequestStatus(isConnected ? 'connected' : isPending ? 'pending' : 'none');
+
             setMode('profile');
         } catch (err) {
             setError(err.response?.data?.message || "SYNC_FAILED");
@@ -111,10 +123,22 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
         setIsSubmitting(true);
         try {
             await api.post(`/auth/connection/request/${scannedUser._id}`);
+            setRequestStatus('pending');
             setScanResult('SUCCESS');
-            setTimeout(() => { onClose(); setMode('choice'); setScanResult(null); setScannedUser(null); }, 2000);
+            setTimeout(() => { onClose(); setMode('choice'); setScanResult(null); setScannedUser(null); setRequestStatus('none'); }, 2000);
         } catch (err) {
             setError(err.response?.data?.message || "SYNC_FAILED");
+        } finally { setIsSubmitting(false); }
+    };
+
+    const handleCancel = async () => {
+        if (!scannedUser) return;
+        setIsSubmitting(true);
+        try {
+            await api.post(`/auth/connection/cancel/${scannedUser._id}`);
+            setRequestStatus('none');
+        } catch (err) {
+            setError(err.response?.data?.message || "CANCEL_FAILED");
         } finally { setIsSubmitting(false); }
     };
 
@@ -398,14 +422,30 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
 
                                         {/* Action buttons */}
                                         <div className="flex flex-col gap-2 w-full">
-                                            <button
-                                                onClick={handleConnect}
-                                                disabled={isSubmitting}
-                                                className="w-full py-4 bg-white text-black font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white/90 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3 disabled:opacity-50"
-                                            >
-                                                <Check size={14} />
-                                                {isSubmitting ? 'Sending...' : 'Connect'}
-                                            </button>
+                                            {requestStatus === 'connected' ? (
+                                                <div className="w-full py-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black text-[10px] uppercase tracking-[0.4em] flex items-center justify-center gap-3">
+                                                    <Check size={14} />
+                                                    Already Connected
+                                                </div>
+                                            ) : requestStatus === 'pending' ? (
+                                                <button
+                                                    onClick={handleCancel}
+                                                    disabled={isSubmitting}
+                                                    className="w-full py-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 font-black text-[10px] uppercase tracking-[0.4em] hover:bg-rose-500/20 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                                >
+                                                    <X size={14} />
+                                                    {isSubmitting ? 'Cancelling...' : 'Cancel Request'}
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={handleConnect}
+                                                    disabled={isSubmitting}
+                                                    className="w-full py-4 bg-white text-black font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white/90 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3 disabled:opacity-50"
+                                                >
+                                                    <Check size={14} />
+                                                    {isSubmitting ? 'Sending...' : 'Connect'}
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => { setScannedUser(null); setMode('scan'); }}
                                                 className="w-full py-3 bg-white/[0.02] border border-white/10 text-white/40 font-black text-[9px] uppercase tracking-[0.4em] hover:bg-white/[0.05] hover:text-white transition-all"

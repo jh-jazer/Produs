@@ -33,10 +33,10 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
     const handleConnectionAction = async (action, targetUserId) => {
         try {
             let endpoint = '';
-            if (action === 'accept') endpoint = `/auth/connections/accept/${targetUserId}`;
-            else if (action === 'reject') endpoint = `/auth/connections/reject/${targetUserId}`;
-            else if (action === 'cancel') endpoint = `/auth/connections/cancel/${targetUserId}`;
-            else if (action === 'disconnect') endpoint = `/auth/connections/disconnect/${targetUserId}`;
+            if (action === 'accept') endpoint = `/auth/connection/accept/${targetUserId}`;
+            else if (action === 'reject') endpoint = `/auth/connection/reject/${targetUserId}`;
+            else if (action === 'cancel') endpoint = `/auth/connection/cancel/${targetUserId}`;
+            else if (action === 'disconnect') endpoint = `/auth/connection/disconnect/${targetUserId}`;
 
             await api.post(endpoint);
             fetchConnections();

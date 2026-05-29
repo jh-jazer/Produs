@@ -335,6 +335,15 @@ export const sendConnectionRequest = async (req, res) => {
         await User.findByIdAndUpdate(senderId, { $addToSet: { outgoingConnectionRequests: targetUserId }});
         await User.findByIdAndUpdate(targetUserId, { $addToSet: { incomingConnectionRequests: senderId }});
 
+        // Notify the target user
+        await Notification.create({
+            user: targetUserId,
+            text: `${sender.name} sent you a connection request.`,
+            type: 'connection',
+            icon: 'person_add',
+            color: 'text-primary',
+        });
+
         res.json({ message: "Connection request sent!" });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -363,6 +372,15 @@ export const acceptConnectionRequest = async (req, res) => {
         await User.findByIdAndUpdate(requesterId, {
             $pull: { outgoingConnectionRequests: accepterId },
             $addToSet: { connections: accepterId }
+        });
+
+        // Notify the original requester that their request was accepted
+        await Notification.create({
+            user: requesterId,
+            text: `${accepter.name} accepted your connection request.`,
+            type: 'connection',
+            icon: 'handshake',
+            color: 'text-primary',
         });
 
         res.json({ message: "Connection accepted!" });

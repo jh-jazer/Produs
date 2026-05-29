@@ -53,12 +53,14 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
         }
     };
 
-    const getIcon = (type) => {
+    const getIcon = (type, notif) => {
+        if (notif?.icon) return notif.icon;
         switch (type) {
             case 'achievement': return 'emoji_events';
             case 'habit': return 'history_edu';
             case 'finance': return 'payments';
             case 'partner': return 'favorite';
+            case 'connection': return 'person_add';
             default: return 'notifications';
         }
     };
@@ -69,6 +71,7 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
             case 'habit': return 'text-primary bg-primary/10';
             case 'finance': return 'text-emerald-500 bg-emerald-500/10';
             case 'partner': return 'text-rose-500 bg-rose-500/10';
+            case 'connection': return 'text-primary bg-primary/10';
             default: return 'text-slate-400 bg-slate-400/10';
         }
     };
