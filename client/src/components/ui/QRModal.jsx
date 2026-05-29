@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { QrCode, Camera, X, Check, AlertCircle, Download } from 'lucide-react';
-import { QRCodeCanvas } from 'qrcode.react';
+import { Camera, X, Check, AlertCircle } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import api from '../../services/api';
 
@@ -16,29 +15,33 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
     />
 );
 
-const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
-    const [mode, setMode] = useState(initialMode);
+const QRModal = ({ isOpen, onClose, userId }) => {
+    const [mode, setMode] = useState('scan'); // 'scan' | 'profile'
     const [scannedUser, setScannedUser] = useState(null);
     const [scanResult, setScanResult] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [isCameraActive, setIsCameraActive] = useState(false);
-    // 'none' | 'pending' | 'connected'
     const [requestStatus, setRequestStatus] = useState('none');
     const scannerRef = useRef(null);
-    const qrCanvasRef = useRef(null);
     const fileInputRef = useRef(null);
 
     useEffect(() => {
         if (!isOpen) {
             stopScanner();
-            setMode(initialMode);
+            setMode('scan');
             setScanResult(null);
             setScannedUser(null);
             setError(null);
             setRequestStatus('none');
+        } else {
+            // Auto start camera sensor scanning mode immediately
+            const timer = setTimeout(() => {
+                startCamera();
+            }, 250);
+            return () => clearTimeout(timer);
         }
-    }, [isOpen, initialMode]);
+    }, [isOpen]);
 
     const stopScanner = async () => {
         if (scannerRef.current && scannerRef.current.isScanning) {
@@ -95,8 +98,8 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
 
     const handleScannedId = async (id) => {
         const isValidId = /^[0-9a-fA-F]{24}$/.test(id);
-        if (!isValidId) { setError("INVALID_OPERATOR_ID"); setMode('choice'); return; }
-        if (id === userId) { setError("CANNOT_SYNC_SELF"); setMode('choice'); return; }
+        if (!isValidId) { setError("INVALID_OPERATOR_ID"); setMode('scan'); return; }
+        if (id === userId) { setError("CANNOT_SYNC_SELF"); setMode('scan'); return; }
 
         setIsSubmitting(true);
         try {
@@ -106,7 +109,6 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
             ]);
             setScannedUser(userProfile);
 
-            // Determine relationship status
             const isConnected = connectionsData.connections?.some(c => c._id === id);
             const isPending  = connectionsData.outgoing?.some(c => c._id === id);
             setRequestStatus(isConnected ? 'connected' : isPending ? 'pending' : 'none');
@@ -114,7 +116,7 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
             setMode('profile');
         } catch (err) {
             setError(err.response?.data?.message || "SYNC_FAILED");
-            setMode('choice');
+            setMode('scan');
         } finally { setIsSubmitting(false); }
     };
 
@@ -125,7 +127,7 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
             await api.post(`/auth/connection/request/${scannedUser._id}`);
             setRequestStatus('pending');
             setScanResult('SUCCESS');
-            setTimeout(() => { onClose(); setMode('choice'); setScanResult(null); setScannedUser(null); setRequestStatus('none'); }, 2000);
+            setTimeout(() => { onClose(); setMode('scan'); setScanResult(null); setScannedUser(null); setRequestStatus('none'); }, 2000);
         } catch (err) {
             setError(err.response?.data?.message || "SYNC_FAILED");
         } finally { setIsSubmitting(false); }
@@ -140,15 +142,6 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
         } catch (err) {
             setError(err.response?.data?.message || "CANCEL_FAILED");
         } finally { setIsSubmitting(false); }
-    };
-
-    const handleSaveQR = () => {
-        const canvas = qrCanvasRef.current;
-        if (!canvas) return;
-        const link = document.createElement("a");
-        link.download = `produs_id_${userId.slice(-6).toUpperCase()}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
     };
 
     if (!isOpen) return null;
@@ -168,7 +161,7 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
                     initial={{ opacity: 0, scale: 0.9, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-sm p-8 shadow-2xl overflow-hidden"
+                    className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-sm p-6 md:p-8 shadow-2xl overflow-hidden"
                 >
                     <ChippedBorder opacity={0.2} />
 
@@ -176,9 +169,9 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
                         {/* Header */}
                         <div className="flex justify-between items-start">
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black text-white/40 tracking-[0.4em] uppercase">QR SYNC HUB</span>
+                                <span className="text-[10px] font-black text-white/40 tracking-[0.4em] uppercase">QR SCANNER</span>
                                 <span className="text-[8px] font-mono text-white/20 uppercase tracking-widest">
-                                    {mode === 'choice' ? 'MODE_SELECTION' : mode === 'display' ? 'MY_IDENTITY' : 'SCANNING_PROTOCOL'}
+                                    {mode === 'scan' ? 'SCANNING_PROTOCOL' : 'OPERATIVE_PROFILE'}
                                 </span>
                             </div>
                             <button onClick={onClose} className="material-symbols-outlined text-white/20 hover:text-white transition-colors">close</button>
@@ -204,85 +197,9 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
                             </div>
                         ) : (
                             <div className="flex flex-col gap-4">
-                                {mode === 'choice' && (
-                                    <div className="flex flex-col gap-3">
-                                        <button 
-                                            onClick={() => setMode('display')}
-                                            className="flex items-center gap-6 p-6 bg-white/[0.02] border border-white/5 rounded-sm hover:bg-white/[0.05] hover:border-white/20 transition-all text-left group"
-                                        >
-                                            <div className="size-12 bg-white/5 flex items-center justify-center text-white/40 group-hover:text-white transition-colors">
-                                                <QrCode size={24} />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] font-black text-white uppercase tracking-widest mb-1">DISPLAY MY QR</p>
-                                                <p className="text-[8px] text-white/20 uppercase tracking-wider font-medium">SHOW CODE FOR SCANNING</p>
-                                            </div>
-                                        </button>
-
-                                        <button 
-                                            onClick={() => { setError(null); setMode('scan'); }}
-                                            className="flex items-center gap-6 p-6 bg-white/[0.02] border border-white/5 rounded-sm hover:bg-white/[0.05] hover:border-white/20 transition-all text-left group"
-                                        >
-                                            <div className="size-12 bg-white/5 flex items-center justify-center text-white/40 group-hover:text-white transition-colors">
-                                                <Camera size={24} />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] font-black text-white uppercase tracking-widest mb-1">SCAN QR CODE</p>
-                                                <p className="text-[8px] text-white/20 uppercase tracking-wider font-medium">ACTIVATE CAMERA SENSOR</p>
-                                            </div>
-                                        </button>
-                                    </div>
-                                )}
-
-                                {mode === 'display' && (
-                                    <div className="flex flex-col items-center gap-6 py-4">
-                                        <div className="flex flex-col items-center gap-1 mb-2">
-                                            <span className="text-[10px] font-black text-white/40 tracking-[0.4em] uppercase">SYSTEM METADATA</span>
-                                            <span className="text-[8px] font-mono text-white/20 uppercase tracking-widest">GLOBAL_UNIQUE_IDENTIFIER</span>
-                                        </div>
-
-                                        <div className="p-4 bg-white rounded-sm shadow-[0_0_50px_rgba(255,255,255,0.05)]">
-                                            <QRCodeCanvas 
-                                                ref={qrCanvasRef}
-                                                value={userId} 
-                                                size={180}
-                                                level={"H"}
-                                                includeMargin={false}
-                                            />
-                                        </div>
-
-                                        <div className="flex flex-col gap-4 w-full">
-                                            <div className="flex flex-col items-center gap-1">
-                                                <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em]">FULL ACCESS KEY</span>
-                                                <p className="text-[9px] font-bold text-white uppercase tracking-[0.3em] font-mono break-all text-center max-w-[280px]">
-                                                    {userId}
-                                                </p>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 gap-3 pt-2">
-                                                <button 
-                                                    onClick={handleSaveQR}
-                                                    className="w-full py-4 bg-white text-black font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white/90 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3"
-                                                >
-                                                    <Download size={14} />
-                                                    SAVE QR CODE
-                                                </button>
-                                                <button 
-                                                    onClick={() => setMode('scan')}
-                                                    className="w-full py-4 bg-white/[0.02] border border-white/10 text-white font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white/[0.05] transition-all flex items-center justify-center gap-3"
-                                                >
-                                                    <Camera size={14} />
-                                                    SCAN QR CODE
-                                                </button>
-                                            </div>
-                                            <button onClick={() => setMode('choice')} className="text-[8px] font-black text-white/20 hover:text-white uppercase tracking-widest text-center mt-2">EXIT_TO_SELECTOR</button>
-                                        </div>
-                                    </div>
-                                )}
-
                                 {mode === 'scan' && (
                                     <div className="flex flex-col gap-6">
-                                        <div className="w-full aspect-square bg-black border border-white/10 relative overflow-hidden flex items-center justify-center">
+                                        <div className="w-64 h-64 md:w-72 md:h-72 mx-auto bg-black border border-white/10 relative overflow-hidden flex items-center justify-center">
                                             <div 
                                                 id="reader" 
                                                 className="w-full h-full"
@@ -296,7 +213,7 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
                                             {!isCameraActive && (
                                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center gap-4 z-20">
                                                     <Camera size={32} className="text-white/10" />
-                                                    <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">SENSOR_OFFLINE</span>
+                                                    <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">INITIALIZING_CAMERA...</span>
                                                 </div>
                                             )}
                                             <div className="absolute inset-0 pointer-events-none z-10">
@@ -309,21 +226,13 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
                                         </div>
 
                                         <div className="flex flex-col gap-3">
-                                            {!isCameraActive ? (
+                                            {!isCameraActive && (
                                                 <button 
                                                     onClick={startCamera}
-                                                    className="w-full py-4 bg-white text-black font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white/90 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3"
+                                                    className="w-full py-3 bg-white text-black font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white/90 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3"
                                                 >
                                                     <Camera size={14} />
-                                                    ACTIVATE CAMERA
-                                                </button>
-                                            ) : (
-                                                <button 
-                                                    onClick={stopScanner}
-                                                    className="w-full py-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 font-black text-[10px] uppercase tracking-[0.4em] hover:bg-rose-500/20 transition-all flex items-center justify-center gap-3"
-                                                >
-                                                    <X size={14} />
-                                                    TERMINATE_SENSOR
+                                                    RETRY CAMERA INITIALIZATION
                                                 </button>
                                             )}
                                             
@@ -331,12 +240,11 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
                                             
                                             <button 
                                                 onClick={() => fileInputRef.current?.click()}
-                                                className="w-full py-4 bg-white/[0.02] border border-white/10 text-white font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white/[0.05] transition-all flex items-center justify-center gap-3"
+                                                className="w-full py-3 bg-white/[0.02] border border-white/10 text-white font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white/[0.05] transition-all flex items-center justify-center gap-3"
                                             >
-                                                <Download size={14} className="rotate-180" />
+                                                <Camera size={14} className="rotate-180" />
                                                 SCAN_IMAGE_FILE
                                             </button>
-                                            <button onClick={() => setMode('choice')} className="text-[8px] font-black text-white/20 hover:text-white uppercase tracking-widest text-center mt-2">BACK_TO_SELECTOR</button>
                                         </div>
                                     </div>
                                 )}
@@ -349,11 +257,8 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
                                     >
                                         {/* ── Hanging ID Badge ── */}
                                         <div className="flex flex-col items-center">
-                                            {/* Lanyard string */}
                                             <div className="w-0.5 h-5 bg-white/20" />
-                                            {/* Clip hole */}
                                             <div className="size-4 rounded-full border-2 border-white/20 bg-[#0a0a0a] mb-0" />
-                                            {/* Card */}
                                             <div
                                                 className="relative w-[220px] bg-[#111] border border-white/10 rounded-sm overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.6)]"
                                                 style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)' }}

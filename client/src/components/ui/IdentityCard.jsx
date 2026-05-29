@@ -577,7 +577,18 @@ export default function IdentityCard({
                                     <span className="material-symbols-outlined text-[14px]">download</span>
                                     SAVE QR CODE
                                 </button>
-
+                                {isOwnProfile && setIsQrModalOpen && (
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setIsQrModalOpen(true);
+                                        }}
+                                        className="w-full py-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white font-black text-[9px] uppercase tracking-[0.4em] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                                    >
+                                        <span className="material-symbols-outlined text-[14px]">qr_code_scanner</span>
+                                        SCAN QR CODE
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

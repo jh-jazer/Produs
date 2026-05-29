@@ -142,6 +142,28 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
                     </div>
                 </div>
 
+                {/* Pending Partner Request Notification Banner */}
+                {hasPendingRequest && (
+                    <div className="p-4 rounded-sm border border-rose-500/20 bg-rose-500/5 flex items-center justify-between gap-4 animate-in fade-in slide-in-from-top-1 duration-200">
+                        <div className="flex items-center gap-3">
+                            <span className="material-symbols-outlined text-rose-500 text-lg">pending_actions</span>
+                            <div className="flex flex-col gap-0.5">
+                                <p className="text-[8px] font-black text-rose-500 uppercase tracking-widest leading-none">Awaiting Partner Response</p>
+                                <p className="text-[8px] text-foreground/50 uppercase tracking-wider font-mono">
+                                    Requested: @{user?.outgoingPartnerRequest?.username || 'user'}
+                                </p>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={handleCancelPartnerRequest}
+                            disabled={isCancelingPartner}
+                            className="px-3 py-1.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-sm text-[8px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all active:scale-95 disabled:opacity-50"
+                        >
+                            {isCancelingPartner ? '...' : 'Cancel Request'}
+                        </button>
+                    </div>
+                )}
+
                 {/* Content Area */}
                 <div className="min-h-[300px]">
                     {isFetchingConnections ? (
@@ -191,36 +213,73 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
                                                     >
                                                         <span className="material-symbols-outlined text-[18px]">person</span>
                                                     </button>
-                                                    {/* Send partner link request — only if connection has no partner and current user is also unlinked with no pending */}
-                                                    {!u.partner && !hasPartner && !hasPendingRequest && user?.partner?._id !== u._id && (() => {
+                                                    {user?.partner?._id !== u._id && (() => {
                                                         const s = cardLinkState[u._id] || 'idle';
+                                                        const isOutgoingTarget = user?.outgoingPartnerRequest?._id === u._id || user?.outgoingPartnerRequest === u._id;
+                                                        
+                                                        // Determine if disabled and what the tooltip should be
+                                                        let isDisabled = false;
+                                                        let tooltip = 'Send partner link request';
+                                                        
+                                                        if (isOutgoingTarget) {
+                                                            tooltip = 'Cancel pending partner request';
+                                                        } else if (u.partner) {
+                                                            isDisabled = true;
+                                                            tooltip = 'This user already has a partner';
+                                                        } else if (hasPartner) {
+                                                            isDisabled = true;
+                                                            tooltip = 'You already have a partner';
+                                                        } else if (hasPendingRequest) {
+                                                            isDisabled = true;
+                                                            tooltip = 'You already have a pending partner request';
+                                                        } else if (!u.email) {
+                                                            isDisabled = true;
+                                                            tooltip = 'No email associated with this connection';
+                                                        }
+
+                                                        if (s === 'sent') tooltip = 'Request sent!';
+                                                        
                                                         return (
                                                             <button
-                                                                onClick={() => handleLinkRequest(u)}
-                                                                disabled={s === 'loading' || s === 'sent'}
-                                                                title={s === 'sent' ? 'Request sent!' : 'Send partner link request'}
-                                                                className={`size-8 flex items-center justify-center rounded-sm border transition-all active:scale-90 ${
-                                                                    s === 'sent'
-                                                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
-                                                                        : s === 'error'
-                                                                            ? 'bg-rose-500/10 border-rose-500/30 text-rose-500'
-                                                                            : 'bg-foreground/5 border-foreground/10 text-foreground/40 hover:text-rose-400 hover:border-rose-400/30 hover:bg-rose-500/5'
+                                                                onClick={() => {
+                                                                    if (isOutgoingTarget) {
+                                                                        handleCancelPartnerRequest();
+                                                                    } else {
+                                                                        handleLinkRequest(u);
+                                                                    }
+                                                                }}
+                                                                disabled={(!isOutgoingTarget && isDisabled) || s === 'loading' || s === 'sent'}
+                                                                title={tooltip}
+                                                                className={`size-8 flex items-center justify-center rounded-sm border transition-all ${
+                                                                    isOutgoingTarget
+                                                                        ? 'bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white hover:border-rose-500 active:scale-90'
+                                                                        : isDisabled
+                                                                            ? 'opacity-30 cursor-not-allowed bg-foreground/5 border-foreground/10 text-foreground/40'
+                                                                            : s === 'sent'
+                                                                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 active:scale-90'
+                                                                                : s === 'error'
+                                                                                    ? 'bg-rose-500/10 border-rose-500/30 text-rose-500 active:scale-90'
+                                                                                    : 'bg-foreground/5 border-foreground/10 text-foreground/40 hover:text-rose-400 hover:border-rose-400/30 hover:bg-rose-500/5 active:scale-90'
                                                                 }`}
                                                             >
-                                                                {s === 'loading' ? (
+                                                                {isCancelingPartner && isOutgoingTarget ? (
+                                                                    <div className="size-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                                                                ) : isOutgoingTarget ? (
+                                                                    <span className="material-symbols-outlined text-[16px]">close</span>
+                                                                ) : s === 'loading' ? (
                                                                     <div className="size-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
                                                                 ) : s === 'sent' ? (
                                                                     <span className="material-symbols-outlined text-[16px]">check</span>
                                                                 ) : (
                                                                     <svg viewBox="0 0 20 20" fill="currentColor" className="size-4">
-                                                                        {/* Left arm (coming from left, fist pointing right) */}
+                                                                        {/* Left arm */}
                                                                         <rect x="0" y="8" width="7" height="4" rx="2"/>
                                                                         <rect x="5" y="6.5" width="3" height="2.5" rx="1"/>
                                                                         <rect x="5" y="9" width="3" height="2" rx="1"/>
                                                                         <rect x="5" y="11" width="3" height="2" rx="1"/>
                                                                         {/* Clasped grip in center */}
                                                                         <rect x="7" y="7.5" width="6" height="5" rx="1.5"/>
-                                                                        {/* Right arm (coming from right, fist pointing left) */}
+                                                                        {/* Right arm */}
                                                                         <rect x="13" y="8" width="7" height="4" rx="2"/>
                                                                         <rect x="12" y="6.5" width="3" height="2.5" rx="1"/>
                                                                         <rect x="12" y="9" width="3" height="2" rx="1"/>

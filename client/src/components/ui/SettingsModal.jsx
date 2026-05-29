@@ -231,20 +231,6 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                         </button>
                     </div>
 
-                    {/* Support / Anomalies */}
-                    <div className="space-y-4">
-                        <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1 mb-2">Support</div>
-                        <button 
-                            onClick={() => { onClose(); onOpenBugReport(); }} 
-                            className="w-full flex items-center justify-between p-4 px-5 rounded-sm border border-foreground/10 bg-foreground/5 hover:bg-foreground/10 transition-all group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <span className="material-symbols-outlined text-foreground opacity-60 group-hover:text-rose-500 transition-colors">bug_report</span>
-                                <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Report Bug</span>
-                            </div>
-                            <span className="material-symbols-outlined text-foreground/40">chevron_right</span>
-                        </button>
-                    </div>
 
                     {/* Danger Zone */}
                     <div className="space-y-4 pt-4">

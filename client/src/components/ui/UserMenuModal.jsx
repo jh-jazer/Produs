@@ -89,32 +89,14 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
 
                 {/* Navigation Actions */}
                 <div className="flex flex-col gap-1">
-                    <button onClick={() => { onClose(); onOpenMerchant(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-foreground/60 hover:bg-foreground/5 rounded-2xl transition-all flex items-center gap-4 group">
-                        <span className="material-symbols-outlined text-lg text-foreground opacity-40 group-hover:opacity-100 transition-all">shopping_bag</span>
-                        <span>MERCHANT</span>
-                    </button>
-
-                    <button onClick={() => { onClose(); onOpenNotifications(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-foreground/60 hover:bg-foreground/5 rounded-2xl transition-all flex items-center justify-between group">
-                        <div className="flex items-center gap-4">
-                            <span className="material-symbols-outlined text-lg text-foreground opacity-40 group-hover:opacity-100 transition-all">notifications</span>
-                            <span className="flex items-center gap-2">
-                                NOTIFICATIONS
-                                {hasAnyUnread && (
-                                    <span className="size-2 rounded-full bg-foreground animate-pulse" />
-                                )}
-                            </span>
-                        </div>
-                        {unreadCount > 0 && (
-                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-foreground/5 text-foreground text-[8px] font-black border border-foreground/10">
-                                <span className="size-1 rounded-full bg-foreground animate-pulse" />
-                                {unreadCount}
-                            </div>
-                        )}
-                    </button>
-
                     <button onClick={() => { onClose(); onOpenSettings(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-foreground/60 hover:bg-foreground/5 rounded-2xl transition-all flex items-center gap-4 group">
                         <span className="material-symbols-outlined text-lg text-foreground opacity-40 group-hover:opacity-100 transition-all">settings</span>
                         <span>SETTINGS</span>
+                    </button>
+
+                    <button onClick={() => { onClose(); onOpenBugReport(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-foreground/60 hover:bg-foreground/5 rounded-2xl transition-all flex items-center gap-4 group">
+                        <span className="material-symbols-outlined text-lg text-foreground opacity-40 group-hover:text-rose-500 group-hover:opacity-100 transition-all">bug_report</span>
+                        <span>REPORT BUG</span>
                     </button>
 
                     <div className="my-2 border-t border-foreground/[0.05]" />

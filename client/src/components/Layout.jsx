@@ -44,6 +44,7 @@ import LevelDisplay from './ui/LevelDisplay';
 import DashboardHeader from './dashboard/DashboardHeader';
 import ConnectionsModal from './ui/ConnectionsModal';
 import IdentityEditModal from './ui/IdentityEditModal';
+import QRModal from './ui/QRModal';
 import AddGoalModal from './ui/AddGoalModal';
 import AddEventModal from './ui/AddEventModal';
 import { DashboardContext } from '../context/DashboardContext';
@@ -83,7 +84,7 @@ const GlobalTransactionPortal = ({ isOpen, onClose }) => {
     );
 };
 
-const GlobalMobileHeader = ({ activeSection, onClick, protocolMode, shakeMerchant, handleOpenMerchant, isIdPulledDown }) => {
+const GlobalMobileHeader = ({ activeSection, onClick, protocolMode, shakeMerchant, handleOpenMerchant, isIdPulledDown, onOpenNotifications, hasAnyUnread }) => {
   const [matrixText, setMatrixText] = useState("");
   const [showProfile, setShowProfile] = useState(false);
   const { user } = useAuthStore();
@@ -208,12 +209,19 @@ const GlobalMobileHeader = ({ activeSection, onClick, protocolMode, shakeMerchan
                   
 
                   <div className="flex items-stretch gap-1.5">
-                    {/* Prod points Display */}
-                    <div className="flex items-center justify-between gap-1.5 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 px-3.5 py-2 rounded-md select-none min-w-[96px]">
-                      <span className="text-sm font-black uppercase tracking-wider text-amber-500">
-                        {user?.rpg?.prodCoins || 0}
-                      </span>
-                      <span className="text-[11px] font-bold text-black dark:text-white/40 uppercase tracking-[0.2em]">PTS</span>
+                    {/* Notification Bell Icon */}
+                    <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenNotifications && onOpenNotifications();
+                      }}
+                      className="flex items-center justify-center px-3 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 rounded-md hover:bg-black/10 dark:hover:bg-white/10 hover:scale-95 transition-all shadow-sm cursor-pointer relative"
+                      title="Notifications"
+                    >
+                      <span className="material-symbols-outlined text-black dark:text-white text-[20px]">notifications</span>
+                      {hasAnyUnread && (
+                        <span className="absolute top-1 right-1.5 size-1.5 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)] animate-pulse" />
+                      )}
                     </div>
 
                     {/* Merchant Quick Access */}
@@ -229,6 +237,14 @@ const GlobalMobileHeader = ({ activeSection, onClick, protocolMode, shakeMerchan
                     >
                       <span className="material-symbols-outlined text-black dark:text-white text-[20px]">shopping_bag</span>
                     </motion.div>
+
+                    {/* Prod points Display */}
+                    <div className="flex items-center justify-between gap-1.5 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 px-3.5 py-2 rounded-md select-none min-w-[96px]">
+                      <span className="text-sm font-black uppercase tracking-wider text-amber-500">
+                        {user?.rpg?.prodCoins || 0}
+                      </span>
+                      <span className="text-[11px] font-bold text-black dark:text-white/40 uppercase tracking-[0.2em]">PTS</span>
+                    </div>
                   </div>
                 </motion.div>
               ) : null}
@@ -839,7 +855,7 @@ function Layout() {
                 </aside>
 
                 <div className="flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]">
-                    {isMobile && <GlobalMobileHeader activeSection={activeSection} onClick={() => setIsLandingModalOpen(true)} protocolMode={protocolMode} shakeMerchant={shakeMerchant} handleOpenMerchant={handleOpenMerchant} isIdPulledDown={isIdPulledDown} />}
+                    {isMobile && <GlobalMobileHeader activeSection={activeSection} onClick={() => setIsLandingModalOpen(true)} protocolMode={protocolMode} shakeMerchant={shakeMerchant} handleOpenMerchant={handleOpenMerchant} isIdPulledDown={isIdPulledDown} onOpenNotifications={() => setIsNotificationModalOpen(true)} hasAnyUnread={hasAnyUnread} />}
                     <div ref={mainRef} className={`flex-1 overflow-x-hidden ${protocolMode === 'rpg' ? 'overflow-y-hidden' : 'overflow-y-auto'} custom-scrollbar flex flex-col relative mt-0 ${isMobile ? 'snap-y snap-mandatory' : ''}`}>
                         <ConnectionsModal isOpen={isConnectionsModalOpen} onClose={() => setIsConnectionsModalOpen(false)} onProfileClick={(username) => { setProfileModalUser(username); setIsConnectionsModalOpen(false); }} />
                         <IdentityEditModal isOpen={isIdentityEditModalOpen} onClose={() => setIsIdentityEditModalOpen(false)} />
@@ -972,6 +988,7 @@ function Layout() {
                 {isStatsModalOpen && <StatsModal isOpen={isStatsModalOpen} onClose={() => setIsStatsModalOpen(false)} user={user} />}
                 {isOnboardingOpen && <OnboardingModal isOpen={isOnboardingOpen} onClose={() => setIsOnboardingOpen(false)} />}
                 <OperationModeModal isOpen={isOperationModalOpen} onClose={() => setIsOperationModalOpen(false)} />
+                <QRModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} userId={user?._id} initialMode={qrModalMode} />
 
                 <DecisionModal
                     isOpen={isLandingModalOpen}
