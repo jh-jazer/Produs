@@ -105,6 +105,10 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
                         <span className="material-symbols-outlined text-lg opacity-60 group-hover:opacity-100 transition-all">logout</span>
                         <span>SIGN OUT</span>
                     </button>
+
+                    <div className="text-center pt-5 pb-1 text-[8px] font-mono font-black text-foreground/25 dark:text-white/20 uppercase tracking-[0.4em] pointer-events-none">
+                        v1.0.0
+                    </div>
                 </div>
             </div>
         </DashboardModal>

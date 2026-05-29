@@ -95,7 +95,7 @@ const Admin = () => {
         setTimeout(() => {
             const exportData = {
                 metadata: {
-                    version: "2.4.0-PROD",
+                    version: "1.0.0-PROD",
                     timestamp: new Date().toISOString(),
                     origin: "SYSTEM_MANAGEMENT_OVERRIDE",
                     scope: type.toUpperCase()

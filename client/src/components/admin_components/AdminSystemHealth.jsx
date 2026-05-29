@@ -24,12 +24,12 @@ const AdminSystemHealth = ({ systemStatus, activeTab }) => {
                                 <ShieldCheck size={18} />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="font-black text-slate-900 dark:text-white text-sm mb-0.5">New Update Available</p>
-                                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">Version 2.4.0 is ready to deploy — new features &amp; security patches.</p>
+                                <p className="font-black text-slate-900 dark:text-white text-sm mb-0.5">Platform Status</p>
+                                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">Version 1.0.0 is deployed as the active production release.</p>
                             </div>
                         </div>
                         <button className="w-full mt-4 bg-primary text-white py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20">
-                            View Changelog
+                            View Platform Status
                         </button>
                     </div>
                 </div>
