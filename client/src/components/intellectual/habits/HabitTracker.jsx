@@ -4,6 +4,7 @@ import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { Plus, Edit2, ArrowUpRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../../ui/ConfirmDialog';
+import useAuthStore from '../../../store/useAuthStore';
 
 import AddHabitModal, { ICON_OPTIONS } from './AddHabitModal';
 
@@ -32,6 +33,10 @@ function HabitTracker({
     myUserId
 }) {
     const navigate = useNavigate();
+    const { user } = useAuthStore();
+    const isLinked = !!user?.partner;
+    const [showToast, setShowToast] = useState(false);
+    const [shakeLink, setShakeLink] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [modalStep, setModalStep] = useState('suggestions');
@@ -39,6 +44,15 @@ function HabitTracker({
     const [localTeamHabits, setLocalTeamHabits] = useState([]);
     const [confirmDelete, setConfirmDelete] = useState(null);
     const [habitFilter, setHabitFilter] = useState('system'); // 'system' | 'personal'
+
+    useEffect(() => {
+        if (showToast) {
+            const timer = setTimeout(() => {
+                setShowToast(false);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [showToast]);
 
     const CORE_REDIRECTS = {
         'focus': '/dashboard',
@@ -220,7 +234,25 @@ function HabitTracker({
     };
 
     return (
-        <div className="flex flex-col gap-8 font-sans relative">
+        <>
+            <AnimatePresence>
+                {showToast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -50, x: "-50%", scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, x: "-50%", scale: 1 }}
+                        exit={{ opacity: 0, y: -20, x: "-50%", scale: 0.9 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                        className="fixed top-8 left-1/2 z-[9999] px-6 py-4 bg-black/95 dark:bg-white/95 text-white dark:text-black border border-white/10 dark:border-black/5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-3.5 backdrop-blur-md w-max max-w-[90vw]"
+                    >
+                        <span className="material-symbols-outlined text-lg text-rose-500 animate-pulse">lock</span>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none">PROTOCOL LOCKED</span>
+                            <span className="text-[9px] font-bold opacity-60 uppercase tracking-widest mt-2 leading-none">You need to link with a partner to unlock this feature</span>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            <div className="flex flex-col gap-8 font-sans relative">
             <div className="relative flex items-center justify-between gap-2 mb-4 z-20 px-4 md:px-0">
                 {/* Habit type filter toggle */}
                 <div className="flex items-center border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/[0.02] p-1 rounded-sm h-[36px]">
@@ -244,16 +276,26 @@ function HabitTracker({
                     >
                         Personal
                     </button>
-                    <button
-                        onClick={() => setHabitFilter('link')}
-                        className={`h-full px-6 flex items-center justify-center text-[10px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer ${
+                    <motion.button
+                        animate={{ x: shakeLink ? [-6, 6, -6, 6, -3, 3, 0] : 0 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        onClick={() => {
+                            if (!isLinked) {
+                                setShakeLink(true);
+                                setShowToast(true);
+                                return;
+                            }
+                            setHabitFilter('link');
+                        }}
+                        className={`h-full px-6 flex items-center gap-1.5 justify-center text-[10px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer ${
                             habitFilter === 'link'
                                 ? 'bg-black text-white dark:bg-white dark:text-black font-black shadow-sm'
                                 : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.04]'
                         }`}
                     >
-                        Link
-                    </button>
+                        {!isLinked && <span className="material-symbols-outlined text-[12px] text-rose-500 animate-pulse">lock</span>}
+                        <span>Link</span>
+                    </motion.button>
                 </div>
 
                 <div className="flex gap-2">
@@ -340,6 +382,7 @@ function HabitTracker({
                 defaultShared={habitFilter === 'link'}
             />
         </div>
+        </>
     );
 }
 

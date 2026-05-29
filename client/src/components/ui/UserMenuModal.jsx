@@ -3,7 +3,7 @@ import DashboardModal from './DashboardModal';
 import LevelDisplay from './LevelDisplay';
 import Avatar from './Avatar';
 
-const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpenSettings, onOpenNotifications, onOpenBugReport, onOpenStats, onSignOut }) => {
+const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpenSettings, onOpenNotifications, onOpenBugReport, onOpenStats, onSignOut, onOpenMerchant }) => {
     const navigate = useNavigate();
 
     const exp = user?.guardianExp || 0;
@@ -89,7 +89,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
 
                 {/* Navigation Actions */}
                 <div className="flex flex-col gap-1">
-                    <button onClick={() => { onClose(); navigate('/dashboard/merchant'); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-foreground/60 hover:bg-foreground/5 rounded-2xl transition-all flex items-center gap-4 group">
+                    <button onClick={() => { onClose(); onOpenMerchant(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-foreground/60 hover:bg-foreground/5 rounded-2xl transition-all flex items-center gap-4 group">
                         <span className="material-symbols-outlined text-lg text-foreground opacity-40 group-hover:opacity-100 transition-all">shopping_bag</span>
                         <span>MERCHANT</span>
                     </button>

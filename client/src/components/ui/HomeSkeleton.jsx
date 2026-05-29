@@ -21,9 +21,10 @@ const HomeSkeleton = () => {
                                 <div className="h-3 md:h-4.5 w-1/3 max-w-[200px] bg-black/5 dark:bg-white/5 rounded-sm" />
                             </div>
 
-                            {/* Start Focus Button Skeleton with exact spacing md:mt-[-1.5vh] */}
-                            <div className="mt-2 md:mt-[-1.5vh] shrink-0">
+                            {/* Start Focus Button Skeleton with exact spacing md:mt-[4vh] */}
+                            <div className="flex flex-col-reverse md:flex-row md:items-center gap-3 md:gap-6 mt-2 md:mt-[4vh] shrink-0 w-full">
                                 <div className="h-12 md:h-14 w-[55vw] max-w-[240px] md:w-48 bg-black/10 dark:bg-white/10 rounded-sm" />
+                                <div className="h-4 w-40 bg-black/5 dark:bg-white/5 rounded-sm shrink-0" />
                             </div>
 
                             {/* Priorities Header Skeleton with exact spacing md:mt-[9vh] */}

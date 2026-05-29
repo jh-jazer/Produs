@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { useLocation } from "react-router-dom";
-import { motion, useMotionValue, useMotionValueEvent, useSpring } from "framer-motion";
-import { Cpu, Handshake, User, Zap } from "lucide-react";
+import { motion, useMotionValue, useMotionValueEvent, useSpring, AnimatePresence } from "framer-motion";
+import { Cpu, Handshake, User, Zap, Lock } from "lucide-react";
 import { DashboardContext } from "../../context/DashboardContext";
 import useAuthStore from "../../store/useAuthStore";
 
@@ -48,6 +48,18 @@ export default function SideEnergyBar() {
   const [scrollPercentage, setScrollPercentage] = useState(0);
   const trackRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [shake, setShake] = useState(false);
+  const isLinked = !!user?.partner;
+
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        setShowToast(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showToast]);
   const rawProgress = useMotionValue(0);
 
   const isHome = location.pathname === '/dashboard' || location.pathname === '/dashboard/';
@@ -123,11 +135,29 @@ export default function SideEnergyBar() {
   }, [isDragging]);
 
   return (
-    <div className="fixed right-6 md:right-12 top-1/2 -translate-y-1/2 z-[100] hidden lg:flex flex-col items-center gap-8 pointer-events-none select-none">
-      
-      {/* Tactical Mode Toggles - Only visible on Home */}
-      {isHome && (
-        <div className="flex flex-col items-center gap-1.5 p-1 bg-black/40 backdrop-blur-xl rounded-2xl pointer-events-auto border border-white/10">
+    <>
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, x: "-50%", scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, x: "-50%", scale: 1 }}
+            exit={{ opacity: 0, y: -20, x: "-50%", scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="fixed top-8 left-1/2 z-[9999] px-6 py-4 bg-black/95 dark:bg-white/95 text-white dark:text-black border border-white/10 dark:border-black/5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-3.5 backdrop-blur-md w-max max-w-[90vw]"
+          >
+            <span className="material-symbols-outlined text-lg text-rose-500 animate-pulse">lock</span>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none">PROTOCOL LOCKED</span>
+              <span className="text-[9px] font-bold opacity-60 uppercase tracking-widest mt-2 leading-none">You need to link with a partner to unlock this feature</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className="fixed right-6 md:right-12 top-1/2 -translate-y-1/2 z-[100] hidden lg:flex flex-col items-center gap-8 pointer-events-none select-none">
+        
+        {/* Tactical Mode Toggles - Only visible on Home */}
+        {isHome && (
+          <div className="flex flex-col items-center gap-1.5 p-1 bg-black/40 backdrop-blur-xl rounded-2xl pointer-events-auto border border-white/10">
             <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
@@ -149,7 +179,15 @@ export default function SideEnergyBar() {
 
             <motion.button
                 whileTap={{ scale: 0.95 }}
+                animate={{ x: shake ? [-6, 6, -6, 6, -3, 3, 0] : 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 onClick={() => {
+                  if (!isLinked) {
+                    setShake(true);
+                    setShowToast(true);
+                    setTimeout(() => setShake(false), 500);
+                    return;
+                  }
                   const next = viewMode === 'partner' ? 'personal' : 'partner';
                   setViewMode(next);
                   if (next === 'partner') setProtocolMode('reality');
@@ -160,7 +198,7 @@ export default function SideEnergyBar() {
                         : 'bg-transparent text-black hover:text-black hover:bg-white/5'}
                 `}
             >
-                {viewMode === 'partner' ? <Handshake size={14} /> : <User size={14} />}
+                {!isLinked ? <Lock size={14} className="text-rose-500 animate-pulse" /> : (viewMode === 'partner' ? <Handshake size={14} /> : <User size={14} />)}
                 <div className="absolute right-full mr-4 px-3 py-1.5 bg-black border border-white/10 rounded-lg opacity-0 group-hover/toggle:opacity-100 transition-opacity pointer-events-none hidden md:block">
                     <span className="text-[10px] font-black uppercase tracking-widest text-white whitespace-nowrap">SYNC_LINK</span>
                 </div>
@@ -243,5 +281,6 @@ export default function SideEnergyBar() {
         ))}
       </div>
     </div>
+    </>
   );
 }

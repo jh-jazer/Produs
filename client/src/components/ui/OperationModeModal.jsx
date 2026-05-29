@@ -64,7 +64,7 @@ const OperationModeModal = ({ isOpen, onClose }) => {
                     description: 'Shared view with your linked operative.',
                     icon: Users,
                     active: viewMode === 'partner',
-                    locked: false,
+                    locked: !user.partner,
                     onClick: () => setViewMode('partner')
                 }
             ]

@@ -931,64 +931,67 @@ export default function Home() {
                       {/* Spacer 1 to center Start Focus button */}
                       <div className="flex-1 md:hidden" />
 
-                      {/* Focus Rewards Preview */}
-                      <div className="mt-1 md:mt-[-3.5vh] flex flex-col gap-1 pointer-events-auto select-none items-start">
-                        <div className="flex items-center gap-1.5 text-[9px] font-black tracking-widest font-mono uppercase">
-                          <span className="text-black/40 dark:text-white/40">GET :</span>
-                          <span className="text-blue-600 dark:text-blue-400">EXP,</span>
-                          <span className="text-amber-600 dark:text-amber-400">PTS</span>
-                          <span className="text-black/40 dark:text-white/40">&</span>
-                          <span className="text-purple-600 dark:text-purple-400">LEGENDARY DROPS</span>
+                      {/* Focus Controls & Rewards Container */}
+                      <div className="flex flex-col-reverse md:flex-row md:items-center gap-3 md:gap-6 mt-2 md:mt-[4vh]">
+                        <motion.button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFocusSelectedTime(25);
+                            setFocusTimeLeft(1500);
+                            setIsFocusRunning(false);
+                            setFocusStage('select');
+                            setShowFocusTimer(true);
+                          }}
+                          animate={{
+                            scale: [1, 1.02, 1],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                          whileHover={{ scale: 1.04 }}
+                          whileTap={{ scale: 0.96 }}
+                          className="w-[55vw] max-w-[240px] md:w-auto relative group pointer-events-auto z-20 overflow-hidden"
+                        >
+                          {/* Outer glow pulse ring */}
+                          <motion.span
+                            className="absolute inset-0 rounded-sm bg-black/10 dark:bg-white/20"
+                            animate={{ scale: [1, 1.06, 1], opacity: [0.6, 0, 0.6] }}
+                            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                          />
+
+                          {/* Button body */}
+                          <span className="relative w-full flex items-center justify-center md:justify-start gap-3 md:px-8 h-[8vh] min-h-[44px] bg-black dark:bg-white text-white dark:text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-sm shadow-[0_0_30px_rgba(0,0,0,0.15)] dark:shadow-[0_0_30px_rgba(255,255,255,0.15)] group-hover:shadow-[0_0_45px_rgba(0,0,0,0.25)] dark:group-hover:shadow-[0_0_45px_rgba(255,255,255,0.25)] transition-shadow duration-300">
+                            {/* Animated hourglass */}
+                            <motion.span
+                              className="material-symbols-outlined text-[15px] leading-none"
+                              animate={{ rotate: [0, 0, 180, 180, 360] }}
+                              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', times: [0, 0.4, 0.5, 0.9, 1] }}
+                            >
+                              hourglass_empty
+                            </motion.span>
+                            START FOCUS
+                            {/* Shimmer sweep */}
+                            <motion.span
+                              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 pointer-events-none"
+                              animate={{ x: ['-100%', '200%'] }}
+                              transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
+                            />
+                          </span>
+                        </motion.button>
+
+                        {/* Focus Rewards Preview */}
+                        <div className="flex flex-col gap-1 pointer-events-auto select-none items-start md:translate-y-[0.5vh]">
+                          <div className="flex items-center gap-1.5 text-[9px] font-black tracking-widest font-mono uppercase">
+                            <span className="text-black/40 dark:text-white/40">GET :</span>
+                            <span className="text-blue-600 dark:text-blue-400">EXP,</span>
+                            <span className="text-amber-600 dark:text-amber-400">PTS</span>
+                            <span className="text-black/40 dark:text-white/40">&</span>
+                            <span className="text-purple-600 dark:text-purple-400">LEGENDARY DROPS</span>
+                          </div>
                         </div>
                       </div>
-
-                      <motion.button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFocusSelectedTime(25);
-                          setFocusTimeLeft(1500);
-                          setIsFocusRunning(false);
-                          setFocusStage('select');
-                          setShowFocusTimer(true);
-                        }}
-                        animate={{
-                          scale: [1, 1.02, 1],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                        whileHover={{ scale: 1.04 }}
-                        whileTap={{ scale: 0.96 }}
-                        className="mt-1.5 md:mt-[0.5vh] w-[55vw] max-w-[240px] md:w-auto relative group pointer-events-auto z-20 overflow-hidden"
-                      >
-                        {/* Outer glow pulse ring */}
-                        <motion.span
-                          className="absolute inset-0 rounded-sm bg-black/10 dark:bg-white/20"
-                          animate={{ scale: [1, 1.06, 1], opacity: [0.6, 0, 0.6] }}
-                          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                        />
-
-                        {/* Button body */}
-                        <span className="relative w-full flex items-center justify-center md:justify-start gap-3 md:px-8 h-[8vh] min-h-[44px] bg-black dark:bg-white text-white dark:text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-sm shadow-[0_0_30px_rgba(0,0,0,0.15)] dark:shadow-[0_0_30px_rgba(255,255,255,0.15)] group-hover:shadow-[0_0_45px_rgba(0,0,0,0.25)] dark:group-hover:shadow-[0_0_45px_rgba(255,255,255,0.25)] transition-shadow duration-300">
-                          {/* Animated hourglass */}
-                          <motion.span
-                            className="material-symbols-outlined text-[15px] leading-none"
-                            animate={{ rotate: [0, 0, 180, 180, 360] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', times: [0, 0.4, 0.5, 0.9, 1] }}
-                          >
-                            hourglass_empty
-                          </motion.span>
-                          START FOCUS
-                          {/* Shimmer sweep */}
-                          <motion.span
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 pointer-events-none"
-                            animate={{ x: ['-100%', '200%'] }}
-                            transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
-                          />
-                        </span>
-                      </motion.button>
 
                       {/* Spacer 2 to center Start Focus button */}
                       <div className="flex-1 md:hidden" />

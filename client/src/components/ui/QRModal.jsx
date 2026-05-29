@@ -58,7 +58,11 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
                 { facingMode: "environment" },
                 {
                     fps: 10,
-                    qrbox: { width: 250, height: 250 }
+                    qrbox: (viewfinderWidth, viewfinderHeight) => {
+                        const minDim = Math.min(viewfinderWidth, viewfinderHeight);
+                        const size = Math.floor(minDim * 0.8);
+                        return { width: size, height: size };
+                    }
                 },
                 (decodedText) => {
                     handleScannedId(decodedText);
@@ -93,7 +97,7 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
 
         setIsSubmitting(true);
         try {
-            const { data: userProfile } = await api.get(`/auth/user/${id}`);
+            const { data: userProfile } = await api.get(`/auth/profile/${id}`);
             setScannedUser(userProfile);
             setMode('profile');
         } catch (err) {
@@ -106,7 +110,7 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
         if (!scannedUser) return;
         setIsSubmitting(true);
         try {
-            await api.post(`/connection/request/${scannedUser._id}`);
+            await api.post(`/auth/connection/request/${scannedUser._id}`);
             setScanResult('SUCCESS');
             setTimeout(() => { onClose(); setMode('choice'); setScanResult(null); setScannedUser(null); }, 2000);
         } catch (err) {
@@ -255,7 +259,16 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
                                 {mode === 'scan' && (
                                     <div className="flex flex-col gap-6">
                                         <div className="w-full aspect-square bg-black border border-white/10 relative overflow-hidden flex items-center justify-center">
-                                            <div id="reader" className="w-full h-full"></div>
+                                            <div 
+                                                id="reader" 
+                                                className="w-full h-full"
+                                                style={{ 
+                                                    position: 'relative',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                            ></div>
                                             {!isCameraActive && (
                                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center gap-4 z-20">
                                                     <Camera size={32} className="text-white/10" />
@@ -302,6 +315,105 @@ const QRModal = ({ isOpen, onClose, userId, initialMode = 'choice' }) => {
                                             <button onClick={() => setMode('choice')} className="text-[8px] font-black text-white/20 hover:text-white uppercase tracking-widest text-center mt-2">BACK_TO_SELECTOR</button>
                                         </div>
                                     </div>
+                                )}
+
+                                {mode === 'profile' && scannedUser && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 16 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="flex flex-col items-center gap-5"
+                                    >
+                                        {/* ── Hanging ID Badge ── */}
+                                        <div className="flex flex-col items-center">
+                                            {/* Lanyard string */}
+                                            <div className="w-0.5 h-5 bg-white/20" />
+                                            {/* Clip hole */}
+                                            <div className="size-4 rounded-full border-2 border-white/20 bg-[#0a0a0a] mb-0" />
+                                            {/* Card */}
+                                            <div
+                                                className="relative w-[220px] bg-[#111] border border-white/10 rounded-sm overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.6)]"
+                                                style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)' }}
+                                            >
+                                                {/* Card top bar */}
+                                                <div className="h-7 bg-white flex items-center justify-between px-3">
+                                                    <span className="text-[7px] font-black text-black uppercase tracking-[0.5em]">PRODUS</span>
+                                                    <span className="text-[7px] font-black text-black/40 uppercase tracking-widest">OPERATOR</span>
+                                                </div>
+
+                                                {/* Card body */}
+                                                <div className="p-4 flex flex-col items-center gap-3">
+                                                    {/* Photo */}
+                                                    <div className="size-20 bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
+                                                        {scannedUser.avatar ? (
+                                                            <img src={scannedUser.avatar} alt={scannedUser.name} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <span className="text-white/20 text-3xl font-black">
+                                                                {scannedUser.name?.[0]?.toUpperCase()}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Name + role */}
+                                                    <div className="text-center">
+                                                        <p className="text-[13px] font-black text-white uppercase tracking-widest leading-none">{scannedUser.name}</p>
+                                                        {scannedUser.username && (
+                                                            <p className="text-[8px] font-mono text-white/30 tracking-widest mt-0.5">{scannedUser.username}</p>
+                                                        )}
+                                                        <div className="mt-2 inline-block px-2 py-0.5 border border-white/10 bg-white/5">
+                                                            <span className="text-[7px] font-black text-white/50 uppercase tracking-[0.3em]">
+                                                                {scannedUser.rpg?.archetype?.name || 'OPERATOR'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Divider */}
+                                                    <div className="w-full h-px bg-white/5" />
+
+                                                    {/* ID string */}
+                                                    <div className="w-full flex flex-col gap-1">
+                                                        <span className="text-[6px] font-black text-white/20 uppercase tracking-[0.4em]">OPERATOR ID</span>
+                                                        <span className="text-[8px] font-mono text-white/50 tracking-widest break-all leading-relaxed">
+                                                            {scannedUser._id}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Bio */}
+                                                    {scannedUser.bio && (
+                                                        <p className="text-[8px] text-white/20 text-center leading-relaxed italic border-t border-white/5 pt-2 w-full">
+                                                            "{scannedUser.bio}"
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                {/* Card bottom bar */}
+                                                <div className="h-5 bg-white/[0.03] border-t border-white/5 flex items-center justify-center">
+                                                    <div className="flex gap-1">
+                                                        {Array.from({ length: 24 }).map((_, i) => (
+                                                            <div key={i} className="w-0.5 h-2 bg-white/10" style={{ height: `${4 + (i % 3) * 3}px` }} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Action buttons */}
+                                        <div className="flex flex-col gap-2 w-full">
+                                            <button
+                                                onClick={handleConnect}
+                                                disabled={isSubmitting}
+                                                className="w-full py-4 bg-white text-black font-black text-[10px] uppercase tracking-[0.4em] hover:bg-white/90 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3 disabled:opacity-50"
+                                            >
+                                                <Check size={14} />
+                                                {isSubmitting ? 'Sending...' : 'Connect'}
+                                            </button>
+                                            <button
+                                                onClick={() => { setScannedUser(null); setMode('scan'); }}
+                                                className="w-full py-3 bg-white/[0.02] border border-white/10 text-white/40 font-black text-[9px] uppercase tracking-[0.4em] hover:bg-white/[0.05] hover:text-white transition-all"
+                                            >
+                                                Scan Again
+                                            </button>
+                                        </div>
+                                    </motion.div>
                                 )}
                             </div>
                         )}

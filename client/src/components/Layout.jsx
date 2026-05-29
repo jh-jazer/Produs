@@ -84,7 +84,7 @@ const GlobalTransactionPortal = ({ isOpen, onClose }) => {
     );
 };
 
-const GlobalMobileHeader = ({ activeSection, onClick, protocolMode }) => {
+const GlobalMobileHeader = ({ activeSection, onClick, protocolMode, shakeMerchant, handleOpenMerchant, isIdPulledDown }) => {
   const [matrixText, setMatrixText] = useState("");
   const [showProfile, setShowProfile] = useState(false);
   const { user } = useAuthStore();
@@ -176,7 +176,7 @@ const GlobalMobileHeader = ({ activeSection, onClick, protocolMode }) => {
                     <span className="animate-pulse inline-block w-1.5 h-3.5 bg-current ml-0.5 opacity-60 shrink-0" />
                   </h1>
                 </motion.div>
-              ) : (
+              ) : !isIdPulledDown ? (
                 <motion.div
                   key="profile"
                   initial={{ opacity: 0, scale: 0.95, y: 5 }}
@@ -218,19 +218,21 @@ const GlobalMobileHeader = ({ activeSection, onClick, protocolMode }) => {
                     </div>
 
                     {/* Merchant Quick Access */}
-                    <div 
+                    <motion.div 
+                      animate={{ x: shakeMerchant ? [-6, 6, -6, 6, -3, 3, 0] : 0 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate('/dashboard/merchant');
+                        handleOpenMerchant();
                       }}
-                      className="flex items-center justify-center px-3 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 rounded-md hover:bg-black/10 dark:hover:bg-white/10 hover:scale-95 transition-all shadow-sm cursor-pointer"
+                      className="flex items-center justify-center px-3 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 rounded-md hover:bg-black/10 dark:hover:bg-white/10 hover:scale-95 transition-all shadow-sm cursor-pointer relative"
                       title="Market"
                     >
                       <span className="material-symbols-outlined text-black dark:text-white text-[20px]">shopping_bag</span>
-                    </div>
+                    </motion.div>
                   </div>
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
           ) : (
             <motion.div
@@ -293,6 +295,24 @@ function Layout() {
     const [expandedCategory, setExpandedCategory] = useState(null);
     const [isMoreExpanded, setIsMoreExpanded] = useState(false);
     const [isIdPulledDown, setIsIdPulledDown] = useState(false);
+    const [activeToasts, setActiveToasts] = useState([]);
+    const [showMerchantToast, setShowMerchantToast] = useState(false);
+    const [shakeMerchant, setShakeMerchant] = useState(false);
+
+    useEffect(() => {
+        if (showMerchantToast) {
+            const timer = setTimeout(() => {
+                setShowMerchantToast(false);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [showMerchantToast]);
+
+    const handleOpenMerchant = () => {
+        setShakeMerchant(true);
+        setShowMerchantToast(true);
+        setTimeout(() => setShakeMerchant(false), 500);
+    };
 
     const { data: freshUser } = useSWR(user ? '/auth/me' : null);
     const syncUser = useAuthStore((state) => state.syncUser);
@@ -337,6 +357,45 @@ function Layout() {
     const { data: notifications = [] } = useSWR('/notifications', (url) => api.get(url).then(res => res.data), {
         refreshInterval: 30000
     });
+
+    const prevNotificationsRef = useRef([]);
+    const isFirstNotificationsMountRef = useRef(true);
+
+    useEffect(() => {
+        if (!notifications || notifications.length === 0) return;
+
+        if (isFirstNotificationsMountRef.current) {
+            // Track initial notifications on mount
+            prevNotificationsRef.current = notifications.map(n => n._id);
+            isFirstNotificationsMountRef.current = false;
+            return;
+        }
+
+        // Detect new unread notifications
+        const newUnread = notifications.filter(n => !n.read && !prevNotificationsRef.current.includes(n._id));
+
+        if (newUnread.length > 0) {
+            newUnread.forEach(notification => {
+                setActiveToasts(prev => {
+                    if (prev.some(t => t._id === notification._id)) return prev;
+                    return [...prev, notification];
+                });
+
+                // Auto-dismiss after 4 seconds
+                setTimeout(() => {
+                    setActiveToasts(prev => prev.filter(t => t._id !== notification._id));
+                }, 4000);
+
+                prevNotificationsRef.current.push(notification._id);
+            });
+        }
+
+        notifications.forEach(n => {
+            if (!prevNotificationsRef.current.includes(n._id)) {
+                prevNotificationsRef.current.push(n._id);
+            }
+        });
+    }, [notifications]);
 
     const { data: activitiesHistory = [] } = useSWR(user ? '/rpg/history' : null, (url) => api.get(url).then(res => res.data), {
         refreshInterval: 10000
@@ -395,7 +454,24 @@ function Layout() {
     };
 
     return (
-        <DashboardContext.Provider value={{
+        <>
+            <AnimatePresence>
+                {showMerchantToast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -50, x: "-50%", scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, x: "-50%", scale: 1 }}
+                        exit={{ opacity: 0, y: -20, x: "-50%", scale: 0.9 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                        className="fixed top-8 left-1/2 z-[9999] px-6 py-4 bg-black/95 dark:bg-white/95 text-white dark:text-black border border-white/10 dark:border-black/5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-3.5 backdrop-blur-md w-max max-w-[90vw]"
+                    >
+                        <div className="flex flex-col text-center w-full">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none">PROTOCOL LOCKED</span>
+                            <span className="text-[9px] font-bold opacity-60 uppercase tracking-widest mt-2 leading-none">Merchant locked, coming soon</span>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            <DashboardContext.Provider value={{
             viewMode,
             setViewMode,
             protocolMode,
@@ -689,11 +765,23 @@ function Layout() {
 
                     <div className="mt-auto p-4 md:p-6 flex flex-col items-start gap-4 shrink-0 pl-[20px]">
                         <div className="mb-2 flex flex-col gap-4 transition-all duration-500">
-                            <div className="flex flex-col items-start gap-1 cursor-pointer" onClick={() => navigate('/dashboard/merchant')} title="Open Merchant">
-                                <EnergyDisplay current={user?.rpg?.energy?.current ?? (10 + (user?.guardianLevel || 0))} max={10 + (user?.guardianLevel || 0)} variant="minimal" className="scale-[0.8] origin-left" />
-                                <CoreDisplay amount={user?.rpg?.cores || 0} className="sidebar-core-display scale-[0.8] origin-left" variant="minimal" />
-                                <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display scale-[0.8] origin-left" variant="minimal" />
-                            </div>
+                            <motion.div 
+                                animate={{ x: shakeMerchant ? [-6, 6, -6, 6, -3, 3, 0] : 0 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                className="flex flex-col items-start gap-1 cursor-pointer relative group/merchant" 
+                                onClick={handleOpenMerchant} 
+                                title="Merchant feature is locked"
+                            >
+                                <EnergyDisplay current={user?.rpg?.energy?.current ?? (10 + (user?.guardianLevel || 0))} max={10 + (user?.guardianLevel || 0)} variant="minimal" className="scale-[0.8] origin-left opacity-75 group-hover/merchant:opacity-30 transition-all" />
+                                <CoreDisplay amount={user?.rpg?.cores || 0} className="sidebar-core-display scale-[0.8] origin-left opacity-75 group-hover/merchant:opacity-30 transition-all" variant="minimal" />
+                                <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display scale-[0.8] origin-left opacity-75 group-hover/merchant:opacity-30 transition-all" variant="minimal" />
+                                
+                                {/* Lock Overlay on Hover */}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/merchant:opacity-100 transition-opacity bg-black/5 dark:bg-white/[0.02] rounded-md backdrop-blur-[1px] text-center p-1">
+                                    <span className="text-[8px] font-black text-rose-500 uppercase tracking-wider leading-tight">MERCHANT LOCKED</span>
+                                    <span className="text-[6px] font-bold text-rose-500/80 uppercase tracking-widest mt-0.5">COMING SOON</span>
+                                </div>
+                            </motion.div>
                         </div>
                         <ThemeToggle className="mb-1" />
                         <div className="relative flex items-center gap-4 group" ref={profileRef}>
@@ -751,7 +839,7 @@ function Layout() {
                 </aside>
 
                 <div className="flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]">
-                    {isMobile && <GlobalMobileHeader activeSection={activeSection} onClick={() => setIsLandingModalOpen(true)} protocolMode={protocolMode} />}
+                    {isMobile && <GlobalMobileHeader activeSection={activeSection} onClick={() => setIsLandingModalOpen(true)} protocolMode={protocolMode} shakeMerchant={shakeMerchant} handleOpenMerchant={handleOpenMerchant} isIdPulledDown={isIdPulledDown} />}
                     <div ref={mainRef} className={`flex-1 overflow-x-hidden ${protocolMode === 'rpg' ? 'overflow-y-hidden' : 'overflow-y-auto'} custom-scrollbar flex flex-col relative mt-0 ${isMobile ? 'snap-y snap-mandatory' : ''}`}>
                         <ConnectionsModal isOpen={isConnectionsModalOpen} onClose={() => setIsConnectionsModalOpen(false)} onProfileClick={(username) => navigate(`/dashboard/profile/${username}`)} />
                         <IdentityEditModal isOpen={isIdentityEditModalOpen} onClose={() => setIsIdentityEditModalOpen(false)} />
@@ -866,6 +954,7 @@ function Layout() {
                     onOpenBugReport={() => setIsBugModalOpen(true)}
                     onOpenStats={() => setIsStatsModalOpen(true)}
                     onSignOut={handleSignOut}
+                    onOpenMerchant={handleOpenMerchant}
                 />
 
                 {isSettingsModalOpen && <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} onOpenBugReport={() => setIsBugModalOpen(true)} />}
@@ -892,8 +981,67 @@ function Layout() {
                 <GlobalTransactionPortal isOpen={isAddTransactionModalOpen} onClose={() => setIsAddTransactionModalOpen(false)} />
                 <QuickActionModal isOpen={isQuickActionModalOpen} onClose={() => setIsQuickActionModalOpen(false)} />
                 <MobileBottomNav />
+
+                {/* Floating Toast Notification Queue */}
+                <div className="fixed bottom-24 md:bottom-8 right-6 md:right-8 z-[10005] flex flex-col gap-3 pointer-events-none w-max max-w-[90vw] md:max-w-[360px]">
+                    <AnimatePresence>
+                        {activeToasts.map((toast) => {
+                            const getIcon = (type) => {
+                                switch (type) {
+                                    case 'achievement': return 'emoji_events';
+                                    case 'habit': return 'history_edu';
+                                    case 'finance': return 'payments';
+                                    case 'partner': return 'favorite';
+                                    default: return 'notifications';
+                                }
+                            };
+
+                            const getColor = (type) => {
+                                switch (type) {
+                                    case 'achievement': return 'text-amber-500 bg-amber-500/10';
+                                    case 'habit': return 'text-primary bg-primary/10';
+                                    case 'finance': return 'text-emerald-500 bg-emerald-500/10';
+                                    case 'partner': return 'text-rose-500 bg-rose-500/10';
+                                    default: return 'text-slate-400 bg-slate-400/10';
+                                }
+                            };
+
+                            return (
+                                <motion.div
+                                    key={toast._id}
+                                    initial={{ opacity: 0, y: 50, scale: 0.9, x: 50 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
+                                    exit={{ opacity: 0, scale: 0.85, x: 100 }}
+                                    transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                                    className="pointer-events-auto flex gap-4 p-4 rounded-xl border border-black/10 dark:border-white/10 bg-white/95 dark:bg-black/95 text-foreground shadow-[0_15px_35px_rgba(0,0,0,0.15)] dark:shadow-[0_15px_35px_rgba(0,0,0,0.5)] backdrop-blur-md min-w-[280px] select-none"
+                                >
+                                    <div className={`size-10 rounded-sm flex items-center justify-center shrink-0 ${getColor(toast.type)}`}>
+                                        <span className="material-symbols-outlined text-xl">{getIcon(toast.type)}</span>
+                                    </div>
+                                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 leading-none mb-1.5">
+                                            {toast.type || 'system'} notification
+                                        </span>
+                                        <p className="text-[10px] font-black uppercase tracking-wider leading-snug text-foreground/90">
+                                            {toast.text}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            setActiveToasts(prev => prev.filter(t => t._id !== toast._id));
+                                        }}
+                                        className="text-foreground/40 hover:text-foreground text-[10px] font-mono self-start ml-2"
+                                    >
+                                        ✕
+                                    </button>
+                                </motion.div>
+                            );
+                        })}
+                    </AnimatePresence>
+                </div>
             </div>
         </DashboardContext.Provider>
+        </>
     );
 }
 
