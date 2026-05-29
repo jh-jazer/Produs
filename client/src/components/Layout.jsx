@@ -44,7 +44,6 @@ import LevelDisplay from './ui/LevelDisplay';
 import DashboardHeader from './dashboard/DashboardHeader';
 import ConnectionsModal from './ui/ConnectionsModal';
 import IdentityEditModal from './ui/IdentityEditModal';
-import QRModal from './ui/QRModal';
 import AddGoalModal from './ui/AddGoalModal';
 import AddEventModal from './ui/AddEventModal';
 import { DashboardContext } from '../context/DashboardContext';
@@ -973,7 +972,6 @@ function Layout() {
                 {isStatsModalOpen && <StatsModal isOpen={isStatsModalOpen} onClose={() => setIsStatsModalOpen(false)} user={user} />}
                 {isOnboardingOpen && <OnboardingModal isOpen={isOnboardingOpen} onClose={() => setIsOnboardingOpen(false)} />}
                 <OperationModeModal isOpen={isOperationModalOpen} onClose={() => setIsOperationModalOpen(false)} />
-                <QRModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} userId={user?._id} initialMode={qrModalMode} />
 
                 <DecisionModal
                     isOpen={isLandingModalOpen}

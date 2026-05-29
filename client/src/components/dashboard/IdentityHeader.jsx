@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import QRModal from '../ui/QRModal';
 import { QrCode, Zap, Shield, Target, Brain, Sparkles, ChevronRight, User, Mail, Calendar, CheckCircle2, Eye, EyeOff, Copy, Check, Lock, Edit2, Save, X, Handshake, Users, Cpu } from 'lucide-react';
 import { getLevelProgress } from '../../utils/rpgHelpers';
 import { ARCHETYPE_PROTOCOLS } from '../../constants/assessment';
@@ -252,9 +251,6 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-2">
-                                    <button onClick={() => { setQrMode('display'); setIsQrModalOpen(true); }} className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-black dark:text-white/40 hover:text-primary transition-all">
-                                        <QrCode size={18} />
-                                    </button>
                                     <button onClick={() => setIsConnectionsModalOpen(true)} className="size-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-black dark:text-white/40 hover:text-primary transition-all">
                                         <Users size={18} />
                                     </button>
@@ -275,12 +271,6 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                 onProfileClick={(username) => { setProfileModalUser(username); setIsConnectionsModalOpen(false); }}
             />
 
-            <QRModal 
-                isOpen={isQrModalOpen}
-                onClose={() => setIsQrModalOpen(false)}
-                userId={user._id}
-                initialMode={qrMode}
-            />
 
             <PartnerModal
                 isOpen={isPartnerModalOpen}

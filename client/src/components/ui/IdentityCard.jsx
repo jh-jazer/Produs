@@ -335,7 +335,7 @@ export default function IdentityCard({
                     </div>
 
                     {/* Action overlays & Close Buttons */}
-                    {onClose && !isOwnProfile && (
+                    {onClose && (
                         <button
                             onClick={(e) => { e.stopPropagation(); onClose(); }}
                             className="absolute top-8 right-8 z-40 p-2 text-black dark:text-white opacity-40 hover:opacity-100 transition-all hover:scale-125 cursor-pointer"
@@ -577,19 +577,7 @@ export default function IdentityCard({
                                     <span className="material-symbols-outlined text-[14px]">download</span>
                                     SAVE QR CODE
                                 </button>
-                                {isOwnProfile && setQrModalMode && setIsQrModalOpen && (
-                                    <button 
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setQrModalMode('scan');
-                                            setIsQrModalOpen(true);
-                                        }}
-                                        className="w-full py-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white font-black text-[9px] uppercase tracking-[0.4em] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-                                    >
-                                        <span className="material-symbols-outlined text-[14px]">qr_code_scanner</span>
-                                        SCAN QR CODE
-                                    </button>
-                                )}
+
                             </div>
                         </div>
                     </div>

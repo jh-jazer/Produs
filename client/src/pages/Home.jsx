@@ -1271,6 +1271,7 @@ export default function Home() {
                         currentBalance={currentBalance}
                         netProjection={netProjection}
                         totalSavings={totalSavings}
+                        onClose={() => setIsIdPulledDown(false)}
                       />
                     </div>
                   </motion.div>
