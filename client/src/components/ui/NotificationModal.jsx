@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Zap, Clock, CheckCheck, Users } from 'lucide-react';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import api from '../../services/api';
 import XpFeed from '../dashboard/XpFeed';
 import DashboardModal from './DashboardModal';
@@ -26,6 +26,7 @@ const timeAgo = (date) => {
 const NotificationModal = ({ isOpen, onClose, user }) => {
     const [activeTab, setActiveTab] = useState('alerts'); // 'alerts' | 'social' | 'activity'
     const { data: notifications = [], mutate } = useSWR('/notifications');
+    const { mutate: globalMutate } = useSWRConfig();
     const unreadCount = notifications.filter(n => !n.read).length;
     const { syncUser } = useAuthStore();
 
@@ -35,13 +36,14 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                 try {
                     const res = await api.get('/auth/me');
                     syncUser(res.data);
+                    globalMutate('/auth/me');
                 } catch (e) {
                     console.error("Failed to sync profile on modal open", e);
                 }
             }
         };
         syncProfile();
-    }, [isOpen, syncUser]);
+    }, [isOpen, syncUser, globalMutate]);
 
     // Social tab state
     const [connectionsData, setConnectionsData] = useState({ incoming: [], outgoing: [] });
@@ -74,6 +76,7 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
             await fetchRequests();
             const res = await api.get('/auth/me');
             syncUser(res.data);
+            globalMutate('/auth/me');
         } catch (err) {
             console.error('Failed to cancel connection request', err);
         } finally {
@@ -92,6 +95,7 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
             await fetchRequests();
             const res = await api.get('/auth/me');
             syncUser(res.data);
+            globalMutate('/auth/me');
         } catch (err) {
             console.error(`Failed to ${action} connection`, err);
         } finally {
@@ -108,6 +112,7 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
             // Sync user data
             const res = await api.get('/auth/me');
             syncUser(res.data);
+            globalMutate('/auth/me');
             
             // Refresh notifications SWR
             mutate();
@@ -168,7 +173,17 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
         }
     };
 
-    const totalSocialBadge = (connectionsData.incoming?.length || 0) + (connectionsData.outgoing?.length || 0);
+    const totalSocialBadge = 
+        (connectionsData.incoming?.length || 0) + 
+        (connectionsData.outgoing?.length || 0) + 
+        (user?.incomingPartnerRequest ? 1 : 0) + 
+        (user?.outgoingPartnerRequest ? 1 : 0);
+
+    const hasIncoming = (connectionsData.incoming?.length > 0) || !!user?.incomingPartnerRequest;
+    const incomingBadgeCount = (connectionsData.incoming?.length || 0) + (user?.incomingPartnerRequest ? 1 : 0);
+
+    const hasOutgoing = (connectionsData.outgoing?.length > 0) || !!user?.outgoingPartnerRequest;
+    const outgoingBadgeCount = (connectionsData.outgoing?.length || 0) + (user?.outgoingPartnerRequest ? 1 : 0);
 
     const tabs = [
         { id: 'alerts',   label: 'ALERTS_',   icon: Bell,  badge: unreadCount },
@@ -322,56 +337,100 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                                             <p className="text-[8px] font-mono uppercase tracking-[0.3em] text-foreground/30 flex items-center gap-2">
                                                 <span className="material-symbols-outlined text-[12px]">inbox</span>
                                                 Incoming
-                                                {connectionsData.incoming?.length > 0 && (
+                                                {incomingBadgeCount > 0 && (
                                                     <span className="ml-auto size-4 flex items-center justify-center rounded-full bg-primary/10 text-primary text-[8px] font-black">
-                                                        {connectionsData.incoming.length}
+                                                        {incomingBadgeCount}
                                                     </span>
                                                 )}
                                             </p>
-                                            {connectionsData.incoming?.length > 0 ? (
-                                                connectionsData.incoming.map((u) => (
-                                                    <motion.div
-                                                        key={u._id}
-                                                        layout
-                                                        initial={{ opacity: 0, y: 8 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        exit={{ opacity: 0, scale: 0.95 }}
-                                                        className="p-4 bg-primary/5 border border-primary/20 rounded-sm flex items-center justify-between gap-3"
-                                                    >
-                                                        <div className="flex items-center gap-3 min-w-0">
-                                                            <div className="size-9 rounded-full overflow-hidden border border-primary/30 flex items-center justify-center shrink-0">
-                                                                <Avatar config={u.avatar} scale={1} />
+                                            {hasIncoming ? (
+                                                <>
+                                                    {user?.incomingPartnerRequest && (
+                                                        <motion.div
+                                                            layout
+                                                            initial={{ opacity: 0, y: 8 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, scale: 0.95 }}
+                                                            className="p-4 bg-rose-500/5 border border-rose-500/20 rounded-sm flex items-center justify-between gap-3"
+                                                        >
+                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                <div className="size-9 rounded-full overflow-hidden border border-rose-500/30 flex items-center justify-center shrink-0">
+                                                                    <Avatar config={user.incomingPartnerRequest.avatar} scale={1} />
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <p className="text-[11px] font-black text-foreground uppercase tracking-wider truncate">{user.incomingPartnerRequest.name}</p>
+                                                                    <p className="text-[9px] text-foreground/40 font-mono uppercase tracking-widest mt-0.5 truncate">@{user.incomingPartnerRequest.username}</p>
+                                                                    <p className="text-[8px] text-rose-500 font-black uppercase tracking-widest mt-1">Partner Link Request</p>
+                                                                </div>
                                                             </div>
-                                                            <div className="min-w-0">
-                                                                <p className="text-[11px] font-black text-foreground uppercase tracking-wider truncate">{u.name}</p>
-                                                                <p className="text-[9px] text-foreground/40 font-mono uppercase tracking-widest mt-0.5 truncate">@{u.username}</p>
-                                                                <p className="text-[8px] text-primary font-black uppercase tracking-widest mt-1">Wants to connect</p>
+                                                            <div className="flex items-center gap-2 shrink-0">
+                                                                <button
+                                                                    onClick={() => handlePartnerRequest('reject')}
+                                                                    disabled={handlingId !== null}
+                                                                    className="size-8 flex items-center justify-center rounded-sm bg-foreground/5 border border-foreground/10 text-foreground/40 hover:text-rose-500 hover:border-rose-500/30 hover:bg-rose-500/5 transition-all active:scale-90 disabled:opacity-40"
+                                                                    title="Decline"
+                                                                >
+                                                                    <span className="material-symbols-outlined text-[16px]">close</span>
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handlePartnerRequest('accept')}
+                                                                    disabled={handlingId !== null}
+                                                                    className="size-8 flex items-center justify-center rounded-sm bg-rose-500 text-white shadow-lg shadow-rose-500/20 hover:scale-110 active:scale-90 transition-all disabled:opacity-40"
+                                                                    title="Accept"
+                                                                >
+                                                                    {handlingId === 'partner' ? (
+                                                                        <div className="size-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                                                                    ) : (
+                                                                        <span className="material-symbols-outlined text-[16px]">check</span>
+                                                                    )}
+                                                                </button>
                                                             </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 shrink-0">
-                                                            <button
-                                                                onClick={() => handleConnectionAction('reject', u._id)}
-                                                                disabled={handlingId === u._id}
-                                                                className="size-8 flex items-center justify-center rounded-sm bg-foreground/5 border border-foreground/10 text-foreground/40 hover:text-rose-500 hover:border-rose-500/30 hover:bg-rose-500/5 transition-all active:scale-90 disabled:opacity-40"
-                                                                title="Decline"
-                                                            >
-                                                                <span className="material-symbols-outlined text-[16px]">close</span>
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleConnectionAction('accept', u._id)}
-                                                                disabled={handlingId === u._id}
-                                                                className="size-8 flex items-center justify-center rounded-sm bg-primary text-white shadow-lg shadow-primary/20 hover:scale-110 active:scale-90 transition-all disabled:opacity-40"
-                                                                title="Accept"
-                                                            >
-                                                                {handlingId === u._id ? (
-                                                                    <div className="size-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                                                                ) : (
-                                                                    <span className="material-symbols-outlined text-[16px]">check</span>
-                                                                )}
-                                                            </button>
-                                                        </div>
-                                                    </motion.div>
-                                                ))
+                                                        </motion.div>
+                                                    )}
+                                                    {connectionsData.incoming?.map((u) => (
+                                                        <motion.div
+                                                            key={u._id}
+                                                            layout
+                                                            initial={{ opacity: 0, y: 8 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, scale: 0.95 }}
+                                                            className="p-4 bg-primary/5 border border-primary/20 rounded-sm flex items-center justify-between gap-3"
+                                                        >
+                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                <div className="size-9 rounded-full overflow-hidden border border-primary/30 flex items-center justify-center shrink-0">
+                                                                    <Avatar config={u.avatar} scale={1} />
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <p className="text-[11px] font-black text-foreground uppercase tracking-wider truncate">{u.name}</p>
+                                                                    <p className="text-[9px] text-foreground/40 font-mono uppercase tracking-widest mt-0.5 truncate">@{u.username}</p>
+                                                                    <p className="text-[8px] text-primary font-black uppercase tracking-widest mt-1">Wants to connect</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-center gap-2 shrink-0">
+                                                                <button
+                                                                    onClick={() => handleConnectionAction('reject', u._id)}
+                                                                    disabled={handlingId === u._id}
+                                                                    className="size-8 flex items-center justify-center rounded-sm bg-foreground/5 border border-foreground/10 text-foreground/40 hover:text-rose-500 hover:border-rose-500/30 hover:bg-rose-500/5 transition-all active:scale-90 disabled:opacity-40"
+                                                                    title="Decline"
+                                                                >
+                                                                    <span className="material-symbols-outlined text-[16px]">close</span>
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleConnectionAction('accept', u._id)}
+                                                                    disabled={handlingId === u._id}
+                                                                    className="size-8 flex items-center justify-center rounded-sm bg-primary text-white shadow-lg shadow-primary/20 hover:scale-110 active:scale-90 transition-all disabled:opacity-40"
+                                                                    title="Accept"
+                                                                >
+                                                                    {handlingId === u._id ? (
+                                                                        <div className="size-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                                                                    ) : (
+                                                                        <span className="material-symbols-outlined text-[16px]">check</span>
+                                                                    )}
+                                                                </button>
+                                                            </div>
+                                                        </motion.div>
+                                                    ))}
+                                                </>
                                             ) : (
                                                 <p className="text-[9px] font-mono text-foreground/20 uppercase tracking-widest pl-1">No incoming requests</p>
                                             )}
@@ -385,46 +444,80 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                                             <p className="text-[8px] font-mono uppercase tracking-[0.3em] text-foreground/30 flex items-center gap-2">
                                                 <span className="material-symbols-outlined text-[12px]">outgoing_mail</span>
                                                 Sent
-                                                {connectionsData.outgoing?.length > 0 && (
+                                                {outgoingBadgeCount > 0 && (
                                                     <span className="ml-auto size-4 flex items-center justify-center rounded-full bg-foreground/10 text-foreground/40 text-[8px] font-black">
-                                                        {connectionsData.outgoing.length}
+                                                        {outgoingBadgeCount}
                                                     </span>
                                                 )}
                                             </p>
-                                            {connectionsData.outgoing?.length > 0 ? (
-                                                connectionsData.outgoing.map((u) => (
-                                                    <motion.div
-                                                        key={u._id}
-                                                        layout
-                                                        initial={{ opacity: 0, y: 8 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        exit={{ opacity: 0, scale: 0.95 }}
-                                                        className="p-4 bg-foreground/[0.02] border border-foreground/10 rounded-sm flex items-center justify-between gap-3 group"
-                                                    >
-                                                        <div className="flex items-center gap-3 min-w-0">
-                                                            <div className="size-9 rounded-full overflow-hidden border border-foreground/10 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all flex items-center justify-center shrink-0">
-                                                                <Avatar config={u.avatar} scale={1} />
-                                                            </div>
-                                                            <div className="min-w-0">
-                                                                <p className="text-[11px] font-black text-foreground/50 group-hover:text-foreground uppercase tracking-wider truncate transition-colors">{u.name}</p>
-                                                                <p className="text-[9px] text-foreground/30 font-mono uppercase tracking-widest mt-0.5 truncate">@{u.username}</p>
-                                                                <p className="text-[8px] text-foreground/30 font-black uppercase tracking-widest mt-1 animate-pulse">Awaiting response</p>
-                                                            </div>
-                                                        </div>
-                                                        <button
-                                                            onClick={() => handleCancelRequest(u._id)}
-                                                            disabled={handlingId === u._id}
-                                                            className="px-3 py-1.5 bg-foreground/5 hover:bg-rose-500/10 rounded-sm text-[8px] font-black uppercase tracking-widest text-foreground/40 hover:text-rose-500 transition-all active:scale-95 disabled:opacity-40 flex items-center gap-1.5 shrink-0"
+                                            {hasOutgoing ? (
+                                                <>
+                                                    {user?.outgoingPartnerRequest && (
+                                                        <motion.div
+                                                            layout
+                                                            initial={{ opacity: 0, y: 8 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, scale: 0.95 }}
+                                                            className="p-4 bg-rose-500/5 border border-rose-500/20 rounded-sm flex items-center justify-between gap-3 group"
                                                         >
-                                                            {handlingId === u._id ? (
-                                                                <div className="size-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
-                                                            ) : (
-                                                                <span className="material-symbols-outlined text-[12px]">close</span>
-                                                            )}
-                                                            Cancel
-                                                        </button>
-                                                    </motion.div>
-                                                ))
+                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                <div className="size-9 rounded-full overflow-hidden border border-rose-500/10 flex items-center justify-center shrink-0">
+                                                                    <Avatar config={user.outgoingPartnerRequest.avatar} scale={1} />
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <p className="text-[11px] font-black text-foreground uppercase tracking-wider truncate">{user.outgoingPartnerRequest.name}</p>
+                                                                    <p className="text-[9px] text-foreground/40 font-mono uppercase tracking-widest mt-0.5 truncate">@{user.outgoingPartnerRequest.username}</p>
+                                                                    <p className="text-[8px] text-rose-500 font-black uppercase tracking-widest mt-1 animate-pulse">Partner link pending</p>
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => handlePartnerRequest('cancel')}
+                                                                disabled={handlingId !== null}
+                                                                className="px-3 py-1.5 bg-rose-500/5 hover:bg-rose-500/10 rounded-sm text-[8px] font-black uppercase tracking-widest text-rose-500 transition-all active:scale-95 disabled:opacity-40 flex items-center gap-1.5 shrink-0"
+                                                            >
+                                                                {handlingId === 'partner' ? (
+                                                                    <div className="size-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                                                                ) : (
+                                                                    <span className="material-symbols-outlined text-[12px]">close</span>
+                                                                )}
+                                                                Cancel
+                                                            </button>
+                                                        </motion.div>
+                                                    )}
+                                                    {connectionsData.outgoing?.map((u) => (
+                                                        <motion.div
+                                                            key={u._id}
+                                                            layout
+                                                            initial={{ opacity: 0, y: 8 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, scale: 0.95 }}
+                                                            className="p-4 bg-foreground/[0.02] border border-foreground/10 rounded-sm flex items-center justify-between gap-3 group"
+                                                        >
+                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                <div className="size-9 rounded-full overflow-hidden border border-foreground/10 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all flex items-center justify-center shrink-0">
+                                                                    <Avatar config={u.avatar} scale={1} />
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <p className="text-[11px] font-black text-foreground/50 group-hover:text-foreground uppercase tracking-wider truncate transition-colors">{u.name}</p>
+                                                                    <p className="text-[9px] text-foreground/30 font-mono uppercase tracking-widest mt-0.5 truncate">@{u.username}</p>
+                                                                    <p className="text-[8px] text-foreground/30 font-black uppercase tracking-widest mt-1 animate-pulse">Awaiting response</p>
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => handleCancelRequest(u._id)}
+                                                                disabled={handlingId === u._id}
+                                                                className="px-3 py-1.5 bg-foreground/5 hover:bg-rose-500/10 rounded-sm text-[8px] font-black uppercase tracking-widest text-foreground/40 hover:text-rose-500 transition-all active:scale-95 disabled:opacity-40 flex items-center gap-1.5 shrink-0"
+                                                            >
+                                                                {handlingId === u._id ? (
+                                                                    <div className="size-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                                                                ) : (
+                                                                    <span className="material-symbols-outlined text-[12px]">close</span>
+                                                                )}
+                                                                Cancel
+                                                            </button>
+                                                        </motion.div>
+                                                    ))}
+                                                </>
                                             ) : (
                                                 <p className="text-[9px] font-mono text-foreground/20 uppercase tracking-widest pl-1">No sent requests</p>
                                             )}

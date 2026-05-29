@@ -6,6 +6,7 @@ import Avatar from './Avatar';
 import ChippedBorder from './ChippedBorder';
 import api from '../../services/api';
 import useAuthStore from '../../store/useAuthStore';
+import { useSWRConfig } from 'swr';
 
 export default function IdentityCard({
     user,
@@ -64,6 +65,7 @@ export default function IdentityCard({
     const fileInputRef = useRef(null);
     const syncUserStore = useAuthStore((state) => state.syncUser);
     const setCredentialsStore = useAuthStore((state) => state.setCredentials);
+    const { mutate } = useSWRConfig();
 
     useEffect(() => {
         if (user) {
@@ -307,9 +309,9 @@ export default function IdentityCard({
                                     user?.partner?.username ? user.partner.username.split('#')[0] : 'X'
                                 ) : (
                                     user?.isShared ? (
-                                        currentUser?.name?.split(' ')[0]
+                                        currentUser?.username ? currentUser.username.split('#')[0] : 'X'
                                     ) : (
-                                        user?.partner ? (user.partner.name || user.partner.username).split(' ')[0] : 'X'
+                                        user?.partner ? (user.partner.username || user.partner.name || 'X').split('#')[0] : 'X'
                                     )
                                 )}
                             </span>
@@ -424,9 +426,33 @@ export default function IdentityCard({
                                 {isMenuOpen && (
                                     <div className="absolute left-0 mt-1 bg-[#e2e8f0] dark:bg-neutral-900 border-2 border-black rounded-sm shadow-xl py-1 z-50 min-w-[160px] animate-in fade-in slide-in-from-top-2 duration-150" onClick={(e) => e.stopPropagation()}>
                                         {user.isShared ? (
-                                            <div className="px-3 py-2 text-[8px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest flex items-center gap-1.5 border-b border-black/10 dark:border-white/10">
-                                                <span className="material-symbols-outlined text-[14px]">favorite</span> Partner Shared
-                                            </div>
+                                            <>
+                                                <div className="px-3 py-2 text-[8px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest flex items-center gap-1.5 border-b border-black/10 dark:border-white/10">
+                                                    <span className="material-symbols-outlined text-[14px]">favorite</span> Partner Shared
+                                                </div>
+                                                <button
+                                                    onClick={async () => {
+                                                        setIsMenuOpen(false);
+                                                        if (window.confirm("Are you sure you want to unlink? This will disconnect your shared habits and planner.")) {
+                                                            try {
+                                                                await api.post('/auth/partner/unlink');
+                                                                alert('Unlinked successfully!');
+                                                                if (syncUserStore) {
+                                                                    const res = await api.get('/auth/me');
+                                                                    syncUserStore(res.data);
+                                                                }
+                                                                mutate('/auth/me');
+                                                                onClose && onClose();
+                                                            } catch (err) {
+                                                                alert(err.response?.data?.message || 'Failed to unlink partner');
+                                                            }
+                                                        }
+                                                    }}
+                                                    className="w-full text-left px-3 py-2 text-[8px] font-black text-red-500 hover:bg-red-500/5 uppercase tracking-widest flex items-center gap-1.5"
+                                                >
+                                                    <span className="material-symbols-outlined text-[14px]">link_off</span> Unlink Partner
+                                                </button>
+                                            </>
                                         ) : isConnected ? (
                                             <>
                                                 <button

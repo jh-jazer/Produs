@@ -4,9 +4,11 @@ import api from '../../services/api';
 import useAuthStore from '../../store/useAuthStore';
 import Avatar from './Avatar';
 import { UserPlus, Search, X, Heart, Link as LinkIcon, Link2Off, Loader2, Users } from 'lucide-react';
+import { useSWRConfig } from 'swr';
 
 const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
     const { user, setCredentials } = useAuthStore();
+    const { mutate } = useSWRConfig();
     const [isLinking, setIsLinking] = useState(false);
     const [linkMessage, setLinkMessage] = useState("");
     const [connections, setConnections] = useState([]);
@@ -39,6 +41,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
             const res = await api.post('/auth/partner/request', { email });
             setLinkMessage(res.data.message || "Request sent!");
             setCredentials({ ...user, outgoingPartnerRequest: res.data.outgoingRequest });
+            mutate('/auth/me');
             setTimeout(() => setLinkMessage(""), 3000);
         } catch (error) {
             setLinkMessage(error.response?.data?.message || "Failed to send request");
@@ -54,6 +57,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
             const res = await api.post('/auth/partner/accept');
             setLinkMessage(res.data.message || "Linked successfully!");
             setCredentials({ ...user, partner: res.data.partner, incomingPartnerRequest: null });
+            mutate('/auth/me');
             setTimeout(() => setLinkMessage(""), 3000);
         } catch (error) {
             setLinkMessage(error.response?.data?.message || "Failed to accept request");
@@ -69,6 +73,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
             await api.post('/auth/partner/reject');
             setLinkMessage("Request rejected");
             setCredentials({ ...user, incomingPartnerRequest: null });
+            mutate('/auth/me');
             setTimeout(() => setLinkMessage(""), 3000);
         } catch (error) {
             setLinkMessage(error.response?.data?.message || "Failed to reject request");
@@ -84,6 +89,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
             await api.post('/auth/partner/cancel');
             setLinkMessage("Request canceled");
             setCredentials({ ...user, outgoingPartnerRequest: null });
+            mutate('/auth/me');
             setTimeout(() => setLinkMessage(""), 3000);
         } catch (error) {
             setLinkMessage(error.response?.data?.message || "Failed to cancel request");
@@ -100,6 +106,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
             await api.post('/auth/partner/unlink');
             setLinkMessage("Unlinked successfully!");
             setCredentials({ ...user, partner: null });
+            mutate('/auth/me');
             setTimeout(() => setLinkMessage(""), 3000);
         } catch (error) {
             setLinkMessage(error.response?.data?.message || "Failed to unlink partner");

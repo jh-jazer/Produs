@@ -6,10 +6,12 @@ import { DashboardContext } from '../../context/DashboardContext';
 import { Search, Link, LinkIcon, Send, X, Heart } from 'lucide-react';
 import DashboardModal from './DashboardModal';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSWRConfig } from 'swr';
 
 const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
     const { user, syncUser } = useAuthStore();
     const { setIsSearchModalOpen } = useContext(DashboardContext);
+    const { mutate } = useSWRConfig();
     const [connectionsData, setConnectionsData] = useState({ connections: [], incoming: [], outgoing: [] });
     const [isFetchingConnections, setIsFetchingConnections] = useState(false);
 
@@ -64,6 +66,7 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
 
             const res = await api.get('/auth/me');
             syncUser(res.data);
+            mutate('/auth/me');
         } catch (err) {
             console.error(`Failed to ${action} connection`, err);
         }
@@ -77,6 +80,7 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
             setCardLinkState(prev => ({ ...prev, [targetUser._id]: 'sent' }));
             const res = await api.get('/auth/me');
             syncUser(res.data);
+            mutate('/auth/me');
         } catch (err) {
             setCardLinkState(prev => ({ ...prev, [targetUser._id]: 'error' }));
             // Reset after 2s
@@ -95,6 +99,7 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
             setPartnerEmail('');
             const res = await api.get('/auth/me');
             syncUser(res.data);
+            mutate('/auth/me');
         } catch (err) {
             setPartnerRequestStatus('error');
             setPartnerRequestMsg(err.response?.data?.message || 'Failed to send request');
@@ -107,6 +112,7 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
             await api.post('/auth/partner/cancel');
             const res = await api.get('/auth/me');
             syncUser(res.data);
+            mutate('/auth/me');
             setPartnerRequestStatus(null);
             setPartnerRequestMsg('');
             setCardLinkState({});
