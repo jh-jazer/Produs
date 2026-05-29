@@ -29,6 +29,20 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
     const unreadCount = notifications.filter(n => !n.read).length;
     const { syncUser } = useAuthStore();
 
+    useEffect(() => {
+        const syncProfile = async () => {
+            if (isOpen) {
+                try {
+                    const res = await api.get('/auth/me');
+                    syncUser(res.data);
+                } catch (e) {
+                    console.error("Failed to sync profile on modal open", e);
+                }
+            }
+        };
+        syncProfile();
+    }, [isOpen, syncUser]);
+
     // Social tab state
     const [connectionsData, setConnectionsData] = useState({ incoming: [], outgoing: [] });
     const [isFetchingRequests, setIsFetchingRequests] = useState(false);

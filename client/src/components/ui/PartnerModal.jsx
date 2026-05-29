@@ -109,7 +109,6 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
     };
 
     const filteredConnections = connections.filter(c => 
-        c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
         c.username.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -162,7 +161,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                                         </div>
                                     </div>
                                     <div>
-                                        <p className="text-lg font-black text-slate-900 dark:text-white leading-tight mb-1">{user.partner.name}</p>
+                                        <p className="text-lg font-black text-slate-900 dark:text-white leading-tight mb-1">{user.partner.username}</p>
                                         <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2">
                                             <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
                                             Connected
@@ -200,7 +199,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                                         </div>
                                     </div>
                                     <div>
-                                        <p className="text-base font-black text-slate-900 dark:text-white leading-tight mb-1">{user.incomingPartnerRequest.name}</p>
+                                        <p className="text-base font-black text-slate-900 dark:text-white leading-tight mb-1">{user.incomingPartnerRequest.username}</p>
                                         <p className="text-[10px] text-cyan-500 font-bold uppercase tracking-widest">New Partner Request</p>
                                     </div>
                                     <div className="flex gap-3 w-full pt-2">
@@ -230,7 +229,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                                         </div>
                                     </div>
                                     <div>
-                                        <p className="text-base font-black text-slate-500 dark:text-slate-400 leading-tight mb-1">{user.outgoingPartnerRequest.name}</p>
+                                        <p className="text-base font-black text-slate-500 dark:text-slate-400 leading-tight mb-1">{user.outgoingPartnerRequest.username}</p>
                                         <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest animate-pulse">Awaiting response...</p>
                                     </div>
                                     <button

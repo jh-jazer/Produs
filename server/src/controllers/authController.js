@@ -605,6 +605,7 @@ export const completeOnboarding = async (req, res) => {
                 } while (attempts < 20);
 
                 user.username = finalUsername;
+                user.name = finalUsername;
             }
 
             if (req.body.gender) {
@@ -923,6 +924,7 @@ export const updateSettings = async (req, res) => {
                     }
                 }
                 user.username = finalUsername;
+                user.name = finalUsername;
             }
 
             // Update settings - merge instead of overwrite to preserve sub-objects like sleepMode

@@ -40,7 +40,7 @@ passport.use(
                         // If not, create a new user
                         const newUser = {
                             googleId: profile.id,
-                            name: profile.displayName,
+                            name: email.split('@')[0],
                             email: email,
                             avatar: profile.photos && profile.photos.length > 0 ? profile.photos[0].value : '',
                         };

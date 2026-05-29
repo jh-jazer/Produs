@@ -36,7 +36,10 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
     };
 
     useEffect(() => {
-        fetchConnections();
+        if (isOpen) {
+            setCardLinkState({});
+            fetchConnections();
+        }
     }, [isOpen]);
 
     // Reset partner form when modal closes
@@ -106,6 +109,7 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
             syncUser(res.data);
             setPartnerRequestStatus(null);
             setPartnerRequestMsg('');
+            setCardLinkState({});
         } catch (err) {
             console.error('Failed to cancel partner request', err);
         } finally {
@@ -188,7 +192,7 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
                                                     </div>
                                                     <div>
                                                         <div className="flex items-center gap-2">
-                                                            <p className="text-[11px] font-black text-foreground leading-none uppercase tracking-wider">{u.name}</p>
+                                                             <p className="text-[11px] font-black text-foreground leading-none uppercase tracking-wider">{u.username}</p>
                                                             {user?.partner?._id === u._id && (
                                                                 <span className="px-1 py-0.5 rounded-sm bg-primary text-white text-[7px] font-black uppercase tracking-widest leading-none">Shared</span>
                                                             )}
@@ -294,7 +298,7 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
                                                     {user?.partner?._id !== u._id && (
                                                         <button
                                                             onClick={() => {
-                                                                if(window.confirm(`Terminate link with ${u.name}?`)) {
+                                                                if(window.confirm(`Terminate link with ${u.username}?`)) {
                                                                     handleConnectionAction('disconnect', u._id);
                                                                 }
                                                             }}
