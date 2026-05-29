@@ -486,7 +486,7 @@ export const getPublicProfile = async (req, res) => {
             ? { $or: [{ username: param }, { _id: param }] }
             : { username: param };
 
-        const user = await User.findOne(query);
+        const user = await User.findOne(query).populate('partner', 'name username');
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -547,6 +547,8 @@ export const getPublicProfile = async (req, res) => {
             banner: user.banner,
             bio: user.bio,
             joined: user.createdAt,
+            connections: user.connections || [],
+            partner: user.partner,
             topHabits,
             systemStreaks,
             achievementCount,

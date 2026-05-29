@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Zap, Clock, CheckCheck } from 'lucide-react';
+import { Bell, Zap, Clock, CheckCheck, Users } from 'lucide-react';
 import useSWR from 'swr';
 import api from '../../services/api';
 import XpFeed from '../dashboard/XpFeed';
 import DashboardModal from './DashboardModal';
+import Avatar from './Avatar';
+import useAuthStore from '../../store/useAuthStore';
 
 const timeAgo = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
@@ -22,9 +24,66 @@ const timeAgo = (date) => {
 };
 
 const NotificationModal = ({ isOpen, onClose, user }) => {
-    const [activeTab, setActiveTab] = useState('alerts'); // 'alerts' | 'activity'
+    const [activeTab, setActiveTab] = useState('alerts'); // 'alerts' | 'social' | 'activity'
     const { data: notifications = [], mutate } = useSWR('/notifications');
     const unreadCount = notifications.filter(n => !n.read).length;
+    const { syncUser } = useAuthStore();
+
+    // Social tab state
+    const [connectionsData, setConnectionsData] = useState({ incoming: [], outgoing: [] });
+    const [isFetchingRequests, setIsFetchingRequests] = useState(false);
+    const [handlingId, setHandlingId] = useState(null);
+
+    const fetchRequests = useCallback(async () => {
+        if (!isOpen) return;
+        try {
+            setIsFetchingRequests(true);
+            const res = await api.get('/auth/connections');
+            setConnectionsData(res.data);
+        } catch (err) {
+            console.error('Failed to fetch connection requests', err);
+        } finally {
+            setIsFetchingRequests(false);
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (isOpen && activeTab === 'social') {
+            fetchRequests();
+        }
+    }, [isOpen, activeTab, fetchRequests]);
+
+    const handleCancelRequest = async (targetUserId) => {
+        try {
+            setHandlingId(targetUserId);
+            await api.post(`/auth/connection/cancel/${targetUserId}`);
+            await fetchRequests();
+            const res = await api.get('/auth/me');
+            syncUser(res.data);
+        } catch (err) {
+            console.error('Failed to cancel connection request', err);
+        } finally {
+            setHandlingId(null);
+        }
+    };
+
+    const handleConnectionAction = async (action, targetUserId) => {
+        try {
+            setHandlingId(targetUserId);
+            const endpoint = action === 'accept'
+                ? `/auth/connection/accept/${targetUserId}`
+                : `/auth/connection/reject/${targetUserId}`;
+            await api.post(endpoint);
+            // Refresh both requests list and user state
+            await fetchRequests();
+            const res = await api.get('/auth/me');
+            syncUser(res.data);
+        } catch (err) {
+            console.error(`Failed to ${action} connection`, err);
+        } finally {
+            setHandlingId(null);
+        }
+    };
 
     const handleMarkAsRead = async (id) => {
         try {
@@ -76,6 +135,14 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
         }
     };
 
+    const totalSocialBadge = (connectionsData.incoming?.length || 0) + (connectionsData.outgoing?.length || 0);
+
+    const tabs = [
+        { id: 'alerts',   label: 'ALERTS_',   icon: Bell,  badge: unreadCount },
+        { id: 'social',   label: 'SOCIAL_',    icon: Users, badge: totalSocialBadge },
+        { id: 'activity', label: 'ACTIVITY_',  icon: Zap,   badge: 0 },
+    ];
+
     return (
         <DashboardModal
             isOpen={isOpen}
@@ -85,29 +152,26 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
         >
             <div className="flex flex-col h-[500px] md:h-[550px] -mt-4">
                 {/* Tab Navigation */}
-                <div className="grid grid-cols-2 mb-6 border-b border-foreground/10 pb-4">
-                    {[
-                        { id: 'alerts', label: 'ALERTS_', icon: Bell },
-                        { id: 'activity', label: 'ACTIVITY_', icon: Zap }
-                    ].map((tab) => (
+                <div className="grid grid-cols-3 mb-6 border-b border-foreground/10 pb-4">
+                    {tabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center justify-center gap-2 transition-all relative ${
-                                activeTab === tab.id 
-                                ? 'text-foreground' 
+                                activeTab === tab.id
+                                ? 'text-foreground'
                                 : 'text-foreground/40 hover:text-foreground/60'
                             }`}
                         >
                             <tab.icon size={12} className={activeTab === tab.id ? 'text-primary' : ''} />
                             <span className="text-[10px] font-mono uppercase tracking-widest">{tab.label}</span>
                             {activeTab === tab.id && (
-                                <motion.div 
+                                <motion.div
                                     layoutId="activeTab"
                                     className="absolute -bottom-4 left-0 right-0 h-[2px] bg-primary"
                                 />
                             )}
-                            {tab.id === 'alerts' && unreadCount > 0 && (
+                            {tab.badge > 0 && (
                                 <span className="absolute -top-1 -right-2 size-1.5 rounded-full bg-primary" />
                             )}
                         </button>
@@ -116,7 +180,8 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                     <AnimatePresence mode="wait">
-                        {activeTab === 'alerts' ? (
+                        {/* ── ALERTS TAB ── */}
+                        {activeTab === 'alerts' && (
                             <motion.div
                                 key="alerts"
                                 initial={{ opacity: 0, y: 10 }}
@@ -176,7 +241,143 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                                     </div>
                                 )}
                             </motion.div>
-                        ) : (
+                        )}
+
+                        {/* ── SOCIAL TAB ── */}
+                        {activeTab === 'social' && (
+                            <motion.div
+                                key="social"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="space-y-4 min-h-full flex flex-col"
+                            >
+                                {isFetchingRequests ? (
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-4 py-20">
+                                        <div className="size-8 rounded-full border-4 border-primary/10 border-t-primary animate-spin" />
+                                        <p className="text-[9px] font-mono uppercase tracking-widest text-foreground/40">Loading...</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Incoming */}
+                                        <div className="space-y-2">
+                                            <p className="text-[8px] font-mono uppercase tracking-[0.3em] text-foreground/30 flex items-center gap-2">
+                                                <span className="material-symbols-outlined text-[12px]">inbox</span>
+                                                Incoming
+                                                {connectionsData.incoming?.length > 0 && (
+                                                    <span className="ml-auto size-4 flex items-center justify-center rounded-full bg-primary/10 text-primary text-[8px] font-black">
+                                                        {connectionsData.incoming.length}
+                                                    </span>
+                                                )}
+                                            </p>
+                                            {connectionsData.incoming?.length > 0 ? (
+                                                connectionsData.incoming.map((u) => (
+                                                    <motion.div
+                                                        key={u._id}
+                                                        layout
+                                                        initial={{ opacity: 0, y: 8 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, scale: 0.95 }}
+                                                        className="p-4 bg-primary/5 border border-primary/20 rounded-sm flex items-center justify-between gap-3"
+                                                    >
+                                                        <div className="flex items-center gap-3 min-w-0">
+                                                            <div className="size-9 rounded-full overflow-hidden border border-primary/30 flex items-center justify-center shrink-0">
+                                                                <Avatar config={u.avatar} scale={1} />
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <p className="text-[11px] font-black text-foreground uppercase tracking-wider truncate">{u.name}</p>
+                                                                <p className="text-[9px] text-foreground/40 font-mono uppercase tracking-widest mt-0.5 truncate">@{u.username}</p>
+                                                                <p className="text-[8px] text-primary font-black uppercase tracking-widest mt-1">Wants to connect</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 shrink-0">
+                                                            <button
+                                                                onClick={() => handleConnectionAction('reject', u._id)}
+                                                                disabled={handlingId === u._id}
+                                                                className="size-8 flex items-center justify-center rounded-sm bg-foreground/5 border border-foreground/10 text-foreground/40 hover:text-rose-500 hover:border-rose-500/30 hover:bg-rose-500/5 transition-all active:scale-90 disabled:opacity-40"
+                                                                title="Decline"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[16px]">close</span>
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleConnectionAction('accept', u._id)}
+                                                                disabled={handlingId === u._id}
+                                                                className="size-8 flex items-center justify-center rounded-sm bg-primary text-white shadow-lg shadow-primary/20 hover:scale-110 active:scale-90 transition-all disabled:opacity-40"
+                                                                title="Accept"
+                                                            >
+                                                                {handlingId === u._id ? (
+                                                                    <div className="size-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                                                                ) : (
+                                                                    <span className="material-symbols-outlined text-[16px]">check</span>
+                                                                )}
+                                                            </button>
+                                                        </div>
+                                                    </motion.div>
+                                                ))
+                                            ) : (
+                                                <p className="text-[9px] font-mono text-foreground/20 uppercase tracking-widest pl-1">No incoming requests</p>
+                                            )}
+                                        </div>
+
+                                        {/* Divider */}
+                                        <div className="h-px bg-foreground/5" />
+
+                                        {/* Outgoing */}
+                                        <div className="space-y-2">
+                                            <p className="text-[8px] font-mono uppercase tracking-[0.3em] text-foreground/30 flex items-center gap-2">
+                                                <span className="material-symbols-outlined text-[12px]">outgoing_mail</span>
+                                                Sent
+                                                {connectionsData.outgoing?.length > 0 && (
+                                                    <span className="ml-auto size-4 flex items-center justify-center rounded-full bg-foreground/10 text-foreground/40 text-[8px] font-black">
+                                                        {connectionsData.outgoing.length}
+                                                    </span>
+                                                )}
+                                            </p>
+                                            {connectionsData.outgoing?.length > 0 ? (
+                                                connectionsData.outgoing.map((u) => (
+                                                    <motion.div
+                                                        key={u._id}
+                                                        layout
+                                                        initial={{ opacity: 0, y: 8 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, scale: 0.95 }}
+                                                        className="p-4 bg-foreground/[0.02] border border-foreground/10 rounded-sm flex items-center justify-between gap-3 group"
+                                                    >
+                                                        <div className="flex items-center gap-3 min-w-0">
+                                                            <div className="size-9 rounded-full overflow-hidden border border-foreground/10 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all flex items-center justify-center shrink-0">
+                                                                <Avatar config={u.avatar} scale={1} />
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <p className="text-[11px] font-black text-foreground/50 group-hover:text-foreground uppercase tracking-wider truncate transition-colors">{u.name}</p>
+                                                                <p className="text-[9px] text-foreground/30 font-mono uppercase tracking-widest mt-0.5 truncate">@{u.username}</p>
+                                                                <p className="text-[8px] text-foreground/30 font-black uppercase tracking-widest mt-1 animate-pulse">Awaiting response</p>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handleCancelRequest(u._id)}
+                                                            disabled={handlingId === u._id}
+                                                            className="px-3 py-1.5 bg-foreground/5 hover:bg-rose-500/10 rounded-sm text-[8px] font-black uppercase tracking-widest text-foreground/40 hover:text-rose-500 transition-all active:scale-95 disabled:opacity-40 flex items-center gap-1.5 shrink-0"
+                                                        >
+                                                            {handlingId === u._id ? (
+                                                                <div className="size-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                                                            ) : (
+                                                                <span className="material-symbols-outlined text-[12px]">close</span>
+                                                            )}
+                                                            Cancel
+                                                        </button>
+                                                    </motion.div>
+                                                ))
+                                            ) : (
+                                                <p className="text-[9px] font-mono text-foreground/20 uppercase tracking-widest pl-1">No sent requests</p>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
+                            </motion.div>
+                        )}
+
+                        {/* ── ACTIVITY TAB ── */}
+                        {activeTab === 'activity' && (
                             <motion.div
                                 key="activity"
                                 initial={{ opacity: 0, y: 10 }}

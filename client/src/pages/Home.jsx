@@ -5,7 +5,6 @@ import { useRef, useMemo } from 'react';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 import useMobile from '../hooks/useMobile';
-import { QRCodeSVG } from 'qrcode.react';
 import { useSWRConfig } from 'swr';
 
 // Components
@@ -18,17 +17,7 @@ import { useFinance } from '../hooks/useFinance';
 import { usePlanner } from '../hooks/usePlanner';
 import { useHabits } from '../hooks/useHabits';
 import { useGoals } from '../hooks/useGoals';
-
-const ChippedBorder = ({ opacity = 0.8 }) => (
-  <div
-    className="absolute inset-[-2px] rounded-sm pointer-events-none z-0"
-    style={{
-      border: '4px solid currentColor',
-      opacity,
-      clipPath: 'polygon(0% 0%, 15% 0%, 16% 2%, 18% 0%, 42% 0%, 43% 4%, 45% 0%, 78% 0%, 79% 2%, 81% 0%, 100% 0%, 100% 20%, 98% 22%, 100% 24%, 100% 55%, 97% 58%, 100% 61%, 100% 100%, 82% 100%, 81% 97%, 79% 100%, 38% 100%, 37% 96%, 35% 100%, 0% 100%, 0% 80%, 3% 78%, 0% 76%, 0% 35%, 2% 33%, 0% 31%)'
-    }}
-  />
-);
+import IdentityCard from '../components/ui/IdentityCard';
 
 const MobileLogoText = ({ activeSection, onClick }) => {
   const [matrixText, setMatrixText] = useState("");
@@ -422,30 +411,44 @@ export default function Home() {
     }, 4000);
   };
 
-  // Auto-slide priority cards every 4 seconds
-  useEffect(() => {
-    if (priorityCards.length === 0) return;
-    autoSlideTimerRef.current = setInterval(() => {
-      setActivePriorityIndex(prev => {
-        const cur = (prev === null ? 1 : prev) % priorityCards.length;
-        return (cur + 1) % priorityCards.length;
-      });
-    }, 4000);
-    return () => clearInterval(autoSlideTimerRef.current);
-  }, [priorityCards.length]);
-
-  // Scroll carousel to active card whenever index changes
-  useEffect(() => {
-    if (activePriorityIndex === null) return;
+  // Helper: scroll mobile carousel to a given card index (within the tripled set)
+  const scrollCarouselToIndex = (idx) => {
     const el = carouselRef.current;
     if (!el) return;
     const flexContainer = el.children[0];
     if (!flexContainer) return;
-    const targetCard = flexContainer.children[activePriorityIndex];
-    if (targetCard) {
-      targetCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
-  }, [activePriorityIndex]);
+    const targetCard = flexContainer.children[idx];
+    if (!targetCard) return;
+    const cardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
+    el.scrollTo({ left: cardCenter - el.clientWidth / 2, behavior: 'smooth' });
+  };
+
+  // Auto-slide priority cards every 4 seconds (mobile: scroll carousel; desktop: update index)
+  useEffect(() => {
+    if (priorityCards.length === 0) return;
+    const n = priorityCards.length;
+    autoSlideTimerRef.current = setInterval(() => {
+      setActivePriorityIndex(prev => {
+        // Work in the middle set (indices n..2n-1) to keep infinite loop working
+        const cur = prev === null ? n : prev;
+        const inMiddle = n + ((cur - n + 1 + n) % n);
+        // Scroll the carousel element directly (works even if isMobile)
+        const el = carouselRef.current;
+        if (el) {
+          const flexContainer = el.children[0];
+          if (flexContainer) {
+            const targetCard = flexContainer.children[inMiddle];
+            if (targetCard) {
+              const cardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
+              el.scrollTo({ left: cardCenter - el.clientWidth / 2, behavior: 'smooth' });
+            }
+          }
+        }
+        return inMiddle;
+      });
+    }, 4000);
+    return () => clearInterval(autoSlideTimerRef.current);
+  }, [priorityCards.length]);
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
@@ -706,19 +709,12 @@ export default function Home() {
   }, [filteredTransactions, filteredDebts, filteredSavings]);
 
   const isMobile = useMobile();
-  const fileInputRef = useRef(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAtTop, setIsAtTop] = useState(true);
   const [activeSection, setActiveSection] = useState('produs');
   const [isInitializing, setIsInitializing] = useState(true);
   const [isIdMenuOpen, setIsIdMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-
-  const [editData, setEditData] = useState({
-    username: user?.username?.split('#')[0] || '',
-    bio: user?.bio || '',
-    avatar: user?.avatar || {}
-  });
 
   const [showAddTx, setShowAddTx] = useState(false);
   const location = useLocation();
@@ -738,46 +734,6 @@ export default function Home() {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
-
-  useEffect(() => {
-    if (user) {
-      setEditData({
-        username: user.username?.split('#')[0] || '',
-        bio: user.bio || '',
-        avatar: user.avatar || {}
-      });
-    }
-  }, [user]);
-
-  const handleSaveInline = async () => {
-    try {
-      await updateSettings({
-        username: editData.username,
-        bio: editData.bio,
-        avatar: editData.avatar
-      });
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Failed to sync identity", error);
-    }
-  };
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('image', file);
-
-    try {
-      const { data } = await api.post('/auth/upload/avatar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      setEditData(prev => ({ ...prev, avatar: data.url }));
-    } catch (error) {
-      console.error("Image upload failed", error);
-    }
-  };
 
   // Scroll tracking for the HUD indicator (Global Page Level)
   useEffect(() => {
@@ -820,17 +776,7 @@ export default function Home() {
     navigate('/dashboard/neural-sync');
   };
 
-  const generateCodenameHash = (str) => {
-    if (!str) return 'UNKNOWN';
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) - hash) + str.charCodeAt(i);
-      hash |= 0;
-    }
-    return Math.abs(hash).toString(16).toUpperCase().slice(0, 8);
-  };
 
-  const codenameHash = generateCodenameHash(user?.username || user?.name || 'OPERATIVE');
 
   useEffect(() => {
     if (isFlipped) {
@@ -916,9 +862,12 @@ export default function Home() {
                           {(() => {
                             if (!claimedDaily) return "Welcome";
                             const hour = currentTime.getHours();
-                            if (hour < 12) return "Good Morning";
-                            if (hour < 18) return "Good Afternoon";
-                            return "Good Evening";
+                            const suffix = hour < 12 ? "Morning" : hour < 18 ? "Afternoon" : "Evening";
+                            return (
+                              <>
+                                Good<br className="md:hidden" />{suffix}
+                              </>
+                            );
                           })()}
                           <br />
                           {user?.username?.split('#')[0] || 'Operator'}
@@ -1020,7 +969,7 @@ export default function Home() {
                           
                            <div 
                             ref={carouselRef}
-                            className="w-full overflow-x-hidden pt-3 pb-4 pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] cursor-default"
+                            className="w-full overflow-x-auto pt-3 pb-4 pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] cursor-default"
                             onScroll={(e) => {
                               const el = e.currentTarget;
                               const setWidth = el.scrollWidth / 3;
@@ -1056,13 +1005,22 @@ export default function Home() {
                                     key={i} 
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      const totalLength = [...priorityCards, ...priorityCards, ...priorityCards].length;
-                                      if (i === activePriorityIndex) {
-                                        setActivePriorityIndex((i + 1) % totalLength);
-                                      } else {
-                                        setActivePriorityIndex(i);
-                                        e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                                      }
+                                      // Reset auto-slide timer on manual tap
+                                      if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
+                                      const n = priorityCards.length;
+                                      // Advance to the next card in the middle set for infinite looping
+                                      const nextIdx = n + ((i - n + 1 + n) % n);
+                                      setActivePriorityIndex(nextIdx);
+                                      scrollCarouselToIndex(nextIdx);
+                                      // Restart auto-slide
+                                      autoSlideTimerRef.current = setInterval(() => {
+                                        setActivePriorityIndex(prev => {
+                                          const cur = prev === null ? n : prev;
+                                          const inMiddle = n + ((cur - n + 1 + n) % n);
+                                          scrollCarouselToIndex(inMiddle);
+                                          return inMiddle;
+                                        });
+                                      }, 4000);
                                     }}
                                     className="snap-center w-[85vw] md:w-[94vw] h-64 md:h-72 rounded-3xl border-2 border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] shadow-md backdrop-blur-md p-6 md:p-8 flex flex-col justify-between shrink-0 transition-all duration-500 cursor-pointer group origin-center scale-105 opacity-100"
                                   >
@@ -1296,312 +1254,24 @@ export default function Home() {
                       </span>
                     </div>
 
-                    <div className="relative -mt-4 perspective-[1000px] cursor-pointer pointer-events-auto" onClick={() => setIsFlipped(!isFlipped)}>
-                      <motion.div animate={{ rotateY: isFlipped ? 180 : 0 }} transition={{ type: "spring", stiffness: 260, damping: 20 }} style={{ transformStyle: "preserve-3d", originY: 0 }} className="relative w-[82vw] md:w-[320px] min-h-[70vh] md:min-h-[446px]">
-                        {/* FRONT FACE */}
-                        <div className="absolute inset-0 bg-gray-300 dark:bg-[#121212] text-black dark:text-white p-6 md:p-8 rounded-sm flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden" }}>
-                          <ChippedBorder opacity={1} />
-                          {/* PRODUS WATERMARK */}
-                          <div className="absolute inset-0 flex items-end justify-center pointer-events-none opacity-[0.03] dark:opacity-[0.02] select-none z-0 pb-20 md:pb-24" style={{ transform: 'translateX(100px)' }}>
-                            <span className="font-sans font-black text-[70px] md:text-[90px] tracking-[0.1em] uppercase">PRODUS</span>
-                          </div>
-                          <div className="absolute top-0 left-1/2 -translate-x-1/2 size-8 bg-black/10 dark:bg-[#000000] rounded-full border-[7px] border-white dark:border-[#121212] z-20 flex items-center justify-center">
-                            <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-black/30 dark:border-white/30" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
-                          </div>
-                          <div className="flex flex-col gap-6 w-full items-center mt-4">
-                            <div className="flex flex-col items-center">
-                              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black dark:text-white/20">{(user?.rpg?.archetype?.name && user.rpg.archetype.name !== 'None' ? user.rpg.archetype.name.toUpperCase() : 'ROOKIE')}_ID</span>
-                              <span className="text-sm font-black tracking-tighter uppercase opacity-80">{codenameHash}</span>
-                            </div>
-                            <div className="h-[1px] bg-black/10 dark:bg-white/10 w-full" />
-                            <div className="flex flex-col items-center gap-6">
-                              <div
-                                onClick={(e) => {
-                                  if (isEditing) {
-                                    e.stopPropagation();
-                                    fileInputRef.current?.click();
-                                  }
-                                }}
-                                className={`size-48 md:size-52 bg-black/5 dark:bg-black rounded-sm overflow-hidden border border-black/10 dark:border-white/10 shrink-0 relative transition-all ${isEditing ? 'ring-2 ring-primary cursor-pointer' : ''}`}
-                              >
-                                <input
-                                  type="file"
-                                  ref={fileInputRef}
-                                  onChange={handleImageUpload}
-                                  className="hidden"
-                                  accept="image/*"
-                                />
-                                <div className="w-full h-full bg-white p-2 pb-6 shadow-xl relative">
-                                  {/* Level Badge - Absolute Corner Overlay */}
-                                  <div className="absolute top-0 left-0 px-2 py-0.5 bg-black text-white dark:bg-white dark:text-black text-[9px] font-black uppercase tracking-widest z-30 shadow-lg">
-                                    LVL_{user?.rpg?.level || 1}
-                                  </div>
-                                  <div className="size-full bg-black/5 overflow-hidden flex items-center justify-center relative">
-                                    <Avatar config={editData.avatar} className="size-full" />
-                                    {/* EXP Bar - Anchored to bottom of image */}
-                                    <div className="absolute bottom-0 left-0 right-0 h-2 bg-black/10 dark:bg-white/5 z-40 overflow-hidden border-t border-black/5 dark:border-white/5">
-                                      <motion.div 
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${Math.min(100, (user?.rpg?.exp || 0) / 10)}%` }}
-                                        className="h-full bg-black dark:bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]"
-                                      />
-                                    </div>
-                                    {/* Texture Overlay */}
-                                    <div className="absolute inset-0 bg-black/5 pointer-events-none mix-blend-overlay" />
-                                  </div>
-                                </div>
-                                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/5 dark:via-white/5 to-transparent h-1/2 w-full top-0 animate-scanline" />
-                                {isEditing && (
-                                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                    <span className="material-symbols-outlined text-white text-xl">upload</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex flex-col items-center gap-1 w-full px-0">
-                                {isEditing ? (
-                                  <div className="flex flex-col items-center gap-2 w-full px-8">
-                                    <div className="relative w-full">
-                                      <input
-                                        type="text"
-                                        value={editData.username}
-                                        onClick={(e) => e.stopPropagation()}
-                                        onChange={(e) => setEditData(prev => ({ ...prev, username: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '') }))}
-                                        className="w-full bg-black/10 dark:bg-white/10 border-b border-primary/50 text-[10px] font-black text-center uppercase tracking-[0.3em] outline-none py-1"
-                                        maxLength={8}
-                                        autoFocus
-                                      />
-                                      <span className="absolute right-0 bottom-1 text-[8px] opacity-20 font-mono">#{user?.username?.split('#')[1]}</span>
-                                    </div>
-                                    <textarea
-                                      value={editData.bio}
-                                      onClick={(e) => e.stopPropagation()}
-                                      onChange={(e) => setEditData(prev => ({ ...prev, bio: e.target.value }))}
-                                      className="w-full bg-black/10 dark:bg-white/10 border-b border-primary/50 text-[9px] font-mono italic text-center tracking-tight outline-none py-1 min-h-[40px] resize-none"
-                                      maxLength={160}
-                                    />
-                                  </div>
-                                ) : (
-                                  <>
-                                    <div className="flex flex-col items-center w-full px-4">
-                                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black dark:text-white/40">{user?.username?.split('#')[0].toUpperCase() || 'OPERATIVE'}</span>
-                                      <span className="text-[9px] font-mono italic opacity-60 tracking-tight leading-tight mb-2 text-center">
-                                        "{user?.bio || 'System_Access_Granted'}"
-                                      </span>
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Network Connectivity Status */}
-                            <div className="flex flex-col items-center mb-10 w-full px-8">
-                              <div className="w-full flex items-start justify-between border-y border-black/[0.03] dark:border-white/[0.03] py-4 px-2">
-                                <div className="flex flex-col items-center">
-                                  <span className="text-[7px] font-black text-black dark:text-white/20 uppercase tracking-[0.4em] mb-1.5">NETWORKS</span>
-                                  <span className="text-[14px] font-black tracking-widest text-black dark:text-white leading-none">
-                                    {user?.connections?.length || 0}
-                                  </span>
-                                </div>
-                                <div className="flex flex-col items-center">
-                                  <span className="text-[7px] font-black text-black dark:text-white/20 uppercase tracking-[0.4em] mb-1.5">LINKED TO:</span>
-                                  <span className={`text-[10px] font-black tracking-widest leading-none uppercase ${user?.partner?.username ? 'text-emerald-500' : 'text-black dark:text-white'}`}>
-                                    {user?.partner?.username ? `@${user.partner.username.split('#')[0].toUpperCase()}` : 'X'}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Financial Vitals inside ID - Bottom Bar */}
-                            <div className="absolute bottom-8 left-0 w-full px-8 py-3 flex items-start justify-between gap-2 border-t border-black/10 dark:border-white/10">
-                              {[
-                                { l: 'CURRENT', v: currentBalance },
-                                { l: 'PROJECTION', v: netProjection },
-                                { l: 'SAVINGS', v: totalSavings }
-                              ].map((m, i) => (
-                                <div key={i} className="flex flex-col items-center flex-1 min-w-0">
-                                  <span className="text-[13px] font-black tracking-tighter leading-none" style={{ color: m.v > 0 ? '#10b981' : m.v < 0 ? '#f43f5e' : 'inherit' }}>
-                                    {user?.currency === 'PHP' ? '₱' : '$'}{m.v < 0 ? '-' : ''}{Math.abs(m.v).toLocaleString()}
-                                  </span>
-                                  <span className="text-[8px] font-black text-black dark:text-white/20 uppercase tracking-[0.1em] mt-1.5 text-center truncate w-full">{m.l}</span>
-                                </div>
-                              ))}
-                            </div>
-                            {/* Retract ID Button (X Icon) on the right side */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setIsIdPulledDown(false);
-                              }}
-                              className="absolute top-8 right-8 z-40 p-2 text-black dark:text-white opacity-40 dark:opacity-20 hover:opacity-100 transition-all hover:scale-125 cursor-pointer"
-                              title="RETRACT ID"
-                            >
-                              <span className="material-symbols-outlined text-sm font-bold">
-                                close
-                              </span>
-                            </button>
-
-                            {/* ID Action Menu (Kinetic Transformation) */}
-                            <div className="absolute top-8 left-8 z-40 flex flex-col items-center">
-                              {isEditing ? (
-                                <div className="flex flex-col items-center gap-3 bg-black/5 dark:bg-white/5 backdrop-blur-md p-2 rounded-sm border border-black/10 dark:border-white/10">
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); setIsEditing(false); }}
-                                    className="p-1 text-black hover:text-black dark:text-white/40 dark:hover:text-white transition-all hover:scale-125"
-                                    title="ABORT_CHANGES"
-                                  >
-                                    <span className="material-symbols-outlined text-sm">close</span>
-                                  </button>
-                                  <div className="h-[1px] w-3 bg-black/10 dark:bg-white/10" />
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); handleSaveInline(); }}
-                                    className="p-1 text-black hover:text-black dark:text-white/40 dark:hover:text-white transition-all hover:scale-125"
-                                    title="SYNC_CHANGES"
-                                  >
-                                    <span className="material-symbols-outlined text-sm">check</span>
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="flex flex-col items-center">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setIsIdMenuOpen(!isIdMenuOpen);
-                                    }}
-                                    className={`p-2 transition-all group/menu z-50`}
-                                  >
-                                    <motion.span
-                                      animate={{ rotate: isIdMenuOpen ? 90 : 0 }}
-                                      className={`material-symbols-outlined text-sm transition-opacity ${isIdMenuOpen ? 'text-black dark:text-white' : 'text-black dark:text-white opacity-40 dark:opacity-20 group-hover/menu:opacity-100'}`}
-                                    >
-                                      more_vert
-                                    </motion.span>
-                                  </button>
-
-                                  <AnimatePresence>
-                                    {isIdMenuOpen && (
-                                      <motion.div
-                                        initial={{ opacity: 0, y: -20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
-                                        className="flex flex-col items-center gap-3 bg-black/5 dark:bg-white/5 backdrop-blur-md p-2 rounded-sm border border-black/10 dark:border-white/10 mt-6"
-                                      >
-                                        <button
-                                          onClick={(e) => { e.stopPropagation(); setIsIdMenuOpen(false); setIsEditing(true); }}
-                                          className="p-1 transition-colors"
-                                          title="EDIT_ID"
-                                        >
-                                          <span className="material-symbols-outlined text-[16px] text-black dark:text-white opacity-40 hover:opacity-100">edit</span>
-                                        </button>
-                                        <button
-                                          onClick={(e) => { e.stopPropagation(); setIsIdMenuOpen(false); setIsSearchModalOpen(true); }}
-                                          className="p-1 transition-colors"
-                                          title="SEARCH_ID"
-                                        >
-                                          <span className="material-symbols-outlined text-[16px] text-black dark:text-white opacity-40 hover:opacity-100">search</span>
-                                        </button>
-                                        <button
-                                          onClick={(e) => { e.stopPropagation(); setIsIdMenuOpen(false); setIsIdPulledDown(false); }}
-                                          className="p-1 transition-colors"
-                                          title="RETRACT_ID"
-                                        >
-                                          <span className="material-symbols-outlined text-[16px] text-black dark:text-white opacity-40 hover:opacity-100">arrow_upward</span>
-                                        </button>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setIsIdMenuOpen(false);
-                                            setIsConnectionsModalOpen(true);
-                                          }}
-                                          className="p-1 transition-colors"
-                                          title="NETWORK_ID"
-                                        >
-                                          <span className="material-symbols-outlined text-[16px] text-black dark:text-white opacity-40 hover:opacity-100">group</span>
-                                        </button>
-                                      </motion.div>
-                                    )}
-                                  </AnimatePresence>
-                                </div>
-                              )}
-                            </div>
-
-                          </div>
-                        </div>
-                        <div className="absolute inset-0 bg-gray-300 dark:bg-[#0f0f0f] text-black dark:text-white p-6 md:p-8 rounded-sm flex flex-col justify-between items-center text-center overflow-hidden" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
-                          <ChippedBorder opacity={1} />
-                          {/* PRODUS WATERMARK */}
-                          <div className="absolute inset-0 flex items-end justify-center pointer-events-none opacity-[0.03] dark:opacity-[0.02] select-none z-0 pb-20 md:pb-24" style={{ transform: 'translateX(100px)' }}>
-                            <span className="font-sans font-black text-[70px] md:text-[90px] tracking-[0.1em] uppercase">PRODUS</span>
-                          </div>
-                          <div className="absolute top-0 left-1/2 -translate-x-1/2 size-8 bg-black/10 dark:bg-[#000000] rounded-full border-[7px] border-white dark:border-[#0f0f0f] z-20 flex items-center justify-center">
-                            <div className="absolute inset-[-1px] rounded-full border-[0.5px] border-black/20 dark:border-white/20" style={{ clipPath: 'polygon(0% 0%, 25% 5%, 50% 0%, 75% 5%, 100% 0%, 95% 25%, 100% 50%, 95% 75%, 100% 100%, 75% 95%, 50% 100%, 25% 95%, 0% 100%, 5% 75%, 0% 50%, 5% 25%)' }} />
-                          </div>
-                          <div className="flex flex-col gap-6 w-full items-center mt-10">
-                            <div className="flex flex-col items-center gap-1">
-                              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black dark:text-white/20">System Metadata</span>
-                              <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">Global_Unique_Identifier</span>
-                            </div>
-                            <div className="p-4 bg-white rounded-sm shadow-[0_0_50px_rgba(255,255,255,0.05)] relative z-10">
-                              <QRCodeSVG 
-                                id="operator-qr-svg"
-                                value={user?._id || 'PRODUS_OPERATIVE'} 
-                                size={180} 
-                                bgColor={"#FFFFFF"} 
-                                fgColor={"#000000"} 
-                                level={"H"} 
-                              />
-                            </div>
-                            <div className="flex flex-col items-center gap-4 w-full">
-                              <div className="flex flex-col items-center gap-1">
-                                <span className="text-[8px] font-black uppercase tracking-[0.4em] text-black dark:text-white/10">Full Access Key</span>
-                                <div className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 p-2.5 rounded-sm font-mono text-[9px] break-all leading-relaxed opacity-60 text-center uppercase tracking-tighter">
-                                  {user?._id || 'SESSION_DATA_NOT_FOUND'}
-                                </div>
-                              </div>
-                              
-                              <div className="grid grid-cols-1 gap-2.5 w-full pt-1">
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const svg = document.getElementById('operator-qr-svg');
-                                    if (!svg) return;
-                                    const svgData = new XMLSerializer().serializeToString(svg);
-                                    const canvas = document.createElement("canvas");
-                                    const ctx = canvas.getContext("2d");
-                                    const img = new Image();
-                                    img.onload = () => {
-                                      canvas.width = img.width;
-                                      canvas.height = img.height;
-                                      ctx.fillStyle = "white";
-                                      ctx.fillRect(0, 0, canvas.width, canvas.height);
-                                      ctx.drawImage(img, 0, 0);
-                                      const link = document.createElement("a");
-                                      link.download = `operator_key_${user?._id?.slice(-6).toUpperCase()}.png`;
-                                      link.href = canvas.toDataURL("image/png");
-                                      link.click();
-                                    };
-                                    img.src = "data:image/svg+xml;base64," + btoa(svgData);
-                                  }}
-                                  className="w-full py-3.5 bg-black dark:bg-white text-white dark:text-black font-black text-[9px] uppercase tracking-[0.4em] hover:bg-black/90 dark:hover:bg-white/90 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-                                >
-                                  <span className="material-symbols-outlined text-[14px]">download</span>
-                                  SAVE QR CODE
-                                </button>
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setQrModalMode('scan');
-                                    setIsQrModalOpen(true);
-                                  }}
-                                  className="w-full py-3.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white font-black text-[9px] uppercase tracking-[0.4em] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-                                >
-                                  <span className="material-symbols-outlined text-[14px]">qr_code_scanner</span>
-                                  SCAN QR CODE
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
+                    <div className="relative -mt-4">
+                      <IdentityCard
+                        user={user}
+                        isOwnProfile={true}
+                        isEditing={isEditing}
+                        setIsEditing={setIsEditing}
+                        isFlipped={isFlipped}
+                        setIsFlipped={setIsFlipped}
+                        isIdMenuOpen={isIdMenuOpen}
+                        setIsIdMenuOpen={setIsIdMenuOpen}
+                        setIsConnectionsModalOpen={setIsConnectionsModalOpen}
+                        setIsSearchModalOpen={setIsSearchModalOpen}
+                        setIsQrModalOpen={setIsQrModalOpen}
+                        setQrModalMode={setQrModalMode}
+                        currentBalance={currentBalance}
+                        netProjection={netProjection}
+                        totalSavings={totalSavings}
+                      />
                     </div>
                   </motion.div>
                 </div>

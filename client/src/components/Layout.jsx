@@ -270,6 +270,7 @@ function Layout() {
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [profileModalUser, setProfileModalUser] = useState(null);
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [isBugModalOpen, setIsBugModalOpen] = useState(false);
     const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
@@ -841,7 +842,7 @@ function Layout() {
                 <div className="flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]">
                     {isMobile && <GlobalMobileHeader activeSection={activeSection} onClick={() => setIsLandingModalOpen(true)} protocolMode={protocolMode} shakeMerchant={shakeMerchant} handleOpenMerchant={handleOpenMerchant} isIdPulledDown={isIdPulledDown} />}
                     <div ref={mainRef} className={`flex-1 overflow-x-hidden ${protocolMode === 'rpg' ? 'overflow-y-hidden' : 'overflow-y-auto'} custom-scrollbar flex flex-col relative mt-0 ${isMobile ? 'snap-y snap-mandatory' : ''}`}>
-                        <ConnectionsModal isOpen={isConnectionsModalOpen} onClose={() => setIsConnectionsModalOpen(false)} onProfileClick={(username) => navigate(`/dashboard/profile/${username}`)} />
+                        <ConnectionsModal isOpen={isConnectionsModalOpen} onClose={() => setIsConnectionsModalOpen(false)} onProfileClick={(username) => { setProfileModalUser(username); setIsConnectionsModalOpen(false); }} />
                         <IdentityEditModal isOpen={isIdentityEditModalOpen} onClose={() => setIsIdentityEditModalOpen(false)} />
                         <AnimatePresence mode="wait" initial={false}>
                             <motion.main 
@@ -942,6 +943,15 @@ function Layout() {
                 </AnimatePresence>
 
                 {isProfileModalOpen && <ProfileModal username={user?.username} onClose={() => setIsProfileModalOpen(false)} />}
+                
+                <AnimatePresence>
+                    {profileModalUser && (
+                        <ProfileModal
+                            username={profileModalUser}
+                            onClose={() => setProfileModalUser(null)}
+                        />
+                    )}
+                </AnimatePresence>
                 
                 <UserMenuModal
                     isOpen={isUserMenuOpen}
