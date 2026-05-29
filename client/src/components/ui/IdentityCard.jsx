@@ -261,7 +261,7 @@ export default function IdentityCard({
                                 ) : (
                                     <div className="flex flex-col items-center w-full px-6">
                                         <span className="text-[14px] font-black uppercase tracking-[0.25em] text-black dark:text-white leading-none">
-                                            {user?.name || user?.username?.split('#')[0]}
+                                            {(user?.username?.split('#')[0] || user?.name || 'OPERATIVE').toUpperCase()}
                                         </span>
                                         <span className="text-[9px] font-mono italic opacity-60 tracking-tight leading-tight mt-2 text-center select-text">
                                             "{user?.bio || 'System_Access_Granted'}"
