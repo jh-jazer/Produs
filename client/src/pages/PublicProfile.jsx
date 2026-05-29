@@ -19,7 +19,7 @@ function PublicProfile() {
         const fetchProfile = async () => {
             try {
                 setIsLoading(true);
-                const res = await api.get(`/auth/profile/${username}`);
+                const res = await api.get(`/auth/profile/${encodeURIComponent(username)}`);
                 setProfile(res.data);
             } catch (err) {
                 setError(err.response?.data?.message || "Profile not found or is private.");

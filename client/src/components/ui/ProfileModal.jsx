@@ -19,7 +19,7 @@ function ProfileModal({ username, onClose }) {
                 if (!username) return;
                 setIsLoading(true);
                 setError(null);
-                const res = await api.get(`/auth/profile/${username}`);
+                const res = await api.get(`/auth/profile/${encodeURIComponent(username)}`);
                 setProfile(res.data);
             } catch (err) {
                 setError(err.response?.data?.message || "Profile not found or is private.");
