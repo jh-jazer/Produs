@@ -40,7 +40,13 @@ const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) =>
   </div>
 );
 
-const HubModule = ({ onSelect }) => {
+const CountBadge = ({ count }) => (
+    <span className="absolute top-3 right-3 z-20 min-w-[24px] h-6 px-1.5 flex items-center justify-center bg-black dark:bg-white text-white dark:text-black text-[10px] font-black font-mono rounded-sm shadow-sm border border-black/10 dark:border-white/10">
+        {count}
+    </span>
+);
+
+const HubModule = ({ onSelect, journalCount = 0, notesCount = 0, listsCount = 0 }) => {
     return (
         <div className="flex flex-col md:flex-row gap-6 w-full">
             <button
@@ -51,6 +57,7 @@ const HubModule = ({ onSelect }) => {
                 <div className="absolute inset-0 text-black dark:text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     <ChippedBorder opacity={1} />
                 </div>
+                <CountBadge count={journalCount} />
                 <BookOpen className="relative z-10 size-8 text-black/60 dark:text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
                 <h4 className="relative z-10 text-lg font-black text-black dark:text-white uppercase tracking-tighter italic">JOURNAL</h4>
                 <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mt-1.5">Daily Reflections</span>
@@ -66,6 +73,7 @@ const HubModule = ({ onSelect }) => {
                 <div className="absolute inset-0 text-black dark:text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     <ChippedBorder opacity={1} />
                 </div>
+                <CountBadge count={notesCount} />
                 <FileText className="relative z-10 size-8 text-black/60 dark:text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
                 <h4 className="relative z-10 text-lg font-black text-black dark:text-white uppercase tracking-tighter italic">NOTES</h4>
                 <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mt-1.5">Scratchpad Memos</span>
@@ -81,6 +89,7 @@ const HubModule = ({ onSelect }) => {
                 <div className="absolute inset-0 text-black dark:text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     <ChippedBorder opacity={1} />
                 </div>
+                <CountBadge count={listsCount} />
                 <ListIcon className="relative z-10 size-8 text-black/60 dark:text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
                 <h4 className="relative z-10 text-lg font-black text-black dark:text-white uppercase tracking-tighter italic">LISTS</h4>
                 <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mt-1.5">Task Tracking</span>
@@ -418,12 +427,12 @@ const Writing = () => {
 
     const allNotes = React.useMemo(() => {
         try { return JSON.parse(localStorage.getItem('produs_notes_store') || '[]'); } catch { return []; }
-    }, [noteId]);
+    }, [noteId, activeTab]);
     const selectedNote = noteId ? allNotes.find(n => n.id === noteId) : null;
 
     const allLists = React.useMemo(() => {
         try { return JSON.parse(localStorage.getItem('produs_lists_store') || '[]'); } catch { return []; }
-    }, [listId]);
+    }, [listId, activeTab]);
     const selectedList = listId ? allLists.find(l => l.id === listId) : null;
 
     const handleSelect = (tab) => {
@@ -471,7 +480,12 @@ const Writing = () => {
                     >
                         {activeTab === 'hub' && (
                             <HUDPanel title="WRITE HUB" subtitle="SELECT MODULE">
-                                <HubModule onSelect={handleSelect} />
+                                <HubModule 
+                                    onSelect={handleSelect}
+                                    journalCount={entries?.length || 0}
+                                    notesCount={allNotes?.length || 0}
+                                    listsCount={allLists?.length || 0}
+                                />
                             </HUDPanel>
                         )}
 

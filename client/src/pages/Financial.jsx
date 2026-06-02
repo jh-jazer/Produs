@@ -292,7 +292,11 @@ const Financial = () => {
             amount: d.amount,
             type: d.nature === 'income' ? 'upcoming' : 'debt',
             category: d.nature === 'income' ? 'Receivable' : 'Debt',
-            date: d.dueDate || d.createdAt
+            date: d.dueDate || d.createdAt,
+            isMonthly: d.isMonthly,
+            monthsLeft: d.monthsLeft,
+            startDate: d.dueDate || d.createdAt,
+            monthlyAmount: d.amount
         }));
         const savingsTxs = savings.map(s => ({
             _id: `savings-${s._id}`,

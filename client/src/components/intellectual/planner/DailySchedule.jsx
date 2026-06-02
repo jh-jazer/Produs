@@ -195,6 +195,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
     }
     const visibleTimes = times.filter(t => !isDuringSleep(t.hour));
     const scheduleItems = tasks?.filter(t => t.startTime) || [];
+    const isPlannerEmpty = scheduleItems.length === 0;
 
     const selectedDateStr = selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
 
@@ -280,7 +281,16 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                     <button onClick={() => setIsStoreOpen(true)} className="h-[38px] flex-1 border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm flex items-center justify-center gap-2 group/btn" title="TEMPLATES STORE">
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">TEMPLATES STORE</span>
                     </button>
-                    <button onClick={() => setIsSaveOpen(true)} className="h-[38px] flex-1 border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm flex items-center justify-center gap-2 group/btn" title="SAVE AS TEMPLATE">
+                    <button 
+                        onClick={() => !isPlannerEmpty && setIsSaveOpen(true)} 
+                        disabled={isPlannerEmpty}
+                        className={`h-[38px] flex-1 border transition-all rounded-sm flex items-center justify-center gap-2 group/btn ${
+                            isPlannerEmpty 
+                                ? "border-black/10 dark:border-white/10 text-black/30 dark:text-white/25 bg-black/5 dark:bg-white/5 cursor-not-allowed opacity-50"
+                                : "border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black"
+                        }`}
+                        title={isPlannerEmpty ? "ADD ACTIVITIES TO SAVE A TEMPLATE" : "SAVE AS TEMPLATE"}
+                    >
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">SAVE AS TEMPLATE</span>
                     </button>
                 </div>
