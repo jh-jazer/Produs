@@ -84,7 +84,7 @@ export default function Landing() {
     startLoading();
     setTimeout(() => {
       navigate(user ? "/dashboard" : "/auth");
-    }, 1000); 
+    }, 200); 
   };
 
   const [isLoaded, setIsLoaded] = useState(false);

@@ -15,8 +15,8 @@ const MobileBottomNav = () => {
         { id: 'habits', name: 'Habits', path: '/dashboard/habits', icon: 'check_circle' },
         { id: 'planner', name: 'Planner', path: '/dashboard/planner', icon: 'calendar_today' },
         { id: 'calendar', name: 'Calendar', path: '/dashboard/calendar', icon: 'event' },
-        { id: 'writing', name: 'Write', path: '/dashboard/writing', icon: 'edit' },
         { id: 'financial', name: 'Finances', path: '/dashboard/financial', icon: 'account_balance' },
+        { id: 'writing', name: 'Write', path: '/dashboard/writing', icon: 'edit' },
     ];
 
     const rpgPillars = [

@@ -29,7 +29,7 @@ const LandingHeader = ({ activeTab }) => {
     startLoading();
     setTimeout(() => {
       navigate(user ? "/dashboard" : "/auth");
-    }, 1000); 
+    }, 200); 
   };
 
   return (

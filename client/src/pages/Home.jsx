@@ -1243,10 +1243,8 @@ export default function Home() {
                       title="RETRACT ID"
                     >
                       <div className="w-4 h-1 bg-black dark:bg-white z-[60] shadow-[0_0_15px_rgba(0,0,0,0.5)] dark:shadow-[0_0_15px_rgba(255,255,255,0.5)] shrink-0 group-hover/retract:bg-black dark:group-hover/retract:bg-white group-hover/retract:scale-x-125 transition-all" />
-                      <motion.div
+                      <div
                         className="w-[12px] h-[15vh] md:h-20 bg-black dark:bg-white opacity-80 shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:shadow-[0_0_10px_rgba(255,255,255,0.1)] shrink-0 z-50 group-hover/retract:bg-black dark:group-hover/retract:bg-white group-hover/retract:opacity-100 transition-all origin-top"
-                        animate={{ rotateZ: [0, 1.5, -1, 0.8, 0] }}
-                        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', repeatType: 'mirror', delay: 0.5 }}
                       />
                       
                       <span className="absolute -top-6 whitespace-nowrap bg-black/90 text-white text-[7px] font-mono font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded-sm border border-white/10 opacity-0 group-hover/retract:opacity-100 transition-opacity pointer-events-none">

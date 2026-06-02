@@ -197,77 +197,114 @@
         })
         .catch(() => console.log('Using local fallback tips'));
 
-      // Check if we should skip the loader
+      // Check if we should skip the loader entirely
       if (window.location.pathname.includes('/neural-sync')) {
         const loader = document.getElementById('initial-loader');
         if (loader) loader.style.display = 'none';
         return;
       }
 
-      const progressBar = document.getElementById('progress-bar');
-      const tipContent = document.getElementById('tip-content');
-      
-      let progress = 0;
-      let isAppReady = false;
-      let isAnimationComplete = false;
+      // --- Repeat-visit fast path ---
+      var isReturningUser = false;
+      try { isReturningUser = localStorage.getItem('produs-has-loaded') === '1'; } catch(e) {}
+
+      var progressBar = document.getElementById('progress-bar');
+      var tipContent = document.getElementById('tip-content');
+
+      var progress = 0;
+      var isAppReady = false;
+      var exitStarted = false;
 
       function setNewTip() {
-        const randomTip = tips[Math.floor(Math.random() * tips.length)];
+        var randomTip = tips[Math.floor(Math.random() * tips.length)];
         tipContent.classList.remove('active');
-        setTimeout(() => {
+        setTimeout(function() {
           tipContent.textContent = randomTip;
           tipContent.classList.add('active');
-        }, 400);
+        }, 300);
       }
 
       setNewTip();
-      const tipInterval = setInterval(setNewTip, 5000); // 5 seconds per tip for better readability
+      // Only rotate tips for first-time visitors (returning users won't see many)
+      var tipInterval = isReturningUser ? null : setInterval(setNewTip, 5000);
 
-      function updateLoader() {
-        if (progress >= 100) {
-          progress = 100;
-          isAnimationComplete = true;
-          checkAndHide();
+      // --- Core exit routine ---
+      function beginExit() {
+        if (exitStarted) return;
+        exitStarted = true;
+
+        // Mark the user as a returning visitor for next time
+        try { localStorage.setItem('produs-has-loaded', '1'); } catch(e) {}
+
+        if (tipInterval) clearInterval(tipInterval);
+
+        // Fast-forward progress bar to 100% visually
+        progress = 100;
+        if (progressBar) {
+          progressBar.style.transition = 'width 0.3s ease-out';
+          progressBar.style.width = '100%';
+        }
+
+        // Brief pause at 100% so the user sees completion, then fade out
+        var exitDelay = isReturningUser ? 200 : 400;
+        setTimeout(function() {
+          var loader = document.getElementById('initial-loader');
+          if (!loader) return;
+          loader.classList.add('fade-out');
+          document.documentElement.classList.remove('loading-lock');
+          setTimeout(function() {
+            if (loader.parentNode) loader.remove();
+          }, 1500);
+        }, exitDelay);
+      }
+
+      // --- Progress animation ---
+      // Returning users: aggressive speed (~2s to fill).
+      // First-time users: cinematic speed (~5s to fill), but exits early if React is ready.
+      function updateProgress() {
+        if (exitStarted) return;
+
+        // If React is already ready, fast-forward immediately
+        if (isAppReady) {
+          beginExit();
           return;
         }
 
-        const step = progress < 40 ? 0.6 : progress < 80 ? 0.3 : 0.1;
+        if (progress >= 100) {
+          // Bar is full but React isn't ready yet — just wait
+          return;
+        }
+
+        var step;
+        if (isReturningUser) {
+          // Fast path: fill in ~2s (120 frames at 60fps, need 100% total)
+          step = progress < 60 ? 1.5 : progress < 90 ? 1.0 : 0.5;
+        } else {
+          // Cinematic path: fill in ~5s
+          step = progress < 40 ? 0.6 : progress < 80 ? 0.3 : 0.15;
+        }
         progress = Math.min(100, progress + step);
 
         if (progressBar) progressBar.style.width = progress + '%';
 
-        requestAnimationFrame(updateLoader);
+        requestAnimationFrame(updateProgress);
       }
 
-      function checkAndHide() {
-        if (isAppReady && isAnimationComplete) {
-          const loader = document.getElementById('initial-loader');
-          if (!loader) return;
-          
-          clearInterval(tipInterval);
-          setTimeout(() => {
-            loader.classList.add('fade-out');
-            document.documentElement.classList.remove('loading-lock');
-            setTimeout(() => {
-              if (loader.parentNode) loader.remove();
-            }, 1500);
-          }, 800);
-        }
-      }
-
-      window.hideInitialLoader = () => {
+      // --- Public API: React calls this when mounted ---
+      window.hideInitialLoader = function() {
         isAppReady = true;
-        checkAndHide();
+        beginExit();
       };
 
-      setTimeout(() => {
-        if (!isAppReady) {
+      // --- Failsafe: never strand the user (reduced from 12s to 6s) ---
+      setTimeout(function() {
+        if (!exitStarted) {
           isAppReady = true;
-          checkAndHide();
+          beginExit();
         }
-      }, 12000); 
+      }, 6000);
 
-      requestAnimationFrame(updateLoader);
+      requestAnimationFrame(updateProgress);
     })();
   </script>
 </body>
