@@ -73,12 +73,21 @@ describe('api.js', () => {
     });
 
     describe('Response Interceptor (401 Unauthorized)', () => {
-        it('should redirect to /auth on 401 response when window is defined', async () => {
+        it('should dispatch auth-unauthorized event and clear token on 401 response when window is defined', async () => {
             // Mock window object
+            let dispatchedEvent = null;
             global.window = {
+                dispatchEvent: (event) => {
+                    dispatchedEvent = event;
+                },
                 location: {
                     href: ''
                 }
+            };
+
+            // Mock localStorage
+            global.localStorage = {
+                removeItem: (key) => {}
             };
 
             api.defaults.adapter = async (config) => {
@@ -93,7 +102,8 @@ describe('api.js', () => {
                 // Expected to throw/reject
             }
 
-            expect(global.window.location.href).toBe('/auth');
+            expect(dispatchedEvent).not.toBeNull();
+            expect(dispatchedEvent.type).toBe('auth-unauthorized');
         });
 
         it('should just reject if error is not 401', async () => {
