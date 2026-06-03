@@ -30,7 +30,7 @@ const HUDPanel = ({ title, subtitle, children, className = "" }) => (
         </div>
       </div>
     )}
-    <div className={`relative pt-6 pb-8 md:py-12 px-0 md:px-12 rounded-sm overflow-hidden ${className}`}>
+    <div className={`relative pt-16 pb-8 md:py-12 px-0 md:px-12 rounded-sm overflow-hidden ${className}`}>
       <div className="relative z-10">
         {children}
       </div>
