@@ -25,7 +25,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
     <div className="w-full flex flex-col">
         {title && (
-            <div className="mb-6 flex justify-between items-start px-4 md:px-0">
+            <div className="mb-6 hidden md:flex justify-between items-start px-4 md:px-0">
                 <div className="flex flex-col gap-1">
                     <span className="text-2xl md:text-3xl font-black uppercase tracking-[0.3em] text-foreground/95">{title}</span>
                     {subtitle && <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/45">{subtitle}</span>}
