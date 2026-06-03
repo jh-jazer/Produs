@@ -271,7 +271,7 @@ const FinancialOverview = ({
                                             <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
                                                 <div className="absolute inset-0 bg-[#000000]/80 backdrop-blur-sm" onClick={() => setShowSettings(false)} />
                                                 <DashboardPanel
-                                                    className="w-full max-w-sm z-10"
+                                                    className="w-full max-w-sm z-10 bg-white dark:bg-[#080808]"
                                                     title="FINANCIAL CONFIG"
                                                     subtitle="SYSTEM SETTINGS"
                                                     headerExtra={
