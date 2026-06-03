@@ -120,7 +120,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
                                 className="size-3.5 rounded-full flex items-center justify-center text-foreground/30 hover:text-foreground hover:bg-foreground/5 dark:text-white/20 dark:hover:text-white dark:hover:bg-white/5 transition-all"
                                 title="VIEW SYSTEM UPDATE 1.0.2"
                             >
-                                <span className="material-symbols-outlined text-[8px]">info</span>
+                                <span className="material-symbols-outlined" style={{ fontSize: '9px' }}>info</span>
                             </button>
                         </div>
                     </div>
