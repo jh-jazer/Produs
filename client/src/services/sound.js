@@ -35,9 +35,16 @@ class SoundManager {
             const ctx = this.initContext();
             const now = ctx.currentTime;
             
+            const user = useAuthStore.getState().user;
+            const soundVolume = user?.settings?.soundVolume ?? 1.0;
+
+            const globalGain = ctx.createGain();
+            globalGain.gain.value = soundVolume;
+            globalGain.connect(ctx.destination);
+
             // Gain node to control volume
             const masterGain = ctx.createGain();
-            masterGain.connect(ctx.destination);
+            masterGain.connect(globalGain);
 
             switch (type) {
                 case 'click': {
@@ -256,8 +263,15 @@ class SoundManager {
             const ctx = this.initContext();
             const now = ctx.currentTime;
             
+            const user = useAuthStore.getState().user;
+            const soundVolume = user?.settings?.soundVolume ?? 1.0;
+
+            const globalGain = ctx.createGain();
+            globalGain.gain.value = soundVolume;
+            globalGain.connect(ctx.destination);
+
             const masterGain = ctx.createGain();
-            masterGain.connect(ctx.destination);
+            masterGain.connect(globalGain);
 
             switch (alarmType) {
                 case 'digital': {
@@ -430,9 +444,16 @@ class SoundManager {
             }
 
             // Connect nodes
+            const user = useAuthStore.getState().user;
+            const soundVolume = user?.settings?.soundVolume ?? 1.0;
+
+            const globalGain = ctx.createGain();
+            globalGain.gain.value = soundVolume;
+            globalGain.connect(ctx.destination);
+
             this.bgSource.connect(this.bgFilter);
             this.bgFilter.connect(this.bgGain);
-            this.bgGain.connect(ctx.destination);
+            this.bgGain.connect(globalGain);
 
             this.bgSource.start(now);
         } catch (e) {

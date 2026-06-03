@@ -49,8 +49,8 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
         }
     }, [user?.settings]);
 
-    const handleToggle = async (key) => {
-        const newValue = !localSettings[key];
+    const handleToggle = async (key, explicitValue = undefined) => {
+        const newValue = explicitValue !== undefined ? explicitValue : !localSettings[key];
         const updatedLocal = { ...localSettings, [key]: newValue };
         setLocalSettings(updatedLocal);
         if (key === 'soundsEnabled' && newValue) {
@@ -189,6 +189,42 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                                 />
                             </button>
                         </div>
+
+                        {localSettings.soundsEnabled !== false && (
+                            <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
+                                <div className="flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-foreground opacity-60">volume_up</span>
+                                    <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Sound Volume</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="3"
+                                        step="0.1"
+                                        value={localSettings.soundVolume ?? 1.0}
+                                        onChange={(e) => {
+                                            const val = parseFloat(e.target.value);
+                                            setLocalSettings({ ...localSettings, soundVolume: val });
+                                        }}
+                                        onMouseUp={(e) => {
+                                            const val = parseFloat(e.target.value);
+                                            handleToggle('soundVolume', val);
+                                            soundManager.play('click');
+                                        }}
+                                        onTouchEnd={(e) => {
+                                            const val = parseFloat(e.target.value);
+                                            handleToggle('soundVolume', val);
+                                            soundManager.play('click');
+                                        }}
+                                        className="w-24 accent-foreground"
+                                    />
+                                    <span className="text-[8px] font-mono text-foreground/60 w-8 text-right">
+                                        {Math.round((localSettings.soundVolume ?? 1.0) * 100)}%
+                                    </span>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
                              <div className="flex items-center gap-3">

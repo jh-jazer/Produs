@@ -176,6 +176,16 @@ const userSchema = new mongoose.Schema({
         type: String
     },
     settings: {
+        soundsEnabled: {
+            type: Boolean,
+            default: true
+        },
+        soundVolume: {
+            type: Number,
+            default: 1.0,
+            min: 0,
+            max: 3.0
+        },
         notificationsEnabled: {
             type: Boolean,
             default: false
