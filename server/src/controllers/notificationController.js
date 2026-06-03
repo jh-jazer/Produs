@@ -38,16 +38,3 @@ export const markAllAsRead = async (req, res) => {
     }
 };
 
-export const deleteNotification = async (req, res) => {
-    try {
-        const notification = await Notification.findById(req.params.id);
-        if (notification && notification.user.toString() === req.user._id.toString()) {
-            await notification.deleteOne();
-            res.json({ message: 'Notification removed' });
-        } else {
-            res.status(404).json({ message: 'Notification not found' });
-        }
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};

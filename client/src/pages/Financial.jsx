@@ -23,20 +23,20 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
-    <div className={`relative bg-transparent md:bg-foreground/[0.02] md:hover:bg-foreground/[0.04] transition-all px-0 md:px-12 py-4 md:py-8 rounded-sm group overflow-hidden ${className}`}>
-        <div className="hidden md:block">
-            <ChippedBorder opacity={0.6} />
-        </div>
-        <div className="relative z-10">
-            {title && (
-                <div className="mb-8 flex justify-between items-start">
-                    <div className="flex flex-col gap-1">
-                        <span className="text-2xl md:text-3xl font-black uppercase tracking-[0.3em] text-foreground/95">{title}</span>
-                    </div>
-                    {headerExtra && <div className="flex gap-2">{headerExtra}</div>}
+    <div className="w-full flex flex-col">
+        {title && (
+            <div className="mb-6 flex justify-between items-start px-4 md:px-0">
+                <div className="flex flex-col gap-1">
+                    <span className="text-2xl md:text-3xl font-black uppercase tracking-[0.3em] text-foreground/95">{title}</span>
+                    {subtitle && <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/45">{subtitle}</span>}
                 </div>
-            )}
-            {children}
+                {headerExtra && <div className="flex gap-2">{headerExtra}</div>}
+            </div>
+        )}
+        <div className={`relative bg-transparent dark:bg-foreground/[0.02] dark:hover:bg-foreground/[0.04] transition-all px-0 md:px-12 py-4 md:py-8 rounded-sm group overflow-hidden ${className}`}>
+            <div className="relative z-10">
+                {children}
+            </div>
         </div>
     </div>
 );
@@ -48,7 +48,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const Financial = () => {
     const { user } = useAuthStore();
     const location = useLocation();
-    const currencySymbol = user?.currency === 'PHP' ? '₱' : '$';
+    const currencySymbol = (user?.currency || 'PHP') === 'PHP' ? '₱' : '$';
 
     const {
         transactions,
@@ -312,7 +312,7 @@ const Financial = () => {
     if (isLoading && transactions.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-0 md:pt-20 md:pb-0 font-sans overflow-x-hidden flex flex-col items-center">
+        <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-12 md:pt-20 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
             <div className="w-full mt-4 md:mt-6">
                 <AnimatePresence mode="wait">
                     <motion.div
@@ -327,7 +327,7 @@ const Financial = () => {
                         <div className="w-full">
                             {/* SUMMARY DIVISION */}
                             {activeModule === 'summary' && (
-                                <HUDPanel>
+                                <HUDPanel title="FINANCE HUB" subtitle="FINANCIAL SUMMARY">
                                     <FinancialOverview
                                         transactions={transactions}
                                         budgets={budgets}

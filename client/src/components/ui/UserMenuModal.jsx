@@ -22,6 +22,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
                 isOpen={isOpen}
                 onClose={onClose}
                 maxWidth="max-w-md"
+                borderClass="border-black dark:border-white"
             >
                 <div className="flex flex-col gap-8 -mt-2">
                     {/* User Identity Header */}
@@ -110,16 +111,16 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
                             <span>SIGN OUT</span>
                         </button>
 
-                        <div className="flex items-center justify-center gap-1.5 pt-5 pb-1 pr-1">
+                        <div className="flex items-center justify-center gap-3 pt-5 pb-1 pr-1">
                             <span className="text-[8px] font-mono font-black text-foreground/25 dark:text-white/20 uppercase tracking-[0.4em] pointer-events-none">
-                                v1.0.1
+                                v1.0.2
                             </span>
                             <button 
                                 onClick={(e) => { e.stopPropagation(); setShowPatchNotes(true); }}
-                                className="size-4 rounded-full flex items-center justify-center text-foreground/30 hover:text-foreground hover:bg-foreground/5 dark:text-white/20 dark:hover:text-white dark:hover:bg-white/5 transition-all"
-                                title="VIEW SYSTEM UPDATE 1.0.1"
+                                className="size-3.5 rounded-full flex items-center justify-center text-foreground/30 hover:text-foreground hover:bg-foreground/5 dark:text-white/20 dark:hover:text-white dark:hover:bg-white/5 transition-all"
+                                title="VIEW SYSTEM UPDATE 1.0.2"
                             >
-                                <span className="material-symbols-outlined text-[10px]">info</span>
+                                <span className="material-symbols-outlined text-[8px]">info</span>
                             </button>
                         </div>
                     </div>

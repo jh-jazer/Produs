@@ -6,6 +6,7 @@ import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 import useMobile from '../hooks/useMobile';
 import { useSWRConfig } from 'swr';
+import { soundManager } from '../services/sound';
 
 // Components
 import RPGImmersiveOverlay from '../components/rpg/RPGImmersiveOverlay';
@@ -207,6 +208,7 @@ export default function Home() {
   const [lootBoxOpened, setLootBoxOpened] = useState(false);
   const [showFocusCancelConfirm, setShowFocusCancelConfirm] = useState(false);
   const [hasCompletedFocusHabitThisSession, setHasCompletedFocusHabitThisSession] = useState(false);
+  const [focusBgSound, setFocusBgSound] = useState('rain');
 
   // Auto-complete Focus habit when focus time reaches 5 mins (300 seconds)
   useEffect(() => {
@@ -235,11 +237,21 @@ export default function Home() {
     } else if (showFocusTimer && focusTimeLeft === 0 && isFocusRunning) {
       setIsFocusRunning(false);
       setFocusStage('complete');
+      soundManager.stopFocusBackground();
+      soundManager.startAlarm('zen');
     }
     return () => {
       if (interval) clearInterval(interval);
     };
   }, [showFocusTimer, isFocusRunning, focusTimeLeft]);
+
+  // Stop alarm and background audio if focus timer is closed or aborted
+  useEffect(() => {
+    if (!showFocusTimer) {
+      soundManager.stopAlarm();
+      soundManager.stopFocusBackground();
+    }
+  }, [showFocusTimer]);
 
   // Toggle layout visibility during Focus Mode
   useEffect(() => {
@@ -1729,12 +1741,50 @@ export default function Home() {
                   {/* Removed habit completion eligible text */}
                 </div>
 
+                {/* Focus Background Sound Picker */}
+                <div className="flex flex-col gap-2 w-full items-center mt-2 mb-4 select-none">
+                  <span className="text-[8px] font-black tracking-[0.3em] text-black/30 dark:text-white/30 uppercase">FOCUS BACKGROUND</span>
+                  <div className="flex flex-wrap justify-center gap-1.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 p-1 rounded-sm w-full">
+                    {[
+                      { id: 'silence', label: '🔇 SILENCE' },
+                      { id: 'white_noise', label: '💨 WHITE NOISE' },
+                      { id: 'rain', label: '🌧️ RAIN' }
+                    ].map(sound => (
+                      <button
+                        key={sound.id}
+                        onClick={() => {
+                          setFocusBgSound(sound.id);
+                          soundManager.startFocusBackground(sound.id);
+                          // Play a brief 1.5 second preview during setup stage
+                          const previewTimeout = setTimeout(() => {
+                            soundManager.stopFocusBackground();
+                          }, 1500);
+                          // Save timeout reference or clean up if they select another one
+                          window._bgPreviewTimeout && clearTimeout(window._bgPreviewTimeout);
+                          window._bgPreviewTimeout = previewTimeout;
+                        }}
+                        className={`px-3 py-1.5 text-[8px] font-black uppercase tracking-wider rounded-sm transition-all ${
+                          focusBgSound === sound.id 
+                            ? 'bg-black text-white dark:bg-white dark:text-black font-bold' 
+                            : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
+                        }`}
+                      >
+                        {sound.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex flex-col gap-3 w-full">
                   <button
                     onClick={() => {
+                      // Clear any preview timeout
+                      window._bgPreviewTimeout && clearTimeout(window._bgPreviewTimeout);
                       setFocusStage('countdown');
                       setIsFocusRunning(true);
                       setHasCompletedFocusHabitThisSession(false);
+                      soundManager.play('timerStart');
+                      soundManager.startFocusBackground(focusBgSound);
                     }}
                     className="w-full bg-black text-white dark:bg-white dark:text-black font-black uppercase tracking-[0.3em] text-[10px] py-4 rounded-sm hover:opacity-80 active:scale-95 transition-all shadow-[0_0_35px_rgba(0,0,0,0.1)] dark:shadow-[0_0_35px_rgba(255,255,255,0.2)]"
                   >
@@ -1806,6 +1856,33 @@ export default function Home() {
                     </div>
                   </div>
 
+                  {/* Focus Background Sound Picker */}
+                  <div className="flex flex-col gap-2 w-full items-center mt-6 select-none">
+                    <span className="text-[8px] font-black tracking-[0.3em] text-black/30 dark:text-white/30 uppercase">FOCUS BACKGROUND</span>
+                    <div className="flex flex-wrap justify-center gap-1.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 p-1 rounded-sm w-full">
+                      {[
+                        { id: 'silence', label: '🔇 SILENCE' },
+                        { id: 'white_noise', label: '💨 WHITE NOISE' },
+                        { id: 'rain', label: '🌧️ RAIN' }
+                      ].map(sound => (
+                        <button
+                          key={sound.id}
+                          onClick={() => {
+                            setFocusBgSound(sound.id);
+                            soundManager.startFocusBackground(sound.id);
+                          }}
+                          className={`px-3 py-1.5 text-[8px] font-black uppercase tracking-wider rounded-sm transition-all ${
+                            focusBgSound === sound.id 
+                              ? 'bg-black text-white dark:bg-white dark:text-black font-bold' 
+                              : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
+                          }`}
+                        >
+                          {sound.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="flex gap-4 w-full mt-6">
                     <button
                       onClick={() => {
@@ -1848,7 +1925,11 @@ export default function Home() {
                       initial={{ scale: 0.9, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0.8, opacity: 0 }}
-                      onClick={() => setLootBoxOpened(true)}
+                      onClick={() => {
+                        setLootBoxOpened(true);
+                        soundManager.stopAlarm();
+                        soundManager.stopFocusBackground();
+                      }}
                       className="cursor-pointer group flex flex-col items-center gap-4 p-8 border border-dashed border-black/20 dark:border-white/20 hover:border-black/40 dark:hover:border-white/40 bg-black/[0.02] dark:bg-white/[0.02] hover:bg-black/[0.04] dark:hover:bg-white/[0.04] rounded-sm transition-all w-full"
                     >
                       <motion.div
@@ -1966,6 +2047,7 @@ export default function Home() {
                           setIsFocusRunning(false);
                           setFocusStage('select');
                           setFocusTimeLeft(focusSelectedTime * 60);
+                          soundManager.stopFocusBackground();
                         }}
                         className="w-full bg-rose-500 text-white font-black uppercase tracking-[0.2em] text-[9px] py-3 rounded-sm active:scale-95 transition-all"
                       >

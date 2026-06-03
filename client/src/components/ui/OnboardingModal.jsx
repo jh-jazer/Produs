@@ -143,7 +143,7 @@ const OnboardingModal = ({ isOpen, onClose }) => {
                 username,
                 themeMode,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                currency: 'USD'
+                currency: 'PHP'
             });
 
             mutate('/auth/me');

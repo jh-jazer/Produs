@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import useAuthStore from '../../store/useAuthStore';
 import Avatar from './Avatar';
+import { soundManager } from '../../services/sound';
 import { UserPlus, Search, X, Heart, Link as LinkIcon, Link2Off, Loader2, Users } from 'lucide-react';
 import { useSWRConfig } from 'swr';
 
@@ -34,11 +35,11 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
         fetchConnections();
     }, [isOpen, user?.partner]);
 
-    const handleLinkPartner = async (email) => {
+    const handleLinkPartner = async (email, userId) => {
         setIsLinking(true);
         setLinkMessage("");
         try {
-            const res = await api.post('/auth/partner/request', { email });
+            const res = await api.post('/auth/partner/request', { email, userId });
             setLinkMessage(res.data.message || "Request sent!");
             setCredentials({ ...user, outgoingPartnerRequest: res.data.outgoingRequest });
             mutate('/auth/me');
@@ -55,6 +56,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
         setLinkMessage("");
         try {
             const res = await api.post('/auth/partner/accept');
+            soundManager.play('connectionAccepted');
             setLinkMessage(res.data.message || "Linked successfully!");
             setCredentials({ ...user, partner: res.data.partner, incomingPartnerRequest: null });
             mutate('/auth/me');
@@ -288,7 +290,7 @@ const PartnerModal = ({ isOpen, onClose, onProfileClick }) => {
                                                             </div>
                                                         </div>
                                                         <button
-                                                            onClick={() => handleLinkPartner(c.email)}
+                                                            onClick={() => handleLinkPartner(c.email, c._id)}
                                                             disabled={isLinking}
                                                             className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 text-cyan-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-cyan-500 hover:text-white transition-all active:scale-95"
                                                         >

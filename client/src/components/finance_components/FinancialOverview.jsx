@@ -20,7 +20,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 const FinancialOverview = ({
   transactions = [],
   budgets = [],
-  currencySymbol = "$",
+  currencySymbol = "₱",
   totalSavings = 0,
   totalDebt = 0,
   totalUpcomingIncome = 0,
@@ -37,7 +37,7 @@ const FinancialOverview = ({
   selectedTransactions = [],
   allTransactions = []
 }) => {
-  const [foresee, setForesee] = useState(false);
+  const [foresee, setForesee] = useState(true);
   const [localCurrency, setLocalCurrency] = useState(currencySymbol);
   const [showSettings, setShowSettings] = useState(false);
   const [viewMode, setViewMode] = useState("current"); 

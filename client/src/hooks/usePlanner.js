@@ -1,6 +1,7 @@
 import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
+import { soundManager } from '../services/sound';
 
 export const usePlanner = (dateInput) => {
     const { user } = useAuthStore();
@@ -67,6 +68,9 @@ export const usePlanner = (dateInput) => {
     const toggleComplete = async (id) => {
         const task = tasks?.find(t => t._id === id);
         if (task) {
+            if (!task.completed) {
+                soundManager.play('ding');
+            }
             await updateTask(id, { completed: !task.completed });
         }
     };

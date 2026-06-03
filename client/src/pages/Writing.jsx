@@ -22,20 +22,20 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, headerExtra, className = "" }) => (
-  <div className={`relative border border-transparent md:border-black/10 dark:md:border-white/10 bg-transparent md:bg-white/20 dark:md:bg-black/20 backdrop-blur-none md:backdrop-blur-md px-0 md:px-8 py-2 md:py-4 rounded-sm overflow-hidden ${className}`}>
-    <div className="hidden md:block">
-      <ChippedBorder opacity={0.6} />
-    </div>
-    <div className="relative z-10">
-      {title && (
-        <div className="mb-4 hidden md:flex justify-between items-start">
-          <div className="flex flex-col gap-1">
-            <span className="text-2xl md:text-3xl font-black uppercase tracking-[0.3em] text-foreground/95">{title}</span>
-          </div>
-          {headerExtra && <div className="flex gap-2">{headerExtra}</div>}
+  <div className="w-full flex flex-col">
+    {title && (
+      <div className="mb-6 hidden md:flex justify-between items-start px-4 md:px-0">
+        <div className="flex flex-col gap-1">
+          <span className="text-2xl md:text-3xl font-black uppercase tracking-[0.3em] text-foreground/95">{title}</span>
+          {subtitle && <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/45">{subtitle}</span>}
         </div>
-      )}
-      {children}
+        {headerExtra && <div className="flex gap-2">{headerExtra}</div>}
+      </div>
+    )}
+    <div className={`relative border border-transparent bg-transparent dark:md:bg-black/20 dark:md:backdrop-blur-md px-0 md:px-8 py-2 md:py-4 rounded-sm overflow-hidden ${className}`}>
+      <div className="relative z-10">
+        {children}
+      </div>
     </div>
   </div>
 );
@@ -48,7 +48,7 @@ const CountBadge = ({ count }) => (
 
 const HubModule = ({ onSelect, journalCount = 0, notesCount = 0, listsCount = 0 }) => {
     return (
-        <div className="flex flex-col md:flex-row gap-6 w-full">
+        <div className="flex flex-col gap-6 w-full">
             <button
                 onClick={() => onSelect('journal')}
                 className="flex-1 group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
@@ -63,7 +63,7 @@ const HubModule = ({ onSelect, journalCount = 0, notesCount = 0, listsCount = 0 
                 <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mt-1.5">Daily Reflections</span>
             </button>
 
-            <div className="w-full h-[2px] md:w-[2px] md:h-32 bg-black/10 dark:bg-white/10 shrink-0 self-center rounded-full" />
+            <div className="w-full h-[2px] bg-black/10 dark:bg-white/10 shrink-0 self-center rounded-full" />
 
             <button
                 onClick={() => onSelect('notes')}
@@ -79,7 +79,7 @@ const HubModule = ({ onSelect, journalCount = 0, notesCount = 0, listsCount = 0 
                 <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mt-1.5">Scratchpad Memos</span>
             </button>
 
-            <div className="w-full h-[2px] md:w-[2px] md:h-32 bg-black/10 dark:bg-white/10 shrink-0 self-center rounded-full" />
+            <div className="w-full h-[2px] bg-black/10 dark:bg-white/10 shrink-0 self-center rounded-full" />
 
             <button
                 onClick={() => onSelect('lists')}
@@ -446,8 +446,8 @@ const Writing = () => {
     if (isLoading && entries.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground px-0 md:px-12 pt-24 md:pt-20 pb-8 font-sans overflow-x-hidden flex flex-col items-center">
-            <div className="w-full max-w-7xl mt-12 md:mt-8 flex flex-col gap-6">
+        <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-12 md:pt-20 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full mt-4 md:mt-6 flex flex-col gap-6">
 
                 {activeTab !== 'hub' && activeTab !== 'journal_entry' && activeTab !== 'note_detail' && activeTab !== 'list_detail' && (
                     <button 

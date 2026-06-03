@@ -1,6 +1,7 @@
 import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
+import { soundManager } from '../services/sound';
 
 const calculateStreak = (checks) => {
     if (!checks || checks.length === 0) return 0;
@@ -58,6 +59,11 @@ export const useHabits = () => {
 
     const toggleCheck = async (habitId, dateStr) => {
         if (!userId) return;
+        const habit = processedHabits.find(h => h._id === habitId);
+        const wasChecked = habit?.checks?.some(c => c.date === dateStr && c.completed);
+        if (!wasChecked) {
+            soundManager.play('ding');
+        }
         try {
             await api.patch(`/habits/${habitId}/check`, { dateStr });
             mutate('/habits');

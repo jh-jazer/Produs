@@ -225,7 +225,7 @@ const userSchema = new mongoose.Schema({
     },
     currency: {
         type: String,
-        default: 'USD'
+        default: 'PHP'
     },
     partner: {
         type: mongoose.Schema.Types.ObjectId,

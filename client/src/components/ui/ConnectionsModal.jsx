@@ -3,6 +3,7 @@ import api from '../../services/api';
 import Avatar from './Avatar';
 import useAuthStore from '../../store/useAuthStore';
 import { DashboardContext } from '../../context/DashboardContext';
+import { soundManager } from '../../services/sound';
 import { Search, Link, LinkIcon, Send, X, Heart } from 'lucide-react';
 import DashboardModal from './DashboardModal';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -62,6 +63,9 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
             else if (action === 'disconnect') endpoint = `/auth/connection/disconnect/${targetUserId}`;
 
             await api.post(endpoint);
+            if (action === 'accept') {
+                soundManager.play('connectionAccepted');
+            }
             fetchConnections();
 
             const res = await api.get('/auth/me');
@@ -73,10 +77,10 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
     };
 
     const handleLinkRequest = async (targetUser) => {
-        if (!targetUser?.email) return;
+        if (!targetUser) return;
         setCardLinkState(prev => ({ ...prev, [targetUser._id]: 'loading' }));
         try {
-            await api.post('/auth/partner/request', { email: targetUser.email });
+            await api.post('/auth/partner/request', { email: targetUser.email, userId: targetUser._id });
             setCardLinkState(prev => ({ ...prev, [targetUser._id]: 'sent' }));
             const res = await api.get('/auth/me');
             syncUser(res.data);
@@ -242,9 +246,9 @@ const ConnectionsModal = ({ isOpen, onClose, onProfileClick }) => {
                                                         } else if (hasPendingRequest) {
                                                             isDisabled = true;
                                                             tooltip = 'You already have a pending partner request';
-                                                        } else if (!u.email) {
+                                                        } else if (!u._id) {
                                                             isDisabled = true;
-                                                            tooltip = 'No email associated with this connection';
+                                                            tooltip = 'No identifier associated with this connection';
                                                         }
 
                                                         if (s === 'sent') tooltip = 'Request sent!';

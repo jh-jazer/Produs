@@ -215,6 +215,22 @@ export const getMe = async (req, res) => {
             .populate('incomingPartnerRequest', 'name username email avatar');
         
         if (user) {
+            // Auto-clean dangling partner/request refs (populate returns null for deleted users)
+            let needsSave = false;
+            if (user.partner === null && user._doc.partner) {
+                // partner ObjectId exists but populated to null (user was deleted)
+                user.partner = null;
+                needsSave = true;
+            }
+            if (user.outgoingPartnerRequest === null && user._doc.outgoingPartnerRequest) {
+                user.outgoingPartnerRequest = null;
+                needsSave = true;
+            }
+            if (user.incomingPartnerRequest === null && user._doc.incomingPartnerRequest) {
+                user.incomingPartnerRequest = null;
+                needsSave = true;
+            }
+
             // Record login and compute streak
             const todayStr = new Date().toISOString().split('T')[0];
             if (!user.rpg.loginDates) {
@@ -292,10 +308,25 @@ export const getConnections = async (req, res) => {
         
         if (!user) return res.status(404).json({ message: 'User not found' });
 
+        // Auto-clean: filter out null entries (deleted users whose refs remain)
+        const validConnections = (user.connections || []).filter(c => c != null);
+        const validIncoming = (user.incomingConnectionRequests || []).filter(c => c != null);
+        const validOutgoing = (user.outgoingConnectionRequests || []).filter(c => c != null);
+
+        // If any were cleaned, persist the fix
+        if (validConnections.length !== (user.connections || []).length ||
+            validIncoming.length !== (user.incomingConnectionRequests || []).length ||
+            validOutgoing.length !== (user.outgoingConnectionRequests || []).length) {
+            user.connections = validConnections.map(c => c._id);
+            user.incomingConnectionRequests = validIncoming.map(c => c._id);
+            user.outgoingConnectionRequests = validOutgoing.map(c => c._id);
+            await user.save();
+        }
+
         res.json({
-            connections: user.connections || [],
-            incoming: user.incomingConnectionRequests || [],
-            outgoing: user.outgoingConnectionRequests || []
+            connections: validConnections,
+            incoming: validIncoming,
+            outgoing: validOutgoing
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -547,7 +578,7 @@ export const getPublicProfile = async (req, res) => {
             banner: user.banner,
             bio: user.bio,
             joined: user.createdAt,
-            connections: user.connections || [],
+            connections: (user.connections || []).filter(id => id != null),
             partner: user.partner,
             topHabits,
             systemStreaks,
@@ -977,34 +1008,62 @@ export const deleteUser = async (req, res) => {
 // @access  Private
 export const sendPartnerRequest = async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email, userId } = req.body;
 
-        if (!email) {
-            return res.status(400).json({ message: 'Email is required to request a partner link' });
+        if (!email && !userId) {
+            return res.status(400).json({ message: 'Email or User ID is required to request a partner link' });
         }
 
-        if (email.toLowerCase() === req.user.email.toLowerCase()) {
-            return res.status(400).json({ message: 'You cannot link yourself as a partner' });
+        let partnerToRequest;
+        if (userId) {
+            partnerToRequest = await User.findById(userId);
+        } else {
+            const escapedEmail = email.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            partnerToRequest = await User.findOne({ email: { $regex: new RegExp(`^${escapedEmail}$`, 'i') } });
         }
-
-        const partnerToRequest = await User.findOne({ email });
 
         if (!partnerToRequest) {
-            return res.status(404).json({ message: 'No user found with that email' });
+            return res.status(404).json({ message: userId ? 'No user found with that ID' : 'No user found with that email' });
+        }
+
+        if (partnerToRequest._id.toString() === req.user.id.toString()) {
+            return res.status(400).json({ message: 'You cannot link yourself as a partner' });
         }
 
         const currentUser = await User.findById(req.user.id);
 
+        // Auto-clean dangling/non-mutual partner references
         if (currentUser.partner) {
-            return res.status(400).json({ message: 'You already have a linked partner' });
+            const existingPartner = await User.findById(currentUser.partner);
+            if (!existingPartner || existingPartner.partner?.toString() !== currentUser._id.toString()) {
+                // Partner was deleted or the link is one-sided — auto-fix
+                currentUser.partner = null;
+                await currentUser.save();
+            } else {
+                return res.status(400).json({ message: 'You already have a linked partner' });
+            }
         }
 
         if (currentUser.outgoingPartnerRequest) {
-            return res.status(400).json({ message: 'You already have a pending outgoing request' });
+            const reqTarget = await User.findById(currentUser.outgoingPartnerRequest);
+            if (!reqTarget || !reqTarget.incomingPartnerRequest || reqTarget.incomingPartnerRequest.toString() !== currentUser._id.toString()) {
+                // Outgoing request is stale — auto-fix
+                currentUser.outgoingPartnerRequest = null;
+                await currentUser.save();
+            } else {
+                return res.status(400).json({ message: 'You already have a pending outgoing request' });
+            }
         }
 
         if (partnerToRequest.partner) {
-            return res.status(400).json({ message: 'This user already has a linked partner' });
+            const theirPartner = await User.findById(partnerToRequest.partner);
+            if (!theirPartner || theirPartner.partner?.toString() !== partnerToRequest._id.toString()) {
+                // Their partner reference is dangling/one-sided — auto-fix
+                partnerToRequest.partner = null;
+                await partnerToRequest.save();
+            } else {
+                return res.status(400).json({ message: 'This user already has a linked partner' });
+            }
         }
 
         // Set request fields
@@ -1263,6 +1322,95 @@ export const devRPGTest = async (req, res) => {
         user.markModified('rpg');
 
         switch (action) {
+            case 'inspectPartners': {
+                const allUsers = await User.find({}, 'name username email partner outgoingPartnerRequest incomingPartnerRequest');
+                return res.json({
+                    message: "Database user relationship dump",
+                    users: allUsers
+                });
+            }
+            case 'fixPartners': {
+                const allDbUsers = await User.find({});
+                const report = [];
+                for (const u of allDbUsers) {
+                    if (u.partner) {
+                        const p = await User.findById(u.partner);
+                        if (!p) {
+                            u.partner = null;
+                            await u.save();
+                            report.push(`Cleared dangling partner for ${u.username} (partner user did not exist)`);
+                        } else if (p.partner?.toString() !== u._id.toString()) {
+                            u.partner = null;
+                            await u.save();
+                            report.push(`Cleared non-mutual partner for ${u.username} (pointed to ${p.username}, but ${p.username} points to ${p.partner})`);
+                        }
+                    }
+                    if (u.outgoingPartnerRequest) {
+                        const p = await User.findById(u.outgoingPartnerRequest);
+                        if (!p) {
+                            u.outgoingPartnerRequest = null;
+                            await u.save();
+                            report.push(`Cleared dangling outgoing request for ${u.username}`);
+                        }
+                    }
+                    if (u.incomingPartnerRequest) {
+                        const p = await User.findById(u.incomingPartnerRequest);
+                        if (!p) {
+                            u.incomingPartnerRequest = null;
+                            await u.save();
+                            report.push(`Cleared dangling incoming request for ${u.username}`);
+                        }
+                    }
+                }
+                return res.json({
+                    message: "Partners fixed",
+                    report
+                });
+            }
+            case 'fixConnections': {
+                const allConnUsers = await User.find({});
+                const report = [];
+                const allUserIds = new Set(allConnUsers.map(u => u._id.toString()));
+                for (const u of allConnUsers) {
+                    let changed = false;
+                    // Clean connections
+                    const validConns = (u.connections || []).filter(id => allUserIds.has(id.toString()));
+                    if (validConns.length !== (u.connections || []).length) {
+                        const removed = (u.connections || []).length - validConns.length;
+                        u.connections = validConns;
+                        changed = true;
+                        report.push(`Removed ${removed} dangling connection(s) from ${u.username}`);
+                    }
+                    // Clean outgoing connection requests
+                    const validOut = (u.outgoingConnectionRequests || []).filter(id => allUserIds.has(id.toString()));
+                    if (validOut.length !== (u.outgoingConnectionRequests || []).length) {
+                        u.outgoingConnectionRequests = validOut;
+                        changed = true;
+                        report.push(`Cleaned outgoing connection requests for ${u.username}`);
+                    }
+                    // Clean incoming connection requests
+                    const validIn = (u.incomingConnectionRequests || []).filter(id => allUserIds.has(id.toString()));
+                    if (validIn.length !== (u.incomingConnectionRequests || []).length) {
+                        u.incomingConnectionRequests = validIn;
+                        changed = true;
+                        report.push(`Cleaned incoming connection requests for ${u.username}`);
+                    }
+                    // Ensure mutual connections (if A has B, B must have A)
+                    for (const connId of validConns) {
+                        const connUser = allConnUsers.find(x => x._id.toString() === connId.toString());
+                        if (connUser && !(connUser.connections || []).some(id => id.toString() === u._id.toString())) {
+                            connUser.connections.push(u._id);
+                            report.push(`Added missing mutual connection: ${connUser.username} <-> ${u.username}`);
+                            await connUser.save();
+                        }
+                    }
+                    if (changed) await u.save();
+                }
+                return res.json({
+                    message: "Connections fixed",
+                    report
+                });
+            }
             case 'giveXP':
                 // Directly add specified EXP amount to the level without affecting attribute points
                 const expAmount = parseInt(req.body.amount) || 100;

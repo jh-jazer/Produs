@@ -25,7 +25,8 @@ const DashboardModal = ({
     subtitle, 
     children, 
     maxWidth = 'max-w-4xl',
-    headerExtra
+    headerExtra,
+    borderClass = 'border-black/20 dark:border-white/20'
 }) => {
     // Portaling the modal ensures it sit at the root of the document, 
     // allowing its z-index and backdrop blur to cover the entire HUD.
@@ -66,7 +67,7 @@ const DashboardModal = ({
                             onClick={e => e.stopPropagation()}
                         >
                             <ChippedBorder opacity={0.6} thickness="4px" />
-                            <div className="absolute inset-0 border border-black/20 dark:border-white/20 pointer-events-none z-40" />
+                            <div className={`absolute inset-0 border ${borderClass} pointer-events-none z-40`} />
                         {/* Header Section */}
                         <div className="p-8 md:p-10 border-b border-black/5 dark:border-white/5 flex items-center justify-between relative z-20">
                             <div className="space-y-1">

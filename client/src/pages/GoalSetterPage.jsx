@@ -15,17 +15,19 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, className = "" }) => (
-  <div className={`relative bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all p-4 md:p-8 rounded-sm group overflow-hidden ${className}`}>
-    <div className="hidden md:block">
-      <ChippedBorder opacity={0.6} />
-    </div>
-    <div className="relative z-10">
-      <div className="mb-8 flex justify-between items-start">
+  <div className="w-full flex flex-col">
+    {title && (
+      <div className="mb-6 flex justify-between items-start px-4 md:px-0">
         <div className="flex flex-col gap-1">
           <span className="text-2xl md:text-3xl font-black uppercase tracking-[0.3em] text-foreground/95">{title}</span>
+          {subtitle && <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/45">{subtitle}</span>}
         </div>
       </div>
-      {children}
+    )}
+    <div className={`relative bg-transparent dark:bg-foreground/[0.02] dark:hover:bg-foreground/[0.04] transition-all p-4 md:p-8 rounded-sm group overflow-hidden ${className}`}>
+      <div className="relative z-10">
+        {children}
+      </div>
     </div>
   </div>
 );
@@ -34,8 +36,8 @@ const GoalSetterPage = () => {
     const { viewMode } = useContext(DashboardContext);
 
     return (
-        <div className="w-full bg-transparent text-foreground p-8 pt-12 md:p-12 md:pt-16 font-sans overflow-x-hidden flex flex-col items-center">
-            <div className="w-full max-w-7xl mt-8 md:mt-0">
+        <div className="w-full bg-transparent text-foreground px-0 pt-12 pb-12 md:pt-16 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full mt-4 md:mt-6">
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                     <HUDPanel title="GOALS" subtitle="MILESTONES & TARGETS">
                         <GoalSetter viewMode={viewMode} isReadOnly={viewMode === 'partner'} />

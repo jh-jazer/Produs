@@ -5,6 +5,7 @@ import SideEnergyBar from './dashboard/SideEnergyBar';
 import useSWR from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
+import { soundManager } from '../services/sound';
 import { 
     Plus, 
     PenTool, 
@@ -404,6 +405,7 @@ function Layout() {
 
                 prevNotificationsRef.current.push(notification._id);
             });
+            soundManager.play('notification');
         }
 
         notifications.forEach(n => {
@@ -636,8 +638,22 @@ function Layout() {
                 <aside className="hidden md:flex relative z-[150] h-full flex-col transition-all duration-[600ms] ease-[0.16,1,0.3,1] md:w-[18vw] layout-sidebar-left">
                     <div className="h-24 flex items-center px-2 shrink-0">
                         <div className="flex items-center gap-5 group cursor-pointer relative" onClick={() => setIsLandingModalOpen(true)}>
-                            <div className="p-2 md:p-4 transition-all duration-[600ms] opacity-100 translate-y-0">
+                            <div className="p-2 md:p-4 transition-all duration-[600ms] opacity-100 translate-y-0 flex items-center gap-2">
                                 <span className="wordmark text-foreground">PRODUS</span>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        soundManager.play('click');
+                                        setIsNotificationModalOpen(true);
+                                    }}
+                                    className="relative flex items-center justify-center p-1.5 rounded-sm hover:bg-foreground/10 transition-colors text-foreground/60 hover:text-foreground active:scale-95 cursor-pointer"
+                                    title="Notifications"
+                                >
+                                    <span className="material-symbols-outlined text-[16px] md:text-[18px]">notifications</span>
+                                    {hasAnyUnread && (
+                                        <span className="absolute top-1 right-1 size-1.5 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)] animate-pulse" />
+                                    )}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -673,6 +689,7 @@ function Layout() {
                                     <React.Fragment key={item.id}>
                                         <motion.button
                                             onClick={() => {
+                                                soundManager.play('click');
                                                 if (protocolMode === 'rpg') {
                                                     if (location.pathname !== '/dashboard') navigate('/dashboard');
                                                     setActiveRpgTab(item.id);

@@ -327,7 +327,7 @@ export default function IdentityCard({
                         ].map((m, i) => (
                             <div key={i} className="flex-1 flex flex-col justify-center min-w-0">
                                 <span className="text-xs font-black text-black dark:text-white leading-none">
-                                    {user?.currency === 'PHP' ? '₱' : '$'}{Math.abs(m.v).toLocaleString()}
+                                    {(user?.currency || 'PHP') === 'PHP' ? '₱' : '$'}{Math.abs(m.v).toLocaleString()}
                                 </span>
                                 <span className="text-[7px] font-black tracking-widest text-black/50 dark:text-white/40 uppercase mt-1 leading-none truncate w-full text-center px-1">
                                     {m.l}
@@ -472,7 +472,7 @@ export default function IdentityCard({
                                                         onClick={async () => {
                                                             setIsMenuOpen(false);
                                                             try {
-                                                                await api.post('/auth/partner/request', { email: user.username + '@email.com' });
+                                                                await api.post('/auth/partner/request', { userId: user._id });
                                                                 alert('Partner link request sent!');
                                                                 onClose && onClose();
                                                             } catch(e) {

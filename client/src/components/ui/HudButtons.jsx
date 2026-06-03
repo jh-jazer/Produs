@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useMobile from '../../hooks/useMobile';
 import useAuthStore from '../../store/useAuthStore';
+import { soundManager } from '../../services/sound';
 
 export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, isPartnerActive, variant = 'dashboard', isShrunk = false }) {
   const isMobile = useMobile();
@@ -12,6 +13,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
   const [shake, setShake] = useState(false);
 
   const handlePartnerClick = () => {
+    soundManager.play('click');
     if (isLinked) {
       onPartnerClick();
     } else {
@@ -31,7 +33,10 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
         <motion.button
           whileHover={{ x: -2 }}
           whileTap={{ scale: 0.95 }}
-          onClick={onRpgClick}
+          onClick={() => {
+            soundManager.play('click');
+            onRpgClick();
+          }}
           className="w-[6vw] md:w-[4.2vw] h-[8vh] bg-white flex items-center justify-center pointer-events-auto group overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all rounded-l-md"
         >
           <div className="flex flex-row items-center justify-center gap-1 pr-1">
@@ -77,7 +82,10 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
         <motion.button
           whileHover={{ x: -2 }}
           whileTap={{ scale: 0.95 }}
-          onClick={onRpgClick}
+          onClick={() => {
+            soundManager.play('click');
+            onRpgClick();
+          }}
           animate={{ width: isMobile ? (isShrunk ? '10vw' : '12vw') : (isShrunk ? '3.5vw' : '4.2vw') }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className={`md:w-[4.2vw] ${baseStyles} ${isRpgActive ? activeStyles : inactiveStyles}`}

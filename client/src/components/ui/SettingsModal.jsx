@@ -6,12 +6,13 @@ import useAuthStore from '../../store/useAuthStore';
 import DashboardModal from './DashboardModal';
 import { useTheme } from '../../hooks/useTheme';
 import ThemeToggle from './ThemeToggle';
+import { soundManager } from '../../services/sound';
 
 const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
     const { user, updateSettings, deleteAccount } = useAuthStore();
     const { themeMode, setThemeMode } = useTheme();
     const navigate = useNavigate();
-    const [localSettings, setLocalSettings] = useState(user?.settings || { notificationsEnabled: false, theme: 'classic', themeMode: 'light' });
+    const [localSettings, setLocalSettings] = useState(user?.settings || { notificationsEnabled: false, theme: 'classic', themeMode: 'light', soundsEnabled: true });
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteWord, setDeleteWord] = useState('');
@@ -52,6 +53,9 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
         const newValue = !localSettings[key];
         const updatedLocal = { ...localSettings, [key]: newValue };
         setLocalSettings(updatedLocal);
+        if (key === 'soundsEnabled' && newValue) {
+            setTimeout(() => soundManager.play('click'), 50);
+        }
         try {
             await updateSettings({ [key]: newValue });
         } catch (err) {
@@ -171,12 +175,28 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                         </div>
 
                         <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-foreground opacity-60">volume_up</span>
+                                <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Sound Effects</span>
+                            </div>
+                            <button
+                                onClick={() => handleToggle('soundsEnabled')}
+                                className={`w-10 h-5 rounded-sm transition-all relative flex items-center ${localSettings.soundsEnabled !== false ? 'bg-foreground' : 'bg-foreground/10'}`}
+                            >
+                                <motion.div
+                                    animate={{ x: localSettings.soundsEnabled !== false ? 22 : 3 }}
+                                    className={`absolute size-3.5 rounded-sm shadow-sm ${localSettings.soundsEnabled !== false ? 'bg-background' : 'bg-foreground/50'}`}
+                                />
+                            </button>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
                              <div className="flex items-center gap-3">
                                  <span className="material-symbols-outlined text-foreground opacity-60">payments</span>
                                  <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Currency</span>
                              </div>
                              <select
-                                 value={user?.currency || 'USD'}
+                                 value={user?.currency || 'PHP'}
                                  onChange={async (e) => {
                                      const val = e.target.value;
                                      try {

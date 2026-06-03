@@ -7,6 +7,7 @@ import XpFeed from '../dashboard/XpFeed';
 import DashboardModal from './DashboardModal';
 import Avatar from './Avatar';
 import useAuthStore from '../../store/useAuthStore';
+import { soundManager } from '../../services/sound';
 
 const timeAgo = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
@@ -91,6 +92,9 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                 ? `/auth/connection/accept/${targetUserId}`
                 : `/auth/connection/reject/${targetUserId}`;
             await api.post(endpoint);
+            if (action === 'accept') {
+                soundManager.play('connectionAccepted');
+            }
             // Refresh both requests list and user state
             await fetchRequests();
             const res = await api.get('/auth/me');
@@ -108,6 +112,9 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
             setHandlingId('partner');
             const endpoint = `/auth/partner/${action}`;
             await api.post(endpoint);
+            if (action === 'accept') {
+                soundManager.play('connectionAccepted');
+            }
             
             // Sync user data
             const res = await api.get('/auth/me');
@@ -141,14 +148,7 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
         }
     };
 
-    const handleDelete = async (id) => {
-        try {
-            await api.delete(`/notifications/${id}`);
-            mutate();
-        } catch (error) {
-            console.error('Failed to delete notification:', error);
-        }
-    };
+
 
     const getIcon = (type, notif) => {
         if (notif?.icon) return notif.icon;
@@ -299,12 +299,6 @@ const NotificationModal = ({ isOpen, onClose, user }) => {
                                                     />
                                                 )}
                                             </div>
-                                            <button
-                                                onClick={() => handleDelete(notification._id)}
-                                                className="absolute top-2 right-2 size-6 flex items-center justify-center rounded-sm opacity-0 group-hover:opacity-100 hover:bg-rose-500/10 text-rose-500 transition-all font-mono text-[10px]"
-                                            >
-                                                DEL
-                                            </button>
                                         </motion.div>
                                     ))
                                 ) : (

@@ -122,6 +122,42 @@ const DevTools = () => {
                                         <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Clear Cap</span>
                                     </button>
                                     <button 
+                                        onClick={async () => {
+                                            setLoading('fixPartners');
+                                            try {
+                                                const { data } = await api.post('/auth/dev/rpg-test', { action: 'fixPartners' });
+                                                alert(`Partners fixed!\n${data.report?.length ? data.report.join('\n') : 'No issues found.'}`);
+                                            } catch (e) { console.error(e); }
+                                            finally { setLoading(null); }
+                                        }} 
+                                        className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5"
+                                    >
+                                        <div className="size-9 md:size-10 rounded-full bg-cyan-600 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
+                                            <span className="material-symbols-outlined text-lg md:text-xl text-white">handshake</span>
+                                        </div>
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-cyan-600">
+                                            {loading === 'fixPartners' ? 'Fixing...' : 'Fix Partners'}
+                                        </span>
+                                    </button>
+                                    <button 
+                                        onClick={async () => {
+                                            setLoading('fixConnections');
+                                            try {
+                                                const { data } = await api.post('/auth/dev/rpg-test', { action: 'fixConnections' });
+                                                alert(`Connections fixed!\n${data.report?.length ? data.report.join('\n') : 'No issues found.'}`);
+                                            } catch (e) { console.error(e); }
+                                            finally { setLoading(null); }
+                                        }} 
+                                        className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5"
+                                    >
+                                        <div className="size-9 md:size-10 rounded-full bg-cyan-600 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
+                                            <span className="material-symbols-outlined text-lg md:text-xl text-white">hub</span>
+                                        </div>
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-cyan-600">
+                                            {loading === 'fixConnections' ? 'Fixing...' : 'Fix Connections'}
+                                        </span>
+                                    </button>
+                                    <button 
                                         onClick={() => setIsConfirmingRestart(true)} 
                                         className="group flex items-center gap-3 md:gap-4 transition-all pr-4 rounded-full hover:bg-black/5 dark:hover:bg-white/5"
                                     >

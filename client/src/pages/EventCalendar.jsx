@@ -21,19 +21,19 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const HUDPanel = ({ title, subtitle, children, className = "" }) => (
-  <div className={`relative pt-20 md:pt-12 pb-0 px-0 md:px-12 rounded-sm overflow-hidden ${className}`}>
-    <div className="hidden md:block">
-      <ChippedBorder opacity={0.6} />
-    </div>
-    <div className="relative z-10">
-      {title && (
-        <div className="mb-8 hidden md:flex justify-between items-start">
-          <div className="flex flex-col gap-1">
-            <span className="text-2xl md:text-3xl font-black uppercase tracking-[0.3em] text-foreground/95">{title}</span>
-          </div>
+  <div className="w-full flex flex-col">
+    {title && (
+      <div className="mb-6 hidden md:flex justify-between items-start px-4 md:px-0">
+        <div className="flex flex-col gap-1">
+          <span className="text-2xl md:text-3xl font-black uppercase tracking-[0.3em] text-foreground/95">{title}</span>
+          {subtitle && <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/45">{subtitle}</span>}
         </div>
-      )}
-      {children}
+      </div>
+    )}
+    <div className={`relative pt-6 pb-8 md:py-12 px-0 md:px-12 rounded-sm overflow-hidden ${className}`}>
+      <div className="relative z-10">
+        {children}
+      </div>
     </div>
   </div>
 );
@@ -63,7 +63,7 @@ const EventCalendar = () => {
     };
 
     return (
-        <div className="w-full bg-transparent text-foreground px-0 pt-12 pb-0 md:pt-16 md:pb-0 font-sans overflow-x-hidden flex flex-col items-center">
+        <div className="w-full bg-transparent text-foreground px-0 pt-12 pb-12 md:pt-16 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
             <div className="w-full mt-4 md:mt-6">
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full">
                     <HUDPanel title="CALENDAR & GOALS" subtitle={getSubtitle()}>

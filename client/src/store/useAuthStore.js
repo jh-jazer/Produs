@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import api, { setAuthToken } from '../services/api';
+import { soundManager } from '../services/sound';
 
 // Only the minimal session identifiers are persisted to localStorage.
 // Mutable fields (level, exp, rpg, settings, etc.) are NEVER cached here
@@ -58,6 +59,25 @@ const useAuthStore = create((set) => ({
                 rpg: { ...state.user.rpg, ...(rpgData.rpg || {}) },
                 token: state.user.token
             };
+
+            // Sound triggers on XP, Level, or Archetype change
+            const oldExp = state.user?.exp;
+            const newExp = updatedUser?.exp;
+            const oldLevel = state.user?.level;
+            const newLevel = updatedUser?.level;
+            const oldArchetype = state.user?.rpg?.tier1;
+            const newArchetype = updatedUser?.rpg?.tier1;
+
+            if (oldExp !== undefined && oldLevel !== undefined) {
+                if (newLevel > oldLevel) {
+                    setTimeout(() => soundManager.play('levelUp'), 50);
+                } else if (newExp > oldExp) {
+                    setTimeout(() => soundManager.play('xpGain'), 50);
+                }
+                if (newArchetype && oldArchetype && newArchetype !== oldArchetype) {
+                    setTimeout(() => soundManager.play('evolution'), 500);
+                }
+            }
 
             // Do NOT persist mutable fields — only update in-memory state
             return { user: updatedUser };
