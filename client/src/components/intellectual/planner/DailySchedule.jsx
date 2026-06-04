@@ -5,10 +5,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../../services/api';
 import ConfirmDialog from '../../ui/ConfirmDialog';
 import { usePlanner } from '../../../hooks/usePlanner';
-import { Plus } from 'lucide-react';
+import { Plus, Store, Save } from 'lucide-react';
 import AddPlanModal from '../../ui/AddPlanModal';
 import TemplateStoreModal from '../../ui/TemplateStoreModal';
 import SaveTemplateModal from '../../ui/SaveTemplateModal';
+import ChippedBorder from '../../ui/ChippedBorder';
+
+const formatTime12h = (timeStr) => {
+    if (!timeStr) return '';
+    const [hStr, mStr] = timeStr.split(':');
+    const h = Number(hStr);
+    const m = Number(mStr);
+    const ampm = h >= 12 ? 'pm' : 'am';
+    const h12 = h % 12 || 12;
+    const mPart = m > 0 ? `:${String(m).padStart(2, '0')}` : '';
+    return `${h12}${mPart}${ampm}`;
+};
 
 const fetcher = url => api.get(url).then(res => res.data);
 
@@ -38,6 +50,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
     const [isAdding, setIsAdding] = useState(false);
     const [isStoreOpen, setIsStoreOpen] = useState(false);
     const [isSaveOpen, setIsSaveOpen] = useState(false);
+    const [isSleepModalOpen, setIsSleepModalOpen] = useState(false);
     const [snapKey, setSnapKey] = useState(0);
     const [confirmDelete, setConfirmDelete] = useState(null);
 
@@ -202,89 +215,69 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
     return (
         <div className="flex flex-col gap-3 font-sans h-full relative">
             <div className="flex flex-col gap-2 mb-2">
-                {/* Single Row: Sleep + Wake + Day + Add */}
-                <div className="flex items-center justify-between gap-2">
-                    {/* Left: Sleep + Wake */}
-                    <div className="flex items-center gap-2">
-                        {/* Sleep */}
-                        <div className="flex flex-col gap-0.5">
-                            <span className="text-[8px] font-mono uppercase text-black/40 dark:text-white/20 tracking-widest">SLEEP</span>
-                            <input
-                                type="time"
-                                value={tempSleep.start}
-                                onChange={e => setTempSleep({ ...tempSleep, start: e.target.value })}
-                                className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 h-[36px] w-[100px] px-1 text-black dark:text-white font-mono text-[12px] focus:border-black/40 dark:focus:border-white/40 transition-colors outline-none"
-                            />
-                        </div>
-
-                        {/* Wake */}
-                        <div className="flex flex-col gap-0.5">
-                            <span className="text-[8px] font-mono uppercase text-black/40 dark:text-white/20 tracking-widest">WAKE</span>
-                            <input
-                                type="time"
-                                value={tempSleep.end}
-                                onChange={e => setTempSleep({ ...tempSleep, end: e.target.value })}
-                                className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 h-[36px] w-[100px] px-1 text-black dark:text-white font-mono text-[12px] focus:border-black/40 dark:focus:border-white/40 transition-colors outline-none"
-                            />
-                        </div>
-
-                        {isSavingSleep && (
-                            <div className="flex items-center gap-1 self-end pb-1">
-                                <div className="size-1 rounded-full bg-black dark:bg-white animate-pulse" />
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Right: Day Dropdown + Add Button */}
-                    <div className="flex items-center gap-2">
+                {/* First Row: Sleep Time + Day Dropdown + Add Icon Button */}
+                <div className="flex items-center justify-between gap-2 w-full">
+                    {/* Left: Day Dropdown + Sleep Time Button */}
+                    <div className="flex items-center gap-2 flex-1">
                         {/* Day Dropdown */}
-                        <div className="flex flex-col gap-0.5 w-[90px]">
-                            <span className="text-[8px] font-mono uppercase text-black/40 dark:text-white/20 tracking-widest">DAY</span>
-                            <div className="relative">
-                                <select
-                                    value={selectedDay}
-                                    onChange={e => setSelectedDay(Number(e.target.value))}
-                                    className="w-full h-[36px] bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 text-black dark:text-white font-black text-[10px] uppercase tracking-[0.3em] px-3 pr-8 outline-none appearance-none cursor-pointer transition-colors"
-                                >
-                                    {DAYS.map((day, i) => {
-                                        const isToday = i === todayDayIndex;
-                                        return (
-                                            <option key={day} value={i} className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white">
-                                                {isToday ? '• ' : ''}{day}
-                                            </option>
-                                        );
-                                    })}
-                                </select>
-                                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-black/40 dark:text-white/40">
-                                    <span className="material-symbols-outlined text-[14px]">expand_more</span>
-                                </div>
+                        <div className="relative flex-1">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase tracking-wider text-black/40 dark:text-white/40 pointer-events-none">DAY:</span>
+                            <select
+                                value={selectedDay}
+                                onChange={e => setSelectedDay(Number(e.target.value))}
+                                className="w-full h-[36px] bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 text-black dark:text-white font-black text-[10px] uppercase tracking-[0.3em] pl-[42px] pr-8 outline-none appearance-none cursor-pointer transition-colors"
+                            >
+                                {DAYS.map((day, i) => {
+                                    const isToday = i === todayDayIndex;
+                                    return (
+                                        <option key={day} value={i} className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white">
+                                            {isToday ? '• ' : ''}{day}
+                                        </option>
+                                    );
+                                })}
+                            </select>
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-black/40 dark:text-white/40">
+                                <span className="material-symbols-outlined text-[14px]">expand_more</span>
                             </div>
                         </div>
 
-                        {/* Add Button */}
-                        <div className="flex flex-col gap-0.5">
-                            <span className="text-[8px] font-mono uppercase text-black/40 dark:text-white/20 tracking-widest opacity-0">ADD</span>
-                            <button
-                                onClick={() => setIsAdding(true)}
-                                className="size-[36px] shrink-0 flex items-center justify-center border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm"
-                                title="ADD ACTIVITY"
-                            >
-                                <Plus size={14} />
-                            </button>
-                        </div>
+                        {/* Sleep Time Button */}
+                        <button
+                            onClick={() => setIsSleepModalOpen(true)}
+                            className="flex items-center gap-2 px-3 h-[36px] bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 text-black dark:text-white transition-colors rounded-sm text-[10px] font-black uppercase tracking-wider shrink-0 cursor-pointer"
+                            title="SET SLEEP WINDOW"
+                        >
+                            <span className="text-black/40 dark:text-white/40">SLEEP TIME:</span>
+                            <span>{formatTime12h(tempSleep.start).toUpperCase()}-{formatTime12h(tempSleep.end).toUpperCase()}</span>
+                            {isSavingSleep && (
+                                <div className="size-1.5 rounded-full bg-black dark:bg-white animate-pulse ml-1" />
+                            )}
+                        </button>
                     </div>
 
+                    {/* Right: Add Icon Button */}
+                    <button 
+                        onClick={() => setIsAdding(true)} 
+                        className="size-[36px] shrink-0 flex items-center justify-center border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm cursor-pointer" 
+                        title="ADD ACTIVITY"
+                    >
+                        <Plus size={14} />
+                    </button>
                 </div>
 
-                {/* Third Row: Template Buttons */}
-                <div className="flex gap-3 w-full">
-                    <button onClick={() => setIsStoreOpen(true)} className="h-[38px] flex-1 border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm flex items-center justify-center gap-2 group/btn" title="TEMPLATES STORE">
+                {/* Second Row: Actions */}
+                <div className="flex gap-3 w-full mt-1">
+                    <button 
+                        onClick={() => setIsStoreOpen(true)} 
+                        className="h-[38px] flex-1 border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm flex items-center justify-center gap-2 group/btn cursor-pointer" 
+                        title="TEMPLATES STORE"
+                    >
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">TEMPLATES STORE</span>
                     </button>
                     <button 
                         onClick={() => !isPlannerEmpty && setIsSaveOpen(true)} 
                         disabled={isPlannerEmpty}
-                        className={`h-[38px] flex-1 border transition-all rounded-sm flex items-center justify-center gap-2 group/btn ${
+                        className={`h-[38px] flex-1 border transition-all rounded-sm flex items-center justify-center gap-2 group/btn cursor-pointer ${
                             isPlannerEmpty 
                                 ? "border-black/10 dark:border-white/10 text-black/30 dark:text-white/25 bg-black/5 dark:bg-white/5 cursor-not-allowed opacity-50"
                                 : "border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black"
@@ -412,7 +405,105 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                 onSave={handleSaveAsTemplate}
                 currentActivitiesCount={scheduleItems.length}
             />
+
+            {/* Sleep Settings Modal */}
+            <SleepSettingsModal
+                isOpen={isSleepModalOpen}
+                onClose={() => setIsSleepModalOpen(false)}
+                tempSleep={tempSleep}
+                setTempSleep={setTempSleep}
+                isSavingSleep={isSavingSleep}
+            />
         </div>
+    );
+};
+
+const SleepSettingsModal = ({ isOpen, onClose, tempSleep, setTempSleep, isSavingSleep }) => {
+    if (!isOpen) return null;
+
+    return createPortal(
+        <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4">
+            <AnimatePresence>
+                {isOpen && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={onClose}
+                            className="absolute inset-0 bg-black/85 backdrop-blur-md"
+                        />
+                        
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                            className="relative z-10 w-full max-w-sm bg-white dark:bg-[#080808] p-8 md:p-10 rounded-sm group overflow-hidden border border-black dark:border-white/5 shadow-[0_50px_100px_-20px_rgba(0,0,0,1)]"
+                        >
+                            <ChippedBorder opacity={0.4} />
+
+                            <div className="relative z-10">
+                                <div className="flex justify-between items-center mb-8">
+                                    <div className="flex flex-col">
+                                        <p className="text-[12px] md:text-[14px] font-bold leading-relaxed tracking-[0.2em] text-black/80 dark:text-white/80 uppercase">
+                                            SLEEP WINDOW SETTINGS
+                                        </p>
+                                        <span className="text-[8px] font-mono uppercase text-black/40 dark:text-white/40 tracking-widest mt-0.5">
+                                            SET YOUR IDEAL SLEEP & WAKE PROTOCOLS
+                                        </span>
+                                    </div>
+                                    <button onClick={onClose} className="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white transition-colors">
+                                        <span className="material-symbols-outlined text-lg">close</span>
+                                    </button>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">SLEEP TIME</label>
+                                        <input
+                                            type="time"
+                                            value={tempSleep.start}
+                                            onChange={e => setTempSleep({ ...tempSleep, start: e.target.value })}
+                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-mono"
+                                        />
+                                    </div>
+                                    
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[9px] font-black text-black/40 dark:text-white/40 uppercase tracking-[0.4em]">WAKE TIME</label>
+                                        <input
+                                            type="time"
+                                            value={tempSleep.end}
+                                            onChange={e => setTempSleep({ ...tempSleep, end: e.target.value })}
+                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-sm px-4 py-3 text-xs focus:border-black dark:focus:border-white outline-none text-black dark:text-white font-mono"
+                                        />
+                                    </div>
+
+                                    {isSavingSleep && (
+                                        <div className="flex items-center gap-2 justify-center text-[10px] text-black/40 dark:text-white/40 font-mono">
+                                            <div className="size-1.5 rounded-full bg-black dark:bg-white animate-pulse" />
+                                            <span>AUTOSAVING PROTOCOL...</span>
+                                        </div>
+                                    )}
+
+                                    <div className="flex flex-row w-full pt-4">
+                                        <button
+                                            type="button"
+                                            onClick={onClose}
+                                            className="w-full py-4 bg-black dark:bg-white text-white dark:text-black font-black uppercase tracking-[0.4em] text-[9px] hover:bg-black/90 dark:hover:bg-white/90 transition-all active:scale-[0.98] rounded-sm relative overflow-hidden"
+                                        >
+                                            <div className="absolute top-0 right-0 w-2 h-2 bg-white dark:bg-black rotate-45 translate-x-1 -translate-y-1" />
+                                            DONE
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        </div>,
+        document.body
     );
 };
 

@@ -84,8 +84,8 @@ const Intellectual = () => {
     if (habitsLoading && habits.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground p-8 pt-12 md:p-12 md:pt-16 font-sans overflow-x-hidden flex flex-col items-center">
-            <div className="w-full max-w-7xl mt-8 md:mt-0">
+        <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-12 md:pt-20 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full max-w-7xl mt-4 md:mt-6">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeModule}

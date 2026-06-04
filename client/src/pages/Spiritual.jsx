@@ -468,8 +468,8 @@ const Spiritual = () => {
     if (isLoading && entries.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground px-0 md:px-12 pt-6 md:pt-4 pb-8 font-sans overflow-x-hidden flex flex-col items-center">
-            <div className="w-full max-w-7xl mt-4 md:mt-2 flex flex-col gap-6">
+        <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-12 md:pt-20 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full max-w-7xl mt-4 md:mt-6 flex flex-col gap-6">
 
                 {activeTab !== 'hub' && (
                     <button 
