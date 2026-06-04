@@ -524,8 +524,11 @@ export default function FocusTimer() {
                   <div className="flex flex-wrap gap-1 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 p-1 rounded-sm w-full">
                     {[
                       { id: 'silence', label: '🔇 SILENCE' },
-                      { id: 'white_noise', label: '💨 NOISE' },
-                      { id: 'rain', label: '🌧️ RAIN' }
+                      { id: 'white_noise', label: '💨 WHITE' },
+                      { id: 'brown_noise', label: '🎛️ BROWN' },
+                      { id: 'rain', label: '🌧️ RAIN' },
+                      { id: 'ocean_waves', label: '🌊 OCEAN' },
+                      { id: 'thunderstorm', label: '⚡ THUNDER' }
                     ].map(sound => (
                       <button
                         key={sound.id}
@@ -542,7 +545,7 @@ export default function FocusTimer() {
                             window._bgPreviewTimeout = previewTimeout;
                           }
                         }}
-                        className={`flex-1 py-1.5 text-[8px] font-black uppercase tracking-wider rounded-sm transition-all ${
+                        className={`flex-[1_0_30%] min-w-[85px] py-1.5 text-[8px] font-black uppercase tracking-wider rounded-sm transition-all ${
                           focusBgSound === sound.id 
                             ? 'bg-black text-white dark:bg-white dark:text-black font-bold' 
                             : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'

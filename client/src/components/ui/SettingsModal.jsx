@@ -300,7 +300,10 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                             >
                                 <option value="silence">Silence</option>
                                 <option value="white_noise">White Noise</option>
+                                <option value="brown_noise">Brown Noise</option>
                                 <option value="rain">Rain</option>
+                                <option value="ocean_waves">Ocean Waves</option>
+                                <option value="thunderstorm">Thunderstorm</option>
                             </select>
                         </div>
 

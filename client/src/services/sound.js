@@ -8,11 +8,20 @@ class SoundManager {
         
         // Background focus sound nodes
         this.bgSource = null;
+        this.bgSource2 = null;
         this.bgGain = null;
+        this.bgGain2 = null;
+        this.bgGain3 = null;
         this.bgFilter = null;
+        this.bgFilter2 = null;
         this.bgLfo = null;
+        this.bgLfo2 = null;
         this.bgLfoGain = null;
+        this.bgLfoGain2 = null;
         this.bgVolumeGain = null;
+        this.bgOsc1 = null;
+        this.bgOsc2 = null;
+        this.bgFilterLfoGain = null;
     }
 
     initContext() {
@@ -429,61 +438,201 @@ class SoundManager {
             const ctx = this.initContext();
             const now = ctx.currentTime;
 
-            // Create buffer for white noise
-            const sampleRate = ctx.sampleRate;
-            const bufferSize = 2 * sampleRate;
-            const noiseBuffer = ctx.createBuffer(1, bufferSize, sampleRate);
-            const output = noiseBuffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                output[i] = Math.random() * 2 - 1;
-            }
+            if (type === 'thunderstorm') {
+                const sampleRate = ctx.sampleRate;
+                const bufferSize = 2 * sampleRate;
+                
+                // Create white noise buffer for rain
+                const whiteBuffer = ctx.createBuffer(1, bufferSize, sampleRate);
+                const whiteOutput = whiteBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    whiteOutput[i] = Math.random() * 2 - 1;
+                }
 
-            // Create source node
-            this.bgSource = ctx.createBufferSource();
-            this.bgSource.buffer = noiseBuffer;
-            this.bgSource.loop = true;
+                // Create brown noise buffer for thunder
+                const brownBuffer = ctx.createBuffer(1, bufferSize, sampleRate);
+                const brownOutput = brownBuffer.getChannelData(0);
+                let lastOut = 0.0;
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    brownOutput[i] = (lastOut + (0.025 * white)) / 1.025;
+                    lastOut = brownOutput[i];
+                    brownOutput[i] *= 3.5; // loss compensation
+                }
 
-            // Filter to make it pleasant
-            this.bgFilter = ctx.createBiquadFilter();
-            this.bgFilter.type = 'lowpass';
-
-            // Gain node for volume control
-            this.bgGain = ctx.createGain();
-
-            if (type === 'white_noise') {
-                // Gentle white noise hiss
-                this.bgFilter.frequency.setValueAtTime(1000, now);
-                this.bgGain.gain.setValueAtTime(0.05, now);
-            } else if (type === 'rain') {
-                // Soothing rain patter (lower cutoff filter + amplitude modulation)
-                this.bgFilter.frequency.setValueAtTime(700, now);
-                this.bgGain.gain.setValueAtTime(0.08, now);
-
-                // Add an LFO to modulate gain slightly to simulate changing intensity
+                // Rain path
+                const rainSource = ctx.createBufferSource();
+                rainSource.buffer = whiteBuffer;
+                rainSource.loop = true;
+                
+                const rainFilter = ctx.createBiquadFilter();
+                rainFilter.type = 'lowpass';
+                rainFilter.frequency.setValueAtTime(550, now); // slightly darker rain
+                
+                const rainGain = ctx.createGain();
+                rainGain.gain.setValueAtTime(0.06, now);
+                
+                // Rain intensity modulation
                 this.bgLfo = ctx.createOscillator();
                 this.bgLfo.type = 'sine';
-                this.bgLfo.frequency.setValueAtTime(0.12, now); // slow oscillation
-
+                this.bgLfo.frequency.setValueAtTime(0.1, now);
+                
                 this.bgLfoGain = ctx.createGain();
-                this.bgLfoGain.gain.setValueAtTime(0.025, now); // depth of modulation
-
+                this.bgLfoGain.gain.setValueAtTime(0.02, now);
+                
                 this.bgLfo.connect(this.bgLfoGain);
-                this.bgLfoGain.connect(this.bgGain.gain); // modulate gain
+                this.bgLfoGain.connect(rainGain.gain);
+                
+                // Thunder path
+                const thunderSource = ctx.createBufferSource();
+                thunderSource.buffer = brownBuffer;
+                thunderSource.loop = true;
+                
+                const thunderFilter = ctx.createBiquadFilter();
+                thunderFilter.type = 'lowpass';
+                thunderFilter.frequency.setValueAtTime(80, now); // deep sub bass rumble
+                
+                const thunderGain = ctx.createGain();
+                thunderGain.gain.setValueAtTime(0.12, now);
+                
+                // Thunder intensity modulation (rolling thunder slow wave)
+                this.bgLfo2 = ctx.createOscillator();
+                this.bgLfo2.type = 'sine';
+                this.bgLfo2.frequency.setValueAtTime(0.04, now); // 25s cycle
+                
+                this.bgLfoGain2 = ctx.createGain();
+                this.bgLfoGain2.gain.setValueAtTime(0.12, now);
+                
+                this.bgLfo2.connect(this.bgLfoGain2);
+                this.bgLfoGain2.connect(thunderGain.gain);
+                
+                // Connect paths
+                rainSource.connect(rainFilter);
+                rainFilter.connect(rainGain);
+                
+                thunderSource.connect(thunderFilter);
+                thunderFilter.connect(thunderGain);
+                
+                // Master mix gain
+                this.bgGain = ctx.createGain();
+                this.bgGain.gain.setValueAtTime(1.0, now);
+                
+                rainGain.connect(this.bgGain);
+                thunderGain.connect(this.bgGain);
+                
+                // Save nodes for cleanup
+                this.bgSource = rainSource;
+                this.bgSource2 = thunderSource;
+                this.bgFilter = rainFilter;
+                this.bgFilter2 = thunderFilter;
+                this.bgGain2 = rainGain;
+                this.bgGain3 = thunderGain;
+                
+                this.bgVolumeGain = ctx.createGain();
+                this.bgVolumeGain.gain.setValueAtTime(this.getBgVolume(), now);
+                this.bgGain.connect(this.bgVolumeGain);
+                this.bgVolumeGain.connect(ctx.destination);
+                
+                rainSource.start(now);
+                thunderSource.start(now);
                 this.bgLfo.start(now);
+                this.bgLfo2.start(now);
+            } else {
+                // Create buffer for white or brown noise
+                const sampleRate = ctx.sampleRate;
+                const bufferSize = 2 * sampleRate;
+                const noiseBuffer = ctx.createBuffer(1, bufferSize, sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+
+                if (type === 'brown_noise') {
+                    let lastOut = 0.0;
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        output[i] = (lastOut + (0.025 * white)) / 1.025;
+                        lastOut = output[i];
+                        output[i] *= 3.5; // loss compensation
+                    }
+                } else {
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 2 - 1;
+                    }
+                }
+
+                // Create source node
+                this.bgSource = ctx.createBufferSource();
+                this.bgSource.buffer = noiseBuffer;
+                this.bgSource.loop = true;
+
+                // Filter to make it pleasant
+                this.bgFilter = ctx.createBiquadFilter();
+                this.bgFilter.type = 'lowpass';
+
+                // Gain node for volume control
+                this.bgGain = ctx.createGain();
+
+                if (type === 'white_noise') {
+                    // Gentle white noise hiss
+                    this.bgFilter.frequency.setValueAtTime(1000, now);
+                    this.bgGain.gain.setValueAtTime(0.05, now);
+                } else if (type === 'brown_noise') {
+                    // Warm, deep low-frequency rumble
+                    this.bgFilter.frequency.setValueAtTime(320, now);
+                    this.bgGain.gain.setValueAtTime(0.12, now);
+                } else if (type === 'rain') {
+                    // Soothing rain patter (lower cutoff filter + amplitude modulation)
+                    this.bgFilter.frequency.setValueAtTime(700, now);
+                    this.bgGain.gain.setValueAtTime(0.08, now);
+
+                    // Add an LFO to modulate gain slightly to simulate changing intensity
+                    this.bgLfo = ctx.createOscillator();
+                    this.bgLfo.type = 'sine';
+                    this.bgLfo.frequency.setValueAtTime(0.12, now); // slow oscillation
+
+                    this.bgLfoGain = ctx.createGain();
+                    this.bgLfoGain.gain.setValueAtTime(0.025, now); // depth of modulation
+
+                    this.bgLfo.connect(this.bgLfoGain);
+                    this.bgLfoGain.connect(this.bgGain.gain); // modulate gain
+                    this.bgLfo.start(now);
+                } else if (type === 'ocean_waves') {
+                    // Ocean waves crashing: slow gain & filter modulation
+                    this.bgFilter.frequency.setValueAtTime(450, now);
+                    this.bgGain.gain.setValueAtTime(0.06, now);
+
+                    // LFO to modulate gain (waves fading in/out)
+                    this.bgLfo = ctx.createOscillator();
+                    this.bgLfo.type = 'sine';
+                    this.bgLfo.frequency.setValueAtTime(0.12, now); // slow wave cycle
+
+                    this.bgLfoGain = ctx.createGain();
+                    this.bgLfoGain.gain.setValueAtTime(0.045, now);
+
+                    this.bgLfo.connect(this.bgLfoGain);
+                    this.bgLfoGain.connect(this.bgGain.gain);
+
+                    // Modulate the filter frequency for sweeping wave crash effect
+                    this.bgFilterLfoGain = ctx.createGain();
+                    this.bgFilterLfoGain.gain.setValueAtTime(250, now);
+                    
+                    this.bgLfo.connect(this.bgFilterLfoGain);
+                    this.bgFilterLfoGain.connect(this.bgFilter.frequency);
+
+                    this.bgLfo.start(now);
+                }
+
+                // Connect nodes
+                this.bgSource.connect(this.bgFilter);
+                this.bgFilter.connect(this.bgGain);
+                
+                // Create volume control node
+                this.bgVolumeGain = ctx.createGain();
+                this.bgVolumeGain.gain.setValueAtTime(this.getBgVolume(), now);
+
+                this.bgGain.connect(this.bgVolumeGain);
+                this.bgVolumeGain.connect(ctx.destination);
+
+                this.bgSource.start(now);
             }
-
-            // Connect nodes
-            this.bgSource.connect(this.bgFilter);
-            this.bgFilter.connect(this.bgGain);
-            
-            // Create volume control node
-            this.bgVolumeGain = ctx.createGain();
-            this.bgVolumeGain.gain.setValueAtTime(this.getBgVolume(), now);
-
-            this.bgGain.connect(this.bgVolumeGain);
-            this.bgVolumeGain.connect(ctx.destination);
-
-            this.bgSource.start(now);
         } catch (e) {
             console.error('Error starting focus background:', e);
         }
@@ -496,13 +645,40 @@ class SoundManager {
                 this.bgSource.disconnect();
                 this.bgSource = null;
             }
+            if (this.bgSource2) {
+                this.bgSource2.stop();
+                this.bgSource2.disconnect();
+                this.bgSource2 = null;
+            }
+            if (this.bgOsc1) {
+                this.bgOsc1.stop();
+                this.bgOsc1.disconnect();
+                this.bgOsc1 = null;
+            }
+            if (this.bgOsc2) {
+                this.bgOsc2.stop();
+                this.bgOsc2.disconnect();
+                this.bgOsc2 = null;
+            }
             if (this.bgFilter) {
                 this.bgFilter.disconnect();
                 this.bgFilter = null;
             }
+            if (this.bgFilter2) {
+                this.bgFilter2.disconnect();
+                this.bgFilter2 = null;
+            }
             if (this.bgGain) {
                 this.bgGain.disconnect();
                 this.bgGain = null;
+            }
+            if (this.bgGain2) {
+                this.bgGain2.disconnect();
+                this.bgGain2 = null;
+            }
+            if (this.bgGain3) {
+                this.bgGain3.disconnect();
+                this.bgGain3 = null;
             }
             if (this.bgVolumeGain) {
                 this.bgVolumeGain.disconnect();
@@ -513,9 +689,22 @@ class SoundManager {
                 this.bgLfo.disconnect();
                 this.bgLfo = null;
             }
+            if (this.bgLfo2) {
+                this.bgLfo2.stop();
+                this.bgLfo2.disconnect();
+                this.bgLfo2 = null;
+            }
             if (this.bgLfoGain) {
                 this.bgLfoGain.disconnect();
                 this.bgLfoGain = null;
+            }
+            if (this.bgLfoGain2) {
+                this.bgLfoGain2.disconnect();
+                this.bgLfoGain2 = null;
+            }
+            if (this.bgFilterLfoGain) {
+                this.bgFilterLfoGain.disconnect();
+                this.bgFilterLfoGain = null;
             }
         } catch (e) {
             console.error('Error stopping focus background:', e);
