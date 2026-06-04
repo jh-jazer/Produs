@@ -65,7 +65,7 @@
     --accent-bg: color-mix(in srgb, var(--primary) 10%, transparent);
     --accent-border: color-mix(in srgb, var(--primary) 20%, transparent);
     --accent-glow: color-mix(in srgb, var(--primary) 30%, transparent);
-    --bg-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("/background/lightportrait.jpeg");
+    --bg-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("/background/lightPortrait.jpeg");
     --bg-size: cover;
     --bg-position: center;
     --bg-repeat: no-repeat;
@@ -104,7 +104,7 @@
     --accent-bg: color-mix(in srgb, var(--primary) 15%, transparent);
     --accent-border: color-mix(in srgb, var(--primary) 30%, transparent);
     --accent-glow: color-mix(in srgb, var(--primary) 50%, transparent);
-    --bg-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/background/darkportrait.jpeg");
+    --bg-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/background/darkPortrait.jpeg");
     --bg-size: cover;
     --bg-position: center;
     --bg-repeat: no-repeat;
@@ -151,7 +151,7 @@ button:disabled {
 @layer utilities {
     .bg-dark-mode-image {
         background-color: #000000;
-        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/background/darkportrait.jpeg");
+        background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/background/darkPortrait.jpeg");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
