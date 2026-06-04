@@ -1371,41 +1371,67 @@ export const devRPGTest = async (req, res) => {
                 const allConnUsers = await User.find({});
                 const report = [];
                 const allUserIds = new Set(allConnUsers.map(u => u._id.toString()));
+
+                const bulkOps = [];
+                const usersToUpdate = new Set();
+
                 for (const u of allConnUsers) {
-                    let changed = false;
                     // Clean connections
                     const validConns = (u.connections || []).filter(id => allUserIds.has(id.toString()));
                     if (validConns.length !== (u.connections || []).length) {
                         const removed = (u.connections || []).length - validConns.length;
                         u.connections = validConns;
-                        changed = true;
+                        usersToUpdate.add(u._id.toString());
                         report.push(`Removed ${removed} dangling connection(s) from ${u.username}`);
                     }
                     // Clean outgoing connection requests
                     const validOut = (u.outgoingConnectionRequests || []).filter(id => allUserIds.has(id.toString()));
                     if (validOut.length !== (u.outgoingConnectionRequests || []).length) {
                         u.outgoingConnectionRequests = validOut;
-                        changed = true;
+                        usersToUpdate.add(u._id.toString());
                         report.push(`Cleaned outgoing connection requests for ${u.username}`);
                     }
                     // Clean incoming connection requests
                     const validIn = (u.incomingConnectionRequests || []).filter(id => allUserIds.has(id.toString()));
                     if (validIn.length !== (u.incomingConnectionRequests || []).length) {
                         u.incomingConnectionRequests = validIn;
-                        changed = true;
+                        usersToUpdate.add(u._id.toString());
                         report.push(`Cleaned incoming connection requests for ${u.username}`);
                     }
+
                     // Ensure mutual connections (if A has B, B must have A)
                     for (const connId of validConns) {
                         const connUser = allConnUsers.find(x => x._id.toString() === connId.toString());
                         if (connUser && !(connUser.connections || []).some(id => id.toString() === u._id.toString())) {
                             connUser.connections.push(u._id);
+                            usersToUpdate.add(connUser._id.toString());
                             report.push(`Added missing mutual connection: ${connUser.username} <-> ${u.username}`);
-                            await connUser.save();
                         }
                     }
-                    if (changed) await u.save();
                 }
+
+                for (const userId of usersToUpdate) {
+                    const user = allConnUsers.find(u => u._id.toString() === userId);
+                    if (user) {
+                        bulkOps.push({
+                            updateOne: {
+                                filter: { _id: user._id },
+                                update: {
+                                    $set: {
+                                        connections: user.connections,
+                                        outgoingConnectionRequests: user.outgoingConnectionRequests,
+                                        incomingConnectionRequests: user.incomingConnectionRequests
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+
+                if (bulkOps.length > 0) {
+                    await User.bulkWrite(bulkOps, { ordered: false });
+                }
+
                 return res.json({
                     message: "Connections fixed",
                     report
