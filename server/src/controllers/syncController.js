@@ -145,27 +145,32 @@ async function updateLegacyModels(feature, userId, doc) {
 
     if (feature === 'journal') {
         const entries = Object.values(data);
-        for (const entry of entries) {
-            try {
+        try {
+            const operations = entries.map(entry => {
                 // Safeguard against corrupted dates
                 if (!entry.date || (typeof entry.date === 'object' && Object.keys(entry.date).length === 0)) {
                     console.warn("⚠️ CORRUPTED JOURNAL ENTRY DATE DETECTED! Healing with current timestamp.", entry._id);
                     entry.date = new Date().toISOString();
                 }
 
-                // Update or Create the Journal record
                 const query = (entry._id && entry._id.startsWith('local-'))
                     ? { content: entry.content, user: userId }
                     : { _id: entry._id, user: userId };
-                    
-                await Journal.findOneAndUpdate(
-                    query,
-                    { ...cleanPayload(entry), user: userId },
-                    { upsert: true, returnDocument: 'after' }
-                );
-            } catch (err) {
-                console.error("🚨 Failed to update legacy model for journal entry:", entry._id, err.message);
+
+                return {
+                    updateOne: {
+                        filter: query,
+                        update: { $set: { ...cleanPayload(entry), user: userId } },
+                        upsert: true
+                    }
+                };
+            });
+
+            if (operations.length > 0) {
+                await Journal.bulkWrite(operations, { ordered: false });
             }
+        } catch (err) {
+            console.error("🚨 Failed to bulk update legacy models for journal entries:", err.message);
         }
     }
 
