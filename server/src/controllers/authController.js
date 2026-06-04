@@ -1332,9 +1332,13 @@ export const devRPGTest = async (req, res) => {
             case 'fixPartners': {
                 const allDbUsers = await User.find({});
                 const report = [];
+                const userMap = new Map();
+                for (const u of allDbUsers) {
+                    userMap.set(u._id.toString(), u);
+                }
                 for (const u of allDbUsers) {
                     if (u.partner) {
-                        const p = await User.findById(u.partner);
+                        const p = userMap.get(u.partner.toString());
                         if (!p) {
                             u.partner = null;
                             await u.save();
@@ -1346,7 +1350,7 @@ export const devRPGTest = async (req, res) => {
                         }
                     }
                     if (u.outgoingPartnerRequest) {
-                        const p = await User.findById(u.outgoingPartnerRequest);
+                        const p = userMap.get(u.outgoingPartnerRequest.toString());
                         if (!p) {
                             u.outgoingPartnerRequest = null;
                             await u.save();
@@ -1354,7 +1358,7 @@ export const devRPGTest = async (req, res) => {
                         }
                     }
                     if (u.incomingPartnerRequest) {
-                        const p = await User.findById(u.incomingPartnerRequest);
+                        const p = userMap.get(u.incomingPartnerRequest.toString());
                         if (!p) {
                             u.incomingPartnerRequest = null;
                             await u.save();
