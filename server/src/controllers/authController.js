@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import User from '../models/User.js';
 import Habit from '../models/Habit.js';
 import Journal from '../models/Journal.js';
@@ -628,7 +629,7 @@ export const completeOnboarding = async (req, res) => {
                 let finalUsername;
                 let attempts = 0;
                 do {
-                    const suffix = Math.floor(1000 + Math.random() * 9000);
+                    const suffix = crypto.randomInt(1000, 10000);
                     finalUsername = `${base}#${suffix}`;
                     const taken = await User.findOne({ username: finalUsername });
                     if (!taken || taken.id === user.id) break;
@@ -934,7 +935,7 @@ export const updateSettings = async (req, res) => {
                 }
 
                 const currentSuffix = user.username ? user.username.split('#')[1] : null;
-                const suffix = currentSuffix || Math.floor(1000 + Math.random() * 9000).toString();
+                const suffix = currentSuffix || crypto.randomInt(1000, 10000).toString();
                 let finalUsername = `${newBase}#${suffix}`;
 
                 // Verify uniqueness
@@ -943,7 +944,7 @@ export const updateSettings = async (req, res) => {
                     // If base#currentSuffix is taken, generate a new suffix
                     let attempts = 0;
                     do {
-                        const newSuffix = Math.floor(1000 + Math.random() * 9000);
+                        const newSuffix = crypto.randomInt(1000, 10000);
                         finalUsername = `${newBase}#${newSuffix}`;
                         const taken = await User.findOne({ username: finalUsername });
                         if (!taken || taken.id === user.id) break;
