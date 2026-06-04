@@ -40,38 +40,38 @@ html {
   --color-primary-glow:     rgba(0, 102, 255, 0.3);
 
   /* --- Semantic Surface / Background --- */
-  --color-bg:               #ffffff;           /* Page background (light) */
-  --color-bg-subtle:        #f8f8f8;           /* Slightly off-white panels */
-  --color-card:             #ffffff;           /* Card surface */
+  --color-bg:               #FFFBF4;           /* Page background (Floral White) */
+  --color-bg-subtle:        #D8CFBC;           /* Warm beige panels (Bone) */
+  --color-card:             #FFFBF4;           /* Card surface (Floral White) */
 
   /* --- Dark Surface Palette (used as explicit dark bg panels in both modes) ---
      These are intentional dark UI elements — ID cards, HUD overlays, modals —
-     that remain dark regardless of theme. */
-  --color-surface-deepest:  #000000;           /* Absolute black */
-  --color-surface-deep:     #020202;
-  --color-surface-darker:   #050505;
-  --color-surface-dark:     #080808;           /* Primary dark panel bg */
-  --color-surface-mid:      #0a0a0a;
-  --color-surface-raised:   #0f0f0f;           /* Slightly raised dark layer */
-  --color-surface-card:     #111111;
-  --color-surface-card-alt: #121212;           /* ID card face bg */
-  --color-surface-elevated: #1a1a1a;           /* Hover / elevated state */
-  --color-surface-ui:       #1e1f22;           /* Discord-inspired UI surface */
-  --color-surface-panel:    #1e293b;           /* Slate-toned panel */
-  --color-surface-muted:    #192233;           /* Dark muted panel */
-  --color-surface-control:  #2b2d31;           /* Input / control bg */
+     that remain dark regardless of theme. Adjusted to warm Smoky Black tones. */
+  --color-surface-deepest:  #090a07;           /* Absolute deep smoky black */
+  --color-surface-deep:     #0d0e0b;
+  --color-surface-darker:   #10110e;
+  --color-surface-dark:     #11120D;           /* Primary smoky dark panel bg */
+  --color-surface-mid:      #141511;
+  --color-surface-raised:   #181a15;           /* Slightly raised dark layer */
+  --color-surface-card:     #1d1e19;
+  --color-surface-card-alt: #21231d;           /* ID card face bg */
+  --color-surface-elevated: #282a23;           /* Hover / elevated state */
+  --color-surface-ui:       #1a1c17;           /* Warm Discord-inspired UI surface */
+  --color-surface-panel:    #22241e;           /* Warm panel */
+  --color-surface-muted:    #181a15;           /* Dark muted panel */
+  --color-surface-control:  #2b2d27;           /* Input / control bg */
 
   /* --- Foreground / Text --- */
-  --color-fg:               #000000;           /* Primary text (light mode) */
-  --color-fg-muted:         #64748b;           /* Muted / secondary text (slate-500) */
-  --color-fg-subtle:        #80848e;           /* Subtle text (Discord muted) */
-  --color-fg-faint:         #b5bac1;           /* Very faint (Discord secondary) */
-  --color-fg-ghost:         #dbdee1;           /* Ghost text (Discord primary) */
+  --color-fg:               #11120D;           /* Primary text (Smoky Black) */
+  --color-fg-muted:         #565449;           /* Muted / secondary text (Olive Drab) */
+  --color-fg-subtle:        #6b695e;           /* Subtle text */
+  --color-fg-faint:         #9e9b8f;           /* Faint text */
+  --color-fg-ghost:         #d8d5cb;           /* Ghost text */
 
   /* --- Border --- */
   --color-border:           color-mix(in srgb, var(--color-primary) 20%, transparent);
-  --color-border-subtle:    rgba(0, 0, 0, 0.08);  /* Light mode subtle border */
-  --color-border-strong:    rgba(0, 0, 0, 0.15);
+  --color-border-subtle:    rgba(17, 18, 13, 0.08);  /* Smoky Black subtle border */
+  --color-border-strong:    rgba(17, 18, 13, 0.15);
 
   /* --- Accent Utilities (used by glass / glow patterns) --- */
   --color-accent:           var(--color-primary);
@@ -87,19 +87,19 @@ html {
    ============================================================================= */
 
 .dark {
-  --color-bg:               #000000;
-  --color-bg-subtle:        #000000;
-  --color-card:             #000000;
+  --color-bg:               #11120D;           /* Smoky Black */
+  --color-bg-subtle:        #11120D;           /* Flat dark style smoky black */
+  --color-card:             #11120D;           /* Flat dark style smoky black */
 
-  --color-fg:               #f8fafc;           /* Near-white primary text */
-  --color-fg-muted:         #94a3b8;           /* slate-400 */
-  --color-fg-subtle:        #80848e;
-  --color-fg-faint:         #b5bac1;
-  --color-fg-ghost:         #dbdee1;
+  --color-fg:               #FFFBF4;           /* Primary text (Floral White) */
+  --color-fg-muted:         #D8CFBC;           /* Muted text (Bone) */
+  --color-fg-subtle:        #a59e91;           /* Subtle text (warm gray-beige) */
+  --color-fg-faint:         #7b766c;           /* Faint text */
+  --color-fg-ghost:         #565449;           /* Ghost text (Olive Drab) */
 
-  --color-border:           rgba(255, 255, 255, 0.10);
-  --color-border-subtle:    rgba(255, 255, 255, 0.05);
-  --color-border-strong:    rgba(255, 255, 255, 0.20);
+  --color-border:           rgba(255, 251, 244, 0.10);
+  --color-border-subtle:    rgba(255, 251, 244, 0.05);
+  --color-border-strong:    rgba(255, 251, 244, 0.20);
 
   --color-accent-bg:        color-mix(in srgb, var(--color-primary) 15%, transparent);
   --color-accent-border:    color-mix(in srgb, var(--color-primary) 30%, transparent);
@@ -140,6 +140,13 @@ html {
   --color-chart-pink:       #ec4899;           /* pink-500   */
   --color-chart-red:        #ef4444;           /* red-500    */
   --color-chart-violet:     #8b5cf6;           /* violet-500 */
+
+  /* --- RPG Immersive Mode (Old Money Color Palette) --- */
+  --color-rpg-bg:           #141312;           /* Deep Warm Charcoal/Black */
+  --color-rpg-surface:      #262423;           /* Dark gray surface */
+  --color-rpg-stone:        #96918C;           /* Stone gray */
+  --color-rpg-accent:       #6B1D2B;           /* Burgundy/Wine Red highlight accent */
+  --color-rpg-cream:        #F5EFEB;           /* Soft cream/off-white */
 }
 
 
@@ -556,21 +563,21 @@ body.focus-mode-active .hud-buttons-container {
 }
 
 .dark .welcome-title-text {
-  color: #ffffff !important;
+  color: #FFFBF4 !important;
 }
 
 
 /* =============================================================================
    15. MOBILE LIGHT MODE VISIBILITY
-   Force pure black text in light mode on mobile for maximum readability.
+   Force Smoky Black text in light mode on mobile for maximum readability.
    Only applies below md breakpoint and only when NOT in dark mode.
    ============================================================================= */
 
 @media (max-width: 767px) {
   html:not(.dark) body {
-    --color-fg: #000000;
-    --color-fg-muted: #000000;
-    --color-fg-subtle: #111111;
+    --color-fg: #11120D;
+    --color-fg-muted: #11120D;
+    --color-fg-subtle: #565449;
   }
 
   html:not(.dark) body h1,

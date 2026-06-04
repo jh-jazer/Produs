@@ -23,6 +23,7 @@ import HabitMatrix from './pages/HabitMatrix';
 import TacticalPlanner from './pages/TacticalPlanner';
 import GoalSetterPage from './pages/GoalSetterPage';
 import EventCalendar from './pages/EventCalendar';
+import FocusTimer from './pages/FocusTimer';
 import useAuthStore from './store/useAuthStore';
 import { useEffect } from 'react';
 
@@ -102,6 +103,7 @@ function AnimatedRoutes() {
         </Route>
 
         <Route path="/dashboard/neural-sync" element={<ProtectedRoute><NeuralSyncPage /></ProtectedRoute>} />
+        <Route path="/focustimer" element={<ProtectedRoute><FocusTimer /></ProtectedRoute>} />
       </Routes>
     </AnimatePresence>
   );

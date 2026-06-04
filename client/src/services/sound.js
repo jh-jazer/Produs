@@ -12,6 +12,7 @@ class SoundManager {
         this.bgFilter = null;
         this.bgLfo = null;
         this.bgLfoGain = null;
+        this.bgVolumeGain = null;
     }
 
     initContext() {
@@ -29,15 +30,53 @@ class SoundManager {
         return user?.settings?.soundsEnabled === false;
     }
 
+    getVolume() {
+        const user = useAuthStore.getState().user;
+        const vol = user?.settings?.soundVolume;
+        return typeof vol === 'number' ? vol : 0.5;
+    }
+
+    getBgVolume() {
+        const user = useAuthStore.getState().user;
+        const vol = user?.settings?.bgVolume;
+        return typeof vol === 'number' ? vol : 0.5;
+    }
+
+    getAlarmVolume() {
+        const user = useAuthStore.getState().user;
+        const vol = user?.settings?.alarmVolume;
+        return typeof vol === 'number' ? vol : 0.5;
+    }
+
+    setBgVolume(volume) {
+        if (this.ctx && this.bgVolumeGain) {
+            try {
+                const now = this.ctx.currentTime;
+                this.bgVolumeGain.gain.setValueAtTime(volume, now);
+            } catch (e) {
+                console.error('Error updating live bg volume:', e);
+            }
+        }
+    }
+
+    setVolume(volume) {
+        this.setBgVolume(volume);
+    }
+
     play(type) {
         if (this.isMuted()) return;
         try {
             const ctx = this.initContext();
             const now = ctx.currentTime;
             
+            // Volume control node
+            const volumeGain = ctx.createGain();
+            volumeGain.gain.setValueAtTime(this.getAlarmVolume(), now);
+            volumeGain.connect(ctx.destination);
+
             // Gain node to control volume
             const masterGain = ctx.createGain();
-            masterGain.connect(ctx.destination);
+            masterGain.connect(volumeGain);
 
             switch (type) {
                 case 'click': {
@@ -256,8 +295,12 @@ class SoundManager {
             const ctx = this.initContext();
             const now = ctx.currentTime;
             
+            const volumeGain = ctx.createGain();
+            volumeGain.gain.setValueAtTime(this.getAlarmVolume(), now);
+            volumeGain.connect(ctx.destination);
+
             const masterGain = ctx.createGain();
-            masterGain.connect(ctx.destination);
+            masterGain.connect(volumeGain);
 
             switch (alarmType) {
                 case 'digital': {
@@ -409,12 +452,12 @@ class SoundManager {
 
             if (type === 'white_noise') {
                 // Gentle white noise hiss
-                this.bgFilter.frequency.setValueAtTime(650, now);
-                this.bgGain.gain.setValueAtTime(0.015, now);
+                this.bgFilter.frequency.setValueAtTime(1000, now);
+                this.bgGain.gain.setValueAtTime(0.05, now);
             } else if (type === 'rain') {
                 // Soothing rain patter (lower cutoff filter + amplitude modulation)
-                this.bgFilter.frequency.setValueAtTime(350, now);
-                this.bgGain.gain.setValueAtTime(0.025, now);
+                this.bgFilter.frequency.setValueAtTime(700, now);
+                this.bgGain.gain.setValueAtTime(0.08, now);
 
                 // Add an LFO to modulate gain slightly to simulate changing intensity
                 this.bgLfo = ctx.createOscillator();
@@ -422,7 +465,7 @@ class SoundManager {
                 this.bgLfo.frequency.setValueAtTime(0.12, now); // slow oscillation
 
                 this.bgLfoGain = ctx.createGain();
-                this.bgLfoGain.gain.setValueAtTime(0.008, now); // depth of modulation
+                this.bgLfoGain.gain.setValueAtTime(0.025, now); // depth of modulation
 
                 this.bgLfo.connect(this.bgLfoGain);
                 this.bgLfoGain.connect(this.bgGain.gain); // modulate gain
@@ -432,7 +475,13 @@ class SoundManager {
             // Connect nodes
             this.bgSource.connect(this.bgFilter);
             this.bgFilter.connect(this.bgGain);
-            this.bgGain.connect(ctx.destination);
+            
+            // Create volume control node
+            this.bgVolumeGain = ctx.createGain();
+            this.bgVolumeGain.gain.setValueAtTime(this.getBgVolume(), now);
+
+            this.bgGain.connect(this.bgVolumeGain);
+            this.bgVolumeGain.connect(ctx.destination);
 
             this.bgSource.start(now);
         } catch (e) {
@@ -454,6 +503,10 @@ class SoundManager {
             if (this.bgGain) {
                 this.bgGain.disconnect();
                 this.bgGain = null;
+            }
+            if (this.bgVolumeGain) {
+                this.bgVolumeGain.disconnect();
+                this.bgVolumeGain = null;
             }
             if (this.bgLfo) {
                 this.bgLfo.stop();

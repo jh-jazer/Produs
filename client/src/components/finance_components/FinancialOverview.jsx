@@ -323,15 +323,17 @@ const FinancialOverview = ({
 
                                     {/* Big Balance */}
                                     <p 
-                                        className="font-black tracking-tighter leading-none"
-                                        style={{ 
-                                            fontSize: '3.5rem',
-                                            color: displayedBalance > 0 ? '#10b981' : displayedBalance < 0 ? '#f43f5e' : 'currentColor'
-                                        }}
+                                        className={`font-black font-exo tracking-tighter leading-none text-[4.5rem] md:text-[6rem] ${
+                                            displayedBalance > 0 
+                                                ? 'text-emerald-700 dark:text-emerald-400' 
+                                                : displayedBalance < 0 
+                                                    ? 'text-rose-700 dark:text-rose-400' 
+                                                    : 'text-black dark:text-white'
+                                        }`}
                                     >
                                         {displayedBalance < 0 ? '-' : ''}{localCurrency}{Math.abs(displayedBalance).toLocaleString()}
                                     </p>
-                                    <p className="text-[10px] font-black text-black/35 dark:text-white/20 uppercase tracking-[0.6em] mt-2">
+                                    <p className="text-[10px] font-black text-black/90 dark:text-white/80 uppercase tracking-[0.6em] mt-2">
                                         TOTAL BALANCE {selectedYear === 'all' ? '(ALL TIME)' : `- ${(() => {
                                             const d = new Date(selectedYear, selectedMonth, 1);
                                             return `${d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()} ${selectedYear}`;
@@ -352,12 +354,12 @@ const FinancialOverview = ({
                                 {/* Col 3: 5 metric rows — click to filter */}
                                 <div className="flex flex-col justify-center divide-y-0 md:divide-y divide-black/10 dark:divide-white/10">
                                     {[
-                                        { label: 'INCOME',     value: totalIncome,        color: '#10b981', sign: '',  type: 'income'   },
-                                        { label: 'EXPENSES',   value: totalExpenses,       color: '#f43f5e', sign: '-', type: 'expense'  },
-                                        { label: 'DEBT',       value: totalDebt,           color: '#f43f5e', sign: '-', type: 'debt'     },
-                                        { label: 'RECEIVABLE', value: totalUpcomingIncome, color: '#10b981', sign: '',  type: 'upcoming' },
-                                        { label: 'SAVINGS',    value: totalSavings,        color: '#10b981', sign: '',  type: 'savings'  },
-                                    ].map(({ label, value, color, sign, type }) => {
+                                        { label: 'INCOME',     value: totalIncome,        color: '#10b981', colorClass: 'text-emerald-600 dark:text-emerald-400', sign: '',  type: 'income'   },
+                                        { label: 'EXPENSES',   value: totalExpenses,       color: '#f43f5e', colorClass: 'text-rose-600 dark:text-rose-400', sign: '-', type: 'expense'  },
+                                        { label: 'DEBT',       value: totalDebt,           color: '#f43f5e', colorClass: 'text-rose-600 dark:text-rose-400', sign: '-', type: 'debt'     },
+                                        { label: 'RECEIVABLE', value: totalUpcomingIncome, color: '#10b981', colorClass: 'text-emerald-600 dark:text-emerald-400', sign: '',  type: 'upcoming' },
+                                        { label: 'SAVINGS',    value: totalSavings,        color: '#10b981', colorClass: 'text-emerald-600 dark:text-emerald-400', sign: '',  type: 'savings'  },
+                                    ].map(({ label, value, color, colorClass, sign, type }) => {
                                         const isActive = typeFilter === type;
                                         return (
                                             <button
@@ -370,11 +372,11 @@ const FinancialOverview = ({
                                                 }`}
                                                 style={isActive ? { borderLeftColor: color } : {}}
                                             >
-                                                <p className={`text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-1.5 whitespace-nowrap transition-colors ${isActive ? 'text-black/70 dark:text-white/70' : 'text-black/35 dark:text-white/30'}`}>
+                                                <p className={`text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-1.5 whitespace-nowrap transition-colors ${isActive ? 'text-black dark:text-white' : 'text-black/90 dark:text-white/80'}`}>
                                                     <span className="size-1.5 rounded-full shrink-0 animate-pulse" style={{ backgroundColor: color }} />
                                                     {label}
                                                 </p>
-                                                <p className="font-black tracking-tighter leading-none" style={{ fontSize: '1.05rem', color }}>
+                                                <p className={`font-black font-exo tracking-tighter leading-none text-[1.4rem] md:text-[1.7rem] ${colorClass}`}>
                                                     {sign}{localCurrency}{value.toLocaleString()}
                                                 </p>
                                             </button>

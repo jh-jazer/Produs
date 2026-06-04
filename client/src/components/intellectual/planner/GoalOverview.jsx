@@ -27,10 +27,10 @@ const GoalCard = ({ title, period, year, month, week, isActive }) => {
             <ChippedBorder opacity={isActive ? 1 : 0.3} />
             <div className="flex flex-col relative z-10">
                 <span className={`text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] transition-all ${
-                    isActive ? 'text-black dark:text-white dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-black/40 dark:text-white/40 group-hover:text-black dark:group-hover:text-white'
+                    isActive ? 'text-black dark:text-white dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-black dark:text-white/40 group-hover:text-black dark:group-hover:text-white'
                 }`}>{title}</span>
                 <span className={`text-[8px] font-black uppercase tracking-widest mt-1 transition-opacity ${
-                    isActive ? 'text-black/50 dark:text-white/40' : 'text-black/30 dark:text-white/20'
+                    isActive ? 'text-black dark:text-white/40' : 'text-black dark:text-white/20'
                 }`}>{goals.length} GOALS SET</span>
             </div>
             <span className={`text-[12px] md:text-[16px] font-mono font-black relative z-10 transition-all ${
@@ -74,7 +74,7 @@ const GoalOverview = ({ onWeekClick, onMonthClick, onYearClick, onBackToCalendar
                         onClick={onBackToCalendar}
                         className="w-full py-4 rounded-sm hover:bg-white/[0.02] group transition-all"
                     >
-                        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-black/20 dark:text-white/20 group-hover:text-black dark:group-hover:text-white transition-colors">
+                        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-black dark:text-white/20 group-hover:text-black dark:group-hover:text-white transition-colors">
                             BACK TO CALENDAR
                         </span>
                     </motion.button>

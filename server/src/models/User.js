@@ -221,6 +221,30 @@ const userSchema = new mongoose.Schema({
         showDevTools: {
             type: Boolean,
             default: false
+        },
+        soundsEnabled: {
+            type: Boolean,
+            default: true
+        },
+        defaultAlarm: {
+            type: String,
+            default: 'zen'
+        },
+        defaultFocusBg: {
+            type: String,
+            default: 'rain'
+        },
+        soundVolume: {
+            type: Number,
+            default: 0.5
+        },
+        bgVolume: {
+            type: Number,
+            default: 0.5
+        },
+        alarmVolume: {
+            type: Number,
+            default: 0.5
         }
     },
     currency: {

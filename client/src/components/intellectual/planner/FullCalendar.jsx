@@ -110,7 +110,7 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                     style={{ background: indicatorGradient }}
                                 />
                             )}
-                            <span className={`size-12 md:size-16 flex items-center justify-center text-2xl md:text-4xl font-black transition-all rounded-sm ${isToday ? 'bg-black text-white dark:bg-white dark:text-black' : isSelected ? 'text-black dark:text-white' : 'text-black/40 dark:text-white/60 group-hover:text-black dark:group-hover:text-white'}`}>
+                            <span className={`size-12 md:size-16 flex items-center justify-center text-2xl md:text-4xl font-black transition-all rounded-sm ${isToday ? 'bg-black text-white dark:bg-white dark:text-black' : isSelected ? 'text-black dark:text-white' : 'text-black dark:text-white/60 group-hover:text-black dark:group-hover:text-white'}`}>
                                 {d}
                             </span>
                             <div className="absolute bottom-2 left-2.5 flex items-center h-4">

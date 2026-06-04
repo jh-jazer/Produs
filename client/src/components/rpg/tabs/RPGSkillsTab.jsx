@@ -148,16 +148,16 @@ function OrthogonalEdge({ x1, y1, x2, y2, isActive, color }) {
 function NodeRoot({ node }) {
     return (
         <g transform={`translate(${node.x}, ${node.y})`}>
-            <circle r={30} fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.5)" strokeWidth={1.5} />
-            <circle r={26} fill="rgba(0,0,0,0.6)" stroke="rgba(6,182,212,0.3)" strokeWidth={1}
+            <circle r={30} fill="var(--color-rpg-accent)" fillOpacity={0.08} stroke="var(--color-rpg-accent)" strokeOpacity={0.5} strokeWidth={1.5} />
+            <circle r={26} fill="var(--color-rpg-bg)" stroke="var(--color-rpg-accent)" strokeOpacity={0.3} strokeWidth={1}
                 className={node.isActive ? '' : 'opacity-40'} />
             <foreignObject x={-20} y={-20} width={40} height={40}>
                 <div xmlns="http://www.w3.org/1999/xhtml" className="flex items-center justify-center w-full h-full">
-                    <Cpu className="size-6 text-cyan-400" />
+                    <Cpu className="size-6 text-rpg-accent" />
                 </div>
             </foreignObject>
             <text y={46} textAnchor="middle" fontSize={8} fontFamily="monospace" fontWeight="900"
-                fill="rgba(34,211,238,0.9)" letterSpacing="3">
+                fill="var(--color-rpg-accent)" letterSpacing="3">
                 {node.label}
             </text>
         </g>
@@ -295,9 +295,9 @@ function SkillTreeView({ currentPath }) {
             <div className="fixed bottom-10 right-10 z-[100]">
                 <button
                     onClick={snapToRoot}
-                    className="flex items-center gap-2 px-4 py-3 rounded-full glass-panel border border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-all shadow-[0_0_20px_rgba(0,0,0,0.5)] active:scale-95"
+                    className="flex items-center gap-2 px-4 py-3 rounded-full glass-panel border border-rpg-border text-rpg-cream hover:bg-rpg-surface/10 hover:border-rpg-accent transition-all shadow-[0_0_20px_rgba(0,0,0,0.5)] active:scale-95"
                 >
-                    <Compass className="size-4 text-cyan-400" />
+                    <Compass className="size-4 text-rpg-accent" />
                     <span className="text-[10px] font-black uppercase tracking-[0.2em]">Locate Root</span>
                 </button>
             </div>
@@ -466,8 +466,8 @@ function SkillWebView({ currentPath }) {
                 </div>
             </div>
             <div className="fixed bottom-10 right-10 z-[100]">
-                <button onClick={locateOrigin} className="flex items-center gap-2 px-4 py-3 rounded-full glass-panel border border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-all shadow-[0_0_20px_rgba(0,0,0,0.5)] active:scale-95">
-                    <Compass className="size-4 text-cyan-400" />
+                <button onClick={locateOrigin} className="flex items-center gap-2 px-4 py-3 rounded-full glass-panel border border-rpg-border text-rpg-cream hover:bg-rpg-surface/10 hover:border-rpg-accent transition-all shadow-[0_0_20px_rgba(0,0,0,0.5)] active:scale-95">
+                    <Compass className="size-4 text-rpg-accent" />
                     <span className="text-[10px] font-black uppercase tracking-[0.2em]">Locate Origin</span>
                 </button>
             </div>
@@ -485,8 +485,8 @@ function SkillWebView({ currentPath }) {
 
                     {constellation.nodes.root.map(n => (
                         <div key={n.id} className={`absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 group z-30 transition-all ${n.isActive ? 'opacity-100 scale-110' : 'opacity-40'}`} style={{ left: `${n.x}%`, top: `${n.y}%` }}>
-                            <div className="size-16 rounded-full glass-panel border border-cyan-500/50 flex items-center justify-center relative shadow-[0_0_30px_rgba(6,182,212,0.4)]"><Cpu className="size-8 text-cyan-400" /><div className="absolute inset-0 rounded-full border border-cyan-500/30 animate-ping" /></div>
-                            <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest">{n.label}</span>
+                            <div className="size-16 rounded-full glass-panel border border-rpg-accent/50 flex items-center justify-center relative shadow-[0_0_30px_rgba(107,29,43,0.4)]"><Cpu className="size-8 text-rpg-accent" /><div className="absolute inset-0 rounded-full border border-rpg-accent/30 animate-ping" /></div>
+                            <span className="text-[10px] font-black text-rpg-accent uppercase tracking-widest">{n.label}</span>
                         </div>
                     ))}
                     {constellation.nodes.l1.map(n => (

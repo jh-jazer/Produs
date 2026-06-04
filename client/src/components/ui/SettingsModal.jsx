@@ -12,7 +12,10 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
     const { user, updateSettings, deleteAccount } = useAuthStore();
     const { themeMode, setThemeMode } = useTheme();
     const navigate = useNavigate();
-    const [localSettings, setLocalSettings] = useState(user?.settings || { notificationsEnabled: false, theme: 'classic', themeMode: 'light', soundsEnabled: true });
+    const [localSettings, setLocalSettings] = useState(() => {
+        const defaults = { notificationsEnabled: false, theme: 'classic', themeMode: 'light', soundsEnabled: true, defaultAlarm: 'zen', defaultFocusBg: 'rain', soundVolume: 0.5, bgVolume: 0.5, alarmVolume: 0.5 };
+        return { ...defaults, ...(user?.settings || {}) };
+    });
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteWord, setDeleteWord] = useState('');
@@ -45,9 +48,48 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
 
     useEffect(() => {
         if (user?.settings) {
-            setLocalSettings(user.settings);
+            const defaults = { notificationsEnabled: false, theme: 'classic', themeMode: 'light', soundsEnabled: true, defaultAlarm: 'zen', defaultFocusBg: 'rain', soundVolume: 0.5, bgVolume: 0.5, alarmVolume: 0.5 };
+            setLocalSettings({ ...defaults, ...user.settings });
         }
     }, [user?.settings]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            window._bgPreviewTimeout && clearTimeout(window._bgPreviewTimeout);
+            soundManager.stopFocusBackground();
+        }
+        return () => {
+            window._bgPreviewTimeout && clearTimeout(window._bgPreviewTimeout);
+            soundManager.stopFocusBackground();
+        };
+    }, [isOpen]);
+ 
+    const handleBgVolumeChange = (e) => {
+        const val = parseFloat(e.target.value);
+        setLocalSettings(prev => ({ ...prev, bgVolume: val }));
+        soundManager.setBgVolume(val);
+    };
+ 
+    const handleBgVolumeCommit = async () => {
+        try {
+            await updateSettings({ bgVolume: localSettings.bgVolume });
+        } catch (err) {
+            console.error('Failed to save background volume setting:', err);
+        }
+    };
+ 
+    const handleAlarmVolumeChange = (e) => {
+        const val = parseFloat(e.target.value);
+        setLocalSettings(prev => ({ ...prev, alarmVolume: val }));
+    };
+ 
+    const handleAlarmVolumeCommit = async () => {
+        try {
+            await updateSettings({ alarmVolume: localSettings.alarmVolume });
+        } catch (err) {
+            console.error('Failed to save alarm volume setting:', err);
+        }
+    };
 
     const handleToggle = async (key) => {
         const newValue = !localSettings[key];
@@ -61,6 +103,33 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
         } catch (err) {
             setLocalSettings(localSettings);
             console.error('Failed to sync setting:', err);
+        }
+    };
+
+    const handleSelectChange = async (key, val) => {
+        const updatedLocal = { ...localSettings, [key]: val };
+        setLocalSettings(updatedLocal);
+        try {
+            await updateSettings({ [key]: val });
+        } catch (err) {
+            setLocalSettings(localSettings);
+            console.error(`Failed to sync setting ${key}:`, err);
+        }
+        if (key === 'defaultAlarm' && updatedLocal.soundsEnabled !== false) {
+            soundManager.previewAlarm(val);
+        }
+        if (key === 'defaultFocusBg' && updatedLocal.soundsEnabled !== false) {
+            if (val === 'silence') {
+                window._bgPreviewTimeout && clearTimeout(window._bgPreviewTimeout);
+                soundManager.stopFocusBackground();
+            } else {
+                soundManager.startFocusBackground(val);
+                const previewTimeout = setTimeout(() => {
+                    soundManager.stopFocusBackground();
+                }, 6000);
+                window._bgPreviewTimeout && clearTimeout(window._bgPreviewTimeout);
+                window._bgPreviewTimeout = previewTimeout;
+            }
         }
     };
 
@@ -175,6 +244,34 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                         </div>
 
                         <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
+                             <div className="flex items-center gap-3">
+                                 <span className="material-symbols-outlined text-foreground opacity-60">payments</span>
+                                 <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Currency</span>
+                             </div>
+                             <select
+                                 value={user?.currency || 'PHP'}
+                                 onChange={async (e) => {
+                                     const val = e.target.value;
+                                     try {
+                                         await updateSettings({ currency: val });
+                                     } catch (err) {
+                                         console.error('Failed to sync currency:', err);
+                                     }
+                                 }}
+                                 className="bg-transparent border border-foreground/20 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-wider outline-none text-foreground focus:border-foreground transition-colors cursor-pointer dark:bg-[#0a0a0a]"
+                             >
+                                 <option value="USD">USD ($)</option>
+                                 <option value="PHP">PHP (₱)</option>
+                             </select>
+                         </div>
+                    </div>
+
+                    {/* Sound Settings */}
+                    <div className="space-y-4">
+                        <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1 mb-2">Sound Settings</div>
+
+                        {/* Sound Effects Toggle */}
+                        <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
                             <div className="flex items-center gap-3">
                                 <span className="material-symbols-outlined text-foreground opacity-60">volume_up</span>
                                 <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Sound Effects</span>
@@ -190,27 +287,93 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                             </button>
                         </div>
 
+                        {/* Default Focus Background */}
                         <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
-                             <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-foreground opacity-60">payments</span>
-                                 <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Currency</span>
-                             </div>
-                             <select
-                                 value={user?.currency || 'PHP'}
-                                 onChange={async (e) => {
-                                     const val = e.target.value;
-                                     try {
-                                         await updateSettings({ currency: val });
-                                     } catch (err) {
-                                         console.error('Failed to sync currency:', err);
-                                     }
-                                 }}
-                                 className="bg-transparent border border-foreground/20 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-wider outline-none text-foreground focus:border-foreground transition-colors cursor-pointer"
-                             >
-                                 <option value="USD">USD ($)</option>
-                                 <option value="PHP">PHP (₱)</option>
-                             </select>
-                         </div>
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-foreground opacity-60">graphic_eq</span>
+                                <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Default Focus BG</span>
+                            </div>
+                            <select
+                                value={localSettings.defaultFocusBg || 'rain'}
+                                onChange={(e) => handleSelectChange('defaultFocusBg', e.target.value)}
+                                className="bg-transparent border border-foreground/20 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-wider outline-none text-foreground focus:border-foreground transition-colors cursor-pointer dark:bg-[#0a0a0a]"
+                            >
+                                <option value="silence">Silence</option>
+                                <option value="white_noise">White Noise</option>
+                                <option value="rain">Rain</option>
+                            </select>
+                        </div>
+
+                        {/* Default Timer Alarm */}
+                        <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-foreground opacity-60">alarm</span>
+                                <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Default Alarm</span>
+                            </div>
+                            <select
+                                value={localSettings.defaultAlarm || 'zen'}
+                                onChange={(e) => handleSelectChange('defaultAlarm', e.target.value)}
+                                className="bg-transparent border border-foreground/20 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-wider outline-none text-foreground focus:border-foreground transition-colors cursor-pointer dark:bg-[#0a0a0a]"
+                            >
+                                <option value="zen">Zen Gong</option>
+                                <option value="digital">Digital Beep</option>
+                                <option value="crystal">Crystal Chime</option>
+                                <option value="retro">Retro Laser</option>
+                                <option value="pulse">Alert Pulse</option>
+                            </select>
+                        </div>
+
+                        {/* Focus Background Volume Slider */}
+                        <div className="flex flex-col gap-2 p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-foreground opacity-60">
+                                        {localSettings.bgVolume === 0 ? 'volume_mute' : localSettings.bgVolume < 0.5 ? 'volume_down' : 'volume_up'}
+                                    </span>
+                                    <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Focus Background Volume</span>
+                                </div>
+                                <span className="text-[10px] font-black font-mono tracking-wider text-foreground">
+                                    {Math.round((localSettings.bgVolume !== undefined ? localSettings.bgVolume : 0.5) * 100)}%
+                                </span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.05"
+                                value={localSettings.bgVolume !== undefined ? localSettings.bgVolume : 0.5}
+                                onChange={handleBgVolumeChange}
+                                onMouseUp={handleBgVolumeCommit}
+                                onTouchEnd={handleBgVolumeCommit}
+                                className="w-full accent-foreground bg-foreground/10 h-1 rounded-sm appearance-none cursor-pointer outline-none transition-colors"
+                            />
+                        </div>
+
+                        {/* Alarms & Sound Effects Volume Slider */}
+                        <div className="flex flex-col gap-2 p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-foreground opacity-60">
+                                        {localSettings.alarmVolume === 0 ? 'volume_mute' : localSettings.alarmVolume < 0.5 ? 'volume_down' : 'volume_up'}
+                                    </span>
+                                    <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Alarms & Effects Volume</span>
+                                </div>
+                                <span className="text-[10px] font-black font-mono tracking-wider text-foreground">
+                                    {Math.round((localSettings.alarmVolume !== undefined ? localSettings.alarmVolume : 0.5) * 100)}%
+                                </span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.05"
+                                value={localSettings.alarmVolume !== undefined ? localSettings.alarmVolume : 0.5}
+                                onChange={handleAlarmVolumeChange}
+                                onMouseUp={handleAlarmVolumeCommit}
+                                onTouchEnd={handleAlarmVolumeCommit}
+                                className="w-full accent-foreground bg-foreground/10 h-1 rounded-sm appearance-none cursor-pointer outline-none transition-colors"
+                            />
+                        </div>
                     </div>
 
                     {/* Theme Selection */}

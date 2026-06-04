@@ -173,7 +173,7 @@ function HabitTracker({
                             const sysId = habit.myPart ? habit.myPart.systemId : habit.systemId;
                             const path = CORE_REDIRECTS[sysId];
                             if (sysId === 'focus') {
-                                navigate('/dashboard', { state: { openFocusTimer: true } });
+                                navigate('/focustimer');
                             } else if (path) {
                                 navigate(path);
                             }

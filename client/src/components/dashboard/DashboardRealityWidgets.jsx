@@ -329,7 +329,7 @@ export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, togg
                                         onClick={() => {
                                             if (isSystemHabit) {
                                                 if (habit.systemId === 'focus') {
-                                                    navigate('/dashboard', { state: { openFocusTimer: true } });
+                                                    navigate('/focustimer');
                                                 } else {
                                                     const path = CORE_REDIRECTS[habit.systemId];
                                                     if (path) navigate(path);

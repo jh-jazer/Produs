@@ -145,8 +145,13 @@ export default function HabitChecklistHUD() {
                         >
                           {habit.name}
                         </span>
-                        <span className="text-[8px] font-mono opacity-20 tracking-tighter uppercase">
+                        <span className="text-[8px] font-mono opacity-20 tracking-tighter uppercase flex items-center gap-0.5">
                           Streak: {habit.streak || 0}d
+                          {habit.streak > 0 && (
+                            <span className="material-symbols-outlined text-[10px] text-orange-500 animate-pulse">
+                              local_fire_department
+                            </span>
+                          )}
                         </span>
                       </div>
                     </motion.div>

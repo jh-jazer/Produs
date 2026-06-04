@@ -424,7 +424,12 @@ function Profile() {
                                 </div>
                                 <div>
                                     <p className="text-sm font-bold truncate">{habit.name}</p>
-                                    <p className="text-xs font-black text-orange-500">{habit.streak} days</p>
+                                    <p className="text-xs font-black text-orange-500 flex items-center gap-1">
+                                        <span>{habit.streak} days</span>
+                                        {habit.streak > 0 && (
+                                            <span className="material-symbols-outlined text-[13px] text-orange-500 animate-pulse">local_fire_department</span>
+                                        )}
+                                    </p>
                                 </div>
                             </div>
                         )) : (

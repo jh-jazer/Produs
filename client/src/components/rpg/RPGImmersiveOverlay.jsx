@@ -28,12 +28,12 @@ const RPGImmersiveOverlay = ({ activeTab, setActiveTab }) => {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.02 }}
-            className="relative w-full h-[80vh] md:h-[90vh] mt-2 md:mt-6 bg-black backdrop-blur-3xl rounded-[3rem] overflow-hidden flex items-center justify-center font-mono select-none shadow-2xl border border-white/10"
+            className="relative w-full h-[80vh] md:h-[90vh] mt-2 md:mt-6 bg-rpg-bg backdrop-blur-3xl rounded-[3rem] overflow-hidden flex items-center justify-center font-mono select-none shadow-2xl border border-rpg-border"
         >
             {/* 1. Background Layers */}
             <div className="absolute inset-0 z-0">
                 <div className="absolute inset-0 opacity-[0.03] bg-grid bg-[size:40px_40px]" />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent animate-scanline" />
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-rpg-accent/20 to-transparent animate-scanline" />
                 <div className="absolute inset-0 bg-radial-vignette opacity-60" />
             </div>
 

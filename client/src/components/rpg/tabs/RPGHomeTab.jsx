@@ -71,15 +71,15 @@ const RPGHomeTab = ({ user }) => {
             >
                 <div className="flex flex-col gap-8">
                     <div className="space-y-4">
-                        <p className="text-sm font-bold text-slate-400 leading-relaxed tracking-wider uppercase italic">
+                        <p className="text-sm font-bold text-rpg-stone leading-relaxed tracking-wider uppercase italic">
                             {protocolData.flavor}
                         </p>
                         
-                        <div className="h-px w-full bg-gradient-to-r from-cyan-500/20 via-transparent to-transparent" />
+                        <div className="h-px w-full bg-gradient-to-r from-rpg-accent/20 via-transparent to-transparent" />
                         
                         <div className="space-y-4">
-                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] font-mono">Active_Protocol_Perks</span>
-                            <div className="bg-white/[0.03] border border-white/5 p-6 rounded-3xl">
+                            <span className="text-[10px] font-black text-rpg-stone/40 uppercase tracking-[0.2em] font-mono">Active_Protocol_Perks</span>
+                            <div className="bg-rpg-surface/20 border border-rpg-border p-6 rounded-3xl">
                                 <div className="space-y-3">
                                     {protocolData.perk.split(' | ').map((p, i) => (
                                         <div key={i} className="flex items-start gap-3">
@@ -94,7 +94,7 @@ const RPGHomeTab = ({ user }) => {
                         </div>
 
                         <div className="space-y-4">
-                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] font-mono">Advanced_Combat_Logistics</span>
+                            <span className="text-[10px] font-black text-rpg-stone/40 uppercase tracking-[0.2em] font-mono">Advanced_Combat_Logistics</span>
                             <div className="grid grid-cols-2 gap-3">
                                 {[
                                     { label: 'MAX_HEALTH', value: health, icon: <Heart size={10} />, color: 'rose' },
@@ -109,28 +109,28 @@ const RPGHomeTab = ({ user }) => {
                                     { label: 'DODGE_CHNC', value: tacticalStats.dodge + '%', icon: <Zap size={10} />, color: 'emerald' },
                                     { label: 'LOOT_QUALITY', value: tacticalStats.lootQual + '%', icon: <Sparkles size={10} />, color: 'purple' },
                                 ].map((stat, i) => (
-                                    <div key={i} className="flex items-center justify-between border border-white/5 p-3 rounded-xl bg-black/20">
+                                    <div key={i} className="flex items-center justify-between border border-rpg-border p-3 rounded-xl bg-rpg-surface/20">
                                         <div className="flex items-center gap-2">
                                             <span className={`text-${stat.color}-500`}>{stat.icon}</span>
-                                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{stat.label}</span>
+                                            <span className="text-[9px] font-black text-rpg-stone uppercase tracking-widest">{stat.label}</span>
                                         </div>
-                                        <span className="text-[11px] font-black text-white font-mono">{stat.value}</span>
+                                        <span className="text-[11px] font-black text-rpg-cream font-mono">{stat.value}</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
                         <div className="space-y-4">
-                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] font-mono">Neural_Synchronization_Multipliers</span>
+                            <span className="text-[10px] font-black text-rpg-stone/40 uppercase tracking-[0.2em] font-mono">Neural_Synchronization_Multipliers</span>
                             <div className="grid grid-cols-3 gap-3">
                                 {Object.entries(protocolData.multipliers).map(([stat, mult]) => (
-                                    <div key={stat} className="flex flex-col gap-2 border border-white/5 p-4 rounded-2xl bg-black/40 group hover:border-cyan-500/30 transition-all">
-                                        <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest leading-none">{stat}_MOD</span>
+                                    <div key={stat} className="flex flex-col gap-2 border border-rpg-border p-4 rounded-2xl bg-rpg-surface/40 group hover:border-rpg-accent/30 transition-all">
+                                        <span className="text-[9px] font-black text-rpg-stone/85 uppercase tracking-widest leading-none">{stat}_MOD</span>
                                         <div className="flex items-baseline gap-1">
-                                            <span className={`text-lg font-black font-mono leading-none ${mult >= 1.2 ? 'text-cyan-500' : mult < 1 ? 'text-rose-500' : 'text-white'}`}>
+                                            <span className={`text-lg font-black font-mono leading-none ${mult >= 1.2 ? 'text-rpg-accent' : mult < 1 ? 'text-rose-500' : 'text-rpg-cream'}`}>
                                                 {mult.toFixed(1)}
                                             </span>
-                                            <span className="text-[8px] font-bold text-slate-400">x</span>
+                                            <span className="text-[8px] font-bold text-rpg-stone">x</span>
                                         </div>
                                     </div>
                                 ))}
@@ -148,14 +148,14 @@ const RPGHomeTab = ({ user }) => {
                 className="absolute top-1 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center pointer-events-auto"
             >
                 {/* Sub-Tab Navigation: Unified Command Pill */}
-                <div className="bg-black/40 backdrop-blur-md border border-white/10 px-8 py-1 rounded-full flex items-center gap-8 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                <div className="bg-rpg-bg/40 backdrop-blur-md border border-rpg-border px-8 py-1 rounded-full flex items-center gap-8 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
                     {subTabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveSubTab(tab.id)}
                             className={`relative group/tab py-1 transition-all ${activeSubTab === tab.id ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
                         >
-                            <span className={`text-[11px] font-black tracking-[0.4em] font-mono transition-colors ${activeSubTab === tab.id ? 'text-cyan-500' : 'text-white'}`}>
+                            <span className={`text-[11px] font-black tracking-[0.4em] font-mono transition-colors ${activeSubTab === tab.id ? 'text-rpg-accent' : 'text-rpg-cream'}`}>
                                 {tab.label}
                             </span>
                         </button>
@@ -177,9 +177,9 @@ const RPGHomeTab = ({ user }) => {
                                 <div key={stat.label} className="flex items-center justify-start gap-2 min-w-[120px]">
                                     <div className="flex items-center gap-1.5 min-w-[60px]">
                                         <span className={`text-${stat.color}-500 opacity-80`}>{stat.icon}</span>
-                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest font-mono">{stat.label}</span>
+                                        <span className="text-[9px] font-black text-rpg-stone uppercase tracking-widest font-mono">{stat.label}</span>
                                     </div>
-                                    <span className="text-[11px] font-black text-white font-mono">{stat.value}</span>
+                                    <span className="text-[11px] font-black text-rpg-cream font-mono">{stat.value}</span>
                                 </div>
                             ))}
                         </div>
@@ -199,15 +199,15 @@ const RPGHomeTab = ({ user }) => {
                                     initial={{ x: -20, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
                                     transition={{ delay: 0.1 * i }}
-                                    className="group flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-12 border-b border-white/[0.01] md:border-white/[0.03] py-2 md:py-1.5 pr-2"
+                                    className="group flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-12 border-b border-rpg-border/40 py-2 md:py-1.5 pr-2"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className={`p-1 rounded text-${stat.color}-500/60`}>
                                             {stat.icon}
                                         </div>
-                                        <span className="text-[10px] font-black text-slate-500 group-hover:text-white/80 transition-colors tracking-widest">{stat.label}</span>
+                                        <span className="text-[10px] font-black text-rpg-stone group-hover:text-rpg-cream/80 transition-colors tracking-widest">{stat.label}</span>
                                     </div>
-                                    <span className="text-[13px] font-black text-white font-mono ml-8 md:ml-0">{stat.value}</span>
+                                    <span className="text-[13px] font-black text-rpg-cream font-mono ml-8 md:ml-0">{stat.value}</span>
                                 </motion.div>
                             ))}
                         </div>
@@ -227,15 +227,15 @@ const RPGHomeTab = ({ user }) => {
                                     initial={{ x: 20, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
                                     transition={{ delay: 0.1 * i + 0.3 }}
-                                    className="group flex flex-col md:flex-row-reverse items-end md:items-center justify-between gap-2 md:gap-12 border-b border-white/[0.01] md:border-white/[0.03] py-2 md:py-1.5 pl-2"
+                                    className="group flex flex-col md:flex-row-reverse items-end md:items-center justify-between gap-2 md:gap-12 border-b border-rpg-border/40 py-2 md:py-1.5 pl-2"
                                 >
                                     <div className="flex flex-row-reverse items-center gap-3">
                                         <div className={`p-1 rounded text-${stat.color}-500/60`}>
                                             {stat.icon}
                                         </div>
-                                        <span className="text-[10px] font-black text-slate-500 group-hover:text-white/80 transition-colors tracking-widest">{stat.label}</span>
+                                        <span className="text-[10px] font-black text-rpg-stone group-hover:text-rpg-cream/80 transition-colors tracking-widest">{stat.label}</span>
                                     </div>
-                                    <span className="text-[13px] font-black text-white font-mono mr-8 md:mr-0">{stat.value}</span>
+                                    <span className="text-[13px] font-black text-rpg-cream font-mono mr-8 md:mr-0">{stat.value}</span>
                                 </motion.div>
                             ))}
                         </div>
@@ -254,22 +254,22 @@ const RPGHomeTab = ({ user }) => {
                     >
                         <div className="flex items-center justify-between w-full px-6">
                             <div className="flex items-center gap-4">
-                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest font-mono">TACTICAL_VAULT_</span>
-                                <span className="text-[9px] font-black text-white uppercase tracking-widest font-mono">PAGE {vaultPage + 1}</span>
+                                <span className="text-[9px] font-black text-rpg-stone uppercase tracking-widest font-mono">TACTICAL_VAULT_</span>
+                                <span className="text-[9px] font-black text-rpg-cream uppercase tracking-widest font-mono">PAGE {vaultPage + 1}</span>
                             </div>
                             
                             <div className="flex items-center gap-2">
                                 <button 
                                     onClick={() => setVaultPage(p => Math.max(0, p - 1))}
-                                    className={`p-1 rounded-md border border-white/10 hover:bg-white/5 transition-all ${vaultPage === 0 ? 'opacity-20 cursor-not-allowed' : 'opacity-100'}`}
+                                    className={`p-1 rounded-md border border-rpg-border hover:bg-rpg-surface/30 transition-all ${vaultPage === 0 ? 'opacity-20 cursor-not-allowed' : 'opacity-100'}`}
                                 >
-                                    <ChevronLeft size={12} className="text-white" />
+                                    <ChevronLeft size={12} className="text-rpg-cream" />
                                 </button>
                                 <button 
                                     onClick={() => setVaultPage(p => p + 1)}
-                                    className="p-1 rounded-md border border-white/10 hover:bg-white/5 transition-all"
+                                    className="p-1 rounded-md border border-rpg-border hover:bg-rpg-surface/30 transition-all"
                                 >
-                                    <ChevronRight size={12} className="text-white" />
+                                    <ChevronRight size={12} className="text-rpg-cream" />
                                 </button>
                             </div>
                         </div>
@@ -281,13 +281,13 @@ const RPGHomeTab = ({ user }) => {
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: i * 0.03 }}
-                                    className={`size-14 border border-white/10 bg-white/[0.02] rounded-xl hover:border-emerald-500/50 transition-all cursor-pointer relative group ${i >= 10 ? 'hidden md:block' : ''}`}
+                                    className={`size-14 border border-rpg-border bg-rpg-surface/10 rounded-xl hover:border-rpg-accent/50 transition-all cursor-pointer relative group ${i >= 10 ? 'hidden md:block' : ''}`}
                                 >
                                     <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] group-hover:opacity-10 transition-opacity">
-                                        <Package size={20} className="text-white" />
+                                        <Package size={20} className="text-rpg-cream" />
                                     </div>
-                                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
-                                    <span className="absolute bottom-1 right-1.5 text-[7px] font-black text-slate-700 uppercase">{vaultPage * 10 + i + 1}</span>
+                                    <div className="absolute inset-0 bg-gradient-to-br from-rpg-cream/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
+                                    <span className="absolute bottom-1 right-1.5 text-[7px] font-black text-rpg-stone uppercase">{vaultPage * 10 + i + 1}</span>
                                 </motion.div>
                             ))}
                         </div>
@@ -312,9 +312,9 @@ const RPGHomeTab = ({ user }) => {
                                 transition={{ delay: 0.1 * i }}
                                 className="group flex items-center"
                             >
-                                <div className="size-14 border border-white/10 bg-white/[0.02] rounded-2xl flex items-center justify-center group-hover:border-cyan-500/50 transition-all cursor-pointer relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <div className="text-white opacity-20 group-hover:opacity-40 transition-opacity">
+                                <div className="size-14 border border-rpg-border bg-rpg-surface/10 rounded-2xl flex items-center justify-center group-hover:border-rpg-accent/50 transition-all cursor-pointer relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-rpg-cream/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="text-rpg-cream opacity-20 group-hover:opacity-40 transition-opacity">
                                         {slot.icon}
                                     </div>
                                 </div>
@@ -341,9 +341,9 @@ const RPGHomeTab = ({ user }) => {
                                 transition={{ delay: 0.1 * i + 0.3 }}
                                 className="group flex flex-row-reverse items-center"
                             >
-                                <div className="size-14 border border-white/10 bg-white/[0.02] rounded-2xl flex items-center justify-center group-hover:border-emerald-500/50 transition-all cursor-pointer relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <div className="text-white opacity-20 group-hover:opacity-40 transition-opacity">
+                                <div className="size-14 border border-rpg-border bg-rpg-surface/10 rounded-2xl flex items-center justify-center group-hover:border-rpg-accent/50 transition-all cursor-pointer relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-rpg-cream/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="text-rpg-cream opacity-20 group-hover:opacity-40 transition-opacity">
                                         {slot.icon}
                                     </div>
                                 </div>
@@ -360,15 +360,15 @@ const RPGHomeTab = ({ user }) => {
                     animate={{ opacity: 1, y: 0 }}
                     className="absolute inset-x-8 top-[42%] -translate-y-1/2 flex flex-col items-center gap-8 z-20 pointer-events-auto"
                 >
-                    <div className="w-full max-w-md border border-white/5 bg-white/[0.01] p-6 rounded-3xl backdrop-blur-sm">
+                    <div className="w-full max-w-md border border-rpg-border bg-rpg-surface/10 p-6 rounded-3xl backdrop-blur-sm">
                         <div className="flex justify-between items-center mb-6">
-                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Skill_Matrix_</span>
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest">Protocol_Ready</span>
+                            <span className="text-[10px] font-black text-rpg-stone uppercase tracking-widest">Skill_Matrix_</span>
+                            <span className="text-[10px] font-black text-rpg-cream uppercase tracking-widest">Protocol_Ready</span>
                         </div>
                         <div className="grid grid-cols-4 gap-4">
                             {Array.from({ length: 8 }).map((_, i) => (
-                                <div key={i} className="aspect-square border border-white/[0.03] bg-black/40 rounded-xl flex items-center justify-center group hover:border-cyan-500/30 transition-all cursor-pointer">
-                                    <div className="size-6 rounded-full bg-white/5 group-hover:bg-cyan-500/20 transition-all" />
+                                <div key={i} className="aspect-square border border-rpg-border/40 bg-rpg-surface/40 rounded-xl flex items-center justify-center group hover:border-rpg-accent/30 transition-all cursor-pointer">
+                                    <div className="size-6 rounded-full bg-rpg-surface/30 group-hover:bg-rpg-accent/20 transition-all" />
                                 </div>
                             ))}
                         </div>
@@ -384,17 +384,17 @@ const RPGHomeTab = ({ user }) => {
                     transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
                     className="relative group"
                 >
-                    <div className="absolute inset-0 bg-cyan-500/20 blur-[100px] rounded-full scale-150 animate-pulse" />
+                    <div className="absolute inset-0 bg-rpg-accent/20 blur-[100px] rounded-full scale-150 animate-pulse" />
                     <motion.div
                         animate={{ y: [0, -8, 0] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="relative z-10 w-[260px] h-[260px] flex items-center justify-center drop-shadow-[0_0_30px_rgba(6,182,212,0.3)]"
+                        className="relative z-10 w-[260px] h-[260px] flex items-center justify-center drop-shadow-[0_0_30px_rgba(107,29,43,0.4)]"
                     >
                         <img src="/Wizard.png" alt="Protocol Wizard" className="w-full h-full object-contain" />
                     </motion.div>
                     <div className="absolute inset-0 -m-8 pointer-events-none">
-                        <div className="absolute inset-0 border border-cyan-500/10 rounded-full animate-[spin_20s_linear_infinite]" />
-                        <div className="absolute inset-8 border border-white/5 rounded-full animate-[spin_10s_linear_infinite_reverse]" />
+                        <div className="absolute inset-0 border border-rpg-accent/10 rounded-full animate-[spin_20s_linear_infinite]" />
+                        <div className="absolute inset-8 border border-rpg-border/20 rounded-full animate-[spin_10s_linear_infinite_reverse]" />
                     </div>
                 </motion.div>
 
@@ -407,17 +407,17 @@ const RPGHomeTab = ({ user }) => {
                         className="mt-2 md:mt-6 flex flex-col items-center gap-2"
                     >
                         <div className="flex items-center gap-4">
-                            <div className="h-px w-10 bg-gradient-to-r from-transparent via-cyan-500/50 to-cyan-500" />
+                            <div className="h-px w-10 bg-gradient-to-r from-transparent via-rpg-accent/50 to-rpg-accent" />
                             <button 
                                 onClick={() => setShowInfoModal(true)}
                                 className="flex items-center gap-3 group cursor-pointer hover:scale-105 transition-transform relative z-50 pointer-events-auto"
                             >
-                                <span className="text-[11px] font-black text-cyan-500 uppercase tracking-[0.8em] group-hover:text-white transition-colors">{user?.rpg?.path || 'Identity'}</span>
-                                <div className="p-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/40 transition-all">
-                                    <Info size={10} className="text-cyan-500" />
+                                <span className="text-[11px] font-black text-rpg-accent uppercase tracking-[0.8em] group-hover:text-rpg-cream transition-colors">{user?.rpg?.path || 'Identity'}</span>
+                                <div className="p-1 rounded-full bg-rpg-accent/10 border border-rpg-accent/20 group-hover:bg-rpg-accent/20 group-hover:border-rpg-accent/40 transition-all">
+                                    <Info size={10} className="text-rpg-accent" />
                                 </div>
                             </button>
-                            <div className="h-px w-10 bg-gradient-to-l from-transparent via-cyan-500/50 to-cyan-500" />
+                            <div className="h-px w-10 bg-gradient-to-l from-transparent via-rpg-accent/50 to-rpg-accent" />
                         </div>
                     </motion.div>
                 )}

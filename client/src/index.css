@@ -34,6 +34,13 @@
     --color-habit-social: #ff4d00;
     --color-accent: var(--accent);
     --color-foreground: var(--foreground);
+
+    /* RPG Immersive Mode (Old Money Theme) mapping */
+    --color-rpg-bg: var(--color-rpg-bg);
+    --color-rpg-surface: var(--color-rpg-surface);
+    --color-rpg-stone: var(--color-rpg-stone);
+    --color-rpg-accent: var(--color-rpg-accent);
+    --color-rpg-cream: var(--color-rpg-cream);
 }
 
 @variant dark (&:where(.dark, .dark *));
@@ -58,7 +65,7 @@
     --accent-bg: color-mix(in srgb, var(--primary) 10%, transparent);
     --accent-border: color-mix(in srgb, var(--primary) 20%, transparent);
     --accent-glow: color-mix(in srgb, var(--primary) 30%, transparent);
-    --bg-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("/background/lightportrait.jpeg");
+    --bg-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("/background/lightportrait.jpeg");
     --bg-size: cover;
     --bg-position: center;
     --bg-repeat: no-repeat;
@@ -67,7 +74,7 @@
 
 @media (min-width: 48rem) and (orientation: landscape) {
     :root {
-        --bg-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url("/background/lightlandscape.jpeg");
+        --bg-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("/background/lightlandscape.jpeg");
     }
 }
 
@@ -233,9 +240,7 @@ button:disabled {
     }
 
     /* AR corner decorations — Intelligence Aesthetic */
-    .ar-corners {
-        /* Positioned by caller (relative/absolute) */
-    }
+
     .ar-corners::before,
     .ar-corners::after {
         content: "";
@@ -341,8 +346,8 @@ button:disabled {
 
 .bg-grid {
   background-image: 
-    linear-gradient(to right, rgba(6, 182, 212, 0.1) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+    linear-gradient(to right, var(--color-rpg-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-rpg-border) 1px, transparent 1px);
 }
 
 .bg-radial-vignette {
