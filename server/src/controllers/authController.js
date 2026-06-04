@@ -485,11 +485,12 @@ export const searchUsers = async (req, res) => {
         
         // Match by Name, Username OR ID
         // Simplified query: Find any user that matches query string OR exact ID, excluding the searcher
+        const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         const searchQuery = {
             _id: { $ne: req.user.id },
             $or: [
-                { name: { $regex: query, $options: 'i' } },
-                { username: { $regex: query, $options: 'i' } }
+                { name: { $regex: escapedQuery, $options: 'i' } },
+                { username: { $regex: escapedQuery, $options: 'i' } }
             ]
         };
 
@@ -852,7 +853,8 @@ export const checkUsername = async (req, res) => {
         }
 
         // Check if ANY existing username starts with this base (collision check on base only)
-        const user = await User.findOne({ username: { $regex: `^${username.toLowerCase()}#`, $options: 'i' } });
+        const escapedUsername = username.toLowerCase().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const user = await User.findOne({ username: { $regex: `^${escapedUsername}#`, $options: 'i' } });
         // Base is available as long as there are fewer than 9000 combos taken — effectively always true.
         // We just confirm the base format is valid and not entirely blocked.
         res.json({ available: true, message: 'Username base is available' });
