@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import api from '../../services/api';
 import { useHabits } from '../../hooks/useHabits';
 import ConsistencyGrid from '../intellectual/habits/ConsistencyGrid';
 import YearlyMoodBoard from '../journal_components/YearlyMoodBoard';
@@ -45,12 +44,12 @@ const getArchetypeDisplay = (user) => {
 };
 
 export default function StatsModal({ isOpen, onClose, user }) {
-  const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const isLoadingStats = false;
   const stats = user?.rpg?.stats || {};
   const display = getArchetypeDisplay(user);
 
-  const { habits, isLoading: habitsLoading } = useHabits();
-  const { entries = [], isLoading: journalLoading } = useJournal();
+  const { habits } = useHabits();
+  const { entries = [] } = useJournal();
 
   // Compute checks dictionary for ConsistencyGrid
   const checks = React.useMemo(() => {
@@ -211,7 +210,7 @@ export default function StatsModal({ isOpen, onClose, user }) {
 }
 
 function RadarChart({ stats, isLoading, isUnawakened, userLevel }) {
-  const [hoveredStat, setHoveredStat] = useState(null);
+  const [hoveredStat, setHoveredStat] = React.useState(null);
 
   const attributes = [
     { key: 'str', label: 'STR', full: 'Strength', desc: 'Physical power, training, health', icon: 'fitness_center', color: 'text-red-500' },
