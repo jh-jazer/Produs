@@ -31,9 +31,22 @@ connectDB();
 
 const app = express();
 const server = http.createServer(app);
+
+const getCorsOrigin = () => {
+    if (process.env.NODE_ENV === 'production') {
+        if (!process.env.CLIENT_URL) {
+            throw new Error('CLIENT_URL environment variable is required in production for CORS');
+        }
+        return process.env.CLIENT_URL.split(',').map(url => url.trim());
+    }
+    return process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',').map(url => url.trim()) : "http://localhost:5173";
+};
+
+const allowedOrigins = getCorsOrigin();
+
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_URL || "http://localhost:5173",
+        origin: allowedOrigins,
         methods: ["GET", "POST"]
     }
 });
@@ -45,7 +58,7 @@ const posthog = new PostHog(process.env.POSTHOG_API_KEY, {
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: allowedOrigins }));
 app.use(morgan('dev'));
 app.use(passport.initialize());
 
