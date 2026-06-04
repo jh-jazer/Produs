@@ -57,17 +57,21 @@ export const initializeSystemHabits = async (userId) => {
         }
 
         // Update existing habits to ensure name and icon are synchronized
-        for (const habit of habits) {
-            await Habit.updateOne(
-                { user: userId, systemId: habit.systemId },
-                {
+        const bulkOps = habits.map(habit => ({
+            updateOne: {
+                filter: { user: userId, systemId: habit.systemId },
+                update: {
                     $set: {
                         name: habit.name,
                         icon: habit.icon,
                         color: habit.color
                     }
                 }
-            );
+            }
+        }));
+
+        if (bulkOps.length > 0) {
+            await Habit.bulkWrite(bulkOps, { ordered: false });
         }
     } catch (error) {
         console.error('Failed to initialize system habits:', error);
