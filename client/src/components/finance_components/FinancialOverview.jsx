@@ -321,15 +321,16 @@ const FinancialOverview = ({
                                         )}
                                     </div>
 
-                                    {/* Big Balance with Responsive Font Scale */}
+                                    {/* Big Balance with Responsive Font Scale via clamp() */}
                                     <p 
-                                        className={`font-black font-exo tracking-tighter leading-none text-4xl sm:text-5xl md:text-[4.5rem] lg:text-[6rem] ${
+                                        className={`font-black font-exo tracking-tighter leading-none ${
                                             displayedBalance > 0 
                                                 ? 'text-emerald-700 dark:text-emerald-400' 
                                                 : displayedBalance < 0 
                                                     ? 'text-rose-700 dark:text-rose-400' 
                                                     : 'text-black dark:text-white'
                                         }`}
+                                        style={{ fontSize: 'clamp(2.2rem, 9vw, 6rem)' }}
                                     >
                                         {displayedBalance < 0 ? '-' : ''}{localCurrency}{Math.abs(displayedBalance).toLocaleString()}
                                     </p>
