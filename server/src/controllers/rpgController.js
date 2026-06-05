@@ -570,7 +570,7 @@ export const claimStreakReward = async (req, res) => {
 
             if (day % 7 === 0) {
                 points = day * 15;
-                desc = `+${points} Points & +${day * 10} XP Granted`;
+                desc = `+${points} Points & +${day * 10} Guardian EXP Granted`;
             } else if (day % 30 === 0) {
                 points = day * 20;
                 desc = `+${points} Points & Premium Buff Granted`;
@@ -637,25 +637,40 @@ export const getHero = async (req, res) => {
 };
 
 
-// @route   POST /api/rpg/hero/award-exp
-// @desc    Award EXP to the user's hero (RPG mode actions)
-// @access  Private
 export const awardHeroExpController = async (req, res) => {
     try {
-        const { amount } = req.body;
-        if (!amount || amount <= 0) return res.status(400).json({ message: 'Amount must be positive.' });
+        const { amount, coins } = req.body;
+        if ((!amount || amount <= 0) && (!coins || coins <= 0)) {
+            return res.status(400).json({ message: 'Must award positive exp or coins.' });
+        }
 
-        const { addHeroExp } = await import('../utils/levelUtils.js');
-        const result = await addHeroExp(req.user._id, amount);
-        if (!result) return res.status(404).json({ message: 'User not found' });
+        const { addGuardianExp } = await import('../utils/levelUtils.js');
+        const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        let result = { user, levelUp: false };
+        if (amount && amount > 0) {
+            const expResult = await addGuardianExp(req.user._id, amount);
+            if (expResult) {
+                result = expResult;
+            }
+        }
+
+        if (coins && coins > 0) {
+            result.user.rpg.prodCoins = (result.user.rpg.prodCoins || 0) + coins;
+            result.user.markModified('rpg');
+            await result.user.save();
+        }
 
         res.json({
             hero: result.user.hero,
+            guardianExp: result.user.guardianExp,
+            guardianLevel: result.user.guardianLevel,
             levelUp: result.levelUp,
-            cappedLevel: result.cappedLevel
+            rpg: result.user.rpg
         });
     } catch (error) {
-        console.error('Failed to award hero EXP:', error);
-        res.status(500).json({ message: 'Server error awarding hero EXP.' });
+        console.error('Failed to award Guardian EXP/Coins:', error);
+        res.status(500).json({ message: 'Server error awarding Guardian EXP/Coins.' });
     }
 };

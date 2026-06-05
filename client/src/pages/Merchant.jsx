@@ -141,7 +141,7 @@ const Merchant = () => {
                             <ChippedBorder opacity={0.2} />
                             <div className="relative z-10 w-full">
                                 <p className="text-[10px] font-black uppercase tracking-[0.6em] text-foreground/40 mb-2">PROD ENERGY</p>
-                                <EnergyDisplay current={user?.rpg?.energy?.current ?? (10 + (user?.level || 0))} max={10 + (user?.level || 0)} />
+                                <EnergyDisplay current={user?.rpg?.energy?.current ?? (10 + (user?.guardianLevel || 0))} max={10 + (user?.guardianLevel || 0)} />
                             </div>
                             <div className="absolute right-0 top-0 size-32 bg-foreground/5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-1000" />
                         </div>

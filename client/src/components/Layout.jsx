@@ -918,7 +918,7 @@ function Layout() {
                     </div>
                 </aside>
 
-                <div className="md:hidden fixed top-8 right-0 z-[101] layout-mobile-profile-btn">
+                <div className={`md:hidden fixed ${isOverview ? 'top-8' : 'top-4'} right-0 z-[101] layout-mobile-profile-btn`}>
                     {isOverview ? (
                         <button 
                             onClick={() => setThemeMode(isDark ? 'light' : 'dark')} 

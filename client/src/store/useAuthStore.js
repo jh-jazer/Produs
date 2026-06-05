@@ -61,10 +61,10 @@ const useAuthStore = create((set) => ({
             };
 
             // Sound triggers on XP, Level, or Archetype change
-            const oldExp = state.user?.exp;
-            const newExp = updatedUser?.exp;
-            const oldLevel = state.user?.level;
-            const newLevel = updatedUser?.level;
+            const oldExp = state.user?.guardianExp;
+            const newExp = updatedUser?.guardianExp;
+            const oldLevel = state.user?.guardianLevel;
+            const newLevel = updatedUser?.guardianLevel;
             const oldArchetype = state.user?.rpg?.tier1;
             const newArchetype = updatedUser?.rpg?.tier1;
 

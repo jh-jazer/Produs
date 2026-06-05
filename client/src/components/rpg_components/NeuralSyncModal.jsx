@@ -111,7 +111,7 @@ const NeuralSyncModal = ({ isOpen, onClose }) => {
                 if (data.pendingQuestions && data.pendingQuestions.length > 0) {
                     setSyncComplete(false);
                     setCurrentQuestion(null);
-                } else if (user.level === 0) {
+                } else if (user.guardianLevel === 0) {
                     // Start handshake instead of closing
                     setSyncComplete(false);
                     setIsHandshaking(true);
@@ -163,7 +163,7 @@ const NeuralSyncModal = ({ isOpen, onClose }) => {
             <div className="w-full max-w-2xl">
                 <SystemWindow 
                     title="NEURAL_SYNC_AUTHORIZED" 
-                    subtitle={`LEVEL ${user.level} SYNCHRONIZATION`}
+                    subtitle={`LEVEL ${user.guardianLevel} SYNCHRONIZATION`}
                     status="UPLINK_ACTIVE"
                     onClose={onClose}
                 >

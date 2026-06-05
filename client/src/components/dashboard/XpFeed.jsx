@@ -50,7 +50,7 @@ const XpFeed = ({ user, markAllRead = false }) => {
     return (
         <div className="w-full space-y-3">
             <div className="flex items-center justify-between mb-4">
-                <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1">REALTIME_XP_STREAM</div>
+                <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1">REALTIME_GUARDIAN_EXP_STREAM</div>
                 <div className="flex items-center gap-2">
                     <div className="size-1 rounded-full bg-primary animate-pulse" />
                     <span className="text-[8px] font-mono text-primary uppercase tracking-widest">SYNC_ACTIVE</span>
@@ -99,7 +99,7 @@ const XpFeed = ({ user, markAllRead = false }) => {
 
                         {/* Amount */}
                         <div className="px-2 py-1 bg-foreground/10 rounded-sm shrink-0">
-                            <span className="text-[10px] font-mono text-foreground">+{event.amount} XP</span>
+                            <span className="text-[10px] font-mono text-foreground">+{event.amount} Guardian EXP</span>
                         </div>
                     </motion.div>
                 );

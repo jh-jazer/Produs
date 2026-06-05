@@ -26,6 +26,12 @@ export const addGuardianExp = async (userId, amount) => {
         const levelUp = newLevelInfo.level > (user.guardianLevel || 0);
         user.guardianLevel = newLevelInfo.level;
 
+        // Sync hero progression to mirror guardian progression exactly
+        if (!user.hero) user.hero = { name: 'Unnamed Hero', class: null, level: 0, exp: 0 };
+        user.hero.exp = user.guardianExp;
+        user.hero.level = user.guardianLevel;
+        user.markModified('hero');
+
         await user.save();
         return { user, levelUp, levelInfo: newLevelInfo };
     } catch (error) {
@@ -39,30 +45,14 @@ export const addGuardianExp = async (userId, amount) => {
  * Hero level is always capped at the Guardian's current level.
  */
 export const addHeroExp = async (userId, amount) => {
-    try {
-        const user = await User.findById(userId);
-        if (!user) return null;
-
-        // Initialise hero sub-doc defaults if missing
-        if (!user.hero) user.hero = { name: 'Unnamed Hero', class: null, level: 0, exp: 0 };
-
-        user.hero.exp = (user.hero.exp || 0) + amount;
-
-        // Resolve hero level using the shared table
-        const heroLevelInfo = calculateLevel(user.hero.exp);
-
-        // Cap hero level at guardian level
-        const cappedLevel = Math.min(heroLevelInfo.level, user.guardianLevel || 0);
-        const levelUp = cappedLevel > (user.hero.level || 0);
-        user.hero.level = cappedLevel;
-
-        user.markModified('hero');
-        await user.save();
-        return { user, levelUp, levelInfo: heroLevelInfo, cappedLevel };
-    } catch (error) {
-        console.error('Failed to add Hero EXP:', error);
-        return null;
-    }
+    const result = await addGuardianExp(userId, amount);
+    if (!result) return null;
+    return {
+        user: result.user,
+        levelUp: result.levelUp,
+        levelInfo: result.levelInfo,
+        cappedLevel: result.user.guardianLevel
+    };
 };
 
 // ─── Legacy alias ────────────────────────────────────────────────────────────

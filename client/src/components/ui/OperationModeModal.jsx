@@ -16,7 +16,7 @@ const OperationModeModal = ({ isOpen, onClose }) => {
 
     if (!user) return null;
 
-    const isIsekaiLocked = !user.rpg?.path && !user.rpg?.pendingQuestions?.length && user.level > 0;
+    const isIsekaiLocked = !user.rpg?.path && !user.rpg?.pendingQuestions?.length && user.guardianLevel > 0;
 
     const sections = [
         {

@@ -61,8 +61,8 @@ const getSystemStats = async (req, res) => {
         
         // Level distribution: count users per level 1-65
         const rawLevelDist = await User.aggregate([
-            { $match: { level: { $gte: 1, $lte: 65 } } },
-            { $group: { _id: '$level', count: { $sum: 1 } } },
+            { $match: { guardianLevel: { $gte: 1, $lte: 65 } } },
+            { $group: { _id: '$guardianLevel', count: { $sum: 1 } } },
             { $sort: { _id: 1 } }
         ]);
 
@@ -83,7 +83,7 @@ const getSystemStats = async (req, res) => {
             archetypeStats,
             levelDistribution,
             corePool: settings.corePool,
-            recentUsers: await User.find().sort({ createdAt: -1 }).select('name email username banner avatar settings createdAt isAdmin rpg level'),
+            recentUsers: await User.find().sort({ createdAt: -1 }).select('name email username banner avatar settings createdAt isAdmin rpg guardianLevel guardianExp'),
             systemStatus: [
                  { label: 'API Server', status: 'Healthy', color: 'bg-green-500' },
                  { label: 'Database', status: 'Healthy', color: 'bg-green-500' },
@@ -142,8 +142,8 @@ const resetUserOnboarding = async (req, res) => {
         user.onboardingCompleted = false;
         user.username = undefined;
         user.interests = [];
-        user.level = 1;
-        user.exp = 0;
+        user.guardianLevel = 1;
+        user.guardianExp = 100;
         user.rpg.stats = {
             str: 0,
             agi: 0,

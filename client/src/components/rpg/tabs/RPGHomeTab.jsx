@@ -10,7 +10,7 @@ const RPGHomeTab = ({ user }) => {
     const [vaultPage, setVaultPage] = React.useState(0);
     const [activeSubTab, setActiveSubTab] = React.useState('stats');
     const protocolData = ARCHETYPE_PROTOCOLS[user?.rpg?.path] || ARCHETYPE_PROTOCOLS['None'];
-    const progressData = getLevelProgress(user?.exp || 0);
+    const progressData = getLevelProgress(user?.guardianExp || 0);
 
     const userStats = user?.rpg?.stats || { str: 50, vit: 50, agi: 50, int: 50, wis: 50, luk: 50 };
 

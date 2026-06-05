@@ -141,7 +141,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
     const protocol = ARCHETYPE_PROTOCOLS[archeName] || ARCHETYPE_PROTOCOLS['None'];
     
     // Calculate level progress using total user EXP
-    const progressData = getLevelProgress(user.exp || 0);
+    const progressData = getLevelProgress(user.guardianExp || 0);
 
     if (protocolMode === 'rpg') return null;
 
@@ -164,7 +164,7 @@ const IdentityHeader = ({ user: initialUser, habits = [] }) => {
                     <div className="relative z-10 px-8 py-4 bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/[0.05] dark:border-white/[0.05] flex items-center gap-6 justify-start">
                         {/* 1. Level Indicator */}
                         <div className="flex items-center">
-                            <span className="text-[12px] font-black text-black dark:text-white font-exo italic tracking-[0.2em]">LVL_{user.level || 0}</span>
+                            <span className="text-[12px] font-black text-black dark:text-white font-exo italic tracking-[0.2em]">LVL_{user.guardianLevel || 0}</span>
                         </div>
 
                         <div className="w-px h-6 bg-black/10 dark:bg-white/10" />

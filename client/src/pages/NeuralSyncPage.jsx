@@ -372,7 +372,7 @@ const NeuralSyncPage = () => {
 
         // If actual final question (legit completion)
         if (!hasPending && !cleanNextId) {
-            if (user?.level === 0) {
+            if (user?.guardianLevel === 0) {
                 setIsHandshaking(true);
             } else {
                 syncUser(pendingSyncData);
@@ -413,7 +413,7 @@ const NeuralSyncPage = () => {
         setSelectedOption(null);
         setPendingSyncData(null);
         setIsPostTypingComplete(false);
-    }, [pendingSyncData, syncUser, prefetchedNode, sessionHistory.length, navigate, user?.level]);
+    }, [pendingSyncData, syncUser, prefetchedNode, sessionHistory.length, navigate, user?.guardianLevel]);
 
     const handleHandshake = async () => {
         setIsHandshaking(true);
@@ -489,7 +489,7 @@ const NeuralSyncPage = () => {
                     ) : successData ? (
                         <SyncSuccessView 
                             successData={successData}
-                            currentLevel={user?.level}
+                            currentLevel={user?.guardianLevel}
                             onReturn={handleTerminate}
                         />
                     ) : currentQuestion ? (

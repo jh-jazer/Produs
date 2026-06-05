@@ -1414,9 +1414,16 @@ export const devRPGTest = async (req, res) => {
             case 'giveXP':
                 // Directly add specified EXP amount to the level without affecting attribute points
                 const expAmount = parseInt(req.body.amount) || 100;
-                user.exp += expAmount;
-                user.level = calculateLevel(user.exp).level;
-                user.rpg.archetype = determineArchetype(user.rpg.stats, user.level);
+                user.guardianExp = (user.guardianExp || 0) + expAmount;
+                user.guardianLevel = calculateLevel(user.guardianExp).level;
+                
+                // Sync hero
+                if (!user.hero) user.hero = { name: 'Unnamed Hero', class: null, level: 0, exp: 0 };
+                user.hero.exp = user.guardianExp;
+                user.hero.level = user.guardianLevel;
+                user.markModified('hero');
+
+                user.rpg.archetype = determineArchetype(user, user.guardianLevel);
                 user.markModified('rpg');
                 await user.save();
                 break;
@@ -1434,7 +1441,7 @@ export const devRPGTest = async (req, res) => {
                     }
                 }
                 // Recalculate archetype as stats have changed
-                user.rpg.archetype = determineArchetype(user.rpg.stats, user.level);
+                user.rpg.archetype = determineArchetype(user, user.guardianLevel);
                 user.markModified('rpg');
                 await user.save();
                 break;
@@ -1446,8 +1453,13 @@ export const devRPGTest = async (req, res) => {
                 break;
             case 'resetPath':
                 // Full Reversion: Return user to Level 0 (Unawakened)
-                user.exp = 0;
-                user.level = 0;
+                user.guardianExp = 0;
+                user.guardianLevel = 0;
+                if (!user.hero) user.hero = { name: 'Unnamed Hero', class: null, level: 0, exp: 0 };
+                user.hero.level = 0;
+                user.hero.exp = 0;
+                user.markModified('hero');
+
                 user.rpg.stats = { str: 0, agi: 0, vit: 0, int: 0, wis: 0, luk: 0 };
                 user.rpg.path = null;
                 user.rpg.tier1 = null;
@@ -1490,8 +1502,13 @@ export const devRPGTest = async (req, res) => {
                 ]);
 
                 // 2. Reset User progress and onboarding
-                user.exp = 0;
-                user.level = 0;
+                user.guardianExp = 100;
+                user.guardianLevel = 1;
+                if (!user.hero) user.hero = { name: 'Unnamed Hero', class: null, level: 0, exp: 0 };
+                user.hero.level = 0;
+                user.hero.exp = 0;
+                user.markModified('hero');
+
                 user.onboardingCompleted = false;
                 user.rpg = {
                     stats: { str: 0, agi: 0, vit: 0, int: 0, wis: 0, luk: 0 },
@@ -1515,12 +1532,14 @@ export const devRPGTest = async (req, res) => {
 
         // Fetch updated user with level info
         const updatedUser = await User.findById(req.user.id);
-        const levelInfo = calculateLevel(updatedUser.exp);
+        const levelInfo = calculateLevel(updatedUser.guardianExp || 0);
         
         res.json({
             message: `Dev action ${action} successful`,
-            level: updatedUser.level,
-            exp: updatedUser.exp,
+            level: updatedUser.guardianLevel,
+            exp: updatedUser.guardianExp,
+            guardianLevel: updatedUser.guardianLevel,
+            guardianExp: updatedUser.guardianExp,
             rpg: updatedUser.rpg,
             onboardingCompleted: updatedUser.onboardingCompleted,
             totalRequired: levelInfo.totalRequired,

@@ -367,10 +367,93 @@ export const syncTerritoryOwnership = async (user) => {
 import Activity from '../models/Activity.js';
 
 export const awardXP = async (user, stat, amount, streak = 1, activityType = 'system', action = 'Syncing data') => {
-    // Stat rewards and XP allocation completely disabled across all components per USER request.
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Initialize/Reset Daily XP if needed
+    if (!user.rpg.dailyXP) {
+        user.rpg.dailyXP = { date: today, total: 0, byStat: { str: 0, agi: 0, vit: 0, int: 0, wis: 0, luk: 0 } };
+    }
+    if (user.rpg.dailyXP.date !== today) {
+        user.rpg.dailyXP = {
+            date: today,
+            total: 0,
+            byStat: { str: 0, agi: 0, vit: 0, int: 0, wis: 0, luk: 0 }
+        };
+    }
+
+    // Apply Streak Multiplier
+    const multiplier = getStreakMultiplier(streak);
+    let finalXP = Math.round(amount * multiplier);
+
+    // Apply Archetype Multipliers if they exist
+    if (user.rpg.statMultipliers && user.rpg.statMultipliers.get) {
+        const mult = user.rpg.statMultipliers.get(stat);
+        if (mult) finalXP = Math.round(finalXP * mult);
+    } else if (user.rpg.statMultipliers && user.rpg.statMultipliers[stat]) {
+        const mult = user.rpg.statMultipliers[stat];
+        if (mult) finalXP = Math.round(finalXP * mult);
+    }
+
+    if (finalXP <= 0) return { xpAwarded: 0 };
+
+    // Update User Stats and EXP
+    user.rpg.stats[stat] = (user.rpg.stats[stat] || 0) + finalXP;
+    user.guardianExp = (user.guardianExp || 0) + finalXP;
+    user.rpg.dailyXP.total = (user.rpg.dailyXP.total || 0) + finalXP;
+    user.rpg.dailyXP.byStat[stat] = (user.rpg.dailyXP.byStat[stat] || 0) + finalXP;
+
+    // Recalculate Level and Archetype
+    const levelInfo = calculateLevel(user.guardianExp);
+    const oldLevel = user.guardianLevel || 0;
+    user.guardianLevel = levelInfo.level;
+
+    // Sync hero
+    if (!user.hero) user.hero = { name: 'Unnamed Hero', class: null, level: 0, exp: 0 };
+    user.hero.exp = user.guardianExp;
+    user.hero.level = user.guardianLevel;
+    user.markModified('hero');
+
+    const archetypeInfo = determineArchetype(user, user.guardianLevel);
+    user.rpg.finalLabel = archetypeInfo.name;
+    
+    // TRIGGER Neural Sync check (Pass oldLevel to check for multi-level jumps)
+    const unlocked = checkNeuralSync(user, user.guardianLevel, oldLevel);
+    
+    const oldArchetype = user.rpg.archetype?.name || 'None';
+    user.rpg.archetype = archetypeInfo;
+
+    // Handle Archetype Transformation History
+    if (oldArchetype !== 'None' && oldArchetype !== archetypeInfo.name) {
+        if (!user.rpg.archetypeHistory) user.rpg.archetypeHistory = [];
+        user.rpg.archetypeHistory.push({
+            from: oldArchetype,
+            to: archetypeInfo.name,
+            date: new Date()
+        });
+    }
+
+    // REFILL ENERGY ON LEVEL UP
+    if (user.guardianLevel > oldLevel) {
+        refillEnergy(user);
+    }
+
+    // Log Activity
+    try {
+        await Activity.create({
+            user: user._id,
+            type: activityType,
+            action,
+            stat,
+            amount: finalXP,
+            perkActivated: multiplier > 1 ? `Streak ${multiplier}x` : null
+        });
+    } catch (logError) {
+        console.error('Failed to log RPG activity:', logError);
+    }
+
     return {
-        leveledUp: false,
-        transformed: false,
-        xpAwarded: 0
+        leveledUp: user.guardianLevel > oldLevel,
+        transformed: oldArchetype !== 'None' && oldArchetype !== archetypeInfo.name,
+        xpAwarded: finalXP
     };
 };

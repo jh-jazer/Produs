@@ -88,7 +88,7 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-end gap-1">
-                                    <span className="text-[8px] font-black font-mono px-1.5 py-0.5 rounded-none bg-foreground/10 opacity-60">LVL.{user.level ?? 0}</span>
+                                    <span className="text-[8px] font-black font-mono px-1.5 py-0.5 rounded-none bg-foreground/10 opacity-60">LVL.{user.guardianLevel ?? 0}</span>
                                     {user.isAdmin && <span className="text-[8px] font-black font-mono px-1.5 py-0.5 bg-foreground text-background">ADMIN</span>}
                                 </div>
                             </div>
@@ -143,7 +143,7 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                                         </span>
                                     </td>
                                     <td className="py-4 text-center">
-                                        <span className="text-[10px] font-black font-mono">LVL.{user.level ?? 0}</span>
+                                        <span className="text-[10px] font-black font-mono">LVL.{user.guardianLevel ?? 0}</span>
                                     </td>
                                     <td className="py-4 text-center">
                                         <span className="text-[9px] font-black font-mono uppercase opacity-40">{user.rpg?.path || '—'}</span>

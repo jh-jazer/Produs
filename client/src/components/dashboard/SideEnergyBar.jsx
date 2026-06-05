@@ -65,8 +65,8 @@ export default function SideEnergyBar() {
   const isHome = location.pathname === '/dashboard' || location.pathname === '/dashboard/';
 
   // Energy Data
-  const energyCurrent = user?.rpg?.energy?.current ?? (10 + (user?.level || 0));
-  const energyMax = user?.rpg?.energy?.max ?? (10 + (user?.level || 0));
+  const energyCurrent = user?.rpg?.energy?.current ?? (10 + (user?.guardianLevel || 0));
+  const energyMax = user?.rpg?.energy?.max ?? (10 + (user?.guardianLevel || 0));
   const energyPercentage = Math.min((energyCurrent / energyMax) * 100, 100);
 
   // --- Scroll Logic ---
@@ -212,7 +212,7 @@ export default function SideEnergyBar() {
         <div className="flex flex-col items-center gap-1 min-h-[14px]">
           {protocolMode === 'rpg' ? (
             <span className="text-[11px] font-mono font-black uppercase tracking-tighter text-emerald-500">
-              {energyCurrent >= energyMax ? "FULL" : <EnergyTimer current={energyCurrent} max={energyMax} lastUpdated={user?.rpg?.energy?.lastUpdated} level={user?.level} />}
+              {energyCurrent >= energyMax ? "FULL" : <EnergyTimer current={energyCurrent} max={energyMax} lastUpdated={user?.rpg?.energy?.lastUpdated} level={user?.guardianLevel} />}
             </span>
           ) : (
             <span className="text-[11px] font-mono font-black uppercase tracking-tighter text-white opacity-40">

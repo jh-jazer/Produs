@@ -122,7 +122,7 @@ const DailyQuiz = ({ onComplete }) => {
 
                         <div className="flex flex-col items-center gap-2">
                             <div className="px-4 py-1.5 bg-emerald-500 text-white rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">
-                                +{reward?.xpAwarded || 25} XP // SYNC
+                                +{reward?.xpAwarded || 25} GUARDIAN EXP
                             </div>
                         </div>
                     </div>

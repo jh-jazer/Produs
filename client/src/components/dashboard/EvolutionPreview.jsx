@@ -6,9 +6,9 @@ import { LEVEL_TABLE } from '../../utils/rpgHelpers';
 import DashboardPanel from '../ui/DashboardPanel';
 
 const EvolutionPreview = ({ user }) => {
-    if (!user || user.level === 0) return null;
+    if (!user || user.guardianLevel === 0) return null;
 
-    const currentLevel = user.level || 1;
+    const currentLevel = user.guardianLevel || 1;
     const currentArchetype = user.rpg?.archetype?.name || 'Unknown';
     
     // Find next tier threshold

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { soundManager } from '../services/sound';
 import useAuthStore from '../store/useAuthStore';
 import { useHabits } from '../hooks/useHabits';
+import api from '../services/api';
 
 export default function FocusTimer() {
   const navigate = useNavigate();
@@ -196,7 +197,7 @@ export default function FocusTimer() {
             <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-[10px] font-black tracking-widest font-mono">
               <span className="text-amber-500 dark:text-amber-400">+{calculateFocusPoints(focusSelectedTime)} PRODPOINTS</span>
               <span className="text-black/20 dark:text-white/20">•</span>
-              <span className="text-blue-600 dark:text-blue-400">+{Math.round(focusSelectedTime * 1.5)} EXP</span>
+              <span className="text-blue-600 dark:text-blue-400">+{Math.round(focusSelectedTime * 1.5)} GUARDIAN EXP</span>
               <span className="text-black/20 dark:text-white/20">•</span>
               {(() => {
                 if (focusSelectedTime >= 90) return <span className="text-amber-500 dark:text-amber-400">LEGENDARY LOOT DROP</span>;
@@ -398,27 +399,34 @@ export default function FocusTimer() {
                     </div>
                     <div className="flex items-center justify-center gap-2 text-emerald-600 dark:text-emerald-400 text-sm font-black uppercase tracking-wider">
                       <span className="material-symbols-outlined text-base">bolt</span>
-                      +{Math.round(focusSelectedTime * 2)} XP Injected
+                      +{Math.round(focusSelectedTime * 2)} GUARDIAN EXP Injected
                     </div>
                   </div>
                 </div>
 
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     setLootBoxOpened(false);
                     // Add ProdPoints and XP reward to player
                     if (user) {
                       const pointsEarned = calculateFocusPoints(focusSelectedTime);
                       const xpEarned = Math.round(focusSelectedTime * 2);
-                      const currentCoins = user.rpg?.prodCoins || 0;
-                      const currentExp = user.exp || 0;
-                      syncUser({
-                        rpg: {
-                          ...user.rpg,
-                          prodCoins: currentCoins + pointsEarned
-                        },
-                        exp: currentExp + xpEarned
-                      });
+                      try {
+                        const { data } = await api.post('/rpg/hero/award-exp', { amount: xpEarned, coins: pointsEarned });
+                        syncUser(data);
+                      } catch (err) {
+                        console.error('Failed to save focus rewards:', err);
+                        // Fallback to local sync if server call fails
+                        const currentCoins = user.rpg?.prodCoins || 0;
+                        const currentExp = user.guardianExp || 0;
+                        syncUser({
+                          rpg: {
+                            ...user.rpg,
+                            prodCoins: currentCoins + pointsEarned
+                          },
+                          guardianExp: currentExp + xpEarned
+                        });
+                      }
                     }
                     navigate('/dashboard');
                   }}
