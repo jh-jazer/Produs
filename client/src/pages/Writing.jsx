@@ -123,55 +123,38 @@ const NotesModule = () => {
         setNotes(notes.filter(n => n.id !== id));
     };
 
-    const colors = {
-        blue: 'border-primary text-primary',
-        gray: 'border-foreground/30 text-foreground',
-        white: 'border-white text-white'
+    const getCategoryColorClass = (category) => {
+        if (!category) return 'border-foreground/30 text-foreground';
+        const cat = category.toLowerCase();
+        
+        let hash = 0;
+        for (let i = 0; i < cat.length; i++) {
+            hash = cat.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        
+        const palette = [
+            'border-primary text-primary dark:border-primary',
+            'border-purple-500 text-purple-500 dark:border-purple-400',
+            'border-emerald-500 text-emerald-500 dark:border-emerald-400',
+            'border-cyan-500 text-cyan-500 dark:border-cyan-400',
+            'border-orange-500 text-orange-500 dark:border-orange-400',
+        ];
+        
+        return palette[Math.abs(hash) % palette.length];
     };
 
     return (
         <div className="flex flex-col gap-8 w-full">
+            <div className="flex justify-between items-center mb-6 px-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Notes List</span>
                 <button
                     onClick={() => navigate('/dashboard/writing/notes/new')}
-                    className="group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-4 text-left"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 hover:opacity-90 shadow-lg shadow-black/5"
                 >
-                    {/* Left Side: Image (1/4) */}
-                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-black/10 dark:border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
-                        <img 
-                            src="/assets/journal_default_cover.png" 
-                            alt="Write Note" 
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" 
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/30 pointer-events-none" />
-                    </div>
-
-                    {/* Right Side: Content (3/4) */}
-                    <div className="flex-1 p-4 md:p-8 flex flex-col justify-between">
-                        <div className="flex flex-col gap-0.5">
-                            <div className="flex justify-between items-start mb-2 md:mb-4">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="size-8 md:size-10 rounded-sm bg-black dark:bg-white flex items-center justify-center text-white/60 dark:text-black/60 group-hover:rotate-12 transition-transform border border-black/10 dark:border-white/10 shrink-0">
-                                        <FileText className="size-4 md:size-5" />
-                                    </div>
-                                    <div className="flex flex-col min-w-0">
-                                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 truncate block">NOTES</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Entry Title */}
-                            <h4 className="text-base md:text-xl font-black text-black dark:text-white uppercase tracking-tighter italic mt-1 md:mt-4 truncate">
-                                WRITE NEW NOTE
-                            </h4>
-                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-black/35 dark:text-white/20 truncate block">CREATE A NEW NOTE</span>
-                        </div>
-
-                        {/* Footer Decor */}
-                        <div className="flex items-center justify-end mt-1 md:mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
-                            <div className="h-[2px] w-8 md:w-12 bg-black dark:bg-white rounded-full animate-pulse shadow-[0_0_8px_rgba(0,0,0,0.2)] dark:shadow-[0_0_8px_white]" />
-                        </div>
-                    </div>
+                    <Plus className="size-4" />
+                    New Note
                 </button>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {notes.map(note => (
@@ -181,21 +164,38 @@ const NotesModule = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.98 }}
                         onClick={() => navigate(`/dashboard/writing/notes/${note.id}`)}
-                        className={`relative p-6 bg-white/10 dark:bg-white/[0.01] hover:bg-white/20 dark:hover:bg-white/[0.03] backdrop-blur-sm border border-black/10 dark:border-white/10 border-l-4 rounded-r-sm flex flex-col justify-between min-h-[120px] group cursor-pointer ${colors[note.category] || colors.gray}`}
+                        className={`relative p-5 bg-white/10 dark:bg-white/[0.01] hover:bg-white/20 dark:hover:bg-white/[0.03] backdrop-blur-sm border border-black/10 dark:border-white/10 border-l-4 rounded-r-sm flex flex-col justify-between min-h-[140px] group cursor-pointer transition-all ${getCategoryColorClass(note.category)}`}
                     >
-                        <div className="flex flex-col gap-2">
-                            <div className="flex justify-between items-start">
-                                <span className="text-[10px] font-black tracking-widest uppercase font-mono line-clamp-1">{note.title}</span>
-                                <button 
-                                    onClick={() => handleDeleteNote(note.id)}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-red-500 p-1"
-                                >
-                                    <Trash2 className="size-3" />
-                                </button>
-                            </div>
-                            <p className="text-xs text-foreground/80 font-sans whitespace-pre-wrap leading-relaxed mt-1">{note.content}</p>
+                        {/* Top: Category/Badge (left) & Delete (right) */}
+                        <div className="flex justify-between items-center mb-1">
+                            <span className="text-[9px] font-black tracking-widest uppercase font-mono opacity-40">
+                                {note.category || 'GENERAL'}
+                            </span>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); handleDeleteNote(note.id); }}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-red-500 p-1"
+                            >
+                                <Trash2 className="size-3.5" />
+                            </button>
                         </div>
-                        <span className="text-[8px] font-mono text-foreground/30 mt-4 tracking-wider">{note.date}</span>
+
+                        {/* Middle: Title & Content Preview (Vertically Centered) */}
+                        <div className="flex-1 flex flex-col justify-center min-w-0 py-1.5">
+                            <h4 className="text-xs font-black text-foreground uppercase tracking-tight mb-1 truncate block">
+                                {note.title || 'UNTITLED NOTE'}
+                            </h4>
+                            <p className="text-[11px] text-foreground/70 font-sans line-clamp-2 leading-relaxed break-words">
+                                {note.content}
+                            </p>
+                        </div>
+
+                        {/* Bottom: Date & Footer Decor */}
+                        <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-foreground/5">
+                            <span className="text-[8px] font-mono text-foreground/30 tracking-wider">
+                                {note.date}
+                            </span>
+                            <div className="h-0.5 w-8 bg-foreground opacity-30 group-hover:opacity-100 transition-opacity rounded-full" />
+                        </div>
                     </motion.div>
                 ))}
             </div>
@@ -278,47 +278,16 @@ const ListsModule = ({ focusListId } = {}) => {
 
     return (
         <div className="flex flex-col gap-8 w-full">
+            <div className="flex justify-between items-center mb-6 px-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Checklists</span>
                 <button
                     onClick={() => navigate('/dashboard/writing/lists/new')}
-                    className="group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 transition-all shadow-none hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex min-h-[100px] md:min-h-[160px] w-full mb-4 text-left"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 hover:opacity-90 shadow-lg shadow-black/5"
                 >
-                    {/* Left Side: Image (1/4) */}
-                    <div className="w-1/4 relative shrink-0 overflow-hidden bg-black border-r border-black/10 dark:border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
-                        <img 
-                            src="/assets/journal_default_cover.png" 
-                            alt="Write List" 
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" 
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/30 pointer-events-none" />
-                    </div>
-
-                    {/* Right Side: Content (3/4) */}
-                    <div className="flex-1 p-4 md:p-8 flex flex-col justify-between">
-                        <div className="flex flex-col gap-0.5">
-                            <div className="flex justify-between items-start mb-2 md:mb-4">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="size-8 md:size-10 rounded-sm bg-black dark:bg-white flex items-center justify-center text-white/60 dark:text-black/60 group-hover:rotate-12 transition-transform border border-black/10 dark:border-white/10 shrink-0">
-                                        <ListIcon className="size-4 md:size-5" />
-                                    </div>
-                                    <div className="flex flex-col min-w-0">
-                                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 truncate block">LISTS</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Entry Title */}
-                            <h4 className="text-base md:text-xl font-black text-black dark:text-white uppercase tracking-tighter italic mt-1 md:mt-4 truncate">
-                                WRITE NEW LIST
-                            </h4>
-                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-black/35 dark:text-white/20 truncate block">CREATE A NEW LIST</span>
-                        </div>
-
-                        {/* Footer Decor */}
-                        <div className="flex items-center justify-end mt-1 md:mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
-                            <div className="h-[2px] w-8 md:w-12 bg-black dark:bg-white rounded-full animate-pulse shadow-[0_0_8px_rgba(0,0,0,0.2)] dark:shadow-[0_0_8px_white]" />
-                        </div>
-                    </div>
+                    <Plus className="size-4" />
+                    New List
                 </button>
+            </div>
 
             <div className="grid grid-cols-1 gap-8">
                 {lists.map(list => {
@@ -450,23 +419,25 @@ const Writing = () => {
             <div className="w-full mt-4 md:mt-6 flex flex-col gap-6">
 
                 {activeTab !== 'hub' && activeTab !== 'journal_entry' && activeTab !== 'note_detail' && activeTab !== 'list_detail' && (
-                    <button 
-                        onClick={
-                            activeTab === 'journal_entry' ? () => navigate('/dashboard/writing/journal') :
-                            activeTab === 'note_detail' ? () => navigate('/dashboard/writing/notes') :
-                            activeTab === 'list_detail' ? () => navigate('/dashboard/writing/lists') :
-                            handleBack
-                        }
-                        className="self-start flex items-center gap-2 text-foreground/40 hover:text-foreground transition-colors mb-1 px-4 md:px-0"
-                    >
-                        <ChevronLeft className="size-4" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-                            {activeTab === 'journal_entry' ? 'BACK' :
-                             activeTab === 'note_detail' ? 'BACK' :
-                             activeTab === 'list_detail' ? 'BACK' :
-                             'BACK'}
-                        </span>
-                    </button>
+                    <div className="flex items-center gap-4 mb-2 px-4 md:px-0">
+                        <button 
+                            onClick={
+                                activeTab === 'journal_entry' ? () => navigate('/dashboard/writing/journal') :
+                                activeTab === 'note_detail' ? () => navigate('/dashboard/writing/notes') :
+                                activeTab === 'list_detail' ? () => navigate('/dashboard/writing/lists') :
+                                handleBack
+                            }
+                            className="p-2 rounded-xl bg-black/5 dark:bg-white/5 text-foreground/60 hover:text-foreground hover:bg-black/10 dark:hover:bg-white/10 transition-all active:scale-90 flex items-center justify-center shrink-0"
+                            title="Back"
+                        >
+                            <ChevronLeft className="size-5" />
+                        </button>
+                        <h2 className="text-xl md:text-2xl font-black uppercase tracking-[0.2em] text-foreground/95 leading-none mt-0.5">
+                            {activeTab === 'journal' ? 'JOURNALS' :
+                             activeTab === 'notes' ? 'NOTES' :
+                             activeTab === 'lists' ? 'LISTS' : ''}
+                        </h2>
+                    </div>
                 )}
 
                 <AnimatePresence mode="wait">
@@ -500,13 +471,13 @@ const Writing = () => {
                         )}
 
                         {activeTab === 'journal' && (
-                            <HUDPanel title="DAILY JOURNAL" subtitle="PERSONAL REFLECTIONS">
+                            <HUDPanel>
                                 <JournalHub entries={entries} onAction={() => {}} />
                             </HUDPanel>
                         )}
 
                         {activeTab === 'notes' && (
-                            <HUDPanel title="SCRATCHPAD" subtitle="PERSISTENT OPERATIVE MEMOS">
+                            <HUDPanel>
                                 <NotesModule />
                             </HUDPanel>
                         )}
@@ -531,13 +502,33 @@ const Writing = () => {
                                         localStorage.setItem('produs_notes_store', JSON.stringify(updated));
                                         navigate('/dashboard/writing/notes');
                                     }}
+                                    onAutosave={(newNoteData) => {
+                                        const saved = JSON.parse(localStorage.getItem('produs_notes_store') || '[]');
+                                        let updated;
+                                        let activeId = noteId;
+                                        if (noteId === 'new') {
+                                            activeId = Date.now().toString();
+                                            const note = {
+                                                id: activeId,
+                                                ...newNoteData,
+                                                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()
+                                            };
+                                            updated = [note, ...saved];
+                                            localStorage.setItem('produs_notes_store', JSON.stringify(updated));
+                                            navigate(`/dashboard/writing/notes/${activeId}`, { replace: true });
+                                        } else {
+                                            updated = saved.map(n => n.id === noteId ? { ...n, ...newNoteData } : n);
+                                            localStorage.setItem('produs_notes_store', JSON.stringify(updated));
+                                        }
+                                        return activeId;
+                                    }}
                                     onBack={() => navigate('/dashboard/writing/notes')}
                                 />
                             </HUDPanel>
                         )}
 
                         {activeTab === 'lists' && (
-                            <HUDPanel title="CHECKLISTS" subtitle="DYNAMIC TASK TRACKING">
+                            <HUDPanel>
                                 <ListsModule />
                             </HUDPanel>
                         )}
@@ -553,14 +544,36 @@ const Writing = () => {
                                             const newList = {
                                                 id: Date.now().toString(),
                                                 title: newListData.title.toUpperCase(),
-                                                items: newListData.items
+                                                items: newListData.items,
+                                                imageUrl: newListData.imageUrl
                                             };
                                             updated = [newList, ...saved];
                                         } else {
-                                            updated = saved.map(l => l.id === listId ? { ...l, title: newListData.title.toUpperCase(), items: newListData.items } : l);
+                                            updated = saved.map(l => l.id === listId ? { ...l, title: newListData.title.toUpperCase(), items: newListData.items, imageUrl: newListData.imageUrl } : l);
                                         }
                                         localStorage.setItem('produs_lists_store', JSON.stringify(updated));
                                         navigate('/dashboard/writing/lists');
+                                    }}
+                                    onAutosave={(newListData) => {
+                                        const saved = JSON.parse(localStorage.getItem('produs_lists_store') || '[]');
+                                        let updated;
+                                        let activeId = listId;
+                                        if (listId === 'new') {
+                                            activeId = Date.now().toString();
+                                            const newList = {
+                                                id: activeId,
+                                                title: newListData.title.toUpperCase(),
+                                                items: newListData.items,
+                                                imageUrl: newListData.imageUrl
+                                            };
+                                            updated = [newList, ...saved];
+                                            localStorage.setItem('produs_lists_store', JSON.stringify(updated));
+                                            navigate(`/dashboard/writing/lists/${activeId}`, { replace: true });
+                                        } else {
+                                            updated = saved.map(l => l.id === listId ? { ...l, title: newListData.title.toUpperCase(), items: newListData.items, imageUrl: newListData.imageUrl } : l);
+                                            localStorage.setItem('produs_lists_store', JSON.stringify(updated));
+                                        }
+                                        return activeId;
                                     }}
                                     onBack={() => navigate('/dashboard/writing/lists')}
                                 />

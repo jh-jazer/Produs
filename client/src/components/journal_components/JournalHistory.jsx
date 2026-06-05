@@ -34,6 +34,25 @@ const parseMarkdown = (text) => {
     return { __html: sanitizedHtml };
 };
 
+const stripHtml = (html) => {
+    if (!html) return '';
+    let text = html
+        .replace(/<br\s*\/?>/gi, ' ')
+        .replace(/<\/p>/gi, ' ')
+        .replace(/<\/div>/gi, ' ')
+        .replace(/<\/blockquote>/gi, ' ')
+        .replace(/<[^>]*>/g, ' ');
+
+    text = text
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&amp;/gi, '&')
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/&#8203;/g, '');
+
+    return text.replace(/\s+/g, ' ').trim();
+};
+
 const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => {
     const [confirmDelete, setConfirmDelete] = useState(null);
     const { deleteEntry } = useJournal();
@@ -85,43 +104,49 @@ const JournalHistory = ({ entries = [], onAction, onSelectEntry, children }) => 
 
                                 {/* Right Side: Content (3/4) */}
                                 <div className="flex-1 p-4 md:p-5 flex flex-col justify-between text-left">
-                                    <div className="min-w-0">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <div className="flex items-center gap-3">
-                                                <div className="size-8 md:size-10 flex items-center justify-center shrink-0">
-                                                    {MOOD_GIFS[entry.mood] ? (
-                                                        <img src={MOOD_GIFS[entry.mood]} alt={entry.mood} className="w-full h-full object-contain" />
-                                                    ) : (
-                                                        <span className="text-xl md:text-2xl">{entry.mood || '😐'}</span>
+                                    {/* Top Metadata: Mood & Date */}
+                                    <div className="flex justify-between items-start mb-1">
+                                        <div className="flex items-center gap-3">
+                                            <div className="size-8 md:size-10 flex items-center justify-center shrink-0">
+                                                {MOOD_GIFS[entry.mood] ? (
+                                                    <img src={MOOD_GIFS[entry.mood]} alt={entry.mood} className="w-full h-full object-contain" />
+                                                ) : (
+                                                    <span className="text-xl md:text-2xl">{entry.mood || '😐'}</span>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="text-[10px] md:text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                                                        {new Date(entry.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                                                    </p>
+                                                    {entry.isPending && (
+                                                        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-widest border border-amber-500/20 animate-pulse">
+                                                            <span className="material-symbols-outlined text-[10px]">sync</span>
+                                                            SYNCING
+                                                        </span>
                                                     )}
                                                 </div>
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <p className="text-[10px] md:text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">
-                                                            {new Date(entry.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                                                        </p>
-                                                        {entry.isPending && (
-                                                            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-widest border border-amber-500/20 animate-pulse">
-                                                                <span className="material-symbols-outlined text-[10px]">sync</span>
-                                                                SYNCING
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none">
-                                                        {new Date(entry.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                    </p>
-                                                </div>
+                                                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none">
+                                                    {new Date(entry.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </p>
                                             </div>
                                         </div>
+                                    </div>
 
+                                    {/* Middle: Title & Content Preview (Vertically Centered) */}
+                                    <div className="flex-1 flex flex-col justify-center min-w-0 py-1.5">
                                         {/* Entry Title */}
                                         <h4 className="text-sm font-black text-black dark:text-white uppercase tracking-tight mb-1 truncate block">
                                             {entry.title || 'UNTITLED ENTRY'}
                                         </h4>
+                                        {/* Entry Content Preview */}
+                                        <p className="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed break-words line-clamp-2">
+                                            {stripHtml(entry.content)}
+                                        </p>
                                     </div>
 
-                                    {/* Footer Decor */}
-                                    <div className="flex items-center justify-end mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
+                                    {/* Bottom Decor */}
+                                    <div className="flex items-center justify-end mt-1 opacity-30 group-hover:opacity-100 transition-opacity">
                                         <div className="h-0.5 w-8 bg-black dark:bg-white rounded-full" />
                                     </div>
                                 </div>

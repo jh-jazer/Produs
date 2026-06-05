@@ -13,8 +13,9 @@ export const useJournal = () => {
     const addEntry = async (content, mood, title, imageUrl) => {
         if (!userId) return;
         try {
-            await api.post('/journal', { content, mood, title, imageUrl });
+            const res = await api.post('/journal', { content, mood, title, imageUrl });
             mutate('/journal');
+            return res.data;
         } catch (err) {
             console.error('Failed to add journal entry:', err);
         }
@@ -33,8 +34,9 @@ export const useJournal = () => {
     const updateEntry = async (id, content, mood, title, imageUrl) => {
         if (!userId) return;
         try {
-            await api.patch(`/journal/${id}`, { content, mood, title, imageUrl });
+            const res = await api.patch(`/journal/${id}`, { content, mood, title, imageUrl });
             mutate('/journal');
+            return res.data;
         } catch (err) {
             console.error('Failed to update journal entry:', err);
         }

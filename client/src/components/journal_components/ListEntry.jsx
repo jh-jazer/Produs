@@ -1,27 +1,94 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, Plus, Trash2, CheckSquare, Square, Image as ImageIcon, X } from 'lucide-react';
 
-const ListEntry = ({ onSave, onBack, initialList }) => {
-    const [title, setTitle] = useState(initialList ? initialList.title : '');
-    const [items, setItems] = useState(initialList ? initialList.items : []);
-    const [imageUrl, setImageUrl] = useState(initialList ? initialList.imageUrl || '' : '');
+const ListEntry = ({ onSave, onBack, initialList, onAutosave }) => {
+    const [title, setTitle] = useState('');
+    const [items, setItems] = useState([]);
+    const [imageUrl, setImageUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [newItemText, setNewItemText] = useState('');
     const fileInputRef = useRef(null);
+
+    // Autosave states & refs
+    const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
+    const currentIdRef = useRef(initialList?.id || null);
+    const isFirstLoad = useRef(true);
+    const isDirtyRef = useRef(false);
+
+    useEffect(() => {
+        if (initialList) {
+            // Only update local inputs if list ID changes or it's the first render
+            if (isFirstLoad.current || initialList.id !== currentIdRef.current) {
+                setTitle(initialList.title || '');
+                setItems(initialList.items || []);
+                setImageUrl(initialList.imageUrl || '');
+                currentIdRef.current = initialList.id;
+                isFirstLoad.current = false;
+            }
+        } else {
+            if (currentIdRef.current || isFirstLoad.current) {
+                setTitle('');
+                setItems([]);
+                setImageUrl('');
+                currentIdRef.current = null;
+                isFirstLoad.current = false;
+            }
+        }
+    }, [initialList]);
+
+    // Track latest values in a ref for debounced autosave execution
+    const latestValues = useRef({ title, items, imageUrl });
+    useEffect(() => {
+        latestValues.current = { title, items, imageUrl };
+    }, [title, items, imageUrl]);
+
+    // Autosave Effect
+    useEffect(() => {
+        if (!isDirtyRef.current) return;
+        if (!title.trim() && items.length === 0) {
+            setSaveStatus('idle');
+            return;
+        }
+
+        setSaveStatus('saving');
+
+        const timer = setTimeout(() => {
+            const { title: t, items: its, imageUrl: img } = latestValues.current;
+            try {
+                const activeId = onAutosave?.({
+                    title: t.trim() || 'UNTITLED_CHECKLIST',
+                    items: its,
+                    imageUrl: img
+                });
+                if (activeId) {
+                    currentIdRef.current = activeId;
+                }
+                setSaveStatus('saved');
+            } catch (err) {
+                console.error('Autosave failed:', err);
+                setSaveStatus('error');
+            }
+        }, 1500); // 1.5s debounce
+
+        return () => clearTimeout(timer);
+    }, [title, items, imageUrl]);
 
     const handleAddItem = (e) => {
         e?.preventDefault();
         if (!newItemText.trim()) return;
         setItems([...items, { id: Date.now().toString(), text: newItemText.trim(), done: false }]);
+        isDirtyRef.current = true;
         setNewItemText('');
     };
 
     const handleToggleItem = (id) => {
         setItems(items.map(item => item.id === id ? { ...item, done: !item.done } : item));
+        isDirtyRef.current = true;
     };
 
     const handleDeleteItem = (id) => {
         setItems(items.filter(item => item.id !== id));
+        isDirtyRef.current = true;
     };
 
     const handleFileUpload = async (event) => {
@@ -50,6 +117,7 @@ const ListEntry = ({ onSave, onBack, initialList }) => {
             
             if (data.secure_url) {
                 setImageUrl(data.secure_url);
+                isDirtyRef.current = true;
             } else {
                 console.error('Cloudinary upload error:', data);
                 alert('Upload failed: ' + (data.error?.message || 'Check Cloudinary settings'));
@@ -77,6 +145,7 @@ const ListEntry = ({ onSave, onBack, initialList }) => {
 
     const handleConfirm = () => {
         if (!title.trim() && items.length === 0) return;
+        isDirtyRef.current = false;
         onSave?.({
             title: title.trim() || 'UNTITLED_CHECKLIST',
             items,
@@ -89,13 +158,35 @@ const ListEntry = ({ onSave, onBack, initialList }) => {
         <div className="border-y md:border border-slate-200 dark:border-white/10 rounded-none md:rounded-[2rem] overflow-hidden flex flex-col bg-slate-50 dark:bg-black transition-shadow shadow-none text-left">
             {/* Top Bar: Navigation & Action */}
             <div className="bg-white dark:bg-black p-3 px-4 border-b border-slate-100 dark:border-white/10 flex items-center justify-between z-40">
-                <button 
-                    onClick={onBack}
-                    className="flex items-center gap-2 text-slate-500 hover:text-black dark:hover:text-white transition-colors text-[11px] font-black uppercase tracking-[0.2em] active:scale-95"
-                >
-                    <ChevronLeft size={16} />
-                    Back
-                </button>
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={onBack}
+                        className="p-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-slate-500 hover:text-black dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-all active:scale-90 flex items-center justify-center"
+                        title="Back"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+
+                    {/* Autosave Status Indicator */}
+                    {saveStatus === 'saving' && (
+                        <span className="text-[9px] font-mono text-slate-400 dark:text-white/40 uppercase tracking-widest animate-pulse flex items-center gap-1.5">
+                            <span className="size-1.5 rounded-full bg-slate-400 dark:bg-white/40 animate-ping shrink-0" />
+                            Saving...
+                        </span>
+                    )}
+                    {saveStatus === 'saved' && (
+                        <span className="text-[9px] font-mono text-emerald-500 uppercase tracking-widest flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px] font-bold">check</span>
+                            Saved
+                        </span>
+                    )}
+                    {saveStatus === 'error' && (
+                        <span className="text-[9px] font-mono text-rose-500 uppercase tracking-widest flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px]">error</span>
+                            Error
+                        </span>
+                    )}
+                </div>
                 <button 
                     onClick={handleConfirm}
                     disabled={loading || (!title.trim() && items.length === 0)}
@@ -119,7 +210,7 @@ const ListEntry = ({ onSave, onBack, initialList }) => {
                 <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
                     {imageUrl && (
                         <button 
-                            onClick={() => setImageUrl('')}
+                            onClick={() => { setImageUrl(''); isDirtyRef.current = true; }}
                             className="size-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-rose-500 transition-colors"
                         >
                             <X size={16} />
@@ -164,7 +255,7 @@ const ListEntry = ({ onSave, onBack, initialList }) => {
                 <input 
                     type="text" 
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => { setTitle(e.target.value); isDirtyRef.current = true; }}
                     placeholder="Checklist Title"
                     className="bg-transparent border-none focus:ring-0 text-2xl md:text-3xl font-black text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 w-full p-0 tracking-tight outline-none"
                 />

@@ -931,11 +931,29 @@ function Layout() {
                     ) : (
                         <button 
                             onClick={() => setIsUserMenuOpen(true)} 
-                            className="pl-4 pr-6 py-2 text-black dark:text-white/60 hover:text-black dark:hover:text-white transition-all active:scale-90 relative"
+                            className="pl-4 pr-6 py-2 text-black dark:text-white/60 hover:text-black dark:hover:text-white transition-all active:scale-90 relative flex items-center justify-center"
                         >
-                            <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>person</span>
+                            <div className="relative size-8 shrink-0">
+                                <div className="size-full rounded-full overflow-hidden border border-black/40 dark:border-white/15 bg-black/5 dark:bg-white/10 flex items-center justify-center">
+                                    <Avatar config={user?.avatar} />
+                                </div>
+                                {/* Show guardian level in normal mode, hero level in RPG mode */}
+                                {protocolMode === 'rpg' ? (
+                                    user?.hero && (
+                                        <div className="absolute -bottom-0.5 -right-0.5 bg-amber-500 text-white text-[7px] font-black px-1 py-0.5 rounded shadow-md border border-amber-400/20 z-20 scale-90">
+                                            {user.hero.level}
+                                        </div>
+                                    )
+                                ) : (
+                                    (user?.guardianLevel || 0) > 0 && (
+                                        <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-white text-[7px] font-black px-1 py-0.5 rounded shadow-md border border-primary/20 z-20 scale-90">
+                                            {user.guardianLevel}
+                                        </div>
+                                    )
+                                )}
+                            </div>
                             {hasAnyUnread && (
-                                <span className="absolute top-1 right-4 size-2 rounded-full bg-white border border-black dark:border-neutral-900 shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
+                                <span className="absolute top-1 right-5 size-2 rounded-full bg-red-500 border border-white dark:border-neutral-900 shadow-[0_0_6px_rgba(239,68,68,0.8)] z-30" />
                             )}
                         </button>
                     )}

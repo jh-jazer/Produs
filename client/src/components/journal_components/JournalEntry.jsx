@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useJournal } from '../../hooks/useJournal';
 import { Image as ImageIcon, Type, X, ChevronLeft } from 'lucide-react';
 import { MoodTracker } from '../dashboard/DashboardRealityWidgets';
@@ -19,6 +20,7 @@ const JOURNAL_PROMPTS = [
 ];
 
 const JournalEntry = ({ onAction, onBack, initialEntry }) => {
+    const navigate = useNavigate();
     const [mood, setMood] = useState(null);
     const [content, setContent] = useState('');
     const [title, setTitle] = useState('');
@@ -33,28 +35,80 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
 
     const { addEntry, updateEntry } = useJournal();
 
+    // Autosave state & refs
+    const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
+    const currentIdRef = useRef(initialEntry?._id || null);
+    const isFirstLoad = useRef(true);
+    const isDirtyRef = useRef(false);
+
     // Populate editor if editing an existing entry
-    React.useEffect(() => {
+    useEffect(() => {
         if (initialEntry) {
-            setContent(initialEntry.content);
-            setMood(initialEntry.mood);
-            setTitle(initialEntry.title || '');
-            setImageUrl(initialEntry.imageUrl || '');
-            if (textareaRef.current) {
-                textareaRef.current.innerHTML = initialEntry.content;
+            // Only update local states if ID changes or it's the first render
+            if (isFirstLoad.current || initialEntry._id !== currentIdRef.current) {
+                setContent(initialEntry.content || '');
+                setMood(initialEntry.mood);
+                setTitle(initialEntry.title || '');
+                setImageUrl(initialEntry.imageUrl || '');
+                currentIdRef.current = initialEntry._id;
+                if (textareaRef.current) {
+                    textareaRef.current.innerHTML = initialEntry.content || '';
+                }
+                isFirstLoad.current = false;
             }
         } else {
-            // Reset for new entry
-            setContent('');
-            setTitle('');
-            setImageUrl('');
-            setMood(null);
-            setActivePrompt(null);
-            if (textareaRef.current) {
-                textareaRef.current.innerHTML = '';
+            if (currentIdRef.current || isFirstLoad.current) {
+                setContent('');
+                setTitle('');
+                setImageUrl('');
+                setMood(null);
+                setActivePrompt(null);
+                currentIdRef.current = null;
+                if (textareaRef.current) {
+                    textareaRef.current.innerHTML = '';
+                }
+                isFirstLoad.current = false;
             }
         }
-    }, [initialEntry, setMood]);
+    }, [initialEntry]);
+
+    // Track latest values in a ref for debounced autosave execution
+    const latestValues = useRef({ title, content, mood, imageUrl });
+    useEffect(() => {
+        latestValues.current = { title, content, mood, imageUrl };
+    }, [title, content, mood, imageUrl]);
+
+    // Autosave Effect
+    useEffect(() => {
+        if (!isDirtyRef.current) return;
+        if (!title.trim() && !content.trim()) {
+            setSaveStatus('idle');
+            return;
+        }
+
+        setSaveStatus('saving');
+
+        const timer = setTimeout(async () => {
+            const { title: t, content: c, mood: m, imageUrl: img } = latestValues.current;
+            try {
+                if (currentIdRef.current) {
+                    await updateEntry(currentIdRef.current, c, m || 'neutral', t, img);
+                } else {
+                    const newEntry = await addEntry(c, m || 'neutral', t, img);
+                    if (newEntry && newEntry._id) {
+                        currentIdRef.current = newEntry._id;
+                        navigate(`/dashboard/writing/journal/${newEntry._id}`, { replace: true });
+                    }
+                }
+                setSaveStatus('saved');
+            } catch (err) {
+                console.error('Autosave failed:', err);
+                setSaveStatus('error');
+            }
+        }, 1500); // 1.5s debounce
+
+        return () => clearTimeout(timer);
+    }, [title, content, mood, imageUrl]);
 
     const checkFormatting = () => {
         if (!textareaRef.current) return;
@@ -69,15 +123,17 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
     };
 
     const handleSave = async () => {
-        if (!content.trim()) return;
+        if (!content.trim() && !title.trim()) return;
         
         setLoading(true);
         try {
-            if (initialEntry?._id) {
-                await updateEntry(initialEntry._id, content, mood || 'neutral', title, imageUrl);
+            const { title: t, content: c, mood: m, imageUrl: img } = latestValues.current;
+            if (currentIdRef.current) {
+                await updateEntry(currentIdRef.current, c, m || 'neutral', t, img);
             } else {
-                await addEntry(content, mood || 'neutral', title, imageUrl);
+                await addEntry(c, m || 'neutral', t, img);
             }
+            isDirtyRef.current = false;
             setContent('');
             setTitle('');
             setImageUrl('');
@@ -119,6 +175,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
 
         setContent(editor.innerHTML);
         setActivePrompt(prompt);
+        isDirtyRef.current = true;
         editor.focus();
     };
 
@@ -141,6 +198,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
         }
 
         setContent(editor.innerHTML);
+        isDirtyRef.current = true;
         editor.focus();
         checkFormatting();
     };
@@ -171,6 +229,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
             
             if (data.secure_url) {
                 setImageUrl(data.secure_url);
+                isDirtyRef.current = true;
             } else {
                 console.error('Cloudinary upload error:', data);
                 alert('Upload failed: ' + (data.error?.message || 'Check Cloudinary settings'));
@@ -212,13 +271,35 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
         <div className="border-y md:border border-slate-200 dark:border-white/10 rounded-none md:rounded-[2rem] overflow-hidden flex flex-col bg-slate-50 dark:bg-black transition-shadow shadow-none focus-within:shadow-none focus-within:border-slate-300 dark:focus-within:border-slate-600">
             {/* Top Bar: Navigation & Action */}
             <div className="bg-white dark:bg-black p-3 px-4 border-b border-slate-100 dark:border-white/10 flex items-center justify-between z-40">
-                <button 
-                    onClick={onBack}
-                    className="flex items-center gap-2 text-slate-500 hover:text-black dark:hover:text-white transition-colors text-[11px] font-black uppercase tracking-[0.2em] active:scale-95"
-                >
-                    <ChevronLeft size={16} />
-                    Back
-                </button>
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={onBack}
+                        className="p-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-slate-500 hover:text-black dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-all active:scale-90 flex items-center justify-center"
+                        title="Back"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+                    
+                    {/* Autosave Status Indicator */}
+                    {saveStatus === 'saving' && (
+                        <span className="text-[9px] font-mono text-slate-400 dark:text-white/40 uppercase tracking-widest animate-pulse flex items-center gap-1.5">
+                            <span className="size-1.5 rounded-full bg-slate-400 dark:bg-white/40 animate-ping shrink-0" />
+                            Saving...
+                        </span>
+                    )}
+                    {saveStatus === 'saved' && (
+                        <span className="text-[9px] font-mono text-emerald-500 uppercase tracking-widest flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px] font-bold">check</span>
+                            Saved
+                        </span>
+                    )}
+                    {saveStatus === 'error' && (
+                        <span className="text-[9px] font-mono text-rose-500 uppercase tracking-widest flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px]">error</span>
+                            Error
+                        </span>
+                    )}
+                </div>
                 <button 
                     onClick={onSaveWrapper}
                     disabled={loading || !content.trim()}
@@ -243,7 +324,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
                 <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
                     {imageUrl && (
                         <button 
-                            onClick={() => setImageUrl('')}
+                            onClick={() => { setImageUrl(''); isDirtyRef.current = true; }}
                             className="size-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-rose-500 transition-colors"
                         >
                             <X size={16} />
@@ -284,7 +365,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
                 <div className="z-20 shrink-0">
                     <MoodTracker 
                         user={{ settings: { mood: mood } }} 
-                        updateMood={(val) => setMood(val)} 
+                        updateMood={(val) => { setMood(val); isDirtyRef.current = true; }} 
                         standalone 
                     />
                 </div>
@@ -302,7 +383,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
                 <input 
                     type="text" 
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => { setTitle(e.target.value); isDirtyRef.current = true; }}
                     placeholder="Title"
                     className="bg-transparent border-none focus:ring-0 text-2xl md:text-3xl font-black text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 w-full p-0 tracking-tight"
                 />
@@ -317,6 +398,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
                     suppressContentEditableWarning={true}
                     onInput={(e) => {
                         setContent(e.currentTarget.innerHTML);
+                        isDirtyRef.current = true;
                         checkFormatting();
                     }}
                     onKeyUp={checkFormatting}

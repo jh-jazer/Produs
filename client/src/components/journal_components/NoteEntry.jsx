@@ -1,33 +1,64 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, Image as ImageIcon, X } from 'lucide-react';
 
-const NoteEntry = ({ onSave, onBack, initialNote }) => {
+const NoteEntry = ({ onSave, onBack, initialNote, onAutosave }) => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     const [loading, setLoading] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState('blue');
+    const [categories, setCategories] = useState(() => {
+        const savedNotes = JSON.parse(localStorage.getItem('produs_notes_store') || '[]');
+        const existingCats = savedNotes.map(n => n.category).filter(Boolean);
+        const defaults = ['PERSONAL', 'WORK', 'IDEAS', 'GENERAL'];
+        const unique = Array.from(new Set([...defaults, ...existingCats.map(c => c.toUpperCase())]));
+        return unique;
+    });
+    const [selectedCategory, setSelectedCategory] = useState('GENERAL');
+    const [isCreatingNew, setIsCreatingNew] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
     const [activeFormats, setActiveFormats] = useState({});
     const [showSizeMenu, setShowSizeMenu] = useState(false);
     const textareaRef = useRef(null);
     const fileInputRef = useRef(null);
 
+    // Autosave state & refs
+    const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
+    const currentIdRef = useRef(initialNote?.id || null);
+    const isFirstLoad = useRef(true);
+    const isDirtyRef = useRef(false);
+
     useEffect(() => {
         if (initialNote) {
-            setTitle(initialNote.title || '');
-            setContent(initialNote.content || '');
-            setImageUrl(initialNote.imageUrl || '');
-            setSelectedCategory(initialNote.category || 'blue');
-            if (textareaRef.current) {
-                textareaRef.current.innerHTML = initialNote.content || '';
+            // Only update local inputs if the note ID changes or it's the first render
+            if (isFirstLoad.current || initialNote.id !== currentIdRef.current) {
+                setTitle(initialNote.title || '');
+                setContent(initialNote.content || '');
+                setImageUrl(initialNote.imageUrl || '');
+                const noteCat = (initialNote.category || 'GENERAL').toUpperCase();
+                setSelectedCategory(noteCat);
+                currentIdRef.current = initialNote.id;
+                setCategories(prev => {
+                    if (!prev.includes(noteCat)) {
+                        return [...prev, noteCat];
+                    }
+                    return prev;
+                });
+                if (textareaRef.current) {
+                    textareaRef.current.innerHTML = initialNote.content || '';
+                }
+                isFirstLoad.current = false;
             }
         } else {
-            setTitle('');
-            setContent('');
-            setImageUrl('');
-            setSelectedCategory('blue');
-            if (textareaRef.current) {
-                textareaRef.current.innerHTML = '';
+            if (currentIdRef.current || isFirstLoad.current) {
+                setTitle('');
+                setContent('');
+                setImageUrl('');
+                setSelectedCategory('GENERAL');
+                currentIdRef.current = null;
+                if (textareaRef.current) {
+                    textareaRef.current.innerHTML = '';
+                }
+                isFirstLoad.current = false;
             }
         }
     }, [initialNote]);
@@ -53,9 +84,48 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
         }
 
         setContent(editor.innerHTML);
+        isDirtyRef.current = true;
         editor.focus();
         checkFormatting();
     };
+
+    // Track latest values in a ref for debounced autosave execution
+    const latestValues = useRef({ title, content, imageUrl, selectedCategory });
+    useEffect(() => {
+        latestValues.current = { title, content, imageUrl, selectedCategory };
+    }, [title, content, imageUrl, selectedCategory]);
+
+    // Autosave Effect
+    useEffect(() => {
+        if (!isDirtyRef.current) return;
+        if (!title.trim() && !content.trim()) {
+            setSaveStatus('idle');
+            return;
+        }
+
+        setSaveStatus('saving');
+
+        const timer = setTimeout(() => {
+            const { title: t, content: c, imageUrl: img, selectedCategory: cat } = latestValues.current;
+            try {
+                const activeId = onAutosave?.({
+                    title: t.trim() || 'UNTITLED_NOTE',
+                    content: c.trim(),
+                    imageUrl: img,
+                    category: cat
+                });
+                if (activeId) {
+                    currentIdRef.current = activeId;
+                }
+                setSaveStatus('saved');
+            } catch (err) {
+                console.error('Autosave failed:', err);
+                setSaveStatus('error');
+            }
+        }, 1500); // 1.5s debounce
+
+        return () => clearTimeout(timer);
+    }, [title, content, imageUrl, selectedCategory]);
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -83,6 +153,7 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
             
             if (data.secure_url) {
                 setImageUrl(data.secure_url);
+                isDirtyRef.current = true;
             } else {
                 console.error('Cloudinary upload error:', data);
                 alert('Upload failed: ' + (data.error?.message || 'Check Cloudinary settings'));
@@ -110,6 +181,7 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
 
     const handleConfirm = () => {
         if (!title.trim() && !content.trim()) return;
+        isDirtyRef.current = false;
         onSave?.({
             title: title.trim() || 'UNTITLED_NOTE',
             content: content.trim(),
@@ -117,6 +189,18 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
             category: selectedCategory
         });
         handleClear();
+    };
+
+    const handleSaveNewCategory = () => {
+        const trimmed = newCategoryName.trim();
+        if (!trimmed) return;
+        const formatted = trimmed.toUpperCase();
+        if (!categories.includes(formatted)) {
+            setCategories(prev => [...prev, formatted]);
+        }
+        setSelectedCategory(formatted);
+        isDirtyRef.current = true;
+        setIsCreatingNew(false);
     };
 
     const getBtnClass = (cmd) => {
@@ -130,13 +214,35 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
         <div className="border-y md:border border-slate-200 dark:border-white/10 rounded-none md:rounded-[2rem] overflow-hidden flex flex-col bg-slate-50 dark:bg-black transition-shadow shadow-none text-left">
             {/* Top Bar: Navigation & Action */}
             <div className="bg-white dark:bg-black p-3 px-4 border-b border-slate-100 dark:border-white/10 flex items-center justify-between z-40">
-                <button 
-                    onClick={onBack}
-                    className="flex items-center gap-2 text-slate-500 hover:text-black dark:hover:text-white transition-colors text-[11px] font-black uppercase tracking-[0.2em] active:scale-95"
-                >
-                    <ChevronLeft size={16} />
-                    Back
-                </button>
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={onBack}
+                        className="p-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-slate-500 hover:text-black dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-all active:scale-90 flex items-center justify-center"
+                        title="Back"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+
+                    {/* Autosave Status Indicator */}
+                    {saveStatus === 'saving' && (
+                        <span className="text-[9px] font-mono text-slate-400 dark:text-white/40 uppercase tracking-widest animate-pulse flex items-center gap-1.5">
+                            <span className="size-1.5 rounded-full bg-slate-400 dark:bg-white/40 animate-ping shrink-0" />
+                            Saving...
+                        </span>
+                    )}
+                    {saveStatus === 'saved' && (
+                        <span className="text-[9px] font-mono text-emerald-500 uppercase tracking-widest flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px] font-bold">check</span>
+                            Saved
+                        </span>
+                    )}
+                    {saveStatus === 'error' && (
+                        <span className="text-[9px] font-mono text-rose-500 uppercase tracking-widest flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px]">error</span>
+                            Error
+                        </span>
+                    )}
+                </div>
                 <button 
                     onClick={handleConfirm}
                     disabled={loading || (!title.trim() && !content.trim())}
@@ -160,7 +266,7 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
                 <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
                     {imageUrl && (
                         <button 
-                            onClick={() => setImageUrl('')}
+                            onClick={() => { setImageUrl(''); isDirtyRef.current = true; }}
                             className="size-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-rose-500 transition-colors"
                         >
                             <X size={16} />
@@ -195,20 +301,61 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
                 )}
             </div>
 
-            {/* Top Bar: Category selectors on left, Back button on right */}
+            {/* Category selection selector */}
             <div className="bg-white dark:bg-black px-4 pt-4 flex justify-between items-center gap-4">
                 <div className="flex items-center gap-3">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">COLOR:</span>
-                    {['blue', 'gray', 'white'].map(c => (
-                        <button
-                            key={c}
-                            type="button"
-                            onClick={() => setSelectedCategory(c)}
-                            className={`size-4 rounded-full border-2 transition-all ${selectedCategory === c ? 'scale-125 ring-2 ring-black/40 dark:ring-white/40' : 'opacity-40'} ${
-                                c === 'blue' ? 'bg-black dark:bg-white border-black dark:border-white' : c === 'gray' ? 'bg-slate-400 border-slate-500' : 'bg-white border-white'
-                            }`}
-                        />
-                    ))}
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">CATEGORY:</span>
+                    {isCreatingNew ? (
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                value={newCategoryName}
+                                onChange={(e) => setNewCategoryName(e.target.value)}
+                                placeholder="NEW CATEGORY NAME"
+                                className="px-3 py-1.5 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-[#121212] text-xs font-black uppercase tracking-wider outline-none focus:border-primary w-40"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleSaveNewCategory();
+                                    }
+                                }}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleSaveNewCategory}
+                                className="px-3 py-1.5 rounded bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all"
+                            >
+                                Add
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setIsCreatingNew(false)}
+                                className="px-3 py-1.5 rounded bg-black/5 dark:bg-white/5 text-slate-500 hover:text-black dark:hover:text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    ) : (
+                        <select
+                            value={selectedCategory}
+                            onChange={(e) => {
+                                if (e.target.value === '__NEW__') {
+                                    setIsCreatingNew(true);
+                                    setNewCategoryName('');
+                                } else {
+                                    setSelectedCategory(e.target.value);
+                                    isDirtyRef.current = true;
+                                }
+                            }}
+                            className="px-3 py-1.5 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-[#121212] text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 outline-none focus:ring-1 focus:ring-primary/20 cursor-pointer min-w-[140px]"
+                        >
+                            {categories.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                            <option value="__NEW__">➕ CREATE NEW...</option>
+                        </select>
+                    )}
                 </div>
             </div>
 
@@ -217,7 +364,7 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
                 <input 
                     type="text" 
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => { setTitle(e.target.value); isDirtyRef.current = true; }}
                     placeholder="Note Title"
                     className="bg-transparent border-none focus:ring-0 text-2xl md:text-3xl font-black text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 w-full p-0 tracking-tight outline-none"
                 />
@@ -233,6 +380,7 @@ const NoteEntry = ({ onSave, onBack, initialNote }) => {
                     suppressContentEditableWarning={true}
                     onInput={(e) => {
                         setContent(e.currentTarget.innerHTML);
+                        isDirtyRef.current = true;
                         checkFormatting();
                     }}
                     onKeyUp={checkFormatting}
