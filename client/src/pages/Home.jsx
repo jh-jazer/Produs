@@ -255,6 +255,50 @@ export default function Home() {
     const todayStr = currentTime.toISOString().split('T')[0];
     const currentHourStr = currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
 
+    const getClosestDateObj = (d) => {
+      const dateStr = d.dueDate || formatDate(d.createdAt);
+      const startDate = new Date(dateStr);
+      if (isNaN(startDate.getTime())) return new Date(8640000000000000);
+
+      if (!d.isMonthly) {
+        return startDate;
+      }
+
+      const startYear = startDate.getFullYear();
+      const startMonth = startDate.getMonth();
+      const day = startDate.getDate();
+      const duration = d.monthsLeft || 1;
+
+      const monthNames = [
+          'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
+          'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'
+      ];
+
+      const isMonthInstancePaid = (offset) => {
+        const mIdx = (startMonth + offset) % 12;
+        const yVal = startYear + Math.floor((startMonth + offset) / 12);
+        const label = `${monthNames[mIdx]} ${yVal}`;
+        const expectedTitle = d.nature === 'income' 
+            ? `Received: ${d.title} (${label})`
+            : `Paid: ${d.title} (${label})`;
+        const expectedType = d.nature === 'income' ? 'income' : 'expense';
+        return transactions.some(t => t.title === expectedTitle && t.type === expectedType);
+      };
+
+      for (let i = 0; i < duration; i++) {
+        if (!isMonthInstancePaid(i)) {
+          const mIdx = (startMonth + i) % 12;
+          const yVal = startYear + Math.floor((startMonth + i) / 12);
+          return new Date(yVal, mIdx, day);
+        }
+      }
+
+      const lastOffset = duration - 1;
+      const mIdx = (startMonth + lastOffset) % 12;
+      const yVal = startYear + Math.floor((startMonth + lastOffset) / 12);
+      return new Date(yVal, mIdx, day);
+    };
+
     // 1. Habits Tracker
     const undoneHabits = habits.filter(h => {
       const todayCheck = h.checks?.find(c => c.date === todayStr);
@@ -298,11 +342,21 @@ export default function Home() {
     // 7-8. Finance helpers
     const getFinanceActivities = (nature) => {
       const items = debts.filter(d => (d.nature || 'debt') === nature);
-      return items.length > 0 ? items.slice(0, 3).map(d => ({
-        title: d.title,
-        time: `$${(d.amount || 0).toLocaleString()} / $${(d.total || 0).toLocaleString()}`,
-        status: nature === 'debt' ? 'URGENT' : 'PENDING'
-      })) : [{ title: 'ALL CLEAR', time: nature === 'debt' ? 'LIABILITIES' : 'RECEIVABLES', status: 'STANDBY' }];
+      if (items.length === 0) {
+        return [{ title: 'ALL CLEAR', time: nature === 'debt' ? 'LIABILITIES' : 'RECEIVABLES', status: 'STANDBY' }];
+      }
+
+      const sortedItems = [...items].sort((a, b) => getClosestDateObj(a) - getClosestDateObj(b));
+
+      return sortedItems.slice(0, 3).map(d => {
+        const closestDate = getClosestDateObj(d);
+        const formattedDate = closestDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+        return {
+          title: d.title,
+          time: `₱${(d.amount || 0).toLocaleString()} • DUE: ${formattedDate}`,
+          status: nature === 'debt' ? 'URGENT' : 'PENDING'
+        };
+      });
     };
 
     return [
@@ -315,7 +369,7 @@ export default function Home() {
       { type: 'multi', header: 'DEBTS & LIABILITIES', activities: getFinanceActivities('debt') },
       { type: 'multi', header: 'RECEIVABLE ASSETS', activities: getFinanceActivities('income') }
     ];
-  }, [plannerTasks, monthlyTasks, habits, goals, debts, currentTime]);
+  }, [plannerTasks, monthlyTasks, habits, goals, debts, transactions, currentTime]);
 
   const desktopIndex = (activePriorityIndex === null) 
       ? 1 
