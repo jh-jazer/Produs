@@ -228,11 +228,11 @@ const FinancialOverview = ({
                         >
                             <div className="hidden md:block absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-                            {/* Responsive Layout Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 min-h-[260px]">
+                            {/* Side-by-Side Layout Grid */}
+                            <div className="grid grid-cols-3 min-h-[260px]">
 
                                 {/* Col 1+2 merged: Big Total Balance */}
-                                <div className="col-span-1 md:col-span-2 flex flex-col items-center justify-center text-center px-4 md:px-8 pt-10 pb-8 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 relative">
+                                <div className="col-span-2 flex flex-col items-center justify-center text-center px-4 md:px-8 pt-10 pb-8 border-r border-black/10 dark:border-white/10 relative">
                                     {/* Controls row */}
                                     <div className="absolute top-4 left-4 flex items-center gap-2">
                                         <button 
@@ -330,11 +330,11 @@ const FinancialOverview = ({
                                                     ? 'text-rose-700 dark:text-rose-400' 
                                                     : 'text-black dark:text-white'
                                         }`}
-                                        style={{ fontSize: 'clamp(2.2rem, 9vw, 6rem)' }}
+                                        style={{ fontSize: 'clamp(1.5rem, 6vw, 4.5rem)' }}
                                     >
                                         {displayedBalance < 0 ? '-' : ''}{localCurrency}{Math.abs(displayedBalance).toLocaleString()}
                                     </p>
-                                    <p className="text-[10px] font-black text-black/90 dark:text-white/80 uppercase tracking-[0.3em] md:tracking-[0.6em] mt-2">
+                                    <p className="text-[10px] font-black text-black/90 dark:text-white/80 uppercase tracking-[0.6em] mt-2">
                                         TOTAL BALANCE {selectedYear === 'all' ? '(ALL TIME)' : `- ${(() => {
                                             const d = new Date(selectedYear, selectedMonth, 1);
                                             return `${d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()} ${selectedYear}`;
@@ -353,7 +353,7 @@ const FinancialOverview = ({
                                 </div>
  
                                 {/* Col 3: 5 metric rows — click to filter */}
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-col justify-center gap-2 md:gap-0 divide-y-0 md:divide-y divide-black/10 dark:divide-white/10 p-4 md:p-0">
+                                <div className="flex flex-col justify-center divide-y divide-black/10 dark:divide-white/10">
                                     {[
                                         { label: 'INCOME',     value: totalIncome,        color: '#10b981', colorClass: 'text-emerald-600 dark:text-emerald-400', sign: '',  type: 'income'   },
                                         { label: 'EXPENSES',   value: totalExpenses,       color: '#f43f5e', colorClass: 'text-rose-600 dark:text-rose-400', sign: '-', type: 'expense'  },
@@ -366,10 +366,10 @@ const FinancialOverview = ({
                                             <button
                                                 key={label}
                                                 onClick={() => setTypeFilter(isActive ? 'all' : type)}
-                                                className={`flex flex-col items-start px-5 py-3.5 gap-0.5 w-full text-left transition-all ${
+                                                className={`flex flex-col items-start px-5 py-3 gap-0.5 w-full text-left transition-all ${
                                                     isActive
-                                                        ? 'bg-transparent md:bg-black/[0.04] dark:md:bg-white/[0.04] border-l-2'
-                                                        : 'border-l-2 border-l-transparent hover:bg-transparent md:hover:bg-black/[0.02] dark:md:hover:bg-white/[0.02]'
+                                                        ? 'bg-black/[0.04] dark:bg-white/[0.04] border-l-2'
+                                                        : 'border-l-2 border-l-transparent hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'
                                                 }`}
                                                 style={isActive ? { borderLeftColor: color } : {}}
                                             >
@@ -377,7 +377,7 @@ const FinancialOverview = ({
                                                     <span className="size-1.5 rounded-full shrink-0 animate-pulse" style={{ backgroundColor: color }} />
                                                     {label}
                                                 </p>
-                                                <p className={`font-black font-exo tracking-tighter leading-none text-[1.4rem] md:text-[1.7rem] ${colorClass}`}>
+                                                <p className={`font-black font-exo tracking-tighter leading-none text-[1.15rem] md:text-[1.5rem] ${colorClass}`}>
                                                     {sign}{localCurrency}{value.toLocaleString()}
                                                 </p>
                                             </button>
