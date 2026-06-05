@@ -3,10 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../hooks/useTheme';
 
 /**
- * ThemeToggle — a compact, animated light/dark toggle for the Produs sidebar.
- *
- * Clicking it flips between 'light' and 'dark' directly.
- * (System preference is handled separately in SettingsModal.)
+ * ThemeToggle — a clean, animated, icon + text light/dark toggle for the Produs layout.
  */
 const ThemeToggle = ({ className = '' }) => {
     const { isDark, setThemeMode } = useTheme();
@@ -21,48 +18,35 @@ const ThemeToggle = ({ className = '' }) => {
             aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             className={`
                 relative flex items-center gap-3 group
-                transition-colors duration-300
+                text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white
+                transition-all duration-300 active:scale-95
                 ${className}
             `}
         >
-            {/* Tactical Rectangular Track */}
-            <div
-                className={`
-                    relative w-10 h-[14px] shrink-0
-                    border border-black/20 dark:border-white/20
-                    bg-black/5 dark:bg-white/5
-                    overflow-hidden
-                `}
-            >
-                {/* Micro details on track */}
-                <div className="absolute inset-0 flex justify-between px-[2px] items-center pointer-events-none z-0 opacity-40">
-                    <div className="w-[1px] h-[6px] bg-black dark:bg-white" />
-                    <div className="w-[1px] h-[6px] bg-black dark:bg-white" />
-                </div>
-
-                {/* Sharp Block Thumb */}
-                <motion.div
-                    layout
-                    animate={{ x: isDark ? 26 : 0 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 40 }}
-                    className={`
-                        absolute top-0 bottom-0 w-[12px]
-                        bg-black dark:bg-white z-10
-                        shadow-[0_0_10px_rgba(0,0,0,0.5)] dark:shadow-[0_0_10px_rgba(255,255,255,0.3)]
-                    `}
-                />
+            {/* Circular Icon Wrapper */}
+            <div className="size-10 rounded-full flex items-center justify-center bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 group-hover:bg-black/10 group-hover:border-black/10 dark:hover:bg-white/10 dark:hover:border-white/10 transition-all shrink-0">
+                <AnimatePresence mode="wait" initial={false}>
+                    <motion.span
+                        key={isDark ? 'dark' : 'light'}
+                        initial={{ opacity: 0, rotate: -90, scale: 0.8 }}
+                        animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                        exit={{ opacity: 0, rotate: 90, scale: 0.8 }}
+                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                        className="material-symbols-outlined text-[20px]"
+                    >
+                        {isDark ? 'dark_mode' : 'light_mode'}
+                    </motion.span>
+                </AnimatePresence>
             </div>
 
-            {/* Icon + Label */}
-            <div className="flex items-center gap-1.5 w-[4rem] overflow-hidden">
-
-
+            {/* Label Text */}
+            <div className="flex items-center overflow-hidden">
                 <AnimatePresence mode="wait" initial={false}>
                     <motion.span
                         key={isDark ? 'dark-label' : 'light-label'}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 8 }}
                         transition={{ duration: 0.15 }}
                         className="text-[9px] font-black uppercase tracking-[0.3em] whitespace-nowrap text-black/40 dark:text-white/40 group-hover:text-black dark:group-hover:text-white transition-colors"
                     >
@@ -75,3 +59,5 @@ const ThemeToggle = ({ className = '' }) => {
 };
 
 export default ThemeToggle;
+
+
