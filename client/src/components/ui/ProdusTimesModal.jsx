@@ -31,7 +31,7 @@ const ProdusTimesModal = ({ isOpen, onClose }) => {
                     <div className="w-full flex justify-between items-center text-[8px] font-black uppercase tracking-widest border-t border-black/20 dark:border-white/20 mt-3 pt-1.5 font-sans">
                         <span>VOL. 1 // NO. 03</span>
                         <span>JUNE 4, 2026</span>
-                        <span>EDITION 1.0.3</span>
+                        <span>EDITION 1.0.4</span>
                     </div>
                 </div>
 
@@ -47,7 +47,7 @@ const ProdusTimesModal = ({ isOpen, onClose }) => {
                         </p>
                     </div>
 
-                    {/* --- EDITION 1.0.3 CONTENT --- */}
+                    {/* --- EDITION 1.0.4 CONTENT --- */}
                     <div className="flex flex-col gap-3">
                         <h4 className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white flex items-center">
                             <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">⏱️</span>

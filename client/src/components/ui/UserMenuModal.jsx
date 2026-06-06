@@ -113,12 +113,12 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
 
                         <div className="flex items-center justify-center gap-3 pt-5 pb-1 pr-1">
                             <span className="text-[8px] font-mono font-black text-foreground/25 dark:text-white/20 uppercase tracking-[0.4em] pointer-events-none">
-                                v1.0.3
+                                v1.0.4
                             </span>
                             <button 
                                 onClick={(e) => { e.stopPropagation(); setShowPatchNotes(true); }}
                                 className="size-3.5 rounded-full flex items-center justify-center text-foreground/30 hover:text-foreground hover:bg-foreground/5 dark:text-white/20 dark:hover:text-white dark:hover:bg-white/5 transition-all"
-                                title="VIEW SYSTEM UPDATE 1.0.3"
+                                title="VIEW SYSTEM UPDATE 1.0.4"
                             >
                                 <span className="material-symbols-outlined" style={{ fontSize: '9px' }}>info</span>
                             </button>
