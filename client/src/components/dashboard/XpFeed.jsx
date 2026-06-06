@@ -4,6 +4,20 @@ import { Clock, Zap, Flame, Award, Plus, Sparkles } from 'lucide-react';
 import useSWR, { useSWRConfig } from 'swr';
 import api from '../../services/api';
 
+const getUnitLabel = (event) => {
+    const unit = event.metadata?.unit;
+    if (unit) {
+        if (unit.toLowerCase().includes('point') || unit.toLowerCase().includes('coin')) return 'PRODPOINTS';
+        if (unit.toLowerCase().includes('exp')) return 'GUARDIAN EXP';
+        return unit.toUpperCase();
+    }
+    const actionLower = event.action.toLowerCase();
+    if (actionLower.includes('claimed') || actionLower.includes('streak') || actionLower.includes('bounty') || actionLower.includes('points') || actionLower.includes('coins')) {
+        return 'PRODPOINTS';
+    }
+    return 'GUARDIAN EXP';
+};
+
 const XpFeed = ({ user, markAllRead = false }) => {
     const fetcher = url => api.get(url).then(res => res.data);
     const { data: history, isLoading, mutate } = useSWR('/rpg/history', fetcher, {
@@ -30,6 +44,17 @@ const XpFeed = ({ user, markAllRead = false }) => {
         wis: 'purple-500',
         luk: 'pink-500',
         none: 'slate-400'
+    };
+
+    const getCapsuleColors = (event, resolvedUnit) => {
+        if (resolvedUnit === 'PRODPOINTS') {
+            return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+        }
+        const color = statColors[event.stat];
+        if (color && event.stat !== 'none') {
+            return `text-${color} bg-${color}/10 border-${color}/20`;
+        }
+        return 'text-primary bg-primary/10 border-primary/20';
     };
 
     if (isLoading) return (
@@ -66,28 +91,28 @@ const XpFeed = ({ user, markAllRead = false }) => {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.05 }}
-                        className={`group relative p-4 rounded-sm border transition-all flex items-center gap-4 ${
+                        className={`group relative p-3 rounded-sm border transition-all flex items-center gap-3.5 ${
                             !event.read 
                                 ? 'bg-primary/5 border-primary/30 shadow-[0_0_12px_rgba(255,255,255,0.02)]' 
                                 : 'border-foreground/5 bg-transparent hover:bg-foreground/5'
                         }`}
                     >
                         {/* Stat Badge */}
-                        <div className={`size-10 rounded-sm bg-${color}/10 border ${!event.read ? 'border-primary/40' : `border-${color}/20`} flex items-center justify-center text-${color} shrink-0`}>
-                            <Plus size={16} />
+                        <div className={`size-8 rounded-sm bg-${color}/10 border ${!event.read ? 'border-primary/40' : `border-${color}/20`} flex items-center justify-center text-${color} shrink-0`}>
+                            <Plus size={14} />
                         </div>
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                                <h4 className="text-[10px] font-black uppercase tracking-wider leading-snug text-foreground truncate pr-2">
+                            <div className="flex items-start justify-between gap-2">
+                                <h4 className="text-[9px] font-black uppercase tracking-wider leading-snug text-foreground break-words whitespace-normal pr-2">
                                     {event.action}
                                 </h4>
-                                <span className="text-[8px] font-mono text-foreground/40 shrink-0">{time}</span>
+                                <span className="text-[8px] font-mono text-foreground/40 shrink-0 mt-0.5">{time}</span>
                             </div>
-                            <div className="flex items-center gap-2 mt-1.5">
-                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-widest bg-${color}/10 text-${color}`}>
-                                    {event.stat.toUpperCase()}
+                            <div className="flex items-center gap-2 mt-1">
+                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-sm border uppercase tracking-widest ${getCapsuleColors(event, getUnitLabel(event))}`}>
+                                    +{event.amount} {getUnitLabel(event)}
                                 </span>
                                 {event.perkActivated && (
                                     <span className="text-[8px] font-black text-orange-500 uppercase tracking-widest flex items-center gap-0.5">
@@ -95,11 +120,6 @@ const XpFeed = ({ user, markAllRead = false }) => {
                                     </span>
                                 )}
                             </div>
-                        </div>
-
-                        {/* Amount */}
-                        <div className="px-2 py-1 bg-foreground/10 rounded-sm shrink-0">
-                            <span className="text-[10px] font-mono text-foreground">+{event.amount} Guardian EXP</span>
                         </div>
                     </motion.div>
                 );

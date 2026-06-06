@@ -14,6 +14,42 @@ export const ICON_OPTIONS = [
     { icon: 'school', label: 'Study' },
     { icon: 'music_note', label: 'Music' },
     { icon: 'favorite', label: 'Wellness' },
+    { icon: 'work', label: 'Work' },
+    { icon: 'savings', label: 'Savings' },
+    { icon: 'cleaning_services', label: 'Cleaning' },
+    { icon: 'spa', label: 'Relaxation' },
+    { icon: 'sports_esports', label: 'Gaming' },
+    { icon: 'pets', label: 'Pets' },
+    { icon: 'edit', label: 'Writing' },
+    { icon: 'directions_bike', label: 'Cycling' },
+    { icon: 'payments', label: 'Finance' },
+    { icon: 'chat', label: 'Social' },
+    { icon: 'lightbulb', label: 'Ideas' },
+    { icon: 'done_all', label: 'Tasks' },
+    { icon: 'psychology', label: 'Brain' },
+    { icon: 'smoke_free', label: 'Quit Smoking' },
+    { icon: 'no_drinks', label: 'Sobriety' },
+    { icon: 'alarm', label: 'Morning' },
+    { icon: 'translate', label: 'Languages' },
+    { icon: 'monitoring', label: 'Tracking' },
+    { icon: 'forest', label: 'Nature' },
+    { icon: 'water_drop', label: 'Hydration' },
+    { icon: 'shopping_cart', label: 'Groceries' },
+    { icon: 'group', label: 'Social' },
+    { icon: 'draw', label: 'Drawing' },
+    { icon: 'schedule', label: 'Schedule' },
+    { icon: 'folded_hands', label: 'Prayer' },
+    { icon: 'mosque', label: 'Mosque' },
+    { icon: 'church', label: 'Church' },
+    { icon: 'temple_buddhist', label: 'Temple' },
+    { icon: 'volunteer_activism', label: 'Charity' },
+    { icon: 'sunny', label: 'Sunlight' },
+    { icon: 'soap', label: 'Skincare' },
+    { icon: 'pill', label: 'Vitamins' },
+    { icon: 'dentistry', label: 'Dental' },
+    { icon: 'healing', label: 'Healing' },
+    { icon: 'local_cafe', label: 'Coffee/Tea' },
+    { icon: 'bed', label: 'Sleep' },
 ];
 
 const SYSTEM_HABITS = [
@@ -54,17 +90,30 @@ const SYSTEM_HABITS = [
     }
 ];
 
-const AddHabitModal = ({ isOpen, onClose, onAdd, isSystemMode = false, defaultShared = false }) => {
+const AddHabitModal = ({ isOpen, onClose, onAdd, editingHabit = null, isSystemMode = false, defaultShared = false }) => {
     const [newHabit, setNewHabit] = useState({ name: '', icon: 'local_drink', color: 'white', isShared: defaultShared });
     const [selectedSystemHabit, setSelectedSystemHabit] = useState(null);
+    const [isAllIconsOpen, setIsAllIconsOpen] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
-            setNewHabit({ name: '', icon: 'local_drink', color: 'white', isShared: defaultShared });
+            if (editingHabit) {
+                setNewHabit({
+                    name: editingHabit.name || '',
+                    icon: editingHabit.icon || 'local_drink',
+                    color: editingHabit.color || 'white',
+                    isShared: editingHabit.isShared || false
+                });
+            } else {
+                setNewHabit({ name: '', icon: 'local_drink', color: 'white', isShared: defaultShared });
+            }
+            setIsAllIconsOpen(false);
         }
-    }, [isOpen, defaultShared]);
+    }, [isOpen, editingHabit, defaultShared]);
 
     if (!isOpen) return null;
+
+    const isExternalIcon = !ICON_OPTIONS.slice(0, 11).some(opt => opt.icon === newHabit.icon);
 
     const handleAdd = async () => {
         if (!newHabit.name.trim()) return;
@@ -74,7 +123,17 @@ const AddHabitModal = ({ isOpen, onClose, onAdd, isSystemMode = false, defaultSh
     };
 
     return createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-8 backdrop-blur-md select-none">
+        <>
+            <style>{`
+                @keyframes dotWave {
+                    0%, 25%, 100% { transform: translateY(0); }
+                    12.5% { transform: translateY(-5px); }
+                }
+                .animate-dot-wave {
+                    animation: dotWave 4s ease-in-out infinite;
+                }
+            `}</style>
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-8 backdrop-blur-md select-none">
             <div className="absolute inset-0 bg-black/60 dark:bg-black/80" onClick={() => { setSelectedSystemHabit(null); onClose(); }} />
             <div className="relative w-full max-w-md bg-white dark:bg-[#0a0a0a] border-2 border-black/30 dark:border-white/20 p-8 shadow-[0_0_100px_rgba(0,0,0,0.15)] dark:shadow-[0_0_100px_rgba(255,255,255,0.1)]">
                 
@@ -84,13 +143,13 @@ const AddHabitModal = ({ isOpen, onClose, onAdd, isSystemMode = false, defaultSh
                         <h3 className="text-xl font-black uppercase tracking-tighter font-mono" style={{ color: 'var(--color-fg)' }}>
                             {isSystemMode 
                                 ? selectedSystemHabit ? 'SYSTEM HABIT DETAILS' : 'SYSTEM PROTOCOLS'
-                                : 'CREATE CUSTOM HABIT'
+                                : editingHabit ? 'EDIT CUSTOM HABIT' : 'CREATE CUSTOM HABIT'
                             }
                         </h3>
                         <span className="text-[8px] font-mono tracking-widest uppercase mt-0.5" style={{ color: 'var(--color-fg)', opacity: 0.4 }}>
                             {isSystemMode 
                                 ? 'PRE-CONFIGURED SYSTEM ACTIONS' 
-                                : 'ARCHIVE A NEW PERSONAL HABIT'
+                                : editingHabit ? 'MODIFY A PERSONAL HABIT PROTOCOL' : 'ARCHIVE A NEW PERSONAL HABIT'
                             }
                         </span>
                     </div>
@@ -188,18 +247,29 @@ const AddHabitModal = ({ isOpen, onClose, onAdd, isSystemMode = false, defaultSh
 
                         <div className="flex flex-col gap-2">
                             <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--color-fg)', opacity: 0.3 }}>SELECT ICON</span>
-                            <div className="grid grid-cols-6 gap-2 bg-black/5 dark:bg-white/5 p-4 border border-black/10 dark:border-white/10 rounded-sm">
-                                {ICON_OPTIONS.map(opt => (
+                            <div className="grid grid-cols-6 gap-2 justify-items-center bg-black/5 dark:bg-white/5 p-4 border border-black/10 dark:border-white/10 rounded-sm">
+                                {ICON_OPTIONS.slice(0, 11).map(opt => (
                                     <button 
                                         key={opt.icon}
                                         type="button"
                                         onClick={() => setNewHabit({...newHabit, icon: opt.icon})}
                                         className={`size-10 flex items-center justify-center rounded-sm transition-all ${newHabit.icon === opt.icon ? 'bg-black text-white dark:bg-white dark:text-black font-bold' : 'hover:bg-black/5 dark:hover:bg-white/10'}`}
                                         style={newHabit.icon === opt.icon ? {} : { color: 'var(--color-fg)', opacity: 0.4 }}
+                                        title={opt.label}
                                     >
                                         <span className="material-symbols-outlined text-lg">{opt.icon}</span>
                                     </button>
                                 ))}
+                                <button 
+                                    type="button"
+                                    onClick={() => setIsAllIconsOpen(true)}
+                                    className={`size-10 flex items-center justify-center gap-1 rounded-full transition-all ${isExternalIcon ? 'bg-primary scale-105' : 'bg-white hover:bg-white/90 shadow-sm'}`}
+                                    title="More Icons"
+                                >
+                                    <span className={`w-1.5 h-1.5 rounded-full animate-dot-wave ${isExternalIcon ? 'bg-white' : 'bg-black'}`} style={{ animationDelay: '0s' }} />
+                                    <span className={`w-1.5 h-1.5 rounded-full animate-dot-wave ${isExternalIcon ? 'bg-white' : 'bg-black'}`} style={{ animationDelay: '0.15s' }} />
+                                    <span className={`w-1.5 h-1.5 rounded-full animate-dot-wave ${isExternalIcon ? 'bg-white' : 'bg-black'}`} style={{ animationDelay: '0.3s' }} />
+                                </button>
                             </div>
                         </div>
 
@@ -229,12 +299,54 @@ const AddHabitModal = ({ isOpen, onClose, onAdd, isSystemMode = false, defaultSh
                             onClick={handleAdd} 
                             className="mt-4 w-full py-6 bg-black text-white dark:bg-white dark:text-black font-black uppercase tracking-[0.5em] text-[9.5px] hover:opacity-90 active:scale-95 transition-all rounded-sm shrink-0 shadow-lg shadow-black/5"
                         >
-                            ADD CUSTOM HABIT
+                            {editingHabit ? 'SAVE CHANGES' : 'ADD CUSTOM HABIT'}
                         </button>
                     </div>
                 )}
             </div>
-        </div>,
+        </div>
+        {isAllIconsOpen && (
+            <div className="fixed inset-0 z-[210] flex items-center justify-center p-8 backdrop-blur-md select-none animate-in fade-in duration-200">
+                <div className="absolute inset-0 bg-black/60 dark:bg-black/80" onClick={() => setIsAllIconsOpen(false)} />
+                <div className="relative w-full max-w-md bg-white dark:bg-[#0a0a0a] border-2 border-black/30 dark:border-white/20 p-8 shadow-[0_0_100px_rgba(0,0,0,0.15)] dark:shadow-[0_0_100px_rgba(255,255,255,0.1)]">
+                    
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-6">
+                        <div className="flex flex-col gap-1 text-left">
+                            <h3 className="text-xl font-black uppercase tracking-tighter font-mono" style={{ color: 'var(--color-fg)' }}>
+                                SELECT ICON
+                            </h3>
+                            <span className="text-[8px] font-mono tracking-widest uppercase mt-0.5" style={{ color: 'var(--color-fg)', opacity: 0.4 }}>
+                                ALL PROTOCOL ICONS
+                            </span>
+                        </div>
+                        <button onClick={() => setIsAllIconsOpen(false)} className="hover:opacity-100 transition-opacity" style={{ color: 'var(--color-fg)', opacity: 0.4 }}>
+                            <span className="material-symbols-outlined text-lg">close</span>
+                        </button>
+                    </div>
+
+                    {/* Grid */}
+                    <div className="grid grid-cols-6 gap-2 justify-items-center bg-black/5 dark:bg-white/5 p-4 border border-black/10 dark:border-white/10 rounded-sm max-h-[300px] overflow-y-auto custom-scrollbar">
+                        {ICON_OPTIONS.map(opt => (
+                            <button 
+                                key={opt.icon}
+                                type="button"
+                                onClick={() => {
+                                    setNewHabit({...newHabit, icon: opt.icon});
+                                    setIsAllIconsOpen(false);
+                                }}
+                                className={`size-10 flex items-center justify-center rounded-sm transition-all ${newHabit.icon === opt.icon ? 'bg-black text-white dark:bg-white dark:text-black font-bold' : 'hover:bg-black/5 dark:hover:bg-white/10'}`}
+                                style={newHabit.icon === opt.icon ? {} : { color: 'var(--color-fg)', opacity: 0.4 }}
+                                title={opt.label}
+                            >
+                                <span className="material-symbols-outlined text-lg">{opt.icon}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )}
+        </>,
         document.body
     );
 };

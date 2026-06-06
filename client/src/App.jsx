@@ -24,6 +24,7 @@ import TacticalPlanner from './pages/TacticalPlanner';
 import GoalSetterPage from './pages/GoalSetterPage';
 import EventCalendar from './pages/EventCalendar';
 import FocusTimer from './pages/FocusTimer';
+import LinkPage from './pages/Link';
 import useAuthStore from './store/useAuthStore';
 import { useEffect } from 'react';
 
@@ -79,6 +80,7 @@ function AnimatedRoutes() {
           <Route path="planner" element={<TacticalPlanner />} />
           <Route path="goals" element={<GoalSetterPage />} />
           <Route path="calendar" element={<EventCalendar />} />
+          <Route path="link" element={<LinkPage />} />
           
           <Route path="financial" element={<Financial />} />
           <Route path="physical" element={<Physical />} />

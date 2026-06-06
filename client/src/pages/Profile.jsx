@@ -192,7 +192,7 @@ function Profile() {
             className="w-full max-w-5xl mx-auto pb-12"
         >
             {/* Discord-style Header Card */}
-        <div className="bg-white dark:bg-[#121212] rounded-[24px] shadow-none border border-slate-200 dark:border-white/10 overflow-hidden mb-8 relative">
+            <div className="bg-white dark:bg-[#121212] rounded-[24px] shadow-none border border-slate-200 dark:border-white/10 overflow-hidden mb-8 relative">
 
                 {/* Banner Section */}
                 <div className="h-40 sm:h-56 w-full bg-slate-200 dark:bg-[#1e1f22] relative group">
@@ -335,7 +335,7 @@ function Profile() {
                                     )}
                                 </div>
                             )}
-                            
+
 
                         </div>
 
@@ -552,30 +552,31 @@ function Profile() {
                             const isCompleted = item.purchased || item.completed;
                             const itemId = item._id || item.id;
                             return (
-                            <div key={itemId} onClick={() => toggleWishlist(itemId)} className={`relative flex flex-col rounded-2xl border p-3 cursor-pointer group transition-all ${isCompleted ? 'bg-slate-50 dark:bg-[#121212] border-slate-200 dark:border-white/10 opacity-60' : 'bg-white dark:bg-[#1e1f22] border-slate-100 dark:border-white/10/80 hover:border-primary/50 shadow-none'} overflow-hidden`}>
-                                
-                                {/* Optional Image or Placeholder */}
-                                {item.imageUrl ? (
-                                    <div className="w-full h-24 mb-3 rounded-xl bg-slate-100 dark:bg-[#000000] overflow-hidden shrink-0">
-                                        <img src={item.imageUrl} alt={item.title} className={`w-full h-full object-cover transition-transform duration-500 ${isCompleted ? 'grayscale' : 'group-hover:scale-110'}`} />
+                                <div key={itemId} onClick={() => toggleWishlist(itemId)} className={`relative flex flex-col rounded-2xl border p-3 cursor-pointer group transition-all ${isCompleted ? 'bg-slate-50 dark:bg-[#121212] border-slate-200 dark:border-white/10 opacity-60' : 'bg-white dark:bg-[#1e1f22] border-slate-100 dark:border-white/10/80 hover:border-primary/50 shadow-none'} overflow-hidden`}>
+
+                                    {/* Optional Image or Placeholder */}
+                                    {item.imageUrl ? (
+                                        <div className="w-full h-24 mb-3 rounded-xl bg-slate-100 dark:bg-[#000000] overflow-hidden shrink-0">
+                                            <img src={item.imageUrl} alt={item.title} className={`w-full h-full object-cover transition-transform duration-500 ${isCompleted ? 'grayscale' : 'group-hover:scale-110'}`} />
+                                        </div>
+                                    ) : (
+                                        <div className={`w-full h-24 mb-3 rounded-xl flex items-center justify-center shrink-0 bg-slate-50 dark:bg-[#000000]/50 border border-slate-100 dark:border-white/10/30 ${isCompleted ? 'grayscale' : ''}`}>
+                                            <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">image</span>
+                                        </div>
+                                    )}
+
+                                    <h4 className={`text-sm tracking-tight font-bold truncate ${isCompleted ? 'line-through text-slate-400' : 'text-slate-800 dark:text-white'}`}>{item.title || item.text}</h4>
+                                    <div className="flex justify-end items-center mt-2 pt-2 border-t border-slate-50 dark:border-white/10/50">
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); toggleWishlist(itemId); }}
+                                            className={`size-6 rounded-full border flex flex-col items-center justify-center shrink-0 transition-colors ${isCompleted ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-slate-600 text-transparent group-hover:border-emerald-500 group-hover:text-emerald-500'}`}
+                                        >
+                                            <span className="material-symbols-outlined text-[14px]">check</span>
+                                        </button>
                                     </div>
-                                ) : (
-                                    <div className={`w-full h-24 mb-3 rounded-xl flex items-center justify-center shrink-0 bg-slate-50 dark:bg-[#000000]/50 border border-slate-100 dark:border-white/10/30 ${isCompleted ? 'grayscale' : ''}`}>
-                                        <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">image</span>
-                                    </div>
-                                )}
-                                
-                                <h4 className={`text-sm tracking-tight font-bold truncate ${isCompleted ? 'line-through text-slate-400' : 'text-slate-800 dark:text-white'}`}>{item.title || item.text}</h4>
-                                <div className="flex justify-end items-center mt-2 pt-2 border-t border-slate-50 dark:border-white/10/50">
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); toggleWishlist(itemId); }}
-                                        className={`size-6 rounded-full border flex flex-col items-center justify-center shrink-0 transition-colors ${isCompleted ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-slate-600 text-transparent group-hover:border-emerald-500 group-hover:text-emerald-500'}`}
-                                    >
-                                        <span className="material-symbols-outlined text-[14px]">check</span>
-                                    </button>
                                 </div>
-                            </div>
-                        )}) : (
+                            )
+                        }) : (
                             <div className="col-span-2 flex flex-col items-center justify-center py-6 text-center">
                                 <span className="material-symbols-outlined text-3xl text-slate-300 dark:text-slate-600 mb-2">shopping_bag</span>
                                 <p className="text-xs font-medium text-slate-500">Nothing on your wishlist yet.</p>

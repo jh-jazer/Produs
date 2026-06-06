@@ -366,7 +366,9 @@ export const syncTerritoryOwnership = async (user) => {
 
 import Activity from '../models/Activity.js';
 
-export const awardXP = async (user, stat, amount, streak = 1, activityType = 'system', action = 'Syncing data') => {
+export const awardXP = async (user, rawStat, amount, streak = 1, activityType = 'system', action = 'Syncing data') => {
+    // Force stat to 'none' so that all XP gains are general Guardian EXP and no specific stats are awarded
+    const stat = 'none';
     const today = new Date().toISOString().split('T')[0];
     
     // Initialize/Reset Daily XP if needed
@@ -396,11 +398,9 @@ export const awardXP = async (user, stat, amount, streak = 1, activityType = 'sy
 
     if (finalXP <= 0) return { xpAwarded: 0 };
 
-    // Update User Stats and EXP
-    user.rpg.stats[stat] = (user.rpg.stats[stat] || 0) + finalXP;
+    // Update User Stats and EXP (skip specific stats, only increment general Guardian EXP)
     user.guardianExp = (user.guardianExp || 0) + finalXP;
     user.rpg.dailyXP.total = (user.rpg.dailyXP.total || 0) + finalXP;
-    user.rpg.dailyXP.byStat[stat] = (user.rpg.dailyXP.byStat[stat] || 0) + finalXP;
 
     // Recalculate Level and Archetype
     const levelInfo = calculateLevel(user.guardianExp);
@@ -445,7 +445,8 @@ export const awardXP = async (user, stat, amount, streak = 1, activityType = 'sy
             action,
             stat,
             amount: finalXP,
-            perkActivated: multiplier > 1 ? `Streak ${multiplier}x` : null
+            perkActivated: multiplier > 1 ? `Streak ${multiplier}x` : null,
+            metadata: { unit: 'Guardian EXP' }
         });
     } catch (logError) {
         console.error('Failed to log RPG activity:', logError);

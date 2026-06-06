@@ -431,3 +431,13 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 #reader__header_message {
     display: none !important;
 }
+
+/* Water wave animation */
+@keyframes waveMove {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.animate-wave {
+    animation: waveMove 3s linear infinite;
+}

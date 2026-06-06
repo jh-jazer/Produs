@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useOutletContext, useLocation } from 'react-router-dom';
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useCallback } from 'react';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 import useMobile from '../hooks/useMobile';
@@ -375,48 +375,10 @@ export default function Home() {
       ? 1 
       : (activePriorityIndex % priorityCards.length);
 
-  const handleNextCard = (e) => {
-    e.stopPropagation();
-    const nextIndex = (desktopIndex + 1) % priorityCards.length;
-    setActivePriorityIndex(nextIndex);
-    // Reset auto-slide timer on manual interaction
-    if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
-    autoSlideTimerRef.current = setInterval(() => {
-      setActivePriorityIndex(prev => {
-        const cur = (prev === null ? 1 : prev) % priorityCards.length;
-        return (cur + 1) % priorityCards.length;
-      });
-    }, 4000);
-  };
-
-  const handlePrevCard = (e) => {
-    e.stopPropagation();
-    const prevIndex = (desktopIndex - 1 + priorityCards.length) % priorityCards.length;
-    setActivePriorityIndex(prevIndex);
-    // Reset auto-slide timer on manual interaction
-    if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
-    autoSlideTimerRef.current = setInterval(() => {
-      setActivePriorityIndex(prev => {
-        const cur = (prev === null ? 1 : prev) % priorityCards.length;
-        return (cur + 1) % priorityCards.length;
-      });
-    }, 4000);
-  };
-
-  // Helper: scroll mobile carousel to a given card index (within the tripled set)
-  const scrollCarouselToIndex = (idx) => {
-    const el = carouselRef.current;
-    if (!el) return;
-    const flexContainer = el.children[0];
-    if (!flexContainer) return;
-    const targetCard = flexContainer.children[idx];
-    if (!targetCard) return;
-    const cardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
-    el.scrollTo({ left: cardCenter - el.clientWidth / 2, behavior: 'smooth' });
-  };
-
-  // Auto-slide priority cards every 4 seconds (mobile: scroll carousel; desktop: update index)
-  useEffect(() => {
+  const resetAutoSlideTimer = useCallback(() => {
+    if (autoSlideTimerRef.current) {
+      clearInterval(autoSlideTimerRef.current);
+    }
     if (priorityCards.length === 0) return;
     const n = priorityCards.length;
     autoSlideTimerRef.current = setInterval(() => {
@@ -438,9 +400,42 @@ export default function Home() {
         }
         return inMiddle;
       });
-    }, 4000);
-    return () => clearInterval(autoSlideTimerRef.current);
+    }, 5000);
   }, [priorityCards.length]);
+
+  const handleNextCard = (e) => {
+    e.stopPropagation();
+    const nextIndex = (desktopIndex + 1) % priorityCards.length;
+    setActivePriorityIndex(nextIndex);
+    resetAutoSlideTimer();
+  };
+
+  const handlePrevCard = (e) => {
+    e.stopPropagation();
+    const prevIndex = (desktopIndex - 1 + priorityCards.length) % priorityCards.length;
+    setActivePriorityIndex(prevIndex);
+    resetAutoSlideTimer();
+  };
+
+  // Helper: scroll mobile carousel to a given card index (within the tripled set)
+  const scrollCarouselToIndex = (idx) => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const flexContainer = el.children[0];
+    if (!flexContainer) return;
+    const targetCard = flexContainer.children[idx];
+    if (!targetCard) return;
+    const cardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
+    el.scrollTo({ left: cardCenter - el.clientWidth / 2, behavior: 'smooth' });
+  };
+
+  // Auto-slide priority cards every 5 seconds when not interacted with
+  useEffect(() => {
+    resetAutoSlideTimer();
+    return () => {
+      if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
+    };
+  }, [priorityCards.length, resetAutoSlideTimer]);
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
@@ -950,7 +945,16 @@ export default function Home() {
                            <div 
                             ref={carouselRef}
                             className="w-full overflow-x-auto pt-3 pb-4 pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] cursor-default"
+                            onTouchStart={() => {
+                              if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
+                            }}
+                            onTouchEnd={resetAutoSlideTimer}
+                            onMouseEnter={() => {
+                              if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
+                            }}
+                            onMouseLeave={resetAutoSlideTimer}
                             onScroll={(e) => {
+                              resetAutoSlideTimer();
                               const el = e.currentTarget;
                               const setWidth = el.scrollWidth / 3;
                               
@@ -985,22 +989,12 @@ export default function Home() {
                                     key={i} 
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      // Reset auto-slide timer on manual tap
-                                      if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
                                       const n = priorityCards.length;
                                       // Advance to the next card in the middle set for infinite looping
                                       const nextIdx = n + ((i - n + 1 + n) % n);
                                       setActivePriorityIndex(nextIdx);
                                       scrollCarouselToIndex(nextIdx);
-                                      // Restart auto-slide
-                                      autoSlideTimerRef.current = setInterval(() => {
-                                        setActivePriorityIndex(prev => {
-                                          const cur = prev === null ? n : prev;
-                                          const inMiddle = n + ((cur - n + 1 + n) % n);
-                                          scrollCarouselToIndex(inMiddle);
-                                          return inMiddle;
-                                        });
-                                      }, 4000);
+                                      resetAutoSlideTimer();
                                     }}
                                     className="snap-center w-[85vw] md:w-[94vw] h-64 md:h-72 rounded-3xl border-2 border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] shadow-md backdrop-blur-md p-6 md:p-8 flex flex-col justify-between shrink-0 transition-all duration-500 cursor-pointer group origin-center scale-105 opacity-100"
                                   >
@@ -1042,7 +1036,13 @@ export default function Home() {
                         </div>
                       ) : (
                         /* Desktop Single Card slideshow Layout */
-                        <div className="flex items-center gap-6 mt-6 pointer-events-auto select-none w-full max-w-[1180px]">
+                        <div 
+                          onMouseEnter={() => {
+                            if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
+                          }}
+                          onMouseLeave={resetAutoSlideTimer}
+                          className="flex items-center gap-6 mt-6 pointer-events-auto select-none w-full max-w-[1180px]"
+                        >
                           {/* Active Card */}
                           <div 
                             onClick={handleNextCard}

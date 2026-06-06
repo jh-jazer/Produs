@@ -8,7 +8,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
   const isMobile = useMobile();
   const { user } = useAuthStore();
   const isLinked = !!user?.partner;
-  
+
   const [showToast, setShowToast] = useState(false);
   const [shake, setShake] = useState(false);
 
@@ -20,7 +20,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
       setShake(true);
       setShowToast(true);
       setTimeout(() => setShake(false), 500);
-      
+
       // Auto-hide toast after 3 seconds
       const timer = setTimeout(() => setShowToast(false), 3000);
       return () => clearTimeout(timer);
@@ -101,9 +101,9 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
           whileHover={{ x: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={handlePartnerClick}
-          animate={{ 
+          animate={{
             x: shake ? [-6, 6, -6, 6, -3, 3, 0] : 0,
-            width: isMobile ? (isShrunk ? '10vw' : '12vw') : (isShrunk ? '3.5vw' : '4.2vw') 
+            width: isMobile ? (isShrunk ? '10vw' : '12vw') : (isShrunk ? '3.5vw' : '4.2vw')
           }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className={`md:w-[4.2vw] ${baseStyles} ${isPartnerActive ? activeStyles : inactiveStyles} ${!isLinked ? 'opacity-85' : ''}`}

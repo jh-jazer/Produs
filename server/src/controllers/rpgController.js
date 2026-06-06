@@ -509,7 +509,8 @@ export const claimDailyReward = async (req, res) => {
             type: 'system',
             action: `Claimed Day ${currentWeeklyDay} Daily Bounty reward`,
             stat: 'none',
-            amount: points
+            amount: points,
+            metadata: { unit: 'ProdPoints' }
         });
 
         user.markModified('rpg');
@@ -600,7 +601,8 @@ export const claimStreakReward = async (req, res) => {
             type: 'system',
             action: actionDescription,
             stat: 'none',
-            amount: points
+            amount: points,
+            metadata: { unit: 'ProdPoints' }
         });
 
         user.markModified('rpg');

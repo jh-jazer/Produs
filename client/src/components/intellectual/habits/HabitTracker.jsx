@@ -77,35 +77,47 @@ function HabitTracker({
             if (sysA && sysB) return CORE_ORDER.indexOf(sysA) - CORE_ORDER.indexOf(sysB);
             return 0;
         };
-// ... rest of the code is unchanged. Let's make sure the target matches exactly.
 
-        if (!isPartnerView) {
+        if (!isLinked) {
             const sorted = [...habits].sort(sortHabits);
             return { teamHabits: sorted, partnerHabitsOnly: [] };
         }
 
         const shared = {};
-        const standalonePartner = [];
+        const personalMy = [];
+        const personalPartner = [];
+
         habits.forEach(h => {
             if (h.isShared && h.sharedGroupId) {
                 if (!shared[h.sharedGroupId]) shared[h.sharedGroupId] = { myPart: null, partnerPart: null };
                 if (h.userId === myUserId) shared[h.sharedGroupId].myPart = h;
                 else shared[h.sharedGroupId].partnerPart = h;
-            } else if (h.userId !== myUserId) {
-                standalonePartner.push(h);
+            } else {
+                if (h.userId === myUserId) {
+                    personalMy.push(h);
+                } else {
+                    personalPartner.push(h);
+                }
             }
         });
 
-        const team = Object.keys(shared).map(gid => ({
+        const groupedShared = Object.keys(shared).map(gid => ({
             ...shared[gid].myPart || shared[gid].partnerPart,
             _id: gid,
             myPart: shared[gid].myPart,
             partnerPart: shared[gid].partnerPart,
             isGrouped: true
-        })).sort(sortHabits);
+        }));
 
-        return { teamHabits: team, partnerHabitsOnly: standalonePartner.sort(sortHabits) };
-    }, [habits, isPartnerView, myUserId]);
+        if (!isPartnerView) {
+            const team = [...personalMy, ...groupedShared].sort(sortHabits);
+            return { teamHabits: team, partnerHabitsOnly: [] };
+        } else {
+            const team = groupedShared.sort(sortHabits);
+            const partnerOnly = personalPartner.sort(sortHabits);
+            return { teamHabits: team, partnerHabitsOnly: partnerOnly };
+        }
+    }, [habits, isPartnerView, myUserId, isLinked]);
 
     useEffect(() => {
         setLocalTeamHabits(teamHabits);
@@ -151,6 +163,12 @@ function HabitTracker({
         await addHabit(habitData);
     };
 
+    const handleEditHabit = async (habitData) => {
+        if (!editingHabit) return;
+        await updateHabit(editingHabit._id, habitData);
+        setEditingHabit(null);
+    };
+
     const renderHabitRow = (habit) => {
         const isEditing = editingHabit?._id === (habit.isGrouped ? habit.myPart?._id : habit._id);
         const isSystemHabit = !!(habit.myPart ? habit.myPart.systemId : habit.systemId);
@@ -162,14 +180,27 @@ function HabitTracker({
                     ${editMode ? 'pl-2 cursor-grab active:cursor-grabbing' : 'px-4'}
                     hover:bg-black/5 dark:hover:bg-white/[0.02]`}
             >
+                {editMode && (
+                    <button 
+                        onClick={() => setConfirmDelete(habit.isGrouped ? habit.myPart._id : habit._id)} 
+                        className="text-red-500 hover:text-red-600 transition-colors shrink-0 flex items-center justify-center size-6 mr-1"
+                        title="Delete Habit"
+                    >
+                        <span className="material-symbols-outlined text-base font-bold">close</span>
+                    </button>
+                )}
                 {editMode && !isPartnerView && (
                     <span className="material-symbols-outlined text-black/20 dark:text-white/20 hover:text-black dark:hover:text-white transition-colors pr-1">drag_indicator</span>
                 )}
 
                 <div 
-                    className="flex items-center gap-3 flex-1 min-w-0"
+                    className={`flex items-center gap-3 flex-1 min-w-0 ${editMode && !isSystemHabit ? 'cursor-pointer hover:opacity-80' : ''}`}
                     onClick={() => {
-                        if (isSystemHabit && !editMode) {
+                        if (editMode) {
+                            if (!isSystemHabit && (!habit.userId || habit.userId === myUserId || !!habit.myPart)) {
+                                setEditingHabit(habit.isGrouped ? habit.myPart : habit);
+                            }
+                        } else if (isSystemHabit) {
                             const sysId = habit.myPart ? habit.myPart.systemId : habit.systemId;
                             const path = CORE_REDIRECTS[sysId];
                             if (sysId === 'focus') {
@@ -197,38 +228,59 @@ function HabitTracker({
                 <div className="flex-1 flex justify-end md:justify-between items-center max-w-[300px]">
                     {daysToDisplay.map((date, idx) => {
                         const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-                        const myChecked = habit.myPart ? checks[habit.myPart._id]?.completed[dateStr] : checks[habit._id]?.completed[dateStr];
+                        
+                        const isSharedHabit = habit.isGrouped || habit.isShared || (habit.myPart && habit.myPart.isShared);
+                        
+                        const myChecked = habit.myPart 
+                            ? !!checks[habit.myPart._id]?.completed[dateStr] 
+                            : !!checks[habit._id]?.completed[dateStr];
+                            
+                        const partnerChecked = habit.isGrouped && habit.partnerPart 
+                            ? !!checks[habit.partnerPart._id]?.completed[dateStr] 
+                            : false;
+                        
+                        const isFullyDone = isSharedHabit ? (myChecked && partnerChecked) : myChecked;
+                        const isPartiallyDone = isSharedHabit && !isFullyDone && (myChecked || partnerChecked);
+                        
                         const isToday = date.toDateString() === today.toDateString();
                         const isFuture = date > today;
 
                         return (
                             <div key={idx} className="relative flex items-center justify-center size-10">
                                 <button
-                                    onClick={() => handleToggle(habit._id, date)}
+                                    onClick={() => handleToggle(habit.isGrouped ? habit.myPart?._id : habit._id, date)}
                                     disabled={editMode || isFuture || isReadOnly || isSystemHabit}
-                                    className={`relative size-8 transition-all rounded-sm flex items-center justify-center border
-                                        ${myChecked 
+                                    className={`relative size-8 transition-all rounded-sm flex items-center justify-center border overflow-hidden
+                                        ${isFullyDone 
                                             ? 'bg-black border-black text-white dark:bg-white dark:border-white dark:text-black shadow-md' 
                                             : isToday ? 'border-black dark:border-white hover:bg-black/10 dark:hover:bg-white/10' : 'border-black/55 dark:border-white/60 hover:border-black dark:hover:border-white'}
                                         ${isFuture ? 'opacity-10 cursor-not-allowed' : ''}
                                         ${isSystemHabit ? 'cursor-default' : 'active:scale-90'}
                                     `}
                                 >
-                                    {myChecked && <span className="material-symbols-outlined text-[14px] font-black">check</span>}
-                                    {isToday && !myChecked && <div className="size-1.5 bg-black/20 dark:bg-white/20 rounded-full animate-ping" />}
+                                    {isFullyDone && <span className="material-symbols-outlined text-[14px] font-black z-10">check</span>}
+                                    
+                                    {!isFullyDone && isPartiallyDone && (
+                                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                                            {/* Water body */}
+                                            <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-[#0066FF]" />
+                                            {/* Wave line */}
+                                            <svg className="absolute bottom-[40%] left-0 w-[200%] h-[25%] text-[#0066FF] fill-current animate-wave" viewBox="0 0 24 10" preserveAspectRatio="none">
+                                                <path d="M0 5 C 3 2, 3 8, 6 5 C 9 2, 9 8, 12 5 C 15 2, 15 8, 18 5 C 21 2, 21 8, 24 5 L 24 10 L 0 10 Z" />
+                                            </svg>
+                                        </div>
+                                    )}
+
+                                    {isToday && !isFullyDone && !isPartiallyDone && (
+                                        <div className="size-1.5 bg-black/20 dark:bg-white/20 rounded-full animate-ping" />
+                                    )}
                                 </button>
                             </div>
                         );
                     })}
                 </div>
 
-                {editMode && (
-                    <div className="w-16 shrink-0 flex items-center justify-end gap-2">
-                        <button onClick={() => setConfirmDelete(habit.isGrouped ? habit.myPart._id : habit._id)} className="text-black/20 dark:text-white/20 hover:text-black dark:hover:text-white transition-colors">
-                            <span className="material-symbols-outlined text-sm">delete</span>
-                        </button>
-                    </div>
-                )}
+
             </div>
         );
     };
@@ -373,11 +425,12 @@ function HabitTracker({
             </div>
 
 
-            {/* Add Habit Modal - Tactical */}
+            {/* Add/Edit Habit Modal - Tactical */}
             <AddHabitModal 
-                isOpen={addModalOpen} 
-                onClose={() => setAddModalOpen(false)} 
-                onAdd={handleAddHabit} 
+                isOpen={addModalOpen || !!editingHabit} 
+                onClose={() => { setAddModalOpen(false); setEditingHabit(null); }} 
+                onAdd={editingHabit ? handleEditHabit : handleAddHabit} 
+                editingHabit={editingHabit}
                 isSystemMode={habitFilter === 'system'}
                 defaultShared={habitFilter === 'link'}
             />

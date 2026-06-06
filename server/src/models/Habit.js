@@ -54,14 +54,23 @@ const habitSchema = new mongoose.Schema({
 });
 
 // Logic for streak calculation
-habitSchema.methods.calculateStreak = function () {
+habitSchema.methods.calculateStreak = function (partnerChecks) {
     if (!this.checks || this.checks.length === 0) return 0;
 
     // Filter only completed checks and sort by date descending
-    const completedDates = this.checks
-        .filter(c => c.completed)
-        .map(c => c.date)
-        .sort((a, b) => b.localeCompare(a));
+    let completedDates;
+    if (this.isShared && this.sharedGroupId && partnerChecks) {
+        const myCompletedDates = new Set(this.checks.filter(c => c.completed).map(c => c.date));
+        const partnerCompleted = new Set(partnerChecks.filter(c => c.completed).map(c => c.date));
+        completedDates = Array.from(myCompletedDates)
+            .filter(date => partnerCompleted.has(date))
+            .sort((a, b) => b.localeCompare(a));
+    } else {
+        completedDates = this.checks
+            .filter(c => c.completed)
+            .map(c => c.date)
+            .sort((a, b) => b.localeCompare(a));
+    }
 
     if (completedDates.length === 0) return 0;
 
@@ -95,7 +104,7 @@ habitSchema.methods.calculateStreak = function () {
 };
 
 // Active Record like methods
-habitSchema.methods.toggleCheck = function (dateStr) {
+habitSchema.methods.toggleCheck = async function (dateStr) {
     const checkIndex = this.checks.findIndex(c => c.date === dateStr);
     if (checkIndex > -1) {
         this.checks[checkIndex].completed = !this.checks[checkIndex].completed;
@@ -104,9 +113,34 @@ habitSchema.methods.toggleCheck = function (dateStr) {
     }
 
     // Recalculate streak after toggling
-    this.streak = this.calculateStreak();
+    let partnerChecks = null;
+    if (this.isShared && this.sharedGroupId) {
+        const partnerHabit = await this.model('Habit').findOne({
+            sharedGroupId: this.sharedGroupId,
+            _id: { $ne: this._id }
+        });
+        if (partnerHabit) {
+            partnerChecks = partnerHabit.checks;
+        }
+    }
 
-    return this.save();
+    this.streak = this.calculateStreak(partnerChecks);
+
+    await this.save();
+
+    // Also update the partner's streak!
+    if (this.isShared && this.sharedGroupId) {
+        const partnerHabit = await this.model('Habit').findOne({
+            sharedGroupId: this.sharedGroupId,
+            _id: { $ne: this._id }
+        });
+        if (partnerHabit) {
+            partnerHabit.streak = partnerHabit.calculateStreak(this.checks);
+            await partnerHabit.save();
+        }
+    }
+
+    return this;
 };
 
 const Habit = mongoose.model('Habit', habitSchema);
