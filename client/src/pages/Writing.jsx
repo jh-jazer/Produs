@@ -564,8 +564,8 @@ const Writing = () => {
     if (isLoading && entries.length === 0) return <WorkspaceSkeleton />;
 
     return (
-        <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-12 md:pt-20 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
-            <div className="w-full mt-4 md:mt-6 flex flex-col gap-6">
+        <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-12 md:pt-2 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full mt-4 md:mt-2 flex flex-col gap-6">
 
                 {activeTab !== 'hub' && activeTab !== 'journal_entry' && activeTab !== 'note_detail' && activeTab !== 'list_detail' && activeTab !== 'shared_detail' && (
                     <div className="flex items-center gap-4 mb-2 px-4 md:px-0">

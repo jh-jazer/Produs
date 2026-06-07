@@ -72,6 +72,7 @@ export const registerUser = async (req, res) => {
                 timezone: user.timezone,
                 currency: user.currency,
                 settings: user.settings,
+                partnerNickname: user.partnerNickname,
                 // Guardian (normal-mode user progression)
                 guardianLevel: user.guardianLevel || 0,
                 guardianExp: user.guardianExp || 0,
@@ -149,6 +150,7 @@ export const loginUser = async (req, res) => {
                 timezone: user.timezone,
                 currency: user.currency,
                 settings: user.settings,
+                partnerNickname: user.partnerNickname,
                 // Guardian
                 guardianLevel: user.guardianLevel || 0,
                 guardianExp: user.guardianExp || 0,
@@ -275,6 +277,7 @@ export const getMe = async (req, res) => {
                 currency: user.currency,
                 settings: user.settings,
                 partner: user.partner,
+                partnerNickname: user.partnerNickname,
                 outgoingPartnerRequest: user.outgoingPartnerRequest,
                 incomingPartnerRequest: user.incomingPartnerRequest,
                 // Guardian
@@ -713,6 +716,7 @@ export const completeOnboarding = async (req, res) => {
                 timezone: user.timezone,
                 currency: user.currency,
                 settings: user.settings,
+                partnerNickname: user.partnerNickname,
                 // Guardian
                 guardianLevel: user.guardianLevel || 0,
                 guardianExp: user.guardianExp || 0,
@@ -932,7 +936,7 @@ export const updateSettings = async (req, res) => {
         const user = await User.findById(req.user.id);
         if (user) {
             // Update top-level fields if provided
-            const topLevelFields = ['currency', 'username', 'bio', 'banner', 'avatar', 'name'];
+            const topLevelFields = ['currency', 'username', 'bio', 'banner', 'avatar', 'name', 'partnerNickname'];
             topLevelFields.forEach(field => {
                 if (req.body[field] !== undefined) {
                     user[field] = req.body[field];

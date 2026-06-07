@@ -286,6 +286,72 @@ class SoundManager {
                     osc.stop(now + 0.4);
                     break;
                 }
+                case 'pageTurn': {
+                    // Synthesize a soft book page turn/rustle sound
+                    const bufferSize = ctx.sampleRate * 0.45; // ~450ms duration
+                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    
+                    // Fill with pink-ish noise (filtered white noise) to make it softer
+                    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        // Pink noise filter approximation
+                        b0 = 0.99886 * b0 + white * 0.0555179;
+                        b1 = 0.99332 * b1 + white * 0.0750759;
+                        b2 = 0.96900 * b2 + white * 0.1538520;
+                        b3 = 0.86650 * b3 + white * 0.3104856;
+                        b4 = 0.55000 * b4 + white * 0.5329522;
+                        b5 = -0.7616 * b5 - white * 0.0168980;
+                        data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                        data[i] *= 0.11; // scale down
+                        b6 = white * 0.115926;
+                    }
+                    
+                    const noiseSource = ctx.createBufferSource();
+                    noiseSource.buffer = buffer;
+                    
+                    // Bandpass/Lowpass filter sweep to simulate the friction of paper sliding
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = 'bandpass';
+                    // Start around 400Hz, peak around 900Hz, then fall to 200Hz
+                    filter.frequency.setValueAtTime(400, now);
+                    filter.frequency.exponentialRampToValueAtTime(900, now + 0.15);
+                    filter.frequency.exponentialRampToValueAtTime(200, now + 0.4);
+                    filter.Q.setValueAtTime(1.0, now);
+                    
+                    // Gain envelope for the swoosh
+                    const noiseGain = ctx.createGain();
+                    noiseGain.gain.setValueAtTime(0.001, now);
+                    noiseGain.gain.linearRampToValueAtTime(0.22, now + 0.15); // soft swell
+                    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45); // decay
+                    
+                    // Add a very subtle low frequency helper tone to give it the "flap" weight
+                    const lowOsc = ctx.createOscillator();
+                    lowOsc.type = 'triangle';
+                    lowOsc.frequency.setValueAtTime(80, now);
+                    lowOsc.frequency.linearRampToValueAtTime(50, now + 0.3);
+                    
+                    const lowGain = ctx.createGain();
+                    lowGain.gain.setValueAtTime(0.001, now);
+                    lowGain.gain.linearRampToValueAtTime(0.06, now + 0.1);
+                    lowGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                    
+                    // Connections
+                    noiseSource.connect(filter);
+                    filter.connect(noiseGain);
+                    noiseGain.connect(masterGain);
+                    
+                    lowOsc.connect(lowGain);
+                    lowGain.connect(masterGain);
+                    
+                    // Play
+                    noiseSource.start(now);
+                    noiseSource.stop(now + 0.45);
+                    lowOsc.start(now);
+                    lowOsc.stop(now + 0.35);
+                    break;
+                }
                 default:
                     break;
             }

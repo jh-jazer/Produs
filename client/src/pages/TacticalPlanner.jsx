@@ -35,8 +35,8 @@ const TacticalPlanner = () => {
     const { isLinkMode } = useContext(DashboardContext);
 
     return (
-        <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-12 md:pt-20 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
-            <div className="w-full mt-4 md:mt-6 flex flex-col gap-6">
+        <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-12 md:pt-2 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full mt-4 md:mt-2 flex flex-col gap-6">
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                     <HUDPanel title="DAILY PLANNER" subtitle="SCHEDULE & NOTES">
                         <DailySchedule viewMode={isLinkMode ? 'partner' : 'me'} isReadOnly={isLinkMode} />

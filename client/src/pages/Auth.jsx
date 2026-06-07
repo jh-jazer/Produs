@@ -16,6 +16,10 @@ import { Cpu, Lock, Mail, User, Shield, Zap, ArrowRight, Fingerprint, Globe, Ter
 
 function Auth() {
     const [isSignUp, setIsSignUp] = useState(false);
+    const [showTermsModal, setShowTermsModal] = useState(false);
+    const [agreedTerms, setAgreedTerms] = useState(false);
+    const [agreedMarketing, setAgreedMarketing] = useState(false);
+    const [termsModalContent, setTermsModalContent] = useState(null); // 'terms' | 'privacy' | null
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -63,6 +67,9 @@ function Auth() {
 
     const handleSignUp = async (e) => {
         e.preventDefault();
+        if (!agreedTerms) {
+            return setError("You must agree to the terms and privacy policy to register.");
+        }
         if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
             return setError("Please fill in all fields.");
         }
@@ -175,6 +182,53 @@ function Auth() {
                                     </div>
                                 </div>
 
+                                {isSignUp && (
+                                    <div className="flex flex-col gap-3.5 my-2 text-left">
+                                        {/* Terms Checkbox */}
+                                        <label className="flex items-start gap-3.5 cursor-pointer group select-none">
+                                            <div className="relative mt-0.5 shrink-0 flex items-center justify-center w-3.5 h-3.5">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={agreedTerms}
+                                                    onChange={(e) => setAgreedTerms(e.target.checked)}
+                                                    className="appearance-none w-3.5 h-3.5 rounded-sm border border-white/20 checked:bg-primary checked:border-primary transition-all cursor-pointer flex items-center justify-center bg-white/[0.03]"
+                                                />
+                                                {agreedTerms && (
+                                                    <span className="material-symbols-outlined absolute inset-0 text-[10px] text-white flex items-center justify-center pointer-events-none font-bold">
+                                                        check
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <span className="text-[9px] font-black text-white/50 group-hover:text-white/80 transition-colors tracking-wider leading-snug font-sans">
+                                                I agree to the Produs{' '}
+                                                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setTermsModalContent('terms'); }} className="underline text-primary hover:text-primary/80 font-black">terms</button>{' '}
+                                                and{' '}
+                                                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setTermsModalContent('privacy'); }} className="underline text-primary hover:text-primary/80 font-black">privacy policy</button>
+                                            </span>
+                                        </label>
+
+                                        {/* Marketing Checkbox */}
+                                        <label className="flex items-start gap-3.5 cursor-pointer group select-none">
+                                            <div className="relative mt-0.5 shrink-0 flex items-center justify-center w-3.5 h-3.5">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={agreedMarketing}
+                                                    onChange={(e) => setAgreedMarketing(e.target.checked)}
+                                                    className="appearance-none w-3.5 h-3.5 rounded-sm border border-white/20 checked:bg-primary checked:border-primary transition-all cursor-pointer flex items-center justify-center bg-white/[0.03]"
+                                                />
+                                                {agreedMarketing && (
+                                                    <span className="material-symbols-outlined absolute inset-0 text-[10px] text-white flex items-center justify-center pointer-events-none font-bold">
+                                                        check
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <span className="text-[9px] font-black text-white/50 group-hover:text-white/80 transition-colors tracking-wider leading-snug font-sans">
+                                                Send me occasional news & updates (optional)
+                                            </span>
+                                        </label>
+                                    </div>
+                                )}
+
                                 {!isSignUp && (
                                     <div className="flex items-center justify-between px-1">
                                         <label className="flex items-center gap-2 cursor-pointer group/check">
@@ -186,7 +240,7 @@ function Auth() {
                                 )}
 
                                 <button 
-                                    disabled={isLoading}
+                                    disabled={isLoading || (isSignUp && !agreedTerms)}
                                     type="submit" 
                                     className="w-full bg-white text-black py-3.5 rounded-xl font-black text-xs uppercase tracking-[0.4em] hover:bg-primary hover:text-white hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(255,255,255,0.05)] disabled:opacity-50 mt-2 flex items-center justify-center gap-3"
                                 >
@@ -197,7 +251,7 @@ function Auth() {
 
                             <div className="mt-6 pt-6 border-t border-white/5 flex flex-col gap-4">
                                 <button 
-                                    onClick={() => window.location.href = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/auth/google` : '/api/auth/google'} 
+                                    onClick={() => setShowTermsModal(true)} 
                                     className="w-full bg-transparent border border-white/10 text-white/60 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3"
                                 >
                                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="size-3" alt="G" />
@@ -267,6 +321,216 @@ function Auth() {
                     </div>
                 </div>
             </motion.div>
+
+            {/* Terms Review Modal */}
+            <AnimatePresence>
+                {showTermsModal && (
+                    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowTermsModal(false)}
+                            className="absolute inset-0 bg-[#000000]/80 backdrop-blur-md"
+                        />
+                        {/* Modal Container */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative z-10 w-full max-w-[400px] bg-[#080808]/95 border border-white/10 rounded-[2.5rem] p-10 shadow-[0_40px_100px_rgba(0,0,0,0.9)] flex flex-col items-center"
+                        >
+                            <h2 className="text-lg font-black text-white pb-8 mb-6 uppercase tracking-[0.2em] font-sans">
+                                Review Terms
+                            </h2>
+
+                            <div className="w-full flex flex-col gap-4 mb-8 text-left">
+                                {/* Terms Checkbox */}
+                                <label className="flex items-start gap-4 cursor-pointer group select-none">
+                                    <div className="relative mt-0.5 shrink-0 flex items-center justify-center w-[18px] h-[18px]">
+                                        <input
+                                            type="checkbox"
+                                            checked={agreedTerms}
+                                            onChange={(e) => setAgreedTerms(e.target.checked)}
+                                            className="appearance-none w-[18px] h-[18px] rounded-md border-2 border-white/10 checked:bg-primary checked:border-primary transition-all cursor-pointer flex items-center justify-center bg-white/[0.03]"
+                                        />
+                                        {agreedTerms && (
+                                            <span className="material-symbols-outlined absolute inset-0 text-[12px] text-white flex items-center justify-center pointer-events-none font-bold">
+                                                check
+                                            </span>
+                                        )}
+                                    </div>
+                                    <span className="text-[10px] font-black text-white/50 group-hover:text-white/80 transition-colors tracking-wider leading-normal font-sans">
+                                        I agree to the Produs{' '}
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); setTermsModalContent('terms'); }} className="underline text-primary hover:text-primary/80 font-black">terms</button>{' '}
+                                        and{' '}
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); setTermsModalContent('privacy'); }} className="underline text-primary hover:text-primary/80 font-black">privacy policy</button>
+                                    </span>
+                                </label>
+
+                                {/* Marketing Checkbox */}
+                                <label className="flex items-start gap-4 cursor-pointer group select-none">
+                                    <div className="relative mt-0.5 shrink-0 flex items-center justify-center w-[18px] h-[18px]">
+                                        <input
+                                            type="checkbox"
+                                            checked={agreedMarketing}
+                                            onChange={(e) => setAgreedMarketing(e.target.checked)}
+                                            className="appearance-none w-[18px] h-[18px] rounded-md border-2 border-white/10 checked:bg-primary checked:border-primary transition-all cursor-pointer flex items-center justify-center bg-white/[0.03]"
+                                        />
+                                        {agreedMarketing && (
+                                            <span className="material-symbols-outlined absolute inset-0 text-[12px] text-white flex items-center justify-center pointer-events-none font-bold">
+                                                check
+                                            </span>
+                                        )}
+                                    </div>
+                                    <span className="text-[10px] font-black text-white/50 group-hover:text-white/80 transition-colors tracking-wider leading-normal font-sans">
+                                        Send me occasional news & updates (optional)
+                                    </span>
+                                </label>
+                            </div>
+
+                            {/* Continue Button */}
+                            <button
+                                onClick={() => {
+                                    if (agreedTerms) {
+                                        window.location.href = import.meta.env.VITE_API_URL 
+                                            ? `${import.meta.env.VITE_API_URL}/api/auth/google` 
+                                            : '/api/auth/google';
+                                    }
+                                }}
+                                disabled={!agreedTerms}
+                                className="w-full py-3.5 bg-white disabled:bg-white/10 text-black disabled:text-white/20 rounded-xl font-black text-xs uppercase tracking-[0.4em] hover:bg-primary hover:text-white disabled:hover:bg-white/10 disabled:hover:text-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(255,255,255,0.05)] disabled:opacity-40 mb-6"
+                            >
+                                Continue
+                            </button>
+
+                            {/* Go Back */}
+                            <p className="text-[9px] font-black uppercase tracking-widest text-white/30">
+                                Changed your mind?{' '}
+                                <button
+                                    onClick={() => setShowTermsModal(false)}
+                                    className="text-primary hover:underline font-black"
+                                >
+                                    Go back
+                                </button>
+                            </p>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Document Viewer Modal (Terms/Privacy) */}
+            <AnimatePresence>
+                {termsModalContent && (
+                    <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setTermsModalContent(null)}
+                            className="absolute inset-0 bg-[#000000]/90 backdrop-blur-md"
+                        />
+                        {/* Modal Container */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative z-10 w-full max-w-[550px] max-h-[80vh] bg-[#0c0c0c] border border-white/10 rounded-[2rem] p-8 md:p-10 shadow-[0_40px_100px_rgba(0,0,0,1)] flex flex-col"
+                        >
+                            {/* Header */}
+                            <div className="flex items-center justify-between pb-6 border-b border-white/5 mb-6">
+                                <h3 className="text-sm font-black text-white uppercase tracking-[0.25em] font-sans">
+                                    {termsModalContent === 'terms' ? 'Terms of Service' : 'Privacy Policy'}
+                                </h3>
+                                <button
+                                    onClick={() => setTermsModalContent(null)}
+                                    className="size-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                                >
+                                    <span className="material-symbols-outlined text-sm">close</span>
+                                </button>
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar text-white/70 text-[10px] font-mono leading-relaxed space-y-6 text-left">
+                                {termsModalContent === 'terms' ? (
+                                    <>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">1. Acceptance of Terms</h4>
+                                            <p>Welcome to Produs. By accessing or using our client application, synchronizing data with our servers, establishing communication rooms, or creating an account, you ("User" or "Operator") agree to be bound by these Terms of Service. If you do not agree to these terms, you must not access or use the application.</p>
+                                        </section>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">2. Description of Service</h4>
+                                            <p>Produs is a client-server productivity dashboard and gamified tracking interface incorporating Habit Matrices, Daily Planners, Financial Hubs, Write Hubs, and real-time collaboration layers ("Link Hub" & Live Focus Rooms). We reserve the right to modify, suspend, or discontinue any feature at any time without notice.</p>
+                                        </section>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">3. Registration & Security</h4>
+                                            <p>You may register using your email or via third-party Google OAuth credentials. You are entirely responsible for safeguarding your authorization tokens, password credentials, and JWT sessions. You must immediately notify Produs of any unauthorized node access.</p>
+                                        </section>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">4. User Content & License</h4>
+                                            <p>You retain full ownership of all data, text, planning items, journal entries, and financial records you log onto the platform ("User Content"). By submitting User Content, you grant Produs a worldwide, non-exclusive, royalty-free license to host, store, and transmit this content solely to deliver our services, including backend replication on MongoDB.</p>
+                                        </section>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">5. Partner Sync Protocol (Link Hub)</h4>
+                                            <p>Activating a partner connection (the "Link Hub" or partner mode) enables two-way, real-time data sync. You explicitly authorize Produs to transmit your productivity logs, habits stats, focus hours, coin values, and custom messages to your linked partner. Either party may disconnect this link at any time, instantly halting telemetry sharing.</p>
+                                        </section>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">6. Acceptable Use & System Integrity</h4>
+                                            <p>You agree not to reverse-engineer Express backend endpoints, inject malicious code, overload our database systems, scrape user data, or exploit WebSockets/socket.io sync protocols. We reserve the right to suspend or terminate accounts that violate system integrity.</p>
+                                        </section>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">7. Local Caching & PWAs</h4>
+                                            <p>Produs utilizes Vite PWA caching, Workbox static assets offline-first caching, and browser LocalStorage. While offline capability is supported, Produs is not responsible for data conflicts arising from asynchronous client-server synchronization.</p>
+                                        </section>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">8. Disclaimer of Warranties & Limitation of Liability</h4>
+                                            <p>The service is provided "AS IS" and "AS AVAILABLE". Produs disclaims all warranties of any kind. Under no circumstances shall Produs be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of habits records, planner notes, or financial logs.</p>
+                                        </section>
+                                    </>
+                                ) : (
+                                    <>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">1. Information We Collect</h4>
+                                            <p><strong>Account Registration Data:</strong> Email address, first/last names, and profile picture configuration supplied when registering or via Google OAuth.</p>
+                                            <p><strong>Dashboard Data:</strong> Habit matrices, focus session times, task boards, transaction records, and journal entries stored in MongoDB.</p>
+                                            <p><strong>Telemetry & Real-Time Data:</strong> WebSockets connection status, messaging logs with linked partners, and focus room activity metrics.</p>
+                                            <p><strong>Technical Log Data:</strong> IP addresses, browser agents, local storage cookies, and application usage patterns collected via Posthog Analytics.</p>
+                                        </section>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">2. How We Use Information</h4>
+                                            <p>We process your data to operate the core dashboard functionalities, maintain secure JWT authorization, sync logs across devices, calculate levels/coins, manage real-time messaging, and compile system analytics to improve performance.</p>
+                                        </section>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">3. Data Sharing & Disclosure</h4>
+                                            <p>Your private data is never sold, leased, or distributed to third-party ad networks. Data sharing is limited to: (a) Your designated companion when partner mode is explicitly activated; (b) Direct database replication infrastructure (MongoDB Atlas); and (c) Performance monitoring services (Posthog).</p>
+                                        </section>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">4. Cookies and Browser Storage</h4>
+                                            <p>We use session cookies and local storage tokens to persist your credentials and configuration (such as theme mode). Offline assets are cached using service workers (PWA specifications) for local performance. You may clear this data via browser controls at any time.</p>
+                                        </section>
+                                        <section className="space-y-2">
+                                            <h4 className="font-black text-white uppercase tracking-wider">5. Data Deletion & Retention</h4>
+                                            <p>We retain your logs as long as your account is active. Under CCPA/GDPR frameworks, you can execute a complete database teardown. Using the "Delete Account" control in the settings immediately and permanently drops your document records from MongoDB.</p>
+                                        </section>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Footer */}
+                            <div className="pt-6 border-t border-white/5 mt-6 flex justify-end">
+                                <button
+                                    onClick={() => setTermsModalContent(null)}
+                                    className="px-6 py-2.5 bg-white text-black hover:bg-primary hover:text-white rounded-xl font-black text-[10px] uppercase tracking-wider transition-all"
+                                >
+                                    Understood
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

@@ -481,11 +481,11 @@ function Layout() {
     useEffect(() => {
         if (isLinkPage) {
             setIsLinkMode(true);
-        } else if (location.pathname === '/dashboard') {
-            // Only reset link mode when explicitly going back to the main dashboard
+        } else if (location.pathname === '/dashboard' || isRpgPage) {
+            // Reset link mode when explicitly going back to the main dashboard or switching to the hero dashboard
             setIsLinkMode(false);
         }
-    }, [location.pathname, isLinkPage]);
+    }, [location.pathname, isLinkPage, isRpgPage]);
 
     useEffect(() => {
         if (isUserMenuOpen || isSettingsModalOpen) {
@@ -850,21 +850,29 @@ function Layout() {
 
                                     const isActive = protocolMode === 'rpg'
                                         ? activeRpgTab === item.id
-                                        : item.path === '/dashboard'
-                                            ? location.pathname === '/dashboard'
+                                        : item.id === 'overview'
+                                            ? (location.pathname === '/dashboard' || location.pathname === '/linkdashboard')
                                             : (location.pathname.startsWith(item.path) && (!item.tabId || item.tabId === currentSubTab));
 
                                     return (
                                         <React.Fragment key={item.id}>
                                             <motion.button
                                                 onClick={() => {
-                                                    soundManager.play('click');
+                                                    soundManager.play('pageTurn');
                                                     if (protocolMode === 'rpg') {
                                                         if (location.pathname !== '/herodashboard') navigate('/herodashboard');
                                                         setActiveRpgTab(item.id);
                                                     } else {
                                                         if (item.id === 'more') {
                                                             setIsMoreExpanded(!isMoreExpanded);
+                                                            return;
+                                                        }
+                                                        if (item.id === 'overview') {
+                                                            if (isLinkMode) {
+                                                                navigate('/linkdashboard');
+                                                            } else {
+                                                                navigate('/dashboard');
+                                                            }
                                                             return;
                                                         }
                                                         if (item.tabId && mobileTabs) {
@@ -931,6 +939,7 @@ function Layout() {
                                                                                     <button
                                                                                         key={tool.id}
                                                                                         onClick={() => {
+                                                                                            soundManager.play('pageTurn');
                                                                                             if (tool.tabId && mobileTabs) mobileTabs.setActiveTab(tool.tabId);
                                                                                             navigate(tool.path, { state: { activeTab: tool.tabId } });
                                                                                         }}
@@ -1148,7 +1157,7 @@ function Layout() {
                         )}
                     </div>
 
-                    {(isOverview || isLinkPage || isRpgPage) && (!isMobile || activeSection === 'produs') && (
+                    {(!isMobile || isOverview || isLinkPage || isRpgPage) && (!isMobile || activeSection === 'produs') && (
                         <HudButtons
                             onRpgClick={() => {
                                 if (isRpgPage) {

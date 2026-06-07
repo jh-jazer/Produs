@@ -29,9 +29,9 @@ const ProdusTimesModal = ({ isOpen, onClose }) => {
                     <span className="text-[9px] font-black uppercase tracking-[0.4em] text-black/50 dark:text-white/40 mb-1 font-sans">PRODUS SYSTEM DISPATCH</span>
                     <h2 className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight leading-none">THE PRODUS TIMES</h2>
                     <div className="w-full flex justify-between items-center text-[8px] font-black uppercase tracking-widest border-t border-black/20 dark:border-white/20 mt-3 pt-1.5 font-sans">
-                        <span>VOL. 1 // NO. 05</span>
+                        <span>VOL. 1 // NO. 06</span>
                         <span>JUNE 7, 2026</span>
-                        <span>EDITION 1.0.6</span>
+                        <span>EDITION 1.0.8</span>
                     </div>
                 </div>
 
@@ -40,57 +40,114 @@ const ProdusTimesModal = ({ isOpen, onClose }) => {
                     {/* Newspaper Headline */}
                     <div className="flex flex-col gap-2 font-serif border-b border-black/10 dark:border-white/10 pb-4">
                         <h3 className="text-lg md:text-xl font-bold uppercase tracking-tight leading-tight text-black dark:text-white">
-                            SYSTEM UPGRADE: SHARED LINK POINTS, WRITING HUB ENHANCEMENTS, STREAK & REWARD REBALANCING
+                            SYSTEM UPGRADE: DENSE VIEWPORTS, NAVIGATION SOUNDS, CUSTOM NICKNAMES & CHAT REDESIGN
                         </h3>
                         <p className="text-[10px] italic text-black/60 dark:text-white/60 font-sans leading-relaxed">
-                            We have introduced a shared partner link points currency (LPT), added a collaborative Shared Writings module to the Write Hub, rebalanced habit completion rewards, and refined LPT display visibility on the dashboard.
+                            We have optimized desktop workspace containers for a much tighter layout, integrated satisfying paper page-turn sound effects during navigation, added custom partner nicknames, and completely redesigned the ephemeral chat feed.
                         </p>
                     </div>
 
-                    {/* --- EDITION 1.0.6 CONTENT --- */}
+                    {/* --- EDITION 1.0.8 CONTENT --- */}
                     <div className="flex flex-col gap-3">
                         <h4 className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white flex items-center">
-                            <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">🔗</span>
-                            SHARED PARTNER LINK POINTS (LPT)
+                            <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">📐</span>
+                            OPTIMIZED DESKTOP WRAPPERS
                         </h4>
                         <ul className="list-disc pl-5 space-y-2.5">
                             <li>
-                                <strong>Synched LPT Currency</strong>: Synced partners now receive a dedicated shared currency (LPT) when both partners complete the same shared habits.
+                                <strong>Compact Spacing</strong>: Reduced top padding and margins to 16px total above header titles, maximizing content density in desktop viewports.
                             </li>
                             <li>
-                                <strong>Link Dashboard Panel</strong>: Integrated a dedicated metrics card showing the link connection status and live LPT counts.
+                                <strong>Skeleton Synchronization</strong>: Matched loader skeleton container sizes to avoid layout shifting on page mount.
                             </li>
                         </ul>
                     </div>
 
                     <div className="flex flex-col gap-3">
                         <h4 className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white flex items-center">
-                            <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">📝</span>
-                            WRITE HUB SHARED WRITINGS
+                            <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">🔊</span>
+                            PAGE-TURN SOUND EFFECTS
                         </h4>
                         <ul className="list-disc pl-5 space-y-2.5">
                             <li>
-                                <strong>Collaborative Writing</strong>: Added a Shared Writings card to the Write Hub grid when partner Link Mode is toggled.
-                            </li>
-                            <li>
-                                <strong>Integrated Custom Editor</strong>: Fully integrated the document selector and note-entry views with real-time browser storage backups.
+                                <strong>Auditory Feedback</strong>: Synthesized page turning sound effects to play when clicking sidebars or bottom navigation tabs.
                             </li>
                         </ul>
                     </div>
 
                     <div className="flex flex-col gap-3">
                         <h4 className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white flex items-center">
-                            <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">🏆</span>
-                            REWARDS & STREAK REBALANCING
+                            <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">💬</span>
+                            CHAT SYSTEM UPGRADES
                         </h4>
                         <ul className="list-disc pl-5 space-y-2.5">
                             <li>
-                                <strong>Simplified Check-in Rewards</strong>: Awarded clean Guardian EXP and productivity points directly (10 XP/PTS for system habits, 1 XP/PTS for personal habits).
+                                <strong>Custom Partner Nicknames</strong>: Added a settings toggled pencil icon to assign personalized names to your partner.
                             </li>
                             <li>
-                                <strong>Streak Milestone Bonuses</strong>: Introduced multi-day check-in milestone bonuses, multiplied by 10x for system habits.
+                                <strong>Ephemeral Feed Redesign</strong>: Revamped chat feed layout to feel like a normal messaging app with duration badges and clean speech bubbles.
                             </li>
                         </ul>
+                    </div>
+
+                    {/* --- VINTAGE SEPARATOR --- */}
+                    <div className="border-t-2 border-dashed border-black/20 dark:border-white/20 my-2 pt-6 flex flex-col gap-4">
+                        <div className="flex justify-between items-center text-[8px] font-black uppercase tracking-widest font-sans text-black/50 dark:text-white/40">
+                            <span>VOL. 1 // NO. 05</span>
+                            <span>JUNE 7, 2026</span>
+                            <span>EDITION 1.0.6</span>
+                        </div>
+                        <div className="flex flex-col gap-2 font-serif">
+                            <h3 className="text-sm font-bold uppercase tracking-tight leading-tight text-black dark:text-white">
+                                SYSTEM UPGRADE: SHARED LINK POINTS, WRITING HUB ENHANCEMENTS, STREAK & REWARD REBALANCING
+                            </h3>
+                        </div>
+
+                        {/* --- EDITION 1.0.6 CONTENT --- */}
+                        <div className="flex flex-col gap-3">
+                            <h4 className="font-bold text-[10px] uppercase tracking-widest text-black/75 dark:text-white/75 flex items-center">
+                                <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">🔗</span>
+                                SHARED PARTNER LINK POINTS (LPT)
+                            </h4>
+                            <ul className="list-disc pl-5 space-y-2.5 text-black/70 dark:text-white/70">
+                                <li>
+                                    <strong>Synched LPT Currency</strong>: Synced partners now receive a dedicated shared currency (LPT) when both partners complete the same shared habits.
+                                </li>
+                                <li>
+                                    <strong>Link Dashboard Panel</strong>: Integrated a dedicated metrics card showing the link connection status and live LPT counts.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <h4 className="font-bold text-[10px] uppercase tracking-widest text-black/75 dark:text-white/75 flex items-center">
+                                <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">📝</span>
+                                WRITE HUB SHARED WRITINGS
+                            </h4>
+                            <ul className="list-disc pl-5 space-y-2.5 text-black/70 dark:text-white/70">
+                                <li>
+                                    <strong>Collaborative Writing</strong>: Added a Shared Writings card to the Write Hub grid when partner Link Mode is toggled.
+                                </li>
+                                <li>
+                                    <strong>Integrated Custom Editor</strong>: Fully integrated the document selector and note-entry views with real-time browser storage backups.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <h4 className="font-bold text-[10px] uppercase tracking-widest text-black/75 dark:text-white/75 flex items-center">
+                                <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">🏆</span>
+                                REWARDS & STREAK REBALANCING
+                            </h4>
+                            <ul className="list-disc pl-5 space-y-2.5 text-black/70 dark:text-white/70">
+                                <li>
+                                    <strong>Simplified Check-in Rewards</strong>: Awarded clean Guardian EXP and productivity points directly (10 XP/PTS for system habits, 1 XP/PTS for personal habits).
+                                </li>
+                                <li>
+                                    <strong>Streak Milestone Bonuses</strong>: Introduced multi-day check-in milestone bonuses, multiplied by 10x for system habits.
+                                </li>
+                            </ul>
+                        </div>
                     </div>
 
                     {/* --- VINTAGE SEPARATOR --- */}

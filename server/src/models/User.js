@@ -269,6 +269,10 @@ const userSchema = new mongoose.Schema({
         ref: 'User',
         default: null
     },
+    partnerNickname: {
+        type: String,
+        default: ""
+    },
     outgoingPartnerRequest: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DashboardContext } from '../../context/DashboardContext';
+import { soundManager } from '../../services/sound';
 
 const MobileBottomNav = () => {
     const navigate = useNavigate();
@@ -78,12 +79,14 @@ const MobileBottomNav = () => {
 
     const handleNav = (pillar) => {
         if (pillar.id === 'financial') {
+            soundManager.play('pageTurn');
             setShowActionDot(false);
             navigate('/dashboard/financial');
             return;
         }
 
         if (pillar.id === 'home' && isActive(pillar)) {
+            soundManager.play('click');
             const newRipple = Date.now();
             setClickRipples(prev => [...prev, newRipple]);
             setTimeout(() => {
@@ -94,6 +97,7 @@ const MobileBottomNav = () => {
             return;
         }
 
+        soundManager.play('pageTurn');
         if (protocolMode === 'rpg' && pillar.id !== 'home') {
             if (location.pathname !== '/herodashboard') {
                 navigate('/herodashboard', { replace: true });
@@ -160,12 +164,16 @@ const MobileBottomNav = () => {
                                     onClick={() => {
                                         setShowActionDot(false);
                                         if (bubble.id === 'goal') {
+                                            soundManager.play('click');
                                             setIsAddGoalModalOpen(true);
                                         } else if (bubble.id === 'event') {
+                                            soundManager.play('click');
                                             setIsAddEventModalOpen(true);
                                         } else if (bubble.id === 'transaction') {
+                                            soundManager.play('click');
                                             setIsAddTransactionModalOpen(true);
                                         } else {
+                                            soundManager.play('pageTurn');
                                             navigate(bubble.path, { state: bubble.state });
                                         }
                                     }}

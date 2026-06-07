@@ -31,9 +31,6 @@ const HUDPanel = ({ title, subtitle, children, className = "" }) => (
       </div>
     )}
     <div className={`relative bg-transparent dark:bg-foreground/[0.02] dark:hover:bg-foreground/[0.04] transition-all pt-4 pb-8 md:pt-4 md:pb-12 px-0 md:px-12 rounded-sm group overflow-hidden ${className}`}>
-      <div className="hidden md:block">
-        <ChippedBorder opacity={0.6} />
-      </div>
       <div className="relative z-10">
         {children}
       </div>
@@ -66,8 +63,8 @@ const EventCalendar = () => {
     };
 
     return (
-        <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-12 md:pt-20 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
-            <div className="w-full mt-4 md:mt-6">
+        <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-12 md:pt-2 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
+            <div className="w-full mt-4 md:mt-2">
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full">
                     <HUDPanel title="CALENDAR & GOALS" subtitle={getSubtitle()}>
                         <div className="flex flex-col w-full gap-14">

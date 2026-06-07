@@ -169,7 +169,7 @@ const Link = () => {
                         exit={{ opacity: 0 }}
                         className="px-6 pt-0 md:pl-8 md:pr-12 md:py-6 h-[calc(100dvh-6rem)] md:h-auto md:min-h-screen overflow-hidden md:overflow-visible"
                     >
-                        <HomeSkeleton />
+                        <HomeSkeleton variant="link" />
                     </motion.div>
                 ) : (
                     <motion.div
@@ -195,7 +195,7 @@ const Link = () => {
                                             className="absolute top-[7%] bottom-2 md:bottom-auto md:top-[0.5%] left-6 md:left-12 right-6 md:right-12 flex flex-col items-start pointer-events-none text-left"
                                         >
                                             <div className="relative top-20 md:top-0">
-                                                <h3 className="link-welcome-title-text font-black tracking-tighter text-black dark:text-white uppercase mt-8 md:mt-[4.5vh]">
+                                                <h3 className="welcome-title-text font-black tracking-tighter text-black dark:text-white uppercase mt-8 md:mt-[4.5vh]">
                                                     LINK
                                                     <br />
                                                     ESTABLISHED
@@ -318,7 +318,7 @@ const Link = () => {
                                                 </div>
                                             </div>
                                                 {/* Premium Connection Tree layout card at bottom */}
-                                                <div className="w-[85vw] md:w-full md:flex-1 md:max-w-[1060px] h-64 md:h-72 rounded-3xl border-2 border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] backdrop-blur-md p-6 md:p-8 flex flex-row items-center justify-between shadow-md transition-all duration-500 mt-3 -translate-y-8 md:translate-y-0 pointer-events-auto gap-4 md:gap-6 relative overflow-hidden">
+                                                <div className="w-[85vw] md:w-full md:flex-none md:max-w-[1060px] h-64 md:h-96 rounded-3xl border-2 border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] backdrop-blur-md p-8 md:p-12 flex flex-row items-center justify-between shadow-md transition-all duration-500 mt-3 -translate-y-8 md:translate-y-0 pointer-events-auto gap-4 md:gap-6 relative overflow-hidden scale-105">
                                                     {/* Left side: Tree SVG Display & Progress Bar */}
                                                     <div className="relative w-[70%] flex flex-col justify-between gap-4 border-r border-black/5 dark:border-white/5 pr-4 md:pr-6 h-full">
                                                         <div className="relative flex items-center justify-center p-2">
@@ -392,34 +392,65 @@ const Link = () => {
 
                                     {/* Desktop HUD: LPT Ranking Info Card */}
                                     {!isIdPulledDown && (
-                                        <div className="hidden lg:flex flex-col gap-4 absolute right-14 top-0 w-80 pointer-events-auto">
+                                        <div className="hidden lg:flex flex-col gap-4 absolute right-14 top-0 w-72 pointer-events-auto">
+                                            {/* LPT Ranking Card */}
                                             <div 
                                                 onClick={() => {
                                                     soundManager.play('click');
                                                     setIsLeaderboardOpen(true);
                                                 }}
-                                                className="relative border border-black/10 dark:border-white/10 rounded-sm p-5 flex flex-col gap-3 transition-all duration-300 overflow-hidden select-none cursor-pointer bg-transparent hover:bg-black/5 dark:hover:bg-white/[0.03] hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.05)] active:scale-[0.98]"
+                                                className="relative border border-black/10 dark:border-white/10 rounded-sm p-4 flex flex-col gap-2 transition-all duration-300 overflow-hidden select-none cursor-pointer bg-transparent hover:bg-black/5 dark:hover:bg-white/[0.03] hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.05)] active:scale-[0.98]"
                                             >
                                                 <div className="absolute top-3 right-3 flex items-center gap-1.5">
                                                     <span className="size-2 rounded-full bg-blue-500 animate-pulse" />
-                                                    <span className="text-[8px] font-mono tracking-widest text-black/40 dark:text-white/30 uppercase">
+                                                    <span className="text-[8px] font-mono tracking-widest text-black dark:text-white/30 uppercase">
                                                         LIVE
                                                     </span>
                                                 </div>
 
-                                                <span className="text-[9px] font-mono font-black uppercase tracking-[0.25em] text-black dark:text-white/40">LPT RANKING</span>
-                                                <div className="flex items-center gap-4">
-                                                    <span className="material-symbols-outlined text-3xl text-blue-500">leaderboard</span>
+                                                <span className="text-[8px] font-mono font-black uppercase tracking-[0.25em] text-black dark:text-white/40">LPT LEADERBOARD</span>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="material-symbols-outlined text-2xl text-blue-500">leaderboard</span>
                                                     <div className="flex flex-col text-left">
-                                                        <h4 className="text-sm font-black uppercase tracking-wider text-black dark:text-white leading-tight">
-                                                            RANK {(() => {
+                                                        <h4 className="text-xs font-black uppercase tracking-wider text-black dark:text-white leading-tight">
+                                                            CURRENT RANK: {(() => {
                                                                 if (!leaderboard) return '...';
                                                                 const myIndex = leaderboard.findIndex(l => l._id === user?._id);
                                                                 return myIndex !== -1 ? `#${myIndex + 1}` : 'N/A';
                                                             })()}
                                                         </h4>
-                                                        <p className="text-[10px] font-mono text-black dark:text-white/40 uppercase tracking-widest mt-0.5">
+                                                        <p className="text-[9px] font-mono text-black dark:text-white/40 uppercase tracking-widest mt-0.5">
                                                             {user?.rpg?.linkPoints || 0} LPT AVAILABLE
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Partner Streak Card */}
+                                            <div 
+                                                className="relative border border-black/10 dark:border-white/10 rounded-sm p-4 flex flex-col gap-2 transition-all duration-300 overflow-hidden select-none bg-transparent hover:bg-black/5 dark:hover:bg-white/[0.03] hover:border-orange-500/50 hover:shadow-[0_0_20px_rgba(249,115,22,0.05)] group/reward"
+                                            >
+                                                {/* Pulsing indicator corner */}
+                                                <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                                                    <span className="size-2 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
+                                                    <span className="text-[8px] font-mono tracking-widest text-black dark:text-white/30 uppercase">
+                                                        SYNCED
+                                                    </span>
+                                                </div>
+
+                                                <span className="text-[8px] font-mono font-black uppercase tracking-[0.25em] text-black dark:text-white/40">PARTNER MILESTONE</span>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="material-symbols-outlined text-2xl text-orange-500 transition-transform group-hover/reward:scale-110 duration-300">local_fire_department</span>
+                                                    <div className="flex flex-col text-left">
+                                                        <h4 className="text-xs font-black uppercase tracking-wider text-black dark:text-white leading-tight flex items-center gap-1.5">
+                                                            <span>{partner?.username?.split('#')[0]?.toUpperCase() || 'PARTNER'}'S STREAK</span>
+                                                            <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-sm bg-orange-500/10 text-orange-500 text-[9px] font-black tracking-normal uppercase">
+                                                                <span>{partner?.rpg?.loginStreak || 1}</span>
+                                                                <span className="material-symbols-outlined text-[10px] animate-pulse">local_fire_department</span>
+                                                            </div>
+                                                        </h4>
+                                                        <p className="text-[9px] font-mono text-black dark:text-white/40 uppercase tracking-widest mt-0.5">
+                                                            DAILY SYNC ACTIVE
                                                         </p>
                                                     </div>
                                                 </div>

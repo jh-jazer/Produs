@@ -89,7 +89,7 @@ const BugReportModal = ({ isOpen, onClose }) => {
                                         value={title}
                                         onChange={(e) => setTitle(e.target.value)}
                                         placeholder="Briefly, what is wrong?"
-                                        className="w-full bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3 text-sm font-medium focus:border-primary transition-colors outline-none"
+                                        className="w-full bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3 text-sm font-medium text-slate-900 dark:text-white focus:border-primary transition-colors outline-none"
                                     />
                                 </div>
 
@@ -101,7 +101,7 @@ const BugReportModal = ({ isOpen, onClose }) => {
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
                                         placeholder="What happened? How can we reproduce it?"
-                                        className="w-full bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3 text-sm font-medium focus:border-primary transition-colors outline-none resize-none"
+                                        className="w-full bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3 text-sm font-medium text-slate-900 dark:text-white focus:border-primary transition-colors outline-none resize-none"
                                     />
                                 </div>
 
@@ -111,12 +111,12 @@ const BugReportModal = ({ isOpen, onClose }) => {
                                         <select
                                             value={severity}
                                             onChange={(e) => setSeverity(e.target.value)}
-                                            className="w-full bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3 text-sm font-bold focus:border-primary transition-colors outline-none appearance-none"
+                                            className="w-full bg-slate-50 dark:bg-[#121212]/50 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 dark:text-white focus:border-primary transition-colors outline-none appearance-none"
                                         >
-                                            <option value="low">Low - Minor issue</option>
-                                            <option value="medium">Medium - Important</option>
-                                            <option value="high">High - Breaking thing</option>
-                                            <option value="critical">Critical - Unusable</option>
+                                            <option value="low" className="dark:bg-[#121212] dark:text-white">Low - Minor issue</option>
+                                            <option value="medium" className="dark:bg-[#121212] dark:text-white">Medium - Important</option>
+                                            <option value="high" className="dark:bg-[#121212] dark:text-white">High - Breaking thing</option>
+                                            <option value="critical" className="dark:bg-[#121212] dark:text-white">Critical - Unusable</option>
                                         </select>
                                     </div>
                                     <div className="flex items-end">
