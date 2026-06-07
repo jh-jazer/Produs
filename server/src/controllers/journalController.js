@@ -5,14 +5,15 @@ import { awardXP } from '../utils/rpgUtils.js';
 
 export const createEntry = async (req, res) => {
     try {
-        const { title, content, mood, tags, date } = req.body;
+        const { title, content, mood, tags, date, imageUrl } = req.body;
         const entry = await Journal.create({
             user: req.user._id,
             title,
             content,
             mood,
             tags,
-            date: date || new Date()
+            date: date || new Date(),
+            imageUrl
         });
         
         // Auto-check the Journal habit
@@ -41,12 +42,13 @@ export const updateEntry = async (req, res) => {
         const entry = await Journal.findOne({ _id: req.params.id, user: req.user._id });
         if (!entry) return res.status(404).json({ message: 'Entry not found' });
 
-        const { title, content, mood, tags, date } = req.body;
+        const { title, content, mood, tags, date, imageUrl } = req.body;
         if (title !== undefined) entry.title = title;
         if (content !== undefined) entry.content = content;
         if (mood !== undefined) entry.mood = mood;
         if (tags !== undefined) entry.tags = tags;
         if (date !== undefined) entry.date = date;
+        if (imageUrl !== undefined) entry.imageUrl = imageUrl;
 
         await entry.save();
         res.json(entry);

@@ -198,6 +198,7 @@ export const getPartner = async (req, res) => {
             stats: partner.rpg.stats,
             habitsCount: habits.length,
             completedToday,
+            createdAt: partner.createdAt,
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -910,6 +911,18 @@ export const uploadAvatarImage = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const uploadGeneralImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No image file provided' });
+        }
+        res.status(200).json({ url: req.file.path, secure_url: req.file.path });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 
 // @desc    Update user settings
 // @route   PUT /api/auth/settings

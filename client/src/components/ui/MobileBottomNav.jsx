@@ -20,11 +20,11 @@ const MobileBottomNav = () => {
     ];
 
     const rpgPillars = [
-        { id: 'home', name: 'Home', path: '/rpgdashboard', icon: 'home', isSpecial: true },
-        { id: 'tower', name: 'Tower', path: '/rpgdashboard', icon: 'castle' },
-        { id: 'items', name: 'Items', path: '/rpgdashboard', icon: 'inventory_2' },
-        { id: 'skills', name: 'Skills', path: '/rpgdashboard', icon: 'model_training' },
-        { id: 'roam', name: 'Roam', path: '/rpgdashboard', icon: 'explore' },
+        { id: 'home', name: 'Home', path: '/herodashboard', icon: 'home', isSpecial: true },
+        { id: 'tower', name: 'Tower', path: '/herodashboard', icon: 'castle' },
+        { id: 'items', name: 'Items', path: '/herodashboard', icon: 'inventory_2' },
+        { id: 'skills', name: 'Skills', path: '/herodashboard', icon: 'model_training' },
+        { id: 'roam', name: 'Roam', path: '/herodashboard', icon: 'explore' },
         { id: 'financial', name: 'Finances', path: '/dashboard/financial', icon: 'account_balance' },
     ];
 
@@ -45,7 +45,7 @@ const MobileBottomNav = () => {
         }
         if (pillar.id === 'home') {
             if (protocolMode === 'rpg') {
-                return location.pathname === '/rpgdashboard' && activeRpgTab === 'home';
+                return location.pathname === '/herodashboard' && activeRpgTab === 'home';
             }
             if (isLinkMode) {
                 return location.pathname === '/linkdashboard';
@@ -53,7 +53,7 @@ const MobileBottomNav = () => {
             return location.pathname === '/dashboard';
         }
         if (protocolMode === 'rpg') {
-            return location.pathname === '/rpgdashboard' && activeRpgTab === pillar.id;
+            return location.pathname === '/herodashboard' && activeRpgTab === pillar.id;
         }
 
         // Productivity Tool Specific Active State
@@ -95,8 +95,8 @@ const MobileBottomNav = () => {
         }
 
         if (protocolMode === 'rpg' && pillar.id !== 'home') {
-            if (location.pathname !== '/rpgdashboard') {
-                navigate('/rpgdashboard', { replace: true });
+            if (location.pathname !== '/herodashboard') {
+                navigate('/herodashboard', { replace: true });
             }
             setActiveRpgTab(pillar.id);
             setShowActionDot(false);

@@ -6,7 +6,7 @@ import RPGImmersiveOverlay from '../components/rpg/RPGImmersiveOverlay';
 import AwakeningOverlay from '../components/dashboard/AwakeningOverlay';
 import { DashboardContext } from '../context/DashboardContext';
 
-const RpgPage = () => {
+const HeroPage = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
     const setNeuralSyncDismissed = useAuthStore((state) => state.setNeuralSyncDismissed);
@@ -58,4 +58,4 @@ const RpgPage = () => {
     );
 };
 
-export default RpgPage;
+export default HeroPage;

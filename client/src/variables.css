@@ -566,6 +566,22 @@ body.focus-mode-active .hud-buttons-container {
   color: #FFFBF4 !important;
 }
 
+.link-welcome-title-text {
+  font-size: 3.6rem !important;
+  line-height: 0.95 !important;
+}
+
+@media (min-width: 768px) {
+  .link-welcome-title-text {
+    font-size: 5.8rem !important;
+    line-height: 0.95 !important;
+  }
+}
+
+.dark .link-welcome-title-text {
+  color: #FFFBF4 !important;
+}
+
 
 /* =============================================================================
    15. MOBILE LIGHT MODE VISIBILITY

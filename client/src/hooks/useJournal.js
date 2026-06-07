@@ -31,7 +31,7 @@ export const useJournal = () => {
                     optimisticData: buildOptimisticData,
                     rollbackOnError: true,
                     revalidate: true,
-                    populateCache: true,
+                    populateCache: false,
                 }
             );
             return res;
@@ -87,7 +87,7 @@ export const useJournal = () => {
                     optimisticData: buildOptimisticData,
                     rollbackOnError: true,
                     revalidate: true,
-                    populateCache: true,
+                    populateCache: false,
                 }
             );
             return res;
@@ -98,7 +98,7 @@ export const useJournal = () => {
     };
 
     return {
-        entries: entries || [],
+        entries: Array.isArray(entries) ? entries : [],
         addEntry,
         updateEntry,
         deleteEntry,

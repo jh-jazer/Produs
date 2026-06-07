@@ -78,7 +78,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         className="fixed top-24 md:top-6 right-0 z-[100] flex flex-col items-center gap-4 pointer-events-none hud-buttons-container"
       >
-        {/* RPG Protocol Button */}
+        {/* Hero Protocol Button */}
         <motion.button
           whileHover={{ x: -2 }}
           whileTap={{ scale: 0.95 }}
@@ -91,8 +91,8 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
           className={`md:w-[4.2vw] ${baseStyles} ${isRpgActive ? activeStyles : inactiveStyles}`}
         >
           <div className="flex flex-row items-center justify-center gap-1 pr-1">
-            <span className="material-symbols-outlined transition-opacity text-lg !hidden md:!inline-block text-current">videogame_asset</span>
-            <span className="text-[10px] md:text-[7px] font-black tracking-tighter uppercase [writing-mode:vertical-rl] rotate-180 text-current">RPG</span>
+            <span className="material-symbols-outlined transition-opacity text-lg !hidden md:!inline-block text-current">shield</span>
+            <span className="text-[10px] md:text-[7px] font-black tracking-tighter uppercase [writing-mode:vertical-rl] rotate-180 text-current">HERO</span>
           </div>
         </motion.button>
 

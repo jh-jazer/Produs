@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import { awardXP } from '../utils/rpgUtils.js';
 import { calculateScores, calculateMasteryRank } from '../shared/assessment.js'; 
 import NarrativeQuestion from '../models/NarrativeQuestion.js';
+import Message from '../models/Message.js';
 
 // @route   GET /api/rpg/history
 // @desc    Get recent XP activity history
@@ -324,6 +325,40 @@ export const getSSSLeaderboard = async (req, res) => {
     } catch (error) {
         console.error('Failed to fetch SSS leaderboard:', error);
         res.status(500).json({ message: 'Server error during leaderboard retrieval.' });
+    }
+};
+
+// @route   GET /api/rpg/leaderboard/lpt
+// @desc    Get LPT ranking leaderboard (overall accumulated LPT over a year)
+// @access  Private
+export const getLptLeaderboard = async (req, res) => {
+    try {
+        const leaders = await User.aggregate([
+            {
+                $project: {
+                    name: 1,
+                    username: 1,
+                    avatar: 1,
+                    level: 1,
+                    'rpg.linkPoints': 1,
+                    'rpg.linkTree.pointsSpent': 1,
+                    accumulatedLpt: {
+                        $add: [
+                            { $ifNull: ["$rpg.linkPoints", 0] },
+                            { $ifNull: ["$rpg.linkTree.pointsSpent", 0] }
+                        ]
+                    }
+                }
+            },
+            { $match: { accumulatedLpt: { $gt: 0 } } },
+            { $sort: { accumulatedLpt: -1 } },
+            { $limit: 20 }
+        ]);
+        
+        res.json(leaders);
+    } catch (error) {
+        console.error('Failed to fetch LPT leaderboard:', error);
+        res.status(500).json({ message: 'Server error during LPT leaderboard retrieval.' });
     }
 };
 
@@ -676,3 +711,138 @@ export const awardHeroExpController = async (req, res) => {
         res.status(500).json({ message: 'Server error awarding Guardian EXP/Coins.' });
     }
 };
+
+export const waterTree = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const pointsNeeded = 10;
+        if ((user.rpg.linkPoints || 0) < pointsNeeded) {
+            return res.status(400).json({ message: 'Insufficient Link Points to afford water.' });
+        }
+
+        user.rpg.linkPoints = (user.rpg.linkPoints || 0) - pointsNeeded;
+        
+        let currentWater = (user.rpg.linkTree?.water || 0) + 20;
+        let currentStage = user.rpg.linkTree?.stage || 0;
+        let currentPointsSpent = (user.rpg.linkTree?.pointsSpent || 0) + pointsNeeded;
+
+        if (currentWater >= 100) {
+            if (currentStage < 5) {
+                currentStage += 1;
+                currentWater = 0;
+            } else {
+                currentWater = 100;
+            }
+        }
+
+        user.rpg.linkTree = {
+            stage: currentStage,
+            water: currentWater,
+            pointsSpent: currentPointsSpent
+        };
+        user.markModified('rpg');
+        await user.save();
+
+        if (user.partner) {
+            const partner = await User.findById(user.partner);
+            if (partner) {
+                partner.rpg.linkPoints = Math.max(0, (partner.rpg.linkPoints || 0) - pointsNeeded);
+                partner.rpg.linkTree = {
+                    stage: currentStage,
+                    water: currentWater,
+                    pointsSpent: (partner.rpg.linkTree?.pointsSpent || 0) + pointsNeeded
+                };
+                partner.markModified('rpg');
+                await partner.save();
+            }
+        }
+
+        res.json({
+            message: 'Tree watered successfully.',
+            rpg: user.rpg
+        });
+    } catch (error) {
+        console.error('Failed to water tree:', error);
+        res.status(500).json({ message: 'Server error during watering sequence.' });
+    }
+};
+
+export const setLinkMessage = async (req, res) => {
+    try {
+        const { text } = req.body;
+        if (typeof text !== 'string') {
+            return res.status(400).json({ message: 'Message text must be a string.' });
+        }
+        if (text.length > 200) {
+            return res.status(400).json({ message: 'Message text cannot exceed 200 characters.' });
+        }
+
+        const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        user.rpg.linkMessage = {
+            text: text.trim(),
+            updatedAt: new Date()
+        };
+        user.markModified('rpg');
+        await user.save();
+
+        res.json({
+            message: 'Link message updated successfully.',
+            rpg: user.rpg
+        });
+    } catch (error) {
+        console.error('Failed to set link message:', error);
+        res.status(500).json({ message: 'Server error setting link message.' });
+    }
+};
+
+export const getMessages = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user || !user.partner) {
+            return res.status(400).json({ message: 'No partner linked' });
+        }
+
+        const messages = await Message.find({
+            $or: [
+                { sender: user._id, recipient: user.partner },
+                { sender: user.partner, recipient: user._id }
+            ]
+        }).sort({ createdAt: 1 }).limit(50);
+
+        res.json(messages);
+    } catch (error) {
+        console.error('Failed to get messages:', error);
+        res.status(500).json({ message: 'Server error fetching messages.' });
+    }
+};
+
+export const sendMessage = async (req, res) => {
+    try {
+        const { text } = req.body;
+        if (!text || !text.trim()) {
+            return res.status(400).json({ message: 'Message text is required.' });
+        }
+
+        const user = await User.findById(req.user._id);
+        if (!user || !user.partner) {
+            return res.status(400).json({ message: 'No partner linked' });
+        }
+
+        const message = await Message.create({
+            sender: user._id,
+            recipient: user.partner,
+            text: text.trim()
+        });
+
+        res.status(201).json(message);
+    } catch (error) {
+        console.error('Failed to send message:', error);
+        res.status(500).json({ message: 'Server error sending message.' });
+    }
+};
+
+

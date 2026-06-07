@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useJournal } from '../../hooks/useJournal';
 import { Image as ImageIcon, Type, X, ChevronLeft } from 'lucide-react';
 import { MoodTracker } from '../dashboard/DashboardRealityWidgets';
+import api from '../../services/api';
 
 const JOURNAL_PROMPTS = [
     "What is one small victory you achieved today, and how did it make you feel?",
@@ -221,36 +222,25 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
         const file = event.target.files[0];
         if (!file) return;
 
-        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-        const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-
-        if (cloudName === 'your_cloud_name' || !cloudName) {
-            alert('Cloudinary configuration missing. Please update .env file.');
-            return;
-        }
-
         setLoading(true);
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', uploadPreset);
+        formData.append('image', file);
 
         try {
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-                method: 'POST',
-                body: formData
+            const res = await api.post('/auth/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
-            const data = await response.json();
             
-            if (data.secure_url) {
-                setImageUrl(data.secure_url);
+            if (res.data && (res.data.secure_url || res.data.url)) {
+                setImageUrl(res.data.secure_url || res.data.url);
                 isDirtyRef.current = true;
             } else {
-                console.error('Cloudinary upload error:', data);
-                alert('Upload failed: ' + (data.error?.message || 'Check Cloudinary settings'));
+                console.error('Upload error:', res.data);
+                alert('Upload failed: Invalid response from server');
             }
         } catch (error) {
             console.error('Failed to upload image:', error);
-            alert('Critical communication error with Cloudinary.');
+            alert('Upload failed: ' + (error.response?.data?.message || error.message || 'Check Cloudinary settings'));
         } finally {
             setLoading(false);
         }

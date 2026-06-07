@@ -1,4 +1,4 @@
-import { completeDailyQuiz, getActivityHistory, markActivitiesRead, logActivity, syncNeural, getSSSLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening, purchaseItem, claimDailyReward, claimStreakReward, getHero, awardHeroExpController } from '../controllers/rpgController.js';
+import { completeDailyQuiz, getActivityHistory, markActivitiesRead, logActivity, syncNeural, getSSSLeaderboard, getLptLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening, purchaseItem, claimDailyReward, claimStreakReward, getHero, awardHeroExpController, waterTree, setLinkMessage, getMessages, sendMessage } from '../controllers/rpgController.js';
 import { getQuestionById } from '../controllers/narrativeController.js';
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
@@ -46,6 +46,10 @@ router.get('/narrative/:questionId', protect, getQuestionById);
 // @desc    Get the Hall of SSS (Speed to master)
 router.get('/leaderboard/sss', protect, getSSSLeaderboard);
 
+// @route   GET /api/rpg/leaderboard/lpt
+// @desc    Get LPT ranking leaderboard (overall accumulated LPT over a year)
+router.get('/leaderboard/lpt', protect, getLptLeaderboard);
+
 // @route   GET /api/rpg/leaderboard/territory
 // @desc    Get Territory Lords (Stat leaders)
 router.get('/territory-lords', protect, getTerritoryLords);
@@ -68,5 +72,21 @@ router.get('/hero', protect, getHero);
 // @route   POST /api/rpg/hero/award-exp
 // @desc    Award EXP to hero (RPG mode)
 router.post('/hero/award-exp', protect, awardHeroExpController);
+
+// @route   POST /api/rpg/water-tree
+// @desc    Water the connection tree (LPT cost)
+router.post('/water-tree', protect, waterTree);
+
+// @route   POST /api/rpg/link-message
+// @desc    Set ephemeral message for the partner
+router.post('/link-message', protect, setLinkMessage);
+
+// @route   GET /api/rpg/messages
+// @desc    Get partner chat history
+router.get('/messages', protect, getMessages);
+
+// @route   POST /api/rpg/messages
+// @desc    Send a partner chat message
+router.post('/messages', protect, sendMessage);
 
 export default router;

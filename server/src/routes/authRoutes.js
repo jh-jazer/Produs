@@ -1,8 +1,8 @@
 import express from 'express';
 import passport from 'passport';
-import { registerUser, loginUser, getMe, getPartner, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, sendPartnerRequest, acceptPartnerRequest, rejectPartnerRequest, cancelPartnerRequest, unlinkPartner, searchUsers, checkUsername, updateSubscriptions, sendConnectionRequest, acceptConnectionRequest, rejectConnectionRequest, cancelConnectionRequest, disconnectConnection, getConnections, getStats, devRPGTest, awakenUser, finalizeAwakening, uploadBannerImage, uploadAvatarImage } from '../controllers/authController.js';
+import { registerUser, loginUser, getMe, getPartner, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, sendPartnerRequest, acceptPartnerRequest, rejectPartnerRequest, cancelPartnerRequest, unlinkPartner, searchUsers, checkUsername, updateSubscriptions, sendConnectionRequest, acceptConnectionRequest, rejectConnectionRequest, cancelConnectionRequest, disconnectConnection, getConnections, getStats, devRPGTest, awakenUser, finalizeAwakening, uploadBannerImage, uploadAvatarImage, uploadGeneralImage } from '../controllers/authController.js';
 import { protect, optionalProtect } from '../middleware/authMiddleware.js';
-import { uploadBanner, uploadAvatar } from '../config/cloudinary.js';
+import { uploadBanner, uploadAvatar, uploadGeneral } from '../config/cloudinary.js';
 
 const router = express.Router();
 
@@ -17,11 +17,13 @@ router.put('/onboarding', protect, completeOnboarding);
 router.post('/awaken', protect, awakenUser);
 router.post('/finalize-awakening', protect, finalizeAwakening);
 router.put('/settings', protect, updateSettings);
+router.post('/upload', protect, uploadGeneral.single('image'), uploadGeneralImage);
 router.post('/upload/banner', protect, uploadBanner.single('image'), uploadBannerImage);
 router.post('/upload/avatar', protect, uploadAvatar.single('image'), uploadAvatarImage);
 router.delete('/me', protect, deleteUser);
 router.get('/profile/:username', optionalProtect, getPublicProfile);
 router.post('/partner/request', protect, sendPartnerRequest);
+
 router.post('/partner/accept', protect, acceptPartnerRequest);
 router.post('/partner/reject', protect, rejectPartnerRequest);
 router.post('/partner/cancel', protect, cancelPartnerRequest);

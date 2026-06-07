@@ -133,6 +133,15 @@ const userSchema = new mongoose.Schema({
             type: Number,
             default: 0
         },
+        linkTree: {
+            stage: { type: Number, default: 0 },
+            water: { type: Number, default: 0 },
+            pointsSpent: { type: Number, default: 0 }
+        },
+        linkMessage: {
+            text: { type: String, default: "" },
+            updatedAt: { type: Date, default: null }
+        },
         cores: {
             type: Number,
             default: 0

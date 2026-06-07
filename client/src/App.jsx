@@ -25,7 +25,7 @@ import GoalSetterPage from './pages/GoalSetterPage';
 import EventCalendar from './pages/EventCalendar';
 import FocusTimer from './pages/FocusTimer';
 import LinkPage from './pages/Link';
-import RpgPage from './pages/rpg';
+import HeroPage from './pages/hero';
 import useAuthStore from './store/useAuthStore';
 import { useEffect } from 'react';
 
@@ -77,7 +77,7 @@ function AnimatedRoutes() {
         <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Home />} />
-          <Route path="rpgdashboard" element={<RpgPage />} />
+          <Route path="herodashboard" element={<HeroPage />} />
           <Route path="linkdashboard" element={<LinkPage />} />
           <Route path="dashboard/link" element={<Navigate to="/linkdashboard" replace />} />
           

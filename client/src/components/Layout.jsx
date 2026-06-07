@@ -97,7 +97,7 @@ const MobileTopBar = ({ activeSection, onClick, protocolMode, shakeMerchant, han
     const { data: partner } = useSWR(user?.partner ? '/auth/partner' : null);
     const isLinked = !!user?.partner;
     const getTargetText = () => {
-        if (location.pathname === '/rpgdashboard') return "RPG HUB";
+        if (location.pathname === '/herodashboard') return "HERO HUB";
         if (location.pathname === '/linkdashboard') return "LINK HUB";
         return "PRODUS";
     };
@@ -407,12 +407,12 @@ function Layout() {
     const navigate = useNavigate();
     const location = useLocation();
     const isOverview = location.pathname === '/dashboard';
-    const isRpgPage = location.pathname === '/rpgdashboard';
+    const isRpgPage = location.pathname === '/herodashboard';
     const isLinkPage = location.pathname === '/linkdashboard';
     const protocolMode = isRpgPage ? 'rpg' : 'reality';
     const setProtocolMode = (mode) => {
         if (mode === 'rpg') {
-            navigate('/rpgdashboard');
+            navigate('/herodashboard');
         } else {
             navigate('/dashboard');
         }
@@ -506,7 +506,7 @@ function Layout() {
                 if (isRpgPage) {
                     navigate('/dashboard');
                 } else {
-                    navigate('/rpgdashboard');
+                    navigate('/herodashboard');
                 }
             }
         };
@@ -582,9 +582,9 @@ function Layout() {
     };
 
     const navItems = protocolMode === 'rpg' ? [
-        { id: 'home', name: 'SYSTEM_CENTRAL', path: '/rpgdashboard', icon: Cpu },
-        { id: 'map', name: 'NEURAL_NETWORK', path: '/rpgdashboard', icon: Zap },
-        { id: 'inventory', name: 'CARGO_BAY', path: '/rpgdashboard', icon: ShoppingBag },
+        { id: 'home', name: 'SYSTEM_CENTRAL', path: '/herodashboard', icon: Cpu },
+        { id: 'map', name: 'NEURAL_NETWORK', path: '/herodashboard', icon: Zap },
+        { id: 'inventory', name: 'CARGO_BAY', path: '/herodashboard', icon: ShoppingBag },
     ] : [
         { id: 'overview', name: 'Home', path: '/dashboard', icon: Cpu },
         { id: 'habits', name: 'Habit Tracker', path: '/dashboard/habits', icon: Zap },
@@ -775,7 +775,7 @@ function Layout() {
                                     if (isRpgPage) {
                                         navigate('/dashboard');
                                     } else {
-                                        navigate('/rpgdashboard');
+                                        navigate('/herodashboard');
                                     }
                                 }}
                                 onPartnerClick={() => {
@@ -860,7 +860,7 @@ function Layout() {
                                                 onClick={() => {
                                                     soundManager.play('click');
                                                     if (protocolMode === 'rpg') {
-                                                        if (location.pathname !== '/rpgdashboard') navigate('/rpgdashboard');
+                                                        if (location.pathname !== '/herodashboard') navigate('/herodashboard');
                                                         setActiveRpgTab(item.id);
                                                     } else {
                                                         if (item.id === 'more') {
@@ -1154,7 +1154,7 @@ function Layout() {
                                 if (isRpgPage) {
                                     navigate('/dashboard');
                                 } else {
-                                    navigate('/rpgdashboard');
+                                    navigate('/herodashboard');
                                 }
                             }}
                             onPartnerClick={() => {
