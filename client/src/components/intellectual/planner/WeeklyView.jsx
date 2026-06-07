@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useGoals } from '../../../hooks/useGoals';
+import SyncErrorToast from '../../ui/SyncErrorToast';
 
 const WeeklyView = ({ onBack }) => {
     const today = new Date();
@@ -28,6 +29,7 @@ const WeeklyView = ({ onBack }) => {
     const [selectedWeekIdx, setSelectedWeekIdx] = React.useState(initialWeekIdx !== -1 ? initialWeekIdx : 0);
     const [isAdding, setIsAdding] = React.useState(false);
     const [newGoalText, setNewGoalText] = React.useState('');
+    const [showErrorToast, setShowErrorToast] = React.useState(false);
 
     const weeks = weekRanges.map((range, idx) => {
         const isCurrent = dayOfMonth >= range.start && dayOfMonth <= range.end;
@@ -74,6 +76,7 @@ const WeeklyView = ({ onBack }) => {
 
     return (
         <div className="flex flex-col gap-6 w-full h-[400px] md:h-[508px]">
+            <SyncErrorToast show={showErrorToast} onDismiss={() => setShowErrorToast(false)} />
             <div className="grid grid-cols-3 gap-4 md:gap-6 flex-1">
                 {/* Columns 1 & 2: Goal List */}
                 <div className="col-span-2 flex flex-col gap-4 border border-black/10 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] p-4 md:p-6 rounded-sm overflow-y-auto custom-scrollbar">
@@ -92,7 +95,10 @@ const WeeklyView = ({ onBack }) => {
                         {goals.map((goal) => (
                             <div 
                                 key={goal._id} 
-                                onClick={() => toggleGoal(goal._id)}
+                                onClick={async () => {
+                                    const result = await toggleGoal(goal._id);
+                                    if (result?.error) setShowErrorToast(true);
+                                }}
                                 className="group relative flex items-center justify-between p-4 bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/5 rounded-sm hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/30 dark:hover:border-white/20 transition-all cursor-pointer"
                             >
                                 <div className="flex items-center gap-4">
@@ -102,7 +108,7 @@ const WeeklyView = ({ onBack }) => {
                                     </span>
                                 </div>
                                 <button 
-                                    onClick={(e) => { e.stopPropagation(); deleteGoal(goal._id); }}
+                                    onClick={async (e) => { e.stopPropagation(); const result = await deleteGoal(goal._id); if (result?.error) setShowErrorToast(true); }}
                                     className="material-symbols-outlined text-black/20 dark:text-white/10 hover:text-red-500 transition-colors text-sm"
                                 >
                                     delete

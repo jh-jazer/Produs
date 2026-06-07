@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SyncErrorToast from '../ui/SyncErrorToast';
 import { usePlanner } from '../../hooks/usePlanner';
 import { useGoals } from '../../hooks/useGoals';
 import { useFinance } from '../../hooks/useFinance';
@@ -21,6 +22,7 @@ export default function PriorityHUD() {
   const { goals: allGoals, toggleGoal: toggleGoalStatus, isLoading: goalsLoading } = useGoals();
   const { debts = [], isLoading: financeLoading } = useFinance();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showErrorToast, setShowErrorToast] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -38,7 +40,17 @@ export default function PriorityHUD() {
   ].slice(0, 2);
 
   const handleToggleTask = async (taskId) => {
-    await toggleComplete(taskId);
+    const result = await toggleComplete(taskId);
+    if (result?.error) {
+      setShowErrorToast(true);
+    }
+  };
+
+  const handleToggleGoal = async (goalId) => {
+    const result = await toggleGoalStatus(goalId);
+    if (result?.error) {
+      setShowErrorToast(true);
+    }
   };
 
   // --- PART 2: Goals Column Filtering (Double - Max 2 each) ---
@@ -195,6 +207,7 @@ export default function PriorityHUD() {
 
   return (
     <div className="flex md:col-span-5 w-full flex-col bg-foreground/[0.03] rounded-sm p-6 md:p-8 min-h-[82vh] md:min-h-[500px] hover:bg-foreground/[0.05] transition-all group relative">
+      <SyncErrorToast show={showErrorToast} onDismiss={() => setShowErrorToast(false)} />
       <ChippedBorder opacity={0.7} />
 
       {/* Header */}
@@ -272,9 +285,9 @@ export default function PriorityHUD() {
 
             {/* PART 2: THREE COLUMNS OF GOALS (DOUBLE) */}
             <div className="grid grid-cols-3 gap-4 w-full">
-              {renderGoalColumn("WEEKLY TARGETS", weeklyGoals, toggleGoalStatus)}
-              {renderGoalColumn("MONTHLY TARGETS", monthlyGoals, toggleGoalStatus)}
-              {renderGoalColumn("ANNUAL TARGETS", yearlyGoals, toggleGoalStatus)}
+              {renderGoalColumn("WEEKLY TARGETS", weeklyGoals, handleToggleGoal)}
+              {renderGoalColumn("MONTHLY TARGETS", monthlyGoals, handleToggleGoal)}
+              {renderGoalColumn("ANNUAL TARGETS", yearlyGoals, handleToggleGoal)}
             </div>
 
             {/* PART 3: SIDE TO SIDE DEBT / RECEIVABLE (DOUBLE) */}

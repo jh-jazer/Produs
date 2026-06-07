@@ -55,23 +55,67 @@ export const usePlanner = (dateInput) => {
 
     const deleteTask = async (id) => {
         if (!userId || !id) return;
+
+        // Optimistically remove the task from the cache
+        const buildOptimisticData = (currentTasks) => {
+            if (!currentTasks) return currentTasks;
+            return currentTasks.filter(t => t._id !== id);
+        };
+
         try {
-            await api.delete(`/planner/tasks/${id}`);
-            // Explicitly mutate current key and all relevant planner keys
-            if (swrKey) mutate(swrKey);
-            mutate(key => typeof key === 'string' && key.includes('/planner/tasks'));
+            await mutate(
+                swrKey,
+                async () => {
+                    await api.delete(`/planner/tasks/${id}`);
+                    return undefined;
+                },
+                {
+                    optimisticData: buildOptimisticData,
+                    rollbackOnError: true,
+                    revalidate: true,
+                    populateCache: false,
+                }
+            );
+            // Also revalidate related planner keys
+            mutate(key => typeof key === 'string' && key.includes('/planner/tasks') && key !== swrKey);
         } catch (err) {
             console.error('Failed to delete task:', err);
+            return { error: true };
         }
     };
 
     const toggleComplete = async (id) => {
         const task = tasks?.find(t => t._id === id);
-        if (task) {
-            if (!task.completed) {
-                soundManager.play('ding');
-            }
-            await updateTask(id, { completed: !task.completed });
+        if (!task) return;
+        if (!task.completed) {
+            soundManager.play('ding');
+        }
+
+        // Optimistically flip the completed state
+        const buildOptimisticData = (currentTasks) => {
+            if (!currentTasks) return currentTasks;
+            return currentTasks.map(t =>
+                t._id === id ? { ...t, completed: !t.completed } : t
+            );
+        };
+
+        try {
+            await mutate(
+                swrKey,
+                async () => {
+                    await api.patch(`/planner/tasks/${id}`, { completed: !task.completed });
+                    return undefined;
+                },
+                {
+                    optimisticData: buildOptimisticData,
+                    rollbackOnError: true,
+                    revalidate: true,
+                    populateCache: false,
+                }
+            );
+        } catch (err) {
+            console.error('Failed to toggle task:', err);
+            return { error: true };
         }
     };
 

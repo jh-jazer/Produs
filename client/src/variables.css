@@ -551,7 +551,7 @@ body.focus-mode-active .hud-buttons-container {
 
 /* Explicitly scale the welcome text to be huge and bypass constraints */
 .welcome-title-text {
-  font-size: 4.8rem !important; /* ~46px on mobile viewports */
+  font-size: 2.8rem !important; /* Reduced to fit the longer greeting on mobile */
   line-height: 0.95 !important;
 }
 

@@ -41,6 +41,7 @@ const FinancialBreakdown = ({
     const [editingTx, setEditingTx] = useState(null);
     const [confirmDelete, setConfirmDelete] = useState(null);
     const [selectedTxId, setSelectedTxId] = useState(null);
+    const [toggleConfirmData, setToggleConfirmData] = useState(null);
 
     const isMonthPaid = (tx, monthLabel, legacyLabel) => {
         const expectedTitle = tx.type === 'debt' 
@@ -239,6 +240,22 @@ const FinancialBreakdown = ({
                 cancelLabel="CANCEL"
                 onConfirm={() => handleDelete(confirmDelete)}
                 onCancel={() => setConfirmDelete(null)}
+            />
+
+            <DecisionModal
+                isOpen={!!toggleConfirmData}
+                title={toggleConfirmData?.tx?.type === 'debt' ? "MARK AS PAID" : "MARK AS RECEIVED"}
+                message={`Are you sure you want to mark "${toggleConfirmData?.tx?.title.replace(/^debt-/, '')}" as ${toggleConfirmData?.tx?.type === 'debt' ? 'paid' : 'received'} for ${toggleConfirmData?.monthLabel}?`}
+                confirmLabel="CONFIRM"
+                cancelLabel="CANCEL"
+                onConfirm={async () => {
+                    if (toggleConfirmData) {
+                        const { tx, monthLabel, checked, legacyLabel } = toggleConfirmData;
+                        setToggleConfirmData(null);
+                        await handleToggleCheckbox(tx, monthLabel, checked, legacyLabel);
+                    }
+                }}
+                onCancel={() => setToggleConfirmData(null)}
             />
 
             <div className="flex justify-between items-start">
@@ -450,7 +467,12 @@ const FinancialBreakdown = ({
                                                                                     checked={isPaid}
                                                                                     onChange={(e) => {
                                                                                         e.stopPropagation();
-                                                                                        handleToggleCheckbox(tx, label, e.target.checked, legacyLabel);
+                                                                                        const isChecked = e.target.checked;
+                                                                                        if (isChecked) {
+                                                                                            setToggleConfirmData({ tx, monthLabel: label, checked: true, legacyLabel });
+                                                                                        } else {
+                                                                                            handleToggleCheckbox(tx, label, false, legacyLabel);
+                                                                                        }
                                                                                     }}
                                                                                     onClick={(e) => e.stopPropagation()}
                                                                                     className="size-5 accent-emerald-500 rounded-sm cursor-pointer border border-white/20 bg-white/5 shrink-0"
@@ -493,7 +515,12 @@ const FinancialBreakdown = ({
                                                                         checked={isPaid}
                                                                         onChange={(e) => {
                                                                             e.stopPropagation();
-                                                                            handleToggleCheckbox(tx, label, e.target.checked);
+                                                                            const isChecked = e.target.checked;
+                                                                            if (isChecked) {
+                                                                                setToggleConfirmData({ tx, monthLabel: label, checked: true });
+                                                                            } else {
+                                                                                handleToggleCheckbox(tx, label, false);
+                                                                            }
                                                                         }}
                                                                         onClick={(e) => e.stopPropagation()}
                                                                         className="size-5 accent-emerald-500 rounded-sm cursor-pointer border border-white/20 bg-white/5"

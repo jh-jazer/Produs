@@ -73,11 +73,49 @@ export const useHabits = () => {
         if (!wasChecked) {
             soundManager.play('ding');
         }
+
+        // Build optimistic data by cloning current habits and toggling the check
+        const buildOptimisticData = (currentHabits) => {
+            if (!currentHabits) return currentHabits;
+            return currentHabits.map(h => {
+                if (h._id !== habitId) return h;
+                const checks = [...(h.checks || [])];
+                const existingIdx = checks.findIndex(c => c.date === dateStr);
+                if (existingIdx >= 0) {
+                    // Toggle: if completed → uncomplete, if uncompleted → complete
+                    checks[existingIdx] = { ...checks[existingIdx], completed: !checks[existingIdx].completed };
+                } else {
+                    // No entry yet → mark as completed
+                    checks.push({ date: dateStr, completed: true });
+                }
+                return { ...h, checks };
+            });
+        };
+
         try {
-            await api.patch(`/habits/${habitId}/check`, { dateStr });
-            mutateHabits();
+            // Optimistically update the SWR cache immediately (zero lag for the user)
+            await mutate(
+                habitsKey,
+                async (currentData) => {
+                    // Fire the actual API call
+                    await api.patch(`/habits/${habitId}/check`, { dateStr });
+                    // After success, return undefined to let SWR revalidate with fresh server data
+                    return undefined;
+                },
+                {
+                    optimisticData: buildOptimisticData,
+                    rollbackOnError: true,
+                    revalidate: true,
+                    populateCache: false,
+                }
+            );
+            // Also revalidate partner view cache if linked
+            if (isLinked) {
+                mutate('/habits');
+            }
         } catch (err) {
             console.error('Failed to toggle check:', err);
+            return { error: true };
         }
     };
 
@@ -93,11 +131,33 @@ export const useHabits = () => {
 
     const deleteHabit = async (id) => {
         if (!userId) return;
+
+        // Optimistically remove the habit from the cache
+        const buildOptimisticData = (currentHabits) => {
+            if (!currentHabits) return currentHabits;
+            return currentHabits.filter(h => h._id !== id);
+        };
+
         try {
-            await api.delete(`/habits/${id}`);
-            mutateHabits();
+            await mutate(
+                habitsKey,
+                async () => {
+                    await api.delete(`/habits/${id}`);
+                    return undefined;
+                },
+                {
+                    optimisticData: buildOptimisticData,
+                    rollbackOnError: true,
+                    revalidate: true,
+                    populateCache: false,
+                }
+            );
+            if (isLinked) {
+                mutate('/habits');
+            }
         } catch (err) {
             console.error('Failed to delete habit:', err);
+            return { error: true };
         }
     };
 
@@ -113,11 +173,40 @@ export const useHabits = () => {
 
     const reorderHabits = async (habitIds) => {
         if (!userId) return;
+
+        // Optimistically reorder the habits in the cache
+        const buildOptimisticData = (currentHabits) => {
+            if (!currentHabits) return currentHabits;
+            const habitMap = new Map(currentHabits.map(h => [h._id, h]));
+            const reordered = habitIds
+                .map(id => habitMap.get(id))
+                .filter(Boolean);
+            // Append any habits not in the reorder list (safety)
+            const reorderedIds = new Set(habitIds);
+            const remaining = currentHabits.filter(h => !reorderedIds.has(h._id));
+            return [...reordered, ...remaining];
+        };
+
         try {
-            await api.put('/habits/reorder', { habitIds });
-            mutateHabits();
+            await mutate(
+                habitsKey,
+                async () => {
+                    await api.put('/habits/reorder', { habitIds });
+                    return undefined;
+                },
+                {
+                    optimisticData: buildOptimisticData,
+                    rollbackOnError: true,
+                    revalidate: true,
+                    populateCache: false,
+                }
+            );
+            if (isLinked) {
+                mutate('/habits');
+            }
         } catch (err) {
             console.error('Failed to reorder habits:', err);
+            return { error: true };
         }
     };
 

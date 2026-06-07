@@ -29,9 +29,9 @@ const ProdusTimesModal = ({ isOpen, onClose }) => {
                     <span className="text-[9px] font-black uppercase tracking-[0.4em] text-black/50 dark:text-white/40 mb-1 font-sans">PRODUS SYSTEM DISPATCH</span>
                     <h2 className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight leading-none">THE PRODUS TIMES</h2>
                     <div className="w-full flex justify-between items-center text-[8px] font-black uppercase tracking-widest border-t border-black/20 dark:border-white/20 mt-3 pt-1.5 font-sans">
-                        <span>VOL. 1 // NO. 03</span>
-                        <span>JUNE 4, 2026</span>
-                        <span>EDITION 1.0.4</span>
+                        <span>VOL. 1 // NO. 04</span>
+                        <span>JUNE 7, 2026</span>
+                        <span>EDITION 1.0.5</span>
                     </div>
                 </div>
 
@@ -40,63 +40,125 @@ const ProdusTimesModal = ({ isOpen, onClose }) => {
                     {/* Newspaper Headline */}
                     <div className="flex flex-col gap-2 font-serif border-b border-black/10 dark:border-white/10 pb-4">
                         <h3 className="text-lg md:text-xl font-bold uppercase tracking-tight leading-tight text-black dark:text-white">
-                            SYSTEM UPGRADE: IMMERSIVE FULL-SCREEN TIMER, ORGANIC THEME & THICKER LEDGER NUMBERS
+                            SYSTEM UPGRADE: ZERO-LAG SYNC, DELETION & CHECKBOX CONFIRMATIONS, NAVIGATION REFINEMENTS
                         </h3>
                         <p className="text-[10px] italic text-black/60 dark:text-white/60 font-sans leading-relaxed">
-                            We have launched a dedicated full-screen Focus Timer route, integrated a warm organic earth-toned palette, updated the immersive Old Money RPG elements, and thickened key financial metrics.
+                            We have implemented zero-lag SWR optimistic cache updates for habits, tasks, goals, finance items, and journal entries, integrated transaction checking confirmations, fixed sidebar active states, and refined desktop workspace layouts.
                         </p>
                     </div>
 
-                    {/* --- EDITION 1.0.4 CONTENT --- */}
+                    {/* --- EDITION 1.0.5 CONTENT --- */}
                     <div className="flex flex-col gap-3">
                         <h4 className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white flex items-center">
-                            <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">⏱️</span>
-                            DISTRACTION-FREE FULL-SCREEN FOCUS TIMER
+                            <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">⚡</span>
+                            ZERO-LAG OPTIMISTIC UPDATES
                         </h4>
                         <ul className="list-disc pl-5 space-y-2.5">
                             <li>
-                                <strong>Dedicated Route</strong>: Moved the Focus Timer to a clean, standalone <code>/focustimer</code> page view, isolating it completely from standard sidebars, navigation panels, and HUD layouts.
+                                <strong>Instant Toggles & Actions</strong>: Checking off habits, tasks, goals, and recurring transactions updates immediately without waiting for server responses.
                             </li>
                             <li>
-                                <strong>Lifecycle Audio Management</strong>: Programmed automatic setup swells and complete Singing Bowl alarm shutdowns upon mounting and unmounting.
+                                <strong>Automatic Rollbacks</strong>: If a background sync fails, the cache automatically reverts to its previous state, restoring checks, lists, or deletion states.
                             </li>
                             <li>
-                                <strong>Seamless Navigational Resets</strong>: Navigates back to the main dashboard smoothly when exiting, aborting, or claiming session rewards.
+                                <strong>Standardized Error Alerts</strong>: Integrated a modern sliding error feedback toast to notify users of network sync issues.
                             </li>
                         </ul>
                     </div>
 
                     <div className="flex flex-col gap-3">
                         <h4 className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white flex items-center">
-                            <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">🎨</span>
-                            WARM ORGANIC EARTH PALETTE & OLD MONEY RPG THEME
+                            <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">🛡️</span>
+                            TRANSACTION CHECKING CONFIRMATION
                         </h4>
                         <ul className="list-disc pl-5 space-y-2.5">
                             <li>
-                                <strong>Organic Color Tokens</strong>: Repainted light/dark modes using Floral White, Bone, Olive Drab, and Smoky Black variables to ensure a sleek and soft typewriter aesthetic.
-                            </li>
-                            <li>
-                                <strong>Old Money RPG Adaptation</strong>: Styled the immersive character modals, items, roaming grids, and node guides with charcoal backgrounds, stone borders, and rich burgundy accents.
-                            </li>
-                            <li>
-                                <strong>Responsive Mobile Text Visibility</strong>: Forced solid text variables on mobile viewport headers to avoid faint/low-contrast rendering.
+                                <strong>Decision Gates</strong>: Toggling transaction checkboxes now requests confirmation via dialog modal to prevent accidental checkoffs on budgets, debts, and receivables.
                             </li>
                         </ul>
                     </div>
 
                     <div className="flex flex-col gap-3">
                         <h4 className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white flex items-center">
-                            <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">📈</span>
-                            LEGIBLE FINANCIAL SUMMARY METRICS
+                            <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">📐</span>
+                            LAYOUT & USER MENU POLISH
                         </h4>
                         <ul className="list-disc pl-5 space-y-2.5">
                             <li>
-                                <strong>Bolder Overview Values</strong>: Upgraded the main balance, income, expenses, debt, receivable, and savings numbers to use the robust Exo 2 display font.
+                                <strong>Sidebar Active Highlights</strong>: Fixed the active indicator bug so that the Home sidebar item highlight only triggers on exact path matches.
                             </li>
                             <li>
-                                <strong>High-Contrast Labels</strong>: Replaced low-opacity headers with solid dark/light text variables so that key financial stats are instantly legible.
+                                <strong>Transparent Layout Sidebar</strong>: Made the right-hand desktop sidebar container fully transparent by stripping background and filter blur overlays.
+                            </li>
+                            <li>
+                                <strong>Dynamic Greeting Breaks</strong>: Refined the dashboard time-of-day greeting message layout with responsive line breaks and reduced font scaling for mobile viewports.
                             </li>
                         </ul>
+                    </div>
+
+                    {/* --- VINTAGE SEPARATOR --- */}
+                    <div className="border-t-2 border-dashed border-black/20 dark:border-white/20 my-2 pt-6 flex flex-col gap-4">
+                        <div className="flex justify-between items-center text-[8px] font-black uppercase tracking-widest font-sans text-black/50 dark:text-white/40">
+                            <span>VOL. 1 // NO. 03</span>
+                            <span>JUNE 4, 2026</span>
+                            <span>EDITION 1.0.4</span>
+                        </div>
+                        <div className="flex flex-col gap-2 font-serif">
+                            <h3 className="text-sm font-bold uppercase tracking-tight leading-tight text-black dark:text-white">
+                                SYSTEM UPGRADE: IMMERSIVE FULL-SCREEN TIMER, ORGANIC THEME & THICKER LEDGER NUMBERS
+                            </h3>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <h4 className="font-bold text-[10px] uppercase tracking-widest text-black/70 dark:text-white/70 flex items-center">
+                                <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">⏱️</span>
+                                DISTRACTION-FREE FULL-SCREEN FOCUS TIMER
+                            </h4>
+                            <ul className="list-disc pl-5 space-y-2.5 text-black/70 dark:text-white/70">
+                                <li>
+                                    <strong>Dedicated Route</strong>: Moved the Focus Timer to a clean, standalone <code>/focustimer</code> page view, isolating it completely from standard sidebars, navigation panels, and HUD layouts.
+                                </li>
+                                <li>
+                                    <strong>Lifecycle Audio Management</strong>: Programmed automatic setup swells and complete Singing Bowl alarm shutdowns upon mounting and unmounting.
+                                </li>
+                                <li>
+                                    <strong>Seamless Navigational Resets</strong>: Navigates back to the main dashboard smoothly when exiting, aborting, or claiming session rewards.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <h4 className="font-bold text-[10px] uppercase tracking-widest text-black/70 dark:text-white/70 flex items-center">
+                                <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">🎨</span>
+                                WARM ORGANIC EARTH PALETTE & OLD MONEY RPG THEME
+                            </h4>
+                            <ul className="list-disc pl-5 space-y-2.5 text-black/70 dark:text-white/70">
+                                <li>
+                                    <strong>Organic Color Tokens</strong>: Repainted light/dark modes using Floral White, Bone, Olive Drab, and Smoky Black variables to ensure a sleek and soft typewriter aesthetic.
+                                </li>
+                                <li>
+                                    <strong>Old Money RPG Adaptation</strong>: Styled the immersive character modals, items, roaming grids, and node guides with charcoal backgrounds, stone borders, and rich burgundy accents.
+                                </li>
+                                <li>
+                                    <strong>Responsive Mobile Text Visibility</strong>: Forced solid text variables on mobile viewport headers to avoid faint/low-contrast rendering.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <h4 className="font-bold text-[10px] uppercase tracking-widest text-black/70 dark:text-white/70 flex items-center">
+                                <span className="inline-block mr-2 select-none filter grayscale opacity-90 contrast-[300%] brightness-[0.2] dark:brightness-100">📈</span>
+                                LEGIBLE FINANCIAL SUMMARY METRICS
+                            </h4>
+                            <ul className="list-disc pl-5 space-y-2.5 text-black/70 dark:text-white/70">
+                                <li>
+                                    <strong>Bolder Overview Values</strong>: Upgraded the main balance, income, expenses, debt, receivable, and savings numbers to use the robust Exo 2 display font.
+                                </li>
+                                <li>
+                                    <strong>High-Contrast Labels</strong>: Replaced low-opacity headers with solid dark/light text variables so that key financial stats are instantly legible.
+                                </li>
+                            </ul>
+                        </div>
                     </div>
 
                     {/* --- VINTAGE SEPARATOR --- */}

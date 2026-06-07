@@ -92,9 +92,17 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
             const { title: t, content: c, mood: m, imageUrl: img } = latestValues.current;
             try {
                 if (currentIdRef.current) {
-                    await updateEntry(currentIdRef.current, c, m || 'neutral', t, img);
+                    const result = await updateEntry(currentIdRef.current, c, m || 'neutral', t, img);
+                    if (result?.error) {
+                        setSaveStatus('error');
+                        return;
+                    }
                 } else {
                     const newEntry = await addEntry(c, m || 'neutral', t, img);
+                    if (newEntry?.error) {
+                        setSaveStatus('error');
+                        return;
+                    }
                     if (newEntry && newEntry._id) {
                         currentIdRef.current = newEntry._id;
                         navigate(`/dashboard/writing/journal/${newEntry._id}`, { replace: true });
@@ -128,10 +136,15 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
         setLoading(true);
         try {
             const { title: t, content: c, mood: m, imageUrl: img } = latestValues.current;
+            let result;
             if (currentIdRef.current) {
-                await updateEntry(currentIdRef.current, c, m || 'neutral', t, img);
+                result = await updateEntry(currentIdRef.current, c, m || 'neutral', t, img);
             } else {
-                await addEntry(c, m || 'neutral', t, img);
+                result = await addEntry(c, m || 'neutral', t, img);
+            }
+            if (result?.error) {
+                setSaveStatus('error');
+                return;
             }
             isDirtyRef.current = false;
             setContent('');
@@ -142,6 +155,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
             if (onAction) onAction();
         } catch (error) {
             console.error('Failed to save journal entry:', error);
+            setSaveStatus('error');
         } finally {
             setLoading(false);
         }

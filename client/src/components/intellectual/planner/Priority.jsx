@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { usePlanner } from '../../../hooks/usePlanner';
 import { motion } from 'framer-motion';
+import SyncErrorToast from '../../ui/SyncErrorToast';
 
 const Priority = ({
   isCompact = false,
@@ -11,6 +12,7 @@ const Priority = ({
   const today = new Date();
   const { tasks, toggleComplete, isLoading } = usePlanner(today);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showErrorToast, setShowErrorToast] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
@@ -37,11 +39,15 @@ const Priority = ({
 
   const handleToggle = async (task) => {
     if (isReadOnly) return;
-    await toggleComplete(task._id);
+    const result = await toggleComplete(task._id);
+    if (result?.error) {
+      setShowErrorToast(true);
+    }
   };
 
   return (
     <div className={`flex flex-col text-foreground font-sans ${isCompact ? "gap-6" : "gap-8"} relative`}>
+      <SyncErrorToast show={showErrorToast} onDismiss={() => setShowErrorToast(false)} />
       <button 
         onClick={onFlip}
         className="absolute -top-16 right-0 size-10 flex items-center justify-center border border-black/20 dark:border-white/20 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all active:scale-95 z-20 rounded-sm"

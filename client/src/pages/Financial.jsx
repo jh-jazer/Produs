@@ -2,6 +2,7 @@ import React, { useEffect, useContext, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../store/useAuthStore';
 import { useFinance } from '../hooks/useFinance';
+import SyncErrorToast from '../components/ui/SyncErrorToast';
 
 import FinancialOverview from '../components/finance_components/FinancialOverview';
 import DebtManager from '../components/finance_components/DebtManager';
@@ -61,6 +62,26 @@ const Financial = () => {
         deleteFinanceItem,
         isLoading
     } = useFinance();
+
+    const [showErrorToast, setShowErrorToast] = useState(false);
+
+    const handleAddFinance = async (type, data) => {
+        const result = await addFinanceItem(type, data);
+        if (result?.error) setShowErrorToast(true);
+        return result;
+    };
+
+    const handleUpdateFinance = async (id, type, updates) => {
+        const result = await updateFinanceItem(id, type, updates);
+        if (result?.error) setShowErrorToast(true);
+        return result;
+    };
+
+    const handleDeleteFinance = async (id) => {
+        const result = await deleteFinanceItem(id);
+        if (result?.error) setShowErrorToast(true);
+        return result;
+    };
 
     const navigate = useNavigate();
     const { setMobileTabs } = useContext(DashboardContext);
@@ -335,9 +356,9 @@ const Financial = () => {
                                         totalSavings={totalSavingsForMonth}
                                         totalDebt={totalDebtForMonth}
                                         totalUpcomingIncome={totalUpcomingIncomeForMonth}
-                                        addFinanceItem={addFinanceItem}
-                                        deleteFinanceItem={deleteFinanceItem}
-                                        updateFinanceItem={updateFinanceItem}
+                                        addFinanceItem={handleAddFinance}
+                                        deleteFinanceItem={handleDeleteFinance}
+                                        updateFinanceItem={handleUpdateFinance}
                                         showAddTx={showAddTx}
                                         setShowAddTx={setShowAddTx}
                                         selectedYear={selectedYear}
@@ -358,8 +379,8 @@ const Financial = () => {
                                         transactions={transactions}
                                         currencySymbol={currencySymbol}
                                         onAction={handleAction}
-                                        addFinanceItem={addFinanceItem}
-                                        deleteFinanceItem={deleteFinanceItem}
+                                        addFinanceItem={handleAddFinance}
+                                        deleteFinanceItem={handleDeleteFinance}
                                     />
                                 </HUDPanel>
                             )}
@@ -371,8 +392,9 @@ const Financial = () => {
                                         savings={savings}
                                         currencySymbol={currencySymbol}
                                         onAction={handleAction}
-                                        addFinanceItem={addFinanceItem}
-                                        deleteFinanceItem={deleteFinanceItem}
+                                        addFinanceItem={handleAddFinance}
+                                        deleteFinanceItem={handleDeleteFinance}
+                                        updateFinanceItem={handleUpdateFinance}
                                     />
                                 </HUDPanel>
                             )}
@@ -385,8 +407,9 @@ const Financial = () => {
                                         budgets={budgets}
                                         currencySymbol={currencySymbol}
                                         onAction={handleAction}
-                                        addFinanceItem={addFinanceItem}
-                                        deleteFinanceItem={deleteFinanceItem}
+                                        addFinanceItem={handleAddFinance}
+                                        deleteFinanceItem={handleDeleteFinance}
+                                        updateFinanceItem={handleUpdateFinance}
                                     />
                                 </HUDPanel>
                             )}
@@ -398,9 +421,9 @@ const Financial = () => {
                                         debts={debts}
                                         currencySymbol={currencySymbol}
                                         onAction={handleAction}
-                                        addFinanceItem={addFinanceItem}
-                                        updateFinanceItem={updateFinanceItem}
-                                        deleteFinanceItem={deleteFinanceItem}
+                                        addFinanceItem={handleAddFinance}
+                                        updateFinanceItem={handleUpdateFinance}
+                                        deleteFinanceItem={handleDeleteFinance}
                                     />
                                 </HUDPanel>
                             )}
@@ -408,6 +431,7 @@ const Financial = () => {
 
                     </motion.div>
                 </AnimatePresence>
+                <SyncErrorToast show={showErrorToast} onDismiss={() => setShowErrorToast(false)} />
             </div>
         </div>
     );

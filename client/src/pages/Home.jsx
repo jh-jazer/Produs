@@ -841,10 +841,10 @@ export default function Home() {
                           {(() => {
                             if (!claimedDaily) return "Welcome";
                             const hour = currentTime.getHours();
-                            const suffix = hour < 12 ? "Morning" : hour < 18 ? "Afternoon" : "Evening";
+                            const suffix = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
                             return (
                               <>
-                                Good<br className="md:hidden" />{suffix}
+                                What are we up to<br className="md:hidden" /> this<br className="hidden md:block" /> {suffix}?
                               </>
                             );
                           })()}

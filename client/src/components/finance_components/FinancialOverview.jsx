@@ -44,6 +44,7 @@ const FinancialOverview = ({
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [typeFilter, setTypeFilter] = useState('all');
   const [selectedTxId, setSelectedTxId] = useState(null);
+  const [toggleConfirmData, setToggleConfirmData] = useState(null);
 
   const isMonthPaid = (tx, monthLabel, legacyLabel) => {
     const cleanTitle = tx.title.replace(/^debt-/, '');
@@ -212,6 +213,22 @@ const FinancialOverview = ({
             cancelLabel="CANCEL"
             onConfirm={() => handleDelete(confirmDelete)}
             onCancel={() => setConfirmDelete(null)}
+        />
+
+        <DecisionModal
+            isOpen={!!toggleConfirmData}
+            title={toggleConfirmData?.tx?.type === 'debt' ? "MARK AS PAID" : "MARK AS RECEIVED"}
+            message={`Are you sure you want to mark "${toggleConfirmData?.tx?.title.replace(/^debt-/, '')}" as ${toggleConfirmData?.tx?.type === 'debt' ? 'paid' : 'received'} for ${toggleConfirmData?.monthLabel}?`}
+            confirmLabel="CONFIRM"
+            cancelLabel="CANCEL"
+            onConfirm={async () => {
+                if (toggleConfirmData) {
+                    const { tx, monthLabel, checked, legacyLabel } = toggleConfirmData;
+                    setToggleConfirmData(null);
+                    await handleToggleCheckbox(tx, monthLabel, checked, legacyLabel);
+                }
+            }}
+            onCancel={() => setToggleConfirmData(null)}
         />
 
 
@@ -564,7 +581,12 @@ const FinancialOverview = ({
                                                                             checked={isPaid}
                                                                             onChange={(e) => {
                                                                                 e.stopPropagation();
-                                                                                handleToggleCheckbox(tx, label, e.target.checked, legacyLabel);
+                                                                                const isChecked = e.target.checked;
+                                                                                if (isChecked) {
+                                                                                    setToggleConfirmData({ tx, monthLabel: label, checked: true, legacyLabel });
+                                                                                } else {
+                                                                                    handleToggleCheckbox(tx, label, false, legacyLabel);
+                                                                                }
                                                                             }}
                                                                             onClick={(e) => e.stopPropagation()}
                                                                             className="size-4 accent-emerald-500 rounded-sm cursor-pointer border border-black/20 dark:border-white/20 bg-black/5 dark:bg-white/5 shrink-0"
@@ -607,7 +629,12 @@ const FinancialOverview = ({
                                                                 checked={isPaid}
                                                                 onChange={(e) => {
                                                                     e.stopPropagation();
-                                                                    handleToggleCheckbox(tx, label, e.target.checked);
+                                                                    const isChecked = e.target.checked;
+                                                                    if (isChecked) {
+                                                                        setToggleConfirmData({ tx, monthLabel: label, checked: true });
+                                                                    } else {
+                                                                        handleToggleCheckbox(tx, label, false);
+                                                                    }
                                                                 }}
                                                                 onClick={(e) => e.stopPropagation()}
                                                                 className="size-4 accent-emerald-500 rounded-sm cursor-pointer border border-black/20 dark:border-white/20 bg-black/5 dark:bg-white/5"

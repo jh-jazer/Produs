@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import ConfirmDialog from '../../ui/ConfirmDialog';
+import SyncErrorToast from '../../ui/SyncErrorToast';
 import { useGoals } from '../../../hooks/useGoals';
 import { motion } from 'framer-motion';
 
@@ -43,6 +44,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
     const [newGoalTitle, setNewGoalTitle] = useState('');
     const [isAdding, setIsAdding] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(null);
+    const [showErrorToast, setShowErrorToast] = useState(false);
 
     const weeksInMonth = useMemo(() => getWeeksInMonth(selectedYear, selectedMonth), [selectedYear, selectedMonth]);
     const safeWeekIdx = Math.min(selectedWeekIdx, weeksInMonth.length - 1);
@@ -72,6 +74,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
 
     return (
         <div className="flex flex-col gap-8 font-sans relative">
+            <SyncErrorToast show={showErrorToast} onDismiss={() => setShowErrorToast(false)} />
             <button onClick={() => setIsAdding(true)} className="absolute -top-16 right-0 size-10 flex items-center justify-center border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all z-20 rounded-sm">
                 <span className="material-symbols-outlined text-sm">add</span>
             </button>
@@ -80,7 +83,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                 title="DELETE GOAL"
                 message="This goal will be permanently removed from your list."
                 confirmLabel="DELETE"
-                onConfirm={() => { deleteGoalLocal(confirmDelete); setConfirmDelete(null); }}
+                onConfirm={async () => { const result = await deleteGoalLocal(confirmDelete); setConfirmDelete(null); if (result?.error) setShowErrorToast(true); }}
                 onCancel={() => setConfirmDelete(null)}
             />
 
@@ -139,7 +142,11 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                             className={`flex items-center gap-4 p-4 border rounded-sm transition-all ${goal.completed ? 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 opacity-40' : 'bg-black/[0.02] dark:bg-white/[0.03] border-black/10 dark:border-white/10'}`}
                         >
                             <button 
-                                onClick={() => !isReadOnly && toggleGoalLocal(goal._id)}
+                            onClick={async () => {
+                                if (isReadOnly) return;
+                                const result = await toggleGoalLocal(goal._id);
+                                if (result?.error) setShowErrorToast(true);
+                            }}
                                 className={`size-5 border-2 rounded-sm transition-all flex items-center justify-center ${goal.completed ? 'bg-black border-black text-white dark:bg-white dark:border-white dark:text-black shadow-md' : 'border-black/20 dark:border-white/20 hover:border-black dark:hover:border-white'}`}
                             >
                                 {goal.completed && <span className="material-symbols-outlined text-[12px] font-black">check</span>}

@@ -4,6 +4,7 @@ import { Heart, Activity, Trophy, ShoppingBag, CheckCircle2, Star, TrendingUp, Z
 import { useNavigate } from 'react-router-dom';
 import DashboardPanel from '../ui/DashboardPanel';
 import { useGoals } from '../../hooks/useGoals';
+import SyncErrorToast from '../ui/SyncErrorToast';
 
 /**
  * 1. MoodTracker (Feelings)
@@ -222,6 +223,7 @@ export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, togg
         'workout': '/dashboard/health'
     };
     const [activeTab, setActiveTab] = useState('habits'); // 'habits' | 'objectives'
+    const [showErrorToast, setShowErrorToast] = useState(false);
     
     // ISO Week Calculation consistent with GoalSetter
     const getISOWeek = (date) => {
@@ -250,6 +252,7 @@ export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, togg
             indicatorColor={activeTab === 'objectives' ? "primary" : "emerald"}
         >
             <div className="flex flex-col gap-4 py-2">
+                <SyncErrorToast show={showErrorToast} onDismiss={() => setShowErrorToast(false)} />
                 {/* Toggle Switch */}
                 <div className="flex bg-slate-100 dark:bg-white/[0.03] p-1 rounded-2xl w-full">
                     {['habits', 'objectives'].map(tab => (
@@ -279,7 +282,10 @@ export const TodayObjectivesList = ({ habits = [], isLoadingHabits = false, togg
                                     key={goal._id} 
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    onClick={() => toggleGoal(goal._id)}
+                                    onClick={async () => {
+                                        const result = await toggleGoal(goal._id);
+                                        if (result?.error) setShowErrorToast(true);
+                                    }}
                                     className={`group flex items-center gap-4 p-5 rounded-[2rem] border transition-all duration-300 cursor-pointer
                                         ${goal.completed 
                                             ? 'bg-slate-50/50 dark:bg-white/5 border-transparent opacity-50' 

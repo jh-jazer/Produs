@@ -682,8 +682,9 @@ function Layout() {
 
                                     const isActive = protocolMode === 'rpg'
                                         ? activeRpgTab === item.id
-                                        : (item.path === '/dashboard' && location.pathname === '/dashboard') ||
-                                        (location.pathname.startsWith(item.path) && (!item.tabId || item.tabId === currentSubTab));
+                                        : item.path === '/dashboard'
+                                            ? location.pathname === '/dashboard'
+                                            : (location.pathname.startsWith(item.path) && (!item.tabId || item.tabId === currentSubTab));
 
                                     return (
                                         <React.Fragment key={item.id}>
@@ -912,7 +913,7 @@ function Layout() {
                         </div>
                     </div>
 
-                    <aside className="hidden md:flex w-[4vw] flex-col items-center justify-between py-12 bg-white/50 dark:bg-black/50 backdrop-blur-sm relative shrink-0 layout-sidebar-right">
+                    <aside className="hidden md:flex w-[4vw] flex-col items-center justify-between py-12 bg-transparent relative shrink-0 layout-sidebar-right">
                         <div className="flex flex-col items-center gap-8 w-full h-full">
                             {protocolMode === 'reality' && <div className="flex-1 w-full" />}
                         </div>

@@ -42,18 +42,62 @@ export const useGoals = (filters = {}) => {
 
     const deleteGoal = async (id) => {
         if (!userId) return;
+
+        // Optimistically remove the goal from the cache
+        const buildOptimisticData = (currentGoals) => {
+            if (!currentGoals) return currentGoals;
+            return currentGoals.filter(g => g._id !== id);
+        };
+
         try {
-            await api.delete(`/planner/goals/${id}`);
-            mutate(fetchUrl);
+            await mutate(
+                fetchUrl,
+                async () => {
+                    await api.delete(`/planner/goals/${id}`);
+                    return undefined;
+                },
+                {
+                    optimisticData: buildOptimisticData,
+                    rollbackOnError: true,
+                    revalidate: true,
+                    populateCache: false,
+                }
+            );
         } catch (err) {
             console.error('Failed to delete goal:', err);
+            return { error: true };
         }
     };
 
     const toggleGoal = async (id) => {
         const goal = goals?.find(g => g._id === id);
-        if (goal) {
-            await updateGoal(id, { completed: !goal.completed });
+        if (!goal) return;
+
+        // Optimistically flip the completed state
+        const buildOptimisticData = (currentGoals) => {
+            if (!currentGoals) return currentGoals;
+            return currentGoals.map(g =>
+                g._id === id ? { ...g, completed: !g.completed } : g
+            );
+        };
+
+        try {
+            await mutate(
+                fetchUrl,
+                async () => {
+                    await api.patch(`/planner/goals/${id}`, { completed: !goal.completed });
+                    return undefined;
+                },
+                {
+                    optimisticData: buildOptimisticData,
+                    rollbackOnError: true,
+                    revalidate: true,
+                    populateCache: false,
+                }
+            );
+        } catch (err) {
+            console.error('Failed to toggle goal:', err);
+            return { error: true };
         }
     };
 

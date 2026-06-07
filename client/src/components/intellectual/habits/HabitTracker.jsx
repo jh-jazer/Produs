@@ -7,6 +7,7 @@ import ConfirmDialog from '../../ui/ConfirmDialog';
 import useAuthStore from '../../../store/useAuthStore';
 
 import AddHabitModal, { ICON_OPTIONS } from './AddHabitModal';
+import SyncErrorToast from '../../ui/SyncErrorToast';
 
 const EMPTY_ARRAY = [];
 const EMPTY_OBJECT = {};
@@ -36,6 +37,7 @@ function HabitTracker({
     const { user } = useAuthStore();
     const isLinked = !!user?.partner;
     const [showToast, setShowToast] = useState(false);
+    const [showErrorToast, setShowErrorToast] = useState(false);
     const [shakeLink, setShakeLink] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [addModalOpen, setAddModalOpen] = useState(false);
@@ -156,7 +158,10 @@ function HabitTracker({
     const handleToggle = async (habitId, date) => {
         if (isReadOnly || editMode) return;
         const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        await toggleCheck(habitId, dateStr);
+        const result = await toggleCheck(habitId, dateStr);
+        if (result?.error) {
+            setShowErrorToast(true);
+        }
     };
 
     const handleAddHabit = async (habitData) => {
@@ -303,6 +308,7 @@ function HabitTracker({
                         </div>
                     </motion.div>
                 )}
+                <SyncErrorToast show={showErrorToast} onDismiss={() => setShowErrorToast(false)} />
             </AnimatePresence>
             <div className="flex flex-col gap-8 font-sans relative">
             <div className="relative flex items-center justify-between gap-2 mb-4 z-20 px-4 md:px-0">
@@ -364,7 +370,7 @@ function HabitTracker({
                 title="DELETE HABIT"
                 message="Are you sure you want to remove this habit? Historical data will be permanently deleted."
                 confirmLabel="DELETE"
-                onConfirm={() => { deleteHabit(confirmDelete); setConfirmDelete(null); }}
+                onConfirm={async () => { const result = await deleteHabit(confirmDelete); setConfirmDelete(null); if (result?.error) setShowErrorToast(true); }}
                 onCancel={() => setConfirmDelete(null)}
             />
 

@@ -31,35 +31,75 @@ export const useFinance = () => {
 
     const addFinanceItem = async (type, data) => {
         if (!userId) return;
+        const endpoint = endpoints[type];
+        const tempId = `temp-${Date.now()}`;
+        const optimisticItem = { ...data, _id: tempId };
+
+        const buildOptimisticData = (currentData) => {
+            if (!currentData) return [optimisticItem];
+            return [...currentData, optimisticItem];
+        };
+
         try {
-            if (type === 'budget') {
-                await api.put('/finance/budgets', data);
-            } else if (type === 'saving') {
-                await api.post('/finance/savings', data);
-            } else {
-                await api.post(endpoints[type], data);
-            }
-            mutate(endpoints[type]);
+            await mutate(
+                endpoint,
+                async () => {
+                    if (type === 'budget') {
+                        await api.put('/finance/budgets', data);
+                    } else if (type === 'saving') {
+                        await api.post('/finance/savings', data);
+                    } else {
+                        await api.post(endpoint, data);
+                    }
+                    return undefined;
+                },
+                {
+                    optimisticData: buildOptimisticData,
+                    rollbackOnError: true,
+                    revalidate: true,
+                    populateCache: false,
+                }
+            );
         } catch (err) {
             console.error(`Failed to add finance item [${type}]:`, err);
+            return { error: true };
         }
     };
 
     const updateFinanceItem = async (id, type, updates) => {
         if (!userId) return;
+        const endpoint = endpoints[type];
+
+        const buildOptimisticData = (currentData) => {
+            if (!currentData) return currentData;
+            return currentData.map(item => item._id === id ? { ...item, ...updates } : item);
+        };
+
         try {
-            if (type === 'budget') {
-                await api.put('/finance/budgets', updates);
-            } else if (type === 'debt' || type === 'wishlist') {
-                await api.patch(`${endpoints[type]}/${id}`, updates);
-            } else if (type === 'saving') {
-                await api.post('/finance/savings', updates);
-            } else {
-                await api.put(`${endpoints[type]}/${id}`, updates);
-            }
-            mutate(endpoints[type]);
+            await mutate(
+                endpoint,
+                async () => {
+                    if (type === 'budget') {
+                        await api.put('/finance/budgets', updates);
+                    } else if (type === 'debt' || type === 'wishlist') {
+                        await api.patch(`${endpoint}/${id}`, updates);
+                    } else if (type === 'saving') {
+                        await api.post('/finance/savings', updates);
+                    } else {
+                        await api.put(`${endpoint}/${id}`, updates);
+                    }
+                    return undefined;
+                },
+                {
+                    optimisticData: buildOptimisticData,
+                    rollbackOnError: true,
+                    revalidate: true,
+                    populateCache: false,
+                }
+            );
         } catch (err) {
             console.error(`Failed to update finance item [${type}]:`, err);
+            return { error: true };
         }
     };
 
@@ -78,11 +118,29 @@ export const useFinance = () => {
             return;
         }
 
+        const endpoint = endpoints[type];
+        const buildOptimisticData = (currentData) => {
+            if (!currentData) return currentData;
+            return currentData.filter(item => item._id !== id);
+        };
+
         try {
-            await api.delete(`${endpoints[type]}/${id}`);
-            mutate(endpoints[type]);
+            await mutate(
+                endpoint,
+                async () => {
+                    await api.delete(`${endpoint}/${id}`);
+                    return undefined;
+                },
+                {
+                    optimisticData: buildOptimisticData,
+                    rollbackOnError: true,
+                    revalidate: true,
+                    populateCache: false,
+                }
+            );
         } catch (err) {
             console.error(`Failed to delete finance item [${type}]:`, err);
+            return { error: true };
         }
     };
 
