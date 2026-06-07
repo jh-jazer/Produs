@@ -45,7 +45,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
     const [selectedDay, setSelectedDay] = useState(todayDayIndex);
     const selectedDate = getDateForDay(selectedDay);
 
-    const { tasks, addTask, updateTask, deleteTask, isLoading } = usePlanner(selectedDate);
+    const { tasks, addTask, updateTask, deleteTask, copyPartnerPlanner, isLoading } = usePlanner(selectedDate, { view: viewMode });
 
     const [isAdding, setIsAdding] = useState(false);
     const [isStoreOpen, setIsStoreOpen] = useState(false);
@@ -53,6 +53,7 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
     const [isSleepModalOpen, setIsSleepModalOpen] = useState(false);
     const [snapKey, setSnapKey] = useState(0);
     const [confirmDelete, setConfirmDelete] = useState(null);
+    const [isConfirmCopyOpen, setIsConfirmCopyOpen] = useState(false);
 
     const { data: user, mutate: mutateUser } = useSWR('/auth/me', fetcher);
 
@@ -242,51 +243,69 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                         </div>
 
                         {/* Sleep Time Button */}
-                        <button
-                            onClick={() => setIsSleepModalOpen(true)}
-                            className="flex items-center gap-2 px-3 h-[36px] bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 text-black dark:text-white transition-colors rounded-sm text-[10px] font-black uppercase tracking-wider shrink-0 cursor-pointer"
-                            title="SET SLEEP WINDOW"
-                        >
-                            <span className="text-black/40 dark:text-white/40">SLEEP TIME:</span>
-                            <span>{formatTime12h(tempSleep.start).toUpperCase()}-{formatTime12h(tempSleep.end).toUpperCase()}</span>
-                            {isSavingSleep && (
-                                <div className="size-1.5 rounded-full bg-black dark:bg-white animate-pulse ml-1" />
-                            )}
-                        </button>
+                        {!isReadOnly && (
+                            <button
+                                onClick={() => setIsSleepModalOpen(true)}
+                                className="flex items-center gap-2 px-3 h-[36px] bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 text-black dark:text-white transition-colors rounded-sm text-[10px] font-black uppercase tracking-wider shrink-0 cursor-pointer"
+                                title="SET SLEEP WINDOW"
+                            >
+                                <span className="text-black/40 dark:text-white/40">SLEEP TIME:</span>
+                                <span>{formatTime12h(tempSleep.start).toUpperCase()}-{formatTime12h(tempSleep.end).toUpperCase()}</span>
+                                {isSavingSleep && (
+                                    <div className="size-1.5 rounded-full bg-black dark:bg-white animate-pulse ml-1" />
+                                )}
+                            </button>
+                        )}
+
+                        {/* Copy Template Button */}
+                        {isReadOnly && (
+                            <button
+                                onClick={() => setIsConfirmCopyOpen(true)}
+                                className="flex-1 flex items-center justify-center gap-2 h-[36px] bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 hover:border-black/40 dark:hover:border-white/40 text-black dark:text-white transition-all rounded-sm text-[10px] font-black uppercase tracking-wider cursor-pointer"
+                                title="COPY PARTNER PLANNER"
+                            >
+                                <span className="material-symbols-outlined text-[13px] font-black">content_copy</span>
+                                <span>COPY TEMPLATE</span>
+                            </button>
+                        )}
                     </div>
 
                     {/* Right: Add Icon Button */}
-                    <button 
-                        onClick={() => setIsAdding(true)} 
-                        className="size-[36px] shrink-0 flex items-center justify-center border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm cursor-pointer" 
-                        title="ADD ACTIVITY"
-                    >
-                        <Plus size={14} />
-                    </button>
+                    {!isReadOnly && (
+                        <button 
+                            onClick={() => setIsAdding(true)} 
+                            className="size-[36px] shrink-0 flex items-center justify-center border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm cursor-pointer" 
+                            title="ADD ACTIVITY"
+                        >
+                            <Plus size={14} />
+                        </button>
+                    )}
                 </div>
 
                 {/* Second Row: Actions */}
-                <div className="flex gap-3 w-full mt-1">
-                    <button 
-                        onClick={() => setIsStoreOpen(true)} 
-                        className="h-[38px] flex-1 border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm flex items-center justify-center gap-2 group/btn cursor-pointer" 
-                        title="TEMPLATES STORE"
-                    >
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">TEMPLATES STORE</span>
-                    </button>
-                    <button 
-                        onClick={() => !isPlannerEmpty && setIsSaveOpen(true)} 
-                        disabled={isPlannerEmpty}
-                        className={`h-[38px] flex-1 border transition-all rounded-sm flex items-center justify-center gap-2 group/btn cursor-pointer ${
-                            isPlannerEmpty 
-                                ? "border-black/10 dark:border-white/10 text-black/30 dark:text-white/25 bg-black/5 dark:bg-white/5 cursor-not-allowed opacity-50"
-                                : "border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black"
-                        }`}
-                        title={isPlannerEmpty ? "ADD ACTIVITIES TO SAVE A TEMPLATE" : "SAVE AS TEMPLATE"}
-                    >
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">SAVE AS TEMPLATE</span>
-                    </button>
-                </div>
+                {!isReadOnly && (
+                    <div className="flex gap-3 w-full mt-1">
+                        <button 
+                            onClick={() => setIsStoreOpen(true)} 
+                            className="h-[38px] flex-1 border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all rounded-sm flex items-center justify-center gap-2 group/btn cursor-pointer" 
+                            title="TEMPLATES STORE"
+                        >
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">TEMPLATES STORE</span>
+                        </button>
+                        <button 
+                            onClick={() => !isPlannerEmpty && setIsSaveOpen(true)} 
+                            disabled={isPlannerEmpty}
+                            className={`h-[38px] flex-1 border transition-all rounded-sm flex items-center justify-center gap-2 group/btn cursor-pointer ${
+                                isPlannerEmpty 
+                                    ? "border-black/10 dark:border-white/10 text-black/30 dark:text-white/25 bg-black/5 dark:bg-white/5 cursor-not-allowed opacity-50"
+                                    : "border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black"
+                            }`}
+                            title={isPlannerEmpty ? "ADD ACTIVITIES TO SAVE A TEMPLATE" : "SAVE AS TEMPLATE"}
+                        >
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">SAVE AS TEMPLATE</span>
+                        </button>
+                    </div>
+                )}
             </div>
 
             <ConfirmDialog
@@ -296,6 +315,18 @@ const DailySchedule = ({ viewMode = 'me', isReadOnly = false, onFlip }) => {
                 confirmLabel="DELETE"
                 onConfirm={() => { handleDeleteTask(confirmDelete); setConfirmDelete(null); }}
                 onCancel={() => setConfirmDelete(null)}
+            />
+
+            <ConfirmDialog
+                isOpen={isConfirmCopyOpen}
+                title="COPY PARTNER PLANNER"
+                message={`Are you sure you want to copy your partner's schedule for ${selectedDateStr} to your planner? This will overwrite your existing activities for this day.`}
+                confirmLabel="COPY"
+                onConfirm={async () => {
+                    await copyPartnerPlanner();
+                    setIsConfirmCopyOpen(false);
+                }}
+                onCancel={() => setIsConfirmCopyOpen(false)}
             />
 
             <div className="flex-1 overflow-y-auto custom-scrollbar relative pr-4">

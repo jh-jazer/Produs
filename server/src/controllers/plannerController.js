@@ -415,3 +415,50 @@ export const deleteGoal = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const copyPartnerTasks = async (req, res) => {
+    try {
+        const { date } = req.body;
+        if (!date) {
+            return res.status(400).json({ message: 'Date is required' });
+        }
+
+        const currentUser = await User.findById(req.user._id);
+        if (!currentUser || !currentUser.partner) {
+            return res.status(400).json({ message: 'No linked partner found' });
+        }
+
+        // Get partner's tasks for that date
+        const partnerTasks = await Task.find({
+            user: currentUser.partner,
+            date,
+            startTime: { $exists: true }
+        });
+
+        // Delete user's own tasks for that date
+        await Task.deleteMany({
+            user: req.user._id,
+            date,
+            startTime: { $exists: true }
+        });
+
+        // Copy tasks
+        const newTasks = partnerTasks.map(t => ({
+            title: t.title,
+            startTime: t.startTime,
+            endTime: t.endTime,
+            color: t.color,
+            user: req.user._id,
+            date,
+            type: 'task'
+        }));
+
+        if (newTasks.length > 0) {
+            await Task.insertMany(newTasks);
+        }
+
+        res.json({ message: 'Planner copied successfully', count: newTasks.length });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

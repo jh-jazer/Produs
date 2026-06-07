@@ -12,6 +12,7 @@ router.post('/tasks', plannerController.createTask);
 router.patch('/tasks/:id', plannerController.updateTask);
 router.delete('/tasks/:id', plannerController.deleteTask);
 router.post('/tasks/template', plannerController.applyTemplate);
+router.post('/tasks/copy-partner', plannerController.copyPartnerTasks);
 
 // Goals
 router.get('/goals', plannerController.getGoals);

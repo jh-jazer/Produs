@@ -406,7 +406,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
             <div className="relative">
                 <div 
                     ref={textareaRef}
-                    className="w-full bg-white dark:bg-black border-none focus:ring-0 px-6 py-5 min-h-[260px] text-lg md:text-xl text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1 [&_blockquote]:border-l-[3px] [&_blockquote]:border-slate-400/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:my-2 [&_blockquote]:bg-slate-400/5 [&_blockquote]:py-1 [&_blockquote]:rounded-r-md [&_a]:text-black dark:[&_a]:text-white [&_a]:underline [&_h1]:text-3xl [&_h1]:font-black [&_h1]:my-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:my-2"
+                    className="w-full bg-white dark:bg-black border-none focus:ring-0 px-6 pt-5 pb-40 md:pb-5 min-h-[calc(100vh-320px)] md:min-h-[500px] text-lg md:text-xl text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1 [&_blockquote]:border-l-[3px] [&_blockquote]:border-slate-400/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:my-2 [&_blockquote]:bg-slate-400/5 [&_blockquote]:py-1 [&_blockquote]:rounded-r-md [&_a]:text-black dark:[&_a]:text-white [&_a]:underline [&_h1]:text-3xl [&_h1]:font-black [&_h1]:my-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:my-2"
                     data-placeholder="Input text"
                     contentEditable="true"
                     suppressContentEditableWarning={true}
@@ -423,46 +423,46 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
 
             {/* Google Keep Style Bottom Toolbar */}
             {/* Journal Toolbar */}
-            <div className="bg-white dark:bg-black p-4 px-6 border-t border-slate-100 dark:border-white/10 flex flex-col gap-4">
+            <div 
+                className="fixed bottom-24 md:static left-0 right-0 md:left-auto md:right-auto z-[140] md:z-auto bg-white dark:bg-black border-t border-slate-100 dark:border-white/10 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_12px_rgba(0,0,0,0.5)] md:shadow-none p-4 px-6 flex flex-col gap-4"
+            >
                 {/* 1. All Operation Icons Row */}
-                <div className="flex flex-wrap gap-1.5 items-center justify-between w-full">
-                    <div className="flex items-center gap-1">
+                <div className="flex flex-wrap gap-1.5 items-center justify-end w-full">
+                    <button 
+                        onClick={handleAddImage}
+                        title="Add Image"
+                        className="p-2 hover:bg-slate-200 dark:hover:bg-white/5 rounded text-slate-600 dark:text-slate-400 shrink-0"
+                    >
+                        <ImageIcon size={20} />
+                    </button>
+                    <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
+                    
+                    <div className="relative flex-shrink-0">
                         <button 
-                            onClick={handleAddImage}
-                            title="Add Image"
-                            className="p-2 hover:bg-slate-200 dark:hover:bg-white/5 rounded text-slate-600 dark:text-slate-400 shrink-0"
+                            onMouseDown={(e) => { e.preventDefault(); setShowSizeMenu(!showSizeMenu); }} 
+                            title="Text Size" 
+                            type="button" 
+                            className="p-1 px-2 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex items-center gap-1"
                         >
-                            <ImageIcon size={20} />
+                            <span className="material-symbols-outlined text-[20px]">format_size</span>
+                            <span className="material-symbols-outlined text-[14px]">expand_more</span>
                         </button>
-                        <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
                         
-                        <div className="relative flex-shrink-0">
-                            <button 
-                                onMouseDown={(e) => { e.preventDefault(); setShowSizeMenu(!showSizeMenu); }} 
-                                title="Text Size" 
-                                type="button" 
-                                className="p-1 px-2 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex items-center gap-1"
-                            >
-                                <span className="material-symbols-outlined text-[20px]">format_size</span>
-                                <span className="material-symbols-outlined text-[14px]">expand_more</span>
-                            </button>
-                            
-                            {showSizeMenu && (
-                                <div className="absolute bottom-full mb-1 left-0 bg-white dark:bg-[#000000] border border-slate-100 dark:border-white/10 rounded-lg shadow-xl p-1.5 z-50 flex flex-col min-w-[120px]">
-                                    <button onMouseDown={(e) => { handleFormat(e, 'fontSize', '2'); setShowSizeMenu(false); }} className="px-3 py-1.5 text-xs text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded font-medium">Small</button>
-                                    <button onMouseDown={(e) => { handleFormat(e, 'fontSize', '3'); setShowSizeMenu(false); }} className="px-3 py-1.5 text-sm text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded font-medium">Normal</button>
-                                    <button onMouseDown={(e) => { handleFormat(e, 'fontSize', '5'); setShowSizeMenu(false); }} className="px-3 py-1.5 text-lg text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded font-medium">Large</button>
-                                    <button onMouseDown={(e) => { handleFormat(e, 'fontSize', '6'); setShowSizeMenu(false); }} className="px-3 py-1.5 text-xl font-bold text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded">Huge</button>
-                                </div>
-                            )}
-                        </div>
-                        <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
-                        <button onMouseDown={(e) => handleFormat(e, 'bold')} title="Bold" type="button" className={getBtnClass('bold')}><span className="material-symbols-outlined text-[20px]">format_bold</span></button>
-                        <button onMouseDown={(e) => handleFormat(e, 'italic')} title="Italic" type="button" className={getBtnClass('italic')}><span className="material-symbols-outlined text-[20px]">format_italic</span></button>
-                        <button onMouseDown={(e) => handleFormat(e, 'insertUnorderedList')} title="Bullet List" type="button" className={getBtnClass('insertUnorderedList')}><span className="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
-                        <button onMouseDown={(e) => handleFormat(e, 'checkbox')} title="Task List" type="button" className="p-1.5 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex-shrink-0"><span className="material-symbols-outlined text-[20px]">check_box</span></button>
+                        {showSizeMenu && (
+                            <div className="absolute bottom-full mb-1 left-0 bg-white dark:bg-[#000000] border border-slate-100 dark:border-white/10 rounded-lg shadow-xl p-1.5 z-50 flex flex-col min-w-[120px]">
+                                <button onMouseDown={(e) => { handleFormat(e, 'fontSize', '2'); setShowSizeMenu(false); }} className="px-3 py-1.5 text-xs text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded font-medium">Small</button>
+                                <button onMouseDown={(e) => { handleFormat(e, 'fontSize', '3'); setShowSizeMenu(false); }} className="px-3 py-1.5 text-sm text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded font-medium">Normal</button>
+                                <button onMouseDown={(e) => { handleFormat(e, 'fontSize', '5'); setShowSizeMenu(false); }} className="px-3 py-1.5 text-lg text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded font-medium">Large</button>
+                                <button onMouseDown={(e) => { handleFormat(e, 'fontSize', '6'); setShowSizeMenu(false); }} className="px-3 py-1.5 text-xl font-bold text-left text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#121212] rounded">Huge</button>
+                            </div>
+                        )}
                     </div>
-
+                    <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
+                    <button onMouseDown={(e) => handleFormat(e, 'bold')} title="Bold" type="button" className={getBtnClass('bold')}><span className="material-symbols-outlined text-[20px]">format_bold</span></button>
+                    <button onMouseDown={(e) => handleFormat(e, 'italic')} title="Italic" type="button" className={getBtnClass('italic')}><span className="material-symbols-outlined text-[20px]">format_italic</span></button>
+                    <button onMouseDown={(e) => handleFormat(e, 'insertUnorderedList')} title="Bullet List" type="button" className={getBtnClass('insertUnorderedList')}><span className="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
+                    <button onMouseDown={(e) => handleFormat(e, 'checkbox')} title="Task List" type="button" className="p-1.5 hover:bg-slate-200 dark:hover:bg-[#121212] rounded text-slate-600 dark:text-slate-400 flex-shrink-0"><span className="material-symbols-outlined text-[20px]">check_box</span></button>
+                    <div className="w-px bg-slate-200 dark:border-white/10 mx-1 h-5 flex-shrink-0"></div>
                     <button 
                         onClick={handleApplyPrompt} 
                         title="Prompt Bowl - Insert Reflection" 

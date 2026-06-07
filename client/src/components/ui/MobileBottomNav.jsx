@@ -6,12 +6,12 @@ import { DashboardContext } from '../../context/DashboardContext';
 const MobileBottomNav = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { protocolMode, activeRpgTab, setActiveRpgTab, setIsToolsStoreModalOpen, setIsAddGoalModalOpen, setIsAddEventModalOpen, setIsAddTransactionModalOpen, mobileTabs, isUserMenuOpen, setIsUserMenuOpen } = useContext(DashboardContext);
+    const { protocolMode, activeRpgTab, setActiveRpgTab, setIsToolsStoreModalOpen, setIsAddGoalModalOpen, setIsAddEventModalOpen, setIsAddTransactionModalOpen, mobileTabs, isUserMenuOpen, setIsUserMenuOpen, isLinkMode } = useContext(DashboardContext);
     const [clickRipples, setClickRipples] = useState([]);
     const [showActionDot, setShowActionDot] = useState(false);
 
     const realityPillars = [
-        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
+        { id: 'home', name: 'Home', path: isLinkMode ? '/linkdashboard' : '/dashboard', icon: 'home', isSpecial: true },
         { id: 'habits', name: 'Habits', path: '/dashboard/habits', icon: 'check_circle' },
         { id: 'planner', name: 'Planner', path: '/dashboard/planner', icon: 'calendar_today' },
         { id: 'calendar', name: 'Calendar', path: '/dashboard/calendar', icon: 'event' },
@@ -20,11 +20,11 @@ const MobileBottomNav = () => {
     ];
 
     const rpgPillars = [
-        { id: 'home', name: 'Home', path: '/dashboard', icon: 'home', isSpecial: true },
-        { id: 'tower', name: 'Tower', path: '/dashboard', icon: 'castle' },
-        { id: 'items', name: 'Items', path: '/dashboard', icon: 'inventory_2' },
-        { id: 'skills', name: 'Skills', path: '/dashboard', icon: 'model_training' },
-        { id: 'roam', name: 'Roam', path: '/dashboard', icon: 'explore' },
+        { id: 'home', name: 'Home', path: '/rpgdashboard', icon: 'home', isSpecial: true },
+        { id: 'tower', name: 'Tower', path: '/rpgdashboard', icon: 'castle' },
+        { id: 'items', name: 'Items', path: '/rpgdashboard', icon: 'inventory_2' },
+        { id: 'skills', name: 'Skills', path: '/rpgdashboard', icon: 'model_training' },
+        { id: 'roam', name: 'Roam', path: '/rpgdashboard', icon: 'explore' },
         { id: 'financial', name: 'Finances', path: '/dashboard/financial', icon: 'account_balance' },
     ];
 
@@ -44,10 +44,16 @@ const MobileBottomNav = () => {
             return location.pathname.startsWith('/dashboard/financial');
         }
         if (pillar.id === 'home') {
-            return location.pathname === '/dashboard' && (protocolMode !== 'rpg' || activeRpgTab === 'home');
+            if (protocolMode === 'rpg') {
+                return location.pathname === '/rpgdashboard' && activeRpgTab === 'home';
+            }
+            if (isLinkMode) {
+                return location.pathname === '/linkdashboard';
+            }
+            return location.pathname === '/dashboard';
         }
         if (protocolMode === 'rpg') {
-            return activeRpgTab === pillar.id;
+            return location.pathname === '/rpgdashboard' && activeRpgTab === pillar.id;
         }
 
         // Productivity Tool Specific Active State
@@ -89,8 +95,8 @@ const MobileBottomNav = () => {
         }
 
         if (protocolMode === 'rpg' && pillar.id !== 'home') {
-            if (location.pathname !== '/dashboard') {
-                navigate('/dashboard', { replace: true });
+            if (location.pathname !== '/rpgdashboard') {
+                navigate('/rpgdashboard', { replace: true });
             }
             setActiveRpgTab(pillar.id);
             setShowActionDot(false);

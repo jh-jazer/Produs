@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, Image as ImageIcon, X } from 'lucide-react';
+import { ChevronLeft, Image as ImageIcon, X, ChevronDown } from 'lucide-react';
 
 const NoteEntry = ({ onSave, onBack, initialNote, onAutosave }) => {
     const [title, setTitle] = useState('');
@@ -20,12 +20,27 @@ const NoteEntry = ({ onSave, onBack, initialNote, onAutosave }) => {
     const [showSizeMenu, setShowSizeMenu] = useState(false);
     const textareaRef = useRef(null);
     const fileInputRef = useRef(null);
-
     // Autosave state & refs
     const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
     const currentIdRef = useRef(initialNote?.id || null);
     const isFirstLoad = useRef(true);
     const isDirtyRef = useRef(false);
+
+    // Custom dropdown states
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     useEffect(() => {
         if (initialNote) {
@@ -243,13 +258,100 @@ const NoteEntry = ({ onSave, onBack, initialNote, onAutosave }) => {
                         </span>
                     )}
                 </div>
-                <button 
-                    onClick={handleConfirm}
-                    disabled={loading || (!title.trim() && !content.trim())}
-                    className="px-6 py-2 rounded-xl bg-black dark:bg-white text-white dark:text-slate-900 text-[11px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all disabled:opacity-30 active:scale-95 shadow-lg shadow-black/5"
-                >
-                    {loading ? 'SAVING...' : 'Save'}
-                </button>
+                <div className="flex items-center gap-2">
+                    {/* Category Selector */}
+                    {isCreatingNew ? (
+                        <div className="flex items-center gap-1.5">
+                            <input
+                                type="text"
+                                value={newCategoryName}
+                                onChange={(e) => setNewCategoryName(e.target.value)}
+                                placeholder="NEW..."
+                                className="px-2 py-1.5 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-[#121212] text-[10px] font-black uppercase tracking-wider outline-none focus:border-primary w-20"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleSaveNewCategory();
+                                    }
+                                }}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleSaveNewCategory}
+                                className="px-2 py-1.5 rounded bg-black dark:bg-white text-white dark:text-black text-[9px] font-black uppercase tracking-wider active:scale-95 transition-all"
+                            >
+                                Add
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setIsCreatingNew(false)}
+                                className="p-1.5 rounded bg-black/5 dark:bg-white/5 text-slate-500 hover:text-black dark:hover:text-white flex items-center justify-center"
+                            >
+                                <X size={12} />
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="relative" ref={dropdownRef}>
+                            <button
+                                type="button"
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                className="px-3 py-1.5 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-[#121212] hover:bg-slate-50 dark:hover:bg-[#1a1a1a] text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 outline-none transition-all cursor-pointer flex items-center justify-between gap-1.5 max-w-[110px] md:max-w-[140px] truncate select-none active:scale-95"
+                            >
+                                <span className="truncate">{selectedCategory}</span>
+                                <ChevronDown size={12} className={`stroke-[3] text-slate-500 shrink-0 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isDropdownOpen && (
+                                <div className="absolute right-0 top-full mt-1.5 bg-white dark:bg-[#0c0c0c] border border-black/10 dark:border-white/10 rounded-lg shadow-xl p-1.5 min-w-[130px] md:min-w-[150px] flex flex-col gap-0.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                                    <div className="max-h-[160px] overflow-y-auto flex flex-col gap-0.5 custom-scrollbar pr-0.5">
+                                        {categories.map(cat => {
+                                            const isSelected = cat === selectedCategory;
+                                            return (
+                                                <button
+                                                    key={cat}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedCategory(cat);
+                                                        isDirtyRef.current = true;
+                                                        setIsDropdownOpen(false);
+                                                    }}
+                                                    className={`w-full text-left px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wider rounded-md transition-colors ${
+                                                        isSelected 
+                                                            ? 'bg-black text-white dark:bg-white dark:text-black font-black' 
+                                                            : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
+                                                    }`}
+                                                >
+                                                    {cat}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="h-px bg-black/5 dark:bg-white/5 my-1" />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsCreatingNew(true);
+                                            setNewCategoryName('');
+                                            setIsDropdownOpen(false);
+                                        }}
+                                        className="w-full text-left px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wider text-primary hover:bg-primary/5 rounded-md transition-colors flex items-center gap-1"
+                                    >
+                                        <span>➕ NEW...</span>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <button 
+                        onClick={handleConfirm}
+                        disabled={loading || (!title.trim() && !content.trim())}
+                        className="px-4 md:px-6 py-2 rounded-xl bg-black dark:bg-white text-white dark:text-slate-900 text-[11px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all disabled:opacity-30 active:scale-95 shadow-lg shadow-black/5 shrink-0"
+                    >
+                        {loading ? 'SAVING...' : 'Save'}
+                    </button>
+                </div>
             </div>
 
             {/* Hidden File Input */}
@@ -301,63 +403,7 @@ const NoteEntry = ({ onSave, onBack, initialNote, onAutosave }) => {
                 )}
             </div>
 
-            {/* Category selection selector */}
-            <div className="bg-white dark:bg-black px-4 pt-4 flex justify-between items-center gap-4">
-                <div className="flex items-center gap-3">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">CATEGORY:</span>
-                    {isCreatingNew ? (
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="text"
-                                value={newCategoryName}
-                                onChange={(e) => setNewCategoryName(e.target.value)}
-                                placeholder="NEW CATEGORY NAME"
-                                className="px-3 py-1.5 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-[#121212] text-xs font-black uppercase tracking-wider outline-none focus:border-primary w-40"
-                                autoFocus
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        handleSaveNewCategory();
-                                    }
-                                }}
-                            />
-                            <button
-                                type="button"
-                                onClick={handleSaveNewCategory}
-                                className="px-3 py-1.5 rounded bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all"
-                            >
-                                Add
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setIsCreatingNew(false)}
-                                className="px-3 py-1.5 rounded bg-black/5 dark:bg-white/5 text-slate-500 hover:text-black dark:hover:text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    ) : (
-                        <select
-                            value={selectedCategory}
-                            onChange={(e) => {
-                                if (e.target.value === '__NEW__') {
-                                    setIsCreatingNew(true);
-                                    setNewCategoryName('');
-                                } else {
-                                    setSelectedCategory(e.target.value);
-                                    isDirtyRef.current = true;
-                                }
-                            }}
-                            className="px-3 py-1.5 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-[#121212] text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 outline-none focus:ring-1 focus:ring-primary/20 cursor-pointer min-w-[140px]"
-                        >
-                            {categories.map(cat => (
-                                <option key={cat} value={cat}>{cat}</option>
-                            ))}
-                            <option value="__NEW__">➕ CREATE NEW...</option>
-                        </select>
-                    )}
-                </div>
-            </div>
+
 
             {/* Title Input Area */}
             <div className="bg-white dark:bg-black px-4 pt-2 flex items-center gap-3">
@@ -374,7 +420,7 @@ const NoteEntry = ({ onSave, onBack, initialNote, onAutosave }) => {
             <div className="relative">
                 <div 
                     ref={textareaRef}
-                    className="w-full bg-white dark:bg-black border-none focus:ring-0 px-6 py-5 min-h-[260px] text-lg md:text-xl text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1"
+                    className="w-full bg-white dark:bg-black border-none focus:ring-0 px-6 pt-5 pb-40 md:pb-5 min-h-[calc(100vh-320px)] md:min-h-[500px] text-lg md:text-xl text-slate-700 dark:text-slate-300 outline-none font-medium leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 dark:empty:before:text-slate-600 cursor-text [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:my-1"
                     data-placeholder="Write your note here..."
                     contentEditable="true"
                     suppressContentEditableWarning={true}
@@ -389,9 +435,11 @@ const NoteEntry = ({ onSave, onBack, initialNote, onAutosave }) => {
             </div>
 
             {/* Editor Toolbar */}
-            <div className="bg-white dark:bg-black p-4 px-6 border-t border-slate-100 dark:border-white/10 flex flex-col gap-4">
+            <div 
+                className="fixed bottom-24 md:static left-0 right-0 md:left-auto md:right-auto z-[140] md:z-auto bg-white dark:bg-black border-t border-slate-100 dark:border-white/10 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_12px_rgba(0,0,0,0.5)] md:shadow-none p-4 px-6 flex flex-col gap-4"
+            >
                 {/* Formatting Tools */}
-                <div className="flex flex-wrap gap-1.5 items-center justify-start w-full">
+                <div className="flex flex-wrap gap-1.5 items-center justify-end w-full">
                     <button 
                         onClick={handleAddImage}
                         title="Add Image"

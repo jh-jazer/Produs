@@ -2,7 +2,8 @@ import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 
-export const useGoals = (filters = {}) => {
+export const useGoals = (filters = {}, options = {}) => {
+    const { view } = options;
     const { user } = useAuthStore();
     const userId = user?._id;
     const { mutate } = useSWRConfig();
@@ -13,6 +14,7 @@ export const useGoals = (filters = {}) => {
     if (filters.year) queryParams.append('year', filters.year);
     if (filters.month !== undefined) queryParams.append('month', filters.month);
     if (filters.week !== undefined) queryParams.append('week', filters.week);
+    if (view === 'partner') queryParams.append('view', 'partner');
     
     const queryString = queryParams.toString();
     const fetchUrl = userId ? `/planner/goals?${queryString}` : null;

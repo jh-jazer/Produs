@@ -90,38 +90,69 @@ export const toggleCheck = async (req, res) => {
             const alreadyChecked = habit.checks.some(c => c.date === dateStr && c.completed);
             await habit.toggleCheck(dateStr);
             
-            // Award XP if precisely toggled TO completed
+            // Award XP & Prod Coins or Link Points if precisely toggled TO completed
             if (!alreadyChecked) {
-                const user = await User.findById(req.user._id);
-                const category = (habit.category || 'INT').toLowerCase();
-                let baseXP = 5;
+                const isSharedHabit = habit.isShared && !!habit.sharedGroupId;
 
-                // Specific "Iconic" rewards from guideline
-                const name = habit.name.toLowerCase();
-                const icon = habit.icon.toLowerCase();
-                
-                if (icon.includes('fitness') || name.includes('workout')) baseXP = 10;
-                else if (icon.includes('book') || name.includes('read')) baseXP = 10;
-                else if (icon.includes('meditation') || icon.includes('improvement')) baseXP = 10;
-                else if (icon.includes('sunny') || name.includes('routine')) baseXP = 10;
+                if (isSharedHabit) {
+                    // Find partner's habit
+                    const partnerHabit = await Habit.findOne({
+                        sharedGroupId: habit.sharedGroupId,
+                        _id: { $ne: habit._id }
+                    });
+                    const partnerChecked = partnerHabit && partnerHabit.checks.some(c => c.date === dateStr && c.completed);
+                    
+                    // If both have now completed the habit for this date
+                    if (partnerChecked) {
+                        const isSystemHabit = !!habit.systemId;
+                        const linkPointsToAward = isSystemHabit ? 10 : 1;
+                        
+                        // Award link points to current user
+                        const user = await User.findById(req.user._id);
+                        user.rpg.linkPoints = (user.rpg.linkPoints || 0) + linkPointsToAward;
+                        await user.save();
+                        
+                        // Award link points to partner user
+                        if (partnerHabit.user) {
+                            const partnerUser = await User.findById(partnerHabit.user);
+                            if (partnerUser) {
+                                partnerUser.rpg.linkPoints = (partnerUser.rpg.linkPoints || 0) + linkPointsToAward;
+                                await partnerUser.save();
+                            }
+                        }
+                    }
+                } else {
+                    // Non-shared habit: award plain Guardian XP & Prod Coins
+                    const user = await User.findById(req.user._id);
+                    const isSystemHabit = !!habit.systemId;
+                    const xpToAward = isSystemHabit ? 10 : 1;
+                    const coinsToAward = isSystemHabit ? 10 : 1;
 
-                // Award Primary Stat XP
-                await awardXP(user, category, baseXP, habit.streak);
+                    // Award plain guardian XP (passing streak = 1 to ignore multipliers)
+                    await awardXP(user, 'none', xpToAward, 1);
 
-                // Award Endurance (END) XP based on streak milestones
-                const streak = habit.streak;
-                let endXP = 0;
-                if (streak === 100) endXP = 300;
-                else if (streak === 30) endXP = 100;
-                else if (streak === 14) endXP = 50;
-                else if (streak === 7) endXP = 25;
-                else if (streak === 3) endXP = 10;
+                    // Award prod points (productivity coins)
+                    user.rpg.prodCoins = (user.rpg.prodCoins || 0) + coinsToAward;
 
-                if (endXP > 0) {
-                    await awardXP(user, 'end', endXP);
+                    // Award streak milestone bonus guardian XP
+                    const streak = habit.streak;
+                    let streakBonusXP = 0;
+                    if (streak === 100) streakBonusXP = 20;
+                    else if (streak === 30) streakBonusXP = 10;
+                    else if (streak === 14) streakBonusXP = 5;
+                    else if (streak === 7) streakBonusXP = 3;
+                    else if (streak === 3) streakBonusXP = 1;
+
+                    if (isSystemHabit) {
+                        streakBonusXP *= 10;
+                    }
+
+                    if (streakBonusXP > 0) {
+                        await awardXP(user, 'none', streakBonusXP, 1);
+                    }
+
+                    await user.save();
                 }
-
-                await user.save();
             }
             res.json(habit);
         } else {

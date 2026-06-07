@@ -3,7 +3,8 @@ import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 import { soundManager } from '../services/sound';
 
-export const usePlanner = (dateInput) => {
+export const usePlanner = (dateInput, options = {}) => {
+    const { view } = options;
     const { user } = useAuthStore();
     const userId = user?._id;
     const { mutate } = useSWRConfig();
@@ -20,6 +21,10 @@ export const usePlanner = (dateInput) => {
             ? dateInput.toISOString().split('T')[0]
             : dateInput;
         queryParams = `date=${dateStr}`;
+    }
+
+    if (view === 'partner') {
+        queryParams = queryParams ? `${queryParams}&view=partner` : 'view=partner';
     }
 
     const fetcher = url => api.get(url).then(res => res.data);
@@ -129,6 +134,17 @@ export const usePlanner = (dateInput) => {
         }
     };
 
+    const copyPartnerPlanner = async () => {
+        if (!userId) return;
+        try {
+            await api.post('/planner/tasks/copy-partner', { date: dateStr });
+            mutate(`/planner/tasks?date=${dateStr}`);
+            mutate(key => typeof key === 'string' && key.startsWith('/planner/tasks'));
+        } catch (err) {
+            console.error('Failed to copy partner planner:', err);
+        }
+    };
+
     return {
         tasks: tasks || [],
         addTask,
@@ -136,6 +152,7 @@ export const usePlanner = (dateInput) => {
         deleteTask,
         toggleComplete,
         reorderTasks,
+        copyPartnerPlanner,
         isLoading,
         error
     };

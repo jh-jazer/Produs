@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmDialog from '../../ui/ConfirmDialog';
@@ -17,7 +17,7 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly = false }) => {
-    const { setIsAddEventModalOpen, setAddEventInitialDate } = useContext(DashboardContext);
+    const { setIsAddEventModalOpen, setAddEventInitialDate, isLinkMode } = useContext(DashboardContext);
     const [viewDate, setViewDate] = useState(new Date());
     const [addModal, setAddModal] = useState(null);
     const [confirmDelete, setConfirmDelete] = useState(null);
@@ -25,7 +25,14 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
 
-    const { tasks, deleteTask: deleteTaskLocal, updateTask } = usePlanner({ year, month: month + 1 });
+    const { tasks: myTasks, deleteTask: deleteTaskLocal, updateTask } = usePlanner({ year, month: month + 1 });
+    const { tasks: partnerTasks } = usePlanner({ year, month: month + 1 }, { view: isLinkMode ? 'partner' : 'me' });
+
+    const tasks = useMemo(() => {
+        const myMapped = (myTasks || []).map(t => ({ ...t, isPartner: false }));
+        const partnerMapped = isLinkMode ? (partnerTasks || []).map(t => ({ ...t, isPartner: true })) : [];
+        return [...myMapped, ...partnerMapped];
+    }, [myTasks, partnerTasks, isLinkMode]);
 
     const [editingId, setEditingId] = useState(null);
     const [editTitle, setEditTitle] = useState('');
@@ -238,27 +245,34 @@ const FullCalendar = ({ onDateSelect, selectedDate, viewMode = 'me', isReadOnly 
                                                                         <div className={`size-1.5 rounded-full ${colors.find(c => c.id === t.color)?.bg || 'bg-cyan-500'}`} />
                                                                     )}
                                                                     <span className="text-[10px] font-black uppercase tracking-wider text-white">{t.title}</span>
+                                                                    {t.isPartner && (
+                                                                        <span className="text-[8px] font-black tracking-widest text-primary bg-primary/10 border border-primary/20 px-1 py-0.5 rounded-sm uppercase scale-90 origin-left">
+                                                                            PARTNER
+                                                                        </span>
+                                                                    )}
                                                                 </div>
                                                                 {t.recurrence && <span className="text-[7px] font-mono text-white/20 uppercase tracking-widest">{t.recurrence}</span>}
                                                             </div>
-                                                            <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-all">
-                                                                <button 
-                                                                    onClick={() => {
-                                                                        setEditingId(t._id);
-                                                                        setEditTitle(t.title);
-                                                                        setEditColor(t.color || 'cyan');
-                                                                    }} 
-                                                                    className="size-8 flex items-center justify-center rounded-sm text-white/10 hover:text-white hover:bg-white/5 transition-all"
-                                                                >
-                                                                    <span className="material-symbols-outlined text-sm">edit</span>
-                                                                </button>
-                                                                <button 
-                                                                    onClick={() => setConfirmDelete(t._id)} 
-                                                                    className="size-8 flex items-center justify-center rounded-sm text-white/10 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
-                                                                >
-                                                                    <span className="material-symbols-outlined text-sm">delete</span>
-                                                                </button>
-                                                            </div>
+                                                            {!t.isPartner && (
+                                                                <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-all">
+                                                                    <button 
+                                                                        onClick={() => {
+                                                                            setEditingId(t._id);
+                                                                            setEditTitle(t.title);
+                                                                            setEditColor(t.color || 'cyan');
+                                                                        }} 
+                                                                        className="size-8 flex items-center justify-center rounded-sm text-white/10 hover:text-white hover:bg-white/5 transition-all"
+                                                                    >
+                                                                        <span className="material-symbols-outlined text-sm">edit</span>
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={() => setConfirmDelete(t._id)} 
+                                                                        className="size-8 flex items-center justify-center rounded-sm text-white/10 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
+                                                                    >
+                                                                        <span className="material-symbols-outlined text-sm">delete</span>
+                                                                    </button>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     )}
                                                 </div>

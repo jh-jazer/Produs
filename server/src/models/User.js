@@ -129,6 +129,10 @@ const userSchema = new mongoose.Schema({
             type: Number,
             default: 2000
         },
+        linkPoints: {
+            type: Number,
+            default: 0
+        },
         cores: {
             type: Number,
             default: 0

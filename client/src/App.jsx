@@ -25,6 +25,7 @@ import GoalSetterPage from './pages/GoalSetterPage';
 import EventCalendar from './pages/EventCalendar';
 import FocusTimer from './pages/FocusTimer';
 import LinkPage from './pages/Link';
+import RpgPage from './pages/rpg';
 import useAuthStore from './store/useAuthStore';
 import { useEffect } from 'react';
 
@@ -73,35 +74,41 @@ function AnimatedRoutes() {
         <Route path="/u/:username" element={<PublicProfile />} />
 
         {/* Protected Dashboard Routes */}
-        <Route path="/dashboard" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-          <Route index element={<Home />} />
-          <Route path="intellectual" element={<Intellectual />} />
-          <Route path="habits" element={<HabitMatrix />} />
-          <Route path="planner" element={<TacticalPlanner />} />
-          <Route path="goals" element={<GoalSetterPage />} />
-          <Route path="calendar" element={<EventCalendar />} />
-          <Route path="link" element={<LinkPage />} />
+        <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard" element={<Home />} />
+          <Route path="rpgdashboard" element={<RpgPage />} />
+          <Route path="linkdashboard" element={<LinkPage />} />
+          <Route path="dashboard/link" element={<Navigate to="/linkdashboard" replace />} />
           
-          <Route path="financial" element={<Financial />} />
-          <Route path="physical" element={<Physical />} />
-          <Route path="spiritual" element={<Writing />} />
-          <Route path="writing" element={<Writing />} />
-          <Route path="writing/journal" element={<Writing />} />
-          <Route path="writing/journal/:entryId" element={<Writing />} />
-          <Route path="writing/notes" element={<Writing />} />
-          <Route path="writing/notes/:noteId" element={<Writing />} />
-          <Route path="writing/lists" element={<Writing />} />
-          <Route path="writing/lists/:listId" element={<Writing />} />
-          <Route path="merchant" element={<Merchant />} />
+          <Route path="dashboard/intellectual" element={<Intellectual />} />
+          <Route path="dashboard/habits" element={<HabitMatrix />} />
+          <Route path="dashboard/planner" element={<TacticalPlanner />} />
+          <Route path="dashboard/goals" element={<GoalSetterPage />} />
+          <Route path="dashboard/calendar" element={<EventCalendar />} />
           
-          <Route path="finance" element={<Navigate to="/dashboard/financial" replace />} />
-          <Route path="health" element={<Navigate to="/dashboard/physical" replace />} />
-          <Route path="journal" element={<Navigate to="/dashboard/spiritual" replace />} />
+          <Route path="dashboard/financial" element={<Financial />} />
+          <Route path="dashboard/physical" element={<Physical />} />
+          <Route path="dashboard/spiritual" element={<Writing />} />
+          <Route path="dashboard/writing" element={<Writing />} />
+          <Route path="dashboard/writing/journal" element={<Writing />} />
+          <Route path="dashboard/writing/journal/:entryId" element={<Writing />} />
+          <Route path="dashboard/writing/notes" element={<Writing />} />
+          <Route path="dashboard/writing/notes/:noteId" element={<Writing />} />
+          <Route path="dashboard/writing/lists" element={<Writing />} />
+          <Route path="dashboard/writing/lists/:listId" element={<Writing />} />
+          <Route path="dashboard/writing/shared" element={<Writing />} />
+          <Route path="dashboard/writing/shared/:sharedId" element={<Writing />} />
+          <Route path="dashboard/merchant" element={<Merchant />} />
           
-          <Route path="mental" element={<Navigate to="/dashboard/intellectual" replace />} />
+          <Route path="dashboard/finance" element={<Navigate to="/dashboard/financial" replace />} />
+          <Route path="dashboard/health" element={<Navigate to="/dashboard/physical" replace />} />
+          <Route path="dashboard/journal" element={<Navigate to="/dashboard/spiritual" replace />} />
           
-          <Route path="profile" element={<Profile />} />
-          <Route path="admin" element={<AdminRoute><Admin /></AdminRoute>} />
+          <Route path="dashboard/mental" element={<Navigate to="/dashboard/intellectual" replace />} />
+          
+          <Route path="dashboard/profile" element={<Profile />} />
+          <Route path="dashboard/admin" element={<AdminRoute><Admin /></AdminRoute>} />
         </Route>
 
         <Route path="/dashboard/neural-sync" element={<ProtectedRoute><NeuralSyncPage /></ProtectedRoute>} />

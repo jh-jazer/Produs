@@ -4,12 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import { ArrowLeft, Image as ImageIcon, RotateCcw, Upload } from 'lucide-react';
 import { soundManager } from '../services/sound';
+import useSWR from 'swr';
+import api from '../services/api';
+import Avatar from '../components/ui/Avatar';
 
 const Link = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
     const isLinked = !!user?.partner;
     const fileInputRef = useRef(null);
+
+    const fetcher = url => api.get(url).then(res => res.data);
+    const { data: partner } = useSWR(user?.partner ? '/auth/partner' : null, fetcher);
 
     // Initial state: load from localStorage
     const [linkImage, setLinkImage] = useState(() => {
@@ -53,8 +59,10 @@ const Link = () => {
     return (
         <div className="w-full bg-transparent text-foreground px-4 pt-28 pb-12 md:pt-24 md:pb-16 font-sans overflow-x-hidden flex flex-col items-start justify-start min-h-[80vh]">
 
+            
+
             {/* 2-column top grid */}
-            <div className="w-full grid grid-cols-2 gap-6 mt-0 md:mt-2">
+            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mt-0 md:mt-2">
 
                 {/* LEFT COLUMN — image holder */}
                 <motion.div
@@ -63,12 +71,6 @@ const Link = () => {
                     transition={{ duration: 0.6, ease: "easeOut" }}
                     className="flex flex-col gap-4"
                 >
-                    {/* Header */}
-                    <div className="hidden md:flex flex-col gap-0.5">
-                        <span className="text-xl font-black uppercase tracking-[0.3em] text-foreground/95">LINK HUB</span>
-                        <span className="text-[9px] font-mono uppercase tracking-widest text-foreground/45">SHARED CONNECTION</span>
-                    </div>
-
                     {/* Settable Link Image Container */}
                     <div className="relative bg-transparent dark:bg-foreground/[0.02] rounded-sm border border-black/10 dark:border-white/10 p-4 flex flex-col items-center justify-center group/panel overflow-hidden shadow-sm hover:border-black/20 dark:hover:border-white/20 transition-all">
 
@@ -117,13 +119,40 @@ const Link = () => {
                     </div>
                 </motion.div>
 
-                {/* RIGHT COLUMN — future content */}
+                {/* RIGHT COLUMN — Link points & status */}
                 <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
                     className="flex flex-col gap-4"
                 >
+                    <div className="relative bg-transparent dark:bg-foreground/[0.02] rounded-sm border border-black/10 dark:border-white/10 p-6 flex flex-col gap-6 overflow-hidden shadow-sm hover:border-black/20 dark:hover:border-white/20 transition-all min-h-[300px]">
+                        
+                        {/* Title & Badge */}
+                        <div className="flex justify-between items-start">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] font-mono font-black uppercase tracking-[0.2em] text-slate-400">SHARED SYNC METRICS</span>
+                                <h3 className="text-sm font-black uppercase tracking-widest text-black dark:text-white mt-1">LINK POWER</h3>
+                            </div>
+                            <span className="px-2 py-0.5 rounded-sm bg-rose-500/10 text-rose-500 text-[8px] font-mono font-black tracking-widest uppercase animate-pulse">
+                                ACTIVE
+                            </span>
+                        </div>
+
+                        {/* Large Link Points Display */}
+                        <div className="flex-1 flex flex-col items-center justify-center py-6">
+                            <span className="text-4xl md:text-5xl font-black font-mono tracking-tight text-rose-500 flex items-center gap-2">
+                                {user?.rpg?.linkPoints || 0}
+                            </span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-rose-500/60 dark:text-rose-500/40 mt-2">LINK POINTS (LPT)</span>
+                        </div>
+
+                        {/* Footer description */}
+                        <div className="pt-4 border-t border-black/5 dark:border-white/5 text-[9px] leading-relaxed text-black/55 dark:text-white/40">
+                            <span className="font-bold text-black dark:text-white uppercase tracking-wider block mb-1">HOW TO EARN</span>
+                            Link points are awarded only when both you and your partner complete a shared habit on the same day. Focus on synchronization to grow your shared Link Power.
+                        </div>
+                    </div>
                 </motion.div>
 
             </div>

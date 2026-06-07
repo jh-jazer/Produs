@@ -7,10 +7,22 @@ import User from '../models/User.js';
 import { checkSystemHabit } from '../utils/habitUtils.js';
 import { awardXP } from '../utils/rpgUtils.js';
 
+// Helper to check for partner view
+const getTargetUserId = async (req) => {
+    if (req.query.view === 'partner') {
+        const currentUser = await User.findById(req.user._id);
+        if (currentUser && currentUser.partner) {
+            return currentUser.partner;
+        }
+    }
+    return req.user._id;
+};
+
 // --- Transactions ---
 export const getTransactions = async (req, res) => {
     try {
-        const transactions = await Transaction.find({ user: req.user._id }).sort({ date: -1, createdAt: -1 });
+        const targetUserId = await getTargetUserId(req);
+        const transactions = await Transaction.find({ user: targetUserId }).sort({ date: -1, createdAt: -1 });
         res.json(transactions);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -77,7 +89,8 @@ export const updateTransaction = async (req, res) => {
 // --- Budgets ---
 export const getBudgets = async (req, res) => {
     try {
-        const budgets = await Budget.find({ user: req.user._id });
+        const targetUserId = await getTargetUserId(req);
+        const budgets = await Budget.find({ user: targetUserId });
         res.json(budgets);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -117,7 +130,8 @@ export const deleteBudget = async (req, res) => {
 // --- Debts ---
 export const getDebts = async (req, res) => {
     try {
-        const debts = await Debt.find({ user: req.user._id });
+        const targetUserId = await getTargetUserId(req);
+        const debts = await Debt.find({ user: targetUserId });
         res.json(debts);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -177,7 +191,8 @@ export const deleteDebt = async (req, res) => {
 // --- Wishlist ---
 export const getWishlist = async (req, res) => {
     try {
-        const items = await Wishlist.find({ user: req.user._id }).sort({ createdAt: -1 });
+        const targetUserId = await getTargetUserId(req);
+        const items = await Wishlist.find({ user: targetUserId }).sort({ createdAt: -1 });
         res.json(items);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -254,7 +269,8 @@ export const deleteWishlistItem = async (req, res) => {
 // --- Savings ---
 export const getSavings = async (req, res) => {
     try {
-        const savings = await Saving.find({ user: req.user._id });
+        const targetUserId = await getTargetUserId(req);
+        const savings = await Saving.find({ user: targetUserId });
         res.json(savings);
     } catch (error) {
         res.status(500).json({ message: error.message });

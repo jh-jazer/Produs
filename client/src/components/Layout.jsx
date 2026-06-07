@@ -85,14 +85,23 @@ const GlobalTransactionPortal = ({ isOpen, onClose }) => {
     );
 };
 
-const GlobalMobileHeader = ({ activeSection, onClick, protocolMode, shakeMerchant, handleOpenMerchant, isIdPulledDown, onOpenNotifications, hasAnyUnread }) => {
+const MobileTopBar = ({ activeSection, onClick, protocolMode, shakeMerchant, handleOpenMerchant, isIdPulledDown, onOpenNotifications, hasAnyUnread, isLinkMode }) => {
     const [matrixText, setMatrixText] = useState("");
     const [showProfile, setShowProfile] = useState(false);
     const { user } = useAuthStore();
-    const { setIsUserMenuOpen } = useContext(DashboardContext);
+    const { setIsUserMenuOpen, setIsLinkMode } = useContext(DashboardContext);
     const location = useLocation();
     const navigate = useNavigate();
-    const textToType = "PRODUS";
+    const isLinkPage = location.pathname === '/linkdashboard';
+    const isOverview = location.pathname === '/dashboard';
+    const { data: partner } = useSWR(user?.partner ? '/auth/partner' : null);
+    const isLinked = !!user?.partner;
+    const getTargetText = () => {
+        if (location.pathname === '/rpgdashboard') return "RPG HUB";
+        if (location.pathname === '/linkdashboard') return "LINK HUB";
+        return "PRODUS";
+    };
+    const textToType = getTargetText();
     const matrixChars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*<>";
 
     const getPageConfig = () => {
@@ -105,9 +114,10 @@ const GlobalMobileHeader = ({ activeSection, onClick, protocolMode, shakeMerchan
             return { id: 'calendar', title: 'CALENDAR & GOALS', subtitle };
         }
         if (path.startsWith('/dashboard/goals')) return { id: 'goals', title: 'GOALS', subtitle: 'MILESTONES & TARGETS' };
-        if (path.startsWith('/dashboard/writing/journal')) return { id: 'spiritual', title: 'JOURNAL', subtitle: 'DAILY REFLECTIONS' };
-        if (path.startsWith('/dashboard/writing/notes')) return { id: 'spiritual', title: 'NOTES', subtitle: 'SCRATCHPAD MEMOS' };
-        if (path.startsWith('/dashboard/writing/lists')) return { id: 'spiritual', title: 'LISTS', subtitle: 'TASK TRACKING' };
+        if (path.startsWith('/dashboard/writing/journal/')) return { id: 'spiritual', title: 'JOURNAL ENTRY', subtitle: 'DAILY REFLECTIONS' };
+        if (path.startsWith('/dashboard/writing/notes/')) return { id: 'spiritual', title: 'NOTE ENTRY', subtitle: 'SCRATCHPAD MEMOS' };
+        if (path.startsWith('/dashboard/writing/lists/')) return { id: 'spiritual', title: 'LIST ENTRY', subtitle: 'TASK TRACKING' };
+        if (path.startsWith('/dashboard/writing/shared/')) return { id: 'spiritual', title: 'SHARED ENTRY', subtitle: 'COLLABORATIVE WRITING' };
         if (path.startsWith('/dashboard/spiritual') || path.startsWith('/dashboard/writing')) return { id: 'spiritual', title: 'WRITE HUB', subtitle: 'JOURNAL, NOTES & LISTS' };
         if (path.startsWith('/dashboard/financial')) return { id: 'financial', title: 'FINANCIAL HUB', subtitle: 'LEDGER & ACCOUNTS' };
 
@@ -153,7 +163,7 @@ const GlobalMobileHeader = ({ activeSection, onClick, protocolMode, shakeMerchan
         } else {
             setShowProfile(false);
         }
-    }, [config.isMain]);
+    }, [config.isMain, location.pathname]);
 
 
     return (
@@ -178,76 +188,151 @@ const GlobalMobileHeader = ({ activeSection, onClick, protocolMode, shakeMerchan
                                     </h1>
                                 </motion.div>
                             ) : !isIdPulledDown ? (
-                                <motion.div
-                                    key="profile"
-                                    initial={{ opacity: 0, scale: 0.95, y: 5 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.95, y: -5 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="pointer-events-auto flex items-center gap-3.5 mt-1 cursor-pointer"
-                                    onClick={() => setIsUserMenuOpen(true)}
-                                >
-                                    {/* Profile Image + Level Badge */}
-                                    <div className="relative size-14 shrink-0">
-                                        <div className="size-full rounded-full overflow-hidden border-2 border-black/40 dark:border-white/15 bg-black/5 dark:bg-white/10 flex items-center justify-center">
-                                            <Avatar config={user?.avatar} />
+                                isLinkPage ? (
+                                    <motion.div
+                                        key="link-topbar"
+                                        initial={{ opacity: 0, scale: 0.95, y: 5 }}
+                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="pointer-events-auto flex items-center gap-3.5 mt-1 cursor-pointer"
+                                    >
+                                        {/* Profile beside partner profile with chain link */}
+                                        <div className="flex items-center gap-2.5 relative">
+                                            {/* User Profile Icon */}
+                                            <button
+                                                onClick={() => setIsUserMenuOpen(true)}
+                                                className="relative flex items-center active:scale-95 transition-all shrink-0"
+                                            >
+                                                <div className="size-14 rounded-full overflow-hidden border-2 border-black/40 dark:border-white/15 bg-black/5 dark:bg-white/10 flex items-center justify-center relative z-10">
+                                                    <Avatar config={user?.avatar} />
+                                                </div>
+                                            </button>
+                                            
+                                            {/* Chain Link Icon */}
+                                            <span className="material-symbols-outlined text-[20px] text-black/50 dark:text-white/40">
+                                                link
+                                            </span>
+
+                                            {/* Partner Profile Icon */}
+                                            <div className="size-14 rounded-full overflow-hidden border-2 border-black/40 dark:border-white/15 bg-black/5 dark:bg-white/10 flex items-center justify-center relative shrink-0">
+                                                {partner ? (
+                                                    <Avatar config={partner.avatar} />
+                                                ) : (
+                                                    <div className="size-full flex items-center justify-center bg-black/5 dark:bg-white/10 text-black/35 dark:text-white/30 rounded-full">
+                                                        <span className="material-symbols-outlined text-lg">person</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                        {/* Show guardian level in normal mode, hero level in RPG mode */}
-                                        {protocolMode === 'rpg' ? (
-                                            user?.hero && (
-                                                <div className="absolute -bottom-0.5 -right-0.5 bg-amber-500 text-white text-[8px] font-black px-1 py-0.5 rounded-md shadow-md border border-amber-400/20 z-20">
-                                                    {user.hero.level}
-                                                </div>
-                                            )
-                                        ) : (
-                                            (user?.guardianLevel || 0) > 0 && (
-                                                <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-white text-[8px] font-black px-1 py-0.5 rounded-md shadow-md border border-primary/20 z-20">
-                                                    {user.guardianLevel}
-                                                </div>
-                                            )
-                                        )}
-                                    </div>
 
+                                        {/* Right-aligned merchant and PTS display */}
+                                        <div className="flex items-stretch gap-1.5">
+                                            {/* Merchant Quick Access */}
+                                            <motion.div
+                                                animate={{ x: shakeMerchant ? [-6, 6, -6, 6, -3, 3, 0] : 0 }}
+                                                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleOpenMerchant();
+                                                }}
+                                                className="flex items-center justify-center px-3 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 rounded-md hover:bg-black/10 dark:hover:bg-white/10 hover:scale-95 transition-all shadow-sm cursor-pointer relative"
+                                                title="Market"
+                                            >
+                                                <span className="material-symbols-outlined text-black dark:text-white text-[20px]">shopping_bag</span>
+                                            </motion.div>
 
-                                    <div className="flex items-stretch gap-1.5">
-                                        {/* Notification Bell Icon */}
-                                        <div
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                onOpenNotifications && onOpenNotifications();
-                                            }}
-                                            className="flex items-center justify-center px-3 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 rounded-md hover:bg-black/10 dark:hover:bg-white/10 hover:scale-95 transition-all shadow-sm cursor-pointer relative"
-                                            title="Notifications"
-                                        >
-                                            <span className="material-symbols-outlined text-black dark:text-white text-[20px]">notifications</span>
-                                            {hasAnyUnread && (
-                                                <span className="absolute top-1 right-1.5 size-1.5 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)] animate-pulse" />
+                                            {/* Link points Display */}
+                                            {isLinked && (
+                                                <div className="flex items-center justify-between gap-1.5 bg-rose-500/5 dark:bg-rose-500/[0.02] border border-rose-500/30 px-3.5 py-2 rounded-md select-none min-w-[96px]">
+                                                    <span className="text-sm font-black uppercase tracking-wider text-rose-500">
+                                                        {user?.rpg?.linkPoints || 0}
+                                                    </span>
+                                                    <span className="text-[11px] font-bold text-rose-500 uppercase tracking-[0.2em]">LPT</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        key="profile"
+                                        initial={{ opacity: 0, scale: 0.95, y: 5 }}
+                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="pointer-events-auto flex items-center gap-3.5 mt-1 cursor-pointer"
+                                        onClick={() => setIsUserMenuOpen(true)}
+                                    >
+                                        {/* Profile Image + Level Badge */}
+                                        <div className="relative size-14 shrink-0">
+                                            <div className="size-full rounded-full overflow-hidden border-2 border-black/40 dark:border-white/15 bg-black/5 dark:bg-white/10 flex items-center justify-center">
+                                                <Avatar config={user?.avatar} />
+                                            </div>
+                                            {protocolMode === 'rpg' ? (
+                                                user?.hero && (
+                                                    <div className="absolute -bottom-0.5 -right-0.5 bg-amber-500 text-white text-[8px] font-black px-1 py-0.5 rounded-md shadow-md border border-amber-400/20 z-20">
+                                                        {user.hero.level}
+                                                    </div>
+                                                )
+                                            ) : (
+                                                (user?.guardianLevel || 0) > 0 && (
+                                                    <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-white text-[8px] font-black px-1 py-0.5 rounded-md shadow-md border border-primary/20 z-20">
+                                                        {user.guardianLevel}
+                                                    </div>
+                                                )
                                             )}
                                         </div>
 
-                                        {/* Merchant Quick Access */}
-                                        <motion.div
-                                            animate={{ x: shakeMerchant ? [-6, 6, -6, 6, -3, 3, 0] : 0 }}
-                                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleOpenMerchant();
-                                            }}
-                                            className="flex items-center justify-center px-3 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 rounded-md hover:bg-black/10 dark:hover:bg-white/10 hover:scale-95 transition-all shadow-sm cursor-pointer relative"
-                                            title="Market"
-                                        >
-                                            <span className="material-symbols-outlined text-black dark:text-white text-[20px]">shopping_bag</span>
-                                        </motion.div>
+                                        <div className="flex items-stretch gap-1.5">
+                                            {/* Notification Bell Icon */}
+                                            <div
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onOpenNotifications && onOpenNotifications();
+                                                }}
+                                                className="flex items-center justify-center px-3 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 rounded-md hover:bg-black/10 dark:hover:bg-white/10 hover:scale-95 transition-all shadow-sm cursor-pointer relative"
+                                                title="Notifications"
+                                            >
+                                                <span className="material-symbols-outlined text-black dark:text-white text-[20px]">notifications</span>
+                                                {hasAnyUnread && (
+                                                    <span className="absolute top-1 right-1.5 size-1.5 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)] animate-pulse" />
+                                                )}
+                                            </div>
 
-                                        {/* Prod points Display */}
-                                        <div className="flex items-center justify-between gap-1.5 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 px-3.5 py-2 rounded-md select-none min-w-[96px]">
-                                            <span className="text-sm font-black uppercase tracking-wider text-amber-500">
-                                                {user?.rpg?.prodCoins || 0}
-                                            </span>
-                                            <span className="text-[11px] font-bold text-black dark:text-white/40 uppercase tracking-[0.2em]">PTS</span>
+                                            {/* Merchant Quick Access */}
+                                            <motion.div
+                                                animate={{ x: shakeMerchant ? [-6, 6, -6, 6, -3, 3, 0] : 0 }}
+                                                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleOpenMerchant();
+                                                }}
+                                                className="flex items-center justify-center px-3 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 rounded-md hover:bg-black/10 dark:hover:bg-white/10 hover:scale-95 transition-all shadow-sm cursor-pointer relative"
+                                                title="Market"
+                                            >
+                                                <span className="material-symbols-outlined text-black dark:text-white text-[20px]">shopping_bag</span>
+                                            </motion.div>
+
+                                            {/* Prod points Display */}
+                                            <div className="flex items-center justify-between gap-1.5 bg-black/5 dark:bg-white/5 border border-black/40 dark:border-white/10 px-3.5 py-2 rounded-md select-none min-w-[96px]">
+                                                <span className="text-sm font-black uppercase tracking-wider text-amber-500">
+                                                    {user?.rpg?.prodCoins || 0}
+                                                </span>
+                                                <span className="text-[11px] font-bold text-black dark:text-white/40 uppercase tracking-[0.2em]">PTS</span>
+                                            </div>
+
+                                            {/* Link points Display */}
+                                            {isLinked && !isOverview && (
+                                                <div className="flex items-center justify-between gap-1.5 bg-rose-500/5 dark:bg-rose-500/[0.02] border border-rose-500/30 px-3.5 py-2 rounded-md select-none min-w-[96px]">
+                                                    <span className="text-sm font-black uppercase tracking-wider text-rose-500">
+                                                        {user?.rpg?.linkPoints || 0}
+                                                    </span>
+                                                    <span className="text-[11px] font-bold text-rose-500 uppercase tracking-[0.2em]">LPT</span>
+                                                </div>
+                                            )}
                                         </div>
-                                    </div>
-                                </motion.div>
+                                    </motion.div>
+                                )
                             ) : null}
                         </AnimatePresence>
                     ) : (
@@ -259,27 +344,79 @@ const GlobalMobileHeader = ({ activeSection, onClick, protocolMode, shakeMerchan
                             transition={{ duration: 0.2 }}
                             className="flex flex-col gap-0.5 bg-background/80 backdrop-blur-sm py-1 px-2 -ml-2 rounded-sm pointer-events-auto"
                         >
-                            <span className="text-2xl font-black uppercase tracking-[0.3em] text-black dark:text-white">{config.title}</span>
+                            <div className="flex items-center gap-5">
+                                {isLinked && (
+                                    <div className="flex items-center gap-4">
+                                        {/* Vertical Switch */}
+                                        <button
+                                            onClick={() => setIsLinkMode(prev => !prev)}
+                                            className={`relative w-4 h-7 rounded-full transition-all duration-300 shrink-0 border ${
+                                                isLinkMode
+                                                    ? 'bg-primary/10 border-primary/30'
+                                                    : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10'
+                                            }`}
+                                        >
+                                            <motion.div
+                                                animate={{ y: isLinkMode ? 0 : 10 }}
+                                                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                                                className={`absolute left-[1px] top-[2px] size-3 rounded-full shadow-sm ${
+                                                    isLinkMode ? 'bg-primary' : 'bg-black/60 dark:bg-white/60'
+                                                }`}
+                                            />
+                                        </button>
+
+                                        {/* Dynamic Icon beside it */}
+                                        <button
+                                            onClick={() => setIsLinkMode(prev => !prev)}
+                                            className="w-5 h-5 flex items-center justify-center select-none focus:outline-none"
+                                        >
+                                            <AnimatePresence mode="wait">
+                                                <motion.span
+                                                    key={isLinkMode ? 'group' : 'person'}
+                                                    initial={{ scale: 0.8, opacity: 0 }}
+                                                    animate={{ scale: 1, opacity: 1 }}
+                                                    exit={{ scale: 0.8, opacity: 0 }}
+                                                    transition={{ duration: 0.15 }}
+                                                    className={`material-symbols-outlined text-lg ${
+                                                        isLinkMode ? 'text-primary' : 'text-black/40 dark:text-white/40'
+                                                    }`}
+                                                >
+                                                    {isLinkMode ? 'group' : 'person'}
+                                                </motion.span>
+                                            </AnimatePresence>
+                                        </button>
+                                    </div>
+                                )}
+                                <span className="text-2xl font-black uppercase tracking-[0.3em] text-black dark:text-white">{config.title}</span>
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
-
         </div>
     );
 };
 
 function Layout() {
     const { user, signOut } = useAuthStore();
+    const isLinked = !!user?.partner;
     const { isDark, setThemeMode } = useTheme();
     const isMobile = useMobile();
     const [viewMode, setViewMode] = useState('personal');
-    const [protocolMode, setProtocolMode] = useState('reality');
     const mainRef = useRef(null);
     const navigate = useNavigate();
     const location = useLocation();
     const isOverview = location.pathname === '/dashboard';
-    const isLinkPage = location.pathname === '/dashboard/link';
+    const isRpgPage = location.pathname === '/rpgdashboard';
+    const isLinkPage = location.pathname === '/linkdashboard';
+    const protocolMode = isRpgPage ? 'rpg' : 'reality';
+    const setProtocolMode = (mode) => {
+        if (mode === 'rpg') {
+            navigate('/rpgdashboard');
+        } else {
+            navigate('/dashboard');
+        }
+    };
     const profileRef = useRef(null);
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -313,6 +450,7 @@ function Layout() {
     const [expandedCategory, setExpandedCategory] = useState(null);
     const [isMoreExpanded, setIsMoreExpanded] = useState(false);
     const [isIdPulledDown, setIsIdPulledDown] = useState(false);
+    const [isLinkMode, setIsLinkMode] = useState(false);
     const [activeToasts, setActiveToasts] = useState([]);
     const [showMerchantToast, setShowMerchantToast] = useState(false);
     const [shakeMerchant, setShakeMerchant] = useState(false);
@@ -339,6 +477,16 @@ function Layout() {
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
+    // Sync isLinkMode with route changes
+    useEffect(() => {
+        if (isLinkPage) {
+            setIsLinkMode(true);
+        } else if (location.pathname === '/dashboard') {
+            // Only reset link mode when explicitly going back to the main dashboard
+            setIsLinkMode(false);
+        }
+    }, [location.pathname, isLinkPage]);
+
     useEffect(() => {
         if (isUserMenuOpen || isSettingsModalOpen) {
             setIsMobileMenuOpen(false);
@@ -355,12 +503,16 @@ function Layout() {
         const handleKeyDown = (e) => {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.isContentEditable) return;
             if (e.key.toLowerCase() === 'm') {
-                setProtocolMode(prev => prev === 'rpg' ? 'reality' : 'rpg');
+                if (isRpgPage) {
+                    navigate('/dashboard');
+                } else {
+                    navigate('/rpgdashboard');
+                }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, [isRpgPage]);
 
     useEffect(() => {
         if (freshUser) syncUser(freshUser);
@@ -430,9 +582,9 @@ function Layout() {
     };
 
     const navItems = protocolMode === 'rpg' ? [
-        { id: 'home', name: 'SYSTEM_CENTRAL', path: '/dashboard', icon: Cpu },
-        { id: 'map', name: 'NEURAL_NETWORK', path: '/dashboard/rpg/map', icon: Zap },
-        { id: 'inventory', name: 'CARGO_BAY', path: '/dashboard/rpg/inventory', icon: ShoppingBag },
+        { id: 'home', name: 'SYSTEM_CENTRAL', path: '/rpgdashboard', icon: Cpu },
+        { id: 'map', name: 'NEURAL_NETWORK', path: '/rpgdashboard', icon: Zap },
+        { id: 'inventory', name: 'CARGO_BAY', path: '/rpgdashboard', icon: ShoppingBag },
     ] : [
         { id: 'overview', name: 'Home', path: '/dashboard', icon: Cpu },
         { id: 'habits', name: 'Habit Tracker', path: '/dashboard/habits', icon: Zap },
@@ -463,7 +615,9 @@ function Layout() {
             { id: 'water', icon: 'water_drop', path: '/dashboard/physical', tabId: 'water' },
             { id: 'sleep', icon: 'bedtime', path: '/dashboard/physical', tabId: 'sleep' },
         ],
-        financial: [
+        financial: isLinkMode ? [
+            { id: 'summary', icon: 'account_balance', path: '/dashboard/financial', tabId: 'summary' },
+        ] : [
             { id: 'summary', icon: 'account_balance', path: '/dashboard/financial', tabId: 'summary' },
             { id: 'budget', icon: 'pie_chart', path: '/dashboard/financial', tabId: 'budget' },
             { id: 'savings', icon: 'shield', path: '/dashboard/financial', tabId: 'savings' },
@@ -516,7 +670,9 @@ function Layout() {
                 mobileTabs,
                 setMobileTabs,
                 isUserMenuOpen,
-                setIsUserMenuOpen
+                setIsUserMenuOpen,
+                isLinkMode,
+                setIsLinkMode
             }}>
                 <div className="bg-transparent font-sans text-[#111111] dark:text-black h-[100dvh] flex flex-row overflow-hidden">
                     {/* Mobile Top Bar */}
@@ -615,10 +771,22 @@ function Layout() {
 
                         <div className="absolute top-0 right-0 pt-2">
                             <HudButtons
-                                onRpgClick={() => setProtocolMode(prev => prev === 'rpg' ? 'reality' : 'rpg')}
-                                onPartnerClick={() => setViewMode(prev => prev === 'personal' ? 'partner' : 'personal')}
-                                isRpgActive={protocolMode === 'rpg'}
-                                isPartnerActive={viewMode === 'partner'}
+                                onRpgClick={() => {
+                                    if (isRpgPage) {
+                                        navigate('/dashboard');
+                                    } else {
+                                        navigate('/rpgdashboard');
+                                    }
+                                }}
+                                onPartnerClick={() => {
+                                    if (isLinkPage) {
+                                        navigate('/dashboard');
+                                    } else {
+                                        navigate('/linkdashboard');
+                                    }
+                                }}
+                                isRpgActive={isRpgPage}
+                                isPartnerActive={isLinkPage}
                             />
                         </div>
                     </div>
@@ -692,7 +860,7 @@ function Layout() {
                                                 onClick={() => {
                                                     soundManager.play('click');
                                                     if (protocolMode === 'rpg') {
-                                                        if (location.pathname !== '/dashboard') navigate('/dashboard');
+                                                        if (location.pathname !== '/rpgdashboard') navigate('/rpgdashboard');
                                                         setActiveRpgTab(item.id);
                                                     } else {
                                                         if (item.id === 'more') {
@@ -809,6 +977,26 @@ function Layout() {
                                     <EnergyDisplay current={user?.rpg?.energy?.current ?? (10 + (user?.guardianLevel || 0))} max={10 + (user?.guardianLevel || 0)} variant="minimal" className="scale-[0.8] origin-left opacity-75 group-hover/merchant:opacity-30 transition-all" />
                                     <CoreDisplay amount={user?.rpg?.cores || 0} className="sidebar-core-display scale-[0.8] origin-left opacity-75 group-hover/merchant:opacity-30 transition-all" variant="minimal" />
                                     <CoinDisplay amount={user?.rpg?.prodCoins || 0} className="sidebar-coin-display scale-[0.8] origin-left opacity-75 group-hover/merchant:opacity-30 transition-all" variant="minimal" />
+                                    {isLinked && !isOverview && (
+                                        <div className="relative flex items-center gap-3 transition-all duration-300 px-0 py-0 bg-transparent border-none group scale-[0.8] origin-left opacity-75 group-hover/merchant:opacity-30">
+                                            <div className="relative z-10 size-7 flex items-center justify-center rounded-lg bg-transparent border-none">
+                                                <div className="translate-y-[3px]">
+                                                    <span className="material-symbols-outlined text-rose-500 text-base">
+                                                        link
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col relative z-10">
+                                                <div className="flex items-baseline gap-2">
+                                                    <div className="min-w-[3.5rem] flex justify-start">
+                                                        <span className="font-sans font-black uppercase tracking-[0.4em] leading-none text-rose-500 text-[10px]">
+                                                            {(user?.rpg?.linkPoints || 0).toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* Lock Overlay on Hover */}
                                     <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/merchant:opacity-100 transition-opacity bg-black/5 dark:bg-white/[0.02] rounded-md backdrop-blur-[1px] text-center p-1">
@@ -873,7 +1061,7 @@ function Layout() {
                     </aside>
 
                     <div className="flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-[400ms] ease-[0.16,1,0.3,1]">
-                        {isMobile && <GlobalMobileHeader activeSection={activeSection} onClick={() => setIsLandingModalOpen(true)} protocolMode={protocolMode} shakeMerchant={shakeMerchant} handleOpenMerchant={handleOpenMerchant} isIdPulledDown={isIdPulledDown} onOpenNotifications={() => setIsNotificationModalOpen(true)} hasAnyUnread={hasAnyUnread} />}
+                        {isMobile && <MobileTopBar activeSection={activeSection} onClick={() => setIsLandingModalOpen(true)} protocolMode={protocolMode} shakeMerchant={shakeMerchant} handleOpenMerchant={handleOpenMerchant} isIdPulledDown={isIdPulledDown} onOpenNotifications={() => setIsNotificationModalOpen(true)} hasAnyUnread={hasAnyUnread} isLinkMode={isLinkMode} />}
                         <div ref={mainRef} className={`flex-1 overflow-x-hidden ${protocolMode === 'rpg' ? 'overflow-y-hidden' : 'overflow-y-auto'} custom-scrollbar flex flex-col relative mt-0 ${isMobile ? 'snap-y snap-mandatory' : ''}`}>
                             <ConnectionsModal isOpen={isConnectionsModalOpen} onClose={() => setIsConnectionsModalOpen(false)} onProfileClick={(username) => { setProfileModalUser(username); setIsConnectionsModalOpen(false); }} />
                             <IdentityEditModal isOpen={isIdentityEditModalOpen} onClose={() => setIsIdentityEditModalOpen(false)} />
@@ -960,18 +1148,29 @@ function Layout() {
                         )}
                     </div>
 
-                    {(isOverview || isLinkPage) && (!isMobile || activeSection === 'produs') && (
+                    {(isOverview || isLinkPage || isRpgPage) && (!isMobile || activeSection === 'produs') && (
                         <HudButtons
-                            onRpgClick={() => setProtocolMode(prev => prev === 'rpg' ? 'reality' : 'rpg')}
-                            onPartnerClick={() => {
-                                if (isLinkPage) {
+                            onRpgClick={() => {
+                                if (isRpgPage) {
                                     navigate('/dashboard');
                                 } else {
-                                    navigate('/dashboard/link');
+                                    navigate('/rpgdashboard');
                                 }
                             }}
-                            isRpgActive={protocolMode === 'rpg'}
-                            isPartnerActive={isLinkPage}
+                            onPartnerClick={() => {
+                                if (isLinkMode && !isLinkPage) {
+                                    // Turn off link mode and go to dashboard
+                                    setIsLinkMode(false);
+                                    navigate('/dashboard');
+                                } else if (isLinkPage) {
+                                    setIsLinkMode(false);
+                                    navigate('/dashboard');
+                                } else {
+                                    navigate('/linkdashboard');
+                                }
+                            }}
+                            isRpgActive={isRpgPage}
+                            isPartnerActive={isLinkPage || isLinkMode}
                             isShrunk={isMobile && isIdPulledDown}
                         />
                     )}

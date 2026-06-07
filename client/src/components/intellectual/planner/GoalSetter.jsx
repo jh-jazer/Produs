@@ -57,7 +57,7 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
         week: view === 'weekly' ? currentWeek?.isoWeek : undefined
     }), [view, selectedYear, selectedMonth, currentWeek]);
 
-    const { goals: filteredGoals, addGoal: addGoalLocal, toggleGoal: toggleGoalLocal, deleteGoal: deleteGoalLocal, isLoading } = useGoals(filters);
+    const { goals: filteredGoals, addGoal: addGoalLocal, toggleGoal: toggleGoalLocal, deleteGoal: deleteGoalLocal, isLoading } = useGoals(filters, { view: viewMode });
 
     const addGoal = async () => {
         if (!newGoalTitle.trim()) return;
@@ -75,9 +75,11 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
     return (
         <div className="flex flex-col gap-8 font-sans relative">
             <SyncErrorToast show={showErrorToast} onDismiss={() => setShowErrorToast(false)} />
-            <button onClick={() => setIsAdding(true)} className="absolute -top-16 right-0 size-10 flex items-center justify-center border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all z-20 rounded-sm">
-                <span className="material-symbols-outlined text-sm">add</span>
-            </button>
+            {!isReadOnly && (
+                <button onClick={() => setIsAdding(true)} className="absolute -top-16 right-0 size-10 flex items-center justify-center border border-black/40 dark:border-white/40 text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all z-20 rounded-sm">
+                    <span className="material-symbols-outlined text-sm">add</span>
+                </button>
+            )}
             <ConfirmDialog
                 isOpen={!!confirmDelete}
                 title="DELETE GOAL"
@@ -132,7 +134,9 @@ const GoalSetter = ({ viewMode = 'me', isReadOnly = false }) => {
                 {filteredGoals.length === 0 ? (
                     <div className="py-12 border border-dashed border-black/10 dark:border-white/5 flex flex-col items-center gap-4 opacity-30">
                         <span className="material-symbols-outlined text-4xl text-black/40 dark:text-white/40">target</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-black/50 dark:text-white/50">NO GOALS DEFINED</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-black/50 dark:text-white/50">
+                            {isReadOnly ? 'NO GOALS ADDED YET' : 'NO GOALS DEFINED'}
+                        </span>
                     </div>
                 ) : (
                     filteredGoals.map(goal => (

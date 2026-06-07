@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
 import { useGoals } from '../../../hooks/useGoals';
+import { DashboardContext } from '../../../context/DashboardContext';
 
 const ChippedBorder = ({ opacity = 0.8 }) => (
     <div 
@@ -14,7 +15,8 @@ const ChippedBorder = ({ opacity = 0.8 }) => (
 );
 
 const GoalCard = ({ title, period, year, month, week, isActive }) => {
-    const { goals } = useGoals({ period, year, month, week });
+    const { isLinkMode } = useContext(DashboardContext);
+    const { goals } = useGoals({ period, year, month, week }, { view: isLinkMode ? 'partner' : 'me' });
     const completedCount = goals.filter(g => g.completed).length;
     const progress = goals.length ? Math.round((completedCount / goals.length) * 100) : 0;
 

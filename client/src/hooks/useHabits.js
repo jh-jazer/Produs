@@ -99,6 +99,7 @@ export const useHabits = () => {
                 async (currentData) => {
                     // Fire the actual API call
                     await api.patch(`/habits/${habitId}/check`, { dateStr });
+                    mutate('/auth/me');
                     // After success, return undefined to let SWR revalidate with fresh server data
                     return undefined;
                 },

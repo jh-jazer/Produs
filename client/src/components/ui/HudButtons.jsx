@@ -91,8 +91,8 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
           className={`md:w-[4.2vw] ${baseStyles} ${isRpgActive ? activeStyles : inactiveStyles}`}
         >
           <div className="flex flex-row items-center justify-center gap-1 pr-1">
-            <span className={`material-symbols-outlined transition-opacity text-lg !hidden md:!inline-block ${isRpgActive ? 'text-black' : 'text-current'}`}>videogame_asset</span>
-            <span className={`text-[10px] md:text-[7px] font-black tracking-tighter uppercase [writing-mode:vertical-rl] rotate-180 ${isRpgActive ? 'text-black' : 'text-current'}`}>RPG</span>
+            <span className="material-symbols-outlined transition-opacity text-lg !hidden md:!inline-block text-current">videogame_asset</span>
+            <span className="text-[10px] md:text-[7px] font-black tracking-tighter uppercase [writing-mode:vertical-rl] rotate-180 text-current">RPG</span>
           </div>
         </motion.button>
 
@@ -109,10 +109,10 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
           className={`md:w-[4.2vw] ${baseStyles} ${isPartnerActive ? activeStyles : inactiveStyles} ${!isLinked ? 'opacity-85' : ''}`}
         >
           <div className="flex flex-row items-center justify-center gap-1 pr-1">
-            <span className={`material-symbols-outlined transition-opacity text-lg !hidden md:!inline-block ${isPartnerActive ? 'text-black' : 'text-current'}`}>
+            <span className="material-symbols-outlined transition-opacity text-lg !hidden md:!inline-block text-current">
               {isLinked ? 'group' : 'lock'}
             </span>
-            <span className={`text-[10px] md:text-[7px] font-black tracking-tighter uppercase [writing-mode:vertical-rl] rotate-180 ${isPartnerActive ? 'text-black' : 'text-current'}`}>LINK</span>
+            <span className="text-[10px] md:text-[7px] font-black tracking-tighter uppercase [writing-mode:vertical-rl] rotate-180 text-current">LINK</span>
           </div>
         </motion.button>
       </motion.div>

@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { Plus, Edit2, ArrowUpRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../../ui/ConfirmDialog';
 import useAuthStore from '../../../store/useAuthStore';
+import { DashboardContext } from '../../../context/DashboardContext';
 
 import AddHabitModal, { ICON_OPTIONS } from './AddHabitModal';
 import SyncErrorToast from '../../ui/SyncErrorToast';
@@ -35,6 +36,7 @@ function HabitTracker({
 }) {
     const navigate = useNavigate();
     const { user } = useAuthStore();
+    const { isLinkMode } = useContext(DashboardContext);
     const isLinked = !!user?.partner;
     const [showToast, setShowToast] = useState(false);
     const [showErrorToast, setShowErrorToast] = useState(false);
@@ -45,7 +47,11 @@ function HabitTracker({
     const [editingHabit, setEditingHabit] = useState(null);
     const [localTeamHabits, setLocalTeamHabits] = useState([]);
     const [confirmDelete, setConfirmDelete] = useState(null);
-    const [habitFilter, setHabitFilter] = useState('system'); // 'system' | 'personal'
+    const [habitFilter, setHabitFilter] = useState(isLinkMode ? 'sys_link' : 'system'); // 'system' | 'personal' | 'link' | 'sys_link'
+
+    useEffect(() => {
+        setHabitFilter(isLinkMode ? 'sys_link' : 'system');
+    }, [isLinkMode]);
 
     useEffect(() => {
         if (showToast) {
@@ -111,11 +117,29 @@ function HabitTracker({
             isGrouped: true
         }));
 
+        const systemShared = {};
+        habits.forEach(h => {
+            if (h.systemId) {
+                if (!systemShared[h.systemId]) systemShared[h.systemId] = { myPart: null, partnerPart: null };
+                if (h.userId === myUserId) systemShared[h.systemId].myPart = h;
+                else systemShared[h.systemId].partnerPart = h;
+            }
+        });
+
+        const groupedSystemShared = Object.keys(systemShared).map(sysId => ({
+            ...systemShared[sysId].myPart || systemShared[sysId].partnerPart,
+            _id: `system-shared-${sysId}`,
+            myPart: systemShared[sysId].myPart,
+            partnerPart: systemShared[sysId].partnerPart,
+            isGrouped: true,
+            isSystemShared: true
+        }));
+
         if (!isPartnerView) {
-            const team = [...personalMy, ...groupedShared].sort(sortHabits);
+            const team = [...personalMy, ...groupedShared, ...groupedSystemShared].sort(sortHabits);
             return { teamHabits: team, partnerHabitsOnly: [] };
         } else {
-            const team = groupedShared.sort(sortHabits);
+            const team = [...groupedShared, ...groupedSystemShared].sort(sortHabits);
             const partnerOnly = personalPartner.sort(sortHabits);
             return { teamHabits: team, partnerHabitsOnly: partnerOnly };
         }
@@ -135,9 +159,10 @@ function HabitTracker({
                 (habit.partnerPart && habit.partnerPart.isShared)
             );
 
-            if (habitFilter === 'system') return isSystemHabit;
-            if (habitFilter === 'personal') return !isSystemHabit && !isSharedHabit;
-            if (habitFilter === 'link') return isSharedHabit;
+            if (habitFilter === 'system') return isSystemHabit && !habit.isSystemShared;
+            if (habitFilter === 'personal') return !isSystemHabit && !habit.isSystemShared;
+            if (habitFilter === 'link') return isSharedHabit && !habit.isSystemShared;
+            if (habitFilter === 'sys_link') return habit.isSystemShared;
             return true;
         });
     }, [localTeamHabits, habitFilter]);
@@ -218,7 +243,13 @@ function HabitTracker({
                 >
                     <div className="relative shrink-0 flex items-center justify-center size-8 bg-black/5 dark:bg-white/5 rounded-sm border border-black/10 dark:border-white/10 group-hover/row:border-black/30 dark:group-hover/row:border-white/30 transition-all">
                         <span className="material-symbols-outlined text-black/60 dark:text-white/60 text-lg group-hover/row:scale-110 transition-transform">{habit.icon}</span>
-                        {isSystemHabit && <div className="absolute -top-1 -right-1 size-2 bg-black dark:bg-white rounded-full animate-pulse" />}
+                        {isSystemHabit && (
+                            <div className="absolute -top-1.5 -right-1.5 size-4 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center border border-white/25 dark:border-black/25 shadow-sm animate-pulse z-20">
+                                <span className="material-symbols-outlined text-[8px] font-black select-none">
+                                    {habit.isSystemShared ? 'group' : 'person'}
+                                </span>
+                            </div>
+                        )}
                     </div>
                     <div className="flex items-center gap-1 min-w-0">
                         <span className="text-[15px] font-black uppercase tracking-tighter text-black/80 dark:text-white/80 group-hover/row:text-black dark:group-hover/row:text-white transition-colors truncate">{habit.name}</span>
@@ -244,8 +275,9 @@ function HabitTracker({
                             ? !!checks[habit.partnerPart._id]?.completed[dateStr] 
                             : false;
                         
-                        const isFullyDone = isSharedHabit ? (myChecked && partnerChecked) : myChecked;
-                        const isPartiallyDone = isSharedHabit && !isFullyDone && (myChecked || partnerChecked);
+                        const useSharedVisuals = (habitFilter === 'link' || habitFilter === 'sys_link') && isSharedHabit;
+                        const isFullyDone = useSharedVisuals ? (myChecked && partnerChecked) : myChecked;
+                        const isPartiallyDone = useSharedVisuals && !isFullyDone && (myChecked || partnerChecked);
                         
                         const isToday = date.toDateString() === today.toDateString();
                         const isFuture = date > today;
@@ -254,16 +286,23 @@ function HabitTracker({
                             <div key={idx} className="relative flex items-center justify-center size-10">
                                 <button
                                     onClick={() => handleToggle(habit.isGrouped ? habit.myPart?._id : habit._id, date)}
-                                    disabled={editMode || isFuture || isReadOnly || isSystemHabit}
+                                    disabled={editMode || isFuture || isReadOnly || isSystemHabit || habitFilter === 'link'}
                                     className={`relative size-8 transition-all rounded-sm flex items-center justify-center border overflow-hidden
                                         ${isFullyDone 
                                             ? 'bg-black border-black text-white dark:bg-white dark:border-white dark:text-black shadow-md' 
-                                            : isToday ? 'border-black dark:border-white hover:bg-black/10 dark:hover:bg-white/10' : 'border-black/55 dark:border-white/60 hover:border-black dark:hover:border-white'}
+                                            : isToday
+                                                ? `border-black dark:border-white ${habitFilter !== 'link' ? 'hover:bg-black/10 dark:hover:bg-white/10' : ''}`
+                                                : `border-black/55 dark:border-white/60 ${habitFilter !== 'link' ? 'hover:border-black dark:hover:border-white' : ''}`
+                                        }
                                         ${isFuture ? 'opacity-10 cursor-not-allowed' : ''}
-                                        ${isSystemHabit ? 'cursor-default' : 'active:scale-90'}
+                                        ${(isSystemHabit || habitFilter === 'link') ? 'cursor-default' : 'active:scale-90'}
                                     `}
                                 >
-                                    {isFullyDone && <span className="material-symbols-outlined text-[14px] font-black z-10">check</span>}
+                                    {(useSharedVisuals ? isFullyDone : myChecked) && (
+                                        <span className={`material-symbols-outlined text-[14px] font-black z-10 ${isFullyDone ? '' : (isPartiallyDone ? 'text-white' : '')}`}>
+                                            check
+                                        </span>
+                                    )}
                                     
                                     {!isFullyDone && isPartiallyDone && (
                                         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -314,46 +353,57 @@ function HabitTracker({
             <div className="relative flex items-center justify-between gap-2 mb-4 z-20 px-4 md:px-0">
                 {/* Habit type filter toggle */}
                 <div className="flex items-center border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/[0.02] p-1 rounded-sm h-[36px]">
-                    <button
-                        onClick={() => setHabitFilter('system')}
-                        className={`h-full px-6 flex items-center justify-center text-[10px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer ${
-                            habitFilter === 'system'
-                                ? 'bg-black text-white dark:bg-white dark:text-black font-black shadow-sm'
-                                : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.04]'
-                        }`}
-                    >
-                        System
-                    </button>
-                    <button
-                        onClick={() => setHabitFilter('personal')}
-                        className={`h-full px-6 flex items-center justify-center text-[10px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer ${
-                            habitFilter === 'personal'
-                                ? 'bg-black text-white dark:bg-white dark:text-black font-black shadow-sm'
-                                : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.04]'
-                        }`}
-                    >
-                        Personal
-                    </button>
-                    <motion.button
-                        animate={{ x: shakeLink ? [-6, 6, -6, 6, -3, 3, 0] : 0 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                        onClick={() => {
-                            if (!isLinked) {
-                                setShakeLink(true);
-                                setShowToast(true);
-                                return;
-                            }
-                            setHabitFilter('link');
-                        }}
-                        className={`h-full px-6 flex items-center gap-1.5 justify-center text-[10px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer ${
-                            habitFilter === 'link'
-                                ? 'bg-black text-white dark:bg-white dark:text-black font-black shadow-sm'
-                                : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.04]'
-                        }`}
-                    >
-                        {!isLinked && <span className="material-symbols-outlined text-[12px] text-rose-500 animate-pulse">lock</span>}
-                        <span>Link</span>
-                    </motion.button>
+                    {!isLinkMode ? (
+                        <>
+                            <button
+                                onClick={() => setHabitFilter('system')}
+                                className={`h-full px-5 flex items-center gap-1.5 justify-center text-[10px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer ${
+                                    habitFilter === 'system'
+                                        ? 'bg-black text-white dark:bg-white dark:text-black font-black shadow-sm'
+                                        : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.04]'
+                                }`}
+                            >
+                                <span className="material-symbols-outlined text-[12px]">person</span>
+                                <span>System</span>
+                            </button>
+                            <button
+                                onClick={() => setHabitFilter('personal')}
+                                className={`h-full px-5 flex items-center gap-1.5 justify-center text-[10px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer ${
+                                    habitFilter === 'personal'
+                                        ? 'bg-black text-white dark:bg-white dark:text-black font-black shadow-sm'
+                                        : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.04]'
+                                }`}
+                            >
+                                <span className="material-symbols-outlined text-[12px]">person</span>
+                                <span>Personal</span>
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button
+                                onClick={() => setHabitFilter('sys_link')}
+                                className={`h-full px-5 flex items-center gap-1.5 justify-center text-[10px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer ${
+                                    habitFilter === 'sys_link'
+                                        ? 'bg-black text-white dark:bg-white dark:text-black font-black shadow-sm'
+                                        : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.04]'
+                                }`}
+                            >
+                                <span className="material-symbols-outlined text-[12px]">group</span>
+                                <span>System</span>
+                            </button>
+                            <button
+                                onClick={() => setHabitFilter('link')}
+                                className={`h-full px-5 flex items-center gap-1.5 justify-center text-[10px] font-black uppercase tracking-wider transition-all rounded-sm cursor-pointer ${
+                                    habitFilter === 'link'
+                                        ? 'bg-black text-white dark:bg-white dark:text-black font-black shadow-sm'
+                                        : 'text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/[0.04]'
+                                }`}
+                            >
+                                <span className="material-symbols-outlined text-[12px]">group</span>
+                                <span>Link</span>
+                            </button>
+                        </>
+                    )}
                 </div>
 
                 <div className="flex gap-2">
@@ -437,8 +487,8 @@ function HabitTracker({
                 onClose={() => { setAddModalOpen(false); setEditingHabit(null); }} 
                 onAdd={editingHabit ? handleEditHabit : handleAddHabit} 
                 editingHabit={editingHabit}
-                isSystemMode={habitFilter === 'system'}
-                defaultShared={habitFilter === 'link'}
+                isSystemMode={habitFilter === 'system' || habitFilter === 'sys_link'}
+                defaultShared={habitFilter === 'link' || habitFilter === 'sys_link'}
             />
         </div>
         </>

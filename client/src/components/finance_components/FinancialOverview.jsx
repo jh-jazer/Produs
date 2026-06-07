@@ -35,7 +35,8 @@ const FinancialOverview = ({
   selectedMonth = 'all',
   setSelectedMonth,
   selectedTransactions = [],
-  allTransactions = []
+  allTransactions = [],
+  isReadOnly = false
 }) => {
   const [foresee, setForesee] = useState(true);
   const [localCurrency, setLocalCurrency] = useState(currencySymbol);
@@ -476,15 +477,17 @@ const FinancialOverview = ({
                             {/* Scrollable list */}
                             <div className="flex flex-col gap-2 min-h-[260px] max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
                                 {/* Add button */}
-                                <div
-                                    onClick={() => setShowAddTx && setShowAddTx(true)}
-                                    className="flex items-center gap-3 px-3 py-4 rounded-sm border border-transparent md:border-dashed md:border-black/10 dark:md:border-white/10 md:hover:border-black/30 dark:md:hover:border-white/30 bg-transparent md:hover:bg-black/[0.02] dark:md:hover:bg-white/[0.03] cursor-pointer transition-all group"
-                                >
-                                    <div className="size-10 rounded-sm bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-black dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black transition-all">
-                                        <span className="material-symbols-outlined text-xl">add</span>
+                                {!isReadOnly && (
+                                    <div
+                                        onClick={() => setShowAddTx && setShowAddTx(true)}
+                                        className="flex items-center gap-3 px-3 py-4 rounded-sm border border-transparent md:border-dashed md:border-black/10 dark:md:border-white/10 md:hover:border-black/30 dark:md:hover:border-white/30 bg-transparent md:hover:bg-black/[0.02] dark:md:hover:bg-white/[0.03] cursor-pointer transition-all group"
+                                    >
+                                        <div className="size-10 rounded-sm bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-black dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black transition-all">
+                                            <span className="material-symbols-outlined text-xl">add</span>
+                                        </div>
+                                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-black/45 dark:text-white/40 group-hover:text-black dark:group-hover:text-white transition-colors">ADD TRANSACTION</span>
                                     </div>
-                                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-black/45 dark:text-white/40 group-hover:text-black dark:group-hover:text-white transition-colors">ADD TRANSACTION</span>
-                                </div>
+                                )}
                                   {filteredList.length > 0 ? filteredList.slice(0, 100).map(tx => (
                                     <div
                                         key={tx._id}
@@ -528,13 +531,15 @@ const FinancialOverview = ({
                                                             exit={{ opacity: 0, scale: 0.9 }}
                                                             className="flex items-center gap-1"
                                                         >
-                                                            <button 
-                                                                onClick={e => { e.stopPropagation(); setConfirmDelete(tx._id); }} 
-                                                                className="p-1 rounded-sm bg-black/5 dark:bg-white/5 hover:bg-rose-500/20 text-rose-500/60 hover:text-rose-500 transition-all"
-                                                                title="Delete"
-                                                            >
-                                                                <span className="material-symbols-outlined text-xs">delete</span>
-                                                            </button>
+                                                            {!isReadOnly && (
+                                                                <button 
+                                                                    onClick={e => { e.stopPropagation(); setConfirmDelete(tx._id); }} 
+                                                                    className="p-1 rounded-sm bg-black/5 dark:bg-white/5 hover:bg-rose-500/20 text-rose-500/60 hover:text-rose-500 transition-all"
+                                                                    title="Delete"
+                                                                >
+                                                                    <span className="material-symbols-outlined text-xs">delete</span>
+                                                                </button>
+                                                            )}
                                                         </motion.div>
                                                     )}
                                                 </AnimatePresence>
@@ -579,6 +584,7 @@ const FinancialOverview = ({
                                                                         <input 
                                                                             type="checkbox"
                                                                             checked={isPaid}
+                                                                            disabled={isReadOnly}
                                                                             onChange={(e) => {
                                                                                 e.stopPropagation();
                                                                                 const isChecked = e.target.checked;
@@ -589,7 +595,7 @@ const FinancialOverview = ({
                                                                                 }
                                                                             }}
                                                                             onClick={(e) => e.stopPropagation()}
-                                                                            className="size-4 accent-emerald-500 rounded-sm cursor-pointer border border-black/20 dark:border-white/20 bg-black/5 dark:bg-white/5 shrink-0"
+                                                                            className={`size-4 accent-emerald-500 rounded-sm border border-black/20 dark:border-white/20 bg-black/5 dark:bg-white/5 shrink-0 ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                                                                         />
                                                                         <span className={`font-mono ${isPaid ? 'line-through opacity-40 text-emerald-500/60' : ''}`}>{label}</span>
                                                                     </div>
@@ -627,6 +633,7 @@ const FinancialOverview = ({
                                                             <input 
                                                                 type="checkbox"
                                                                 checked={isPaid}
+                                                                disabled={isReadOnly}
                                                                 onChange={(e) => {
                                                                     e.stopPropagation();
                                                                     const isChecked = e.target.checked;
@@ -637,7 +644,7 @@ const FinancialOverview = ({
                                                                     }
                                                                 }}
                                                                 onClick={(e) => e.stopPropagation()}
-                                                                className="size-4 accent-emerald-500 rounded-sm cursor-pointer border border-black/20 dark:border-white/20 bg-black/5 dark:bg-white/5"
+                                                                className={`size-4 accent-emerald-500 rounded-sm border border-black/20 dark:border-white/20 bg-black/5 dark:bg-white/5 ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                                                             />
                                                             <span className={`text-[10px] font-black uppercase tracking-wider ${isPaid ? 'line-through text-emerald-500/60' : 'text-black dark:text-white'}`}>
                                                                 MARK AS {tx.type === 'debt' ? 'PAID' : 'RECEIVED'} ({label})

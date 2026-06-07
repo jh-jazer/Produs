@@ -9,8 +9,6 @@ import { useSWRConfig } from 'swr';
 import { soundManager } from '../services/sound';
 
 // Components
-import RPGImmersiveOverlay from '../components/rpg/RPGImmersiveOverlay';
-import AwakeningOverlay from '../components/dashboard/AwakeningOverlay';
 import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 import HomeSkeleton from '../components/ui/HomeSkeleton';
 import Avatar from '../components/ui/Avatar';
@@ -766,43 +764,10 @@ export default function Home() {
     }
   }, [isFlipped]);
 
-  const isUnawakened = !user?.rpg?.path;
-  const isLevel0Active = isUnawakened && protocolMode === 'rpg';
-
   return (
     <div className="w-full bg-transparent text-foreground font-sans">
       <AnimatePresence mode="wait">
-        {isLevel0Active && !isInitializing ? (
-          <motion.div
-            key="awakening"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            className="flex-1 h-full flex items-center justify-center px-4 overflow-hidden py-20"
-          >
-            <AwakeningOverlay
-              onAwaken={handleInitiateAwakening}
-              onBackToReality={() => setProtocolMode('reality')}
-              isLoading={false}
-              hasStarted={user?.rpg?.completedAnswers?.length > 0}
-              userId={user?._id}
-            />
-          </motion.div>
-        ) : protocolMode === 'rpg' && !isInitializing ? (
-          <motion.div
-            key="rpg-mode"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="w-full"
-          >
-            <RPGImmersiveOverlay
-              user={user}
-              activeTab={activeRpgTab}
-              setActiveTab={setActiveRpgTab}
-            />
-          </motion.div>
-        ) : isInitializing ? (
+        {isInitializing ? (
           <motion.div
             key="loading"
             initial={{ opacity: 0 }}

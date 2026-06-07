@@ -6,7 +6,7 @@ import { DashboardContext } from '../../context/DashboardContext';
 
 const ProToolsModal = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
-    const { setIsMarketplaceModalOpen, setMarketplaceCategory } = React.useContext(DashboardContext);
+    const { setIsMarketplaceModalOpen, setMarketplaceCategory, isLinkMode } = React.useContext(DashboardContext);
 
     const categories = [
         { 
@@ -47,7 +47,9 @@ const ProToolsModal = ({ isOpen, onClose }) => {
             id: 'financial', 
             name: 'Financial', 
             icon: 'payments', 
-            tools: [
+            tools: isLinkMode ? [
+                { id: 'summary', name: 'Ledger Prime', icon: 'account_balance', path: '/dashboard/financial', tabId: 'summary' },
+            ] : [
                 { id: 'summary', name: 'Ledger Prime', icon: 'account_balance', path: '/dashboard/financial', tabId: 'summary' },
                 { id: 'budget', name: 'Asset Allocator', icon: 'pie_chart', path: '/dashboard/financial', tabId: 'budget' },
                 { id: 'savings', name: 'Vault Security', icon: 'shield', path: '/dashboard/financial', tabId: 'savings' },

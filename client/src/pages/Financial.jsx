@@ -50,6 +50,7 @@ const Financial = () => {
     const { user } = useAuthStore();
     const location = useLocation();
     const currencySymbol = (user?.currency || 'PHP') === 'PHP' ? '₱' : '$';
+    const { setMobileTabs, isLinkMode } = useContext(DashboardContext);
 
     const {
         transactions,
@@ -61,7 +62,7 @@ const Financial = () => {
         updateFinanceItem,
         deleteFinanceItem,
         isLoading
-    } = useFinance();
+    } = useFinance({ view: isLinkMode ? 'partner' : 'me' });
 
     const [showErrorToast, setShowErrorToast] = useState(false);
 
@@ -84,7 +85,6 @@ const Financial = () => {
     };
 
     const navigate = useNavigate();
-    const { setMobileTabs } = useContext(DashboardContext);
     const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'summary');
 
     useEffect(() => {
@@ -94,25 +94,34 @@ const Financial = () => {
     }, [location.state?.activeTab]);
 
     useEffect(() => {
-        setMobileTabs({
-            tabs: [
+        const tabs = isLinkMode 
+            ? [{ id: 'summary', label: 'Summary', icon: 'account_balance' }]
+            : [
                 { id: 'summary', label: 'Summary', icon: 'account_balance' },
                 { id: 'budget', label: 'Budget', icon: 'pie_chart' },
                 { id: 'savings', label: 'Savings', icon: 'shield' },
                 { id: 'wishlist', label: 'Wishlist', icon: 'shopping_cart' },
                 { id: 'debts', label: 'Debts', icon: 'trending_up' },
-            ],
-            activeTab,
+            ];
+
+        if (isLinkMode && activeTab !== 'summary') {
+            setActiveTab('summary');
+        }
+
+        setMobileTabs({
+            tabs,
+            activeTab: isLinkMode ? 'summary' : activeTab,
             setActiveTab: (tabId) => {
+                if (isLinkMode && tabId !== 'summary') return;
                 setActiveTab(tabId);
                 navigate(location.pathname, { replace: true, state: { ...location.state, activeTab: tabId } });
             }
         });
         return () => setMobileTabs(null);
-    }, [activeTab, setMobileTabs, location.pathname, navigate, location.state]);
+    }, [activeTab, setMobileTabs, location.pathname, navigate, location.state, isLinkMode]);
 
     // The active module is now driven by navigation state or external triggers
-    const activeModule = activeTab;
+    const activeModule = isLinkMode ? 'summary' : activeTab;
 
     const handleAction = () => {
         // SWR handles refreshing
@@ -367,6 +376,7 @@ const Financial = () => {
                                         setSelectedMonth={setSelectedMonth}
                                         selectedTransactions={combinedTransactions}
                                         allTransactions={transactions}
+                                        isReadOnly={isLinkMode}
                                     />
                                 </HUDPanel>
                             )}

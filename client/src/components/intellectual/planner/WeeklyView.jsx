@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
 import { useGoals } from '../../../hooks/useGoals';
 import SyncErrorToast from '../../ui/SyncErrorToast';
+import { DashboardContext } from '../../../context/DashboardContext';
 
 const WeeklyView = ({ onBack }) => {
+    const { isLinkMode } = useContext(DashboardContext);
+    const isReadOnly = isLinkMode;
     const today = new Date();
     
     const dayOfMonth = today.getDate();
@@ -51,7 +54,7 @@ const WeeklyView = ({ onBack }) => {
         year: currentYear,
         month: currentMonth,
         week: selectedWeek.id
-    });
+    }, { view: isLinkMode ? 'partner' : 'me' });
 
     const handleAddGoal = async () => {
         if (!newGoalText.trim()) {
@@ -96,10 +99,11 @@ const WeeklyView = ({ onBack }) => {
                             <div 
                                 key={goal._id} 
                                 onClick={async () => {
+                                    if (isReadOnly) return;
                                     const result = await toggleGoal(goal._id);
                                     if (result?.error) setShowErrorToast(true);
                                 }}
-                                className="group relative flex items-center justify-between p-4 bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/5 rounded-sm hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/30 dark:hover:border-white/20 transition-all cursor-pointer"
+                                className={`group relative flex items-center justify-between p-4 bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/5 rounded-sm hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/30 dark:hover:border-white/20 transition-all ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}
                             >
                                 <div className="flex items-center gap-4">
                                     <div className={`size-2 rounded-full transition-all ${goal.completed ? 'bg-black dark:bg-white shadow-[0_0_8px_rgba(0,0,0,0.2)] dark:shadow-[0_0_8px_white]' : 'bg-black/20 dark:bg-white/10'}`} />
@@ -107,39 +111,50 @@ const WeeklyView = ({ onBack }) => {
                                         {goal.title}
                                     </span>
                                 </div>
-                                <button 
-                                    onClick={async (e) => { e.stopPropagation(); const result = await deleteGoal(goal._id); if (result?.error) setShowErrorToast(true); }}
-                                    className="material-symbols-outlined text-black/20 dark:text-white/10 hover:text-red-500 transition-colors text-sm"
-                                >
-                                    delete
-                                </button>
+                                {!isReadOnly && (
+                                    <button 
+                                        onClick={async (e) => { e.stopPropagation(); const result = await deleteGoal(goal._id); if (result?.error) setShowErrorToast(true); }}
+                                        className="material-symbols-outlined text-black/20 dark:text-white/10 hover:text-red-500 transition-colors text-sm"
+                                    >
+                                        delete
+                                    </button>
+                                )}
                             </div>
                         ))}
 
-                        {isAdding ? (
-                            <div className="flex items-center gap-4 p-4 bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/20 rounded-sm">
-                                <div className="size-2 rounded-full bg-black dark:bg-white animate-pulse" />
-                                <input
-                                    autoFocus
-                                    type="text"
-                                    value={newGoalText}
-                                    onChange={(e) => setNewGoalText(e.target.value)}
-                                    onBlur={handleAddGoal}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleAddGoal()}
-                                    className="flex-1 bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/20"
-                                    placeholder="TYPE GOAL TITLE..."
-                                />
+                        {goals.length === 0 && isReadOnly && (
+                            <div className="py-12 border border-dashed border-black/10 dark:border-white/5 flex flex-col items-center gap-4 opacity-30">
+                                <span className="material-symbols-outlined text-4xl text-black/40 dark:text-white/40">target</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-black/50 dark:text-white/50">NO GOALS ADDED YET</span>
                             </div>
-                        ) : (
-                            <div 
-                                onClick={() => setIsAdding(true)}
-                                className="group relative flex items-center justify-between p-4 bg-black/[0.01] dark:bg-white/[0.03] border border-dashed border-black/15 dark:border-white/10 rounded-sm hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/40 dark:hover:border-white/30 transition-all cursor-pointer"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <span className="material-symbols-outlined text-black/40 dark:text-white/40 group-hover:text-black dark:group-hover:text-white transition-colors">add</span>
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-black/40 dark:text-white/40 group-hover:text-black dark:group-hover:text-white">ADD NEW GOAL</span>
+                        )}
+
+                        {!isReadOnly && (
+                            isAdding ? (
+                                <div className="flex items-center gap-4 p-4 bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/20 rounded-sm">
+                                    <div className="size-2 rounded-full bg-black dark:bg-white animate-pulse" />
+                                    <input
+                                        autoFocus
+                                        type="text"
+                                        value={newGoalText}
+                                        onChange={(e) => setNewGoalText(e.target.value)}
+                                        onBlur={handleAddGoal}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleAddGoal()}
+                                        className="flex-1 bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/20"
+                                        placeholder="TYPE GOAL TITLE..."
+                                    />
                                 </div>
-                            </div>
+                            ) : (
+                                <div 
+                                    onClick={() => setIsAdding(true)}
+                                    className="group relative flex items-center justify-between p-4 bg-black/[0.01] dark:bg-white/[0.03] border border-dashed border-black/15 dark:border-white/10 rounded-sm hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/40 dark:hover:border-white/30 transition-all cursor-pointer"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <span className="material-symbols-outlined text-black/40 dark:text-white/40 group-hover:text-black dark:group-hover:text-white transition-colors">add</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-black/40 dark:text-white/40 group-hover:text-black dark:group-hover:text-white">ADD NEW GOAL</span>
+                                    </div>
+                                </div>
+                            )
                         )}
                     </div>
                 </div>

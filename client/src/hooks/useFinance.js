@@ -2,18 +2,21 @@ import useSWR, { useSWRConfig } from 'swr';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
 
-export const useFinance = () => {
+export const useFinance = (options = {}) => {
+    const { view } = options;
     const { user } = useAuthStore();
     const userId = user?._id;
     const { mutate } = useSWRConfig();
 
     const fetcher = url => api.get(url).then(res => res.data);
     
-    const { data: transactionsData, error: txError, isLoading: txLoading } = useSWR(userId ? '/finance/transactions' : null, fetcher);
-    const { data: budgetsData, error: budError, isLoading: budLoading } = useSWR(userId ? '/finance/budgets' : null, fetcher);
-    const { data: debtsData, error: debtError, isLoading: debtLoading } = useSWR(userId ? '/finance/debts' : null, fetcher);
-    const { data: wishlistData, error: wishError, isLoading: wishLoading } = useSWR(userId ? '/finance/wishlist' : null, fetcher);
-    const { data: savingsData, error: saveError, isLoading: saveLoading } = useSWR(userId ? '/finance/savings' : null, fetcher);
+    const querySuffix = view === 'partner' ? '?view=partner' : '';
+
+    const { data: transactionsData, error: txError, isLoading: txLoading } = useSWR(userId ? `/finance/transactions${querySuffix}` : null, fetcher);
+    const { data: budgetsData, error: budError, isLoading: budLoading } = useSWR(userId ? `/finance/budgets${querySuffix}` : null, fetcher);
+    const { data: debtsData, error: debtError, isLoading: debtLoading } = useSWR(userId ? `/finance/debts${querySuffix}` : null, fetcher);
+    const { data: wishlistData, error: wishError, isLoading: wishLoading } = useSWR(userId ? `/finance/wishlist${querySuffix}` : null, fetcher);
+    const { data: savingsData, error: saveError, isLoading: saveLoading } = useSWR(userId ? `/finance/savings${querySuffix}` : null, fetcher);
 
     const transactions = transactionsData || [];
     const budgets = budgetsData || [];
@@ -31,7 +34,8 @@ export const useFinance = () => {
 
     const addFinanceItem = async (type, data) => {
         if (!userId) return;
-        const endpoint = endpoints[type];
+        const baseEndpoint = endpoints[type];
+        const swrKey = `${baseEndpoint}${querySuffix}`;
         const tempId = `temp-${Date.now()}`;
         const optimisticItem = { ...data, _id: tempId };
 
@@ -42,14 +46,14 @@ export const useFinance = () => {
 
         try {
             await mutate(
-                endpoint,
+                swrKey,
                 async () => {
                     if (type === 'budget') {
                         await api.put('/finance/budgets', data);
                     } else if (type === 'saving') {
                         await api.post('/finance/savings', data);
                     } else {
-                        await api.post(endpoint, data);
+                        await api.post(baseEndpoint, data);
                     }
                     return undefined;
                 },
@@ -68,7 +72,8 @@ export const useFinance = () => {
 
     const updateFinanceItem = async (id, type, updates) => {
         if (!userId) return;
-        const endpoint = endpoints[type];
+        const baseEndpoint = endpoints[type];
+        const swrKey = `${baseEndpoint}${querySuffix}`;
 
         const buildOptimisticData = (currentData) => {
             if (!currentData) return currentData;
@@ -77,16 +82,16 @@ export const useFinance = () => {
 
         try {
             await mutate(
-                endpoint,
+                swrKey,
                 async () => {
                     if (type === 'budget') {
                         await api.put('/finance/budgets', updates);
                     } else if (type === 'debt' || type === 'wishlist') {
-                        await api.patch(`${endpoint}/${id}`, updates);
+                        await api.patch(`${baseEndpoint}/${id}`, updates);
                     } else if (type === 'saving') {
                         await api.post('/finance/savings', updates);
                     } else {
-                        await api.put(`${endpoint}/${id}`, updates);
+                        await api.put(`${baseEndpoint}/${id}`, updates);
                     }
                     return undefined;
                 },
@@ -118,7 +123,8 @@ export const useFinance = () => {
             return;
         }
 
-        const endpoint = endpoints[type];
+        const baseEndpoint = endpoints[type];
+        const swrKey = `${baseEndpoint}${querySuffix}`;
         const buildOptimisticData = (currentData) => {
             if (!currentData) return currentData;
             return currentData.filter(item => item._id !== id);
@@ -126,9 +132,9 @@ export const useFinance = () => {
 
         try {
             await mutate(
-                endpoint,
+                swrKey,
                 async () => {
-                    await api.delete(`${endpoint}/${id}`);
+                    await api.delete(`${baseEndpoint}/${id}`);
                     return undefined;
                 },
                 {
@@ -160,3 +166,4 @@ export const useFinance = () => {
         error
     };
 };
+

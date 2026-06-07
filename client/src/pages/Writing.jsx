@@ -6,7 +6,7 @@ import WorkspaceSkeleton from '../components/ui/WorkspaceSkeleton';
 import { useJournal } from '../hooks/useJournal';
 import { DashboardContext } from '../context/DashboardContext';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Plus, Trash2, CheckSquare, Square, FileText, List as ListIcon, ChevronLeft, BookOpen } from 'lucide-react';
+import { Plus, Trash2, CheckSquare, Square, FileText, List as ListIcon, ChevronLeft, BookOpen, Share2 } from 'lucide-react';
 import NoteEntry from '../components/journal_components/NoteEntry';
 import ListEntry from '../components/journal_components/ListEntry';
 
@@ -46,7 +46,27 @@ const CountBadge = ({ count }) => (
     </span>
 );
 
-const HubModule = ({ onSelect, journalCount = 0, notesCount = 0, listsCount = 0 }) => {
+const HubModule = ({ onSelect, journalCount = 0, notesCount = 0, listsCount = 0, sharedCount = 0, isLinkMode = false }) => {
+    if (isLinkMode) {
+        return (
+            <div className="flex flex-col gap-6 w-full">
+                <button
+                    onClick={() => onSelect('shared')}
+                    className="flex-1 group relative rounded-sm bg-white/10 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-primary/40 transition-all shadow-none hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] hover:bg-white/20 dark:hover:bg-white/[0.05] backdrop-blur-sm cursor-pointer overflow-hidden flex flex-col items-center justify-center min-h-[140px] text-center p-6"
+                >
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 pointer-events-none" />
+                    <div className="absolute inset-0 text-black dark:text-white opacity-40 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                        <ChippedBorder opacity={1} />
+                    </div>
+                    <CountBadge count={sharedCount} />
+                    <Share2 className="relative z-10 size-8 text-black/60 dark:text-white/60 group-hover:scale-110 group-hover:text-primary transition-all mb-3" />
+                    <h4 className="relative z-10 text-lg font-black text-black dark:text-white uppercase tracking-tighter italic">SHARED WRITINGS</h4>
+                    <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mt-1.5">Collaborative Documents</span>
+                </button>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col gap-6 w-full">
             <button
@@ -94,6 +114,107 @@ const HubModule = ({ onSelect, journalCount = 0, notesCount = 0, listsCount = 0 
                 <h4 className="relative z-10 text-lg font-black text-black dark:text-white uppercase tracking-tighter italic">LISTS</h4>
                 <span className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-black/35 dark:text-white/20 mt-1.5">Task Tracking</span>
             </button>
+        </div>
+    );
+};
+
+const SharedWritingsModule = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [writings, setWritings] = useState(() => {
+        const saved = localStorage.getItem('produs_shared_writings_store');
+        return saved ? JSON.parse(saved) : [
+            { id: '1', title: 'Shared Vision Board', content: 'Our collaborative goals and dreams.', category: 'IDEAS', date: 'TODAY' }
+        ];
+    });
+
+    useEffect(() => {
+        localStorage.setItem('produs_shared_writings_store', JSON.stringify(writings));
+    }, [writings]);
+
+    const handleDeleteWriting = (id) => {
+        setWritings(writings.filter(w => w.id !== id));
+    };
+
+    const getCategoryColorClass = (category) => {
+        if (!category) return 'border-foreground/30 text-foreground';
+        const cat = category.toLowerCase();
+        
+        let hash = 0;
+        for (let i = 0; i < cat.length; i++) {
+            hash = cat.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        
+        const palette = [
+            'border-primary text-primary dark:border-primary',
+            'border-purple-500 text-purple-500 dark:border-purple-400',
+            'border-emerald-500 text-emerald-500 dark:border-emerald-400',
+            'border-cyan-500 text-cyan-500 dark:border-cyan-400',
+            'border-orange-500 text-orange-500 dark:border-orange-400',
+        ];
+        
+        return palette[Math.abs(hash) % palette.length];
+    };
+
+    return (
+        <div className="flex flex-col gap-8 w-full">
+            <div className="flex justify-between items-center mb-6 px-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Shared Writings List</span>
+                <button
+                    onClick={() => navigate('/dashboard/writing/shared/new')}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 hover:opacity-90 shadow-lg shadow-black/5"
+                >
+                    <Plus className="size-4" />
+                    New Shared Document
+                </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {writings.length === 0 ? (
+                    <div className="text-center py-12 border border-dashed border-black/10 dark:border-white/10 rounded-sm col-span-full">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">No shared writings yet</span>
+                    </div>
+                ) : (
+                    writings.map(writing => (
+                        <motion.div 
+                            key={writing.id} 
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.98 }}
+                            onClick={() => navigate(`/dashboard/writing/shared/${writing.id}`)}
+                            className={`relative p-5 bg-white/10 dark:bg-white/[0.01] hover:bg-white/20 dark:hover:bg-white/[0.03] backdrop-blur-sm border border-black/10 dark:border-white/10 border-l-4 rounded-r-sm flex flex-col justify-between min-h-[140px] group cursor-pointer transition-all ${getCategoryColorClass(writing.category)}`}
+                        >
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-[9px] font-black tracking-widest uppercase font-mono opacity-40">
+                                    {writing.category || 'GENERAL'}
+                                </span>
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); handleDeleteWriting(writing.id); }}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-red-500 p-1"
+                                >
+                                    <Trash2 className="size-3.5" />
+                                </button>
+                            </div>
+
+                            <div className="flex-1 flex flex-col justify-center min-w-0 py-1.5">
+                                <h4 className="text-xs font-black text-foreground uppercase tracking-tight mb-1 truncate block">
+                                    {writing.title || 'UNTITLED DOCUMENT'}
+                                </h4>
+                                <p className="text-[11px] text-foreground/70 font-sans line-clamp-2 leading-relaxed break-words">
+                                    {writing.content}
+                                </p>
+                            </div>
+
+                            <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-foreground/5">
+                                <span className="text-[8px] font-mono text-foreground/30 tracking-wider">
+                                    {writing.date}
+                                </span>
+                                <div className="h-0.5 w-8 bg-foreground opacity-30 group-hover:opacity-100 transition-opacity rounded-full" />
+                            </div>
+                        </motion.div>
+                    ))
+                )}
+            </div>
         </div>
     );
 };
@@ -157,47 +278,53 @@ const NotesModule = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {notes.map(note => (
-                    <motion.div 
-                        key={note.id} 
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                        onClick={() => navigate(`/dashboard/writing/notes/${note.id}`)}
-                        className={`relative p-5 bg-white/10 dark:bg-white/[0.01] hover:bg-white/20 dark:hover:bg-white/[0.03] backdrop-blur-sm border border-black/10 dark:border-white/10 border-l-4 rounded-r-sm flex flex-col justify-between min-h-[140px] group cursor-pointer transition-all ${getCategoryColorClass(note.category)}`}
-                    >
-                        {/* Top: Category/Badge (left) & Delete (right) */}
-                        <div className="flex justify-between items-center mb-1">
-                            <span className="text-[9px] font-black tracking-widest uppercase font-mono opacity-40">
-                                {note.category || 'GENERAL'}
-                            </span>
-                            <button 
-                                onClick={(e) => { e.stopPropagation(); handleDeleteNote(note.id); }}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-red-500 p-1"
-                            >
-                                <Trash2 className="size-3.5" />
-                            </button>
-                        </div>
+                {notes.length === 0 ? (
+                    <div className="text-center py-12 border border-dashed border-black/10 dark:border-white/10 rounded-sm col-span-full">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">No notes yet</span>
+                    </div>
+                ) : (
+                    notes.map(note => (
+                        <motion.div 
+                            key={note.id} 
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.98 }}
+                            onClick={() => navigate(`/dashboard/writing/notes/${note.id}`)}
+                            className={`relative p-5 bg-white/10 dark:bg-white/[0.01] hover:bg-white/20 dark:hover:bg-white/[0.03] backdrop-blur-sm border border-black/10 dark:border-white/10 border-l-4 rounded-r-sm flex flex-col justify-between min-h-[140px] group cursor-pointer transition-all ${getCategoryColorClass(note.category)}`}
+                        >
+                            {/* Top: Category/Badge (left) & Delete (right) */}
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-[9px] font-black tracking-widest uppercase font-mono opacity-40">
+                                    {note.category || 'GENERAL'}
+                                </span>
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); handleDeleteNote(note.id); }}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-red-500 p-1"
+                                >
+                                    <Trash2 className="size-3.5" />
+                                </button>
+                            </div>
 
-                        {/* Middle: Title & Content Preview (Vertically Centered) */}
-                        <div className="flex-1 flex flex-col justify-center min-w-0 py-1.5">
-                            <h4 className="text-xs font-black text-foreground uppercase tracking-tight mb-1 truncate block">
-                                {note.title || 'UNTITLED NOTE'}
-                            </h4>
-                            <p className="text-[11px] text-foreground/70 font-sans line-clamp-2 leading-relaxed break-words">
-                                {note.content}
-                            </p>
-                        </div>
+                            {/* Middle: Title & Content Preview (Vertically Centered) */}
+                            <div className="flex-1 flex flex-col justify-center min-w-0 py-1.5">
+                                <h4 className="text-xs font-black text-foreground uppercase tracking-tight mb-1 truncate block">
+                                    {note.title || 'UNTITLED NOTE'}
+                                </h4>
+                                <p className="text-[11px] text-foreground/70 font-sans line-clamp-2 leading-relaxed break-words">
+                                    {note.content}
+                                </p>
+                            </div>
 
-                        {/* Bottom: Date & Footer Decor */}
-                        <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-foreground/5">
-                            <span className="text-[8px] font-mono text-foreground/30 tracking-wider">
-                                {note.date}
-                            </span>
-                            <div className="h-0.5 w-8 bg-foreground opacity-30 group-hover:opacity-100 transition-opacity rounded-full" />
-                        </div>
-                    </motion.div>
-                ))}
+                            {/* Bottom: Date & Footer Decor */}
+                            <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-foreground/5">
+                                <span className="text-[8px] font-mono text-foreground/30 tracking-wider">
+                                    {note.date}
+                                </span>
+                                <div className="h-0.5 w-8 bg-foreground opacity-30 group-hover:opacity-100 transition-opacity rounded-full" />
+                            </div>
+                        </motion.div>
+                    ))
+                )}
             </div>
         </div>
     );
@@ -290,106 +417,123 @@ const ListsModule = ({ focusListId } = {}) => {
             </div>
 
             <div className="grid grid-cols-1 gap-8">
-                {lists.map(list => {
-                    const completedCount = list.items.filter(i => i.done).length;
-                    const totalCount = list.items.length;
-                    const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+                {lists.length === 0 ? (
+                    <div className="text-center py-12 border border-dashed border-black/10 dark:border-white/10 rounded-sm">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">No lists yet</span>
+                    </div>
+                ) : (
+                    lists.map(list => {
+                        const completedCount = list.items.filter(i => i.done).length;
+                        const totalCount = list.items.length;
+                        const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
-                    return (
-                        <div 
-                            key={list.id} 
-                            onClick={() => navigate(`/dashboard/writing/lists/${list.id}`)}
-                            className="bg-white/10 dark:bg-white/[0.01] hover:bg-white/20 dark:hover:bg-white/[0.03] border border-black/10 dark:border-white/10 backdrop-blur-sm p-6 rounded-sm flex flex-col gap-4 cursor-pointer transition-all">
-                            <div className="flex justify-between items-center border-b border-foreground/10 pb-4">
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-xs font-black tracking-widest uppercase font-mono text-foreground">{list.title}</span>
-                                    <span className="text-[8px] font-mono text-foreground/40">{completedCount}/{totalCount} TASKS COMPLETED</span>
-                                </div>
-                                <button 
-                                    onClick={() => handleDeleteList(list.id)}
-                                    className="text-foreground/30 hover:text-red-500 transition-colors p-1.5"
-                                >
-                                    <Trash2 className="size-3.5" />
-                                </button>
-                            </div>
-
-                            <div className="w-full h-1 bg-foreground/5 rounded-full overflow-hidden">
-                                <div className="h-full bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
-                            </div>
-
-                            <div className="flex flex-col gap-2 mt-2">
-                                {list.items.map(item => (
-                                    <div key={item.id} className="flex items-center justify-between group/item py-1.5 px-2 hover:bg-foreground/[0.02] rounded-sm transition-colors">
-                                        <button 
-                                            onClick={() => handleToggleItem(list.id, item.id)}
-                                            className="flex items-center gap-3 text-left flex-1"
-                                        >
-                                            {item.done ? (
-                                                <CheckSquare className="size-4 text-primary shrink-0" />
-                                            ) : (
-                                                <Square className="size-4 text-foreground/30 shrink-0" />
-                                            )}
-                                            <span className={`text-xs font-sans ${item.done ? 'line-through text-foreground/40' : 'text-foreground/90'}`}>
-                                                {item.text}
-                                            </span>
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDeleteItem(list.id, item.id)}
-                                            className="opacity-0 group-hover/item:opacity-100 transition-opacity text-foreground/30 hover:text-red-500 p-1"
-                                        >
-                                            <Trash2 className="size-3" />
-                                        </button>
+                        return (
+                            <div 
+                                key={list.id} 
+                                onClick={() => navigate(`/dashboard/writing/lists/${list.id}`)}
+                                className="bg-white/10 dark:bg-white/[0.01] hover:bg-white/20 dark:hover:bg-white/[0.03] border border-black/10 dark:border-white/10 backdrop-blur-sm p-6 rounded-sm flex flex-col gap-4 cursor-pointer transition-all">
+                                <div className="flex justify-between items-center border-b border-foreground/10 pb-4">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-xs font-black tracking-widest uppercase font-mono text-foreground">{list.title}</span>
+                                        <span className="text-[8px] font-mono text-foreground/40">{completedCount}/{totalCount} TASKS COMPLETED</span>
                                     </div>
-                                ))}
-
-                                <div className="flex gap-2 mt-3 pt-2 border-t border-foreground/5">
-                                    <input 
-                                        type="text" 
-                                        placeholder="Add task item..." 
-                                        value={newItemTexts[list.id] || ''}
-                                        onChange={(e) => setNewItemTexts({ ...newItemTexts, [list.id]: e.target.value })}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                handleAddItem(list.id);
-                                            }
-                                        }}
-                                        className="flex-1 bg-transparent border-b border-foreground/10 px-2 py-1 text-xs outline-none text-foreground/80 focus:border-primary font-sans"
-                                    />
                                     <button 
-                                        onClick={() => handleAddItem(list.id)}
-                                        className="text-[9px] font-black tracking-wider uppercase text-primary px-3 py-1 hover:bg-primary/10 rounded-sm transition-colors shrink-0 font-mono"
+                                        onClick={() => handleDeleteList(list.id)}
+                                        className="text-foreground/30 hover:text-red-500 transition-colors p-1.5"
                                     >
-                                        ADD
+                                        <Trash2 className="size-3.5" />
                                     </button>
                                 </div>
+
+                                <div className="w-full h-1 bg-foreground/5 rounded-full overflow-hidden">
+                                    <div className="h-full bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
+                                </div>
+
+                                <div className="flex flex-col gap-2 mt-2">
+                                    {list.items.map(item => (
+                                        <div key={item.id} className="flex items-center justify-between group/item py-1.5 px-2 hover:bg-foreground/[0.02] rounded-sm transition-colors">
+                                            <button 
+                                                onClick={() => handleToggleItem(list.id, item.id)}
+                                                className="flex items-center gap-3 text-left flex-1"
+                                            >
+                                                {item.done ? (
+                                                    <CheckSquare className="size-4 text-primary shrink-0" />
+                                                ) : (
+                                                    <Square className="size-4 text-foreground/30 shrink-0" />
+                                                )}
+                                                <span className={`text-xs font-sans ${item.done ? 'line-through text-foreground/40' : 'text-foreground/90'}`}>
+                                                    {item.text}
+                                                </span>
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteItem(list.id, item.id)}
+                                                className="opacity-0 group-hover/item:opacity-100 transition-opacity text-foreground/30 hover:text-red-500 p-1"
+                                            >
+                                                <Trash2 className="size-3" />
+                                            </button>
+                                        </div>
+                                    ))}
+
+                                    <div className="flex gap-2 mt-3 pt-2 border-t border-foreground/5">
+                                        <input 
+                                            type="text" 
+                                            placeholder="Add task item..." 
+                                            value={newItemTexts[list.id] || ''}
+                                            onChange={(e) => setNewItemTexts({ ...newItemTexts, [list.id]: e.target.value })}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    handleAddItem(list.id);
+                                                }
+                                            }}
+                                            className="flex-1 bg-transparent border-b border-foreground/10 px-2 py-1 text-xs outline-none text-foreground/80 focus:border-primary font-sans"
+                                        />
+                                        <button 
+                                            onClick={() => handleAddItem(list.id)}
+                                            className="text-[9px] font-black tracking-wider uppercase text-primary px-3 py-1 hover:bg-primary/10 rounded-sm transition-colors shrink-0 font-mono"
+                                        >
+                                            ADD
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })
+                )}
             </div>
         </div>
     );
 };
 
 const Writing = () => {
+    const { isLinkMode } = useContext(DashboardContext);
     const { entries, isLoading } = useJournal();
     const location = useLocation();
     const navigate = useNavigate();
-    const { entryId, noteId, listId } = useParams();
+    const { entryId, noteId, listId, sharedId } = useParams();
 
     // Derive active tab from the URL path
     const getTabFromPath = () => {
         if (entryId) return 'journal_entry';
         if (noteId) return 'note_detail';
         if (listId) return 'list_detail';
+        if (sharedId) return 'shared_detail';
         if (location.pathname.endsWith('/journal')) return 'journal';
         if (location.pathname.endsWith('/notes')) return 'notes';
         if (location.pathname.endsWith('/lists')) return 'lists';
+        if (location.pathname.endsWith('/shared')) return 'shared';
         if (location.state?.activeTab && location.state.activeTab !== 'hub') return location.state.activeTab;
         return 'hub';
     };
 
     const activeTab = getTabFromPath();
+
+    useEffect(() => {
+        if (isLinkMode && activeTab !== 'hub' && activeTab !== 'shared' && activeTab !== 'shared_detail') {
+            navigate('/dashboard/writing', { replace: true });
+        } else if (!isLinkMode && (activeTab === 'shared' || activeTab === 'shared_detail')) {
+            navigate('/dashboard/writing', { replace: true });
+        }
+    }, [isLinkMode, activeTab, navigate]);
 
     // Find the specific entry/note/list if on a detail route
     const selectedEntry = entryId ? entries.find(e => e._id === entryId) : null;
@@ -403,6 +547,11 @@ const Writing = () => {
         try { return JSON.parse(localStorage.getItem('produs_lists_store') || '[]'); } catch { return []; }
     }, [listId, activeTab]);
     const selectedList = listId ? allLists.find(l => l.id === listId) : null;
+
+    const allShared = React.useMemo(() => {
+        try { return JSON.parse(localStorage.getItem('produs_shared_writings_store') || '[]'); } catch { return []; }
+    }, [sharedId, activeTab]);
+    const selectedShared = sharedId ? allShared.find(s => s.id === sharedId) : null;
 
     const handleSelect = (tab) => {
         navigate(`/dashboard/writing/${tab}`);
@@ -418,13 +567,14 @@ const Writing = () => {
         <div className="w-full bg-transparent text-foreground px-0 pt-24 pb-12 md:pt-20 md:pb-16 font-sans overflow-x-hidden flex flex-col items-center">
             <div className="w-full mt-4 md:mt-6 flex flex-col gap-6">
 
-                {activeTab !== 'hub' && activeTab !== 'journal_entry' && activeTab !== 'note_detail' && activeTab !== 'list_detail' && (
+                {activeTab !== 'hub' && activeTab !== 'journal_entry' && activeTab !== 'note_detail' && activeTab !== 'list_detail' && activeTab !== 'shared_detail' && (
                     <div className="flex items-center gap-4 mb-2 px-4 md:px-0">
                         <button 
                             onClick={
                                 activeTab === 'journal_entry' ? () => navigate('/dashboard/writing/journal') :
                                 activeTab === 'note_detail' ? () => navigate('/dashboard/writing/notes') :
                                 activeTab === 'list_detail' ? () => navigate('/dashboard/writing/lists') :
+                                activeTab === 'shared_detail' ? () => navigate('/dashboard/writing/shared') :
                                 handleBack
                             }
                             className="p-2 rounded-xl bg-black/5 dark:bg-white/5 text-foreground/60 hover:text-foreground hover:bg-black/10 dark:hover:bg-white/10 transition-all active:scale-90 flex items-center justify-center shrink-0"
@@ -435,7 +585,8 @@ const Writing = () => {
                         <h2 className="text-xl md:text-2xl font-black uppercase tracking-[0.2em] text-foreground/95 leading-none mt-0.5">
                             {activeTab === 'journal' ? 'JOURNALS' :
                              activeTab === 'notes' ? 'NOTES' :
-                             activeTab === 'lists' ? 'LISTS' : ''}
+                             activeTab === 'lists' ? 'LISTS' :
+                             activeTab === 'shared' ? 'SHARED WRITINGS' : ''}
                         </h2>
                     </div>
                 )}
@@ -456,6 +607,8 @@ const Writing = () => {
                                     journalCount={entries?.length || 0}
                                     notesCount={allNotes?.length || 0}
                                     listsCount={allLists?.length || 0}
+                                    sharedCount={allShared?.length || 0}
+                                    isLinkMode={isLinkMode}
                                 />
                             </HUDPanel>
                         )}
@@ -576,6 +729,57 @@ const Writing = () => {
                                         return activeId;
                                     }}
                                     onBack={() => navigate('/dashboard/writing/lists')}
+                                />
+                            </HUDPanel>
+                        )}
+
+                        {activeTab === 'shared' && (
+                            <HUDPanel>
+                                <SharedWritingsModule />
+                            </HUDPanel>
+                        )}
+
+                        {activeTab === 'shared_detail' && (
+                            <HUDPanel title={sharedId === 'new' ? "NEW SHARED DOCUMENT" : (selectedShared?.title || "EDIT SHARED DOCUMENT")} subtitle="COLLABORATIVE WRITING">
+                                <NoteEntry 
+                                    initialNote={selectedShared}
+                                    onSave={(newSharedData) => {
+                                        const saved = JSON.parse(localStorage.getItem('produs_shared_writings_store') || '[]');
+                                        let updated;
+                                        if (sharedId === 'new') {
+                                            const doc = {
+                                                id: Date.now().toString(),
+                                                ...newSharedData,
+                                                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()
+                                            };
+                                            updated = [doc, ...saved];
+                                        } else {
+                                            updated = saved.map(s => s.id === sharedId ? { ...s, ...newSharedData } : s);
+                                        }
+                                        localStorage.setItem('produs_shared_writings_store', JSON.stringify(updated));
+                                        navigate('/dashboard/writing/shared');
+                                    }}
+                                    onAutosave={(newSharedData) => {
+                                        const saved = JSON.parse(localStorage.getItem('produs_shared_writings_store') || '[]');
+                                        let updated;
+                                        let activeId = sharedId;
+                                        if (sharedId === 'new') {
+                                            activeId = Date.now().toString();
+                                            const doc = {
+                                                id: activeId,
+                                                ...newSharedData,
+                                                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()
+                                            };
+                                            updated = [doc, ...saved];
+                                            localStorage.setItem('produs_shared_writings_store', JSON.stringify(updated));
+                                            navigate(`/dashboard/writing/shared/${activeId}`, { replace: true });
+                                        } else {
+                                            updated = saved.map(s => s.id === sharedId ? { ...s, ...newSharedData } : s);
+                                            localStorage.setItem('produs_shared_writings_store', JSON.stringify(updated));
+                                        }
+                                        return activeId;
+                                    }}
+                                    onBack={() => navigate('/dashboard/writing/shared')}
                                 />
                             </HUDPanel>
                         )}

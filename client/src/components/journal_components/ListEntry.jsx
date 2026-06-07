@@ -262,7 +262,7 @@ const ListEntry = ({ onSave, onBack, initialList, onAutosave }) => {
             </div>
 
             {/* Interactive Items Roster */}
-            <div className="w-full bg-white dark:bg-black px-6 py-4 flex flex-col min-h-[220px] justify-between">
+            <div className="w-full bg-white dark:bg-black px-6 pt-4 pb-40 md:pb-4 flex flex-col min-h-[calc(100vh-320px)] md:min-h-[500px] justify-between">
                 <div className="flex flex-col gap-2">
                     {items.length === 0 ? (
                         <p className="text-xs text-slate-400 italic py-4">No items added yet. Add items below.</p>
@@ -314,7 +314,9 @@ const ListEntry = ({ onSave, onBack, initialList, onAutosave }) => {
             </div>
 
             {/* Bottom Toolbar */}
-            <div className="bg-white dark:bg-black p-4 px-6 border-t border-slate-100 dark:border-white/10 flex items-center">
+            <div 
+                className="fixed bottom-24 md:static left-0 right-0 md:left-auto md:right-auto z-[140] md:z-auto bg-white dark:bg-black p-4 px-6 border-t border-slate-100 dark:border-white/10 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_12px_rgba(0,0,0,0.5)] md:shadow-none flex items-center justify-end"
+            >
                 <button 
                     onClick={handleAddImage}
                     title="Add Image"
