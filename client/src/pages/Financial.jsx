@@ -127,9 +127,50 @@ const Financial = () => {
         // SWR handles refreshing
     };
 
-    const [selectedYear, setSelectedYear] = useState('all');
-    const [selectedMonth, setSelectedMonth] = useState('all');
+    const [timeframe, setTimeframe] = useState('today');
     const [showAddTx, setShowAddTx] = useState(false);
+
+    const isInTimeframe = (dateInput, currentFrame) => {
+        if (currentFrame === 'all') return true;
+        if (!dateInput) return false;
+        const date = new Date(dateInput);
+        if (isNaN(date.getTime())) return false;
+
+        const dYear = date.getFullYear();
+        const dMonth = date.getMonth();
+        const dDate = date.getDate();
+
+        const today = new Date();
+        const tYear = today.getFullYear();
+        const tMonth = today.getMonth();
+        const tDate = today.getDate();
+
+        if (currentFrame === 'today') {
+            return dYear === tYear && dMonth === tMonth && dDate === tDate;
+        }
+
+        if (currentFrame === 'week') {
+            const day = today.getDay();
+            const diffToMonday = today.getDate() - day + (day === 0 ? -6 : 1);
+            const startOfWeek = new Date(today.getFullYear(), today.getMonth(), diffToMonday, 0, 0, 0, 0);
+
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            endOfWeek.setHours(23, 59, 59, 999);
+
+            return date >= startOfWeek && date <= endOfWeek;
+        }
+
+        if (currentFrame === 'month') {
+            return dYear === tYear && dMonth === tMonth;
+        }
+
+        if (currentFrame === 'year') {
+            return dYear === tYear;
+        }
+
+        return true;
+    };
 
     const formatDate = (dateInput) => {
         if (!dateInput) return new Date().toISOString().split('T')[0];
@@ -148,10 +189,8 @@ const Financial = () => {
         const startDate = new Date(dateStr);
         const startYear = startDate.getFullYear();
         const startMonth = startDate.getMonth();
+        const startDay = startDate.getDate();
         const duration = d.monthsLeft || 1;
-
-        const targetYear = selectedYear === 'all' ? null : parseInt(selectedYear);
-        const targetMonth = selectedMonth === 'all' ? null : parseInt(selectedMonth);
 
         const monthNames = [
             'January', 'February', 'March', 'April', 'May', 'June',
@@ -161,12 +200,20 @@ const Financial = () => {
         const isMonthInstancePaid = (offset) => {
             const mIdx = (startMonth + offset) % 12;
             const yVal = startYear + Math.floor((startMonth + offset) / 12);
-            const label = `${monthNames[mIdx].toUpperCase()} ${yVal}`;
+            const lastDay = new Date(startYear, startMonth + offset + 1, 0).getDate();
+            const dayToUse = Math.min(startDay || 1, lastDay);
+            const monthName = monthNames[mIdx].toUpperCase();
+            const label = `${monthName} ${dayToUse}, ${yVal}`;
+            const legacyLabel = `${monthName} ${yVal}`;
+
             const expectedTitle = d.nature === 'income' 
                 ? `Received: ${d.title} (${label})`
                 : `Paid: ${d.title} (${label})`;
+            const legacyExpectedTitle = d.nature === 'income'
+                ? `Received: ${d.title} (${legacyLabel})`
+                : `Paid: ${d.title} (${legacyLabel})`;
             const expectedType = d.nature === 'income' ? 'income' : 'expense';
-            return transactions.some(t => t.title === expectedTitle && t.type === expectedType);
+            return transactions.some(t => t.type === expectedType && (t.title === expectedTitle || t.title === legacyExpectedTitle));
         };
 
         if (!d.isMonthly) {
@@ -176,122 +223,61 @@ const Financial = () => {
                 : `Paid: ${d.title} (${label})`;
             const expectedType = d.nature === 'income' ? 'income' : 'expense';
             const isPaid = transactions.some(t => t.title === expectedTitle && t.type === expectedType);
+            const itemDate = new Date(dateStr);
+            if (!isInTimeframe(itemDate, timeframe)) {
+                return 0;
+            }
             return isPaid ? 0 : amt;
         }
 
-        // If viewing all time
-        if (targetYear === null && targetMonth === null) {
-            let sum = 0;
-            for (let i = 0; i < duration; i++) {
+        let sum = 0;
+        for (let i = 0; i < duration; i++) {
+            const lastDay = new Date(startYear, startMonth + i + 1, 0).getDate();
+            const dayToUse = Math.min(startDay || 1, lastDay);
+            const instanceDate = new Date(startYear, startMonth + i, dayToUse);
+
+            if (isInTimeframe(instanceDate, timeframe)) {
                 if (!isMonthInstancePaid(i)) {
                     sum += amt;
                 }
             }
-            return sum;
         }
-
-        // If viewing a specific calendar month
-        if (targetYear !== null && targetMonth !== null) {
-            const startAbs = startYear * 12 + startMonth;
-            const targetAbs = targetYear * 12 + targetMonth;
-            if (targetAbs >= startAbs && targetAbs < startAbs + duration) {
-                const offset = targetAbs - startAbs;
-                return isMonthInstancePaid(offset) ? 0 : amt;
-            }
-            return 0;
-        }
-
-        // If viewing a specific year (all months)
-        if (targetYear !== null && targetMonth === null) {
-            let sum = 0;
-            const startAbs = startYear * 12 + startMonth;
-            const endAbs = startAbs + duration - 1;
-            const yearStartAbs = targetYear * 12;
-            const yearEndAbs = targetYear * 12 + 11;
-
-            const overlapStart = Math.max(startAbs, yearStartAbs);
-            const overlapEnd = Math.min(endAbs, yearEndAbs);
-
-            if (overlapStart <= overlapEnd) {
-                for (let abs = overlapStart; abs <= overlapEnd; abs++) {
-                    const offset = abs - startAbs;
-                    if (!isMonthInstancePaid(offset)) {
-                        sum += amt;
-                    }
-                }
-            }
-            return sum;
-        }
-
-        // If viewing a specific month across all years
-        if (targetYear === null && targetMonth !== null) {
-            let sum = 0;
-            for (let i = 0; i < duration; i++) {
-                if ((startMonth + i) % 12 === targetMonth) {
-                    if (!isMonthInstancePaid(i)) {
-                        sum += amt;
-                    }
-                }
-            }
-            return sum;
-        }
-
-        return amt;
+        return sum;
     };
 
     const filteredDebts = useMemo(() => {
         return debts.filter(d => {
             const dateStr = d.dueDate || formatDate(d.createdAt);
             const startDate = new Date(dateStr);
+
+            if (!d.isMonthly) {
+                return isInTimeframe(startDate, timeframe);
+            }
+
             const startYear = startDate.getFullYear();
             const startMonth = startDate.getMonth();
-
-            const targetYear = selectedYear === 'all' ? null : parseInt(selectedYear);
-            const targetMonth = selectedMonth === 'all' ? null : parseInt(selectedMonth);
-
-            // If standard non-recurring debt
-            if (!d.isMonthly) {
-                const matchYear = targetYear === null || startYear === targetYear;
-                const matchMonth = targetMonth === null || startMonth === targetMonth;
-                return matchYear && matchMonth;
-            }
-
-            // If recurring debt
+            const startDay = startDate.getDate();
             const duration = d.monthsLeft || 1;
-            const startAbs = startYear * 12 + startMonth;
-            const endAbs = startAbs + duration - 1;
 
-            if (targetYear !== null && targetMonth !== null) {
-                const targetAbs = targetYear * 12 + targetMonth;
-                return targetAbs >= startAbs && targetAbs <= endAbs;
-            }
-
-            if (targetYear !== null && targetMonth === null) {
-                const yearStartAbs = targetYear * 12;
-                const yearEndAbs = targetYear * 12 + 11;
-                return startAbs <= yearEndAbs && endAbs >= yearStartAbs;
-            }
-
-            if (targetYear === null && targetMonth !== null) {
-                for (let i = 0; i < duration; i++) {
-                    if ((startMonth + i) % 12 === targetMonth) return true;
+            for (let i = 0; i < duration; i++) {
+                const lastDay = new Date(startYear, startMonth + i + 1, 0).getDate();
+                const dayToUse = Math.min(startDay || 1, lastDay);
+                const instanceDate = new Date(startYear, startMonth + i, dayToUse);
+                if (isInTimeframe(instanceDate, timeframe)) {
+                    return true;
                 }
-                return false;
             }
-
-            return true;
+            return false;
         });
-    }, [debts, selectedYear, selectedMonth]);
+    }, [debts, timeframe]);
 
     const filteredSavings = useMemo(() => {
         return savings.filter(s => {
             const dateStr = formatDate(s.createdAt);
             const sDate = new Date(dateStr);
-            if (selectedYear !== 'all' && sDate.getFullYear() !== parseInt(selectedYear)) return false;
-            if (selectedMonth !== 'all' && sDate.getMonth() !== parseInt(selectedMonth)) return false;
-            return true;
+            return isInTimeframe(sDate, timeframe);
         });
-    }, [savings, selectedYear, selectedMonth]);
+    }, [savings, timeframe]);
 
     const totalSavingsForMonth = useMemo(() => {
         return filteredSavings.reduce((sum, s) => sum + (s.amount || 0), 0);
@@ -303,7 +289,7 @@ const Financial = () => {
 
     const totalDebtForMonth = useMemo(() => {
         return actualDebtsForMonth.reduce((sum, d) => sum + getFilteredAmount(d), 0);
-    }, [actualDebtsForMonth, selectedYear, selectedMonth]);
+    }, [actualDebtsForMonth, timeframe, transactions]);
 
     const upcomingIncomeForMonth = useMemo(() => {
         return filteredDebts.filter(d => d.nature === 'income');
@@ -311,7 +297,7 @@ const Financial = () => {
 
     const totalUpcomingIncomeForMonth = useMemo(() => {
         return upcomingIncomeForMonth.reduce((sum, d) => sum + getFilteredAmount(d), 0);
-    }, [upcomingIncomeForMonth, selectedYear, selectedMonth]);
+    }, [upcomingIncomeForMonth, timeframe, transactions]);
 
     const netBalance = totalSavingsForMonth - totalDebtForMonth;
 
@@ -370,10 +356,8 @@ const Financial = () => {
                                         updateFinanceItem={handleUpdateFinance}
                                         showAddTx={showAddTx}
                                         setShowAddTx={setShowAddTx}
-                                        selectedYear={selectedYear}
-                                        setSelectedYear={setSelectedYear}
-                                        selectedMonth={selectedMonth}
-                                        setSelectedMonth={setSelectedMonth}
+                                        timeframe={timeframe}
+                                        setTimeframe={setTimeframe}
                                         selectedTransactions={combinedTransactions}
                                         allTransactions={transactions}
                                         isReadOnly={isLinkMode}

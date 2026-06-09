@@ -123,7 +123,7 @@ const distributeCores = async (req, res) => {
         await user.save();
 
         res.json({ 
-            message: `Successfully granted ${grantAmount} Cores to ${user.username || user.name}`,
+            message: `Successfully granted ${grantAmount} Cores to ${user.username || 'Unknown User'}`,
             newBalance: user.rpg.cores,
             remainingPool: settings.corePool
         });

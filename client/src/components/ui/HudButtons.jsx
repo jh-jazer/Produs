@@ -3,11 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useMobile from '../../hooks/useMobile';
 import useAuthStore from '../../store/useAuthStore';
 import { soundManager } from '../../services/sound';
+import useSWR from 'swr';
+import api from '../../services/api';
 
 export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, isPartnerActive, variant = 'dashboard', isShrunk = false }) {
   const isMobile = useMobile();
   const { user } = useAuthStore();
   const isLinked = !!user?.partner;
+
+  const fetcher = url => api.get(url).then(res => res.data);
+  const { data: unreadData } = useSWR(isLinked ? '/rpg/messages/unread' : null, fetcher, {
+    refreshInterval: 10000
+  });
 
   const [showToast, setShowToast] = useState(false);
   const [shake, setShake] = useState(false);
@@ -96,7 +103,7 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
           </div>
         </motion.button>
 
-        {/* Partner Protocol Button */}
+         {/* Partner Protocol Button */}
         <motion.button
           whileHover={{ x: -2 }}
           whileTap={{ scale: 0.95 }}
@@ -106,8 +113,11 @@ export default function HudButtons({ onRpgClick, onPartnerClick, isRpgActive, is
             width: isMobile ? (isShrunk ? '10vw' : '12vw') : (isShrunk ? '3.5vw' : '4.2vw')
           }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className={`md:w-[4.2vw] ${baseStyles} ${isPartnerActive ? activeStyles : inactiveStyles} ${!isLinked ? 'opacity-85' : ''}`}
+          className={`relative md:w-[4.2vw] ${baseStyles} ${isPartnerActive ? activeStyles : inactiveStyles} ${!isLinked ? 'opacity-85' : ''}`}
         >
+          {isLinked && unreadData?.count > 0 && (
+            <span className="absolute top-1 right-1 size-2 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)] animate-pulse z-30" />
+          )}
           <div className="flex flex-row items-center justify-center gap-1 pr-1">
             <span className="material-symbols-outlined transition-opacity text-lg !hidden md:!inline-block text-current">
               {isLinked ? 'group' : 'lock'}

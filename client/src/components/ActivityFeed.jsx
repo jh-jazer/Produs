@@ -42,7 +42,7 @@ function FeedCard({ entry }) {
             <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-1">
                     <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-sm font-black text-slate-900 dark:text-white truncate">{entry.user.name}</span>
+                        <span className="text-sm font-black text-slate-900 dark:text-white truncate">{entry.user.username || entry.user.name}</span>
                         {entry.user.username && (
                             <span className="text-xs text-slate-400 font-medium truncate">@{entry.user.username}</span>
                         )}

@@ -17,7 +17,6 @@ import generateToken from '../utils/generateToken.js';
 import { calculateLevel, awardXP, determineArchetype, checkNeuralSync, syncUserEnergy } from '../utils/rpgUtils.js';
 import { calculateScores, ARCHETYPE_PROTOCOLS } from '../shared/assessment.js';
 const registerSchema = Joi.object({
-    name: Joi.string().min(2).max(50).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
 });
@@ -39,7 +38,7 @@ export const registerUser = async (req, res) => {
         return res.status(400).json({ message: error.details[0].message });
     }
 
-    const { name, email, password } = req.body;
+    const { email, password } = req.body;
 
     try {
         const userExists = await User.findOne({ email });
@@ -49,7 +48,6 @@ export const registerUser = async (req, res) => {
         }
 
         const user = await User.create({
-            name,
             email,
             password,
         });
@@ -373,7 +371,7 @@ export const sendConnectionRequest = async (req, res) => {
         // Notify the target user
         await Notification.create({
             user: targetUserId,
-            text: `${sender.name} sent you a connection request.`,
+            text: `${sender.username || 'Someone'} sent you a connection request.`,
             type: 'connection',
             icon: 'person_add',
             color: 'text-primary',
@@ -412,7 +410,7 @@ export const acceptConnectionRequest = async (req, res) => {
         // Notify the original requester that their request was accepted
         await Notification.create({
             user: requesterId,
-            text: `${accepter.name} accepted your connection request.`,
+            text: `${accepter.username || 'Someone'} accepted your connection request.`,
             type: 'connection',
             icon: 'handshake',
             color: 'text-primary',
@@ -1093,7 +1091,7 @@ export const sendPartnerRequest = async (req, res) => {
         // Notify the target user
         await Notification.create({
             user: partnerToRequest._id,
-            text: `${currentUser.name} (@${currentUser.username}) sent you a partner link request.`,
+            text: `${currentUser.username || 'Someone'} sent you a partner link request.`,
             type: 'partner',
             icon: 'favorite',
             color: 'text-rose-500',
@@ -1154,7 +1152,7 @@ export const acceptPartnerRequest = async (req, res) => {
         // Notify the original requester that their partner request was accepted
         await Notification.create({
             user: requester._id,
-            text: `${currentUser.name} (@${currentUser.username}) accepted your partner link request!`,
+            text: `${currentUser.username || 'Someone'} accepted your partner link request!`,
             type: 'partner',
             icon: 'favorite',
             color: 'text-rose-500',
@@ -1194,7 +1192,7 @@ export const rejectPartnerRequest = async (req, res) => {
             // Notify the original requester that their partner request was declined
             await Notification.create({
                 user: requester._id,
-                text: `${currentUser.name} (@${currentUser.username}) declined your partner link request.`,
+                text: `${currentUser.username || 'Someone'} declined your partner link request.`,
                 type: 'partner',
                 icon: 'heart_broken',
                 color: 'text-rose-500',

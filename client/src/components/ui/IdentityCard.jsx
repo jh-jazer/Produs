@@ -458,7 +458,7 @@ export default function IdentityCard({
                                                 <button
                                                     onClick={() => {
                                                         setIsMenuOpen(false);
-                                                        if(window.confirm(`Disconnect from ${user.name}?`)) {
+                                                        if(window.confirm(`Disconnect from ${user.username || 'this user'}?`)) {
                                                             handleConnectionAction('disconnect');
                                                         }
                                                     }}

@@ -88,10 +88,7 @@ const UserSearch = ({ onSelect }) => {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-base font-bold text-slate-900 dark:text-white truncate group-hover:text-primary transition-colors flex items-center gap-2">
-                                        {user.name}
-                                        {user.name.toLowerCase().includes(query.toLowerCase()) && !user.username.toLowerCase().includes(query.toLowerCase()) && (
-                                            <span className="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#000000] text-[9px] font-black text-slate-400 uppercase tracking-tighter">Name Match</span>
-                                        )}
+                                        {user.username || user.email}
                                     </p>
                                     <p className="text-sm font-medium text-slate-500 truncate flex items-center gap-1">
                                         @{user.username.split('#')[0].replace(/\d+/g, '')}

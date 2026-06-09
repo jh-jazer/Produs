@@ -1,13 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import DashboardModal from './DashboardModal';
 import LevelDisplay from './LevelDisplay';
 import Avatar from './Avatar';
 import ProdusTimesModal from './ProdusTimesModal';
+import { LEVEL_TABLE } from '../../utils/rpgHelpers';
+import useAuthStore from '../../store/useAuthStore';
 
 const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpenSettings, onOpenNotifications, onOpenBugReport, onOpenStats, onSignOut, onOpenMerchant }) => {
     const navigate = useNavigate();
     const [showPatchNotes, setShowPatchNotes] = useState(false);
+
+    const { updateSettings } = useAuthStore();
+    const isAdmin = user?.isAdmin || user?.email === 'ernestodesabillejr@gmail.com';
+    const [showDevTools, setShowDevTools] = useState(!!user?.settings?.showDevTools);
+
+    useEffect(() => {
+        if (user?.settings) {
+            setShowDevTools(!!user.settings.showDevTools);
+        }
+    }, [user?.settings]);
+
+    const handleToggleDevTools = async () => {
+        const newValue = !showDevTools;
+        setShowDevTools(newValue);
+        try {
+            await updateSettings({ showDevTools: newValue });
+        } catch (err) {
+            setShowDevTools(!newValue);
+            console.error('Failed to sync showDevTools setting:', err);
+        }
+    };
 
     const exp = user?.guardianExp || 0;
     const totalRequired = user?.totalRequired || 0;
@@ -60,7 +84,7 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
                             <div className="flex flex-col gap-3 mt-1 w-full">
                                 {/* Guardian Level */}
                                 <div className="flex flex-col gap-0.5">
-                                    <span className="text-[8px] font-black uppercase tracking-widest text-foreground/50 dark:text-slate-400">Guardian Protocol</span>
+                                    <span className="text-[8px] font-black uppercase tracking-widest text-foreground/50 dark:text-slate-400">Your Level</span>
                                     <LevelDisplay 
                                         level={user?.guardianLevel} 
                                         exp={user?.guardianExp} 
@@ -76,17 +100,23 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
                                 {/* Hero Level */}
                                 <div className={`flex flex-col gap-0.5 transition-opacity ${!user?.hero?.level ? 'opacity-30 grayscale pointer-events-none' : 'opacity-90'}`}>
                                     <span className="text-[8px] font-black uppercase tracking-widest text-foreground/50 dark:text-amber-500/80">
-                                        Hero {user?.hero?.name && user.hero.name !== 'Unnamed Hero' ? `(${user.hero.name})` : '(Locked)'}
+                                        Your Hero {user?.hero?.name && user.hero.name !== 'Unnamed Hero' ? `(${user.hero.name})` : '(Locked)'}
                                     </span>
-                                    <LevelDisplay 
-                                        level={Math.max(1, user?.hero?.level || 0)} 
-                                        exp={user?.hero?.exp || 0} 
-                                        totalRequired={0} 
-                                        nextLevelExp={100} 
-                                        showXP={true}
-                                        variant="default"
-                                        className="scale-[0.85] origin-left"
-                                    />
+                                    {(() => {
+                                        const heroLvl = Math.max(1, user?.hero?.level || 0);
+                                        const currentLevelEntry = LEVEL_TABLE.find(e => e.level === heroLvl) || LEVEL_TABLE[0];
+                                        return (
+                                            <LevelDisplay 
+                                                level={heroLvl} 
+                                                exp={user?.hero?.exp || 0} 
+                                                totalRequired={currentLevelEntry.totalRequired} 
+                                                nextLevelExp={currentLevelEntry.xpToNext} 
+                                                showXP={true}
+                                                variant="default"
+                                                className="scale-[0.85] origin-left"
+                                            />
+                                        );
+                                    })()}
                                 </div>
                             </div>
                         </div>
@@ -94,6 +124,32 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
 
                     {/* Navigation Actions */}
                     <div className="flex flex-col gap-1">
+                        {isAdmin && (
+                            <>
+                                <button onClick={() => { onClose(); navigate('/dashboard/admin'); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-foreground/60 hover:bg-foreground/5 rounded-2xl transition-all flex items-center gap-4 group">
+                                    <span className="material-symbols-outlined text-lg text-foreground opacity-40 group-hover:opacity-100 transition-all">admin_panel_settings</span>
+                                    <span>MANAGE</span>
+                                </button>
+
+                                <div className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-foreground/60 rounded-2xl flex items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <span className="material-symbols-outlined text-lg text-foreground opacity-40">terminal</span>
+                                        <span>DEVELOPER TOOLS</span>
+                                    </div>
+                                    <button
+                                        onClick={handleToggleDevTools}
+                                        className={`w-10 h-5 rounded-sm transition-all relative flex items-center shrink-0 ${showDevTools ? 'bg-foreground' : 'bg-foreground/10'}`}
+                                    >
+                                        <motion.div
+                                            animate={{ x: showDevTools ? 22 : 3 }}
+                                            className={`absolute size-3.5 rounded-sm shadow-sm ${showDevTools ? 'bg-background dark:bg-background' : 'bg-foreground/50'}`}
+                                        />
+                                    </button>
+                                </div>
+                                <div className="my-1 border-t border-foreground/[0.05]" />
+                            </>
+                        )}
+
                         <button onClick={() => { onClose(); onOpenSettings(); }} className="w-full px-5 py-4 text-left text-[8px] font-black uppercase tracking-[0.4em] text-foreground/60 hover:bg-foreground/5 rounded-2xl transition-all flex items-center gap-4 group">
                             <span className="material-symbols-outlined text-lg text-foreground opacity-40 group-hover:opacity-100 transition-all">settings</span>
                             <span>SETTINGS</span>
@@ -113,12 +169,12 @@ const UserMenuModal = ({ isOpen, onClose, user, unreadCount, hasAnyUnread, onOpe
 
                         <div className="flex items-center justify-center gap-3 pt-5 pb-1 pr-1">
                             <span className="text-[8px] font-mono font-black text-foreground/25 dark:text-white/20 uppercase tracking-[0.4em] pointer-events-none">
-                                v1.0.8
+                                v1.0.9
                             </span>
                             <button 
                                 onClick={(e) => { e.stopPropagation(); setShowPatchNotes(true); }}
                                 className="size-3.5 rounded-full flex items-center justify-center text-foreground/30 hover:text-foreground hover:bg-foreground/5 dark:text-white/20 dark:hover:text-white dark:hover:bg-white/5 transition-all"
-                                title="VIEW SYSTEM UPDATE 1.0.8"
+                                title="VIEW SYSTEM UPDATE 1.0.9"
                             >
                                 <span className="material-symbols-outlined" style={{ fontSize: '9px' }}>info</span>
                             </button>

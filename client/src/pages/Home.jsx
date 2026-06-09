@@ -1068,21 +1068,15 @@ export default function Home() {
                                 : 'border-black/10 dark:border-white/10 bg-transparent hover:border-emerald-500/50 dark:hover:border-emerald-500/50 hover:bg-black/5 dark:hover:bg-white/[0.03] hover:shadow-[0_0_20px_rgba(16,185,129,0.05)] active:scale-[0.98]'
                             }`}
                           >
-                            {/* Pulsing indicator corner */}
-                            <div className="absolute top-3 right-3 flex items-center gap-1.5">
-                              <span className={`size-2 rounded-full ${claimedDaily ? 'bg-white/20' : 'bg-emerald-500 animate-pulse'}`} />
-                              <span className="text-[8px] font-mono tracking-widest text-black dark:text-white/30 uppercase">
-                                {claimedDaily ? 'CLAIMED' : 'READY'}
-                              </span>
-                            </div>
 
-                            <span className="text-[8px] font-mono font-black uppercase tracking-[0.25em] text-black dark:text-white/40">SYSTEM BOUNTY</span>
+
+
                             <div className="flex items-center gap-3">
                               <span className={`material-symbols-outlined text-2xl ${claimedDaily ? 'text-white/30' : 'text-emerald-500 transition-transform group-hover/reward:scale-110 duration-300'}`}>workspace_premium</span>
                               <div className="flex flex-col">
                                 <h4 className="text-xs font-black uppercase tracking-wider text-black dark:text-white leading-tight">DAILY REWARD</h4>
                                 <p className="text-[9px] font-mono text-black dark:text-white/40 uppercase tracking-widest mt-0.5">
-                                  {claimedDaily ? '+50 POINTS & +100 XP' : 'CLAIM POINTS & XP'}
+                                  {claimedDaily ? 'CLAIMED' : '+50 POINTS & +100 XP'}
                                 </p>
                               </div>
                             </div>
@@ -1097,15 +1091,9 @@ export default function Home() {
                                 : 'border-black/10 dark:border-white/10 bg-transparent hover:border-amber-500/50 dark:hover:border-amber-500/50 hover:bg-black/5 dark:hover:bg-white/[0.03] hover:shadow-[0_0_20px_rgba(245,158,11,0.05)] active:scale-[0.98]'
                             }`}
                           >
-                            {/* Pulsing indicator corner */}
-                            <div className="absolute top-3 right-3 flex items-center gap-1.5">
-                              <span className={`size-2 rounded-full ${claimedStreak ? 'bg-white/20' : 'bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.4)]'}`} />
-                              <span className="text-[8px] font-mono tracking-widest text-black dark:text-white/30 uppercase">
-                                {claimedStreak ? 'UNLOCKED' : 'READY'}
-                              </span>
-                            </div>
 
-                            <span className="text-[8px] font-mono font-black uppercase tracking-[0.25em] text-black dark:text-white/40">ANNUAL MILESTONE</span>
+
+
                             <div className="flex items-center gap-3">
                               <span className={`material-symbols-outlined text-2xl ${claimedStreak ? 'text-white/30' : 'text-amber-500 transition-transform group-hover/reward:scale-110 duration-300'}`}>military_tech</span>
                               <div className="flex flex-col">
@@ -1117,7 +1105,7 @@ export default function Home() {
                                   </div>
                                 </h4>
                                 <p className="text-[9px] font-mono text-black dark:text-white/40 uppercase tracking-widest mt-0.5">
-                                  {claimedStreak ? 'ECLIPSE REWARD SECURED' : 'UNLOCK EPIC FRAME'}
+                                  {claimedStreak ? 'CLAIMED' : 'UNLOCK EPIC FRAME'}
                                 </p>
                               </div>
                             </div>

@@ -80,10 +80,10 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex gap-3">
                                     <div className="size-8 bg-foreground text-background flex items-center justify-center font-black text-[10px] uppercase rounded-sm">
-                                        {user.name?.charAt(0) || 'U'}
+                                        {(user.username || user.email || 'U').charAt(0)}
                                     </div>
                                     <div>
-                                        <p className="font-black text-xs uppercase tracking-tighter">{user.name || 'Anonymous'}</p>
+                                        <p className="font-black text-xs uppercase tracking-tighter">{user.username || 'Anonymous'}</p>
                                         <p className="text-[8px] font-mono opacity-40 uppercase truncate max-w-[120px]">{user.email}</p>
                                     </div>
                                 </div>
@@ -96,11 +96,11 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                             <div className="flex justify-between items-center pt-4 border-t border-foreground/5">
                                 <span className="text-[8px] font-black uppercase tracking-widest opacity-20">DATA_LINK_ACTIVE</span>
                                 <div className="flex gap-4">
-                                    <button onClick={() => onResetOnboarding(user._id, user.name)} className="text-foreground/20 hover:text-foreground transition-colors">
+                                    <button onClick={() => onResetOnboarding(user._id, user.username)} className="text-foreground/20 hover:text-foreground transition-colors">
                                         <RotateCcw size={12} />
                                     </button>
                                     {user.email !== 'ernestodesabillejr@gmail.com' && (
-                                        <button onClick={() => onToggleAdmin(user._id, user.name, user.isAdmin)} className="text-foreground/20 hover:text-foreground transition-colors">
+                                        <button onClick={() => onToggleAdmin(user._id, user.username, user.isAdmin)} className="text-foreground/20 hover:text-foreground transition-colors">
                                             <Settings size={12} />
                                         </button>
                                     )}
@@ -129,10 +129,10 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                                     <td className="py-4 px-2">
                                         <div className="flex items-center gap-3">
                                             <div className="size-8 bg-foreground/[0.05] border border-foreground/10 text-foreground flex items-center justify-center font-black uppercase text-[10px] rounded-sm group-hover:bg-foreground group-hover:text-background transition-colors">
-                                                {user.name?.charAt(0) || 'U'}
+                                                {(user.username || user.email || 'U').charAt(0)}
                                             </div>
                                             <div>
-                                                <p className="font-black text-[10px] uppercase tracking-widest">{user.name || 'Anonymous'}</p>
+                                                <p className="font-black text-[10px] uppercase tracking-widest">{user.username || 'Anonymous'}</p>
                                                 <p className="text-[8px] font-mono opacity-30 uppercase tracking-widest">{user.email}</p>
                                             </div>
                                         </div>
@@ -153,11 +153,11 @@ const AdminUserRegistry = ({ recentUsers, isValidating, onResetOnboarding, onTog
                                     </td>
                                     <td className="py-4 px-2 text-right">
                                         <div className="flex items-center justify-end gap-3 opacity-20 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => onResetOnboarding(user._id, user.name)} className="hover:text-foreground transition-colors" title="Reset_Onboarding">
+                                            <button onClick={() => onResetOnboarding(user._id, user.username)} className="hover:text-foreground transition-colors" title="Reset_Onboarding">
                                                 <RotateCcw size={14} />
                                             </button>
                                             {user.email !== 'ernestodesabillejr@gmail.com' && (
-                                                <button onClick={() => onToggleAdmin(user._id, user.name, user.isAdmin)} className="hover:text-foreground transition-colors" title="Toggle_Admin">
+                                                <button onClick={() => onToggleAdmin(user._id, user.username, user.isAdmin)} className="hover:text-foreground transition-colors" title="Toggle_Admin">
                                                     <Settings size={14} />
                                                 </button>
                                             )}

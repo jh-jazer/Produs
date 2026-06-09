@@ -28,13 +28,13 @@ const LptLeaderboardModal = ({ isOpen, onClose, currentUser }) => {
         <DashboardModal
             isOpen={isOpen}
             onClose={onClose}
-            title="LPT LEADERBOARD"
+            title="LINK PTS LEADERBOARD"
             subtitle="Annual Accumulated Link Points Ranking"
             maxWidth="max-w-md"
         >
             <div className="flex flex-col gap-4 py-2 min-h-[300px]">
                 <p className="text-[9px] font-mono text-slate-400 uppercase tracking-widest leading-relaxed text-center max-w-[320px] mx-auto mb-2">
-                    OPERATIONAL EFFICIENCY MATRIX: CORRELATING TOTAL ACCUMULATED LPT OVER THE PAST YEAR.
+                    OPERATIONAL EFFICIENCY MATRIX: CORRELATING TOTAL ACCUMULATED LINK PTS OVER THE PAST YEAR.
                 </p>
 
                 {isLoading ? (
@@ -53,10 +53,12 @@ const LptLeaderboardModal = ({ isOpen, onClose, currentUser }) => {
                 ) : (
                     <div className="flex flex-col gap-2 overflow-y-auto max-h-[380px] pr-1">
                         {leaderboard.map((item, idx) => {
-                            const isCurrentUser = item._id === currentUser?._id;
+                            const isCurrentUser = item.users?.some(u => u._id === currentUser?._id);
+                            const itemKey = Array.isArray(item._id) ? item._id.join('-') : item._id;
+                            const users = item.users || [];
                             return (
                                 <div
-                                    key={item._id}
+                                    key={itemKey}
                                     className={`flex items-center justify-between p-3 rounded-sm border transition-all ${
                                         isCurrentUser
                                             ? 'bg-blue-500/10 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.1)]'
@@ -70,29 +72,33 @@ const LptLeaderboardModal = ({ isOpen, onClose, currentUser }) => {
                                             {getRankIcon(idx)}
                                         </div>
 
-                                        {/* Avatar */}
-                                        <div className="size-8 rounded-full overflow-hidden border border-black/10 dark:border-white/10 shrink-0">
-                                            <Avatar config={item.avatar} />
+                                        {/* Overlapping Avatars */}
+                                        <div className="flex items-center -space-x-3 shrink-0">
+                                            {users.map((u, i) => (
+                                                <div key={u._id} className="size-8 rounded-full overflow-hidden border border-background bg-background shrink-0 relative" style={{ zIndex: 10 - i }}>
+                                                    <Avatar config={u.avatar} />
+                                                </div>
+                                            ))}
                                         </div>
 
                                         {/* Name / Username */}
                                         <div className="flex flex-col text-left">
                                             <span className={`text-[11px] font-black uppercase tracking-wider ${isCurrentUser ? 'text-blue-500' : 'text-black dark:text-white'}`}>
-                                                {item.name}
+                                                {users.map(u => u.name).join(' & ')}
                                             </span>
                                             <span className="text-[9px] font-mono text-slate-400 leading-none">
-                                                @{item.username?.split('#')[0] || 'operator'}
+                                                {users.map(u => `@${u.username?.split('#')[0] || 'operator'}`).join(' & ')}
                                             </span>
                                         </div>
                                     </div>
 
-                                    {/* Right section: LPT Score */}
+                                    {/* Right section: LINK PTS Score */}
                                     <div className="flex flex-col items-end">
                                         <span className="text-xs font-black font-mono text-black dark:text-white">
                                             {item.accumulatedLpt}
                                         </span>
                                         <span className="text-[7px] font-mono text-slate-400 uppercase tracking-widest mt-0.5">
-                                            TOTAL LPT
+                                            TOTAL LINK PTS
                                         </span>
                                     </div>
                                 </div>

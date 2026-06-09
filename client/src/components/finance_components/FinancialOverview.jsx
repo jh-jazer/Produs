@@ -30,10 +30,8 @@ const FinancialOverview = ({
   compact = false,
   showAddTx,
   setShowAddTx,
-  selectedYear = 'all',
-  setSelectedYear,
-  selectedMonth = 'all',
-  setSelectedMonth,
+  timeframe = 'today',
+  setTimeframe,
   selectedTransactions = [],
   allTransactions = [],
   isReadOnly = false
@@ -46,6 +44,48 @@ const FinancialOverview = ({
   const [typeFilter, setTypeFilter] = useState('all');
   const [selectedTxId, setSelectedTxId] = useState(null);
   const [toggleConfirmData, setToggleConfirmData] = useState(null);
+
+  const isInTimeframe = (dateInput, currentFrame) => {
+    if (currentFrame === 'all') return true;
+    if (!dateInput) return false;
+    const date = new Date(dateInput);
+    if (isNaN(date.getTime())) return false;
+
+    const dYear = date.getFullYear();
+    const dMonth = date.getMonth();
+    const dDate = date.getDate();
+
+    const today = new Date();
+    const tYear = today.getFullYear();
+    const tMonth = today.getMonth();
+    const tDate = today.getDate();
+
+    if (currentFrame === 'today') {
+      return dYear === tYear && dMonth === tMonth && dDate === tDate;
+    }
+
+    if (currentFrame === 'week') {
+      const day = today.getDay();
+      const diffToMonday = today.getDate() - day + (day === 0 ? -6 : 1);
+      const startOfWeek = new Date(today.getFullYear(), today.getMonth(), diffToMonday, 0, 0, 0, 0);
+
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setHours(23, 59, 59, 999);
+
+      return date >= startOfWeek && date <= endOfWeek;
+    }
+
+    if (currentFrame === 'month') {
+      return dYear === tYear && dMonth === tMonth;
+    }
+
+    if (currentFrame === 'year') {
+      return dYear === tYear;
+    }
+
+    return true;
+  };
 
   const isMonthPaid = (tx, monthLabel, legacyLabel) => {
     const cleanTitle = tx.title.replace(/^debt-/, '');
@@ -104,23 +144,6 @@ const FinancialOverview = ({
     }
   };
 
-  const dropdownOptions = useMemo(() => {
-    const options = [{ value: 'all', label: 'ALL TIME' }];
-    const currentYear = new Date().getFullYear();
-    const endYear = currentYear + 4;
-    
-    for (let y = currentYear; y <= endYear; y++) {
-      for (let m = 0; m < 12; m++) {
-        const d = new Date(y, m, 1);
-        options.push({
-          value: `${y}-${m}`,
-          label: d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase()
-        });
-      }
-    }
-    return options;
-  }, []);
-
   // Categories helper
   const budgetCategories = budgets.map(b => b.category);
   const availableCategories = budgetCategories.length > 0 ? budgetCategories : [
@@ -130,38 +153,12 @@ const FinancialOverview = ({
   ];
   if (!availableCategories.includes('General')) availableCategories.push('General');
 
-  // Aggregate Historical Data (Last 6 Months)
-  const historyData = useMemo(() => {
-    const months = [];
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date();
-      d.setMonth(d.getMonth() - i);
-      const m = d.getMonth();
-      const y = d.getFullYear();
-      
-      const monthLabel = d.toLocaleString('default', { month: 'short' });
-      const monthTransactions = transactions.filter(t => {
-        const td = new Date(t.date);
-        return td.getMonth() === m && td.getFullYear() === y;
-      });
-
-      const inc = monthTransactions.filter(t => t.type === 'income').reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
-      const exp = monthTransactions.filter(t => t.type === 'expense').reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
-      
-      months.push({ label: monthLabel, inc, exp, offset: -i });
-    }
-    return months;
-  }, [transactions]);
-
-  // Current selected month totals
+  // Current selected timeframe totals
   const filteredForTotals = useMemo(() => {
     return transactions.filter(t => {
-      const d = new Date(t.date);
-      if (selectedYear !== 'all' && d.getFullYear() !== parseInt(selectedYear)) return false;
-      if (selectedMonth !== 'all' && selectedYear !== 'all' && d.getMonth() !== parseInt(selectedMonth)) return false;
-      return true;
+      return isInTimeframe(t.date, timeframe);
     });
-  }, [transactions, selectedYear, selectedMonth]);
+  }, [transactions, timeframe]);
 
   const totalIncome = filteredForTotals
     .filter((t) => t.type === "income")
@@ -261,25 +258,15 @@ const FinancialOverview = ({
                                         </button>
                                         <div className="relative">
                                             <select
-                                                value={selectedYear === 'all' ? 'all' : `${selectedYear}-${selectedMonth}`}
-                                                onChange={(e) => {
-                                                    const val = e.target.value;
-                                                    if (val === 'all') {
-                                                        setSelectedYear('all');
-                                                        setSelectedMonth('all');
-                                                    } else {
-                                                        const [y, m] = val.split('-');
-                                                        setSelectedYear(parseInt(y));
-                                                        setSelectedMonth(parseInt(m));
-                                                    }
-                                                }}
+                                                value={timeframe}
+                                                onChange={(e) => setTimeframe(e.target.value)}
                                                 className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-sm px-4 py-2 outline-none appearance-none cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-all pr-10"
                                             >
-                                                {dropdownOptions.map(opt => (
-                                                    <option key={opt.value} value={opt.value} className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white">
-                                                        {opt.label}
-                                                    </option>
-                                                ))}
+                                                <option value="today" className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white">TODAY</option>
+                                                <option value="week" className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white">THIS WEEK</option>
+                                                <option value="month" className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white">THIS MONTH</option>
+                                                <option value="year" className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white">THIS YEAR</option>
+                                                <option value="all" className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white">ALL TIME</option>
                                             </select>
                                             <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-black/30 dark:text-white/20 pointer-events-none text-xs">
                                                 expand_more
@@ -353,10 +340,7 @@ const FinancialOverview = ({
                                         {displayedBalance < 0 ? '-' : ''}{localCurrency}{Math.abs(displayedBalance).toLocaleString()}
                                     </p>
                                     <p className="text-[10px] font-black text-black/90 dark:text-white/80 uppercase tracking-[0.6em] mt-2">
-                                        TOTAL BALANCE {selectedYear === 'all' ? '(ALL TIME)' : `- ${(() => {
-                                            const d = new Date(selectedYear, selectedMonth, 1);
-                                            return `${d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()} ${selectedYear}`;
-                                        })()}`}
+                                        TOTAL BALANCE ({timeframe === 'all' ? 'ALL TIME' : timeframe === 'today' ? 'TODAY' : timeframe === 'week' ? 'THIS WEEK' : timeframe === 'month' ? 'THIS MONTH' : 'THIS YEAR'})
                                     </p>
                                     {foresee && (
                                         <motion.span 
@@ -464,14 +448,7 @@ const FinancialOverview = ({
                 {(() => {
                     const filteredList = selectedTransactions.filter(tx => {
                         if (typeFilter !== 'all' && tx.type !== typeFilter) return false;
-                        if (selectedYear !== 'all') {
-                            try {
-                                const d = new Date(tx.date);
-                                if (d.getFullYear() !== parseInt(selectedYear)) return false;
-                                if (selectedMonth !== 'all' && d.getMonth() !== parseInt(selectedMonth)) return false;
-                            } catch { return false; }
-                        }
-                        return true;
+                        return isInTimeframe(tx.date, timeframe);
                     });
                     return (                        <div className="mt-4 border-t border-transparent md:border-black/10 dark:md:border-white/10 flex flex-col gap-3 pt-4">
                             {/* Scrollable list */}

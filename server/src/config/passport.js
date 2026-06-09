@@ -37,10 +37,9 @@ passport.use(
                         await initializeSystemHabits(user._id);
                         done(null, user);
                     } else {
-                        // If not, create a new user
+                        // If not, create a new user (no name from Google — username is set during onboarding)
                         const newUser = {
                             googleId: profile.id,
-                            name: email.split('@')[0],
                             email: email,
                             avatar: profile.photos && profile.photos.length > 0 ? profile.photos[0].value : '',
                         };

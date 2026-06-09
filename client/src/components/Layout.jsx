@@ -572,9 +572,14 @@ function Layout() {
         refreshInterval: 10000
     });
 
+    const { data: unreadMsgData } = useSWR(user?.partner ? '/rpg/messages/unread' : null, (url) => api.get(url).then(res => res.data), {
+        refreshInterval: 10000
+    });
+
     const unreadCount = notifications.filter(n => !n.read).length;
     const unreadActivitiesCount = activitiesHistory.filter(act => !act.read).length;
-    const hasAnyUnread = unreadCount > 0 || unreadActivitiesCount > 0;
+    const unreadMessagesCount = unreadMsgData?.count || 0;
+    const hasAnyUnread = unreadCount > 0 || unreadActivitiesCount > 0 || unreadMessagesCount > 0;
 
     const handleSignOut = () => {
         signOut();

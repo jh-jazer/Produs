@@ -29,6 +29,9 @@ const Link = () => {
     const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
 
     const { data: leaderboard } = useSWR('/rpg/leaderboard/lpt', fetcher);
+    const { data: unreadData, mutate: mutateUnread } = useSWR(user?.partner ? '/rpg/messages/unread' : null, fetcher, {
+        refreshInterval: 10000
+    });
 
     // Identity card flipping states
     const [isFlipped, setIsFlipped] = useState(false);
@@ -253,7 +256,12 @@ const Link = () => {
 
                                                     {/* Button body */}
                                                     <span className="relative w-full flex items-center justify-center md:justify-start gap-3 px-8 md:px-8 h-[8vh] min-h-[44px] bg-black dark:bg-white text-white dark:text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-sm shadow-[0_0_30px_rgba(0,0,0,0.15)] dark:shadow-[0_0_30px_rgba(255,255,255,0.15)] group-hover:shadow-[0_0_45px_rgba(0,0,0,0.25)] dark:group-hover:shadow-[0_0_45px_rgba(255,255,255,0.25)] transition-shadow duration-300">
-                                                        <MessageSquare className="size-3.5 text-current" />
+                                                        <div className="relative">
+                                                            <MessageSquare className="size-3.5 text-current" />
+                                                            {unreadData?.count > 0 && (
+                                                                <span className="absolute -top-1.5 -right-1.5 size-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_6px_rgba(239,68,68,0.8)]" />
+                                                            )}
+                                                        </div>
                                                         MESSAGES
                                                         {/* Shimmer sweep */}
                                                         <motion.span
@@ -401,26 +409,43 @@ const Link = () => {
                                                 }}
                                                 className="relative border border-black/10 dark:border-white/10 rounded-sm p-4 flex flex-col gap-2 transition-all duration-300 overflow-hidden select-none cursor-pointer bg-transparent hover:bg-black/5 dark:hover:bg-white/[0.03] hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.05)] active:scale-[0.98]"
                                             >
-                                                <div className="absolute top-3 right-3 flex items-center gap-1.5">
-                                                    <span className="size-2 rounded-full bg-blue-500 animate-pulse" />
-                                                    <span className="text-[8px] font-mono tracking-widest text-black dark:text-white/30 uppercase">
-                                                        LIVE
-                                                    </span>
-                                                </div>
 
-                                                <span className="text-[8px] font-mono font-black uppercase tracking-[0.25em] text-black dark:text-white/40">LPT LEADERBOARD</span>
                                                 <div className="flex items-center gap-3">
                                                     <span className="material-symbols-outlined text-2xl text-blue-500">leaderboard</span>
                                                     <div className="flex flex-col text-left">
                                                         <h4 className="text-xs font-black uppercase tracking-wider text-black dark:text-white leading-tight">
                                                             CURRENT RANK: {(() => {
                                                                 if (!leaderboard) return '...';
-                                                                const myIndex = leaderboard.findIndex(l => l._id === user?._id);
+                                                                const myIndex = leaderboard.findIndex(l => l.users?.some(u => u._id === user?._id));
                                                                 return myIndex !== -1 ? `#${myIndex + 1}` : 'N/A';
                                                             })()}
                                                         </h4>
                                                         <p className="text-[9px] font-mono text-black dark:text-white/40 uppercase tracking-widest mt-0.5">
-                                                            {user?.rpg?.linkPoints || 0} LPT AVAILABLE
+                                                            {(() => {
+                                                                if (!leaderboard) return '...';
+                                                                const myIndex = leaderboard.findIndex(l => l.users?.some(u => u._id === user?._id));
+                                                                if (myIndex === -1) return 'RANK NOT AVAILABLE';
+                                                                
+                                                                const currentRank = myIndex + 1;
+                                                                const storageKey = `prev_lpt_rank_${user?._id}`;
+                                                                const prevRankVal = localStorage.getItem(storageKey);
+                                                                
+                                                                if (prevRankVal === null) {
+                                                                    localStorage.setItem(storageKey, currentRank.toString());
+                                                                    return 'RANK STABLE';
+                                                                }
+                                                                
+                                                                const prevRank = parseInt(prevRankVal, 10);
+                                                                if (currentRank < prevRank) {
+                                                                    localStorage.setItem(storageKey, currentRank.toString());
+                                                                    return 'WENT UP';
+                                                                } else if (currentRank > prevRank) {
+                                                                    localStorage.setItem(storageKey, currentRank.toString());
+                                                                    return 'WENT DOWN';
+                                                                } else {
+                                                                    return 'RANK STABLE';
+                                                                }
+                                                            })()}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -430,15 +455,7 @@ const Link = () => {
                                             <div 
                                                 className="relative border border-black/10 dark:border-white/10 rounded-sm p-4 flex flex-col gap-2 transition-all duration-300 overflow-hidden select-none bg-transparent hover:bg-black/5 dark:hover:bg-white/[0.03] hover:border-orange-500/50 hover:shadow-[0_0_20px_rgba(249,115,22,0.05)] group/reward"
                                             >
-                                                {/* Pulsing indicator corner */}
-                                                <div className="absolute top-3 right-3 flex items-center gap-1.5">
-                                                    <span className="size-2 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
-                                                    <span className="text-[8px] font-mono tracking-widest text-black dark:text-white/30 uppercase">
-                                                        SYNCED
-                                                    </span>
-                                                </div>
 
-                                                <span className="text-[8px] font-mono font-black uppercase tracking-[0.25em] text-black dark:text-white/40">PARTNER MILESTONE</span>
                                                 <div className="flex items-center gap-3">
                                                     <span className="material-symbols-outlined text-2xl text-orange-500 transition-transform group-hover/reward:scale-110 duration-300">local_fire_department</span>
                                                     <div className="flex flex-col text-left">
@@ -563,12 +580,12 @@ const Link = () => {
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] pl-1 text-current">
                             RANK {(() => {
                                 if (!leaderboard) return '...';
-                                const myIndex = leaderboard.findIndex(l => l._id === user?._id);
+                                const myIndex = leaderboard.findIndex(l => l.users?.some(u => u._id === user?._id));
                                 return myIndex !== -1 ? `#${myIndex + 1}` : 'N/A';
                             })()}
                         </span>
                         <span className="text-[7px] font-mono opacity-60 tracking-[0.1em] pl-1 mt-0.5 uppercase text-current">
-                            LPT RANK
+                            LINK PTS RANK
                         </span>
                     </motion.div>
                 </div>
@@ -577,7 +594,10 @@ const Link = () => {
             {/* Link Hub Modals */}
             <MessagingModal
                 isOpen={isMessagingOpen}
-                onClose={() => setIsMessagingOpen(false)}
+                onClose={() => {
+                    setIsMessagingOpen(false);
+                    mutateUnread();
+                }}
                 partner={partner}
             />
             <GamesModal

@@ -5,8 +5,6 @@ import useAuthStore from '../store/useAuthStore';
 import Logo from '../components/brand/Logo';
 
 function SignUp() {
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
@@ -22,7 +20,6 @@ function SignUp() {
 
         try {
             const { data } = await api.post('/auth/register', {
-                name: `${firstName} ${lastName}`.trim(),
                 email,
                 password
             });
@@ -94,37 +91,6 @@ function SignUp() {
 
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="flex flex-col gap-1.5 group">
-                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors">First Name</label>
-                                <div className="relative">
-                                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px]">person</span>
-                                    <input
-                                        type="text"
-                                        value={firstName}
-                                        onChange={(e) => setFirstName(e.target.value)}
-                                        required
-                                        placeholder="Alex"
-                                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#000000]/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20 focus:border-slate-900 dark:focus:border-white transition-all placeholder-slate-400/70"
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5 group">
-                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors">Last Name</label>
-                                <div className="relative">
-                                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px]">badge</span>
-                                    <input
-                                        type="text"
-                                        value={lastName}
-                                        onChange={(e) => setLastName(e.target.value)}
-                                        required
-                                        placeholder="Doe"
-                                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#000000]/30 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/20 dark:focus:ring-white/20 focus:border-slate-900 dark:focus:border-white transition-all placeholder-slate-400/70"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
                         <div className="flex flex-col gap-1.5 group">
                             <label className="text-xs font-bold text-slate-500 dark:text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors">Email Address</label>
                             <div className="relative">
@@ -176,3 +142,4 @@ function SignUp() {
 }
 
 export default SignUp;
+

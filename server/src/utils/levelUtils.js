@@ -26,12 +26,6 @@ export const addGuardianExp = async (userId, amount) => {
         const levelUp = newLevelInfo.level > (user.guardianLevel || 0);
         user.guardianLevel = newLevelInfo.level;
 
-        // Sync hero progression to mirror guardian progression exactly
-        if (!user.hero) user.hero = { name: 'Unnamed Hero', class: null, level: 0, exp: 0 };
-        user.hero.exp = user.guardianExp;
-        user.hero.level = user.guardianLevel;
-        user.markModified('hero');
-
         await user.save();
         return { user, levelUp, levelInfo: newLevelInfo };
     } catch (error) {
@@ -40,19 +34,40 @@ export const addGuardianExp = async (userId, amount) => {
     }
 };
 
-/**
- * Add Hero EXP to a user's guided hero character.
- * Hero level is always capped at the Guardian's current level.
- */
 export const addHeroExp = async (userId, amount) => {
-    const result = await addGuardianExp(userId, amount);
-    if (!result) return null;
-    return {
-        user: result.user,
-        levelUp: result.levelUp,
-        levelInfo: result.levelInfo,
-        cappedLevel: result.user.guardianLevel
-    };
+    try {
+        const user = await User.findById(userId);
+        if (!user) return null;
+
+        if (!user.hero) {
+            user.hero = { name: 'Unnamed Hero', class: null, level: 1, exp: 0 };
+        }
+
+        user.hero.exp = (user.hero.exp || 0) + amount;
+        
+        // Resolve Hero level using shared LEVEL_TABLE
+        const heroLevelInfo = calculateLevel(user.hero.exp);
+        
+        // Cap hero level at current guardianLevel
+        const maxLevelAllowed = user.guardianLevel || 1;
+        const targetLevel = Math.min(heroLevelInfo.level, maxLevelAllowed);
+        
+        const levelUp = targetLevel > (user.hero.level || 1);
+        user.hero.level = targetLevel;
+
+        user.markModified('hero');
+        await user.save();
+
+        return {
+            user,
+            levelUp,
+            levelInfo: heroLevelInfo,
+            cappedLevel: maxLevelAllowed
+        };
+    } catch (error) {
+        console.error('Failed to add Hero EXP:', error);
+        return null;
+    }
 };
 
 // ─── Legacy alias ────────────────────────────────────────────────────────────

@@ -407,12 +407,6 @@ export const awardXP = async (user, rawStat, amount, streak = 1, activityType = 
     const oldLevel = user.guardianLevel || 0;
     user.guardianLevel = levelInfo.level;
 
-    // Sync hero
-    if (!user.hero) user.hero = { name: 'Unnamed Hero', class: null, level: 0, exp: 0 };
-    user.hero.exp = user.guardianExp;
-    user.hero.level = user.guardianLevel;
-    user.markModified('hero');
-
     const archetypeInfo = determineArchetype(user, user.guardianLevel);
     user.rpg.finalLabel = archetypeInfo.name;
     

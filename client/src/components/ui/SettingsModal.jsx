@@ -178,42 +178,6 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                 maxWidth="max-w-md"
             >
                 <div className="space-y-8 -mt-4">
-                    {/* Developer Section */}
-                    {isAdmin && (
-                        <div className="space-y-4">
-                            <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1 mb-2">Developer</div>
-                            
-                            {/* Manage Protocol */}
-                            <button 
-                                onClick={() => { onClose(); navigate('/dashboard/admin'); }} 
-                                className="w-full flex items-center justify-between p-4 px-5 rounded-sm border border-foreground/10 bg-foreground/5 hover:bg-foreground/10 transition-all group"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-foreground opacity-60 group-hover:opacity-100 transition-opacity">admin_panel_settings</span>
-                                    <span className="text-[8px] font-mono uppercase tracking-widest text-foreground">Manage</span>
-                                </div>
-                                <span className="material-symbols-outlined text-foreground/40">chevron_right</span>
-                            </button>
-
-                            {/* Dev Tools Toggle */}
-                            <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:bg-foreground/10">
-                                <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-foreground opacity-60">terminal</span>
-                                    <span className="text-[8px] font-mono uppercase tracking-widest text-foreground">Developer Tools</span>
-                                </div>
-                                <button
-                                    onClick={() => handleToggle('showDevTools')}
-                                    className={`w-10 h-5 rounded-sm transition-all relative flex items-center ${localSettings.showDevTools ? 'bg-foreground' : 'bg-foreground/10'}`}
-                                >
-                                    <motion.div
-                                        animate={{ x: localSettings.showDevTools ? 22 : 3 }}
-                                        className={`absolute size-3.5 rounded-sm shadow-sm ${localSettings.showDevTools ? 'bg-background' : 'bg-foreground/50'}`}
-                                    />
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
                     {/* Appearance */}
                     <div className="space-y-4">
                         <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1 mb-2">Appearance</div>
@@ -221,10 +185,28 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                         <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
                             <div className="flex items-center gap-3">
                                 <span className="material-symbols-outlined text-foreground opacity-60">palette</span>
-                                <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Interface Protocol</span>
+                                <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Theme Mode</span>
                             </div>
                             
                             <ThemeToggle />
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-foreground opacity-60">color_lens</span>
+                                <span className="text-[8px] font-mono text-foreground uppercase tracking-widest">Accent Theme</span>
+                            </div>
+                            <select
+                                value={localSettings.theme || 'classic'}
+                                onChange={(e) => handleThemeChange(e.target.value)}
+                                className="bg-transparent border border-foreground/20 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-wider outline-none text-foreground focus:border-foreground transition-colors cursor-pointer dark:bg-[#0a0a0a]"
+                            >
+                                {themes.map((t) => (
+                                    <option key={t.id} value={t.id}>
+                                        {t.name}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
                         <div className="flex items-center justify-between p-4 px-5 rounded-sm bg-foreground/5 border border-foreground/10 transition-all hover:border-foreground/20">
@@ -376,31 +358,6 @@ const SettingsModal = ({ isOpen, onClose, onOpenBugReport }) => {
                                 onTouchEnd={handleAlarmVolumeCommit}
                                 className="w-full accent-foreground bg-foreground/10 h-1 rounded-sm appearance-none cursor-pointer outline-none transition-colors"
                             />
-                        </div>
-                    </div>
-
-                    {/* Theme Selection */}
-                    <div className="space-y-4">
-                        <div className="text-[8px] font-mono uppercase tracking-widest text-foreground/40 px-1 mb-2">Accent Theme</div>
-                        <div className="grid grid-cols-5 gap-3">
-                            {themes.map((t) => (
-                                <button
-                                    key={t.id}
-                                    onClick={() => handleThemeChange(t.id)}
-                                    className={`group relative flex flex-col items-center gap-2 p-3 rounded-sm border transition-all ${localSettings.theme === t.id ? 'border-primary bg-primary/5' : 'border-foreground/10 hover:border-foreground/20 hover:bg-foreground/5'}`}
-                                    title={t.name}
-                                >
-                                    <div 
-                                        className="size-10 rounded-sm shadow-none group-hover:scale-105 transition-transform"
-                                        style={{ backgroundColor: t.color }}
-                                    />
-                                    {localSettings.theme === t.id && (
-                                        <motion.span layoutId="theme-check" className="absolute -top-1.5 -right-1.5 size-5 bg-primary text-white rounded-sm flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-[10px] font-bold">check</span>
-                                        </motion.span>
-                                    )}
-                                </button>
-                            ))}
                         </div>
                     </div>
 

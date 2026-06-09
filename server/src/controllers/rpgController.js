@@ -334,12 +334,14 @@ export const getSSSLeaderboard = async (req, res) => {
 export const getLptLeaderboard = async (req, res) => {
     try {
         const leaders = await User.aggregate([
+            { $match: { partner: { $exists: true, $ne: null } } },
             {
                 $project: {
                     name: 1,
                     username: 1,
                     avatar: 1,
                     level: 1,
+                    partner: 1,
                     'rpg.linkPoints': 1,
                     'rpg.linkTree.pointsSpent': 1,
                     accumulatedLpt: {
@@ -347,6 +349,31 @@ export const getLptLeaderboard = async (req, res) => {
                             { $ifNull: ["$rpg.linkPoints", 0] },
                             { $ifNull: ["$rpg.linkTree.pointsSpent", 0] }
                         ]
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    pair: {
+                        $cond: {
+                            if: { $lt: ["$_id", "$partner"] },
+                            then: ["$_id", "$partner"],
+                            else: ["$partner", "$_id"]
+                        }
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: "$pair",
+                    accumulatedLpt: { $max: "$accumulatedLpt" },
+                    users: {
+                        $push: {
+                            _id: "$_id",
+                            name: "$name",
+                            username: "$username",
+                            avatar: "$avatar"
+                        }
                     }
                 }
             },
@@ -806,6 +833,12 @@ export const getMessages = async (req, res) => {
             return res.status(400).json({ message: 'No partner linked' });
         }
 
+        // Mark incoming messages as read
+        await Message.updateMany(
+            { sender: user.partner, recipient: user._id, read: false },
+            { $set: { read: true } }
+        );
+
         const messages = await Message.find({
             $or: [
                 { sender: user._id, recipient: user.partner },
@@ -817,6 +850,26 @@ export const getMessages = async (req, res) => {
     } catch (error) {
         console.error('Failed to get messages:', error);
         res.status(500).json({ message: 'Server error fetching messages.' });
+    }
+};
+
+export const getUnreadMessageCount = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user || !user.partner) {
+            return res.json({ count: 0 });
+        }
+
+        const count = await Message.countDocuments({
+            sender: user.partner,
+            recipient: user._id,
+            read: false
+        });
+
+        res.json({ count });
+    } catch (error) {
+        console.error('Failed to get unread message count:', error);
+        res.status(500).json({ message: 'Server error getting unread message count.' });
     }
 };
 
@@ -835,7 +888,8 @@ export const sendMessage = async (req, res) => {
         const message = await Message.create({
             sender: user._id,
             recipient: user.partner,
-            text: text.trim()
+            text: text.trim(),
+            read: false
         });
 
         res.status(201).json(message);

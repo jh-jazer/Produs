@@ -1,4 +1,4 @@
-import { completeDailyQuiz, getActivityHistory, markActivitiesRead, logActivity, syncNeural, getSSSLeaderboard, getLptLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening, purchaseItem, claimDailyReward, claimStreakReward, getHero, awardHeroExpController, waterTree, setLinkMessage, getMessages, sendMessage } from '../controllers/rpgController.js';
+import { completeDailyQuiz, getActivityHistory, markActivitiesRead, logActivity, syncNeural, getSSSLeaderboard, getLptLeaderboard, getTerritoryLords, getNarrativeHistory, initiateAwakening, purchaseItem, claimDailyReward, claimStreakReward, getHero, awardHeroExpController, waterTree, setLinkMessage, getMessages, sendMessage, getUnreadMessageCount } from '../controllers/rpgController.js';
 import { getQuestionById } from '../controllers/narrativeController.js';
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
@@ -80,6 +80,10 @@ router.post('/water-tree', protect, waterTree);
 // @route   POST /api/rpg/link-message
 // @desc    Set ephemeral message for the partner
 router.post('/link-message', protect, setLinkMessage);
+
+// @route   GET /api/rpg/messages/unread
+// @desc    Get count of unread partner chat messages
+router.get('/messages/unread', protect, getUnreadMessageCount);
 
 // @route   GET /api/rpg/messages
 // @desc    Get partner chat history
