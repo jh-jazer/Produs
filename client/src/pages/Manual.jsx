@@ -12,13 +12,13 @@ export default function Manual() {
   const navigate = useNavigate();
 
   const landingTabs = [
-    { id: "hub", label: "HUB", icon: "home", path: "/landing" },
-    { id: "about", label: "ABOUT", icon: "info", path: "/manual" },
-    { id: "classes", label: "CLASSES", icon: "school", path: "/classes" },
-    { id: "patches", label: "PATCHES", icon: "history", path: "/updates" }
+    { id: "hub", label: "SYSTEM", icon: "terminal", path: "/manual" },
+    { id: "classes", label: "CLASSES", icon: "shield", path: "/classes" },
+    { id: "patches", label: "PATCH NOTES", icon: "history", path: "/updates" },
+    { id: "vault", label: "THE VAULT", icon: "lock", path: "/auth" }
   ];
 
-  const [activeLandingTab] = useState("about");
+  const [activeLandingTab] = useState("hub");
 
   const handleLandingTabClick = (id) => {
     const tab = landingTabs.find(t => t.id === id);

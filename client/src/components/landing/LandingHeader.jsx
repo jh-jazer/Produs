@@ -14,10 +14,10 @@ const LandingHeader = ({ activeTab }) => {
   const navigate = useNavigate();
 
   const landingTabs = [
-    { id: "hub", label: "HUB", icon: "home", path: "/landing" },
-    { id: "about", label: "ABOUT", icon: "info", path: "/manual" },
-    { id: "classes", label: "CLASSES", icon: "school", path: "/classes" },
-    { id: "patches", label: "PATCHES", icon: "history", path: "/updates" }
+    { id: "hub", label: "SYSTEM", icon: "terminal", path: "/manual" },
+    { id: "classes", label: "CLASSES", icon: "shield", path: "/classes" },
+    { id: "patches", label: "PATCH NOTES", icon: "history", path: "/updates" },
+    { id: "vault", label: "THE VAULT", icon: "lock", path: "/auth" }
   ];
 
   const handleTabClick = (path) => {
@@ -92,7 +92,7 @@ const LandingHeader = ({ activeTab }) => {
                 className="w-full py-6 bg-white text-black font-black uppercase tracking-[0.4em] rounded-xl hover:bg-white/90 transition-colors flex items-center justify-center gap-3"
               >
                 <Play size={20} fill="currentColor" />
-                Play
+                The Vault
               </button>
             </div>
           </motion.div>
