@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-const uri = 'mongodb+srv://ernestodesabillejr_db_user:EIHMSbJ7xNiM2kDK@cluster0.srg2q4v.mongodb.net/?appName=Cluster0';
+import './env.js';
+const uri = process.env.MONGODB_URI;
 mongoose.connect(uri).then(async () => {
   console.log('Connected');
   const dbs = await mongoose.connection.db.admin().listDatabases();

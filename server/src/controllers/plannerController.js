@@ -63,15 +63,18 @@ export const getTasks = async (req, res) => {
                 }
             ];
         } else if (year && month) {
-            // Find tasks that overlap with this month
-            // This is a bit more complex, but for now we can just find tasks starting or ending in this month
-            // or spanning across it.
-            const monthStart = `${year}-${String(month).padStart(2, '0')}-01`;
-            const monthEnd = `${year}-${String(month).padStart(2, '0')}-31`; // Rough end
+            const safeYear = parseInt(year, 10);
+            const safeMonth = parseInt(month, 10);
+            if (isNaN(safeYear) || isNaN(safeMonth) || safeMonth < 1 || safeMonth > 12) {
+                return res.status(400).json({ message: 'Invalid year or month' });
+            }
+            const monthPrefix = `${safeYear}-${String(safeMonth).padStart(2, '0')}`;
+            const monthStart = `${monthPrefix}-01`;
+            const monthEnd = `${monthPrefix}-31`; // Rough end
 
             query.$or = [
-                { date: { $regex: new RegExp(`^${year}-${String(month).padStart(2, '0')}`) } },
-                { endDate: { $regex: new RegExp(`^${year}-${String(month).padStart(2, '0')}`) } },
+                { date: { $regex: new RegExp(`^${monthPrefix}`) } },
+                { endDate: { $regex: new RegExp(`^${monthPrefix}`) } },
                 {
                     date: { $lte: monthEnd },
                     endDate: { $gte: monthStart }
@@ -95,10 +98,13 @@ export const createTask = async (req, res) => {
             return res.status(400).json({ message: 'Activity overlaps with an existing task' });
         }
 
-        const task = new Task({
-            ...req.body,
-            user: req.user._id
+        const allowedTaskFields = ['title', 'description', 'date', 'endDate', 'startTime', 'endTime', 'priority', 'completed', 'type', 'order', 'color'];
+        const safeTaskData = { user: req.user._id };
+        allowedTaskFields.forEach(field => {
+            if (req.body[field] !== undefined) safeTaskData[field] = req.body[field];
         });
+
+        const task = new Task(safeTaskData);
         await task.save();
 
         // Auto-check Daily Planning habit
@@ -128,9 +134,15 @@ export const updateTask = async (req, res) => {
             }
         }
 
+        const allowedTaskFields = ['title', 'description', 'date', 'endDate', 'startTime', 'endTime', 'priority', 'completed', 'type', 'order', 'color'];
+        const safeTaskUpdate = {};
+        allowedTaskFields.forEach(field => {
+            if (req.body[field] !== undefined) safeTaskUpdate[field] = req.body[field];
+        });
+
         const task = await Task.findOneAndUpdate(
             { _id: req.params.id, user: req.user._id },
-            req.body,
+            safeTaskUpdate,
             { new: true }
         );
 
@@ -219,14 +231,16 @@ export const applyTemplate = async (req, res) => {
             templateTasks = TEMPLATES[templateId];
         } else {
             // Check if it's a valid MongoDB ID first
-            if (templateId.match(/^[0-9a-fA-F]{24}$/)) {
-                // Fetch from DB
-                const customTemplate = await Template.findOne({
-                    $or: [
-                        { _id: templateId, user: req.user._id },
-                        { _id: templateId, isShared: true } // Could check partner ID specifically for tighter security
-                    ]
-                });
+            if (typeof templateId === 'string' && templateId.match(/^[0-9a-fA-F]{24}$/)) {
+                // Fetch from DB — restrict shared templates to linked partner only
+                const currentUser = await User.findById(req.user._id);
+                const partnerId = currentUser?.partner;
+                const templateFilter = [{ _id: templateId, user: req.user._id }];
+                if (partnerId) {
+                    templateFilter.push({ _id: templateId, user: partnerId, isShared: true });
+                }
+
+                const customTemplate = await Template.findOne({ $or: templateFilter });
                 if (customTemplate) {
                     templateTasks = customTemplate.tasks;
                 }
@@ -321,9 +335,15 @@ export const saveAsTemplate = async (req, res) => {
 
 export const updateTemplate = async (req, res) => {
     try {
+        const allowedTemplateFields = ['name', 'tasks', 'isShared'];
+        const safeTemplateUpdate = {};
+        allowedTemplateFields.forEach(field => {
+            if (req.body[field] !== undefined) safeTemplateUpdate[field] = req.body[field];
+        });
+
         const template = await Template.findOneAndUpdate(
             { _id: req.params.id, user: req.user._id },
-            req.body,
+            safeTemplateUpdate,
             { new: true }
         );
         if (!template) return res.status(404).json({ message: 'Template not found' });
@@ -373,10 +393,13 @@ export const getGoals = async (req, res) => {
 
 export const createGoal = async (req, res) => {
     try {
-        const goal = new Goal({
-            ...req.body,
-            user: req.user._id
+        const allowedGoalFields = ['title', 'period', 'year', 'month', 'week', 'day', 'completed', 'targetValue', 'currentValue'];
+        const safeGoalData = { user: req.user._id };
+        allowedGoalFields.forEach(field => {
+            if (req.body[field] !== undefined) safeGoalData[field] = req.body[field];
         });
+
+        const goal = new Goal(safeGoalData);
         await goal.save();
 
         // Auto-check Goal Setting habit
@@ -390,12 +413,14 @@ export const createGoal = async (req, res) => {
 
 export const updateGoal = async (req, res) => {
     try {
-        const goal = await Goal.findOneAndUpdate(
-            { _id: req.params.id, user: req.user._id },
-            req.body,
-            { new: true }
-        );
+        const goal = await Goal.findOne({ _id: req.params.id, user: req.user._id });
         if (!goal) return res.status(404).json({ message: 'Goal not found' });
+
+        const allowedGoalFields = ['title', 'period', 'year', 'month', 'week', 'day', 'completed', 'targetValue', 'currentValue'];
+        allowedGoalFields.forEach(field => {
+            if (req.body[field] !== undefined) goal[field] = req.body[field];
+        });
+        await goal.save();
 
         // Auto-check Goal Setting habit
         await checkSystemHabit(req.user._id, 'workout');

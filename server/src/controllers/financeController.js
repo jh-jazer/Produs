@@ -75,7 +75,10 @@ export const updateTransaction = async (req, res) => {
     try {
         const transaction = await Transaction.findById(req.params.id);
         if (transaction && transaction.user.toString() === req.user._id.toString()) {
-            Object.assign(transaction, req.body);
+            const allowedFields = ['title', 'amount', 'type', 'category', 'date'];
+            allowedFields.forEach(field => {
+                if (req.body[field] !== undefined) transaction[field] = req.body[field];
+            });
             const updatedTx = await transaction.save();
             res.json(updatedTx);
         } else {
@@ -163,7 +166,10 @@ export const updateDebt = async (req, res) => {
     try {
         const debt = await Debt.findById(req.params.id);
         if (debt && debt.user.toString() === req.user._id.toString()) {
-            Object.assign(debt, req.body);
+            const allowedDebtFields = ['title', 'amount', 'total', 'type', 'nature', 'interestRate', 'dueDate', 'isMonthly', 'monthsLeft'];
+            allowedDebtFields.forEach(field => {
+                if (req.body[field] !== undefined) debt[field] = req.body[field];
+            });
             const updatedDebt = await debt.save();
             res.json(updatedDebt);
         } else {

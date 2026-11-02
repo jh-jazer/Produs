@@ -479,10 +479,11 @@ export const disconnectConnection = async (req, res) => {
 export const searchUsers = async (req, res) => {
     try {
         const query = req.query.q;
-        if (!query || query.length < 2) {
+        if (!query || typeof query !== 'string' || query.length < 2) {
             return res.json([]);
         }
 
+        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const isIdSearch = mongoose.isValidObjectId(query);
         
         // Match by Name, Username OR ID
@@ -490,8 +491,8 @@ export const searchUsers = async (req, res) => {
         const searchQuery = {
             _id: { $ne: req.user.id },
             $or: [
-                { name: { $regex: query, $options: 'i' } },
-                { username: { $regex: query, $options: 'i' } }
+                { name: { $regex: escapedQuery, $options: 'i' } },
+                { username: { $regex: escapedQuery, $options: 'i' } }
             ]
         };
 
@@ -855,7 +856,8 @@ export const checkUsername = async (req, res) => {
         }
 
         // Check if ANY existing username starts with this base (collision check on base only)
-        const user = await User.findOne({ username: { $regex: `^${username.toLowerCase()}#`, $options: 'i' } });
+        const escapedUsername = String(username).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const user = await User.findOne({ username: { $regex: `^${escapedUsername}#`, $options: 'i' } });
         // Base is available as long as there are fewer than 9000 combos taken — effectively always true.
         // We just confirm the base format is valid and not entirely blocked.
         res.json({ available: true, message: 'Username base is available' });
@@ -977,7 +979,7 @@ export const updateSettings = async (req, res) => {
             if (req.body) {
                 Object.keys(req.body).forEach(key => {
                     // Only update if not a top-level field (handled above)
-                    if (!topLevelFields.includes(key)) {
+                    if (!topLevelFields.includes(key) && !['__proto__', 'constructor', 'prototype'].includes(key)) {
                         user.settings[key] = req.body[key];
                     }
                 });
@@ -988,7 +990,9 @@ export const updateSettings = async (req, res) => {
             }
 
             await user.save();
-            res.json(user);
+            const sanitizedUser = user.toObject();
+            delete sanitizedUser.password;
+            res.json(sanitizedUser);
         }
         else {
             res.status(404).json({ message: 'User not found' });

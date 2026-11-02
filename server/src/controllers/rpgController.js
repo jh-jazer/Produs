@@ -704,7 +704,11 @@ export const getHero = async (req, res) => {
 export const awardHeroExpController = async (req, res) => {
     try {
         const { amount, coins } = req.body;
-        if ((!amount || amount <= 0) && (!coins || coins <= 0)) {
+        const MAX_FOCUS_EXP = 500;
+        const MAX_FOCUS_COINS = 3500;
+        const safeAmount = amount && Number.isFinite(Number(amount)) ? Math.min(Math.max(0, Math.round(Number(amount))), MAX_FOCUS_EXP) : 0;
+        const safeCoins = coins && Number.isFinite(Number(coins)) ? Math.min(Math.max(0, Math.round(Number(coins))), MAX_FOCUS_COINS) : 0;
+        if (safeAmount <= 0 && safeCoins <= 0) {
             return res.status(400).json({ message: 'Must award positive exp or coins.' });
         }
 
@@ -713,15 +717,15 @@ export const awardHeroExpController = async (req, res) => {
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         let result = { user, levelUp: false };
-        if (amount && amount > 0) {
-            const expResult = await addGuardianExp(req.user._id, amount);
+        if (safeAmount > 0) {
+            const expResult = await addGuardianExp(req.user._id, safeAmount);
             if (expResult) {
                 result = expResult;
             }
         }
 
-        if (coins && coins > 0) {
-            result.user.rpg.prodCoins = (result.user.rpg.prodCoins || 0) + coins;
+        if (safeCoins > 0) {
+            result.user.rpg.prodCoins = (result.user.rpg.prodCoins || 0) + safeCoins;
             result.user.markModified('rpg');
             await result.user.save();
         }

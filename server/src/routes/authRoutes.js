@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from 'passport';
 import { registerUser, loginUser, getMe, getPartner, googleAuthCallback, completeOnboarding, updateSettings, deleteUser, getPublicProfile, sendPartnerRequest, acceptPartnerRequest, rejectPartnerRequest, cancelPartnerRequest, unlinkPartner, searchUsers, checkUsername, updateSubscriptions, sendConnectionRequest, acceptConnectionRequest, rejectConnectionRequest, cancelConnectionRequest, disconnectConnection, getConnections, getStats, devRPGTest, awakenUser, finalizeAwakening, uploadBannerImage, uploadAvatarImage, uploadGeneralImage } from '../controllers/authController.js';
-import { protect, optionalProtect } from '../middleware/authMiddleware.js';
+import { protect, optionalProtect, adminOnly } from '../middleware/authMiddleware.js';
 import { uploadBanner, uploadAvatar, uploadGeneral } from '../config/cloudinary.js';
 
 const router = express.Router();
@@ -35,7 +35,7 @@ router.post('/connection/cancel/:id', protect, cancelConnectionRequest);
 router.post('/connection/disconnect/:id', protect, disconnectConnection);
 router.get('/check-username', protect, checkUsername);
 router.put('/subscriptions', protect, updateSubscriptions);
-router.post('/dev/rpg-test', protect, devRPGTest);
+router.post('/dev/rpg-test', protect, adminOnly, devRPGTest);
 
 // @route   GET /api/auth/google
 // @desc    Auth with Google

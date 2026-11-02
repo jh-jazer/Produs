@@ -25,7 +25,10 @@ router.put('/', protect, adminOnly, async (req, res) => {
         if (!config) {
             config = new LandingConfig(req.body);
         } else {
-            Object.assign(config, req.body);
+            const allowedFields = ['hero', 'mockups', 'active'];
+            allowedFields.forEach(field => {
+                if (req.body[field] !== undefined) config[field] = req.body[field];
+            });
         }
         await config.save();
         res.json(config);

@@ -4,6 +4,7 @@ import { useJournal } from '../../hooks/useJournal';
 import { Image as ImageIcon, Type, X, ChevronLeft } from 'lucide-react';
 import { MoodTracker } from '../dashboard/DashboardRealityWidgets';
 import api from '../../services/api';
+import { sanitizeEditorHtml } from '../../utils/sanitize';
 
 const JOURNAL_PROMPTS = [
     "What is one small victory you achieved today, and how did it make you feel?",
@@ -53,7 +54,7 @@ const JournalEntry = ({ onAction, onBack, initialEntry }) => {
                 setImageUrl(initialEntry.imageUrl || '');
                 currentIdRef.current = initialEntry._id;
                 if (textareaRef.current) {
-                    textareaRef.current.innerHTML = initialEntry.content || '';
+                    textareaRef.current.innerHTML = sanitizeEditorHtml(initialEntry.content || '');
                 }
                 isFirstLoad.current = false;
             }

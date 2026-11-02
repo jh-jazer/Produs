@@ -275,7 +275,12 @@ export const updateChallengeProgress = async (req, res) => {
         const userId = req.user._id;
         const { id } = req.params;
         const { increment = 1 } = req.body;
-        const challengeId = id.toString();
+        const numericId = parseInt(id, 10);
+        if (isNaN(numericId) || numericId < 1 || numericId > 10) {
+            return res.status(400).json({ message: 'Invalid challenge ID' });
+        }
+        const safeIncrement = Math.min(Math.max(1, Number(increment) || 1), 24);
+        const challengeId = numericId.toString();
 
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: 'User not found' });
@@ -285,7 +290,7 @@ export const updateChallengeProgress = async (req, res) => {
         }
 
         const currentProgress = user.challengeProgress.get(challengeId) || 0;
-        user.challengeProgress.set(challengeId, currentProgress + increment);
+        user.challengeProgress.set(challengeId, currentProgress + safeIncrement);
 
         await user.save();
         res.json({ message: 'Progress updated', progress: user.challengeProgress.get(challengeId) });

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, Image as ImageIcon, X, ChevronDown } from 'lucide-react';
 import api from '../../services/api';
+import { sanitizeEditorHtml } from '../../utils/sanitize';
 
 const NoteEntry = ({ onSave, onBack, initialNote, onAutosave }) => {
     const [title, setTitle] = useState('');
@@ -60,7 +61,7 @@ const NoteEntry = ({ onSave, onBack, initialNote, onAutosave }) => {
                     return prev;
                 });
                 if (textareaRef.current) {
-                    textareaRef.current.innerHTML = initialNote.content || '';
+                    textareaRef.current.innerHTML = sanitizeEditorHtml(initialNote.content || '');
                 }
                 isFirstLoad.current = false;
             }

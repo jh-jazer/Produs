@@ -6,7 +6,7 @@ const IV_LENGTH = 16; // For AES, this is always 16
 
 const getEncryptionKey = () => {
     // Dynamic runtime resolution to bypass ES Module loading race conditions against dotenv.config()
-    return process.env.ENCRYPTION_KEY || 'b6294c2c0fc50e18d8c6d5a6e20d524e7297c130eccc68c63f6b7321d18cb7b2';
+    return process.env.ENCRYPTION_KEY;
 };
 
 /**

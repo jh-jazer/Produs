@@ -45,8 +45,18 @@ const generalStorage = new CloudinaryStorage({
   },
 });
 
-export const uploadBanner = multer({ storage: storage });
-export const uploadWishlist = multer({ storage: wishlistStorage });
-export const uploadAvatar = multer({ storage: avatarStorage });
-export const uploadGeneral = multer({ storage: generalStorage });
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const imageFileFilter = (req, file, cb) => {
+  const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  if (allowedMimes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Invalid file type. Only JPEG, PNG, WEBP, and GIF images are allowed.'), false);
+  }
+};
+
+export const uploadBanner = multer({ storage: storage, limits: { fileSize: MAX_FILE_SIZE }, fileFilter: imageFileFilter });
+export const uploadWishlist = multer({ storage: wishlistStorage, limits: { fileSize: MAX_FILE_SIZE }, fileFilter: imageFileFilter });
+export const uploadAvatar = multer({ storage: avatarStorage, limits: { fileSize: MAX_FILE_SIZE }, fileFilter: imageFileFilter });
+export const uploadGeneral = multer({ storage: generalStorage, limits: { fileSize: MAX_FILE_SIZE }, fileFilter: imageFileFilter });
 

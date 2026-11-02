@@ -87,6 +87,9 @@ export const toggleCheck = async (req, res) => {
     try {
         const habit = await Habit.findById(req.params.id);
         if (habit) {
+            if (habit.user.toString() !== req.user._id.toString()) {
+                return res.status(403).json({ message: 'User not authorized' });
+            }
             const alreadyChecked = habit.checks.some(c => c.date === dateStr && c.completed);
             await habit.toggleCheck(dateStr);
             
@@ -218,6 +221,9 @@ export const deleteHabit = async (req, res) => {
         const habit = await Habit.findById(req.params.id);
 
         if (habit) {
+            if (habit.user.toString() !== req.user._id.toString()) {
+                return res.status(403).json({ message: 'User not authorized' });
+            }
             // Check if habit belongs to user
             if (habit.user.toString() !== req.user._id.toString()) {
                 return res.status(403).json({ message: 'User not authorized' });
